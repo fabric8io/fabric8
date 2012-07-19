@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Dictionary;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -49,8 +48,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.felix.utils.version.VersionTable;
 import org.fusesource.fabric.api.FabricService;
@@ -71,6 +71,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class PatchServiceImpl implements PatchService {
 
@@ -92,6 +93,9 @@ public class PatchServiceImpl implements PatchService {
     public static final String CACHE_LOCATION = "location";
     public static final String CACHE_COUNT = "count";
 
+    /**
+     * List of groupId:artifactId containing perfectus patches
+     */
     public static final String DEFAULT_GROUPS =
             "org.apache.felix:org.apache.felix.framework," +
             "org.apache.felix:org.apache.felix.configadmin," +
@@ -114,6 +118,10 @@ public class PatchServiceImpl implements PatchService {
             "org.apache.servicemix:archetypes," +
             "org.fusesource:fuse-project";
 
+    /**
+     * Old perfectus patches are missing the features descriptors
+     * so we add them manually
+     */
     public static final String MISSING_FEATURES_DESCRIPTOR =
             "org.apache.activemq:activemq-parent|" +
                     "org.apache.activemq:activemq-karaf," +
@@ -137,23 +145,22 @@ public class PatchServiceImpl implements PatchService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);
 
+    private static final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+
     private final File patchDir;
     private final FabricService fabric;
     private final ConfigurationAdmin configAdmin;
-    private final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
     private final ExecutorService executor = Executors.newFixedThreadPool(50);
 
     public PatchServiceImpl(FabricService fabric, ConfigurationAdmin configAdmin) {
         Bundle bundle = FrameworkUtil.getBundle(getClass());
         BundleContext bundleContext = bundle != null ? bundle.getBundleContext() : null;
         String dir = bundleContext != null ? bundleContext.getProperty("fuse.patch.location") : System.getProperty("fuse.patch.location");
-        this.patchDir = dir != null ? new File(dir) : bundleContext.getDataFile("patches");
-        if (!this.patchDir.isDirectory()) {
-            this.patchDir.mkdirs();
-            if (!this.patchDir.isDirectory()) {
-                throw new IllegalStateException("Unable to create patch folder: " + this.patchDir);
-            }
+        this.patchDir = dir != null ? new File(dir) : bundleContext != null ? bundleContext.getDataFile("patches") : null;
+        if (this.patchDir == null) {
+            throw new IllegalArgumentException("Unable to retrieve patch directory");
         }
+        createDir(patchDir);
         this.fabric = fabric;
         this.configAdmin = configAdmin;
     }
@@ -205,31 +212,6 @@ public class PatchServiceImpl implements PatchService {
         Set<String> artifacts = new TreeSet<String>();
         doCollectArtifacts(profile, artifacts);
         return doGetPossibleUpgrades(artifacts);
-    }
-
-    protected Dictionary getConfig() {
-        try {
-            Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + "org.fusesource.fabric.agent" + ")");
-            Dictionary dictionary = (configuration != null && configuration.length > 0) ? configuration[0].getProperties() : null;
-            return dictionary != null ? dictionary : new Hashtable();
-        } catch (Exception e) {
-            throw new IllegalStateException("Unable to retrieve repositories", e);
-        }
-    }
-
-    protected List<String> getRepositories(Dictionary dictionary) {
-        Object repos = dictionary.get(PATCH_REPOSITORIES);
-        if (repos == null) {
-            repos = dictionary.get("org.ops4j.pax.url.mvn.repositories");
-        }
-        if (repos != null) {
-            List<String> repositories = new ArrayList<String>();
-            for (String repo : repos.toString().split(",")) {
-                repositories.add(repo.trim());
-            }
-            return repositories;
-        }
-        return Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/releases");
     }
 
     @Override
@@ -316,7 +298,6 @@ public class PatchServiceImpl implements PatchService {
         Set<String> allVersions = new TreeSet<String>(new FuseVersionComparator());
         String[] mvnParts = mvn.split(":");
         org.osgi.framework.Version artifactVersion = VersionTable.getVersion(mvnParts[2]);
-        org.osgi.framework.Version nextMajorVersion = VersionTable.getVersion(artifactVersion.getMajor() + 1, 0, 0);
         for (String repo : repositories) {
             try {
                 URL base = new URL(repo + "/" + mvnParts[0].replace('.', '/') + "/" + mvnParts[1] + "/");
@@ -333,7 +314,7 @@ public class PatchServiceImpl implements PatchService {
                         Node version = versions.item(i);
                         String v = version.getTextContent();
                         org.osgi.framework.Version ver = VersionTable.getVersion(v);
-                        if (compareFuseVersions(artifactVersion, ver) < 0 && compareFuseVersions(ver, nextMajorVersion) < 0) {
+                        if (isInMajorRange(artifactVersion, ver)) {
                             if (includeNonFuseVersions || v.contains("fuse")) {
                                 allVersions.add(v.trim());
                             }
@@ -370,158 +351,6 @@ public class PatchServiceImpl implements PatchService {
             artifact = artifact.replaceAll(oldUrl, newUrl);
         }
         return artifact;
-    }
-
-    static int compareFuseVersions(org.osgi.framework.Version v1, org.osgi.framework.Version v2) {
-        int c = v1.getMajor() - v2.getMajor();
-        if (c != 0) {
-            return c;
-        }
-        c = v1.getMinor() - v2.getMinor();
-        if (c != 0) {
-            return c;
-        }
-        c = v1.getMicro() - v2.getMicro();
-        if (c != 0) {
-            return c;
-        }
-        String q1 = v1.getQualifier();
-        String q2 = v2.getQualifier();
-        if (q1.startsWith("fuse-") && q2.startsWith("fuse-")) {
-            q1 = cleanQualifierForComparison(q1);
-            q2 = cleanQualifierForComparison(q2);
-        }
-        return q1.compareTo(q2);
-    }
-
-    private static String cleanQualifierForComparison(String q) {
-        return q.replace("-alpha-", "-").replace("-beta-", "-")
-                .replace("-7-0-", "-70-")
-                .replace("-7-", "-70-");
-    }
-
-    private static class FuseVersionComparator implements Comparator<String> {
-        @Override
-        public int compare(String o1, String o2) {
-            org.osgi.framework.Version v1 = VersionTable.getVersion(o1);
-            org.osgi.framework.Version v2 = VersionTable.getVersion(o2);
-            return compareFuseVersions(v1, v2);
-        }
-    }
-
-    public static class PatchImpl implements Patch, Comparable<PatchImpl> {
-        private final String id;
-        private final String groupId;
-        private final String artifactId;
-        private final String version;
-        private final Set<String> artifacts;
-        private final List<Issue> issues;
-
-        public PatchImpl(String id, String location, Set<String> artifacts, List<Issue> issues) {
-            this.id = id;
-            String[] mvn = location.split("\\|");
-            this.groupId = mvn[1];
-            this.artifactId = mvn[2];
-            this.version = mvn[3];
-            this.artifacts = artifacts;
-            this.issues = issues;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public Set<String> getArtifacts() {
-            return artifacts;
-        }
-
-        public List<Issue> getIssues() {
-            return issues;
-        }
-
-        public String getGroupId() {
-            return groupId;
-        }
-
-        public String getArtifactId() {
-            return artifactId;
-        }
-
-        public String getVersion() {
-            return version;
-        }
-
-        @Override
-        public int compareTo(PatchImpl o) {
-            int c = this.groupId.compareTo(o.groupId);
-            if (c != 0) return c;
-            c = this.artifactId.compareTo(o.artifactId);
-            if (c != 0) return c;
-            org.osgi.framework.Version v1 = VersionTable.getVersion(this.version);
-            org.osgi.framework.Version v2 = VersionTable.getVersion(o.version);
-            return compareFuseVersions(v1, v2);
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            PatchImpl patch = (PatchImpl) o;
-            return this.compareTo(patch) == 0;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = groupId != null ? groupId.hashCode() : 0;
-            result = 31 * result + (artifactId != null ? artifactId.hashCode() : 0);
-            result = 31 * result + (version != null ? version.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "Patch[" +
-                    "id='" + id + '\'' +
-                    ", groupId='" + groupId + '\'' +
-                    ", artifactId='" + artifactId + '\'' +
-                    ", version='" + version + '\'' +
-                    //", artifacts=" + artifacts +
-                    //", issues=" + issues +
-                    ']';
-        }
-    }
-
-    public static class IssueImpl implements Issue {
-        private final String description;
-        private final List<String> keys;
-        private final List<String> artifacts;
-
-        public IssueImpl(String description, List<String> keys, List<String> artifacts) {
-            this.description = description;
-            this.keys = keys;
-            this.artifacts = artifacts;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public List<String> getKeys() {
-            return keys;
-        }
-
-        public List<String> getArtifacts() {
-            return artifacts;
-        }
-
-        @Override
-        public String toString() {
-            return "Issue[" +
-                    "description='" + description + '\'' +
-                    ", keys=" + keys +
-                    ", artifacts=" + artifacts +
-                    ']';
-        }
     }
 
     public Set<Patch> getPossiblePatches() {
@@ -592,17 +421,15 @@ public class PatchServiceImpl implements PatchService {
     }
 
     @Override
-    public void applyFinePatch(Version version, File patch, String login, String password) {
+    public void applyFinePatch(Version version, URL patch, String login, String password) {
         try {
             // Load patch
             URI uploadUri = fabric.getMavenRepoUploadURI();
-            URI downloadUri = fabric.getMavenRepoURI();
-            Properties patchMetadata = new Properties();
-            ZipFile zipFile = new ZipFile(patch);
+            List<PatchDescriptor> descriptors = new ArrayList<PatchDescriptor>();
+            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(patch.openStream()));
             try {
-                Enumeration<? extends ZipEntry> entries = zipFile.entries();
-                while (entries.hasMoreElements()) {
-                    ZipEntry entry = entries.nextElement();
+                ZipEntry entry = zis.getNextEntry();
+                while (entry != null) {
                     if (!entry.isDirectory()) {
                         String entryName = entry.getName();
                         if (entryName.startsWith("repository/")) {
@@ -616,16 +443,15 @@ public class PatchServiceImpl implements PatchService {
                                 ((HttpURLConnection) con).setRequestMethod("PUT");
                             }
                             if (login != null && password != null) {
-                                con.setRequestProperty("Authorization", "Basic " + new String(Base64Encoder.encode((login + ":" + password).getBytes())));
+                                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(login + ":" + password));
                             }
                             con.setDoInput(true);
                             con.setDoOutput(true);
                             con.connect();
                             OutputStream os = con.getOutputStream();
                             try {
-                                InputStream is = zipFile.getInputStream(entry);
                                 try {
-                                    copy(is, os);
+                                    copy(zis, os);
                                     if (con instanceof HttpURLConnection) {
                                         int code = ((HttpURLConnection) con).getResponseCode();
                                         if (code < 200 || code >= 300) {
@@ -633,42 +459,39 @@ public class PatchServiceImpl implements PatchService {
                                         }
                                     }
                                 } finally {
-                                    close(is);
+                                    zis.closeEntry();
                                 }
                             } finally {
                                 close(os);
                             }
                         } else if (entryName.endsWith(".patch") && !entryName.contains("/")) {
-                            InputStream is = zipFile.getInputStream(entry);
                             try {
-                                patchMetadata.load(is);
+                                Properties patchMetadata = new Properties();
+                                patchMetadata.load(zis);
+                                descriptors.add(new PatchDescriptor(patchMetadata));
                             } finally {
-                                close(is);
+                                zis.closeEntry();
                             }
                         }
                     }
+                    entry = zis.getNextEntry();
                 }
             } finally {
-                close(zipFile);
-            }
-            // Get patched jars
-            String patchId = patchMetadata.getProperty(PATCH_ID);
-            List<String> newArtifactUrls = new ArrayList<String>();
-            int count = Integer.parseInt(patchMetadata.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
-            for (int i = 0; i < count; i++) {
-                String url = patchMetadata.getProperty(PATCH_BUNDLES + "." + Integer.toString(i));
-                newArtifactUrls.add(url);
+                close(zis);
             }
             // Create patch profile
-            Profile profile = version.getProfile("patch-" + patchId);
-            if (profile == null) {
-                profile = version.createProfile("patch-" + patchId);
-                profile.setOverrides(newArtifactUrls);
-                Profile defaultProfile = version.getProfile("default");
-                List<Profile> parents = new ArrayList<Profile>(Arrays.asList(defaultProfile.getParents()));
-                if (!parents.contains(profile)) {
-                    parents.add(profile);
-                    defaultProfile.setParents(parents.toArray(new Profile[parents.size()]));
+            for (PatchDescriptor descriptor : descriptors) {
+                String profileId = "patch-" + descriptor.getId();
+                Profile profile = version.getProfile(profileId);
+                if (profile == null) {
+                    profile = version.createProfile(profileId);
+                    profile.setOverrides(descriptor.getBundles());
+                    Profile defaultProfile = version.getProfile("default");
+                    List<Profile> parents = new ArrayList<Profile>(Arrays.asList(defaultProfile.getParents()));
+                    if (!parents.contains(profile)) {
+                        parents.add(profile);
+                        defaultProfile.setParents(parents.toArray(new Profile[parents.size()]));
+                    }
                 }
             }
         } catch (Exception e) {
@@ -688,13 +511,11 @@ public class PatchServiceImpl implements PatchService {
             String[] parts = mvn.split(":");
             String ga = parts[0] + ":" + parts[1];
             org.osgi.framework.Version artifactVersion = VersionTable.getVersion(parts[2]);
-            org.osgi.framework.Version nextMajorVersion = VersionTable.getVersion(artifactVersion.getMajor() + 1, 0, 0);
-
             boolean found = false;
             for (Patch patch : perfectusPatches) {
                 if (patch.getArtifacts().contains(ga)) {
                     org.osgi.framework.Version ver = VersionTable.getVersion(patch.getVersion());
-                    if (compareFuseVersions(artifactVersion, ver) < 0 && compareFuseVersions(ver, nextMajorVersion) < 0) {
+                    if (isInMajorRange(artifactVersion, ver)) {
                         possiblePatches.add(patch);
                     }
                     found = true;
@@ -734,7 +555,7 @@ public class PatchServiceImpl implements PatchService {
             for (Patch patch : patches) {
                 if (patch.getArtifacts().contains(art)) {
                     org.osgi.framework.Version v2 = VersionTable.getVersion(patch.getVersion());
-                    if (compareFuseVersions(v1, v2) < 0) {
+                    if (isInMajorRange(v1, v2)) {
                         artifact = artifact.replace(mvnParts[2], patch.getVersion());
                         mvnParts[2] = patch.getVersion();
                         v1 = v2;
@@ -749,8 +570,8 @@ public class PatchServiceImpl implements PatchService {
         try {
             Dictionary config = getConfig();
             List<String> repositories = getRepositories(config);
-            boolean includeNonFuseVersions = Boolean.parseBoolean((String) config.get(PATCH_INCLUDE_NON_FUSE_VERSION));
             Set<Patch> patches = loadPerfectusPatches(repositories, reload);
+            boolean includeNonFuseVersions = Boolean.parseBoolean((String) config.get(PATCH_INCLUDE_NON_FUSE_VERSION));
             if (!includeNonFuseVersions) {
                 Set<Patch> newPatches = new TreeSet<Patch>();
                 for (Patch patch : patches) {
@@ -769,15 +590,9 @@ public class PatchServiceImpl implements PatchService {
     public Set<Patch> loadPerfectusPatches(List<String> repositories, boolean reload) throws IOException, InterruptedException {
         File cache = new File(patchDir, CACHE_FILE);
         List<String> locations = null;
-        Properties props = new Properties();
         if (!reload && cache.isFile()) {
             try {
-                FileInputStream fis = new FileInputStream(cache);
-                try {
-                    props.load(fis);
-                } finally {
-                    close(fis);
-                }
+                Properties props = loadProperties(cache);
                 String lastDateStr = props.getProperty(CACHE_LAST_DATE);
                 if (lastDateStr != null) {
                     long date = Long.parseLong(lastDateStr);
@@ -804,7 +619,7 @@ public class PatchServiceImpl implements PatchService {
         // Save patch locations
         if (reload) {
             try {
-                props.clear();
+                Properties props = new Properties();
                 props.setProperty(CACHE_LAST_DATE, Long.toString(System.currentTimeMillis()));
                 props.setProperty(CACHE_LOCATION + "." + CACHE_COUNT, Integer.toString(locations.size()));
                 for (int i = 0; i < locations.size(); i++) {
@@ -838,7 +653,7 @@ public class PatchServiceImpl implements PatchService {
                             URL metadata = new URL(base, "maven-metadata.xml");
                             URLConnection con = metadata.openConnection();
                             if (metadata.getUserInfo() != null) {
-                                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(metadata.getUserInfo().getBytes()));
+                                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(metadata.getUserInfo()));
                             }
                             InputStream is = con.getInputStream();
                             try {
@@ -894,46 +709,14 @@ public class PatchServiceImpl implements PatchService {
                     try {
                         // Load metadata
                         File metadata = download(location, "patch", "patch");
-                        Properties props = new Properties();
-                        FileInputStream fis = new FileInputStream(metadata);
-                        try {
-                            props.load(fis);
-                        } finally {
-                            close(fis);
-                        }
+                        Properties props = loadProperties(metadata);
                         // Load issues
                         File issues = download(location, "xml", "issues");
-                        List<Issue> issueList = new ArrayList<Issue>();
-                        fis = new FileInputStream(issues);
-                        try {
-                            Element root = dbf.newDocumentBuilder().parse(fis).getDocumentElement();
-                            for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
-                                if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(ISSUE)) {
-                                    Element el = (Element) child;
-                                    String desc = el.getAttribute(ISSUE_DESCRIPTION);
-                                    List<String> keys = new ArrayList<String>();
-                                    List<String> arts = new ArrayList<String>();
-                                    for (Node child2 = el.getFirstChild(); child2 != null; child2 = child2.getNextSibling()) {
-                                        if (child2.getNodeType() == Node.ELEMENT_NODE) {
-                                            if (child2.getNodeName().equals(ISSUE_KEY)) {
-                                                keys.add(child2.getTextContent());
-                                            } else if (child2.getNodeName().equals(ISSUE_MODULE)) {
-                                                arts.add(child2.getTextContent());
-                                            }
-                                        }
-                                    }
-                                    issueList.add(new IssueImpl(desc, keys, arts));
-                                }
-                            }
-                        } finally {
-                            close(fis);
-                        }
+                        List<Issue> issueList = loadIssues(issues);
                         // Build patch
-                        String id = props.getProperty(PATCH_ID);
+                        PatchDescriptor descriptor = new PatchDescriptor(props);
                         Set<String> bundles = new TreeSet<String>();
-                        int count = Integer.parseInt(props.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
-                        for (int i = 0; i < count; i++) {
-                            String url = props.getProperty(PATCH_BUNDLES + "." + Integer.toString(i));
+                        for (String url : descriptor.getBundles()) {
                             String mvn = getMavenArtifact(url);
                             String[] p = mvn.split(":");
                             bundles.add(p[0] + ":" + p[1]);
@@ -943,7 +726,7 @@ public class PatchServiceImpl implements PatchService {
                         if (artifacts != null) {
                             bundles.addAll(artifacts);
                         }
-                        Patch patch = new PatchImpl(id, location, bundles, issueList);
+                        Patch patch = new PatchImpl(descriptor.getId(), location, bundles, issueList);
                         synchronized (patches) {
                             patches.add(patch);
                         }
@@ -957,13 +740,48 @@ public class PatchServiceImpl implements PatchService {
                         latch.countDown();
                     }
                 }
+
             });
         }
         latch.await();
         return patches;
     }
 
-    private File download(String location, String type, String qualifier) throws IOException {
+    protected Dictionary getConfig() {
+        try {
+            Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + "org.fusesource.fabric.agent" + ")");
+            Dictionary dictionary = (configuration != null && configuration.length > 0) ? configuration[0].getProperties() : null;
+            return dictionary != null ? dictionary : new Hashtable();
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to retrieve repositories", e);
+        }
+    }
+
+    protected List<String> getRepositories(Dictionary dictionary) {
+        Object repos = dictionary.get(PATCH_REPOSITORIES);
+        if (repos == null) {
+            repos = dictionary.get("org.ops4j.pax.url.mvn.repositories");
+        }
+        if (repos != null) {
+            List<String> repositories = new ArrayList<String>();
+            for (String repo : repos.toString().split(",")) {
+                repositories.add(repo.trim());
+            }
+            return repositories;
+        }
+        return Arrays.asList("http://repo.fusesource.com/nexus/content/repositories/releases");
+    }
+
+    static void createDir(File dir) {
+        if (!dir.isDirectory()) {
+            dir.mkdirs();
+            if (!dir.isDirectory()) {
+                throw new IllegalStateException("Unable to create folder: " + dir);
+            }
+        }
+    }
+
+    static File download(String location, String type, String qualifier) throws IOException {
         String[] mvn = location.split("\\|");
         String repo = mvn[0];
         String groupId = mvn[1];
@@ -978,12 +796,12 @@ public class PatchServiceImpl implements PatchService {
         return file;
     }
 
-    private void download(File file, URL location) throws IOException {
+    static void download(File file, URL location) throws IOException {
         if (!file.isFile()) {
             File temp = new File(file.toString() + ".tmp");
             URLConnection con = location.openConnection();
             if (location.getUserInfo() != null) {
-                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(location.getUserInfo().getBytes()));
+                con.setRequestProperty("Authorization", "Basic " + Base64Encoder.encode(location.getUserInfo()));
             }
             if (temp.isFile()) {
                 con.setRequestProperty("Range", "Bytes=" + (temp.length()) + "-");
@@ -1005,7 +823,150 @@ public class PatchServiceImpl implements PatchService {
         }
     }
 
-    private void copy(InputStream is, OutputStream os) throws IOException {
+    static List<Issue> loadIssues(File issues) throws SAXException, IOException, ParserConfigurationException {
+        FileInputStream fis;
+        List<Issue> issueList = new ArrayList<Issue>();
+        fis = new FileInputStream(issues);
+        try {
+            Element root = dbf.newDocumentBuilder().parse(fis).getDocumentElement();
+            for (Node child = root.getFirstChild(); child != null; child = child.getNextSibling()) {
+                if (child.getNodeType() == Node.ELEMENT_NODE && child.getNodeName().equals(ISSUE)) {
+                    Element el = (Element) child;
+                    String desc = el.getAttribute(ISSUE_DESCRIPTION);
+                    List<String> keys = new ArrayList<String>();
+                    List<String> arts = new ArrayList<String>();
+                    for (Node child2 = el.getFirstChild(); child2 != null; child2 = child2.getNextSibling()) {
+                        if (child2.getNodeType() == Node.ELEMENT_NODE) {
+                            if (child2.getNodeName().equals(ISSUE_KEY)) {
+                                keys.add(child2.getTextContent());
+                            } else if (child2.getNodeName().equals(ISSUE_MODULE)) {
+                                arts.add(child2.getTextContent());
+                            }
+                        }
+                    }
+                    issueList.add(new IssueImpl(desc, keys, arts));
+                }
+            }
+        } finally {
+            close(fis);
+        }
+        return issueList;
+    }
+
+    static Properties loadProperties(File file) throws IOException {
+        Properties props = new Properties();
+        FileInputStream fis = new FileInputStream(file);
+        try {
+            props.load(fis);
+        } finally {
+            close(fis);
+        }
+        return props;
+    }
+
+    static class PatchDescriptor {
+
+        final String id;
+        final String description;
+        final List<String> bundles;
+
+        PatchDescriptor(Properties properties) {
+            this.id = properties.getProperty(PATCH_ID);
+            this.description = properties.getProperty(PATCH_DESCRIPTION);
+            this.bundles = new ArrayList<String>();
+            int count = Integer.parseInt(properties.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
+            for (int i = 0; i < count; i++) {
+                String url = properties.getProperty(PATCH_BUNDLES + "." + Integer.toString(i));
+                this.bundles.add(url);
+            }
+        }
+
+        PatchDescriptor(String id, String description, List<String> bundles) {
+            this.id = id;
+            this.description = description;
+            this.bundles = bundles;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public List<String> getBundles() {
+            return bundles;
+        }
+    }
+
+    static boolean isInMajorRange(org.osgi.framework.Version minRange, org.osgi.framework.Version version) {
+        if (minRange.getMajor() != version.getMajor()) {
+            return false;
+        }
+        int c = version.getMinor() - minRange.getMinor();
+        if (c < 0) {
+            return false;
+        } else if (c > 0) {
+            return true;
+        }
+        c = version.getMicro() - minRange.getMicro();
+        if (c < 0) {
+            return false;
+        } else if (c > 0) {
+            return true;
+        }
+        String q1 = minRange.getQualifier();
+        String q2 = version.getQualifier();
+        if (q1.startsWith("fuse-") && q2.startsWith("fuse-")) {
+            q1 = cleanQualifierForComparison(q1);
+            q2 = cleanQualifierForComparison(q2);
+        }
+        return q1.compareTo(q2) > 0;
+    }
+
+    static int compareFuseVersions(org.osgi.framework.Version v1, org.osgi.framework.Version v2) {
+        int c = v1.getMajor() - v2.getMajor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMinor() - v2.getMinor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMicro() - v2.getMicro();
+        if (c != 0) {
+            return c;
+        }
+        String q1 = v1.getQualifier();
+        String q2 = v2.getQualifier();
+        if (q1.startsWith("fuse-") && q2.startsWith("fuse-")) {
+            q1 = cleanQualifierForComparison(q1);
+            q2 = cleanQualifierForComparison(q2);
+        }
+        return q1.compareTo(q2);
+    }
+
+    static String cleanQualifierForComparison(String q) {
+        if (q.startsWith("fuse-")) {
+            return q.replace("-alpha-", "-").replace("-beta-", "-")
+                    .replace("-7-0-", "-70-")
+                    .replace("-7-", "-70-");
+        } else {
+            return q;
+        }
+    }
+
+    static class FuseVersionComparator implements Comparator<String> {
+        @Override
+        public int compare(String o1, String o2) {
+            org.osgi.framework.Version v1 = VersionTable.getVersion(o1);
+            org.osgi.framework.Version v2 = VersionTable.getVersion(o2);
+            return compareFuseVersions(v1, v2);
+        }
+    }
+
+    static void copy(InputStream is, OutputStream os) throws IOException {
         try {
             byte[] b = new byte[4096];
             int l = is.read(b);
@@ -1024,21 +985,6 @@ public class PatchServiceImpl implements PatchService {
                 c.close();
             }
         } catch (IOException e) {
-        }
-    }
-
-    static void close(ZipFile c) {
-        try {
-            if (c != null) {
-                c.close();
-            }
-        } catch (IOException e) {
-        }
-    }
-
-    static void close(Closeable... closeables) {
-        for (Closeable c : closeables) {
-            close(c);
         }
     }
 

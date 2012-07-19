@@ -19,10 +19,21 @@ package org.fusesource.fabric.api;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Represents a patch
+ */
 public interface Patch {
 
+    /**
+     * The unique id of this patch
+     * @return
+     */
     String getId();
 
+    /**
+     * The
+     * @return
+     */
     String getGroupId();
 
     String getArtifactId();
