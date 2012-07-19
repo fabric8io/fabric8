@@ -23,6 +23,7 @@ import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.testing.AbstractIntegrationTest;
 import org.apache.karaf.testing.Helper;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

@@ -19,6 +19,7 @@ package org.fusesource.process.manager;
 import org.fusesource.process.manager.config.ProcessConfig;
 
 import java.io.File;
+import java.util.Map;
 
 /**
  * Represents a locally installed managed process.
@@ -55,5 +56,9 @@ public class Installation {
 
     public String getName() {
         return config.getName();
+    }
+
+    public Map<String, String> getEnvironment() {
+        return config.getEnvironment();
     }
 }

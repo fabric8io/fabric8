@@ -16,6 +16,10 @@
  */
 package org.fusesource.process.manager.support;
 
+import aQute.lib.osgi.Jar;
+import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyFilters;
@@ -31,9 +35,14 @@ import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import static org.fusesource.fabric.fab.util.Strings.join;
 
@@ -42,8 +51,13 @@ import static org.fusesource.fabric.fab.util.Strings.join;
 public class JarInstaller {
 
     MavenResolverImpl mavenResolver = new MavenResolverImpl();
+    private final Executor executor;
 
-    public void unpackJarProcess(ProcessConfig config, int id, File installDir, JarInstallParameters parameters) throws RepositoryException, XmlPullParserException, IOException {
+    public JarInstaller(Executor executor) {
+        this.executor = executor;
+    }
+
+    public void unpackJarProcess(ProcessConfig config, int id, File installDir, JarInstallParameters parameters) throws Exception {
         // lets unpack the launcher
 
         // now lets download the executable jar as main.jar and all its dependencies...
@@ -65,9 +79,27 @@ public class JarInstaller {
         if (mainJar == null) {
             System.out.println("Cannot find file for main jar " + mainJarDependency);
         } else {
-            Files.copy(mainJar, new File(libDir, "main.jar"));
+            File newMain = new File(libDir, "main.jar");
+            Files.copy(mainJar, newMain);
+            String mainClass = parameters.getMainClass();
+            if (mainClass != null) {
+                setMainClass(config, installDir, newMain, id, mainClass);
+            }
         }
+
         copyDependencies(mainJarDependency, libDir);
+    }
+
+    /**
+     * Sets the executable class name in the given jar
+     */
+    protected void setMainClass(ProcessConfig config, File installDir, File jarFile, int id, String mainClass) throws Exception {
+        File tmpFile = File.createTempFile("fuse-process-" + id, ".jar");
+        Files.copy(jarFile, tmpFile);
+        Jar jar = new Jar(tmpFile);
+        Attributes attributes = jar.getManifest().getMainAttributes();
+        attributes.putValue("Main-Class", mainClass);
+        jar.write(jarFile);
     }
 
     protected void copyDependencies(DependencyNode dependency, File libDir) throws IOException, ArtifactResolutionException {

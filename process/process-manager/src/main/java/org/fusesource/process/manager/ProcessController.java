@@ -32,6 +32,7 @@ public interface ProcessController {
     int kill() throws Exception;
     int restart() throws Exception;
     int status() throws Exception;
+    int configure() throws Exception;
 
     Integer getPid() throws IOException;
 }

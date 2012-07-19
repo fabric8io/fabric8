@@ -1,4 +1,4 @@
-function configure-hostnames() {
+function configure_hostnames() {
   CLOUD_PROVIDER=$1
   case $CLOUD_PROVIDER in
     aws-ec2 )

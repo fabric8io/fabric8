@@ -1,4 +1,4 @@
-function validate-requirements() {
+function validate_requirements() {
   if ! which curl &> /dev/null; then
     echo "Command Failed:Curl is not installed.";
   fi
@@ -11,10 +11,10 @@ function validate-requirements() {
   if ! which tar &> /dev/null; then
         echo "Command Failed:Tar is not installed.";
         exit -1;
-   fi
+  fi
 }
 
-function check-java-version() {
+function check_java_version() {
   JAVA_VERSION=`java -version 2>&1 | grep "java version" | awk '{print $3}' | tr -d \" | awk '{split($0, array, ".")} END{print array[2]}'`
   if [ $JAVA_VERSION -ge 6 ]; then
     echo "Java version is greater than 1.6."
