@@ -36,7 +36,11 @@ import java.util.List;
  * Completes common main class names
  */
 public class MainClassCompleter implements Completer {
-    private String[] mainClasses = { "org.apache.camel.spring.Main" };
+    private String[] mainClasses = {
+            "org.apache.camel.spring.javaconfig.Main",
+            "org.apache.camel.spring.Main",
+            "org.apache.camel.test.blueprint.Main"
+    };
 
     @Override
     public int complete(final String buffer, final int cursor, final List candidates) {
