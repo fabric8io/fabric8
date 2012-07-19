@@ -18,6 +18,8 @@
 
 APP_USER=""
 SERVICE="process"
+APP_CONSOLE_OUT="/dev/null"
+APP_CONSOLE_ERR="/dev/null"
 
 #
 # Discover the APP_BASE from the location of this script.
@@ -75,13 +77,7 @@ fi
 
 if [ ! -z "$APP_USER" -a ! `id -un` = "$APP_USER" ] ; then
   # re-run the launch under the right user id...
-  exec sudo -n -u ${APP_USER} $0 $*
-fi
-
-if [ -z "$MAIN_CLASS" ]; then
-  RUN_COMMAND="${JVM_EXEC} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${JVM_ARGS}"   
-else
-  RUN_COMMAND="${JVM_EXEC} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${JVM_ARGS}"   
+  exec sudo -n -u ${APP_USER} $0 $@
 fi
 
 status() {
@@ -122,7 +118,21 @@ start() {
     return 1
   fi
 
-  nohup $RUN_COMMAND > /dev/null 2> /dev/null &
+  if [ -z "$MAIN_CLASS" ]; then
+    RUN_COMMAND="${JVM_EXEC} ${JVM_ARGS} -classpath ${CLASSPATH} -jar ${MAIN_JAR} ${JVM_ARGS}"   
+  else
+    RUN_COMMAND="${JVM_EXEC} ${JVM_ARGS} -classpath ${CLASSPATH} ${MAIN_CLASS} ${JVM_ARGS}"   
+  fi
+
+  # If you have bash, then you can use the 'exec -a newname' syntax to rename the java process.
+  if [ -x "/bin/bash" ] ; then
+    echo exec -a ${SERVICE} $RUN_COMMAND | nohup /bin/bash -s > ${APP_CONSOLE_OUT} 2> ${APP_CONSOLE_ERR} &
+  elif [ -x "/usr/bin/bash" ] ; then
+    echo exec -a ${SERVICE} $RUN_COMMAND | nohup /usr/bin/bash -s > ${APP_CONSOLE_OUT} 2> ${APP_CONSOLE_ERR} &
+  else 
+    nohup $RUN_COMMAND > ${APP_CONSOLE_OUT} 2> ${APP_CONSOLE_ERR} &
+  fi
+
   pid="$!"
   mkdir -p `dirname ${PID_FILE}` > /dev/null 2> /dev/null
   echo $pid > "${PID_FILE}"
