@@ -56,7 +56,8 @@
         <fuse.osgi.export>
             org.fusesource.fabric.*;version=${fuse.osgi.version};-noimport:=true,
             org.codehaus.plexus*;-noimport:=true,
-            org.sonatype.aether*;-noimport:=true
+            org.sonatype.aether*;-noimport:=true,
+            aQute.lib.osgi*;-noimport:=true,
         </fuse.osgi.export>
         <aetherVersion>1.7</aetherVersion>
         <mavenVersion>3.0</mavenVersion>

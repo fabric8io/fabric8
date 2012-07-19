@@ -94,25 +94,12 @@ public class JarInstaller {
      * Sets the executable class name in the given jar
      */
     protected void setMainClass(ProcessConfig config, File installDir, File jarFile, int id, String mainClass) throws Exception {
-        File tmpDir = Files.createTempDir();
-        config.runCommand(executor, tmpDir, "jar", "xf", jarFile.getAbsolutePath());
-        jarFile.delete();
-
-        File manifest = new File(tmpDir, "META-INF/MANIFEST.MF");
-        String manifestText = Files.toString(manifest, Charsets.UTF_8);
-
-        String manifestPath = manifest.getAbsolutePath();
-        //System.out.println("Adding mainClass manifest: " + mainClass + " to jar: " + jarFile + " in temp manifest: " + manifestPath);
-
-        String text = manifestText.trim() + "\nMain-Class: " + mainClass + "\n\n";
-        Files.write(text, manifest, Charsets.UTF_8);
-
-        List<String> args = Lists.newArrayList("jar", "cmf", manifestPath, jarFile.getAbsolutePath());
-        String[] children = tmpDir.list();
-        if (children != null) {
-            args.addAll(Lists.newArrayList(children));
-        }
-        config.runCommand(executor, tmpDir, args.toArray(new String[args.size()]));
+        File tmpFile = File.createTempFile("fuse-process-" + id, ".jar");
+        Files.copy(jarFile, tmpFile);
+        Jar jar = new Jar(tmpFile);
+        Attributes attributes = jar.getManifest().getMainAttributes();
+        attributes.putValue("Main-Class", mainClass);
+        jar.write(jarFile);
     }
 
     protected void copyDependencies(DependencyNode dependency, File libDir) throws IOException, ArtifactResolutionException {
