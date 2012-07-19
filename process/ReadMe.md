@@ -83,23 +83,15 @@ e.g. to create a managed process from this [sample jar](https://github.com/fuses
 
 This will then download the jar using the maven coordinates (groupID / artifactId / version) and create a binary installation with the launcher to start/stop/restart the process etc
 
-Note that currently the jar based managed processes are dependent on **Ruby 1.9** being installed:
+### If the jar has no main class
 
-### Ruby 1.9 Requirements
+Some jars just contain, say, Spring XML or blueprints and don't contain an executable main. If you need to supply one just specify the **-m** or **--main** options on the command line.
 
-The current [launcher script](https://github.com/fusesource/fuse/blob/master/process/process-launcher/src/main/distro/bin/launcher.rb#L18) used in the [example project](https://github.com/fusesource/fuse/blob/master/process/samples/process-sample-camel-spring/) depends on Ruby 1.9 to be installed.
+For example:
 
-The launcher is currently designed to run on unixes (Linux / OS X etc).
+    process:install-jar -m org.apache.camel.spring.Main org.fusesource.process.samples process-sample-camel-spring-just-xml 99-master-SNAPSHOT
 
-If you are on OS X and don't have Ruby 1.9 installed then [try install it via RVM](https://rvm.io/rvm/install/)
-
-    curl -L https://get.rvm.io | bash -s stable --ruby
-
-Then in a shell if you type:
-
-    ruby --version
-
-You should get 1.9.0 or later
+This will then boot up all the Spring XML files in the META-INF/spring/*.xml URI on the classpath.
 
 ### Creating a managed process distro from Java code
 
