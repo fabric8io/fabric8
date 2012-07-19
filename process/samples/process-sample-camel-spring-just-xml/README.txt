@@ -1,0 +1,1 @@
+This example just contains a Spring XML and logging configuration
