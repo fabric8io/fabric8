@@ -16,13 +16,16 @@
  */
 package org.fusesource.fabric.api;
 
+import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 
 public interface PatchService {
 
     /**
-     * Return the groupId:artifactId:version corresponding to a given url
+     * Return the groupId:artifactId:version corresponding to a given url.
+     * The url can be a complex url where the maven artifact is embedded, such as when
+     * using wrap or war url handlers.
      *
      * @param the url to get the maven artifact for
      * @return the maven artifact or <code>null</code> if the url isn't maven based
@@ -73,4 +76,62 @@ public interface PatchService {
      * @param upgrades
      */
     void applyUpgrades(Profile profile, Map<String, String> upgrades);
+
+    /**
+     * Load perfectus patches.
+     *
+     * @param reload force checking remote repositories (by default, results are cached 24 hours).
+     * @return a list of available patches
+     */
+    Set<Patch> loadPerfectusPatches(boolean reload);
+
+    /**
+     * Get the set of applicable patches for all fabric Versions.
+     * @return
+     */
+    Set<Patch> getPossiblePatches();
+
+    /**
+     * Get the set of applicable patches for a given fabric Version.
+     * @param version
+     * @return
+     */
+    Set<Patch> getPossiblePatches(Version version);
+
+    /**
+     * Get the set of applicable patches for a given fabric Profile.
+     * @param profile
+     * @return
+     */
+    Set<Patch> getPossiblePatches(Profile profile);
+
+    /**
+     * Apply patches to all fabric Versions.
+     * @param patches
+     */
+    void applyPatches(Set<Patch> patches);
+
+    /**
+     * Apply patches to a given fabric Version.
+     * @param version
+     * @param patches
+     */
+    void applyPatches(Version version, Set<Patch> patches);
+
+    /**
+     * Apply patches to a given fabric Profile.
+     * @param profile
+     * @param patches
+     */
+    void applyPatches(Profile profile, Set<Patch> patches);
+
+    /**
+     * Apply a fine grained patch to a given fabric Version.
+     * @param version
+     * @param patch
+     * @param login
+     * @param password
+     */
+    void applyFinePatch(Version version, URL patch, String login, String password);
+
 }

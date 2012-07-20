@@ -109,7 +109,9 @@ public class ZKClientFactoryBean implements FactoryBean<IZKClient>, DisposableBe
 
     public void destroy() throws Exception {
         if (zkClient != null) {
-            zkClient.close();
+            // Note we cannot use zkClient.close()
+            // since you cannot currently close a client which is not connected
+            zkClient.destroy();
             zkClient = null;
         }
 

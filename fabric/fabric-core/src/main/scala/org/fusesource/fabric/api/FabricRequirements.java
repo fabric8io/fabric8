@@ -95,4 +95,9 @@ public class FabricRequirements {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "FabricRequirements" + profileRequirements;
+    }
 }

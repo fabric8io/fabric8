@@ -67,6 +67,8 @@
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.9,3)",
+            org.apache.felix.gogo.commands.*;version="[0.10,1)",
+            org.apache.felix.service.command.*;version="[0.10,1)",
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
@@ -91,7 +93,7 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>070</perfectus-build>
+        <perfectus-build>077</perfectus-build>
 
         <activemq-version>5.5.1.fuse-70-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>

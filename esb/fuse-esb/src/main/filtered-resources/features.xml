@@ -255,9 +255,4 @@
     </feature>
     -->
 
-    <!-- Default broker configuration -->
-    <feature name="activemq-broker" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${activemq.version}">activemq-blueprint</feature>
-        <bundle>blueprint:file:etc/activemq-broker.xml</bundle>
-    </feature>
 </features>

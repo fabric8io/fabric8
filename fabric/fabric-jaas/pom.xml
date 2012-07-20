@@ -34,9 +34,6 @@
         <fuse.osgi.export>
           org.fusesource.fabric.jaas
         </fuse.osgi.export>
-        <fuse.osgi.import>
-            *
-        </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.apache.felix.utils.properties
         </fuse.osgi.private.pkg>
