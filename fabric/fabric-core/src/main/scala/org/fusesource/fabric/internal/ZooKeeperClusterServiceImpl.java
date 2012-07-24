@@ -113,6 +113,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
             Bundle bundleFabricCommands = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-commands  ",
                     "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricMavenProxy = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-commands  ",
+                    "mvn:org.fusesource.fabric/fabric-maven-proxy/" + FabricConstants.FABRIC_VERSION);
 
             // Create configuration
             String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(port);
@@ -215,6 +217,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                         "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
                 bundleFabricAgent.start();
             }
+            bundleFabricMavenProxy.start();
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
         }
