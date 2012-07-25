@@ -135,7 +135,8 @@ public class ObrResolver {
         for (String override : overrides) {
             Resource over = createResource(override, downloads, fabs);
             if (over == null) {
-                throw new IllegalArgumentException("Unable to build OBR representation for bundle " + override);
+                // Artifacts may not be valid bundles, so just ignore those artifacts
+                continue;
             }
             boolean add = false;
             boolean dependency = true;
