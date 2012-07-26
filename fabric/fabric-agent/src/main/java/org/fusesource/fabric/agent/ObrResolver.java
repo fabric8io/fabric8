@@ -133,7 +133,16 @@ public class ObrResolver {
             }
         }
         for (String override : overrides) {
-            Resource over = createResource(override, downloads, fabs);
+            Resource over = null;
+            try {
+                over = createResource(override, downloads, fabs);
+            } catch (Exception e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.info("Ignoring patched resource: {}: {}", new Object[] { override, e.getMessage() }, e);
+                } else {
+                    LOGGER.info("Ignoring patched resource: {}: {}", override, e.getMessage());
+                }
+            }
             if (over == null) {
                 // Artifacts may not be valid bundles, so just ignore those artifacts
                 continue;
