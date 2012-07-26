@@ -21,9 +21,11 @@
 # script; for example karaf, start, stop, admin, client, ...
 #
 
-if [ "$KARAF_SCRIPT" == "start" ]; then
-    export JAVA_MIN_MEM=1G
-    export JAVA_MAX_MEM=1G
+if [ "$KARAF_SCRIPT" = "start" ]; then
+    JAVA_MIN_MEM=1G
+    JAVA_MAX_MEM=1G
+    export JAVA_MIN_MEM # Minimum memory for the JVM
+    export JAVA_MAX_MEM # Maximum memory for the JVM
 fi
 
 #
