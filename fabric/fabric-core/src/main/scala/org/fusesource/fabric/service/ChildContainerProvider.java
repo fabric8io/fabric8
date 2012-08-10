@@ -42,6 +42,7 @@ import static org.fusesource.fabric.utils.PortUtils.*;
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
 
     final FabricServiceImpl service;
+    Set<Integer> usedPorts = new LinkedHashSet<Integer>();
 
     public ChildContainerProvider(FabricServiceImpl service) {
         this.service = service;
@@ -83,7 +84,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
                 String originalName = new String(options.getName());
-                Set<Integer> usedPorts = getContainerUsedPorts(parent);
+                usedPorts.addAll(getContainerUsedPorts(parent));
 
                 for (int i = 1; i <= options.getNumber(); i++) {
                     String containerName;
@@ -109,6 +110,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                         sshPort++;
                     }
                     usedPorts.add(sshPort);
+
 
                     int rmiServerPort = mapPortToRange(44444 + i, minimumPort, maximumPort);
                     while (usedPorts.contains(rmiServerPort)) {
@@ -206,7 +208,10 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
      */
     private int getSshPort(Container container) {
         String sshUrl = container.getSshUrl();
-        int sshPort = PortUtils.extractPort(sshUrl);
+        int sshPort = 0;
+        if (sshUrl != null) {
+            sshPort = PortUtils.extractPort(sshUrl);
+        }
         return sshPort;
     }
 
@@ -219,12 +224,14 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     private Set<Integer> getRmiPorts(Container container) {
         Set<Integer> rmiPorts = new LinkedHashSet<Integer>();
         String jmxUrl = container.getJmxUrl();
-        String addrees = container.getIp();
-        Pattern pattern = Pattern.compile(addrees + ":\\d{1,5}");
-        Matcher mather = pattern.matcher(jmxUrl);
-        while (mather.find()) {
-            String socketAddress = mather.group();
-            rmiPorts.add(PortUtils.extractPort(socketAddress));
+        String address = container.getIp();
+        if (address != null) {
+            Pattern pattern = Pattern.compile(address + ":\\d{1,5}");
+            Matcher mather = pattern.matcher(jmxUrl);
+            while (mather.find()) {
+                String socketAddress = mather.group();
+                rmiPorts.add(PortUtils.extractPort(socketAddress));
+            }
         }
         return rmiPorts;
     }
