@@ -115,7 +115,7 @@ public class MQCreate extends FabricCommand {
             for (String url : createContainers) {
 
                 String type = null;
-                String parent = "root";
+                String parent = fabricService.getCurrentContainerName();
                 String name = url;
                 if (url.contains("://")) {
                     URI uri = new URI(url);
@@ -124,7 +124,7 @@ public class MQCreate extends FabricCommand {
                     name = uri.getHost();
                 } else {
                     type = "child";
-                    url = "child://root";
+                    url = "child://" + parent;
                 }
 
 
