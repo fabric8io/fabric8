@@ -252,12 +252,12 @@
         <module>fabric</module>
         <module>fab</module>
         <module>insight</module>
+        <module>process</module>
+        <module>bai</module>
         <module>mq</module>
-        <module>eca</module>
         <module>stream</module>
         <module>examples</module>
         <module>esb</module>
-        <module>process</module>
     </modules>
 
     <build>
