@@ -223,9 +223,13 @@ public class DefaultProcessController implements ProcessController
      * Converts a space separated command line into a Command and executes it
      */
     protected int runCommandLine(String command) throws IOException, InterruptedException, CommandFailedException {
-        // TODO warning this doesn't handle quoted strings as a single argument
-        String[] commandArgs = command.split("\\s+");
-        return config.runCommand(executor, baseDir, commandArgs);
+        if (command != null) {
+            // TODO warning this doesn't handle quoted strings as a single argument
+            String[] commandArgs = command.split("\\s+");
+            return config.runCommand(executor, baseDir, commandArgs);
+        } else {
+            return 0;
+        }
     }
 
 }
