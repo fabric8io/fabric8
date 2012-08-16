@@ -32,10 +32,10 @@ public class ContainerResolverSet extends FabricCommand {
     @Option(name = "--all", description = "Apply the resolver policy to all containers in the fabric.")
     private boolean all;
 
-    @Option(name = "--container", description = "Apply the resolver policy to the specified container.", required = false, multiValued = true)
+    @Option(name = "--container", required = false, multiValued = true, description = "Apply the resolver policy to the specified container.")
     private List<String> containerIds;
 
-    @Argument(index = 0, name = "resolver", description = "The resolver policy to set on the specified container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip.", required = true, multiValued = false)
+    @Argument(index = 0, required = true, multiValued = false, name = "resolver", description = "The resolver policy to set on the specified container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip.")
     private String resolver;
 
     @Override
@@ -49,15 +49,16 @@ public class ContainerResolverSet extends FabricCommand {
                     containerIds.add(container.getId());
                 }
             } else {
+                System.out.println("No container has been specified. Assuming the current container:" + System.getProperty("karaf.name") + ".");
                 containerIds = Arrays.asList(fabricService.getCurrentContainer().getId());
             }
         } else {
             if (all) {
-                throw new IllegalArgumentException("Can not use --all with a list of containers simultaneously");
+                throw new IllegalArgumentException("Can not use --all with a list of containers simultaneously.");
             }
         }
 
-        for (String containerId:containerIds) {
+        for (String containerId : containerIds) {
             Container container = fabricService.getContainer(containerId);
             container.setResolver(resolver);
         }
