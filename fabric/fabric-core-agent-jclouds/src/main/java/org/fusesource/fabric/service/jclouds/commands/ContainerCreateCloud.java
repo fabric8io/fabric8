@@ -53,6 +53,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String locationId;
     @Option(name = "--user", required = false, description = "The user account to use on the new node(s)")
     private String user;
+    @Option(name = "--password", required = false, description = "The user password to use on the new node(s)")
+    private String password;
     @Option(name = "--no-admin-access", required = false, description = "Disables admin access as it might no be feasible on all images.")
     private boolean disableAdminAccess;
     @Option(name = "--public-key-file", required = false, description = "Path to the public key file to use for authenticating to the container")
@@ -101,7 +103,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .adminAccess(!disableAdminAccess)
         .publicKeyFile(publicKeyFile)
         .providerName(providerName)
-        .user(user)
+        .user(user).password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .jvmOpts(jvmOpts)

@@ -19,40 +19,59 @@ package org.fusesource.fabric.service.jclouds.commands;
 
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.jclouds.apis.ApiMetadata;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.karaf.core.ComputeProviderListener;
+import org.jclouds.karaf.core.ComputeProviderOrApiRegistry;
+import org.jclouds.providers.ProviderMetadata;
 
 @Command(name = "cloud-provider-list", scope = "fabric", description = "Lists the cloud providers registered with the fabric.")
 public class CloudProviderList extends FabricCommand {
 
     public static final String PROVIDERFORMAT = "%-24s %-12s %-12s";
 
-    private ComputeProviderListener computeProviderListener;
+    private ComputeProviderOrApiRegistry computeProviderOrApiRegistry;
     private List<ComputeService> computeServices;
 
     @Override
     protected Object doExecute() throws Exception {
-        Set<String> providers = computeProviderListener.getInstalledProviders();
+        Map<String, ProviderMetadata> providers = computeProviderOrApiRegistry.getInstalledProviders();
+        Map<String, ApiMetadata> apis = computeProviderOrApiRegistry.getInstalledApis();
+
+        boolean providerOrApiFound = false;
+
+        if (apis != null && !apis.isEmpty()) {
+            providerOrApiFound = true;
+            System.out.println("Compute APIs:");
+            System.out.println("-------------");
+            printComputeProvidersOrApis(apis.keySet(), computeServices, "", System.out);
+        }
+
         if (providers != null && !providers.isEmpty()) {
-            printComputeProviders(providers,computeServices, "", System.out);
-        } else {
-            System.out.println("No providers have been found.");
+            providerOrApiFound = true;
+            System.out.println("Compute Providers:");
+            System.out.println("-------------");
+            printComputeProvidersOrApis(providers.keySet(), computeServices, "", System.out);
+        }
+
+        if (!providerOrApiFound)  {
+            System.out.println("No providers or apis have been found.");
         }
         return null;
     }
 
-    protected void printComputeProviders(Set<String> providers, List<ComputeService> computeServices, String indent, PrintStream out) {
+    protected void printComputeProvidersOrApis(Set<String> providersOrApis, List<ComputeService> computeServices, String indent, PrintStream out) {
         out.println(String.format(PROVIDERFORMAT, "[id]", "[type]", "[service registration]"));
-        for (String provider : providers) {
+        for (String providerOrApi : providersOrApis) {
             boolean registered = false;
             String registrationType = "none";
 
-            for (ComputeService computeService:computeServices) {
-                if (computeService.getContext().getProviderSpecificContext().getId().equals(provider)) {
+            for (ComputeService computeService : computeServices) {
+                if (computeService.getContext().unwrap().getId().equals(providerOrApi)) {
                     registered = true;
                     break;
                 }
@@ -60,7 +79,7 @@ public class CloudProviderList extends FabricCommand {
 
             if (registered && getZooKeeper() != null && getZooKeeper().isConnected()) {
                 try {
-                    if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
+                    if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(providerOrApi)) == null) {
                         registrationType = "local";
                     } else {
                         registrationType = "fabric";
@@ -71,16 +90,16 @@ public class CloudProviderList extends FabricCommand {
             } else if (registered) {
                 registrationType = "local";
             }
-            out.println(String.format(PROVIDERFORMAT, provider, "compute", registrationType));
+            out.println(String.format(PROVIDERFORMAT, providerOrApi, "compute", registrationType));
         }
     }
 
-    public ComputeProviderListener getComputeProviderListener() {
-        return computeProviderListener;
+    public ComputeProviderOrApiRegistry getComputeProviderOrApiRegistry() {
+        return computeProviderOrApiRegistry;
     }
 
-    public void setComputeProviderListener(ComputeProviderListener computeProviderListener) {
-        this.computeProviderListener = computeProviderListener;
+    public void setComputeProviderOrApiRegistry(ComputeProviderOrApiRegistry computeProviderOrApiRegistry) {
+        this.computeProviderOrApiRegistry = computeProviderOrApiRegistry;
     }
 
     public List<ComputeService> getComputeServices() {

@@ -32,7 +32,7 @@ public class ComputeProviderCompleter implements Completer {
     delegate.getStrings().clear();
     if (computeServices != null && !computeServices.isEmpty()) {
       for(ComputeService computeService:computeServices) {
-        delegate.getStrings().add(computeService.getContext().getProviderSpecificContext().getId());
+        delegate.getStrings().add(computeService.getContext().unwrap().getId());
       }
     }
     return delegate.complete(buffer, cursor, candidates);

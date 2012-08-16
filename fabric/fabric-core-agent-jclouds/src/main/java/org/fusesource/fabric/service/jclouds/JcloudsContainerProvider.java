@@ -54,6 +54,7 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.Credentials;
+import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -87,7 +88,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public synchronized void bind(ComputeService computeService) {
         if (computeService != null) {
-            String providerName = computeService.getContext().getProviderSpecificContext().getId();
+            String providerName = computeService.getContext().unwrap().getId();
             if (providerName != null) {
                 computeServiceMap.put(providerName, computeService);
             }
@@ -96,7 +97,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public void unbind(ComputeService computeService) {
         if (computeService != null) {
-            String providerName = computeService.getContext().getProviderSpecificContext().getId();
+            String providerName = computeService.getContext().unwrap().getId();
             if (providerName != null) {
                 computeServiceMap.remove(providerName);
             }
@@ -250,14 +251,33 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         } else {
             CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
             CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
+
             try {
-                Credentials credentials = new Credentials(jCloudsContainerMetadata.getIdentity(), jCloudsContainerMetadata.getCredential());
+
                 String nodeId = jCloudsContainerMetadata.getNodeId();
                 ComputeService computeService = getOrCreateComputeService(options);
+                NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
+                LoginCredentials credentials = nodeMetadata.getCredentials();
+
+                LoginCredentials.Builder loginBuilder;
+                if (options.getUser() != null) {
+
+                    if (credentials == null) {
+                        loginBuilder = LoginCredentials.builder();
+                    } else {
+                        loginBuilder = credentials.toBuilder();
+                    }
+                    if (options.getPassword() != null) {
+                        credentials = loginBuilder.user(options.getUser()).password(options.getPassword()).build();
+                    } else {
+                        credentials = loginBuilder.user(options.getUser()).build();
+                    }
+                }
+
                 String script = buildStartScript(options.name(container.getId()));
                 ExecResponse response = null;
                 if (credentials != null) {
-                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
                 } else {
                     response = computeService.runScriptOnNode(nodeId, script);
                 }
@@ -281,13 +301,30 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
             CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
             try {
-                Credentials credentials = new Credentials(jCloudsContainerMetadata.getIdentity(), jCloudsContainerMetadata.getCredential());
                 String nodeId = jCloudsContainerMetadata.getNodeId();
                 ComputeService computeService = getOrCreateComputeService(options);
+                NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
+                LoginCredentials credentials = nodeMetadata.getCredentials();
+
+                LoginCredentials.Builder loginBuilder;
+                if (options.getUser() != null) {
+
+                    if (credentials == null) {
+                        loginBuilder = LoginCredentials.builder();
+                    } else {
+                        loginBuilder = credentials.toBuilder();
+                    }
+                    if (options.getPassword() != null) {
+                        credentials = loginBuilder.user(options.getUser()).password(options.getPassword()).build();
+                    } else {
+                        credentials = loginBuilder.user(options.getUser()).build();
+                    }
+                }
+
                 String script = buildStopScript(options.name(container.getId()));
                 ExecResponse response = null;
                 if (credentials != null) {
-                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideCredentialsWith(credentials).runAsRoot(false));
+                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
                 } else {
                     response = computeService.runScriptOnNode(nodeId, script);
                 }

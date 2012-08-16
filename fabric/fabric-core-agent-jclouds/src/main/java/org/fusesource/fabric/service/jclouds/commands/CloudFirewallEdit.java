@@ -116,7 +116,7 @@ public class CloudFirewallEdit extends FabricCommand {
 
         if (!Strings.isNullOrEmpty(providerName)) {
             for (ComputeService computeService : computeServices) {
-                if (computeService.getContext().getProviderSpecificContext().getId().equals(providerName)) {
+                if (computeService.getContext().unwrap().getId().equals(providerName)) {
                     return computeService;
                 }
             }

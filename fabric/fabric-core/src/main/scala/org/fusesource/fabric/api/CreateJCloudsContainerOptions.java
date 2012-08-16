@@ -32,7 +32,10 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String locationId;
     private String group;
     private String user;
+    private String password;
     private String providerName;
+    private String apiName;
+    private String endpoint;
     private JCloudsInstanceType instanceType = JCloudsInstanceType.Fastest;
     private String identity;
     private String credential;
@@ -95,8 +98,24 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return this;
     }
 
+
+    public CreateJCloudsContainerOptions password(final String password) {
+        this.password = password;
+        return this;
+    }
+
     public CreateJCloudsContainerOptions providerName(final String providerName) {
         this.providerName = providerName;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions apiName(final String apiName) {
+        this.apiName = apiName;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions endpoint(final String endpoint) {
+        this.endpoint = endpoint;
         return this;
     }
 
@@ -202,12 +221,36 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.user = user;
     }
 
+    public String getPassword() {
+        return password != null ? password : getParameters().get("password");
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public String getProviderName() {
         return providerName != null ? providerName : providerURI.getHost();
     }
 
     public void setProviderName(String providerName) {
         this.providerName = providerName;
+    }
+
+    public String getApiName() {
+        return apiName != null ? apiName : providerURI.getHost();
+    }
+
+    public void setApiName(String apiName) {
+        this.apiName = apiName;
+    }
+
+    public String getEndpoint() {
+        return endpoint != null ? endpoint : getParameters().get("endpoint");
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
     }
 
     public JCloudsInstanceType getInstanceType() {

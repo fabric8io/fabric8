@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.karaf.services.ServiceFactorySupport;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
@@ -77,9 +78,9 @@ public class CloudUtils {
                             dictionary = new Properties();
                         }
                         dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+provider.replaceAll("-", ""));
-                        dictionary.put("provider", provider);
-                        dictionary.put("credential", credential);
-                        dictionary.put("identity", identity);
+                        dictionary.put(ServiceFactorySupport.PROVIDER, provider);
+                        dictionary.put(ServiceFactorySupport.CREDENTIAL, credential);
+                        dictionary.put(ServiceFactorySupport.IDENTITY, identity);
                         dictionary.put("credential-store", "zookeeper");
                         //This is set to workaround race conditions with ssh pk copies.
                         //Required workaround for some images (e.g. Red Hat) on Amazon EC2.
@@ -102,6 +103,57 @@ public class CloudUtils {
                             }
                             ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
                             ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
+                        } else {
+                            System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
+                        }
+                    }
+                } catch (Exception ex) {
+                    //noop
+                }
+            }
+        };
+        new Thread(registrationTask).start();
+    }
+
+
+    public static void registerApi(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
+        Runnable registrationTask = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", api);
+                    if (configuration != null) {
+                        Dictionary dictionary = configuration.getProperties();
+                        if (dictionary == null) {
+                            dictionary = new Properties();
+                        }
+                        dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-" + api.replaceAll("-", ""));
+                        dictionary.put(ServiceFactorySupport.API, api);
+                        dictionary.put(ServiceFactorySupport.ENDPOINT, endpoint);
+                        dictionary.put(ServiceFactorySupport.CREDENTIAL, credential);
+                        dictionary.put(ServiceFactorySupport.IDENTITY, identity);
+                        dictionary.put("credential-store", "zookeeper");
+                        //This is set to workaround race conditions with ssh pk copies.
+                        //Required workaround for some images (e.g. Red Hat) on Amazon EC2.
+                        dictionary.put("jclouds.ssh.max-retries", "40");
+                        if (api != null && api.equals("aws-ec2") && props != null && props.containsKey("owner") && props.get("owner") != null) {
+                            dictionary.put("jclouds.ec2.ami-owners", props.get("owner"));
+
+                        }
+                        for (Map.Entry<String, String> entry : props.entrySet()) {
+                            String key = entry.getKey();
+                            String value = entry.getValue();
+                            dictionary.put(key, value);
+                        }
+
+                        configuration.update(dictionary);
+
+                        if (zooKeeper.isConnected()) {
+                            if (zooKeeper.exists(ZkPath.CLOUD_PROVIDER.getPath(api)) == null) {
+                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_PROVIDER.getPath(api));
+                            }
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(api), identity);
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(api), credential);
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
                         }

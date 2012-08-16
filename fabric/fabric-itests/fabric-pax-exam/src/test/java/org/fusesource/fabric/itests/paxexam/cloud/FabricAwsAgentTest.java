@@ -110,7 +110,7 @@ public class FabricAwsAgentTest extends FabricTestSupport {
         }
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommand("fabric:cloud-provider-add aws-ec2 "+identity+" "+credential);
+        executeCommand("fabric:cloud-provider-add --provider aws-ec2 --identity "+identity+" --credential "+credential);
         ComputeService computeService = getOsgiService(ComputeService.class, 3 * DEFAULT_TIMEOUT);
 
         //The compute service needs some time to properly initialize.

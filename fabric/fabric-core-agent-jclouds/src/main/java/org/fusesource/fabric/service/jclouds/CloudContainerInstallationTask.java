@@ -98,6 +98,8 @@ public class CloudContainerInstallationTask implements Runnable {
             jCloudsContainerMetadata.setContainerName(containerName);
             jCloudsContainerMetadata.setPublicAddresses(copyOfPublicAddresses);
             jCloudsContainerMetadata.setHostname(nodeMetadata.getHostname());
+
+
             if (credentials != null) {
                 jCloudsContainerMetadata.setIdentity(credentials.identity);
                 jCloudsContainerMetadata.setCredential(credentials.credential);

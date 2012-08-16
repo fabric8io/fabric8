@@ -104,8 +104,7 @@ public class FabricRackspaceAgentTest extends FabricTestSupport {
 
         System.err.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
 
-        //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommand("fabric:cloud-provider-add cloudservers-us "+identity+" "+credential);
+        executeCommand("fabric:cloud-provider-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
 
         ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
 

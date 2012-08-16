@@ -48,7 +48,8 @@
             org.fusesource.fabric.commands.support,
             org.fusesource.fabric.utils,
             org.fusesource.fabric.service.jclouds.commands.completers,
-            org.jclouds.aws.util
+            org.jclouds.aws.util,
+            org.jclouds.karaf.utils
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -103,6 +104,12 @@
         <dependency>
             <groupId>org.jclouds.karaf</groupId>
             <artifactId>services</artifactId>
+            <version>${jclouds-karaf-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jclouds.karaf</groupId>
+            <artifactId>utils</artifactId>
             <version>${jclouds-karaf-version}</version>
         </dependency>
 

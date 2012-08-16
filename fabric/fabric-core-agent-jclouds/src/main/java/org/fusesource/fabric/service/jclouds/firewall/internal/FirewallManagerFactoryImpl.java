@@ -39,7 +39,7 @@ public class FirewallManagerFactoryImpl implements FirewallManagerFactory {
     @Override
     public synchronized FirewallManager getFirewallManager(ComputeService computeService) throws FirewallNotSupportedOnProviderException {
         FirewallManager firewallManager = null;
-        String provider = computeService.getContext().getProviderSpecificContext().getId();
+        String provider = computeService.getContext().unwrap().getId();
 
         firewallManager = managers.get(provider);
 

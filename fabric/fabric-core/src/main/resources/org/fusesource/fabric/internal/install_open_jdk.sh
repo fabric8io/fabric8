@@ -3,8 +3,16 @@ function install_openjdk_deb() {
   sudo apt-get -y install openjdk-6-jdk
   
   # Try to set JAVA_HOME in a number of commonly used locations
-  export JVM_DIR=`ls -l /usr/lib/jvm/ | grep java | grep openjdk | grep ^d | awk '{ print $NF }' | sort -n | head -1`
-  export JAVA_HOME=/usr/lib/jvm/${JVM_DIR}
+  # Lifting JAVA_HOME detection from jclouds
+  if [ -z "$JAVA_HOME" ]; then
+      for CANDIDATE in `ls -d /usr/lib/jvm/java-1.6.0-openjdk-* /usr/lib/jvm/java-6-openjdk-* /usr/lib/jvm/java-6-openjdk 2>&-`; do
+          if [ -n "$CANDIDATE" -a -x "$CANDIDATE/bin/java" ]; then
+              export JAVA_HOME=$CANDIDATE
+              break
+          fi
+      done
+  fi
+
   if [ -f /etc/profile ]; then
     sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
   fi
@@ -30,8 +38,16 @@ function install_openjdk_rpm() {
   sudo yum install -y java-1.6.0-openjdk java-1.6.0-openjdk-devel
   
   # Try to set JAVA_HOME in a number of commonly used locations
-    export JVM_DIR=`ls -l /usr/lib/jvm/ | grep java | grep openjdk | grep ^d | awk '{ print $NF }' | sort -n | head -1`
-    export JAVA_HOME=/usr/lib/jvm/${JVM_DIR}
+  # Lifting JAVA_HOME detection from jclouds
+  if [ -z "$JAVA_HOME" ]; then
+      for CANDIDATE in `ls -d /usr/lib/jvm/java-1.6.0-openjdk-* /usr/lib/jvm/java-6-openjdk-* /usr/lib/jvm/java-6-openjdk 2>&-`; do
+          if [ -n "$CANDIDATE" -a -x "$CANDIDATE/bin/java" ]; then
+              export JAVA_HOME=$CANDIDATE
+              break
+          fi
+      done
+  fi
+
   if [ -f /etc/profile ]; then
     sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
   fi
