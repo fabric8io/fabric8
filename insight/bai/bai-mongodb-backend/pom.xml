@@ -9,15 +9,22 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.fusesource.bai</groupId>
+    <parent>
+        <groupId>org.fusesource.bai</groupId>
+        <artifactId>bai</artifactId>
+        <version>99-master-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
+
 	<artifactId>bai-mongodb-backend</artifactId>
 	<packaging>bundle</packaging>
-	<version>0.0.1-SNAPSHOT</version>
 	<name>FuseSource :: Business Activity Insight :: MongoDB backend</name>
 	<url>http://www.fusesource.com</url>
 
 	<properties>
-		<camel-version>2.10-SNAPSHOT</camel-version>
+        <fuse.osgi.export>
+            org.fusesource.bai.backend.mongo
+        </fuse.osgi.export>		<camel-version>2.10-SNAPSHOT</camel-version>
 	</properties>
 
 	<dependencies>
@@ -39,7 +46,7 @@
 		<dependency>
 			<groupId>org.fusesource.bai</groupId>
 			<artifactId>bai-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 	

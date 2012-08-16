@@ -29,8 +29,8 @@
         <relativePath>..</relativePath>
     </parent>
 
+    <groupId>org.fusesource.bai</groupId>
 	<artifactId>bai</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>FuseSource :: Business Activity Insight</name>
 	
