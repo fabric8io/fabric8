@@ -34,7 +34,6 @@
     <url>http://www.fusesource.com</url>
 
     <properties>
-        <camel-version>2.10.0</camel-version>
         <fuse.osgi.export>
             org.fusesource.bai
         </fuse.osgi.export>
