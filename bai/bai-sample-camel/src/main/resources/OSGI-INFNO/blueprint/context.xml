@@ -4,7 +4,7 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
            xsi:schemaLocation="
            http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
-           http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.8.0.xsd">
+           http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
 	<bean class="org.apache.camel.management.PublishEventNotifier" id="eventNotifier">
 		<!-- Substitute this by a SEDA queue or VM endpoint -->
@@ -21,7 +21,7 @@
 	<camelContext id="context1"
 				  useBreadcrumb="true"
 				  xmlns="http://camel.apache.org/schema/blueprint"
-				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint-2.8.0.xsd" depends-on="eventNotifier">
+				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd" depends-on="eventNotifier">
 		
         <route id="route1">
         	<from uri="timer://foo?fixedRate=true&amp;period=2000" id="timer" />

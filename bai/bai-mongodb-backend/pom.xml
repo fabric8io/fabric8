@@ -36,7 +36,7 @@
 		<camel-version>2.10.0</camel-version>
         <fuse.osgi.export>
             org.fusesource.bai.backend.mongo
-        </fuse.osgi.export>		<camel-version>2.10-SNAPSHOT</camel-version>
+        </fuse.osgi.export>		
 	</properties>
 
 	<dependencies>
