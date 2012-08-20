@@ -19,6 +19,14 @@ The AuditEventNotifier implementation is currently based on the [PublishEventNot
 
 There is nothing to stop you creating multiple AuditEventNotifier instances with different configurations (e.g. to filter different things) and writing to different audit endpoints. Another approach would be to create a single AuditEventNotifier which generates all possible audit events you are interested; then use content based routing on the audit endpoint to write events to different back end components.
 
+### Using expressions to filter exchanges to audit & the body written
+
+You can use all the various [Camel expression languages](http://camel.apache.org/languages.html) to specify expressions to filter on the AuditEventNotifier.
+
+For example see this [sample spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the **inFilter** and **outFilter** expressions are set.
+
+Also most back ends support the use of an [expression to calculate the payload](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/ConfigurableBodyExpressionTest-context.xml#L43) written to the storage system (such as MongoDb).
+
 ### Asynchronous delivery of audit events
 
 Typically we expect audit events to be informational and to have minimal impact on the runtime performance of the system. So a common configuration is to send to an endpoint like **vm:audit?waitForTaskToComplete=Never** so that there is minimal impact on the business level routing routes.

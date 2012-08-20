@@ -23,7 +23,7 @@
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
     ">
 
-    <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
+    <!-- lets configure the audit notifier with some filter expressions -->
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
         <property name="inFilter">
             <bean class="org.fusesource.bai.ExpressionFactoryBean">

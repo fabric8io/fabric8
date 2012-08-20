@@ -41,18 +41,19 @@
 
     <!--- MongoDb back end for asynchronously consuming audit events from vm:audit -->
     <bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
-   		<property name="mongo">
-   			<bean class="com.mongodb.Mongo" />
-   		</property>
-   		<property name="dbname" value="bai" />
-   		<property name="context" ref="mongoDbAuditContext" />
-
+        <!-- lets set the expression used to store the payload -->
         <property name="storeBodyExpression">
             <bean class="org.fusesource.bai.ExpressionFactoryBean">
                 <property name="language" value="simple"/>
                 <property name="expression" value="header.foo"/>
             </bean>
         </property>
+
+   		<property name="mongo">
+   			<bean class="com.mongodb.Mongo" />
+   		</property>
+   		<property name="dbname" value="bai" />
+   		<property name="context" ref="mongoDbAuditContext" />
    	</bean>
 
     <!--
