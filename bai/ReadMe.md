@@ -28,11 +28,20 @@ Then run the following commands:
 
 A sample camel route should now be running which should have configured the auditing of exchanges to MongoDb.
 
-You can now browse the **bai** database in MongoDb to see the events being stored. In a Mongo shell type
+You can now browse the **bai** database in MongoDb as follows:
+
+### Browsing the events
+
+to use the Mongo shell type:
 
     use bai
     show collections
     db.baievents.findAll()
 
+Or you could install [mViewer](https://github.com/Imaginea/mViewer) and browse the **bai** database in MongoDb using the web client
 
+### Mongo collections
 
+* exchangeXray contains a list of all the context and route IDs which are beinbg audited; so querying this collection allows tools to render the various event streams
+* baievents contains all the events in a flat easy to query collection
+* $contextId.$routeId contains all the exchanges on this route

@@ -19,8 +19,11 @@ package org.fusesource.bai.event;
 
 import java.util.Date;
 
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeFailedEvent;
+import org.apache.camel.management.event.ExchangeFailureHandledEvent;
 
 /**
  * DTO that represents an AuditEvent
@@ -30,10 +33,37 @@ import org.apache.camel.management.event.AbstractExchangeEvent;
 public class AuditEvent extends AbstractExchangeEvent {
     private static final long serialVersionUID = 6818757465057171170L;
     
-    public AuditEvent(Exchange source, AbstractExchangeEvent realEvent) {
+    public AuditEvent(Exchange source, AbstractExchangeEvent event) {
         super(source);
-        this.event = realEvent;
+        this.event = event;
         this.timestamp = new Date();
+
+        // TODO are there any other failure endpoint events?
+        if (event instanceof ExchangeFailureHandledEvent|| event instanceof ExchangeFailedEvent) {
+            this.endpointURI = source.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
+        } else {
+            Endpoint fromEndpoint = source.getFromEndpoint();
+            if (fromEndpoint != null) {
+                this.endpointURI = fromEndpoint.getEndpointUri();
+            }
+        }
+        this.sourceContextId = source.getContext().getName();
+        // if the UoW exists, get the info from there as it's more accurate; if it doesn't exist, we have received an ExchangeCreated event so the info in the
+        // exchange's fromRouteId will be correct anyway... so it's all good
+        // all consumer endpoints create an exchange (ExchangeCreatedEvent) except for direct (even seda and VM create new Exchanges)
+        // the sourceRouteId serves as correlation and in the MongoDB backend, it's part of the collection name
+        // if the routeId changes WITHOUT an exchange being created in the new route, the event will never be written because
+        // sourceRouteId: what route created the Exchange
+        this.sourceRouteId = source.getFromRouteId();
+        // currentRouteId: what route the Exchange currently is in
+        this.currentRouteId = (source.getUnitOfWork() == null || source.getUnitOfWork().getRouteContext() == null) ? null : source.getUnitOfWork().getRouteContext().getRoute().getId();
+        this.breadCrumbId = source.getIn().getHeader(Exchange.BREADCRUMB_ID, String.class);
+        if (this.breadCrumbId == null && source.hasOut()) {
+            this.breadCrumbId = source.getOut().getHeader(Exchange.BREADCRUMB_ID, String.class);
+        }
+        this.exception = source.getException() == null ? source.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class) : source.getException();
+        this.redelivered = source.getProperty(Exchange.REDELIVERED, boolean.class);
+        
     }
     
     public AbstractExchangeEvent event;

@@ -97,31 +97,44 @@ public class AuditEventNotifier extends PublishEventNotifier {
 	
 	@Override
 	public boolean isEnabled(EventObject event) {
-		if (!(event instanceof AuditEvent)) {
-			return false;
-		}
-		
-		AuditEvent ae = (AuditEvent) event;
-		
-		List<String> compareWith = null;
-		if (ae.event instanceof ExchangeSendingEvent || ae.event instanceof ExchangeCreatedEvent) {
-		    compareWith = inRegex;
-		}
-		else if (ae.event instanceof ExchangeSentEvent || ae.event instanceof ExchangeCompletedEvent) {
-		    compareWith = outRegex;
-		}
-		else if (ae.event instanceof ExchangeRedeliveryEvent) {
-		    compareWith = redeliveryRegex;
-		}
-		// logic if it's a failure is different; we compare against Exception
-		else if (ae.event instanceof ExchangeFailedEvent) {
-		    String exceptionClassName = ae.event.getExchange().getException().getClass().getCanonicalName();
-	        return testRegexps(exceptionClassName, failureRegex);
-		}
-		// TODO: Failure handled
-	    return compareWith == null ? false : testRegexps(ae.endpointURI, compareWith);
-		
-	}
+        EventObject coreEvent = event;
+        if (event instanceof AuditEvent) {
+            AuditEvent auditEvent = (AuditEvent) event;
+            coreEvent = auditEvent.event;
+        }
+        List<String> compareWith = null;
+        if (coreEvent instanceof ExchangeSendingEvent || coreEvent instanceof ExchangeCreatedEvent) {
+            compareWith = inRegex;
+        } else if (coreEvent instanceof ExchangeSentEvent || coreEvent instanceof ExchangeCompletedEvent) {
+            compareWith = outRegex;
+        } else if (coreEvent instanceof ExchangeRedeliveryEvent) {
+            compareWith = redeliveryRegex;
+        }
+        // logic if it's a failure is different; we compare against Exception
+        else if (coreEvent instanceof ExchangeFailedEvent) {
+            ExchangeFailedEvent failedEvent = (ExchangeFailedEvent) coreEvent;
+            String exceptionClassName = failedEvent.getExchange().getException().getClass().getCanonicalName();
+            return testRegexps(exceptionClassName, failureRegex);
+        }
+        // TODO: Failure handled
+        String uri = endpointUri(event);
+        return uri == null || compareWith == null ? false : testRegexps(uri, compareWith);
+
+    }
+
+    private String endpointUri(EventObject event) {
+        if (event instanceof AuditEvent) {
+            AuditEvent auditEvent = (AuditEvent) event;
+            return auditEvent.endpointURI;
+        } else if (event instanceof AbstractExchangeEvent) {
+            AbstractExchangeEvent ae = (AbstractExchangeEvent) event;
+            Endpoint endpoint = ae.getExchange().getFromEndpoint();
+            if (endpoint != null) {
+                return endpoint.getEndpointUri();
+            }
+        }
+        return null;
+    }
 
     private boolean testRegexps(String endpointURI, List<String> regexps) {
         // if the endpoint URI is null, we have an event that is not related to an endpoint, e.g. a failure in a processor; audit it
@@ -145,8 +158,21 @@ public class AuditEventNotifier extends PublishEventNotifier {
      */
 	@Override
     public void notify(EventObject event) throws Exception {
+        AuditEvent auditEvent = null;
+        AbstractExchangeEvent ae = null;
+        if (event instanceof AuditEvent) {
+            auditEvent = (AuditEvent) event;
+            ae = auditEvent.event;
+        } else if (event instanceof AbstractExchangeEvent) {
+            ae = (AbstractExchangeEvent) event;
+            auditEvent = new AuditEvent(ae.getExchange(), ae);
+        }
+
+        if (ae == null || auditEvent == null) {
+            log.debug("Ignoring events like " + event + " as its neither a AbstractExchangeEvent or AuditEvent");
+            return;
+        }
 	    if (event instanceof ExchangeSendingEvent || event instanceof ExchangeCreatedEvent) {
-	        AbstractExchangeEvent ae = (AbstractExchangeEvent) event;
 	        ae.getExchange().setProperty(AuditConstants.DISPATCH_ID, ae.getExchange().getContext().getUuidGenerator().generateUuid());
 	    }
 	    
@@ -163,7 +189,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         }
 
         Exchange exchange = producer.createExchange();
-        exchange.getIn().setBody(event);
+        exchange.getIn().setBody(auditEvent);
 
         // make sure we don't send out events for this as well
         // mark exchange as being published to event, to prevent creating new events
@@ -175,7 +201,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
             // and remove it when its done
             exchange.removeProperty(Exchange.NOTIFY_EVENT);
         }
-	    
     }
 
     /**

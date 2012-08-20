@@ -5,6 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
+    <!-- lets configure the audit service -->
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
 		<property name="inRegex">
@@ -18,31 +19,32 @@
 			</list>
 		</property>
 	</bean>
-	
-	<bean class="org.fusesource.bai.event.AuditEventFactory" />
-	
-	<bean class="java.lang.Exception" id="exception">
-		<constructor-arg index="0" value="Hello, I'm an exception" />
-	</bean>
-	
-	<bean id="noErrorHandler" class="org.apache.camel.builder.NoErrorHandlerBuilder"/>
-	
-	<!-- ActiveMQ through which all exchange events will be pushed -->
-	<!-- <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-		<property name="configuration">
-			<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
-			   <property name="connectionFactory">
-			   	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-			   		?jms.copyMessageOnSend=false&amp;jms.objectMessageSerializationDefered=false&amp;jms.useAsyncSend=true 
-				   <property name="brokerURL" value="vm://default" />
-				</bean>
-			   </property>
-			   <property name="transacted" value="false"/>
-			   <property name="deliveryPersistent" value="false" />
-			</bean>
-		</property>
-    </bean>  -->
-	
+
+
+    <!--- MongoDb back end for audit events -->
+    <bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
+   		<property name="mongo">
+   			<bean class="com.mongodb.Mongo" />
+   		</property>
+   		<property name="dbname" value="bai" />
+   		<property name="context" ref="mongoDbAuditContext" />
+   	</bean>
+
+    <!--
+        TODO this separate camel context will not be necessary soon in Camel 2.10 as we'll be able to use @Consume
+        on the above bean and use a property to specify the "vm:audit" URI
+    -->
+    <camelContext id="mongoDbAuditContext"
+   				  useBreadcrumb="true"
+   				  xmlns="http://camel.apache.org/schema/spring">
+   		<route>
+   			<from uri="vm:audit?concurrentConsumers=1" />
+   			<bean ref="mongoBackend" method="audit" />
+   		</route>
+   	</camelContext>
+
+
+    <!-- Camel route to be audited -->
 	<camelContext id="context1"
 				  useBreadcrumb="true"
 				  xmlns="http://camel.apache.org/schema/spring">
@@ -110,16 +112,6 @@
     <bean id="activemq" class="org.apache.camel.component.file.FileComponent">
     </bean>
 
-    <!--- Mongo Back end -->
-
-    <bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
-   		<property name="mongo">
-   			<bean class="com.mongodb.Mongo" />
-   		</property>
-   		<property name="dbname" value="bai" />
-   		<property name="context" ref="mongoDbAuditContext" />
-   	</bean>
-
 <!--
    	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
    	   <property name="brokerURL" value="vm://default" />
@@ -136,14 +128,28 @@
    	</bean>
 -->
 
-   	<camelContext id="mongoDbAuditContext"
-   				  useBreadcrumb="true"
-   				  xmlns="http://camel.apache.org/schema/spring">
-   		<route>
-   			<from uri="vm:audit?concurrentConsumers=1" />
-   			<bean ref="mongoBackend" method="audit" />
-   		</route>
 
-   	</camelContext>
 
+
+    <bean class="java.lang.Exception" id="exception">
+   		<constructor-arg index="0" value="Hello, I'm an exception" />
+   	</bean>
+
+   	<bean id="noErrorHandler" class="org.apache.camel.builder.NoErrorHandlerBuilder"/>
+
+   	<!-- ActiveMQ through which all exchange events will be pushed -->
+   	<!-- <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
+   		<property name="configuration">
+   			<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+   			   <property name="connectionFactory">
+   			   	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+   			   		?jms.copyMessageOnSend=false&amp;jms.objectMessageSerializationDefered=false&amp;jms.useAsyncSend=true
+   				   <property name="brokerURL" value="vm://default" />
+   				</bean>
+   			   </property>
+   			   <property name="transacted" value="false"/>
+   			   <property name="deliveryPersistent" value="false" />
+   			</bean>
+   		</property>
+       </bean>  -->
 </beans>
