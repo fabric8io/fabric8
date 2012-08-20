@@ -130,19 +130,12 @@
                <version>1.1</version>
            </dependency>
 
-        <!--Xerces jar to be included in lib/endorsed -->
-        <dependency>
-            <groupId>org.apache.xerces</groupId>
-            <artifactId>xml-apis</artifactId>
-            <version>${xml.api.version}</version>
-        </dependency>
+        <!-- these are copied to the lib folder -->
         <dependency>
             <groupId>org.apache.xerces</groupId>
             <artifactId>xercesImpl</artifactId>
             <version>${xerces.version}</version>
         </dependency>
-
-        <!--xalan jar to be included in lib/endorsed-->
         <dependency>
             <groupId>xalan</groupId>
             <artifactId>xalan</artifactId>
@@ -152,6 +145,21 @@
             <groupId>xalan</groupId>
             <artifactId>serializer</artifactId>
             <version>${xalan.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.activator</artifactId>
+            <version>${servicemix-specs-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jaxp-api-1.4</artifactId>
+            <version>${servicemix-specs-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jaxws-api-2.2</artifactId>
+            <version>${servicemix-specs-version}</version>
         </dependency>
 
        </dependencies>
@@ -325,7 +333,7 @@
                              <organizationURL>http://fusesource.com</organizationURL>
                              <preamble>In addition to the FuseSource products, this disk contains certain third party software or components (“Third Party Components”), which are bundled as separate files or modules and separately licensed to you by said third parties. This file contains a listing of all NOTICE/NOTICE.txt files included with the Third Party Component jars in this distribution of Fuse MQ. Please see the mq_dependencies.txt file for the complete listing of Third Party Components and their attributed license agreements.  Your use of the Third Party Components is subject to the terms and conditions set forth in the applicable third party license agreement.  The Third Party Components are provided by FuseSource Corporation (“FSC”) solely on an "AS IS" basis, without any warranty.  FSC disclaims all warranties and indemnities with respect to the Third Party Components, express or implied, and assumes no liability with respect to the Third Party Components.  You acknowledge that the authors of the Third Party Components have no obligation to provide support to you for the Third Party Components.  You hereby undertake to comply with all licenses related to the applicable Third Party Components. All third party license agreements are contained in the licenses directory of </preamble>
                              <listDependencies>true</listDependencies>
-                             <extraDependencies>org.apache.xerces:xercesImpl:2.11.0,xalan:xalan:2.7.1,xalan:serializer:2.7.1</extraDependencies>
+                             <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version}</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
                              <repositories>${project.basedir}/target/features-repo</repositories>
                              <defaultParent>org.fusesource.fabric:fabric-project:${project.version}</defaultParent>
