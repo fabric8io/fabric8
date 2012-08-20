@@ -62,6 +62,13 @@
             <artifactId>bai-mongodb-backend</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-version}</version>
+        </dependency>
     </dependencies>
 
     <build>

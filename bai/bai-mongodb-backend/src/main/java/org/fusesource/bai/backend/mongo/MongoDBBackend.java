@@ -22,20 +22,15 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.Exchange;
-import org.apache.camel.ExchangePattern;
-import org.apache.camel.TypeConverter;
+import org.apache.camel.*;
 import org.apache.camel.dataformat.xmljson.XmlJsonDataFormat;
-import org.apache.camel.management.event.ExchangeCompletedEvent;
-import org.apache.camel.management.event.ExchangeCreatedEvent;
-import org.apache.camel.management.event.ExchangeFailedEvent;
-import org.apache.camel.management.event.ExchangeRedeliveryEvent;
-import org.apache.camel.management.event.ExchangeSendingEvent;
-import org.apache.camel.management.event.ExchangeSentEvent;
+import org.apache.camel.management.event.*;
+import org.apache.camel.util.CamelContextHelper;
+import org.apache.camel.util.ExchangeHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.fusesource.bai.AuditConstants;
 import org.fusesource.bai.backend.BAIAuditBackend;
+import org.fusesource.bai.backend.BAIAuditBackendSupport;
 import org.fusesource.bai.event.AuditEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +59,7 @@ import com.mongodb.util.JSONParseException;
  * @author Raul Kripalani
  *
  */
-public class MongoDBBackend implements BAIAuditBackend {
+public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBackend {
 
     private final static Logger LOG = LoggerFactory.getLogger(MongoDBBackend.class);
     
@@ -143,21 +138,22 @@ public class MongoDBBackend implements BAIAuditBackend {
      * the ExchangeCreated, etc.
      */
     
-    private void digestExchangeEvent(AuditEvent ev) {	    
-        if (ev.event instanceof ExchangeCreatedEvent) {
+    private void digestExchangeEvent(AuditEvent ev) {
+        AbstractExchangeEvent event = ev.event;
+        if (event instanceof ExchangeCreatedEvent) {
             digestExchangeCreatedEvent(ev);
         }
         
         // if the Exchange that has just completed is the same that started the route (i.e. the one from the ExchangeCreated event we accepted)
-        if (ev.event instanceof ExchangeCompletedEvent) {
+        if (event instanceof ExchangeCompletedEvent) {
             digestExchangeCompletedEvent(ev);
         }
         
-        if (ev.event instanceof ExchangeSendingEvent) {
+        if (event instanceof ExchangeSendingEvent) {
             digestExchangeSendingEvent(ev);
         }
         
-        if (ev.event instanceof ExchangeSentEvent) {
+        if (event instanceof ExchangeSentEvent) {
             digestExchangeSentEvent(ev);
         }
         
@@ -383,9 +379,15 @@ public class MongoDBBackend implements BAIAuditBackend {
 	 * @throws Exception
 	 */
 	private Object convertPayload(Object payload, Exchange exchange) throws Exception {
+        Expression expression = getStoreBodyExpression();
+        if (expression != null) {
+            payload = expression.evaluate(exchange, Object.class);
+        }
 	    if (payload == null) {
 	        return null;
 	    }
+        // TODO should we try convert to a DBObject first?
+
 	    // have a String representation handy
 	    String s = typeConverter.convertTo(String.class, payload);
         // 1. JSON if it starts with {

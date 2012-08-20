@@ -22,10 +22,7 @@ import java.util.EventObject;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.Endpoint;
-import org.apache.camel.Exchange;
-import org.apache.camel.Producer;
+import org.apache.camel.*;
 import org.apache.camel.management.PublishEventNotifier;
 import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.apache.camel.management.event.ExchangeCompletedEvent;
@@ -34,6 +31,7 @@ import org.apache.camel.management.event.ExchangeFailedEvent;
 import org.apache.camel.management.event.ExchangeRedeliveryEvent;
 import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.management.event.ExchangeSentEvent;
+import org.apache.camel.util.ExpressionToPredicateAdapter;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
@@ -83,13 +81,20 @@ public class AuditEventNotifier extends PublishEventNotifier {
 	private List<String> outRegex = Arrays.asList(".*");
 	private List<String> failureRegex = Arrays.asList(".*");
 	private List<String> redeliveryRegex = Arrays.asList(".*");
-	
+
+    private Expression inFilter;
+    private Expression outFilter;
+    private Expression failureFilter;
+    private Expression redeliveryFilter;
+
     private CamelContext camelContext;
     private Endpoint endpoint;
     private String endpointUri;
     private Producer producer;
+    private boolean includeExchangeCreatedEvents;
+    private boolean includeExchangeCompletedEvents;
 
-	public AuditEventNotifier() {
+    public AuditEventNotifier() {
 		setIgnoreCamelContextEvents(true);
 		setIgnoreRouteEvents(true);
 		setIgnoreServiceEvents(true);
@@ -98,27 +103,48 @@ public class AuditEventNotifier extends PublishEventNotifier {
 	@Override
 	public boolean isEnabled(EventObject event) {
         EventObject coreEvent = event;
+        AbstractExchangeEvent exchangeEvent = null;
         if (event instanceof AuditEvent) {
             AuditEvent auditEvent = (AuditEvent) event;
             coreEvent = auditEvent.event;
         }
+        if (event instanceof AbstractExchangeEvent) {
+            exchangeEvent = (AbstractExchangeEvent) event;
+        }
+        Expression filter = null;
         List<String> compareWith = null;
-        if (coreEvent instanceof ExchangeSendingEvent || coreEvent instanceof ExchangeCreatedEvent) {
+        if (coreEvent instanceof ExchangeSendingEvent) {
             compareWith = inRegex;
-        } else if (coreEvent instanceof ExchangeSentEvent || coreEvent instanceof ExchangeCompletedEvent) {
+            filter = getInFilter();
+        } else if (coreEvent instanceof ExchangeCreatedEvent) {
+            return includeExchangeCreatedEvents;
+/*
+            compareWith = inRegex;
+            filter = getInFilter();
+*/
+        } else if (coreEvent instanceof ExchangeSentEvent) {
             compareWith = outRegex;
+            filter = getOutFilter();
+        } else if (coreEvent instanceof ExchangeCompletedEvent) {
+/*
+            compareWith = outRegex;
+            filter = getOutFilter();
+*/
+            return includeExchangeCompletedEvents;
         } else if (coreEvent instanceof ExchangeRedeliveryEvent) {
             compareWith = redeliveryRegex;
+            filter = getRedeliveryFilter();
         }
         // logic if it's a failure is different; we compare against Exception
         else if (coreEvent instanceof ExchangeFailedEvent) {
             ExchangeFailedEvent failedEvent = (ExchangeFailedEvent) coreEvent;
             String exceptionClassName = failedEvent.getExchange().getException().getClass().getCanonicalName();
-            return testRegexps(exceptionClassName, failureRegex);
+            filter = getFailureFilter();
+            return testRegexps(exceptionClassName, failureRegex, filter, exchangeEvent);
         }
         // TODO: Failure handled
         String uri = endpointUri(event);
-        return uri == null || compareWith == null ? false : testRegexps(uri, compareWith);
+        return uri == null || compareWith == null ? false : testRegexps(uri, compareWith, filter, exchangeEvent);
 
     }
 
@@ -136,19 +162,32 @@ public class AuditEventNotifier extends PublishEventNotifier {
         return null;
     }
 
-    private boolean testRegexps(String endpointURI, List<String> regexps) {
+    private boolean testRegexps(String endpointURI, List<String> regexps, Expression filter, AbstractExchangeEvent exchangeEvent) {
         // if the endpoint URI is null, we have an event that is not related to an endpoint, e.g. a failure in a processor; audit it
         if (endpointURI == null) {
-            return true;
+            return testFilter(filter, exchangeEvent);
         }
 		for (String regex : regexps) {
 			if (endpointURI.matches(regex)) {
-				return true;
+				return testFilter(filter, exchangeEvent);
 			}
 		}
 		return false;
 	}
-	
+
+    private boolean testFilter(Expression filter, AbstractExchangeEvent exchangeEvent) {
+        if (filter == null) {
+            return true;
+        } else {
+            Exchange exchange = exchangeEvent.getExchange();
+            if (exchange != null) {
+                Predicate predicate = ExpressionToPredicateAdapter.toPredicate(filter);
+                return predicate.matches(exchange);
+            }
+        }
+        return false;
+    }
+
     /**
      * Add a unique dispatchId property to the original Exchange, which will come back to us later.
      * Camel does not correlate the individual sends/dispatches of the same exchange to the same endpoint, e.g.
@@ -281,6 +320,38 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     public void setEndpointUri(String endpointUri) {
         this.endpointUri = endpointUri;
+    }
+
+    public Expression getFailureFilter() {
+        return failureFilter;
+    }
+
+    public void setFailureFilter(Expression failureFilter) {
+        this.failureFilter = failureFilter;
+    }
+
+    public Expression getInFilter() {
+        return inFilter;
+    }
+
+    public void setInFilter(Expression inFilter) {
+        this.inFilter = inFilter;
+    }
+
+    public Expression getOutFilter() {
+        return outFilter;
+    }
+
+    public void setOutFilter(Expression outFilter) {
+        this.outFilter = outFilter;
+    }
+
+    public Expression getRedeliveryFilter() {
+        return redeliveryFilter;
+    }
+
+    public void setRedeliveryFilter(Expression redeliveryFilter) {
+        this.redeliveryFilter = redeliveryFilter;
     }
 
     @Override
