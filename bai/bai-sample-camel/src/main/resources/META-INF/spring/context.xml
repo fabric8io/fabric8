@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-    <!-- lets configure the audit service -->
+    <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
 		<property name="inRegex">
@@ -20,8 +20,7 @@
 		</property>
 	</bean>
 
-
-    <!--- MongoDb back end for audit events -->
+    <!--- MongoDb back end for asynchronously consuming audit events from vm:audit -->
     <bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
    		<property name="mongo">
    			<bean class="com.mongodb.Mongo" />
