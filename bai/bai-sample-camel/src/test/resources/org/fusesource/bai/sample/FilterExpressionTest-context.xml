@@ -26,15 +26,15 @@
     <!-- lets configure the audit notifier with some filter expressions -->
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
         <property name="inFilter">
-            <bean class="org.fusesource.bai.ExpressionFactoryBean">
+            <bean class="org.fusesource.bai.PredicateFactoryBean">
                 <property name="language" value="xpath"/>
                 <property name="expression" value="in:header('foo') = 'doesNotExist'"/>
             </bean>
         </property>
         <property name="outFilter">
-            <bean class="org.fusesource.bai.ExpressionFactoryBean">
-                <property name="language" value="xpath"/>
-                <property name="expression" value="in:header('foo') = 'cheese'"/>
+            <bean class="org.fusesource.bai.PredicateFactoryBean">
+                <property name="language" value="simple"/>
+                <property name="expression" value="${in.header.foo} == 'cheese'"/>
             </bean>
         </property>
         <property name="outRegex">

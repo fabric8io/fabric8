@@ -25,7 +25,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.apache.camel.*;
 import org.apache.camel.management.PublishEventNotifier;
 import org.apache.camel.management.event.*;
-import org.apache.camel.util.ExpressionToPredicateAdapter;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
@@ -76,10 +75,10 @@ public class AuditEventNotifier extends PublishEventNotifier {
 	private List<String> failureRegex = Arrays.asList(".*");
 	private List<String> redeliveryRegex = Arrays.asList(".*");
 
-    private Expression inFilter;
-    private Expression outFilter;
-    private Expression failureFilter;
-    private Expression redeliveryFilter;
+    private Predicate inFilter;
+    private Predicate outFilter;
+    private Predicate failureFilter;
+    private Predicate redeliveryFilter;
 
     private CamelContext camelContext;
     private Endpoint endpoint;
@@ -105,7 +104,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         if (event instanceof AbstractExchangeEvent) {
             exchangeEvent = (AbstractExchangeEvent) event;
         }
-        Expression filter = null;
+        Predicate filter = null;
         List<String> compareWith = null;
         if (coreEvent instanceof ExchangeCreatedEvent) {
             return includeExchangeCreatedEvents;
@@ -167,7 +166,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         return null;
     }
 
-    private boolean testRegexps(String endpointURI, List<String> regexps, Expression filter, AbstractExchangeEvent exchangeEvent) {
+    private boolean testRegexps(String endpointURI, List<String> regexps, Predicate filter, AbstractExchangeEvent exchangeEvent) {
         // if the endpoint URI is null, we have an event that is not related to an endpoint, e.g. a failure in a processor; audit it
         if (endpointURI == null) {
             return testFilter(filter, exchangeEvent);
@@ -180,14 +179,13 @@ public class AuditEventNotifier extends PublishEventNotifier {
 		return false;
 	}
 
-    private boolean testFilter(Expression filter, AbstractExchangeEvent exchangeEvent) {
+    private boolean testFilter(Predicate filter, AbstractExchangeEvent exchangeEvent) {
         if (filter == null) {
             return true;
         } else {
             Exchange exchange = exchangeEvent.getExchange();
             if (exchange != null) {
-                Predicate predicate = ExpressionToPredicateAdapter.toPredicate(filter);
-                return predicate.matches(exchange);
+                return filter.matches(exchange);
             }
         }
         return false;
@@ -327,35 +325,35 @@ public class AuditEventNotifier extends PublishEventNotifier {
         this.endpointUri = endpointUri;
     }
 
-    public Expression getFailureFilter() {
+    public Predicate getFailureFilter() {
         return failureFilter;
     }
 
-    public void setFailureFilter(Expression failureFilter) {
+    public void setFailureFilter(Predicate failureFilter) {
         this.failureFilter = failureFilter;
     }
 
-    public Expression getInFilter() {
+    public Predicate getInFilter() {
         return inFilter;
     }
 
-    public void setInFilter(Expression inFilter) {
+    public void setInFilter(Predicate inFilter) {
         this.inFilter = inFilter;
     }
 
-    public Expression getOutFilter() {
+    public Predicate getOutFilter() {
         return outFilter;
     }
 
-    public void setOutFilter(Expression outFilter) {
+    public void setOutFilter(Predicate outFilter) {
         this.outFilter = outFilter;
     }
 
-    public Expression getRedeliveryFilter() {
+    public Predicate getRedeliveryFilter() {
         return redeliveryFilter;
     }
 
-    public void setRedeliveryFilter(Expression redeliveryFilter) {
+    public void setRedeliveryFilter(Predicate redeliveryFilter) {
         this.redeliveryFilter = redeliveryFilter;
     }
 
