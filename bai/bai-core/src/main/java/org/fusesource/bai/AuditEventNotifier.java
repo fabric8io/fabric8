@@ -71,15 +71,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class AuditEventNotifier extends PublishEventNotifier {
 
     // by default accept all
+	private List<String> createdRegex = Arrays.asList(".*");
+	private List<String> completedRegex = Arrays.asList(".*");
 	private List<String> sendingRegex = Arrays.asList(".*");
 	private List<String> sentRegex = Arrays.asList(".*");
 	private List<String> failureRegex = Arrays.asList(".*");
 	private List<String> redeliveryRegex = Arrays.asList(".*");
 
     private Predicate createdFilter;
+    private Predicate completedFilter;
     private Predicate sendingFilter;
     private Predicate sentFilter;
-    private Predicate completedFilter;
     private Predicate failureFilter;
     private Predicate redeliveryFilter;
 
@@ -117,7 +119,12 @@ public class AuditEventNotifier extends PublishEventNotifier {
         List<String> compareWith = null;
         if (coreEvent instanceof ExchangeCreatedEvent) {
             if (!includeCreatedEvents) return false;
+            compareWith = createdRegex;
             filter = getCreatedFilter();
+        } else if (coreEvent instanceof ExchangeCompletedEvent) {
+            if (!includeCompletedEvents) return false;
+            compareWith = completedRegex;
+            filter = getCompletedFilter();
         } else if (coreEvent instanceof ExchangeSendingEvent) {
             if (!includeSendingEvents) return false;
             compareWith = sendingRegex;
@@ -126,9 +133,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
             if (!includeSentEvents) return false;
             compareWith = sentRegex;
             filter = getSentFilter();
-        } else if (coreEvent instanceof ExchangeCompletedEvent) {
-            if (!includeCompletedEvents) return false;
-            filter = getCompletedFilter();
         } else if (coreEvent instanceof ExchangeRedeliveryEvent) {
             if (!includeRedeliveryEvents) return false;
             compareWith = redeliveryRegex;
@@ -426,6 +430,22 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     public void setIncludeSentEvents(boolean includeSentEvents) {
         this.includeSentEvents = includeSentEvents;
+    }
+
+    public List<String> getCompletedRegex() {
+        return completedRegex;
+    }
+
+    public void setCompletedRegex(List<String> completedRegex) {
+        this.completedRegex = completedRegex;
+    }
+
+    public List<String> getCreatedRegex() {
+        return createdRegex;
+    }
+
+    public void setCreatedRegex(List<String> createdRegex) {
+        this.createdRegex = createdRegex;
     }
 
     @Override
