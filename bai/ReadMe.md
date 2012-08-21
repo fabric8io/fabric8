@@ -4,8 +4,8 @@ The **Fuse BAI** (or Business Activity Insight) module is is designed to give in
 
 To use Fuse BAI you define the audit points at which to capture events in your Camel routes either by:
 
-* explicit use of an audit endpoint in routes to specifically route to an audit endpoint, for example using a [wire tap]()
-* using an **AuditEventNotifier** to configure rules to define when to capture events in your camel routes without modifying your camel routes directly
+* explicit use of an audit endpoint in routes to specifically route to an audit endpoint, for example using a [wire tap](http://camel.apache.org/wire-tap.html)
+* using an **[AuditEventNotifier](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/org/fusesource/bai/AuditEventNotifier.java#L71)** to configure rules to define when to capture events in your camel routes without modifying your camel routes directly
 
 We prefer the AuditEventNotifier as it leaves auditing completely separate from your business level integration flows; which should solve the common 80% of audit requirements. If ever you have some really complex requirements feel free to use explicit routing to an audit endpoint to solve really complex routing rules.
 
@@ -47,6 +47,15 @@ Then asynchronously you consume from this endpoint and write them to some back e
 If you want you could invoke the audit back end directly in your routes without using a vm:audit intermediary; this has the benefit of being transactional and atomic if you are using say, JMS to process messages and the same JMS endpoint as the audit endpoint; at the cost of a little more activity in the business routes. However if you're using ActiveMQ in transactional mode then this will have minimal effect as the send to the audit queue would be mostly asynchronous but would add some latency.
 
 A word of warning on asynchronous delivery; if your JVM terminates you can loose any in process audit messages; if losing an audit message is show stopper you must use a synchronous dispatch; for example send to an audit JMS queue inside the same JMS transaction as your other integration route processing.
+
+### Back ends
+
+We have a MongoDbBackend that can be used to consume the [AuditEvent](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/org/fusesource/bai/AuditEvent.java#L30 objects that the AuditEventNotifier emits to store things in a [MongoDb](http://www.mongodb.org/) database.
+
+Back ends are completely optional; you could just use a regular camel route to consume from your *audit endpoint* and use the usual EIPs to content based route them, transform them and write them to some queue / database / noqsl etc.
+
+However the back end implementations try and provide common solutions to auditing such as correlating exchanges based on breadcrumb IDs etc.
+
 
 ### Running the sample
 
