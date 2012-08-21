@@ -22,6 +22,8 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeSentEvent;
 import org.apache.camel.util.ExchangeHelper;
 import org.fusesource.bai.event.AuditEvent;
 import org.springframework.test.annotation.DirtiesContext;
@@ -41,19 +43,26 @@ public class FilterExpressionTest extends AbstractJUnit38SpringContextTests {
     @DirtiesContext
     public void testCamelRoute() throws Exception {
         String expectedBody = "<matched/>";
+        String expectedHeader = "cheese";
         String ignoreBody = "<shouldNotMatch/>";
 
-        resultEndpoint.expectedMinimumMessageCount(1);
-        //resultEndpoint.expectedMessageCount(1);
+        resultEndpoint.expectedMessageCount(1);
 
         template.sendBodyAndHeader(ignoreBody, "foo", "ignored");
-        template.sendBodyAndHeader(expectedBody, "foo", "cheese");
+        template.sendBodyAndHeader(expectedBody, "foo", expectedHeader);
         template.sendBodyAndHeader(ignoreBody, "foo", "ignored");
 
         resultEndpoint.assertIsSatisfied();
         List<Exchange> exchanges = resultEndpoint.getExchanges();
         Exchange exchange = exchanges.get(0);
-        AuditEvent body = exchange.getIn().getMandatoryBody(AuditEvent.class);
-        System.out.println("Got: " + body);
+        AuditEvent auditEvent = exchange.getIn().getMandatoryBody(AuditEvent.class);
+        System.out.println("Got: " + auditEvent);
+
+        AbstractExchangeEvent event = auditEvent.event;
+        assertTrue("Should be a sent event", event instanceof ExchangeSentEvent);
+        String body = auditEvent.getExchange().getIn().getBody(String.class);
+        assertEquals("body of audit exchange", expectedBody, body);
+        Object header = auditEvent.getExchange().getIn().getHeader("foo");
+        assertEquals("foo header of audit exchange", expectedHeader, header);
     }
 }

@@ -29,11 +29,18 @@
     </parent>
 
     <artifactId>bai-sample-camel</artifactId>
+<!--
     <packaging>bundle</packaging>
+-->
     <name>FuseSource :: Business Activity Insight :: Sample Camel route</name>
     <url>http://www.fusesource.com</url>
 
     <properties>
+<!--
+        <fuse.osgi.export>
+            org.fusesource.bai.sample
+        </fuse.osgi.export>
+-->
     </properties>
 
     <dependencies>

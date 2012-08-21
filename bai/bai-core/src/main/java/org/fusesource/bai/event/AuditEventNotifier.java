@@ -24,13 +24,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.camel.*;
 import org.apache.camel.management.PublishEventNotifier;
-import org.apache.camel.management.event.AbstractExchangeEvent;
-import org.apache.camel.management.event.ExchangeCompletedEvent;
-import org.apache.camel.management.event.ExchangeCreatedEvent;
-import org.apache.camel.management.event.ExchangeFailedEvent;
-import org.apache.camel.management.event.ExchangeRedeliveryEvent;
-import org.apache.camel.management.event.ExchangeSendingEvent;
-import org.apache.camel.management.event.ExchangeSentEvent;
+import org.apache.camel.management.event.*;
 import org.apache.camel.util.ExpressionToPredicateAdapter;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
@@ -113,15 +107,15 @@ public class AuditEventNotifier extends PublishEventNotifier {
         }
         Expression filter = null;
         List<String> compareWith = null;
-        if (coreEvent instanceof ExchangeSendingEvent) {
-            compareWith = inRegex;
-            filter = getInFilter();
-        } else if (coreEvent instanceof ExchangeCreatedEvent) {
+        if (coreEvent instanceof ExchangeCreatedEvent) {
             return includeExchangeCreatedEvents;
 /*
             compareWith = inRegex;
             filter = getInFilter();
 */
+        } else if (coreEvent instanceof ExchangeSendingEvent) {
+            compareWith = inRegex;
+            filter = getInFilter();
         } else if (coreEvent instanceof ExchangeSentEvent) {
             compareWith = outRegex;
             filter = getOutFilter();
@@ -148,15 +142,26 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     }
 
-    private String endpointUri(EventObject event) {
+    public static String endpointUri(EventObject event) {
         if (event instanceof AuditEvent) {
             AuditEvent auditEvent = (AuditEvent) event;
             return auditEvent.endpointURI;
+        } else if (event instanceof ExchangeSendingEvent) {
+            ExchangeSendingEvent sentEvent = (ExchangeSendingEvent) event;
+            return sentEvent.getEndpoint().getEndpointUri();
+        } else if (event instanceof ExchangeSentEvent) {
+            ExchangeSentEvent sentEvent = (ExchangeSentEvent) event;
+            return sentEvent.getEndpoint().getEndpointUri();
         } else if (event instanceof AbstractExchangeEvent) {
             AbstractExchangeEvent ae = (AbstractExchangeEvent) event;
-            Endpoint endpoint = ae.getExchange().getFromEndpoint();
-            if (endpoint != null) {
-                return endpoint.getEndpointUri();
+            Exchange exchange = ae.getExchange();
+            if (event instanceof ExchangeFailureHandledEvent || event instanceof ExchangeFailedEvent) {
+                return exchange.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
+            } else {
+                Endpoint fromEndpoint = exchange.getFromEndpoint();
+                if (fromEndpoint != null) {
+                    return fromEndpoint.getEndpointUri();
+                }
             }
         }
         return null;
@@ -169,7 +174,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         }
 		for (String regex : regexps) {
 			if (endpointURI.matches(regex)) {
-				return testFilter(filter, exchangeEvent);
+                return testFilter(filter, exchangeEvent);
 			}
 		}
 		return false;

@@ -28,7 +28,7 @@
         <property name="inFilter">
             <bean class="org.fusesource.bai.ExpressionFactoryBean">
                 <property name="language" value="xpath"/>
-                <property name="expression" value="in:header('foo') != 'doesNotExist'"/>
+                <property name="expression" value="in:header('foo') = 'doesNotExist'"/>
             </bean>
         </property>
         <property name="outFilter">
@@ -39,7 +39,7 @@
         </property>
         <property name="outRegex">
             <list value-type="java.lang.String">
-                <value>mock\:result</value>
+                <value>mock.*</value>
             </list>
         </property>
 

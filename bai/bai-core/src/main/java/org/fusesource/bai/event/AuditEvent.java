@@ -21,9 +21,7 @@ import java.util.Date;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.management.event.AbstractExchangeEvent;
-import org.apache.camel.management.event.ExchangeFailedEvent;
-import org.apache.camel.management.event.ExchangeFailureHandledEvent;
+import org.apache.camel.management.event.*;
 
 /**
  * DTO that represents an AuditEvent
@@ -38,15 +36,7 @@ public class AuditEvent extends AbstractExchangeEvent {
         this.event = event;
         this.timestamp = new Date();
 
-        // TODO are there any other failure endpoint events?
-        if (event instanceof ExchangeFailureHandledEvent|| event instanceof ExchangeFailedEvent) {
-            this.endpointURI = source.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
-        } else {
-            Endpoint fromEndpoint = source.getFromEndpoint();
-            if (fromEndpoint != null) {
-                this.endpointURI = fromEndpoint.getEndpointUri();
-            }
-        }
+        this.endpointURI = AuditEventNotifier.endpointUri(event);
         this.sourceContextId = source.getContext().getName();
         // if the UoW exists, get the info from there as it's more accurate; if it doesn't exist, we have received an ExchangeCreated event so the info in the
         // exchange's fromRouteId will be correct anyway... so it's all good
