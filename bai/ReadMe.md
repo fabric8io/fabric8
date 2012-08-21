@@ -25,7 +25,7 @@ You can create multiple AuditEventNotifier instances with different configuratio
 There are different kind of exchange events raised by Camel
 
 * created: an exchange has been created
-* completed: an exchange has been completed (so we capture how long it took to process)
+* completed: an exchange has been completed succesfully. (We can use this event to capture how long an exchange took to process)
 * sending: an endpoint is about to be invoked
 * sent: an endpoint has been invoked and for InOut exchange patterns, we have the response
 * failure: an exchange failed
