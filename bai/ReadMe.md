@@ -7,7 +7,7 @@ To use Fuse BAI you define the audit points at which to capture events in your C
 * explicit use of an audit endpoint in routes to specifically route to an audit endpoint, for example using a [wire tap](http://camel.apache.org/wire-tap.html)
 * using an **[AuditEventNotifier](https://github.com/fusesource/fuse/blob/master/bai/bai-core/src/main/java/org/fusesource/bai/AuditEventNotifier.java#L71)** to configure rules to define when to capture events in your camel routes without modifying your camel routes directly
 
-We prefer the AuditEventNotifier as it leaves auditing completely separate from your business level integration flows; which should solve the common 80% of audit requirements. If ever you have some really complex requirements feel free to use explicit routing to an audit endpoint to solve really complex routing rules.
+We prefer the AuditEventNotifier as it leaves auditing completely separate from your business level integration flows; which should solve the common 80% of audit requirements. If ever you have some really complex requirements feel free to use explicit routing to an audit endpoint using the Camel DSL.
 
 ### Specifying generic audit rules via AuditEventNotifier
 
