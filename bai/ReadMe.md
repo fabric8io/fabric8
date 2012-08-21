@@ -11,20 +11,9 @@ We prefer the AuditEventNotifier as it leaves auditing completely separate from 
 
 The AuditEventNotifier implementation is currently based on the [PublishEventNotifier](http://camel.apache.org/maven/current/camel-core/apidocs/org/apache/camel/management/PublishEventNotifier.html) plugin in Camel which filters events and then writes the AuditEvents to the audit endpoint (which is a regular Camel Endpoint and so can then use the various available [Camel Endpoints](http://camel.apache.org/components.html).
 
-
-### Configuring AuditEventNotifier
-
-You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like [spring](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8) or CDI.
-
-All events are raised by default - you can then disable or filter out events you don't want. All matching events are then sent to the audit endpoint.
-
-Events are then sent to an *audit endpoint* by the AuditEventNotifier using its [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
-
-You can create multiple AuditEventNotifier instances with different configurations (e.g. to filter different things) and writing to different audit endpoints. Another approach would be to create a single AuditEventNotifier which generates all possible audit events you are interested; then use content based routing on the audit endpoint to write events to different back end components.
-
 ### Underlying event types
 
-There are different kind of exchange events raised by Camel
+There are different kind of exchange events raised by Camel:
 
 * created: an exchange has been created
 * completed: an exchange has been completed succesfully. (We can use this event to capture how long an exchange took to process)
@@ -33,11 +22,19 @@ There are different kind of exchange events raised by Camel
 * failure: an exchange failed
 * redelivery: we had to redeliver an exchange due retry failures
 
-Each of these kinds of events can be filtered using the include flag on AuditEventNotifier or a Prediate can be specified using a [Camel expression language](http://camel.apache.org/languages.html)
+Each of these kinds of events can be filtered by configuring the AuditEventNotifier as follows:
 
-For example see this [sample spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the **sentFilter** predicate is set and various events are disabled by setting the related include flag to false.
+* setting the include flag to false
+* specifying a Prediate using a [Camel expression language](http://camel.apache.org/languages.html)
+* specifying one or more regular expressions on the [URI name to filter]()
 
-Also most back ends support the use of an [expression to calculate the payload](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/ConfigurableBodyExpressionTest-context.xml#L43) written to the storage system (such as MongoDb).
+You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like [spring](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8) or CDI.
+
+For example see this [sample spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the **sentFilter** predicate is set and various events are disabled by setting the related include flag to false and the [sentRegex](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L34) is specified to filter on the endpoint URI.
+
+Events are then sent to an *audit endpoint* by the AuditEventNotifier using its [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
+
+You can create multiple AuditEventNotifier instances with different configurations (e.g. to filter different things) and writing to different audit endpoints. Another approach would be to create a single AuditEventNotifier which generates all possible audit events you are interested; then use content based routing on the audit endpoint to write events to different back end components.
 
 ### Asynchronous delivery of audit events
 
@@ -56,6 +53,9 @@ We have a MongoDbBackend that can be used to consume the [AuditEvent](https://gi
 Back ends are completely optional; you could just use a regular camel route to consume from your *audit endpoint* and use the usual EIPs to content based route them, transform them and write them to some queue / database / noqsl etc.
 
 However the back end implementations try and provide common solutions to auditing such as correlating exchanges based on breadcrumb IDs etc.
+
+Also most back ends also support the use of an [expression to calculate the payload](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/ConfigurableBodyExpressionTest-context.xml#L43) written to the storage system (such as MongoDb).
+
 
 
 ### Running the sample
