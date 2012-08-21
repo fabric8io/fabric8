@@ -14,7 +14,9 @@ The AuditEventNotifier implementation is currently based on the [PublishEventNot
 
 ### Configuring AuditEventNotifier
 
-You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like [spring](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8) or CDI. You can disable or filter which events and endpoints events are raised and sent to the audit endpoint.
+You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like [spring](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8) or CDI.
+
+All events are raised by default - you can then disable or filter out events you don't want. All matching events are then sent to the audit endpoint.
 
 Events are then sent to an *audit endpoint* by the AuditEventNotifier using its [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
 
