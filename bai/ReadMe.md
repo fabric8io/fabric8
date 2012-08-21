@@ -9,13 +9,11 @@ To use Fuse BAI you define the audit points at which to capture events in your C
 
 We prefer the AuditEventNotifier as it leaves auditing completely separate from your business level integration flows; which should solve the common 80% of audit requirements. If ever you have some really complex requirements feel free to use explicit routing to an audit endpoint using the Camel DSL.
 
-### Specifying generic audit rules via AuditEventNotifier
+### Configuring AuditEventNotifier
 
-You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like Spring or CDI. You can disable or filter which events and endpoints events are raised and sent to the audit endpoint.
+You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like [spring](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8) or CDI. You can disable or filter which events and endpoints events are raised and sent to the audit endpoint.
 
 Events are then sent to an *audit endpoint* by the AuditEventNotifier using its [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
-
-The AuditEventNotifier is then a bean configured in your application (e.g. in a spring XML like this [example spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8)).
 
 The AuditEventNotifier implementation is currently based on the [PublishEventNotifier](http://camel.apache.org/maven/current/camel-core/apidocs/org/apache/camel/management/PublishEventNotifier.html) plugin in Camel which filters events and then writes the AuditEvents to the audit endpoint (which is a regular Camel Endpoint and so can then use the various available [Camel Endpoints](http://camel.apache.org/components.html).
 
