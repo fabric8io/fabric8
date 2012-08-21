@@ -218,7 +218,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
             ae = auditEvent.getEvent();
         } else if (event instanceof AbstractExchangeEvent) {
             ae = (AbstractExchangeEvent) event;
-            auditEvent = new AuditEvent(ae.getExchange(), ae);
+            auditEvent = createAuditEvent(ae);
         }
 
         if (ae == null || auditEvent == null) {
@@ -254,6 +254,13 @@ public class AuditEventNotifier extends PublishEventNotifier {
             // and remove it when its done
             exchange.removeProperty(Exchange.NOTIFY_EVENT);
         }
+    }
+
+    /**
+     * Factory method to create a new {@link AuditEvent} in case a sub class wants to create a different derived kind of event
+     */
+    protected AuditEvent createAuditEvent(AbstractExchangeEvent ae) {
+        return new AuditEvent(ae.getExchange(), ae);
     }
 
     /**
