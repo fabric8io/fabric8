@@ -34,7 +34,7 @@ There are different kind of exchange events raised by Camel
 
 Each of these kinds of events can be filtered using the include flag on AuditEventNotifier or a Prediate can be specified using a [Camel expression language](http://camel.apache.org/languages.html)
 
-For example see this [sample spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the **sentFilter** predicate is set and various events are disabled.
+For example see this [sample spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the **sentFilter** predicate is set and various events are disabled by setting the related include flag to false.
 
 Also most back ends support the use of an [expression to calculate the payload](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/ConfigurableBodyExpressionTest-context.xml#L43) written to the storage system (such as MongoDb).
 
@@ -83,7 +83,7 @@ to use the Mongo shell type:
 
 Or you could install [mViewer](https://github.com/Imaginea/mViewer) and browse the **bai** database in MongoDb using the web client
 
-### Mongo collections
+### MongoDb collections
 
 * **exchangeXray** contains a list of all the context and route IDs which are beinbg audited; so querying this collection allows tools to render the various event streams
 * **baievents** contains all the events in a flat easy to query collection
