@@ -11,9 +11,9 @@ We prefer the AuditEventNotifier as it leaves auditing completely separate from 
 
 ### Specifying generic audit rules via AuditEventNotifier
 
-You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like Spring or CDI. You can disable or filter which events are raised along with filter on which endpoints to audit.
+You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like Spring or CDI. You can disable or filter which events and endpoints events are raised and sent to the audit endpoint.
 
-Events are then sent to an *audit endpoint* via the [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
+Events are then sent to an *audit endpoint* by the AuditEventNotifier using its [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
 
 The AuditEventNotifier is then a bean configured in your application (e.g. in a spring XML like this [example spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8)).
 
@@ -85,6 +85,6 @@ Or you could install [mViewer](https://github.com/Imaginea/mViewer) and browse t
 
 ### MongoDb collections
 
-* **exchangeXray** contains a list of all the context and route IDs which are beinbg audited; so querying this collection allows tools to render the various event streams
 * **baievents** contains all the events in a flat easy to query collection
 * **$contextId.$routeId** contains all the exchanges on this route
+* **exchangeXray** contains a list of all the context & route collections that each breadcrumb has been through; so for a given bread crumb ID you can find what collections to filter to find details of all its exchanges
