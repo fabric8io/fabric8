@@ -15,13 +15,12 @@
  * limitations under the License.
  */
 
-package org.fusesource.bai.event;
+package org.fusesource.bai;
+
+import org.apache.camel.Exchange;
+import org.apache.camel.management.event.AbstractExchangeEvent;
 
 import java.util.Date;
-
-import org.apache.camel.Endpoint;
-import org.apache.camel.Exchange;
-import org.apache.camel.management.event.*;
 
 /**
  * DTO that represents an AuditEvent
@@ -46,9 +45,10 @@ public class AuditEvent extends AbstractExchangeEvent {
         // sourceRouteId: what route created the Exchange
         this.sourceRouteId = source.getFromRouteId();
         // currentRouteId: what route the Exchange currently is in
-        this.currentRouteId = (source.getUnitOfWork() == null || source.getUnitOfWork().getRouteContext() == null) ? null : source.getUnitOfWork().getRouteContext().getRoute().getId();
+        this.currentRouteId = (source.getUnitOfWork() == null || source.getUnitOfWork().getRouteContext() == null)
+                ? null : source.getUnitOfWork().getRouteContext().getRoute().getId();
         this.breadCrumbId = source.getIn().getHeader(Exchange.BREADCRUMB_ID, String.class);
-        if (this.breadCrumbId == null && source.hasOut()) {
+        if (this.getBreadCrumbId() == null && source.hasOut()) {
             this.breadCrumbId = source.getOut().getHeader(Exchange.BREADCRUMB_ID, String.class);
         }
         this.exception = source.getException() == null ? source.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class) : source.getException();
@@ -56,14 +56,53 @@ public class AuditEvent extends AbstractExchangeEvent {
         
     }
     
-    public AbstractExchangeEvent event;
-    public Date timestamp;
-    public String endpointURI;
-    public Exception exception;
-    public String sourceContextId;
-    public String sourceRouteId;
-    public String breadCrumbId;
-    public Boolean redelivered;
-    public String currentRouteId;
-    
+    private AbstractExchangeEvent event;
+    private Date timestamp;
+    private String endpointURI;
+    private Exception exception;
+    private String sourceContextId;
+    private String sourceRouteId;
+    private String breadCrumbId;
+    private Boolean redelivered;
+    private String currentRouteId;
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public AbstractExchangeEvent getEvent() {
+        return event;
+    }
+
+    public Date getTimestamp() {
+        return timestamp;
+    }
+
+    public String getEndpointURI() {
+        return endpointURI;
+    }
+
+    public Exception getException() {
+        return exception;
+    }
+
+    public String getSourceContextId() {
+        return sourceContextId;
+    }
+
+    public String getSourceRouteId() {
+        return sourceRouteId;
+    }
+
+    public String getBreadCrumbId() {
+        return breadCrumbId;
+    }
+
+    public Boolean getRedelivered() {
+        return redelivered;
+    }
+
+    public String getCurrentRouteId() {
+        return currentRouteId;
+    }
 }

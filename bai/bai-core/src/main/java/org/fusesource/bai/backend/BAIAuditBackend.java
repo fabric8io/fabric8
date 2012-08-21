@@ -17,7 +17,7 @@
 
 package org.fusesource.bai.backend;
 
-import org.fusesource.bai.event.AuditEvent;
+import org.fusesource.bai.AuditEvent;
 
 /**
  * Business Activity Insight backend interface

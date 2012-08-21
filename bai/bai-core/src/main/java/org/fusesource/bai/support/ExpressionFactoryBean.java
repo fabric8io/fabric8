@@ -14,32 +14,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.fusesource.bai.support;
 
-package org.fusesource.bai;
-
-import org.apache.camel.Predicate;
+import org.apache.camel.Expression;
 import org.apache.camel.spi.Language;
 import org.springframework.beans.factory.FactoryBean;
 
 /**
- * A factory bean of Predicate objects for easier configuration in Spring XML
+ * A factory bean of Expression objects for easier configuration in Spring XML
  */
-public class PredicateFactoryBean extends ExpressionFactoryBeanSupport implements FactoryBean<Predicate> {
+public class ExpressionFactoryBean extends ExpressionFactoryBeanSupport implements FactoryBean<Expression> {
+
 
     @Override
     public boolean isSingleton() {
         return false;
     }
 
+
     @Override
     public Class<?> getObjectType() {
-        return Predicate.class;
+        return Expression.class;
     }
 
     @Override
-    public Predicate getObject() throws Exception {
+    public Expression getObject() throws Exception {
         Language languageImpl = validateLanguage();
-        return languageImpl.createPredicate(getExpression());
+        return languageImpl.createExpression(getExpression());
     }
-
 }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai;
+package org.fusesource.bai.support;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.CamelContextAware;

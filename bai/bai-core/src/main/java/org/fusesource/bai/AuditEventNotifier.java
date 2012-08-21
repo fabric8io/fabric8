@@ -15,12 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.bai.event;
-
-import java.util.Arrays;
-import java.util.EventObject;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+package org.fusesource.bai;
 
 import org.apache.camel.*;
 import org.apache.camel.management.PublishEventNotifier;
@@ -28,9 +23,15 @@ import org.apache.camel.management.event.*;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
-import org.fusesource.bai.AuditConstants;
+
+import java.util.Arrays;
+import java.util.EventObject;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
+ * A notifier of {@link AuditEvent} objects
+ *
  * { _id: <breadcrumbId>,
      exchanges: [
      { timestamp: <timestamp>,
@@ -107,7 +108,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         AbstractExchangeEvent exchangeEvent = null;
         if (event instanceof AuditEvent) {
             AuditEvent auditEvent = (AuditEvent) event;
-            coreEvent = auditEvent.event;
+            coreEvent = auditEvent.getEvent();
         }
         if (event instanceof AbstractExchangeEvent) {
             exchangeEvent = (AbstractExchangeEvent) event;
@@ -150,7 +151,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
     public static String endpointUri(EventObject event) {
         if (event instanceof AuditEvent) {
             AuditEvent auditEvent = (AuditEvent) event;
-            return auditEvent.endpointURI;
+            return auditEvent.getEndpointURI();
         } else if (event instanceof ExchangeSendingEvent) {
             ExchangeSendingEvent sentEvent = (ExchangeSendingEvent) event;
             return sentEvent.getEndpoint().getEndpointUri();
@@ -210,7 +211,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         AbstractExchangeEvent ae = null;
         if (event instanceof AuditEvent) {
             auditEvent = (AuditEvent) event;
-            ae = auditEvent.event;
+            ae = auditEvent.getEvent();
         } else if (event instanceof AbstractExchangeEvent) {
             ae = (AbstractExchangeEvent) event;
             auditEvent = new AuditEvent(ae.getExchange(), ae);

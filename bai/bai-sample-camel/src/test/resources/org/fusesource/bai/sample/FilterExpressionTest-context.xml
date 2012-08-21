@@ -24,9 +24,9 @@
     ">
 
     <!-- lets configure the audit notifier with some filter expressions -->
-	<bean class="org.fusesource.bai.event.AuditEventNotifier">
+	<bean class="org.fusesource.bai.AuditEventNotifier">
         <property name="sentFilter">
-            <bean class="org.fusesource.bai.PredicateFactoryBean">
+            <bean class="org.fusesource.bai.support.PredicateFactoryBean">
                 <property name="language" value="simple"/>
                 <property name="expression" value="${in.header.foo} == 'cheese'"/>
             </bean>

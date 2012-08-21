@@ -25,7 +25,7 @@
     ">
 
     <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
-	<bean class="org.fusesource.bai.event.AuditEventNotifier">
+	<bean class="org.fusesource.bai.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
 		<property name="sendingRegex">
 			<list value-type="java.lang.String">
@@ -43,7 +43,7 @@
     <bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
         <!-- lets set the expression used to store the payload -->
         <property name="storeBodyExpression">
-            <bean class="org.fusesource.bai.ExpressionFactoryBean">
+            <bean class="org.fusesource.bai.support.ExpressionFactoryBean">
                 <property name="language" value="simple"/>
                 <property name="expression" value="header.foo"/>
             </bean>

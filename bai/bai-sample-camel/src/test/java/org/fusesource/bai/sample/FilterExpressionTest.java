@@ -25,7 +25,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.apache.camel.management.event.ExchangeSentEvent;
 import org.apache.camel.util.ExchangeHelper;
-import org.fusesource.bai.event.AuditEvent;
+import org.fusesource.bai.AuditEvent;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit38.AbstractJUnit38SpringContextTests;
@@ -58,7 +58,7 @@ public class FilterExpressionTest extends AbstractJUnit38SpringContextTests {
         AuditEvent auditEvent = exchange.getIn().getMandatoryBody(AuditEvent.class);
         System.out.println("Got: " + auditEvent);
 
-        AbstractExchangeEvent event = auditEvent.event;
+        AbstractExchangeEvent event = auditEvent.getEvent();
         assertTrue("Should be a sent event", event instanceof ExchangeSentEvent);
         String body = auditEvent.getExchange().getIn().getBody(String.class);
         assertEquals("body of audit exchange", expectedBody, body);

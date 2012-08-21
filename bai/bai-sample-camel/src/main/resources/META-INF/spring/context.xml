@@ -6,7 +6,7 @@
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
-	<bean class="org.fusesource.bai.event.AuditEventNotifier">
+	<bean class="org.fusesource.bai.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
 		<property name="sendingRegex">
 			<list value-type="java.lang.String">
