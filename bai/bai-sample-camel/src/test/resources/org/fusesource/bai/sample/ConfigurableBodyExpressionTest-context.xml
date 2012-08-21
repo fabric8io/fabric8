@@ -27,12 +27,12 @@
     <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
-		<property name="inRegex">
+		<property name="sendingRegex">
 			<list value-type="java.lang.String">
 				<value>.*</value>
 			</list>
 		</property>
-		<property name="outRegex">
+		<property name="sentRegex">
 			<list value-type="java.lang.String">
 				<value>.*</value>
 			</list>

@@ -70,22 +70,30 @@ import org.fusesource.bai.AuditConstants;
 public class AuditEventNotifier extends PublishEventNotifier {
 
     // by default accept all
-	private List<String> inRegex = Arrays.asList(".*");
-	private List<String> outRegex = Arrays.asList(".*");
+	private List<String> sendingRegex = Arrays.asList(".*");
+	private List<String> sentRegex = Arrays.asList(".*");
 	private List<String> failureRegex = Arrays.asList(".*");
 	private List<String> redeliveryRegex = Arrays.asList(".*");
 
-    private Predicate inFilter;
-    private Predicate outFilter;
+    private Predicate createdFilter;
+    private Predicate sendingFilter;
+    private Predicate sentFilter;
+    private Predicate completedFilter;
     private Predicate failureFilter;
     private Predicate redeliveryFilter;
+
+    private boolean includeCreatedEvents = true;
+    private boolean includeCompletedEvents = true;
+    private boolean includeSendingEvents = true;
+    private boolean includeSentEvents = true;
+    private boolean includeFailureEvents = true;
+    private boolean includeRedeliveryEvents = true;
+
 
     private CamelContext camelContext;
     private Endpoint endpoint;
     private String endpointUri;
     private Producer producer;
-    private boolean includeExchangeCreatedEvents;
-    private boolean includeExchangeCompletedEvents;
 
     public AuditEventNotifier() {
 		setIgnoreCamelContextEvents(true);
@@ -107,29 +115,27 @@ public class AuditEventNotifier extends PublishEventNotifier {
         Predicate filter = null;
         List<String> compareWith = null;
         if (coreEvent instanceof ExchangeCreatedEvent) {
-            return includeExchangeCreatedEvents;
-/*
-            compareWith = inRegex;
-            filter = getInFilter();
-*/
+            if (!includeCreatedEvents) return false;
+            filter = getCreatedFilter();
         } else if (coreEvent instanceof ExchangeSendingEvent) {
-            compareWith = inRegex;
-            filter = getInFilter();
+            if (!includeSendingEvents) return false;
+            compareWith = sendingRegex;
+            filter = getSendingFilter();
         } else if (coreEvent instanceof ExchangeSentEvent) {
-            compareWith = outRegex;
-            filter = getOutFilter();
+            if (!includeSentEvents) return false;
+            compareWith = sentRegex;
+            filter = getSentFilter();
         } else if (coreEvent instanceof ExchangeCompletedEvent) {
-/*
-            compareWith = outRegex;
-            filter = getOutFilter();
-*/
-            return includeExchangeCompletedEvents;
+            if (!includeCompletedEvents) return false;
+            filter = getCompletedFilter();
         } else if (coreEvent instanceof ExchangeRedeliveryEvent) {
+            if (!includeRedeliveryEvents) return false;
             compareWith = redeliveryRegex;
             filter = getRedeliveryFilter();
         }
         // logic if it's a failure is different; we compare against Exception
         else if (coreEvent instanceof ExchangeFailedEvent) {
+            if (!includeFailureEvents) return false;
             ExchangeFailedEvent failedEvent = (ExchangeFailedEvent) coreEvent;
             String exceptionClassName = failedEvent.getExchange().getException().getClass().getCanonicalName();
             filter = getFailureFilter();
@@ -250,8 +256,8 @@ public class AuditEventNotifier extends PublishEventNotifier {
 	 */
 	@Override
 	protected void doStart() throws Exception {
-		inRegex = new CopyOnWriteArrayList<String>(inRegex);
-		outRegex = new CopyOnWriteArrayList<String>(outRegex);
+		sendingRegex = new CopyOnWriteArrayList<String>(sendingRegex);
+		sentRegex = new CopyOnWriteArrayList<String>(sentRegex);
 		failureRegex = new CopyOnWriteArrayList<String>(failureRegex);
 		redeliveryRegex = new CopyOnWriteArrayList<String>(redeliveryRegex);
 	    
@@ -269,20 +275,20 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
 	}
 
-	public List<String> getInRegex() {
-		return inRegex;
+	public List<String> getSendingRegex() {
+		return sendingRegex;
 	}
 
-	public void setInRegex(List<String> inRegex) {
-		this.inRegex = inRegex;
+	public void setSendingRegex(List<String> sendingRegex) {
+		this.sendingRegex = sendingRegex;
 	}
 
-	public List<String> getOutRegex() {
-		return outRegex;
+	public List<String> getSentRegex() {
+		return sentRegex;
 	}
 
-	public void setOutRegex(List<String> outRegex) {
-		this.outRegex = outRegex;
+	public void setSentRegex(List<String> sentRegex) {
+		this.sentRegex = sentRegex;
 	}
 
 	public List<String> getFailureRegex() {
@@ -333,20 +339,20 @@ public class AuditEventNotifier extends PublishEventNotifier {
         this.failureFilter = failureFilter;
     }
 
-    public Predicate getInFilter() {
-        return inFilter;
+    public Predicate getSendingFilter() {
+        return sendingFilter;
     }
 
-    public void setInFilter(Predicate inFilter) {
-        this.inFilter = inFilter;
+    public void setSendingFilter(Predicate sendingFilter) {
+        this.sendingFilter = sendingFilter;
     }
 
-    public Predicate getOutFilter() {
-        return outFilter;
+    public Predicate getSentFilter() {
+        return sentFilter;
     }
 
-    public void setOutFilter(Predicate outFilter) {
-        this.outFilter = outFilter;
+    public void setSentFilter(Predicate sentFilter) {
+        this.sentFilter = sentFilter;
     }
 
     public Predicate getRedeliveryFilter() {
@@ -355,6 +361,70 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     public void setRedeliveryFilter(Predicate redeliveryFilter) {
         this.redeliveryFilter = redeliveryFilter;
+    }
+
+    public Predicate getCompletedFilter() {
+        return completedFilter;
+    }
+
+    public void setCompletedFilter(Predicate completedFilter) {
+        this.completedFilter = completedFilter;
+    }
+
+    public Predicate getCreatedFilter() {
+        return createdFilter;
+    }
+
+    public void setCreatedFilter(Predicate createdFilter) {
+        this.createdFilter = createdFilter;
+    }
+
+    public boolean isIncludeCompletedEvents() {
+        return includeCompletedEvents;
+    }
+
+    public void setIncludeCompletedEvents(boolean includeCompletedEvents) {
+        this.includeCompletedEvents = includeCompletedEvents;
+    }
+
+    public boolean isIncludeCreatedEvents() {
+        return includeCreatedEvents;
+    }
+
+    public void setIncludeCreatedEvents(boolean includeCreatedEvents) {
+        this.includeCreatedEvents = includeCreatedEvents;
+    }
+
+    public boolean isIncludeFailureEvents() {
+        return includeFailureEvents;
+    }
+
+    public void setIncludeFailureEvents(boolean includeFailureEvents) {
+        this.includeFailureEvents = includeFailureEvents;
+    }
+
+    public boolean isIncludeRedeliveryEvents() {
+        return includeRedeliveryEvents;
+    }
+
+    public void setIncludeRedeliveryEvents(boolean includeRedeliveryEvents) {
+        this.includeRedeliveryEvents = includeRedeliveryEvents;
+    }
+
+    public boolean isIncludeSendingEvents() {
+        return includeSendingEvents;
+    }
+
+    public void setIncludeSendingEvents(boolean includeSendingEvents) {
+        this.includeSendingEvents = includeSendingEvents;
+    }
+
+    public boolean isIncludeSentEvents() {
+        return includeSentEvents;
+    }
+
+    public void setIncludeSentEvents(boolean includeSentEvents) {
+        this.includeSentEvents = includeSentEvents;
     }
 
     @Override

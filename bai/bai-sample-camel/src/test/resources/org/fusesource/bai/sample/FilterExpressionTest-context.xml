@@ -25,23 +25,22 @@
 
     <!-- lets configure the audit notifier with some filter expressions -->
 	<bean class="org.fusesource.bai.event.AuditEventNotifier">
-        <property name="inFilter">
-            <bean class="org.fusesource.bai.PredicateFactoryBean">
-                <property name="language" value="xpath"/>
-                <property name="expression" value="in:header('foo') = 'doesNotExist'"/>
-            </bean>
-        </property>
-        <property name="outFilter">
+        <property name="sentFilter">
             <bean class="org.fusesource.bai.PredicateFactoryBean">
                 <property name="language" value="simple"/>
                 <property name="expression" value="${in.header.foo} == 'cheese'"/>
             </bean>
         </property>
-        <property name="outRegex">
+        <property name="sentRegex">
             <list value-type="java.lang.String">
                 <value>mock.*</value>
             </list>
         </property>
+
+        <!-- lets turn off some events -->
+        <property name="includeCreatedEvents" value="false"/>
+        <property name="includeCompletedEvents" value="false"/>
+        <property name="includeSendingEvents" value="false"/>
 
         <property name="endpointUri" value="mock:audit"/>
 	</bean>
