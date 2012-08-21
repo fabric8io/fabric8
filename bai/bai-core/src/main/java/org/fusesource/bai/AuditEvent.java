@@ -18,14 +18,14 @@
 package org.fusesource.bai;
 
 import org.apache.camel.Exchange;
-import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.*;
 
 import java.util.Date;
 
 /**
  * DTO that represents an AuditEvent
- * @author raul
  *
+ * @author raul
  */
 public class AuditEvent extends AbstractExchangeEvent {
     private static final long serialVersionUID = 6818757465057171170L;
@@ -104,5 +104,29 @@ public class AuditEvent extends AbstractExchangeEvent {
 
     public String getCurrentRouteId() {
         return currentRouteId;
+    }
+
+    public boolean isCreatedEvent() {
+        return event instanceof ExchangeCreatedEvent;
+    }
+
+    public boolean isCompletedEvent() {
+        return event instanceof ExchangeCompletedEvent;
+    }
+
+    public boolean isSendingEvent() {
+        return event instanceof ExchangeSendingEvent;
+    }
+
+    public boolean isSentEvent() {
+        return event instanceof ExchangeSentEvent;
+    }
+
+    public boolean isFailureEvent() {
+        return event instanceof ExchangeFailedEvent;
+    }
+
+    public boolean isRedeliveryEvent() {
+        return event instanceof ExchangeRedeliveryEvent;
     }
 }
