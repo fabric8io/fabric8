@@ -1,6 +1,6 @@
 ## Fuse BAI
 
-The **Fuse BAI** (or Business Activity Insight) module is is designed to give insight into the underlying business processes by capturing business events into an audit log that can then be stored somewhere (e.g. a NoSQL or hadoop) and then analysed and queried offline without impacting the integration flows.
+The **Fuse BAI** (or Business Activity Insight) module is is designed to give insight into the underlying business processes by capturing business events into an audit log that can then be stored somewhere (e.g. a database, NoSQL or hadoop) and then analysed and queried offline without impacting the integration flows.
 
 To use Fuse BAI you define the audit points at which to capture events in your Camel routes either by:
 
