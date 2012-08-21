@@ -13,7 +13,7 @@ We prefer the AuditEventNotifier as it leaves auditing completely separate from 
 
 You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like Spring or CDI. You can disable or filter which events are raised along with filter on which endpoints to audit.
 
-Events are then sent to an *audit endpoint* via the [endpointUri** property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
+Events are then sent to an *audit endpoint* via the [endpointUri property](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L45).
 
 The AuditEventNotifier is then a bean configured in your application (e.g. in a spring XML like this [example spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8)).
 
