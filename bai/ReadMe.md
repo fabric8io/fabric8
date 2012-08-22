@@ -135,11 +135,11 @@ To do this define a property of this format:
 
     camelContext.exclude.$bundleIDPattern = $camelContextIDPattern
 
-Patterns for the OSGi Bundle ID and CamelContext ID use Java [regular expression syntax](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#sum).
+Patterns for the OSGi Bundle ID and CamelContext ID use the familiar file name pattern matching of * means zero to many characters and ? means one character.
 
 For example the default rule below will exclude all camel contexts in any bundle which have a CamelContext ID which starts with *"audit-"*
 
-    camelContext.exclude.* = audit-.*
+    camelContext.exclude.* = audit-*
 
 If you wish to override an exclusion rule, just make it an empty pattern which matches nothing:
 
