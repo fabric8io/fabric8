@@ -181,6 +181,26 @@
             </completers>
         </command>
 
+        <command name="fabric/container-add-profile">
+            <action class="org.fusesource.fabric.commands.ContainerAddProfile">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="containerCompleter"/>
+                <ref component-id="addProfileCompleter"/>
+            </completers>
+        </command>
+
+        <command name="fabric/container-remove-profile">
+            <action class="org.fusesource.fabric.commands.ContainerRemoveProfile">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <completers>
+                <ref component-id="containerCompleter"/>
+                <ref component-id="removeProfileCompleter"/>
+            </completers>
+        </command>
+
         <command name="fabric/cluster-list">
             <action class="org.fusesource.fabric.commands.ClusterList">
                 <property name="fabricService" ref="fabricService"/>
@@ -434,6 +454,22 @@
 
     <bean id="configCompleter" class="org.apache.karaf.shell.config.completers.ConfigurationCompleter">
         <property name="admin" ref="configurationAdmin"/>
+    </bean>
+
+    <bean id="addProfileCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerAwareProfileCompleter">
+        <argument index="0" value="1"/>
+        <argument index="1" value="false"/>
+        <argument index="2" value="true"/>
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+    <bean id="removeProfileCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerAwareProfileCompleter">
+        <argument index="0" value="1"/>
+        <argument index="1" value="true"/>
+        <argument index="2" value="false"/>
+        <property name="fabricService" ref="fabricService"/>
+        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
