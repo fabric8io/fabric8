@@ -133,32 +133,24 @@ The configuration is created in the config admin PID **org.fusesource.bai.agent*
 You may want to exclude certain camel contexts from being audited completely. That is to say no auditing is performed at all.
 To do this define a property of this format:
 
-    camelContext.(include|exclude)[/$bundleIDRegex] = $camelContextIDRegex
+    camelContext.exclude.$bundleIDPattern = $camelContextIDPattern
 
 Patterns for the OSGi Bundle ID and CamelContext ID use Java [regular expression syntax](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#sum).
 
 For example the default rule below will exclude all camel contexts in any bundle which have a CamelContext ID which starts with *"audit-"*
 
-    camelContext.exclude/.* = audit-.*
+    camelContext.exclude.* = audit-.*
 
-Ommitting the bundleIDRegex is applicable to matching all bundle IDs
+If you wish to override an exclusion rule, just make it an empty pattern which matches nothing:
 
-    camelContext.exclude = audit-.*
-
-Using either include or exclude allows you to easily include or exclude all camelContextID's given a bundle ID pattern.
-
-Note that exclusions always win ahead of inclusions. All inclusion rules are OR'd together and all exclusions are OR'd together.
-
-If you wish to override an exclusion rule, just make it empty:
-
-        camelContext.exclude/.* =
+        camelContext.exclude.* =
 
 
 #### Excluding Events
 
 All kinds of events are raised by default. You may wish to exclude kinds of events on a per bundleID or camelContextID. To do this use this form of key/value
 
-    event.exclude.$eventName.$bundleRegex = $camelContextIdRegex
+    event.exclude.$eventName.$bundleIDPattern = $camelContextIDPattern
 
 Where *$eventName* can be one of
 
@@ -169,25 +161,25 @@ Where *$eventName* can be one of
 * failure
 * redelivery
 
-Again an empty *$camelContextIdRegex* value will disable the exclusion of the events (which is particulary useful for overriding an existing value such as with Fuse Fabric Profiles).
+Again an empty *$camelContextIDPattern* value will disable the exclusion of the events (which is particulary useful for overriding an existing value such as with Fuse Fabric Profiles).
 
 e.g. to exclude the create events in all bundles which begin with "foo" or "bar" for all CamelContext IDs then use:
 
-    event.exclude.create/(foo|bar).* = .*
+    event.exclude.create.foo* = *
 
 #### Exclusing Exchanges via Predicates
 
 To filter individual exchanges from being audited you may wish to use a [Camel expression language](http://camel.apache.org/languages.html).
 
-    exchange.filter.$eventType.$language[/$bundleIDRegex[/$camelContextIDRegex]] = expression
+    exchange.filter.$eventType.$language.$bundleIDPattern[/$camelContextIDPattern]] = expression
 
 For example to use a header using xpath on 'my-bundle' only:
 
-    exchange.filter.sent.xpath/my-bundle = in:header("foo") = 'bar'
+    exchange.filter.sent.xpath.my-bundle = in:header("foo") = 'bar'
 
 Or to apply a filter for all bundles:
 
-    exchange.filter.sending.simple = ${in.header.foo} == 'cheese'
+    exchange.filter.sending.simple.* = ${in.header.foo} == 'cheese'
 
 Note that you can only have 1 filter for a given event type, language and bundleID and/or camelContextID expression
 
@@ -196,13 +188,13 @@ Note that you can only have 1 filter for a given event type, language and bundle
 
 To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. Again you can restrict these filters to specific bundleIDs and/or camelContextIDs
 
-    endpoint.(include|exclude)[/$bundleIDRegex[/$camelContextIDRegex]] = $endpointUriRegex
+    endpoint.exclude.$bundleIDPattern[/$camelContextIDPattern]] = $endpointUriRegex
 
 For example to exclude all log endpoints from audit on all bundleIDs and camelContextIDs
 
-    endpoint.exclude = log:.*
+    endpoint.exclude.* = log:.*
 
 To only exclude activemq endpoints in the bundleID "foo" for camelContextID "bar" it would be
 
-    endpoint.exclude/foo/bar = activem:.*
+    endpoint.exclude.*/myContextId = activem:q.*
 
