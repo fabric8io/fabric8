@@ -119,3 +119,90 @@ Now install a sample camel route which will then be audited
 Now start the bundle.
 
 You should see this route audited to the MongoDb **bai** database as the BAI agent will auto-detect the CamelContext starting and attach the AuditEventNotifier.
+
+### Configuring the BAI Agent
+
+We use the OSGi Config Admin service to let you enable and disable the BAI Agent on different bundles and CamelContext IDs together with allowing you to filter out event types with flags, predicates and regular expressions on endpoint URIs.
+
+We use OSGi Config admin as it means you can then use the Karaf command line shell, use Karaf config files in the Fuse container or using Fuse Fabric profiles (with profile based overriding).
+
+The configuration is created in the config admin PID **org.fusesource.bai.agent**
+
+#### Excluding CamelContexts from audit
+
+You may want to exclude certain camel contexts from being audited completely. That is to say no auditing is performed at all.
+To do this define a property of this format:
+
+    camelContext.(include|exclude)[/$bundleIDRegex] = $camelContextIDRegex
+
+Patterns for the OSGi Bundle ID and CamelContext ID use Java [regular expression syntax](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#sum).
+
+For example the default rule below will exclude all camel contexts in any bundle which have a CamelContext ID which starts with *"audit-"*
+
+    camelContext.exclude/.* = audit-.*
+
+Ommitting the bundleIDRegex is applicable to matching all bundle IDs
+
+    camelContext.exclude = audit-.*
+
+Using either include or exclude allows you to easily include or exclude all CamelContextID's given a bundle ID pattern.
+
+Note that exclusions always win ahead of inclusions. All inclusion rules are OR'd together and all exclusions are OR'd together.
+
+If you wish to override an exclusion rule, just make it empty:
+
+        camelContext.exclude/.* =
+
+
+#### Excluding Events
+
+All kinds of events are raised by default. You may wish to exclude kinds of events on a per bundleID or camelContextID. To do this use this form of key/value
+
+    event.exclude.$eventName.$bundleRegex = (include|exclude) $camelContextIdRegex
+
+Where *$eventName* can be one of
+
+* created
+* completed
+* sending
+* sent
+* failure
+* redelivery
+
+Again an empty *$camelContextIdRegex* value will disable the exclusion of the events (which is particulary useful for overriding an existing value such as with Fuse Fabric Profiles).
+
+e.g. to exclude the create events in all bundles which begin with "foo" or "bar" for all CamelContext IDs then use:
+
+    event.exclude.create.(foo|bar).* = .*
+
+#### Exclusing Exchanges via Predicates
+
+To filter individual exchanges from being audited you may wish to use a [Camel expression language](http://camel.apache.org/languages.html).
+
+    exchange.filter.$eventType.$language[/$bundleIDRegex[/$camelContextIDRegex]] = expression
+
+For example to use a header using xpath on 'my-bundle' only:
+
+    exchange.filter.sent.xpath/my-bundle = in:header("foo") = 'bar'
+
+Or to apply a filter for all bundles:
+
+    exchange.filter.sending.simple = ${in.header.foo} == 'cheese'
+
+Note that you can only have 1 filter for a given event type, language and BundleID and/or CamelContextID expression
+
+
+#### Exclusing Endpoint URIs
+
+To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. Again you can restrict these filters to specific BundleIDs and/or CamelContextIDs
+
+    endpoint.(include|exclude)[/$bundleIDRegex[/$camelContextIDRegex]] = $endpointUriRegex
+
+For example to exclude all log endpoints from audit on all BundleIDs and CamelContextIDs
+
+    endpoint.exclude = log:.*
+
+To only exclude activemq endpoints in the bundleID "foo" for camelContextID "bar" it would be
+
+    endpoint.exclude/foo/bar = activem:.*
+
