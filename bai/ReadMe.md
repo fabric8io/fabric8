@@ -145,7 +145,7 @@ Ommitting the bundleIDRegex is applicable to matching all bundle IDs
 
     camelContext.exclude = audit-.*
 
-Using either include or exclude allows you to easily include or exclude all CamelContextID's given a bundle ID pattern.
+Using either include or exclude allows you to easily include or exclude all camelContextID's given a bundle ID pattern.
 
 Note that exclusions always win ahead of inclusions. All inclusion rules are OR'd together and all exclusions are OR'd together.
 
@@ -158,7 +158,7 @@ If you wish to override an exclusion rule, just make it empty:
 
 All kinds of events are raised by default. You may wish to exclude kinds of events on a per bundleID or camelContextID. To do this use this form of key/value
 
-    event.exclude.$eventName.$bundleRegex = (include|exclude) $camelContextIdRegex
+    event.exclude.$eventName.$bundleRegex = $camelContextIdRegex
 
 Where *$eventName* can be one of
 
@@ -173,7 +173,7 @@ Again an empty *$camelContextIdRegex* value will disable the exclusion of the ev
 
 e.g. to exclude the create events in all bundles which begin with "foo" or "bar" for all CamelContext IDs then use:
 
-    event.exclude.create.(foo|bar).* = .*
+    event.exclude.create/(foo|bar).* = .*
 
 #### Exclusing Exchanges via Predicates
 
@@ -189,16 +189,16 @@ Or to apply a filter for all bundles:
 
     exchange.filter.sending.simple = ${in.header.foo} == 'cheese'
 
-Note that you can only have 1 filter for a given event type, language and BundleID and/or CamelContextID expression
+Note that you can only have 1 filter for a given event type, language and bundleID and/or camelContextID expression
 
 
 #### Exclusing Endpoint URIs
 
-To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. Again you can restrict these filters to specific BundleIDs and/or CamelContextIDs
+To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. Again you can restrict these filters to specific bundleIDs and/or camelContextIDs
 
     endpoint.(include|exclude)[/$bundleIDRegex[/$camelContextIDRegex]] = $endpointUriRegex
 
-For example to exclude all log endpoints from audit on all BundleIDs and CamelContextIDs
+For example to exclude all log endpoints from audit on all bundleIDs and camelContextIDs
 
     endpoint.exclude = log:.*
 
