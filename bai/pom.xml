@@ -35,14 +35,14 @@
     <name>FuseSource :: Business Activity Insight</name>
 
     <properties>
-        <!-- lets use 2.10 for the mongo db component -->
-        <camel-version>2.10.0</camel-version>
     </properties>
 
     <modules>
         <module>bai-core</module>
+        <module>bai-agent</module>
         <module>bai-mongodb-backend</module>
-        <module>bai-sample-camel</module>
+        <module>sample-spring-bai</module>
+        <module>sample-camel-blueprint</module>
     </modules>
 
 

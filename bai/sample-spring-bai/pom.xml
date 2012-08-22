@@ -28,17 +28,10 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>bai-core</artifactId>
-    <packaging>bundle</packaging>
+    <artifactId>sample-spring-bai</artifactId>
 
     <name>${project.artifactId}</name>
-    <description>FuseSource :: Business Activity Insight :: Core</description>
-
-    <properties>
-        <fuse.osgi.export>
-            org.fusesource.bai*;version=${project.version}
-        </fuse.osgi.export>
-    </properties>
+    <description>FuseSource :: Business Activity Insight :: Sample Spring BAI</description>
 
     <dependencies>
         <dependency>
@@ -50,6 +43,28 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
             <version>${camel-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jetty</artifactId>
+            <version>${camel-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.bai</groupId>
+            <artifactId>bai-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.bai</groupId>
+            <artifactId>bai-mongodb-backend</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${spring-version}</version>
         </dependency>
     </dependencies>
 
@@ -64,9 +79,26 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Import-Package>*</Import-Package>
+                        <Private-Package>org.fusesource.bai.bai_sample_camel</Private-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+
+            <!-- allows the route to be ran via 'mvn camel:run' -->
+            <plugin>
+              <groupId>org.apache.camel</groupId>
+              <artifactId>camel-maven-plugin</artifactId>
+              <version>${camel-version}</version>
+            </plugin>
         </plugins>
     </build>
-
-
 
 </project>

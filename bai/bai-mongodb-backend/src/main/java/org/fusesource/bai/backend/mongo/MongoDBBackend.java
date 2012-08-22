@@ -17,32 +17,24 @@
 
 package org.fusesource.bai.backend.mongo;
 
+import com.mongodb.*;
+import com.mongodb.util.JSON;
+import com.mongodb.util.JSONParseException;
+import org.apache.camel.*;
+//import org.apache.camel.dataformat.xmljson.XmlJsonDataFormat;
+import org.apache.camel.management.event.*;
+import org.apache.camel.util.ServiceHelper;
+import org.fusesource.bai.AuditConstants;
+import org.fusesource.bai.AuditEvent;
+import org.fusesource.bai.backend.BAIAuditBackend;
+import org.fusesource.bai.backend.BAIAuditBackendSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
-
-import org.apache.camel.*;
-import org.apache.camel.dataformat.xmljson.XmlJsonDataFormat;
-import org.apache.camel.management.event.*;
-import org.apache.camel.util.CamelContextHelper;
-import org.apache.camel.util.ExchangeHelper;
-import org.apache.camel.util.ServiceHelper;
-import org.fusesource.bai.AuditConstants;
-import org.fusesource.bai.backend.BAIAuditBackend;
-import org.fusesource.bai.backend.BAIAuditBackendSupport;
-import org.fusesource.bai.AuditEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.BasicDBObjectBuilder;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-import com.mongodb.util.JSON;
-import com.mongodb.util.JSONParseException;
 
 /**
  * MongoDB Business Activity Insight backend
@@ -69,7 +61,8 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 	private CamelContext context;
 	private TypeConverter typeConverter;
 	private Properties typeHints;
-	private XmlJsonDataFormat xmlJson = new XmlJsonDataFormat();
+    // TODO
+	//private XmlJsonDataFormat xmlJson = new XmlJsonDataFormat();
     private boolean debug = true;
 
 	@Override
@@ -406,6 +399,8 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 	    }
 	    
 	    // 2. XML if it starts with <
+        // TODO
+/*
 	    if (s.startsWith("<")) {
     	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
     	    try {
@@ -419,6 +414,7 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
     	        System.out.println(e);
     	    }
 	    }
+*/
 	    // 3. String, if it was originally a String
 	    if (payload instanceof String) {
 	        return payload;
@@ -438,8 +434,11 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+/*
+        TODO
 		xmlJson.setForceTopLevelObject(true);
 		ServiceHelper.startService(xmlJson);
+*/
 	}
 	
 	

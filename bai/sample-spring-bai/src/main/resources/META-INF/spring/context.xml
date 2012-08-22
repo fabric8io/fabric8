@@ -36,6 +36,8 @@
     <camelContext id="mongoDbAuditContext"
    				  useBreadcrumb="true"
    				  xmlns="http://camel.apache.org/schema/spring">
+
+        <gro
    		<route>
    			<from uri="vm:audit?concurrentConsumers=1" />
    			<bean ref="mongoBackend" method="audit" />

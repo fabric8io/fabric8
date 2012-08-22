@@ -29,30 +29,33 @@
 
 	<artifactId>bai-mongodb-backend</artifactId>
 	<packaging>bundle</packaging>
-	<name>FuseSource :: Business Activity Insight :: MongoDB backend</name>
-	<url>http://www.fusesource.com</url>
+
+    <name>${project.artifactId}</name>
+	<description>FuseSource :: Business Activity Insight :: MongoDB backend</description>
 
 	<properties>
         <fuse.osgi.export>
-            org.fusesource.bai.backend.mongo
-        </fuse.osgi.export>		
+            org.fusesource.bai.backend.mongo*;version=${project.version}
+        </fuse.osgi.export>
+
+        <!-- lets use 2.10 for the mongo db component -->
+<!--
+        <camel-version>2.10.0</camel-version>
+-->
 	</properties>
 
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.camel</groupId>
-			<artifactId>camel-mongodb</artifactId>
-			<version>${camel-version}</version>
-		</dependency>
+<!--
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-xmljson</artifactId>
 			<version>${camel-version}</version>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>
-			<version>2.7.3</version>
+			<version>${mongo-java-driver-version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fusesource.bai</groupId>
@@ -70,18 +73,6 @@
 				<configuration>
 					<source>1.6</source>
 					<target>1.6</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<extensions>true</extensions>
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
-						<Import-Package>*,org.apache.camel.osgi</Import-Package>
-						<Private-Package>org.fusesource.bai.bai_mongodb_backend</Private-Package>
-					</instructions>
 				</configuration>
 			</plugin>
 		</plugins>

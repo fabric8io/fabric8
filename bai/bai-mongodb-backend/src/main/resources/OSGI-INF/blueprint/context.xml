@@ -19,16 +19,18 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
-           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+           http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
            
 	<bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
 		<property name="mongo">
 			<bean class="com.mongodb.Mongo" />
 		</property>
 		<property name="dbname" value="bai" />
-		<property name="context" ref="mongoDbAuditContext" />
+		<property name="context" ref="audit-mongodbContext" />
 	</bean>
 	
+<!--
 	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
 	   <property name="brokerURL" value="vm://default" />
 	</bean>
@@ -43,10 +45,11 @@
 	    <property name="configuration" ref="jmsConfig"/>
 	</bean>
 
-	<camelContext id="mongoDbAuditContext"
+-->
+	<camelContext id="audit-mongodbContext"
 				  useBreadcrumb="true"
-				  xmlns="http://camel.apache.org/schema/blueprint"
-				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">	  
+                  xmlns="http://camel.apache.org/schema/blueprint"
+				  xsi:schemaLocation="http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 		<route>
 			<from uri="vm:audit?concurrentConsumers=1" />
 			<bean ref="mongoBackend" method="audit" />

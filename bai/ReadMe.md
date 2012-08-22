@@ -89,3 +89,33 @@ Or you could install [mViewer](https://github.com/Imaginea/mViewer) and browse t
 * **baievents** contains all the events in a flat easy to query collection
 * **$contextId.$routeId** contains all the exchanges on this route
 * **exchangeXray** contains a list of all the context & route collections that each breadcrumb has been through; so for a given bread crumb ID you can find what collections to filter to find details of all its exchanges
+
+
+### Running the BAI Agent in OSGi
+
+First you will need a Fuse container (e.g. Fuse Fabric, Fuse MQ, Fuse ESB). e.g. to build a local Fuse Fabric container try the following:
+
+    cd fabric
+    mvn install
+    cd fuse-fabric/target
+    tar xf fuse-fabric-99-master-SNAPSHOT.tar.gz
+    cd fuse-fabric-99-master-SNAPSHOT
+    bin/fusefabric
+
+If you don't have one but have an Apache Karaf then please install the fuse-features.xml in your container before continuing.
+
+Then to install the Fuse BAI agent with the MongoDb back end try:
+
+    features:install bai-mongodb
+
+The above installs the BAI features along with the default MongoDb back end (which requires a MongoDb database on localhost).
+
+If you want to try just the BAI agent without the MongoDb back end, then just install the **bai** feature and add your own route to consume from endpoint **vm:audit**. Please use a CamelContext ID of audit-* to ensure your audit route is not audited too by the agent! :)
+
+Now install a sample camel route which will then be audited
+
+    install mvn:org.fusesource.bai/sample-camel-blueprint/99-master-SNAPSHOT
+
+Now start the bundle.
+
+You should see this route audited to the MongoDb **bai** database as the BAI agent will auto-detect the CamelContext starting and attach the AuditEventNotifier.
