@@ -27,5 +27,7 @@ class ScalatePackage extends TemplatePackage {
     """
     // common imports go here
     import _root_.Website._;
+    import java.net._;
+    import org.fusesource.scalate.util.IOUtil._;
     """
 }

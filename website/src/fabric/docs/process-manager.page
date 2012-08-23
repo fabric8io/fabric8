@@ -4,8 +4,4 @@ title: Process Manager
 
 {:toc}
 
-<%
-  import java.net._
-  import org.fusesource.scalate.util.IOUtil._
-%>
 ${loadText(new URL("https://raw.github.com/fusesource/fuse/master/process/ReadMe.md").openStream())}
