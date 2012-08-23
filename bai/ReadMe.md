@@ -207,5 +207,5 @@ For example to exclude all log endpoints from audit on all bundleIDs and camelCo
 
 To only exclude activemq endpoints in the bundleID "foo" for camelContextID "bar" it would be
 
-    endpoint.exclude.*:myContextId = activem:q.*
+    endpoint.exclude.foo:bar = activem:q.*
 
