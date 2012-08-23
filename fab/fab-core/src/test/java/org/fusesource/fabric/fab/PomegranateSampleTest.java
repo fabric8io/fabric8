@@ -19,7 +19,7 @@ package org.fusesource.fabric.fab;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.common.util.Strings;
 import org.junit.Test;
 
 import java.io.File;

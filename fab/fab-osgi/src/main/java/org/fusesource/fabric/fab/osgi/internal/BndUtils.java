@@ -53,14 +53,14 @@ import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.bnd.ActiveMQNamespaceHandlerPlugin;
 import org.fusesource.fabric.fab.osgi.bnd.CXFNamespaceHandlerPlugin;
 import org.fusesource.fabric.fab.osgi.bnd.ClassPathImportsHandlerPlugin;
-import org.fusesource.fabric.fab.util.Files;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.common.util.Files;
+import org.fusesource.common.util.Strings;
 import org.ops4j.lang.NullArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
-import static org.fusesource.fabric.fab.util.Strings.notEmpty;
+import static org.fusesource.common.util.Strings.emptyIfNull;
+import static org.fusesource.common.util.Strings.notEmpty;
 
 /**
  * Wrapper over PeterK's bnd lib.

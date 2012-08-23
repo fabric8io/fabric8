@@ -25,11 +25,6 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.DependencyFilters;
-import org.fusesource.fabric.fab.DependencyTreeResult;
-import org.fusesource.fabric.fab.MavenResolverImpl;
-import org.fusesource.fabric.fab.util.Filter;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.JarInstallParameters;
 import org.fusesource.process.manager.ProcessController;
@@ -38,22 +33,14 @@ import org.fusesource.process.manager.config.JsonHelper;
 import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.fusesource.process.manager.support.command.Duration;
-import org.sonatype.aether.RepositoryException;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.SortedMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import static org.fusesource.fabric.fab.util.Strings.join;
 
 public class ProcessManagerImpl implements ProcessManager {
     private Executor executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-manager-%s").build());

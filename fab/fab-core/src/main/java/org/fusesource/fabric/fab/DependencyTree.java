@@ -32,11 +32,11 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.fusesource.fabric.fab.util.Files;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Manifests;
-import org.fusesource.fabric.fab.util.Objects;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.common.util.Files;
+import org.fusesource.common.util.Filter;
+import org.fusesource.common.util.Manifests;
+import org.fusesource.common.util.Objects;
+import org.fusesource.common.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.artifact.Artifact;
@@ -50,9 +50,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import static org.fusesource.fabric.fab.util.Objects.compare;
-import static org.fusesource.fabric.fab.util.Objects.equal;
-import static org.fusesource.fabric.fab.util.Strings.notEmpty;
+import static org.fusesource.common.util.Objects.compare;
+import static org.fusesource.common.util.Objects.equal;
+import static org.fusesource.common.util.Strings.notEmpty;
 
 /**
  * Represents a specific versioned dependency and its transitive dependencies which can be used as the key

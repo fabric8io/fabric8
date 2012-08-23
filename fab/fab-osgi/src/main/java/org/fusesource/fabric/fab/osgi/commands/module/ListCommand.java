@@ -24,7 +24,7 @@ import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.internal.Activator;
 import org.fusesource.fabric.fab.osgi.internal.OsgiModuleRegistry;
 import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.common.util.Strings;
 import org.osgi.framework.Bundle;
 
 import java.util.HashSet;

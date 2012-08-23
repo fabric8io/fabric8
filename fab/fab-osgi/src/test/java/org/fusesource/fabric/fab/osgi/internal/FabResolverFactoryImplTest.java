@@ -22,7 +22,7 @@ import java.util.List;
 
 import org.apache.karaf.features.FeaturesService;
 import org.fusesource.fabric.fab.DependencyTree;
-import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.common.util.Filter;
 import org.junit.Test;
 
 import static org.easymock.EasyMock.createNiceMock;

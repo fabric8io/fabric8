@@ -91,8 +91,7 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>084</perfectus-build>
-
+        <perfectus-build>087</perfectus-build>
         <activemq-version>5.5.1.fuse-70-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
         <aries-blueprint-version>0.3.1.fuse-70-${perfectus-build}</aries-blueprint-version>
@@ -103,10 +102,7 @@
         <aries.proxy.version>0.3</aries.proxy.version>
         <asm.bundle.version>3.3_2</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
-        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
-<!--
         <camel-version>2.9.0.fuse-70-${perfectus-build}</camel-version>
--->
         <commons-codec-version>1.6</commons-codec-version>
         <commons-io-version>1.4_2</commons-io-version>
         <commons-lang-version>2.4_5</commons-lang-version>
@@ -251,6 +247,7 @@
     </dependencies>
 
     <modules>
+        <module>common-util</module>
         <module>tooling</module>
         <module>patch</module>
         <module>fabric</module>
@@ -1361,6 +1358,38 @@
           </releases>
         </repository>
       </repositories>
+    </profile>
+
+    <profile>
+      <!-- builds using the FuseSource private release proxy to test builds before we ship them -->
+      <id>rp</id>
+
+      <repositories>
+        <repository>
+            <id>fusesource.rp</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+            <id>fusesource.rp</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+      </pluginRepositories>
     </profile>
   </profiles>
 

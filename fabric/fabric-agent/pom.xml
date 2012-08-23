@@ -64,6 +64,7 @@
             org.linkedin.zookeeper.*,
             org.apache.zookeeper.*,
             org.fusesource.fabric.zookeeper.*,
+            org.fusesource.common.util.*
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
@@ -163,6 +164,11 @@
         <dependency>
             <groupId>org.fusesource.fabric.fab</groupId>
             <artifactId>fab-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.common</groupId>
+            <artifactId>common-util</artifactId>
             <version>${project.version}</version>
         </dependency>
 

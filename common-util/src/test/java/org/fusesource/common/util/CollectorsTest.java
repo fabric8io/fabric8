@@ -14,8 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.fab.util;
+package org.fusesource.common.util;
 
+import org.fusesource.common.util.Collector;
+import org.fusesource.common.util.Collectors;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -24,7 +26,7 @@ import java.util.Collection;
 import static org.junit.Assert.*;
 
 /**
- * Test cases for {@link Collectors}
+ * Test cases for {@link org.fusesource.common.util.Collectors}
  */
 public class CollectorsTest {
 

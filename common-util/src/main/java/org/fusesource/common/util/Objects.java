@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.fab.util;
+package org.fusesource.common.util;
 
 import java.util.List;
 

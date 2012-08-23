@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.common.util.Filter;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;

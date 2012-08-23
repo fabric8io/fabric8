@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
-import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.common.util.Filter;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;

@@ -18,8 +18,8 @@ package org.fusesource.fabric.fab;
 
 import org.apache.maven.model.Model;
 
-import static org.fusesource.fabric.fab.util.Strings.notEmpty;
-import static org.fusesource.fabric.fab.util.Strings.nullIfEmpty;
+import static org.fusesource.common.util.Strings.notEmpty;
+import static org.fusesource.common.util.Strings.nullIfEmpty;
 
 /**
  * <p>

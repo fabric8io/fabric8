@@ -17,8 +17,8 @@
 
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Filters;
+import org.fusesource.common.util.Filter;
+import org.fusesource.common.util.Filters;
 import org.junit.Test;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 

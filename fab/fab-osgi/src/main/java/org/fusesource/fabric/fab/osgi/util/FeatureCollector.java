@@ -17,7 +17,7 @@
 package org.fusesource.fabric.fab.osgi.util;
 
 import org.apache.karaf.features.Feature;
-import org.fusesource.fabric.fab.util.Collector;
+import org.fusesource.common.util.Collector;
 
 /**
  * Interface to tag {@link Collector} implementation collecting Karaf {@link Feature} names.

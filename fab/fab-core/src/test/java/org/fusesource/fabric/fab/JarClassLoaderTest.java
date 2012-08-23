@@ -17,7 +17,6 @@
 
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filters;
 import org.junit.Ignore;
 import org.junit.Test;
 

@@ -16,9 +16,8 @@
  */
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.CompositeFilter;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Filters;
+import org.fusesource.common.util.Filter;
+import org.fusesource.common.util.Filters;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 
@@ -26,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static org.fusesource.fabric.fab.util.Filters.isEmpty;
+import static org.fusesource.common.util.Filters.isEmpty;
 
 /**
  */

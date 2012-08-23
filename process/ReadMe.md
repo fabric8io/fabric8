@@ -24,7 +24,7 @@ One bad managed process will not affect any others and each process can be easil
 This means with Fuse you can easily move your Java code between OSGi bundles, [Fuse Bundles](../../bundle/index.html) or *managed processes* depending on your coupling, scaling or process isolation requirements.
 
 
-### Managing processes like Tomcat, Jetty, HQ Agent
+## Managing processes like Tomcat, Jetty, HQ Agent
 
 The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
@@ -67,7 +67,7 @@ Or to install a Fuse HQ Agent
     process:install -k fusehq-agent someURLToDistro
 
 
-### Working with processes from the Shell
+## Working with processes from the Shell
 
 Once a process is installed it given a number (1, 2, 3 etc) which refers to the ID used within the shell to refer to it, to be able to start/stop/restart etc. **Note** that this is not the same thing as the operating system PID!
 

@@ -52,6 +52,11 @@
             <version>${camel-version}</version>
         </dependency>
         <dependency>
+            <groupId>org.fusesource.common</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.bai</groupId>
             <artifactId>bai-core</artifactId>
             <version>${project.version}</version>

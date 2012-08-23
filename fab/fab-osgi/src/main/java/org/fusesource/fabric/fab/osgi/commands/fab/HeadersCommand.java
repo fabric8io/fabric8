@@ -28,18 +28,14 @@ import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.version.VersionRange;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.osgi.internal.FabClassPathResolver;
 import org.fusesource.fabric.fab.osgi.commands.CommandSupport;
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.common.util.Strings;
 import org.fusesource.jansi.Ansi;
 import org.osgi.framework.Bundle;
 import org.osgi.service.packageadmin.ExportedPackage;
 import org.osgi.service.packageadmin.PackageAdmin;
 
-import java.net.URL;
 import java.util.*;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 
 /**
  * Shows the OSGi headers of a bundle or FAB via its url before it is deployed

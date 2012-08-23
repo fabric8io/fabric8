@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.common.util.Filter;
 
 /**
  * Matches a {@link DependencyTree} using a groupId and artifactId filter

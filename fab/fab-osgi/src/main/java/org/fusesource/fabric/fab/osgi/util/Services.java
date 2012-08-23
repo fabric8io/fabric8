@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.fab.osgi.util;
 
-import org.fusesource.fabric.fab.util.Strings;
+import org.fusesource.common.util.Strings;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.InvalidSyntaxException;
 

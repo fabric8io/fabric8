@@ -35,6 +35,12 @@
   </properties>
 
   <dependencies>
+    <dependency>
+        <groupId>org.fusesource.common</groupId>
+        <artifactId>common-util</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+
     <!-- aether stuff -->
     <dependency>
       <groupId>org.sonatype.aether</groupId>

@@ -38,9 +38,9 @@ import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
 import org.fusesource.fabric.fab.osgi.util.Features;
-import org.fusesource.fabric.fab.util.Files;
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Objects;
+import org.fusesource.common.util.Files;
+import org.fusesource.common.util.Filter;
+import org.fusesource.common.util.Objects;
 import org.ops4j.lang.NullArgumentException;
 import org.ops4j.lang.PreConditionException;
 import org.osgi.framework.BundleContext;
@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.graph.Dependency;
 
-import static org.fusesource.fabric.fab.util.Strings.notEmpty;
+import static org.fusesource.common.util.Strings.notEmpty;
 
 /**
  * Implementation for {@link FabResolverFactory} - this implementation will be instantiated by Blueprint

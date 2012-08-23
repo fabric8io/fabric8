@@ -16,8 +16,8 @@
  */
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.fab.util.Filter;
-import org.fusesource.fabric.fab.util.Filters;
+import org.fusesource.common.util.Filter;
+import org.fusesource.common.util.Filters;
 
 import java.util.*;
 
@@ -121,51 +121,14 @@ public class DependencyTreeFilters {
         if (split == null || split.length == 0) {
             return null;
         } else {
-            Filter<String> groupFilter = createStringFilter(split[0]);
+            Filter<String> groupFilter = Filters.createStringFilter(split[0]);
             Filter<String> artifactFilter;
             if (split.length == 1) {
                 artifactFilter = Filters.trueFilter();
             } else {
-                artifactFilter = createStringFilter(split[1]);
+                artifactFilter = Filters.createStringFilter(split[1]);
             }
             return new DependencyTreeFilter(groupFilter, artifactFilter);
-        }
-    }
-
-    protected static Filter<String> createStringFilter(final String text) {
-        if (text.startsWith("!")) {
-            String remaining = text.substring(1);
-            return Filters.not(createStringFilter(remaining));
-        } else {
-            if (text == null || text.length() == 0 || text.startsWith("*")) {
-                return Filters.trueFilter();
-            } else {
-                if (text.endsWith("*")) {
-                    final String prefix = text.substring(0, text.length() - 1);
-                    return new Filter<String>() {
-                        public boolean matches(String s) {
-                            return s.startsWith(prefix);
-                        }
-
-                        @Override
-                        public String toString() {
-                            return "StartsWith(" + prefix + ")";
-                        }
-                    };
-
-                } else {
-                    return new Filter<String>() {
-                        public boolean matches(String s) {
-                            return text.equals(s);
-                        }
-
-                        @Override
-                        public String toString() {
-                            return "Equals(" + text + ")";
-                        }
-                    };
-                }
-            }
         }
     }
 

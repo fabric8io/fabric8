@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.fab.util;
+package org.fusesource.common.util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -98,5 +98,45 @@ public class Filters {
             empty = compositeFilter.isEmpty();
         }
         return empty;
+    }
+
+    /**
+     * Returns a String pattern matching filter using ! for not and * for any characters
+     */
+    public static Filter<String> createStringFilter(final String text) {
+        if (text.startsWith("!")) {
+            String remaining = text.substring(1);
+            return not(createStringFilter(remaining));
+        } else {
+            if (text == null || text.length() == 0 || text.startsWith("*")) {
+                return trueFilter();
+            } else {
+                if (text.endsWith("*")) {
+                    final String prefix = text.substring(0, text.length() - 1);
+                    return new Filter<String>() {
+                        public boolean matches(String s) {
+                            return s.startsWith(prefix);
+                        }
+
+                        @Override
+                        public String toString() {
+                            return "StartsWith(" + prefix + ")";
+                        }
+                    };
+
+                } else {
+                    return new Filter<String>() {
+                        public boolean matches(String s) {
+                            return text.equals(s);
+                        }
+
+                        @Override
+                        public String toString() {
+                            return "Equals(" + text + ")";
+                        }
+                    };
+                }
+            }
+        }
     }
 }

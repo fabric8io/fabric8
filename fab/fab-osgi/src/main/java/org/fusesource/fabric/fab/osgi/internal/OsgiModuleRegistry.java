@@ -29,7 +29,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 
-import static org.fusesource.fabric.fab.util.Strings.*;
+import static org.fusesource.common.util.Strings.*;
 /**
  * <p>
  * </p>

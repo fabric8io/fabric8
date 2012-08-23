@@ -17,34 +17,26 @@
 package org.fusesource.process.manager.support;
 
 import aQute.lib.osgi.Jar;
-import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
-import com.google.common.io.Closeables;
 import com.google.common.io.Files;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyFilters;
 import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolverImpl;
-import org.fusesource.fabric.fab.util.Filter;
+import org.fusesource.common.util.Filter;
 import org.fusesource.process.manager.JarInstallParameters;
 import org.fusesource.process.manager.config.ProcessConfig;
-import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.jar.Attributes;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
 
-import static org.fusesource.fabric.fab.util.Strings.join;
+import static org.fusesource.common.util.Strings.join;
 
 /**
  */

@@ -33,10 +33,10 @@ import java.util.zip.ZipEntry;
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
 import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
+import org.fusesource.common.util.*;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
-import org.fusesource.fabric.fab.util.*;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Version;
 import org.slf4j.Logger;
@@ -48,9 +48,9 @@ import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_DESCRIPTION;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_ID;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_NAME;
 import static org.fusesource.fabric.fab.ModuleDescriptor.FAB_MODULE_PROPERTIES;
-import static org.fusesource.fabric.fab.util.Strings.defaultIfEmpty;
-import static org.fusesource.fabric.fab.util.Strings.emptyIfNull;
-import static org.fusesource.fabric.fab.util.Strings.join;
+import static org.fusesource.common.util.Strings.defaultIfEmpty;
+import static org.fusesource.common.util.Strings.emptyIfNull;
+import static org.fusesource.common.util.Strings.join;
 
 /**
  * Resolves the classpath using the FAB resolving mechanism

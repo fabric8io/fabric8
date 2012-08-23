@@ -43,7 +43,7 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.fab.util.Strings.notEmpty;
+import static org.fusesource.common.util.Strings.notEmpty;
 
 /**
  * {@link URLConnection} for the "fab" protocol
