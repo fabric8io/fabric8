@@ -26,7 +26,9 @@ import org.fusesource.common.util.Filter;
  * A default implementation of {@link AuditPolicy} which filters out any audit elements
  */
 public class DefaultAuditPolicy implements AuditPolicy {
-    private String excludeCamelContextPattern = "*:audit-*";
+    public static final String DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER = "*:audit-*";
+
+    private String excludeCamelContextPattern = DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER;
     private Filter<CamelContextService> excludeCamelContextFilter;
 
     @Override
