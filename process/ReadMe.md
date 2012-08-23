@@ -2,9 +2,9 @@
 
 The **process-manager** bundle provides support for running *managed processes* as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 
-A *managed process* is similar conceptually to child containers in a root Apache Karaf container; each managed process is installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
+A *managed process* is similar conceptually to child containers in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
 
-A managed process keeps running if the root container is restarted and the container can still start/stop/restart/uninstall the process; as the Fuse knows how to find the PID of the managed process.
+A managed process keeps running if the root container is restarted and the container can still start/stop/restart/uninstall the process; as the root container knows how to find the underlying operating system process ID (PID) of each managed process.
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
