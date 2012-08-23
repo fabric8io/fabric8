@@ -16,14 +16,17 @@
  */
 package org.fusesource.bai.agent.support;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
+import org.fusesource.bai.model.policy.Constants.FilterElement;
+import org.fusesource.bai.model.policy.PolicySet;
+import org.fusesource.bai.model.policy.slurper.PropertyMapPolicySlurper;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 /**
  */
@@ -34,7 +37,8 @@ public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
 
     private String configPid = "org.fusesource.bai.agent";
     private ConfigurationAdmin configurationAdmin;
-
+    private PolicySet policies = null;
+    
     public void init() throws Exception {
         if (configurationAdmin != null) {
             Configuration config = configurationAdmin.getConfiguration(configPid);
@@ -52,13 +56,22 @@ public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
     }
 
     public void updated(Dictionary dict) throws ConfigurationException {
-        String pattern = getOrElse(dict, KEY_CAMEL_CONTEXT_EXCLUDE, DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
-        LOG.info("Setting the camelContext exclude pattern to " + pattern);
-        setExcludeCamelContextPattern(pattern);
-
-        // TODO load the other properties here!!!
+        PropertyMapPolicySlurper pmps = new PropertyMapPolicySlurper(dict);
+        this.policies = pmps.slurp();
+        // obtain all policies whose scope is only a Context element, and whose resulting action is 'exclude'
+        PolicySet excludedCamelContextsPolicies = policies.queryPolicyWithSingleScope(FilterElement.CONTEXT).queryAllExclusions();
+        if (excludedCamelContextsPolicies.size() > 1) {
+        	throw new ConfigurationException("*", "Inconsistency in audit policy configuration");
+        }
+        
+        if (excludedCamelContextsPolicies.size() == 0) {
+        	setExcludeCamelContextPattern(DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
+        } else {
+        	setExcludeCamelContextPattern(excludedCamelContextsPolicies.iterator().next().scope.get(0).enumValues);
+        }   	
+        
     }
-
+    
     public static String getOrElse(Dictionary dict, String key, String defaultValue) {
         Object value = dict.get(key);
         if (value == null) {
@@ -67,7 +80,6 @@ public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
             return value.toString();
         }
     }
-
 
     public ConfigurationAdmin getConfigurationAdmin() {
         return configurationAdmin;

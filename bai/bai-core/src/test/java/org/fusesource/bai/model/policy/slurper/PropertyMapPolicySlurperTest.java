@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.fusesource.bai.model.policy.Policy;
+import org.fusesource.bai.model.policy.PolicySet;
 import org.junit.Test;
 
 /**
@@ -40,7 +41,7 @@ public class PropertyMapPolicySlurperTest {
 		properties.load(this.getClass().getClassLoader().getResourceAsStream("audit-policy-test.cfg"));
 		slurper.setProperties(properties);
 		
-		List<Policy> policies = slurper.slurp();
+		PolicySet policies = slurper.slurp();
 		return;
 		
 	}

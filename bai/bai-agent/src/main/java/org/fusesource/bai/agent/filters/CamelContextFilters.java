@@ -48,6 +48,24 @@ public class CamelContextFilters {
         return Filters.compositeFilter(filters);
     }
 
+    /**
+     * Creates a new filter taking a List<String> with items of the form: bundleIdPattern[:camelContextIdPattern]
+     *
+     * where a pattern uses a String with * for any number of characters and ! at the front meaning to not match the pattern
+     */
+    public static Filter<CamelContextService> createCamelContextFilter(List<String> contextFilterItems) {
+        List<Filter<CamelContextService>> filters = new ArrayList<Filter<CamelContextService>>();
+        if (contextFilterItems != null && contextFilterItems.size() > 0) {
+            for (String text : contextFilterItems) {
+            	Filter<CamelContextService> filter = parseSingleFilter(text);
+                if (filter != null) {
+                    filters.add(filter);
+                }
+			}
+        }
+        return Filters.compositeFilter(filters);
+    }
+    
     protected static Filter<CamelContextService> parseSingleFilter(String text) {
         String[] split = text.split(":");
         if (split == null || split.length == 0) {

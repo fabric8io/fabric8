@@ -16,6 +16,8 @@
  */
 package org.fusesource.bai.agent.support;
 
+import java.util.List;
+
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.AuditPolicy;
 import org.fusesource.bai.agent.CamelContextService;
@@ -29,6 +31,7 @@ public class DefaultAuditPolicy implements AuditPolicy {
     public static final String DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER = "*:audit-*";
 
     private String excludeCamelContextPattern = DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER;
+    private List<String> excludeCamelContextList;
     private Filter<CamelContextService> excludeCamelContextFilter;
 
     @Override
@@ -46,9 +49,6 @@ public class DefaultAuditPolicy implements AuditPolicy {
         return notifier;
     }
     public Filter<CamelContextService> getExcludeCamelContextFilter() {
-        if (excludeCamelContextFilter == null) {
-            excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludeCamelContextPattern);
-        }
         return excludeCamelContextFilter;
     }
 
@@ -61,10 +61,16 @@ public class DefaultAuditPolicy implements AuditPolicy {
     }
 
     public void setExcludeCamelContextPattern(String excludeCamelContextPattern) {
-        excludeCamelContextFilter = null;
+        this.excludeCamelContextList = null;
         this.excludeCamelContextPattern = excludeCamelContextPattern;
+        this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludeCamelContextPattern);
     }
 
+    public void setExcludeCamelContextPattern(List<String> excludedContexts) {
+        this.excludeCamelContextPattern = null;
+        this.excludeCamelContextList = excludedContexts;
+        this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludedContexts);
+    }
 
     // Implementation methods
     //-------------------------------------------------------------------------

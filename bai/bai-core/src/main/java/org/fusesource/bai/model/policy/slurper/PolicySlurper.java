@@ -17,9 +17,7 @@
 
 package org.fusesource.bai.model.policy.slurper;
 
-import java.util.List;
-
-import org.fusesource.bai.model.policy.Policy;
+import org.fusesource.bai.model.policy.PolicySet;
 
 /**
  * Implementations of this interface are capable of reading policies from different media and formats, 
@@ -29,8 +27,8 @@ import org.fusesource.bai.model.policy.Policy;
  */
 public interface PolicySlurper {
 
-	public List<Policy> slurp(); 
-	public List<Policy> refresh();
-	public List<Policy> getPolicies();
+	public PolicySet slurp(); 
+	public PolicySet refresh();
+	public PolicySet getPolicies();
 	
 }

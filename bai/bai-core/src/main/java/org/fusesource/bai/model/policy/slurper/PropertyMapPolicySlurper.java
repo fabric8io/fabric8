@@ -17,16 +17,16 @@
 
 package org.fusesource.bai.model.policy.slurper;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.List;
-import java.util.Properties;
 
 import org.fusesource.bai.EventType;
 import org.fusesource.bai.model.policy.Constants.ActionType;
 import org.fusesource.bai.model.policy.Constants.FilterElement;
 import org.fusesource.bai.model.policy.Constants.FilterMethod;
 import org.fusesource.bai.model.policy.Policy;
+import org.fusesource.bai.model.policy.PolicySet;
 import org.fusesource.bai.model.policy.Scope;
 
 /**
@@ -36,20 +36,26 @@ import org.fusesource.bai.model.policy.Scope;
  */
 public class PropertyMapPolicySlurper implements PolicySlurper {
 
-	private Properties properties;
-	private List<Policy> policyCache;
+	private Dictionary properties;
+	private PolicySet policyCache;
+	
+	public PropertyMapPolicySlurper() { }
+	
+	public PropertyMapPolicySlurper(Dictionary properties) {
+		this.properties = properties;
+	}
 	
 	@Override
-	public synchronized List<Policy> slurp() {
+	public synchronized PolicySet slurp() {
 		if (policyCache != null) {
 			return policyCache;
 		}
 		
-		List<Policy> answer = new ArrayList<Policy>(properties.size());
+		PolicySet answer = new PolicySet();
 		List<Object> keys = Collections.list(properties.keys());
 		
 		for (Object k : keys) {
-			String value = (String) properties.getProperty((String) k);
+			String value = (String) properties.get((String) k);
 			String[] splitKey = ((String) k).split("\\.");
 			
 			String qualifier = splitKey[0];
@@ -77,13 +83,15 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 	}
 
 	@Override
-	public List<Policy> refresh() {
+	public PolicySet refresh() {
 		policyCache = slurp();
 		return policyCache;
 	}
 	
 	/**
 	 * Parse this format: camelContext.(include|exclude)[/$bundleIDRegex] = $camelContextIDRegex.
+	 * Later changed to: camelContext.exclude = camelContextPatterns. Where camelContextPatterns is a space-separated 
+	 * list of camelContextPattern instances. A camelContextPatterns is of the form bundleSymbolicNamePattern[:camelContextIdPattern].
 	 * @param splitKey
 	 * @param value
 	 * @return
@@ -92,27 +100,20 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 		Policy policy = new Policy();
 		Scope scope = new Scope();
 		scope.filterElement = FilterElement.CONTEXT;
-		scope.filterMethod = FilterMethod.EXPRESSION;
-		scope.expressionLanguage = "regex";
-		scope.expression = value;
+		scope.filterMethod = FilterMethod.ENUM_VALUE_MULTIPLE;
 		
-		String secondToken[] = splitKey[1].split("/");
-		if ("exclude".equals(secondToken[0].toLowerCase())) {
+		for (String token : value.split(" ")) {
+			scope.enumValues.add(token);
+		}
+		
+		policy.scope.add(scope);
+		
+		if ("exclude".equals(splitKey[1].toLowerCase())) {
 			policy.action.type = ActionType.EXCLUDE;
 		} else {
 			policy.action.type = ActionType.INCLUDE;
 		}
 		
-		policy.scope.add(scope);
-		
-		// process a second scope: the bundle ID
-		if (secondToken.length == 2) {
-			scope = new Scope();
-			scope.filterElement = FilterElement.BUNDLE;
-			scope.filterMethod = FilterMethod.EXPRESSION;
-			scope.expressionLanguage = "wildcardAwareString";
-			scope.expression = secondToken[1];
-		}
 		return policy;
 	}
 	
@@ -264,15 +265,15 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 		return EventType.valueOf(event.toUpperCase());
 	}
 	
-	public Properties getProperties() {
+	public Dictionary getProperties() {
 		return properties;
 	}
 
-	public void setProperties(Properties properties) {
+	public void setProperties(Dictionary properties) {
 		this.properties = properties;
 	}
 
-	public List<Policy> getPolicies() {
+	public PolicySet getPolicies() {
 		return policyCache;
 	}
 	
