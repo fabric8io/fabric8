@@ -141,14 +141,14 @@ Where *camelContextPatterns* is a space separated list of camelContextPattern in
 
 where both *bundleSymbolicNamePattern* and *camelContextIdPattern* are text patterns using * to indicate matching zero to many characters.
 
-For example to match all bundle symbolic names and camelContext IDs you could use * or *:*
+For example to match all bundle symbolic names and camelContext IDs you could use * or \*:\*
 
 To match a specific bundle symbolic name 'com.acme.foo' you could use
 
 * com.acme.foo
 * com.acme.foo:*
 * com.acme*
-* com.acme*:\*
+* com.acme\*:\*
 
 To match all of the Camel Context's with IDs 'cheese' in all bundles you could use
 
