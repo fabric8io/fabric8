@@ -6,7 +6,9 @@ A managed process keeps running if the Process Manager is restarted and it can s
 
 The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fuse Fabric level since we can use [Fabric Profiles](http://fuse.fusesource.org/fabric/docs/fabric-profiles.html) to determine which machines run which proceses in a fabric.
 
-A *managed process* is similar conceptually to child containers in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process. So a managed process feels similar to a bundle or feature in an Apache Karaf container and its interactive shell; the difference being a managed process is a separte, stand alone operating system process.
+A *managed process* is similar conceptually to *child containers* in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
+
+To users familiar with Apache Karaf, a managed process feels similar to a bundle or feature in a  Karaf container and its interactive shell; the difference being a managed process is a separate, stand alone operating system process.
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
