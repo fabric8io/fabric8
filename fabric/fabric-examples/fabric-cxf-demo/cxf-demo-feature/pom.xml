@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.fusesource.fabric.fabric-examples</groupId>
         <artifactId>fabric-cxf-demo</artifactId>
-        <version>7.0-SNAPSHOT</version>
+        <version>7.1.0.fuse-SNAPSHOT</version>
     </parent>
 
     <name>Fuse Fabric :: Example :: Simple Fabric CXF Demo :: Features</name>

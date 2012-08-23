@@ -21,7 +21,7 @@
   <parent>
     <groupId>org.fusesource.fabric.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
-    <version>7.0-SNAPSHOT</version>
+    <version>7.1.0.fuse-SNAPSHOT</version>
   </parent>
 
   <artifactId>fabric-bridge-zookeeper</artifactId>
