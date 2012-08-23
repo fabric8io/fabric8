@@ -80,6 +80,7 @@ class FabSamplesWithCamelFeaturesTest {
 
     // and then add a few extra bundles to it to enable Scala- and FAB-support
     mavenBundle("org.apache.servicemix.bundles", "org.apache.servicemix.bundles.scala-library").versionAsInProject(),
+    mavenBundle("org.fusesource.common", "common-util").versionAsInProject(),
     mavenBundle("org.fusesource.fabric.fab", "fab-osgi").versionAsInProject()
   )
 
