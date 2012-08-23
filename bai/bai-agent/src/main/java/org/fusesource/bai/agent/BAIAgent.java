@@ -22,6 +22,7 @@ import org.apache.camel.spi.EventNotifier;
 import org.apache.camel.spi.ManagementStrategy;
 import org.apache.camel.util.ServiceHelper;
 import org.fusesource.bai.AuditEventNotifier;
+import org.fusesource.bai.agent.support.DefaultAuditPolicy;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -46,6 +47,7 @@ public class BAIAgent implements ServiceListener {
     private BundleContext bundleContext;
     private Map<String, NotifierRegistration> notifierMap = new HashMap<String, NotifierRegistration>();
     private String auditEndpoint = "vm:audit";
+    private AuditPolicy auditPolicy = new DefaultAuditPolicy();
 
     public void init() throws Exception {
         bundleContext.addServiceListener(this);
@@ -74,6 +76,14 @@ public class BAIAgent implements ServiceListener {
         this.auditEndpoint = auditEndpoint;
     }
 
+    public AuditPolicy getAuditPolicy() {
+        return auditPolicy;
+    }
+
+    public void setAuditPolicy(AuditPolicy auditPolicy) {
+        this.auditPolicy = auditPolicy;
+    }
+
     @Override
     public void serviceChanged(ServiceEvent event) {
         ServiceReference reference = event.getServiceReference();
@@ -85,7 +95,9 @@ public class BAIAgent implements ServiceListener {
                 String camelContextSymbolicName = getCamelSymbolicName(reference);
                 String id = getCamelContextUUID(camelContext, reference, camelContextSymbolicName);
 
-                if (!isAuditEnabled(camelContext, reference)) {
+                CamelContextService camelContextService = new CamelContextService(camelContext, reference);
+
+                if (!getAuditPolicy().isAuditEnabled(camelContextService)) {
                     LOG.debug("Ignoring camel context " + id + " as its an audit context");
                     return;
                 }
@@ -104,7 +116,7 @@ public class BAIAgent implements ServiceListener {
 
                     ManagementStrategy managementStrategy = camelContext.getManagementStrategy();
                     if (managementStrategy != null) {
-                        EventNotifier notifier = createEventNotifier(camelContext, reference, camelContextSymbolicName);
+                        EventNotifier notifier = createEventNotifier(camelContextService);
                         if (notifier == null) {
                             LOG.warn("Could not create an EventNotifier for CamelContext " + camelContextSymbolicName);
                         } else {
@@ -120,10 +132,6 @@ public class BAIAgent implements ServiceListener {
         }
     }
 
-    protected boolean isAuditEnabled(CamelContext camelContext, ServiceReference reference) {
-        String name = camelContext.getName();
-        return name.startsWith("audit-");
-    }
 
     private String getCamelSymbolicName(ServiceReference reference) {
         String camelContextSymbolicName = null;
@@ -161,9 +169,13 @@ public class BAIAgent implements ServiceListener {
         return camelContextSymbolicName + "." + camelContext.getManagementName();
     }
 
-    protected EventNotifier createEventNotifier(CamelContext camelContext, ServiceReference reference, String camelContextSymbolicName) {
-        AuditEventNotifier notifier = new AuditEventNotifier();
-        notifier.setCamelContext(camelContext);
+
+    /**
+     * Factory method for creating an AuditEventNotifier using the audit policy
+     */
+    protected AuditEventNotifier createEventNotifier(CamelContextService camelContextService) {
+        AuditEventNotifier notifier = getAuditPolicy().createAuditNotifier(camelContextService);
+        notifier.setCamelContext(camelContextService.getCamelContext());
         notifier.setEndpointUri(auditEndpoint);
         return notifier;
     }
