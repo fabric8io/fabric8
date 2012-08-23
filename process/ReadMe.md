@@ -1,14 +1,25 @@
 # Process Management
 
-The **process-manager** bundle provides support for running managed processes as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
+The **process-manager** bundle provides support for running *managed processes* as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 
-A managed process is similar conceptually to child karaf instances in a root karaf; each managed process is installed as a sub directory of **${karaf-home}/processes** and is managed by the Karaf container to install/start/stop/uninstall
+A *managed process* is similar conceptually to child containers in a root Apache Karaf container; each managed process is installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
 
-The process-manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed on Unix like other processes.
+A managed process keeps running if the root container is restarted and the container can still start/stop/restart/uninstall the process; as the Fuse knows how to find the PID of the managed process.
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
+
+## Deploying JARs as managed processes
+
+The process-manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed on Unix like other processes.
+
+This means you can have fine grained process isolation at the JAR level. Rather than running all your Java code in one big container in a single process, you can decouple executable jars into separate processes all managed as if it were inside a single Java container - will full process isolation and no concerns over potential resource leaks.
+
+One bad managed process will not affect any others and each process can be easily stopped without affecting any others.
+
 ### Running processes like Tomcat, Jetty, HQ Agent
+
+The process-manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the process-manager can act at the fabric level since we can use [Fabric Profiles](http://fuse.fusesource.org/fabric/docs/fabric-profiles.html) to determine which machines run which proceses.
 
 The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
