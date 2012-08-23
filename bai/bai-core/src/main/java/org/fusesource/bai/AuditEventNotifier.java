@@ -69,7 +69,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  */
 public class AuditEventNotifier extends PublishEventNotifier {
-
     private EventTypeConfiguration createdConfig = new EventTypeConfiguration();
     private EventTypeConfiguration completedConfig = new EventTypeConfiguration();
     private EventTypeConfiguration sendingConfig = new EventTypeConfiguration();
@@ -77,29 +76,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
     private EventTypeConfiguration failureConfig = new EventTypeConfiguration();
     private EventTypeConfiguration failureHandledConfig = new EventTypeConfiguration();
     private EventTypeConfiguration redeliveryConfig = new EventTypeConfiguration();
-
-    // by default accept all
-	private List<String> createdRegex = Arrays.asList(".*");
-	private List<String> completedRegex = Arrays.asList(".*");
-	private List<String> sendingRegex = Arrays.asList(".*");
-	private List<String> sentRegex = Arrays.asList(".*");
-	private List<String> failureRegex = Arrays.asList(".*");
-	private List<String> redeliveryRegex = Arrays.asList(".*");
-
-    private Predicate createdFilter;
-    private Predicate completedFilter;
-    private Predicate sendingFilter;
-    private Predicate sentFilter;
-    private Predicate failureFilter;
-    private Predicate redeliveryFilter;
-
-    private boolean includeCreatedEvents = true;
-    private boolean includeCompletedEvents = true;
-    private boolean includeSendingEvents = true;
-    private boolean includeSentEvents = true;
-    private boolean includeFailureEvents = true;
-    private boolean includeRedeliveryEvents = true;
-
 
     private CamelContext camelContext;
     private Endpoint endpoint;
@@ -111,7 +87,12 @@ public class AuditEventNotifier extends PublishEventNotifier {
 		setIgnoreRouteEvents(true);
 		setIgnoreServiceEvents(true);
 	}
-	
+
+    @Override
+    public String toString() {
+        return "PublishEventNotifier[" + (endpoint != null ? endpoint : URISupport.sanitizeUri(endpointUri)) + "]";
+    }
+
 	@Override
 	public boolean isEnabled(EventObject event) {
         EventObject coreEvent = event;
@@ -123,41 +104,30 @@ public class AuditEventNotifier extends PublishEventNotifier {
         if (event instanceof AbstractExchangeEvent) {
             exchangeEvent = (AbstractExchangeEvent) event;
         }
-        Predicate filter = null;
-        List<String> compareWith = null;
+        EventTypeConfiguration config = null;
         if (coreEvent instanceof ExchangeCreatedEvent) {
-            if (!includeCreatedEvents) return false;
-            compareWith = createdRegex;
-            filter = getCreatedFilter();
+            config = getCreatedConfig();
         } else if (coreEvent instanceof ExchangeCompletedEvent) {
-            if (!includeCompletedEvents) return false;
-            compareWith = completedRegex;
-            filter = getCompletedFilter();
+            config = getCompletedConfig();
         } else if (coreEvent instanceof ExchangeSendingEvent) {
-            if (!includeSendingEvents) return false;
-            compareWith = sendingRegex;
-            filter = getSendingFilter();
+            config = getSendingConfig();
         } else if (coreEvent instanceof ExchangeSentEvent) {
-            if (!includeSentEvents) return false;
-            compareWith = sentRegex;
-            filter = getSentFilter();
+            config = getSentConfig();
         } else if (coreEvent instanceof ExchangeRedeliveryEvent) {
-            if (!includeRedeliveryEvents) return false;
-            compareWith = redeliveryRegex;
-            filter = getRedeliveryFilter();
+            config = getRedeliveryConfig();
         }
         // logic if it's a failure is different; we compare against Exception
         else if (coreEvent instanceof ExchangeFailedEvent) {
-            if (!includeFailureEvents) return false;
             ExchangeFailedEvent failedEvent = (ExchangeFailedEvent) coreEvent;
             String exceptionClassName = failedEvent.getExchange().getException().getClass().getCanonicalName();
-            filter = getFailureFilter();
-            return testRegexps(exceptionClassName, failureRegex, filter, exchangeEvent);
-        }
-        // TODO: Failure handled
-        String uri = endpointUri(event);
-        return uri == null || compareWith == null ? false : testRegexps(uri, compareWith, filter, exchangeEvent);
+            config = getFailureConfig();
 
+            // TODO allow filter by exception class name!
+            // return testRegexps(exceptionClassName, failureRegex, filter, exchangeEvent);
+        }
+        String uri = endpointUri(event);
+        if (config == null) return false;
+        return testConfig(uri, config, exchangeEvent);
     }
 
     public static String endpointUri(EventObject event) {
@@ -185,29 +155,36 @@ public class AuditEventNotifier extends PublishEventNotifier {
         return null;
     }
 
-    private boolean testRegexps(String endpointURI, List<String> regexps, Predicate filter, AbstractExchangeEvent exchangeEvent) {
-        // if the endpoint URI is null, we have an event that is not related to an endpoint, e.g. a failure in a processor; audit it
-        if (endpointURI == null) {
-            return testFilter(filter, exchangeEvent);
+    private boolean testConfig(String uri, EventTypeConfiguration config, AbstractExchangeEvent exchangeEvent) {
+        if (!config.isInclude()) {
+            return false;
         }
-		for (String regex : regexps) {
-			if (endpointURI.matches(regex)) {
-                return testFilter(filter, exchangeEvent);
-			}
-		}
-		return false;
-	}
-
-    private boolean testFilter(Predicate filter, AbstractExchangeEvent exchangeEvent) {
-        if (filter == null) {
+        List<String> regexList = config.getIncludeRegexList();
+        if (!regexList.isEmpty()) {
+            if (endpointUri == null) {
+                return false;
+            }
+            for (String regex : regexList) {
+          			if (!uri.matches(regex)) {
+                          return false;
+          			}
+          		}
+        }
+        Exchange exchange = exchangeEvent.getExchange();
+        if (exchange == null) {
+            return false;
+        }
+        List<Predicate> filters = config.getFilters();
+        if (filters.isEmpty()) {
             return true;
         } else {
-            Exchange exchange = exchangeEvent.getExchange();
-            if (exchange != null) {
-                return filter.matches(exchange);
+            for (Predicate filter : filters) {
+                if (filter.matches(exchange)) {
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -276,11 +253,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
 	 */
 	@Override
 	protected void doStart() throws Exception {
-		sendingRegex = new CopyOnWriteArrayList<String>(sendingRegex);
-		sentRegex = new CopyOnWriteArrayList<String>(sentRegex);
-		failureRegex = new CopyOnWriteArrayList<String>(failureRegex);
-		redeliveryRegex = new CopyOnWriteArrayList<String>(redeliveryRegex);
-	    
 		ObjectHelper.notNull(camelContext, "camelContext", this);
         if (endpoint == null && endpointUri == null) {
             throw new IllegalArgumentException("Either endpoint or endpointUri must be configured");
@@ -295,38 +267,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
 	}
 
-	public List<String> getSendingRegex() {
-		return sendingRegex;
-	}
-
-	public void setSendingRegex(List<String> sendingRegex) {
-		this.sendingRegex = sendingRegex;
-	}
-
-	public List<String> getSentRegex() {
-		return sentRegex;
-	}
-
-	public void setSentRegex(List<String> sentRegex) {
-		this.sentRegex = sentRegex;
-	}
-
-	public List<String> getFailureRegex() {
-		return failureRegex;
-	}
-
-	public void setFailureRegex(List<String> failureRegex) {
-		this.failureRegex = failureRegex;
-	}
-
-	public List<String> getRedeliveryRegex() {
-		return redeliveryRegex;
-	}
-
-	public void setRedeliveryRegex(List<String> redeliveryRegex) {
-		this.redeliveryRegex = redeliveryRegex;
-	}
-	
 	public CamelContext getCamelContext() {
         return camelContext;
     }
@@ -350,119 +290,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
     public void setEndpointUri(String endpointUri) {
         this.endpointUri = endpointUri;
     }
-
-    public Predicate getFailureFilter() {
-        return failureFilter;
-    }
-
-    public void setFailureFilter(Predicate failureFilter) {
-        this.failureFilter = failureFilter;
-    }
-
-    public Predicate getSendingFilter() {
-        return sendingFilter;
-    }
-
-    public void setSendingFilter(Predicate sendingFilter) {
-        this.sendingFilter = sendingFilter;
-    }
-
-    public Predicate getSentFilter() {
-        return sentFilter;
-    }
-
-    public void setSentFilter(Predicate sentFilter) {
-        this.sentFilter = sentFilter;
-    }
-
-    public Predicate getRedeliveryFilter() {
-        return redeliveryFilter;
-    }
-
-    public void setRedeliveryFilter(Predicate redeliveryFilter) {
-        this.redeliveryFilter = redeliveryFilter;
-    }
-
-    public Predicate getCompletedFilter() {
-        return completedFilter;
-    }
-
-    public void setCompletedFilter(Predicate completedFilter) {
-        this.completedFilter = completedFilter;
-    }
-
-    public Predicate getCreatedFilter() {
-        return createdFilter;
-    }
-
-    public void setCreatedFilter(Predicate createdFilter) {
-        this.createdFilter = createdFilter;
-    }
-
-    public boolean isIncludeCompletedEvents() {
-        return includeCompletedEvents;
-    }
-
-    public void setIncludeCompletedEvents(boolean includeCompletedEvents) {
-        this.includeCompletedEvents = includeCompletedEvents;
-    }
-
-    public boolean isIncludeCreatedEvents() {
-        return includeCreatedEvents;
-    }
-
-    public void setIncludeCreatedEvents(boolean includeCreatedEvents) {
-        this.includeCreatedEvents = includeCreatedEvents;
-    }
-
-    public boolean isIncludeFailureEvents() {
-        return includeFailureEvents;
-    }
-
-    public void setIncludeFailureEvents(boolean includeFailureEvents) {
-        this.includeFailureEvents = includeFailureEvents;
-    }
-
-    public boolean isIncludeRedeliveryEvents() {
-        return includeRedeliveryEvents;
-    }
-
-    public void setIncludeRedeliveryEvents(boolean includeRedeliveryEvents) {
-        this.includeRedeliveryEvents = includeRedeliveryEvents;
-    }
-
-    public boolean isIncludeSendingEvents() {
-        return includeSendingEvents;
-    }
-
-    public void setIncludeSendingEvents(boolean includeSendingEvents) {
-        this.includeSendingEvents = includeSendingEvents;
-    }
-
-    public boolean isIncludeSentEvents() {
-        return includeSentEvents;
-    }
-
-    public void setIncludeSentEvents(boolean includeSentEvents) {
-        this.includeSentEvents = includeSentEvents;
-    }
-
-    public List<String> getCompletedRegex() {
-        return completedRegex;
-    }
-
-    public void setCompletedRegex(List<String> completedRegex) {
-        this.completedRegex = completedRegex;
-    }
-
-    public List<String> getCreatedRegex() {
-        return createdRegex;
-    }
-
-    public void setCreatedRegex(List<String> createdRegex) {
-        this.createdRegex = createdRegex;
-    }
-
 
     public EventTypeConfiguration getConfig(EventType eventType) {
         switch (eventType) {
@@ -546,9 +373,190 @@ public class AuditEventNotifier extends PublishEventNotifier {
         ServiceHelper.stopService(producer);
     }
 
-    @Override
-    public String toString() {
-        return "PublishEventNotifier[" + (endpoint != null ? endpoint : URISupport.sanitizeUri(endpointUri)) + "]";
+    // Delegate methods to make it easier to configure directly in spring
+    //-------------------------------------------------------------------------
+
+    // completed
+    public boolean isIncludeCompleted() {
+        return completedConfig.isInclude();
     }
+
+    public void setIncludeCompleted(boolean include) {
+        completedConfig.setInclude(include);
+    }
+
+    public List<Predicate> getCompletedFilters() {
+        return completedConfig.getFilters();
+    }
+
+    public void setCompletedFilters(List<Predicate> filters) {
+        completedConfig.setFilters(filters);
+    }
+
+    public List<String> getCompletedIncludeRegexList() {
+        return completedConfig.getIncludeRegexList();
+    }
+
+    public void setCompletedIncludeRegexList(List<String> includeRegexList) {
+        completedConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
+    // created
+    public boolean isIncludeCreated() {
+        return createdConfig.isInclude();
+    }
+
+    public void setIncludeCreated(boolean include) {
+        createdConfig.setInclude(include);
+    }
+
+    public List<Predicate> getCreatedFilters() {
+        return createdConfig.getFilters();
+    }
+
+    public void setCreatedFilters(List<Predicate> filters) {
+        createdConfig.setFilters(filters);
+    }
+
+    public List<String> getCreatedIncludeRegexList() {
+        return createdConfig.getIncludeRegexList();
+    }
+
+    public void setCreatedIncludeRegexList(List<String> includeRegexList) {
+        createdConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
+    // sending
+    public boolean isIncludeSending() {
+        return sendingConfig.isInclude();
+    }
+
+    public void setIncludeSending(boolean include) {
+        sendingConfig.setInclude(include);
+    }
+
+    public List<Predicate> getSendingFilters() {
+        return sendingConfig.getFilters();
+    }
+
+    public void setSendingFilters(List<Predicate> filters) {
+        sendingConfig.setFilters(filters);
+    }
+
+    public List<String> getSendingcludeRegexList() {
+        return sendingConfig.getIncludeRegexList();
+    }
+
+    public void setSendingIncludeRegexList(List<String> includeRegexList) {
+        sendingConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
+    // sent
+    public boolean isIncludeSent() {
+        return sentConfig.isInclude();
+    }
+
+    public void setIncludeSent(boolean include) {
+        sentConfig.setInclude(include);
+    }
+
+    public List<Predicate> getSentFilters() {
+        return sentConfig.getFilters();
+    }
+
+    public void setSentFilters(List<Predicate> filters) {
+        sentConfig.setFilters(filters);
+    }
+
+    public List<String> getSentIncludeRegexList() {
+        return sentConfig.getIncludeRegexList();
+    }
+
+    public void setSentIncludeRegexList(List<String> includeRegexList) {
+        sentConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
+    // failure
+    public boolean isIncludeFailure() {
+        return failureConfig.isInclude();
+    }
+
+    public void setIncludeFailure(boolean include) {
+        failureConfig.setInclude(include);
+    }
+
+    public List<Predicate> getFailureFilters() {
+        return failureConfig.getFilters();
+    }
+
+    public void setFailureFilters(List<Predicate> filters) {
+        failureConfig.setFilters(filters);
+    }
+
+    public List<String> getFailureIncludeRegexList() {
+        return failureConfig.getIncludeRegexList();
+    }
+
+    public void setFailureIncludeRegexList(List<String> includeRegexList) {
+        failureConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
+    // failureHandled
+    public boolean isIncludeFailureHandled() {
+        return failureHandledConfig.isInclude();
+    }
+
+    public void setIncludeFailureHandled(boolean include) {
+        failureHandledConfig.setInclude(include);
+    }
+
+    public List<Predicate> getFailureHandledFilters() {
+        return failureHandledConfig.getFilters();
+    }
+
+    public void setFailureHandledFilters(List<Predicate> filters) {
+        failureHandledConfig.setFilters(filters);
+    }
+
+    public List<String> getFailureHandledIncludeRegexList() {
+        return failureHandledConfig.getIncludeRegexList();
+    }
+
+    public void setFailureHandledIncludeRegexList(List<String> includeRegexList) {
+        failureHandledConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
+    // redelivery
+    public boolean isIncludeRedelivery() {
+        return redeliveryConfig.isInclude();
+    }
+
+    public void setIncludeRedelivery(boolean include) {
+        redeliveryConfig.setInclude(include);
+    }
+
+    public List<Predicate> getRedeliveryFilters() {
+        return redeliveryConfig.getFilters();
+    }
+
+    public void setRedeliveryFilters(List<Predicate> filters) {
+        redeliveryConfig.setFilters(filters);
+    }
+
+    public List<String> getRedeliveryIncludeRegexList() {
+        return redeliveryConfig.getIncludeRegexList();
+    }
+
+    public void setRedeliveryIncludeRegexList(List<String> includeRegexList) {
+        redeliveryConfig.setIncludeRegexList(includeRegexList);
+    }
+
+
 
 }
