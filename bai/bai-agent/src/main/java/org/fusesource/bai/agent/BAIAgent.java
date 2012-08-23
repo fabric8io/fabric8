@@ -82,10 +82,10 @@ public class BAIAgent implements ServiceListener {
             Object service = bundleContext.getService(reference);
             if (service instanceof CamelContext) {
                 CamelContext camelContext = (CamelContext) service;
-                String name = camelContext.getName();
                 String camelContextSymbolicName = getCamelSymbolicName(reference);
                 String id = getCamelContextUUID(camelContext, reference, camelContextSymbolicName);
-                if (name.startsWith("audit-")) {
+
+                if (!isAuditEnabled(camelContext, reference)) {
                     LOG.debug("Ignoring camel context " + id + " as its an audit context");
                     return;
                 }
@@ -118,6 +118,11 @@ public class BAIAgent implements ServiceListener {
                 }
             }
         }
+    }
+
+    protected boolean isAuditEnabled(CamelContext camelContext, ServiceReference reference) {
+        String name = camelContext.getName();
+        return name.startsWith("audit-");
     }
 
     private String getCamelSymbolicName(ServiceReference reference) {
