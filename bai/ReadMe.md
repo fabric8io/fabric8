@@ -133,24 +133,33 @@ The configuration is created in the config admin PID **org.fusesource.bai.agent*
 You may want to exclude certain camel contexts from being audited completely. That is to say no auditing is performed at all.
 To do this define a property of this format:
 
-    camelContext.exclude.$bundleIDPattern = $camelContextIDPattern
+    camelContext.exclude = camelContextPatterns
 
-Patterns for the OSGi Bundle ID and CamelContext ID use the familiar file name pattern matching of * means zero to many characters and ? means one character.
+Where *camelContextPatterns* is a space separated list of camelContextPattern instances. A camelContextPatterns is of the form *bundleIdPattern\[:camelContextIdPattern\]* where both patterns are text patterns using * to indicate matching zero to many characters.
+
+For example to match all bundle symbolic names and camelContext IDs you could use * or *:*
+
+To match a specific bundle symbolic name 'com.acme.foo' you could use
+
+* com.acme.foo
+* com.acme.foo:*
+* com.acme*
+* com.acme*:*
+
+To match all of the Camel Context's with IDs 'cheese' in all bundles you could use
+
+* *:cheese
 
 For example the default rule below will exclude all camel contexts in any bundle which have a CamelContext ID which starts with *"audit-"*
 
-    camelContext.exclude.* = audit-*
-
-If you wish to override an exclusion rule, just make it an empty pattern which matches nothing:
-
-        camelContext.exclude.* =
+    camelContext.exclude = *:audit-*
 
 
 #### Excluding Events
 
-All kinds of events are raised by default. You may wish to exclude kinds of events on a per bundleID or camelContextID. To do this use this form of key/value
+All kinds of events are raised by default. You may wish to include or exclude kinds of events on a per bundle symbolic name or camelContextID. To do this use this form of key/value
 
-    event.exclude.$eventName.$bundleIDPattern = $camelContextIDPattern
+    event.$eventName.$camelContextPattern = (true|false)
 
 Where *$eventName* can be one of
 
@@ -161,17 +170,15 @@ Where *$eventName* can be one of
 * failure
 * redelivery
 
-Again an empty *$camelContextIDPattern* value will disable the exclusion of the events (which is particulary useful for overriding an existing value such as with Fuse Fabric Profiles).
+e.g. to exclude the create events in all bundles which begin with "foo" for all CamelContext IDs then use:
 
-e.g. to exclude the create events in all bundles which begin with "foo" or "bar" for all CamelContext IDs then use:
-
-    event.exclude.create.foo* = *
+    event.create.foo* = false
 
 #### Exclusing Exchanges via Predicates
 
 To filter individual exchanges from being audited you may wish to use a [Camel expression language](http://camel.apache.org/languages.html).
 
-    exchange.filter.$eventType.$language.$bundleIDPattern[/$camelContextIDPattern]] = expression
+    exchange.filter.$eventType.$language.$camelContextPattern = expression
 
 For example to use a header using xpath on 'my-bundle' only:
 
@@ -188,7 +195,7 @@ Note that you can only have 1 filter for a given event type, language and bundle
 
 To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. Again you can restrict these filters to specific bundleIDs and/or camelContextIDs
 
-    endpoint.exclude.$bundleIDPattern[/$camelContextIDPattern]] = $endpointUriRegex
+    endpoint.exclude.$camelContextPattern = $endpointUriRegex
 
 For example to exclude all log endpoints from audit on all bundleIDs and camelContextIDs
 
@@ -196,5 +203,5 @@ For example to exclude all log endpoints from audit on all bundleIDs and camelCo
 
 To only exclude activemq endpoints in the bundleID "foo" for camelContextID "bar" it would be
 
-    endpoint.exclude.*/myContextId = activem:q.*
+    endpoint.exclude.*:myContextId = activem:q.*
 
