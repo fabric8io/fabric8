@@ -14,34 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.fusesource.bai.model.policy;
+package org.fusesource.bai;
 
 /**
- * Constants that model Actions, Filtering Elements, Event Types, etc.
- * @author Raul Kripalani
- *
+ * Represents the kinds of events that can be audited
  */
-public class Constants {
-
-	public enum ActionType {
-		INCLUDE,
-		EXCLUDE
-	}
-	
-	public enum FilterElement {
-		CONTEXT,
-		EVENT,
-		EXCHANGE,
-		BUNDLE,
-		ENDPOINT
-	}
-
-	
-	public enum FilterMethod {
-		EXPRESSION,
-		ENUM_VALUE_ONE,
-		ENUM_VALUE_MULTIPLE
-	}
-	
+public enum EventType {
+	CREATED,
+	COMPLETED,
+	SENDING,
+	SENT,
+	FAILURE,
+	FAILURE_HANDLED,
+	REDELIVERY
 }

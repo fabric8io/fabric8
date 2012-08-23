@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 
+import org.fusesource.bai.EventType;
 import org.fusesource.bai.model.policy.Constants.ActionType;
-import org.fusesource.bai.model.policy.Constants.EventType;
 import org.fusesource.bai.model.policy.Constants.FilterElement;
 import org.fusesource.bai.model.policy.Constants.FilterMethod;
 import org.fusesource.bai.model.policy.Policy;

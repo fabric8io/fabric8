@@ -70,6 +70,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class AuditEventNotifier extends PublishEventNotifier {
 
+    private EventTypeConfiguration createdConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration completedConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration sendingConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration sentConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration failureConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration failureHandledConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration redeliveryConfig = new EventTypeConfiguration();
+
     // by default accept all
 	private List<String> createdRegex = Arrays.asList(".*");
 	private List<String> completedRegex = Arrays.asList(".*");
@@ -453,6 +461,84 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     public void setCreatedRegex(List<String> createdRegex) {
         this.createdRegex = createdRegex;
+    }
+
+
+    public EventTypeConfiguration getConfig(EventType eventType) {
+        switch (eventType) {
+           case CREATED:
+                return getCreatedConfig();
+            case COMPLETED:
+                return getCompletedConfig();
+            case SENDING:
+                return getSendingConfig();
+            case SENT:
+                return getSentConfig();
+            case FAILURE:
+                return getFailureConfig();
+            case FAILURE_HANDLED:
+                return getFailureHandledConfig();
+            case REDELIVERY:
+                return getRedeliveryConfig();
+            default:
+                return null;
+        }
+    }
+
+    public EventTypeConfiguration getCompletedConfig() {
+        return completedConfig;
+    }
+
+    public void setCompletedConfig(EventTypeConfiguration completedConfig) {
+        this.completedConfig = completedConfig;
+    }
+
+    public EventTypeConfiguration getCreatedConfig() {
+        return createdConfig;
+    }
+
+    public void setCreatedConfig(EventTypeConfiguration createdConfig) {
+        this.createdConfig = createdConfig;
+    }
+
+    public EventTypeConfiguration getFailureConfig() {
+        return failureConfig;
+    }
+
+    public void setFailureConfig(EventTypeConfiguration failureConfig) {
+        this.failureConfig = failureConfig;
+    }
+
+    public EventTypeConfiguration getFailureHandledConfig() {
+        return failureHandledConfig;
+    }
+
+    public void setFailureHandledConfig(EventTypeConfiguration failureHandledConfig) {
+        this.failureHandledConfig = failureHandledConfig;
+    }
+
+    public EventTypeConfiguration getRedeliveryConfig() {
+        return redeliveryConfig;
+    }
+
+    public void setRedeliveryConfig(EventTypeConfiguration redeliveryConfig) {
+        this.redeliveryConfig = redeliveryConfig;
+    }
+
+    public EventTypeConfiguration getSendingConfig() {
+        return sendingConfig;
+    }
+
+    public void setSendingConfig(EventTypeConfiguration sendingConfig) {
+        this.sendingConfig = sendingConfig;
+    }
+
+    public EventTypeConfiguration getSentConfig() {
+        return sentConfig;
+    }
+
+    public void setSentConfig(EventTypeConfiguration sentConfig) {
+        this.sentConfig = sentConfig;
     }
 
     @Override
