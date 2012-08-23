@@ -22,30 +22,19 @@
            xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
            http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
            
+           
+    <bean id="mongo" class="com.mongodb.Mongo" />
+    
 	<bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
-		<property name="mongo">
-			<bean class="com.mongodb.Mongo" />
-		</property>
+		<property name="mongo" ref="mongo" />
 		<property name="dbname" value="bai" />
 		<property name="context" ref="audit-mongodbContext" />
 	</bean>
-	
-<!--
-	<bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-	   <property name="brokerURL" value="vm://default" />
-	</bean>
 
-	<bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
-	   <property name="connectionFactory" ref="amqConnectionFactory"/>
-	   <property name="transacted" value="false"/>
-	   <property name="concurrentConsumers" value="1"/>
-	</bean>
-	
-	<bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-	    <property name="configuration" ref="jmsConfig"/>
-	</bean>
 
--->
+	<!-- TODO: RK - This route is dumb and redundant, but necessary because @Consume annotations didn't support property substitution for endpoint URI.
+			   They will as of 2.11 (https://issues.apache.org/jira/browse/CAMEL-5516). Remember to switch to a @Consume-based implementation.
+	-->
 	<camelContext id="audit-mongodbContext"
 				  useBreadcrumb="true"
                   xmlns="http://camel.apache.org/schema/blueprint"
