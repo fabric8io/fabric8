@@ -1,25 +1,28 @@
 # Process Management
 
-The **process-manager** bundle provides support for running *managed processes* as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
+The **Process Manager** provides support for running *managed processes* as part of [Fuse Fabric](http://fuse.fusesource.org/fabric/index.html).
 
-A *managed process* is similar conceptually to child containers in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
+A *managed process* is a stand alone operating system process which is managed by the root Fuse container running the Process Manager. A managed process keeps running if the root container is restarted and the container can still start/stop/restart/uninstall the process; as the root container knows how to find the underlying operating system process ID (PID) of each managed process.
 
-A managed process keeps running if the root container is restarted and the container can still start/stop/restart/uninstall the process; as the root container knows how to find the underlying operating system process ID (PID) of each managed process.
+The Process Manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the Process Manager can act at the Fuse Fabricabric level since we can use [Fabric Profiles](http://fuse.fusesource.org/fabric/docs/fabric-profiles.html) to determine which machines run which proceses in a fabric.
+
+A managed process similar conceptually to child containers in a root Apache Karaf container; each managed process is a separate, stand alone operating system process installed in a sub directory of **${karaf-home}/processes** and is managed by the root container to install/start/stop/restart/uninstall the process.
 
 A process typically has a directory which contains a launcher script according to the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
 
 ## Deploying JARs as managed processes
 
-The process-manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed on Unix like other processes.
+The Process Manager also supports turning any Java code (a collection of jars and an executable class name) into a stand alone managed process which can be managed like other operating system processes.
 
 This means you can have fine grained process isolation at the JAR level. Rather than running all your Java code in one big container in a single process, you can decouple executable jars into separate processes all managed as if it were inside a single Java container - will full process isolation and no concerns over potential resource leaks.
 
 One bad managed process will not affect any others and each process can be easily stopped without affecting any others.
 
-### Running processes like Tomcat, Jetty, HQ Agent
+This means with Fuse you can easily move your Java code between OSGi bundles, [Fuse Bundles](../../bundle/index.html) or *managed processes* depending on your coupling, scaling or process isolation requirements.
 
-The process-manager can run any application; in which case it acts like using init.d, xinit.d, daemontools, monit and other kinds of unix process manager. The difference though is the process-manager can act at the fabric level since we can use [Fabric Profiles](http://fuse.fusesource.org/fabric/docs/fabric-profiles.html) to determine which machines run which proceses.
+
+### Managing processes like Tomcat, Jetty, HQ Agent
 
 The [ProcessController](https://github.com/fusesource/fuse/blob/master/process/process-manager/src/main/java/org/fusesource/process/manager/ProcessController.java#L34) can run any process; though it needs to know exactly how to run it. It assumes the [Init Script Actions Specification](http://refspecs.freestandards.org/LSB_3.1.1/LSB-Core-generic/LSB-Core-generic/iniscrptact.html) for starting/stopping/restarting etc.
 
@@ -37,7 +40,7 @@ You can also specify a configuration in JSON for the controller to use:
 
 For example to install Apache Tomcat:
 
-    process-install -c https://raw.github.com/fusesource/fuse/master/process/process-manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+    process-install -c https://raw.github.com/fusesource/fuse/master/process/Process Manager/src/main/resources/tomcat.json http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
 
 then once installed you can start/stop/restart/status it like any other process.
 
