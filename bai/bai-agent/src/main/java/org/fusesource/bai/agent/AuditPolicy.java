@@ -32,4 +32,16 @@ public interface AuditPolicy {
      * Creates a configured {@link AuditEventNotifier} for the given camel context service
      */
     public AuditEventNotifier createAuditNotifier(CamelContextService service);
+
+    /**
+     * Performs the necessary configuration of the {@link AuditEventNotifier} which is called
+     * the first time a notifier is created, or if the policy is updated on existing notifiers
+     */
+    void configureNotifier(CamelContextService service, AuditEventNotifier notifier);
+
+    /**
+     * Registers the agent with the policy so that if the policy is updated
+     * the policy can apply the updates to all active notifiers
+     */
+    public void setAgent(BAIAgent agent);
 }

@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai.agent;
+package org.fusesource.bai.agent.support;
 
 import org.apache.camel.spi.EventNotifier;
 import org.apache.camel.spi.ManagementStrategy;
 import org.apache.camel.support.ServiceSupport;
 import org.apache.camel.util.ServiceHelper;
+import org.fusesource.bai.AuditEventNotifier;
+import org.fusesource.bai.agent.CamelContextService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +33,13 @@ public class NotifierRegistration extends ServiceSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(NotifierRegistration.class);
 
     private final String id;
-    private final EventNotifier notifier;
+    private final CamelContextService camelContextService;
+    private final AuditEventNotifier notifier;
     private final ManagementStrategy managementStrategy;
 
-    public NotifierRegistration(String id, EventNotifier notifier, ManagementStrategy managementStrategy) {
+    public NotifierRegistration(String id, CamelContextService camelContextService, AuditEventNotifier notifier, ManagementStrategy managementStrategy) {
         this.id = id;
+        this.camelContextService = camelContextService;
         this.notifier = notifier;
         this.managementStrategy = managementStrategy;
     }
@@ -43,6 +47,22 @@ public class NotifierRegistration extends ServiceSupport {
     @Override
     public String toString() {
         return "NotifierRegistration(" + id + ", " + notifier + ", " + managementStrategy + ")";
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public CamelContextService getCamelContextService() {
+        return camelContextService;
+    }
+
+    public ManagementStrategy getManagementStrategy() {
+        return managementStrategy;
+    }
+
+    public AuditEventNotifier getNotifier() {
+        return notifier;
     }
 
     @Override

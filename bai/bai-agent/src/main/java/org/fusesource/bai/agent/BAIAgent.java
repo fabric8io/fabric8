@@ -23,6 +23,7 @@ import org.apache.camel.spi.ManagementStrategy;
 import org.apache.camel.util.ServiceHelper;
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.support.DefaultAuditPolicy;
+import org.fusesource.bai.agent.support.NotifierRegistration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
 import org.osgi.framework.ServiceListener;
@@ -30,9 +31,7 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Listens to non-audit CamelContext's and registers an {@link AuditEventNotifier} with them
@@ -82,6 +81,9 @@ public class BAIAgent implements ServiceListener {
 
     public void setAuditPolicy(AuditPolicy auditPolicy) {
         this.auditPolicy = auditPolicy;
+        if (auditPolicy != null) {
+            auditPolicy.setAgent(this);
+        }
     }
 
     @Override
@@ -116,12 +118,12 @@ public class BAIAgent implements ServiceListener {
 
                     ManagementStrategy managementStrategy = camelContext.getManagementStrategy();
                     if (managementStrategy != null) {
-                        EventNotifier notifier = createEventNotifier(camelContextService);
+                        AuditEventNotifier notifier = createEventNotifier(camelContextService);
                         if (notifier == null) {
                             LOG.warn("Could not create an EventNotifier for CamelContext " + camelContextSymbolicName);
                         } else {
                             try {
-                                addNotifier(id, notifier, managementStrategy);
+                                addNotifier(id, camelContextService, notifier, managementStrategy);
                             } catch (Exception e) {
                                 LOG.error("Failed to start " + notifier + " for CamelContext " + id + ". Reason: " + e, e);
                             }
@@ -145,10 +147,10 @@ public class BAIAgent implements ServiceListener {
         return camelContextSymbolicName;
     }
 
-    protected synchronized NotifierRegistration addNotifier(String id, EventNotifier notifier, ManagementStrategy managementStrategy) throws Exception {
+    protected synchronized NotifierRegistration addNotifier(String id, CamelContextService camelContextService, AuditEventNotifier notifier, ManagementStrategy managementStrategy) throws Exception {
         removeNotifier(id);
 
-        NotifierRegistration registration = new NotifierRegistration(id, notifier, managementStrategy);
+        NotifierRegistration registration = new NotifierRegistration(id, camelContextService, notifier, managementStrategy);
         ServiceHelper.startService(registration);
         notifierMap.put(id, registration);
         return registration;
@@ -175,9 +177,25 @@ public class BAIAgent implements ServiceListener {
      */
     protected AuditEventNotifier createEventNotifier(CamelContextService camelContextService) {
         AuditEventNotifier notifier = getAuditPolicy().createAuditNotifier(camelContextService);
+        getAuditPolicy().configureNotifier(camelContextService, notifier);
         notifier.setCamelContext(camelContextService.getCamelContext());
         notifier.setEndpointUri(auditEndpoint);
         return notifier;
     }
 
+    /**
+     * If a policy has been changed this method reconfigures all the active policies
+     */
+    public void reconfigureNotifiers() {
+        List<NotifierRegistration> list;
+        synchronized (this) {
+            list = new ArrayList<NotifierRegistration>(notifierMap.values());
+        }
+
+        for (NotifierRegistration registration : list) {
+            CamelContextService camelContextService = registration.getCamelContextService();
+            AuditEventNotifier notifier = registration.getNotifier();
+            getAuditPolicy().configureNotifier(camelContextService, notifier);
+        }
+    }
 }

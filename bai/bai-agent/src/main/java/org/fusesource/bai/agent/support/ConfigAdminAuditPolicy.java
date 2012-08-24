@@ -19,6 +19,8 @@ package org.fusesource.bai.agent.support;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import org.fusesource.bai.AuditEventNotifier;
+import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.model.policy.Constants.FilterElement;
 import org.fusesource.bai.model.policy.PolicySet;
 import org.fusesource.bai.model.policy.slurper.PropertyMapPolicySlurper;
@@ -56,6 +58,7 @@ public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
     }
 
     public void updated(Dictionary dict) throws ConfigurationException {
+        System.out.println("Updating BAI Agent configuration " + dict);
         PropertyMapPolicySlurper pmps = new PropertyMapPolicySlurper(dict);
         this.policies = pmps.slurp();
         // obtain all policies whose scope is only a Context element, and whose resulting action is 'exclude'
@@ -69,9 +72,14 @@ public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
         } else {
         	setExcludeCamelContextPattern(excludedCamelContextsPolicies.iterator().next().scope.get(0).enumValues);
         }   	
-        
     }
-    
+
+    @Override
+    public void configureNotifier(CamelContextService camelContextService, AuditEventNotifier notifier) {
+        // TODO
+        // apply the current policy to the given notifier given the notifier for the camelContextService
+    }
+
     public static String getOrElse(Dictionary dict, String key, String defaultValue) {
         Object value = dict.get(key);
         if (value == null) {
