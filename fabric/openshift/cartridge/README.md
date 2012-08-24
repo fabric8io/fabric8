@@ -32,74 +32,74 @@ Get started
 
 4. Merge the OpenShift project with the Fuse Fabric cartridge
 
-   Copy the content of this directory (except the pom file) locally - https://github.com/fusesource/fuse/raw/master/fabric/openshift/cartridge
-   Commit the Git changes to Openshift (git commit -m "Initial import of Fuse Fabric" -a & git push
+    Copy the content of this directory (except the pom file) locally - https://github.com/fusesource/fuse/raw/master/fabric/openshift/cartridge
+    Commit the Git changes to Openshift (git commit -m "Initial import of Fuse Fabric" -a & git push
 
 5. Whenenever you publish a git project to Openshift, it will be deployed and the application started.
 
-   So you should see the following message on the screen
+    So you should see the following message on the screen
 
-   git push
-   Counting objects: 19, done.
-   Delta compression using up to 8 threads.
-   Compressing objects: 100% (10/10), done.
-   Writing objects: 100% (10/10), 948 bytes, done.
-   Total 10 (delta 6), reused 0 (delta 0)
-   remote: Stopping application...
-   remote: Exception in thread "main" java.lang.NumberFormatException: null
-   remote: 	at java.lang.Integer.parseInt(Integer.java:454)
-   remote: 	at java.lang.Integer.parseInt(Integer.java:527)
-   remote: 	at org.apache.karaf.main.Stop.main(Stop.java:66)
-   remote: Done
-   remote: ~/git/fabric.git ~/git/fabric.git
-   remote: ~/git/fabric.git
-   remote: Running .openshift/action_hooks/pre_build
-   remote: Running .openshift/action_hooks/build
-   remote: Running .openshift/action_hooks/deploy
-   remote: + '[' -d /var/lib/stickshift/2ee23a78e9664b8593ebbc77e16aac38/fabric/runtime//fabric ']'
-   remote: + exit 0
-   remote: Starting application...
-   remote: + export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64
-   remote: + JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64
-   remote: + export PATH=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64/bin:/usr/libexec/stickshift/cartridges/diy-0.1/info/bin/:/usr/libexec/stickshift/cartridges/abstract/info/bin/:/sbin:/usr/sbin:/bin:/usr/bin
-   remote: + PATH=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64/bin:/usr/libexec/stickshift/cartridges/diy-0.1/info/bin/:/usr/libexec/stickshift/cartridges/abstract/info/bin/:/sbin:/usr/sbin:/bin:/usr/bin
-   remote: + export OPENSHIFT_SSH_PORT=18101
-   remote: + OPENSHIFT_SSH_PORT=18101
-   remote: + export OPENSHIFT_SSH_HOST=
-   remote: + OPENSHIFT_SSH_HOST=
-   remote: + cd /var/lib/stickshift/2ee23a78e9664b8593ebbc77e16aac38/fabric/runtime//fabric
-   remote: + bin/start
-   remote: Done
-   remote: Running .openshift/action_hooks/post_deploy
-   To ssh://2ee23a78e9664b8593ebbc77e16aac38@fabric-fuse.rhcloud.com/~/git/fabric.git/
-      124aefc..273b7b3  master -> master
+    git push
+    Counting objects: 19, done.
+    Delta compression using up to 8 threads.
+    Compressing objects: 100% (10/10), done.
+    Writing objects: 100% (10/10), 948 bytes, done.
+    Total 10 (delta 6), reused 0 (delta 0)
+    remote: Stopping application...
+    remote: Exception in thread "main" java.lang.NumberFormatException: null
+    remote: 	at java.lang.Integer.parseInt(Integer.java:454)
+    remote: 	at java.lang.Integer.parseInt(Integer.java:527)
+    remote: 	at org.apache.karaf.main.Stop.main(Stop.java:66)
+    remote: Done
+    remote: ~/git/fabric.git ~/git/fabric.git
+    remote: ~/git/fabric.git
+    remote: Running .openshift/action_hooks/pre_build
+    remote: Running .openshift/action_hooks/build
+    remote: Running .openshift/action_hooks/deploy
+    remote: + '[' -d /var/lib/stickshift/2ee23a78e9664b8593ebbc77e16aac38/fabric/runtime//fabric ']'
+    remote: + exit 0
+    remote: Starting application...
+    remote: + export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64
+    remote: + JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64
+    remote: + export PATH=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64/bin:/usr/libexec/stickshift/cartridges/diy-0.1/info/bin/:/usr/libexec/stickshift/cartridges/abstract/info/bin/:/sbin:/usr/sbin:/bin:/usr/bin
+    remote: + PATH=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64/bin:/usr/libexec/stickshift/cartridges/diy-0.1/info/bin/:/usr/libexec/stickshift/cartridges/abstract/info/bin/:/sbin:/usr/sbin:/bin:/usr/bin
+    remote: + export OPENSHIFT_SSH_PORT=18101
+    remote: + OPENSHIFT_SSH_PORT=18101
+    remote: + export OPENSHIFT_SSH_HOST=
+    remote: + OPENSHIFT_SSH_HOST=
+    remote: + cd /var/lib/stickshift/2ee23a78e9664b8593ebbc77e16aac38/fabric/runtime//fabric
+    remote: + bin/start
+    remote: Done
+    remote: Running .openshift/action_hooks/post_deploy
+    To ssh://2ee23a78e9664b8593ebbc77e16aac38@fabric-fuse.rhcloud.com/~/git/fabric.git/
+    124aefc..273b7b3  master -> master
 
-   REMARK : There is a issue as the port file is not created by Karaf
+    REMARK : There is a issue as the port file is not created by Karaf
 
 6. Now you can connect to the Karaf web console using the link : http://APPLICATION-SUBDOMAIN.rhcloud.com/system/console/bundles
 
-   login : karaf
-   password : karaf
+    login : karaf
+    password : karaf
 
 7. You can connect to your cloud instance using ssh and next to karaf
 
-   ssh UUID@APPLICATION-SUBDOMAIN.rhcloud.com
+    ssh UUID@APPLICATION-SUBDOMAIN.rhcloud.com
 
-   On the cloud instance
+    On the cloud instance
 
-   ssh localhost -p 18101 -l karaf -P karaf
+    ssh localhost -p 18101 -l karaf -P karaf
 
 8. Application can be stopped and restarted using these [rhc](https://openshift.redhat.com/app/getting_started) commands
 
-   rhc app stop -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
-   rhc app start -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
+    rhc app stop -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
+    rhc app start -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
 
 
 ISSUES
 ======
 
-   1) Until now we cannot connect to karaf using ssh port number. A thread has been created on Red Hat Forum () and email send
-   2) As Karaf generates an error when it stops dues to the missing port file under data directory, every new GIT change is not correctly propagated
+    1) Until now we cannot connect to karaf using ssh port number. A thread has been created on Red Hat Forum () and email send
+    2) As Karaf generates an error when it stops dues to the missing port file under data directory, every new GIT change is not correctly propagated
       on Openshift and update of the project is very risky.
 
 
