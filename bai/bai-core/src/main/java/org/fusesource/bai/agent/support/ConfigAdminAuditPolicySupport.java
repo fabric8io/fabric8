@@ -16,13 +16,14 @@
  */
 package org.fusesource.bai.agent.support;
 
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.fusesource.common.util.Objects;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -33,6 +34,24 @@ public abstract class ConfigAdminAuditPolicySupport extends DefaultAuditPolicy i
     public final String KEY_CAMEL_CONTEXT_EXCLUDE = "camelContext.exclude";
     private String configPid = "org.fusesource.bai.agent";
     private ConfigurationAdmin configurationAdmin;
+    private BundleContext bundleContext;
+    private ServiceRegistration listenerService;
+    private ConfigurationListener configurationListener = new ConfigurationListener() {
+        @Override
+        public void configurationEvent(ConfigurationEvent event) {
+            String pid = event.getPid();
+            if (pid.equals(configPid))  {
+                System.out.println("==== got a configuration change PID!");
+                try {
+                    refreshConfigAdmin();
+                } catch (Exception e) {
+                    LOG.warn("Error updating configuration for " + configPid + ". Caught: " + e);
+                }
+            } else {
+                System.out.println("Config admin event for " + pid);
+            }
+        }
+    };
 
     public static String getOrElse(Dictionary dict, String key, String defaultValue) {
         Object value = dict.get(key);
@@ -44,6 +63,16 @@ public abstract class ConfigAdminAuditPolicySupport extends DefaultAuditPolicy i
     }
 
     public void init() throws Exception {
+        Objects.notNull(bundleContext, "bundleContext");
+        listenerService = bundleContext.registerService(ConfigurationListener.class.getName(), configurationListener, null);
+        refreshConfigAdmin();
+    }
+
+    public void destroy() {
+        listenerService.unregister();
+    }
+
+    private void refreshConfigAdmin() throws IOException, ConfigurationException {
         if (configurationAdmin != null) {
             Configuration config = configurationAdmin.getConfiguration(configPid);
             if (config != null) {
@@ -67,6 +96,14 @@ public abstract class ConfigAdminAuditPolicySupport extends DefaultAuditPolicy i
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
     public String getConfigPid() {

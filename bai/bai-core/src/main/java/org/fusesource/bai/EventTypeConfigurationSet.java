@@ -95,7 +95,7 @@ public class EventTypeConfigurationSet {
                     }
                 }
             } else {
-                // endpoint.regex.camelContextPattern = regex
+                // endpoint.regex.eventType.camelContextPattern = regex
                 configAndRemaining = parseEventType(key, ENDPOINT_REGEX);
                 if (configAndRemaining != null) {
                     if (matchesCamelContextService(camelContextService, configAndRemaining.getSecond())) {
@@ -104,6 +104,35 @@ public class EventTypeConfigurationSet {
                 }
             }
         }
+    }
+
+    /**
+     * Parses the event type if the key matches the given prefix which is stripped off and
+     * the configuration and remaining text is returned
+     */
+    protected Pair<EventTypeConfiguration, String> parseEventType(String key, String prefix) {
+        if (key.startsWith(prefix)) {
+            String next = key.substring(prefix.length());
+            // now lets parse the next eventType
+            int idx = next.indexOf('.');
+            if (idx > 0) {
+                String eventText = next.substring(0, idx);
+                String remaining = next.substring(idx + 1);
+                EventType eventType = EventType.simpleNames.get(eventText);
+                if (eventType == null) {
+                    LOG.warn("Invalid EventType: " + eventText + " when parsing " + key);
+                }
+                else {
+                    EventTypeConfiguration config = getConfig(eventType);
+                    if (config == null) {
+                        LOG.warn("Could not find an EventTypeConfiguration for eventType: " + eventType);
+                    } else {
+                        return new Pair<EventTypeConfiguration, String>(config, remaining);
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     /**
@@ -117,41 +146,17 @@ public class EventTypeConfigurationSet {
             String remaining = key.substring(idx + 1);
             Language language = camelContextService.getCamelContext().resolveLanguage(languageName);
             if (languageName == null) {
-                LOG.warn("Could not resolve language '" + languageName + "' with expression '" + expression + "'");
+                LOG.error("Could not resolve language '" + languageName + "' with expression '" + expression + "'");
             } else {
-                Predicate predicate = language.createPredicate(expression);
-                if (predicate == null) {
-                    LOG.warn("Could not create predicate for language " + language + " and expression '" + expression + "'");
-                } else {
-                    return new Pair<Predicate, String>(predicate, remaining);
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Parses the event type if the key matches the given prefix which is stripped off and
-     * the configuration and remaining text is returned
-     */
-    protected Pair<EventTypeConfiguration, String> parseEventType(String key, String prefix) {
-        if (key.startsWith(prefix)) {
-            String next = key.substring(0, prefix.length());
-            // now lets parse the next eventType
-            int idx = next.indexOf('.');
-            if (idx > 0) {
-                String eventText = next.substring(0, idx);
-                String remaining = next.substring(idx + 1);
-                EventType eventType = EventType.valueOf(eventText);
-                if (eventType != null) {
-                    EventTypeConfiguration config = getConfig(eventType);
-                    if (config == null) {
-                        LOG.warn("Could not find an EventTypeConfiguration for eventType: " + eventType);
+                try {
+                    Predicate predicate = language.createPredicate(expression);
+                    if (predicate == null) {
+                        LOG.error("Could not create predicate for language " + language + " and expression '" + expression + "'");
                     } else {
-                        return new Pair<EventTypeConfiguration, String>(config, remaining);
+                        return new Pair<Predicate, String>(predicate, remaining);
                     }
-                } else {
-                    LOG.warn("Invalid EventType: " + eventText + " when parsing " + key);
+                } catch (Exception e) {
+                    LOG.error("Failed to parse " + language + " expression '" + expression + "'. Reason: " + e);
                 }
             }
         }

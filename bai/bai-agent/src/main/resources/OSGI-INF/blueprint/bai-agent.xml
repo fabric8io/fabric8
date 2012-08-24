@@ -18,9 +18,16 @@
     <property name="auditPolicy" ref="auditPolicy"/>
   </bean>
 
-  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.SimpleConfigAdminAuditPolicy" init-method="init" scope="singleton">
+  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.SimpleConfigAdminAuditPolicy" init-method="init" destroy-method="destroy" scope="singleton">
     <property name="configurationAdmin" ref="configurationAdmin"/>
+    <property name="bundleContext" ref="blueprintBundleContext"/>
   </bean>
+
+<!--
+  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.SimpleConfigAdminAuditPolicy" scope="singleton">
+    <cm:managed-properties persistent-id="org.fusesource.bai.agent" update-method="update" update-strategy="container-managed"/>
+  </bean>
+-->
 
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="mandatory"/>
 

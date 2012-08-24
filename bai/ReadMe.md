@@ -178,7 +178,7 @@ e.g. to exclude the create events in all bundles which begin with "foo" for all 
 
     event.create.foo* = false
 
-#### Exclusing Exchanges via Predicates
+#### Filtering Exchanges via Predicates
 
 To filter individual exchanges from being audited you may wish to use a [Camel expression language](http://camel.apache.org/languages.html).
 
@@ -195,17 +195,19 @@ Or to apply a filter for all bundles:
 Note that you can only have 1 filter for a given event type, language and bundleID and/or camelContextID expression
 
 
-#### Exclusing Endpoint URIs
+#### Filtering Endpoint URIs
 
-To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. Again you can restrict these filters to specific bundleIDs and/or camelContextIDs
+To filter specific endpoints when being invoked in a route you can use regular expressions on the endpoint URI itself. If no regexs are specified then all of them are included.
 
-    endpoint.exclude.$camelContextPattern = $endpointUriRegex
+Again you can restrict these filters to specific bundleIDs and/or camelContextIDs
 
-For example to exclude all log endpoints from audit on all bundleIDs and camelContextIDs
+    endpoint.regex.$camelContextPattern = $endpointUriRegex
 
-    endpoint.exclude.* = log:.*
+For example to include all activemq endpoints on all bundleIDs and camelContextIDs
 
-To only exclude activemq endpoints in the bundleID "foo" for camelContextID "bar" it would be
+    endpoint.regex.* = activemq:.*
 
-    endpoint.exclude.foo:bar = activem:q.*
+To only include activemq endpoints in the bundleID "foo" for camelContextID "bar" it would be
+
+    endpoint.regex.foo:bar = activem:q.*
 

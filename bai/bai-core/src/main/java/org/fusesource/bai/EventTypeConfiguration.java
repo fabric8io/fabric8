@@ -16,7 +16,9 @@
  */
 package org.fusesource.bai;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
+import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.fusesource.common.util.Strings;
 
 import java.util.ArrayList;
@@ -28,12 +30,56 @@ import java.util.List;
  */
 public class EventTypeConfiguration {
     private boolean include = true;
-    private List<String> includeRegexList = Arrays.asList(".*");
+    // TODO support exclude regex
+    private List<String> includeRegexList = new ArrayList<String>();
+
+    // TODO cache java.util.regex.Matcher objects for each expression!
     private List<Predicate> filters = new ArrayList<Predicate>();
 
     @Override
     public String toString() {
         return "EventTypeConfig(" + include + ", " + includeRegexList + ", " + filters + ")";
+    }
+
+    /**
+     * Returns true if this configuration matches the given event and endpointURI
+     */
+    public boolean matchesEvent(String endpointUri, AbstractExchangeEvent exchangeEvent) {
+        if (!isInclude()) {
+            return false;
+        }
+        // if an include regex is specified then it matches if any of the match
+        List<String> regexList = getIncludeRegexList();
+        if (!regexList.isEmpty()) {
+            if (endpointUri == null) {
+                return false;
+            }
+            boolean matches = false;
+            for (String regex : regexList) {
+                if (endpointUri.matches(regex)) {
+                    matches = true;
+                    break;
+                }
+            }
+            if (!matches) {
+                return false;
+            }
+        }
+        Exchange exchange = exchangeEvent.getExchange();
+        if (exchange == null) {
+            return false;
+        }
+        List<Predicate> filters = getFilters();
+        if (filters.isEmpty()) {
+            return true;
+        } else {
+            for (Predicate filter : filters) {
+                if (filter.matches(exchange)) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public List<Predicate> getFilters() {
@@ -66,4 +112,5 @@ public class EventTypeConfiguration {
     public void configureEventFlag(String value) {
         include = Strings.isNullOrBlank(value) || !value.equalsIgnoreCase("false");
     }
+
 }

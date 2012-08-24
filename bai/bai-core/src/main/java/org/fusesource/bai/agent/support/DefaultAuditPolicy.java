@@ -38,7 +38,8 @@ public class DefaultAuditPolicy implements AuditPolicy {
 
     @Override
     public boolean isAuditEnabled(CamelContextService service) {
-        return getExcludeCamelContextFilter().matches(service) == false;
+        Filter<CamelContextService> filter = getExcludeCamelContextFilter();
+        return filter == null || filter.matches(service) == false;
     }
 
     // Properties

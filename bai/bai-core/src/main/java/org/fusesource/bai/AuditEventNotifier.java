@@ -24,49 +24,47 @@ import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
 
-import java.util.Arrays;
 import java.util.EventObject;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A notifier of {@link AuditEvent} objects
- *
+ * <p/>
  * { _id: <breadcrumbId>,
-     exchanges: [
-     { timestamp: <timestamp>,
-        endpointUri: <uri>,
-        in: <inMessage>,
-        out: <outMessage>
-     },
-     { timestamp: <timestamp>,
-        endpointUri: <uri>,
-        in: <inMessage>,
-        out: <outMessage>
-     },
-     { timestamp: <timestamp>,
-        endpointUri: <uri>,
-        in: <inMessage>,
-        out: <outMessage>
-     }
-   ],
-   
-   failures: [
-     { timestamp: <timestamp>,
-       error: <exception and message>
-     }
-   ],
-   
-   redeliveries: 
-     { endpoint: [timestamps],
-       endpoint: [timestamps]
-     }
-   ],
-   
-   
-}
- * @author raul
+ * exchanges: [
+ * { timestamp: <timestamp>,
+ * endpointUri: <uri>,
+ * in: <inMessage>,
+ * out: <outMessage>
+ * },
+ * { timestamp: <timestamp>,
+ * endpointUri: <uri>,
+ * in: <inMessage>,
+ * out: <outMessage>
+ * },
+ * { timestamp: <timestamp>,
+ * endpointUri: <uri>,
+ * in: <inMessage>,
+ * out: <outMessage>
+ * }
+ * ],
+ * <p/>
+ * failures: [
+ * { timestamp: <timestamp>,
+ * error: <exception and message>
+ * }
+ * ],
+ * <p/>
+ * redeliveries:
+ * { endpoint: [timestamps],
+ * endpoint: [timestamps]
+ * }
+ * ],
+ * <p/>
+ * <p/>
+ * }
  *
+ * @author raul
  */
 public class AuditEventNotifier extends PublishEventNotifier {
     private EventTypeConfiguration createdConfig = new EventTypeConfiguration();
@@ -83,10 +81,10 @@ public class AuditEventNotifier extends PublishEventNotifier {
     private Producer producer;
 
     public AuditEventNotifier() {
-		setIgnoreCamelContextEvents(true);
-		setIgnoreRouteEvents(true);
-		setIgnoreServiceEvents(true);
-	}
+        setIgnoreCamelContextEvents(true);
+        setIgnoreRouteEvents(true);
+        setIgnoreServiceEvents(true);
+    }
 
     @Override
     public String toString() {
@@ -106,8 +104,8 @@ public class AuditEventNotifier extends PublishEventNotifier {
         this.redeliveryConfig = configs.getRedeliveryConfig();
     }
 
-	@Override
-	public boolean isEnabled(EventObject event) {
+    @Override
+    public boolean isEnabled(EventObject event) {
         EventObject coreEvent = event;
         AbstractExchangeEvent exchangeEvent = null;
         if (event instanceof AuditEvent) {
@@ -140,7 +138,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
         }
         String uri = endpointUri(event);
         if (config == null) return false;
-        return testConfig(uri, config, exchangeEvent);
+        return config.matchesEvent(uri, exchangeEvent);
     }
 
     public static String endpointUri(EventObject event) {
@@ -168,37 +166,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
         return null;
     }
 
-    private boolean testConfig(String uri, EventTypeConfiguration config, AbstractExchangeEvent exchangeEvent) {
-        if (!config.isInclude()) {
-            return false;
-        }
-        List<String> regexList = config.getIncludeRegexList();
-        if (!regexList.isEmpty()) {
-            if (endpointUri == null) {
-                return false;
-            }
-            for (String regex : regexList) {
-          			if (!uri.matches(regex)) {
-                          return false;
-          			}
-          		}
-        }
-        Exchange exchange = exchangeEvent.getExchange();
-        if (exchange == null) {
-            return false;
-        }
-        List<Predicate> filters = config.getFilters();
-        if (filters.isEmpty()) {
-            return true;
-        } else {
-            for (Predicate filter : filters) {
-                if (filter.matches(exchange)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
 
     /**
      * Add a unique dispatchId property to the original Exchange, which will come back to us later.
@@ -207,7 +174,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
      * events arrive, BAI won't know which record to update (ambiguity)
      * So to overcome this situation, we enrich the Exchange with a DispatchID only when Created or Sending
      */
-	@Override
+    @Override
     public void notify(EventObject event) throws Exception {
         AuditEvent auditEvent = null;
         AbstractExchangeEvent ae = null;
@@ -223,11 +190,11 @@ public class AuditEventNotifier extends PublishEventNotifier {
             log.debug("Ignoring events like " + event + " as its neither a AbstractExchangeEvent or AuditEvent");
             return;
         }
-	    if (event instanceof ExchangeSendingEvent || event instanceof ExchangeCreatedEvent) {
-	        ae.getExchange().setProperty(AuditConstants.DISPATCH_ID, ae.getExchange().getContext().getUuidGenerator().generateUuid());
-	    }
-	    
-	    // only notify when we are started
+        if (event instanceof ExchangeSendingEvent || event instanceof ExchangeCreatedEvent) {
+            ae.getExchange().setProperty(AuditConstants.DISPATCH_ID, ae.getExchange().getContext().getUuidGenerator().generateUuid());
+        }
+
+        // only notify when we are started
         if (!isStarted()) {
             log.debug("Cannot publish event as notifier is not started: {}", event);
             return;
@@ -262,11 +229,11 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     /**
-	 * Substitute all arrays with CopyOnWriteArrayLists
-	 */
-	@Override
-	protected void doStart() throws Exception {
-		ObjectHelper.notNull(camelContext, "camelContext", this);
+     * Substitute all arrays with CopyOnWriteArrayLists
+     */
+    @Override
+    protected void doStart() throws Exception {
+        ObjectHelper.notNull(camelContext, "camelContext", this);
         if (endpoint == null && endpointUri == null) {
             throw new IllegalArgumentException("Either endpoint or endpointUri must be configured");
         }
@@ -278,9 +245,9 @@ public class AuditEventNotifier extends PublishEventNotifier {
         producer = endpoint.createProducer();
         ServiceHelper.startService(producer);
 
-	}
+    }
 
-	public CamelContext getCamelContext() {
+    public CamelContext getCamelContext() {
         return camelContext;
     }
 
@@ -306,7 +273,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     public EventTypeConfiguration getConfig(EventType eventType) {
         switch (eventType) {
-           case CREATED:
+            case CREATED:
                 return getCreatedConfig();
             case COMPLETED:
                 return getCompletedConfig();
@@ -569,7 +536,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
     public void setRedeliveryIncludeRegexList(List<String> includeRegexList) {
         redeliveryConfig.setIncludeRegexList(includeRegexList);
     }
-
 
 
 }

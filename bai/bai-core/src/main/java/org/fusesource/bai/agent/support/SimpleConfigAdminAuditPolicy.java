@@ -36,23 +36,23 @@ public class SimpleConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport 
 
     @Override
     public void updated(Dictionary dict) throws ConfigurationException {
-        System.out.println("Updating BAI Agent configuration " + dict);
-
         map.clear();
-        Enumeration e = dict.elements();
+        Enumeration e = dict.keys();
         while (e.hasMoreElements()) {
             Object o = e.nextElement();
             if (o != null) {
-                String key = o.toString();
                 Object value = dict.get(o);
+                String key = o.toString();
                 if (value != null) {
                     map.put(key, value.toString());
                 }
             }
         }
 
+        System.out.println("Updating BAI Agent configuration " + dict + " as Map " + map);
+
         String pattern = getOrElse(map, KEY_CAMEL_CONTEXT_EXCLUDE, DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
-        LOG.info("Setting the camelContext exclude pattern to " + pattern);
+        System.out.println("Setting the camelContext exclude pattern to " + pattern);
         setExcludeCamelContextPattern(pattern);
         updateNotifiersWithNewPolicy();
     }

@@ -16,6 +16,9 @@
  */
 package org.fusesource.bai;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Represents the kinds of events that can be audited
  */
@@ -26,5 +29,18 @@ public enum EventType {
 	SENT,
 	FAILURE,
 	FAILURE_HANDLED,
-	REDELIVERY
+	REDELIVERY;
+
+    public static Map<String, EventType> simpleNames;
+
+    static {
+        simpleNames = new HashMap<String,EventType>();
+        simpleNames.put("created", CREATED);
+        simpleNames.put("completed", COMPLETED);
+        simpleNames.put("sending", SENDING);
+        simpleNames.put("sent", SENT);
+        simpleNames.put("failure", FAILURE);
+        simpleNames.put("failureHandled", FAILURE_HANDLED);
+        simpleNames.put("redelivery", REDELIVERY);
+    }
 }

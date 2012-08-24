@@ -16,6 +16,9 @@
       <setBody>
           <method ref="helloBean" method="hello"/>
       </setBody>
+      <setHeader headerName="foo">
+        <constant>cheese</constant>
+      </setHeader>
       <log message="The message contains ${body}"/>
       <to uri="mock:result"/>
     </route>
