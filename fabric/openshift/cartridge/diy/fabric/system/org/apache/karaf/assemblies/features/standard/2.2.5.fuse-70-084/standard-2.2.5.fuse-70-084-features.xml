@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+      Licensed to the Apache Software Foundation (ASF) under one or more
+      contributor license agreements.  See the NOTICE file distributed with
+      this work for additional information regarding copyright ownership.
+      The ASF licenses this file to You under the Apache License, Version 2.0
+      (the "License"); you may not use this file except in compliance with
+      the License.  You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+      Unless required by applicable law or agreed to in writing, software
+      distributed under the License is distributed on an "AS IS" BASIS,
+      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+      See the License for the specific language governing permissions and
+      limitations under the License.
+-->
+<features name="karaf-2.2.5.fuse-70-084" xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
+
+    <feature name="karaf-framework" description="Karaf core feature" version="2.2.5.fuse-70-084" resolver="(obr)">
+        <bundle start-level="5">mvn:org.ops4j.pax.url/pax-url-mvn/1.2.8</bundle>
+        <bundle start-level="5">mvn:org.ops4j.pax.url/pax-url-wrap/1.2.8</bundle>
+        <bundle start-level="8">mvn:org.ops4j.pax.logging/pax-logging-api/1.6.9</bundle>
+        <bundle start-level="8">mvn:org.ops4j.pax.logging/pax-logging-service/1.6.9</bundle>
+        <bundle start-level="10">mvn:org.apache.felix/org.apache.felix.configadmin/1.3.0.fuse-70-084</bundle>
+        <bundle start-level="11">mvn:org.apache.felix/org.apache.felix.fileinstall/3.3.11.fuse-70-084</bundle>
+        <bundle start-level="20">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/3.3_2</bundle>
+        <bundle start-level="20">mvn:org.apache.aries/org.apache.aries.util/0.3.1.fuse-70-084</bundle>
+        <bundle start-level="20">mvn:org.apache.aries.proxy/org.apache.aries.proxy/0.3</bundle>
+        <bundle start-level="20">mvn:org.apache.aries.blueprint/org.apache.aries.blueprint/0.3.1.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.log/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.config/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.modules/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.command/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="25">mvn:org.apache.karaf.features/org.apache.karaf.features.core/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.features/org.apache.karaf.features.command/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.features/org.apache.karaf.features.management/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management/org.apache.karaf.management.server/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3.1.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3.1.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="spring" description="Spring 2 support" version="2.5.6.SEC02" resolver="(obr)">
+        <bundle dependency="true" start-level="30">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/1.0_5</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-core/2.5.6.SEC02</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-beans/2.5.6.SEC02</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-aop/2.5.6.SEC02</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-context/2.5.6.SEC02</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-context-support/2.5.6.SEC02</bundle>
+    </feature>
+
+    <feature name="spring-web" description="Spring 2 Web support" version="2.5.6.SEC02" resolver="(obr)">
+    	<feature version="2.5.6.SEC02">spring</feature>
+    	<feature version="2.2.5.fuse-70-084">http</feature>
+    	<bundle start-level="30">mvn:org.springframework/spring-web/2.5.6.SEC02</bundle>
+		<bundle start-level="30">mvn:org.springframework/spring-webmvc/2.5.6.SEC02</bundle>
+    </feature>
+
+    <feature name="spring" description="Spring support" version="3.0.7.RELEASE" resolver="(obr)">
+        <bundle dependency="true" start-level="30">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.aopalliance/1.0_5</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-core/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-asm/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-expression/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-beans/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-aop/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-context/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-context-support/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-aspects" description="Spring AOP support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-aspects/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-dm" description="Spring DM support" version="1.2.1" resolver="(obr)">
+        <feature version="[2.5.6,4)">spring</feature>
+        <bundle dependency="true" start-level="30">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.cglib/2.1_3_7</bundle>
+        <bundle start-level="30">mvn:org.springframework.osgi/spring-osgi-io/1.2.1</bundle>
+        <bundle start-level="30">mvn:org.springframework.osgi/spring-osgi-core/1.2.1</bundle>
+        <bundle start-level="30">mvn:org.springframework.osgi/spring-osgi-extender/1.2.1</bundle>
+        <bundle start-level="30">mvn:org.springframework.osgi/spring-osgi-annotation/1.2.1</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="spring-dm-web" description="Spring DM Web Support" version="1.2.1" resolver="(obr)">
+    	<feature version="1.2.1">spring-dm</feature>
+    	<feature version="[2.5.6,4)">spring-web</feature>
+    	<feature version="2.2.5.fuse-70-084">http</feature>
+		<bundle start-level="30">mvn:org.springframework.osgi/spring-osgi-web/1.2.1</bundle>
+    </feature>
+
+    <feature name="spring-instrument" description="Spring Instrument support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-instrument/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-jdbc" description="Spring JDBC support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring-tx</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-jdbc/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-jms" description="Spring JMS support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring-web</feature>
+        <bundle start-level="10">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle start-level="10">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-jms/3.0.7.RELEASE</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-tx/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-struts" description="Spring Struts support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring-web</feature>
+        <bundle dependency="true" start-level="30">mvn:commons-beanutils/commons-beanutils/1.8.3</bundle>
+        <bundle start-level="30">mvn:org.springframework/spring-struts/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-test" description="Spring Test support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-test/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-orm" description="Spring ORM support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring-jdbc</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-orm/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-oxm" description="Spring OXM support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-oxm/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-tx" description="Spring Transaction (TX) support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-tx/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-web" description="Spring Web support" version="3.0.7.RELEASE" resolver="(obr)">
+    	<feature version="3.0.7.RELEASE">spring</feature>
+    	<feature version="2.2.5.fuse-70-084">http</feature>
+    	<bundle start-level="30">mvn:org.springframework/spring-web/3.0.7.RELEASE</bundle>
+		<bundle start-level="30">mvn:org.springframework/spring-webmvc/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="spring-web-portlet" description="Spring Web Portlet support" version="3.0.7.RELEASE" resolver="(obr)">
+        <feature version="3.0.7.RELEASE">spring-web</feature>
+        <bundle start-level="30">mvn:org.springframework/spring-webmvc-portlet/3.0.7.RELEASE</bundle>
+    </feature>
+
+    <feature name="wrapper" description="Provide OS integration" version="2.2.5.fuse-70-084">
+        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.wrapper/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="obr" description="Provide OSGi Bundle Repository (OBR) support" version="2.2.5.fuse-70-084">
+        <bundle start-level="30">mvn:org.apache.felix/org.osgi.service.obr/1.0.2</bundle>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.bundlerepository/1.6.4</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.obr/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.features/org.apache.karaf.features.obr/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.obr/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.url/pax-url-obr/1.2.8</bundle>
+    </feature>
+
+    <feature name="config" description="Provide OSGi ConfigAdmin support" version="2.2.5.fuse-70-084">
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="jetty" description="Provide Jetty engine support" version="7.5.4.v20111024" resolver="(obr)">
+        <bundle dependency="true" start-level="30">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/2.0.0.fuse-70-084</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.1.2</bundle>
+        <bundle dependency="true" start-level="30">mvn:javax.mail/mail/1.4.4</bundle>
+        <bundle dependency="true" start-level="30">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-util/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-io/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-http/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-client/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-continuation/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-jmx/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-server/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-security/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-servlet/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-servlets/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-xml/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-webapp/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-jndi/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-plus/7.5.4.v20111024</bundle>
+        <bundle start-level="30">mvn:org.eclipse.jetty/jetty-websocket/7.5.4.v20111024</bundle>
+    </feature>
+
+    <feature name="http" description="Implementation of the OSGi HTTP service" version="2.2.5.fuse-70-084" resolver="(obr)">
+        <configfile finalname="/etc/jetty.xml">mvn:org.apache.karaf/apache-karaf/2.2.5.fuse-70-084/xml/jettyconfig</configfile>
+        <config name="org.ops4j.pax.web">
+            org.osgi.service.http.port=8181
+            javax.servlet.context.tempdir=${karaf.data}/pax-web-jsp
+            org.ops4j.pax.web.config.file=${karaf.base}/etc/jetty.xml
+        </config>
+        <feature version="[7.0,8.0)">jetty</feature>
+    	<bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-api/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-spi/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-runtime/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jetty/1.0.10</bundle>
+    </feature>
+
+    <feature name="http-whiteboard" description="Provide HTTP Whiteboard pattern support" version="2.2.5.fuse-70-084" resolver="(obr)">
+        <feature>http</feature>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.10</bundle>
+    </feature>
+
+    <feature name="war" description="Turn Karaf as a full WebContainer" version="2.2.5.fuse-70-084" resolver="(obr)">
+        <config name="org.ops4j.pax.url.war">
+            org.ops4j.pax.url.war.importPaxLoggingPackages=true
+        </config>
+        <feature>http</feature>
+        <bundle start-level='30'>mvn:org.apache.karaf.shell/org.apache.karaf.shell.web/2.2.5.fuse-70-084</bundle>
+        <bundle start-level='30'>mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.web/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-jsp/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-extender-war/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-extender-whiteboard/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.web/pax-web-deployer/1.0.10</bundle>
+        <bundle start-level="30">mvn:org.ops4j.pax.url/pax-url-war/1.2.8</bundle>
+    </feature>
+
+    <feature name="kar" description="Provide KAR (KARaf archive) support" version="2.2.5.fuse-70-084">
+        <bundle start-level="30">mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.kar/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="webconsole-base" description="Base support of the Karaf WebConsole" version="2.2.5.fuse-70-084">
+        <config name="org.apache.karaf.webconsole">
+            realm=karaf
+            role=${karaf.admin.role}
+        </config>
+        <feature>http</feature>
+        <bundle start-level="30">mvn:org.apache.felix/org.apache.felix.metatype/1.0.4</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.branding/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.console/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="webconsole" description="Karaf WebConsole for administration and monitoring" version="2.2.5.fuse-70-084">
+        <feature version="2.2.5.fuse-70-084">webconsole-base</feature>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.admin/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.features/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.webconsole/org.apache.karaf.webconsole.gogo/2.2.5.fuse-70-084</bundle>
+		<bundle start-level="30">mvn:org.apache.felix/org.apache.felix.webconsole.plugins.event/1.0.2</bundle>
+    </feature>
+
+    <feature name="ssh" description="Provide a SSHd server on Karaf" version="2.2.5.fuse-70-084">
+        <config name="org.apache.karaf.shell">
+            sshPort=8101
+            sshHost=0.0.0.0
+            sshRealm=karaf
+            hostKey=${karaf.base}/etc/host.key
+        </config>
+        <bundle start-level="30" dependency='true'>mvn:org.apache.mina/mina-core/2.0.4</bundle>
+        <bundle start-level="30" dependency='true'>mvn:org.apache.sshd/sshd-core/0.5.0</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="management" description="Provide a JMX MBeanServer and a set of MBeans in Karaf" version="2.2.5.fuse-70-084">
+        <bundle start-level="30">mvn:org.apache.karaf.management/org.apache.karaf.management.server/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.aries.jmx/org.apache.aries.jmx/0.3.1.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint/0.3.1.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.system/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.bundles/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.services/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.config/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.log/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.packages/2.2.5.fuse-70-084</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.management.mbeans/org.apache.karaf.management.mbeans.dev/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="eventadmin" description="OSGi Event Admin service specification for event-based communication" version="2.2.5.fuse-70-084">
+		<bundle start-level='30'>mvn:org.apache.felix/org.apache.felix.eventadmin/1.2.15.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="jasypt-encryption" description="Advanced encryption support for Karaf security" version="2.2.5.fuse-70-084" resolver="(obr)">
+        <bundle dependency="true" start-level="30">mvn:commons-codec/commons-codec/1.6</bundle>
+        <bundle dependency='true' start-level="30">mvn:commons-lang/commons-lang/2.6</bundle>
+        <bundle dependency='true' start-level="30">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.8_1</bundle>
+        <bundle start-level="30">mvn:org.apache.karaf.jaas/org.apache.karaf.jaas.jasypt/2.2.5.fuse-70-084</bundle>
+    </feature>
+
+</features>

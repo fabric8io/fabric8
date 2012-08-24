@@ -73,6 +73,7 @@
         <module>fabric-examples</module>
         <module>fabric-itests</module>
         <module>fabric-utils</module>
+        <module>openshift</module>
     </modules>
 
 </project>

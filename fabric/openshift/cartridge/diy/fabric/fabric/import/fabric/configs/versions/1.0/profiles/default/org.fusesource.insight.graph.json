@@ -1,0 +1,10 @@
+{
+  "servers" : [ {
+    "local" : true,
+    "queries" : [ {
+      "obj" : "java.lang:type=Memory",
+      "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
+      "resultAlias" : "Memory"
+    } ]
+  } ]
+}

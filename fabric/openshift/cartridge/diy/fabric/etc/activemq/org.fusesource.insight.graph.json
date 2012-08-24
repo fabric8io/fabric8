@@ -1,0 +1,20 @@
+{
+  "servers" : [ {
+    "local" : true,
+    "queries" : [ {
+      "obj" : "org.apache.activemq:BrokerName=localhost,Destination=*,Type=Queue",
+      "attr" : [
+        "QueueSize",
+        "InFlightCount",
+    		"ConsumerCount",
+    		"ProducerCount",
+    		"DispatchCount",
+    		"DequeueCount",
+    		"EnqueueCount",
+    		"Subscriptions"
+  		],
+      "typeNames" : ["Destination"],
+      "resultAlias" : "ActiveMQ.Queue"
+    } ]
+  } ]
+}

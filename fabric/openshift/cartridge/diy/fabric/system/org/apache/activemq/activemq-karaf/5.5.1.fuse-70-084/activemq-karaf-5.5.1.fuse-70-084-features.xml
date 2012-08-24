@@ -1,0 +1,81 @@
+<!--
+
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<features name="activemq-5.5.1.fuse-70-084">
+    <feature name="activemq" version="5.5.1.fuse-70-084" resolver="(obr)">
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-annotation_1.0_spec/1.1.1</bundle>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jms_1.1_spec/1.1.1</bundle>
+        <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-j2ee-management_1.1_spec/1.0.1</bundle>
+        <bundle dependency="true">mvn:commons-pool/commons-pool/1.5.4</bundle>
+        <bundle dependency="true">mvn:commons-collections/commons-collections/3.2.1</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_4</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-codec/1.3_3</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.oro/2.0.8_3</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.velocity/1.7_1</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.6_1</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.stax-api-1.0/1.9.0</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xpp3/1.1.4c_5</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.joda-time/1.5.2_2</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jdom/1.1_4</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.dom4j/1.6.1_2</bundle>
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xstream/1.3_3</bundle>
+        <bundle dependency="true">mvn:org.apache.aries.transaction/org.apache.aries.transaction.manager/0.3.1</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-core/5.5.1.fuse-70-084</bundle>
+        <bundle>mvn:org.apache.activemq/kahadb/5.5.1.fuse-70-084</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-console/5.5.1.fuse-70-084</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-ra/5.5.1.fuse-70-084</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-pool/5.5.1.fuse-70-084</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-karaf/5.5.1.fuse-70-084</bundle>
+        <bundle>mvn:org.apache.aries.transaction/org.apache.aries.transaction.manager/0.3.1</bundle>
+    </feature>
+
+    <feature name="activemq-spring" version="5.5.1.fuse-70-084" resolver="(obr)">
+        <feature version="[1,2)">spring-dm</feature>
+        <feature version="5.5.1.fuse-70-084">activemq</feature>
+        <bundle dependency="true">mvn:org.apache.xbean/xbean-spring/3.9</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-spring/5.5.1.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="activemq-blueprint" version="5.5.1.fuse-70-084" resolver="(obr)">
+        <feature version="5.5.1.fuse-70-084">activemq</feature>
+        <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.scripting-api-1.0/2.0.0.fuse-70-084</bundle>
+        <bundle dependency="true">mvn:org.apache.commons/commons-jexl/2.0.1</bundle>
+        <bundle dependency="true">mvn:org.apache.xbean/xbean-blueprint/3.9</bundle>
+        <bundle>mvn:org.apache.activemq/activemq-blueprint/5.5.1.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="activemq-optional" version="5.5.1.fuse-70-084" resolver="(obr)">
+        <feature version="5.5.1.fuse-70-084">activemq-blueprint</feature>
+        <feature version="[7.0,8.0)">jetty</feature>
+        <bundle>mvn:org.apache.activemq/activemq-optional/5.5.1.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="activemq-camel" version="5.5.1.fuse-70-084" resolver="(obr)">
+        <feature version="5.5.1.fuse-70-084">activemq</feature>
+        <feature version="2.9.0.fuse-70-084">camel-jms</feature>
+        <bundle>mvn:org.apache.activemq/activemq-camel/5.5.1.fuse-70-084</bundle>
+    </feature>
+
+    <feature name="activemq-web-console" version="5.5.1.fuse-70-084" resolver="(obr)">
+      <feature version="[2,3)">war</feature>
+      <bundle>mvn:org.apache.activemq/activemq-web-console/5.5.1.fuse-70-084/war</bundle>
+    </feature>
+</features>
+

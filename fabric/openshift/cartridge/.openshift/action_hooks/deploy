@@ -1,0 +1,15 @@
+#!/bin/bash
+# This deploy hook gets executed after dependencies are resolved and the
+# build hook has been run but before the application has been started back
+# up again.  This script gets executed directly, so it could be python, php,
+# ruby, etc.
+set -x
+if [ -d $OPENSHIFT_RUNTIME_DIR/fabric ]
+then
+    exit 0
+else
+    cp -rf $OPENSHIFT_REPO_DIR/diy/fabric $OPENSHIFT_RUNTIME_DIR
+    cd $OPENSHIFT_RUNTIME_DIR/fabric
+    rm -rf logs
+    ln -s $OPENSHIFT_LOG_DIR logs
+fi
