@@ -17,7 +17,6 @@
 package org.fusesource.bai.agent.support;
 
 import java.util.Dictionary;
-import java.util.Hashtable;
 
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
@@ -27,36 +26,15 @@ import org.fusesource.bai.model.policy.slurper.PropertyMapPolicySlurper;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.osgi.service.cm.ManagedService;
 
 /**
  */
-public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ConfigAdminAuditPolicy.class);
+public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
 
-    public final String KEY_CAMEL_CONTEXT_EXCLUDE = "camelContext.exclude";
-
-    private String configPid = "org.fusesource.bai.agent";
-    private ConfigurationAdmin configurationAdmin;
     private PolicySet policies = null;
-    
-    public void init() throws Exception {
-        if (configurationAdmin != null) {
-            Configuration config = configurationAdmin.getConfiguration(configPid);
-            if (config != null) {
-                Dictionary properties = config.getProperties();
-                if (properties == null) {
-                    // there are no configuration properties yet
-                    properties = new Hashtable();
-                }
-                updated(properties);
-            } else {
-                LOG.warn("ConfigurationAdmin Configuration for " + configPid);
-            }
-        }
-    }
 
+    @Override
     public void updated(Dictionary dict) throws ConfigurationException {
         System.out.println("Updating BAI Agent configuration " + dict);
         PropertyMapPolicySlurper pmps = new PropertyMapPolicySlurper(dict);
@@ -71,37 +49,15 @@ public class ConfigAdminAuditPolicy extends DefaultAuditPolicy {
         	setExcludeCamelContextPattern(DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
         } else {
         	setExcludeCamelContextPattern(excludedCamelContextsPolicies.iterator().next().scope.get(0).enumValues);
-        }   	
+        }
+        updateNotifiersWithNewPolicy();
     }
 
     @Override
     public void configureNotifier(CamelContextService camelContextService, AuditEventNotifier notifier) {
         // TODO
         // apply the current policy to the given notifier given the notifier for the camelContextService
+        System.out.println("Updating AuditEventNotifier " + notifier + " for bundle: " + camelContextService.getBundleSymbolicName() + " camelContext: " + camelContextService);
     }
 
-    public static String getOrElse(Dictionary dict, String key, String defaultValue) {
-        Object value = dict.get(key);
-        if (value == null) {
-            return defaultValue;
-        } else {
-            return value.toString();
-        }
-    }
-
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-    public String getConfigPid() {
-        return configPid;
-    }
-
-    public void setConfigPid(String configPid) {
-        this.configPid = configPid;
-    }
 }

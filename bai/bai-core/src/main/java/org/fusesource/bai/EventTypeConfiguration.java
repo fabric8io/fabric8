@@ -17,6 +17,7 @@
 package org.fusesource.bai;
 
 import org.apache.camel.Predicate;
+import org.fusesource.common.util.Strings;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +30,11 @@ public class EventTypeConfiguration {
     private boolean include = true;
     private List<String> includeRegexList = Arrays.asList(".*");
     private List<Predicate> filters = new ArrayList<Predicate>();
+
+    @Override
+    public String toString() {
+        return "EventTypeConfig(" + include + ", " + includeRegexList + ", " + filters + ")";
+    }
 
     public List<Predicate> getFilters() {
         return filters;
@@ -52,5 +58,12 @@ public class EventTypeConfiguration {
 
     public void setIncludeRegexList(List<String> includeRegexList) {
         this.includeRegexList = includeRegexList;
+    }
+
+    /**
+     * Sets the event include flag to true/false (true if empty)
+     */
+    public void configureEventFlag(String value) {
+        include = Strings.isNullOrBlank(value) || !value.equalsIgnoreCase("false");
     }
 }

@@ -18,7 +18,6 @@ package org.fusesource.bai.agent;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.core.osgi.OsgiCamelContextPublisher;
-import org.apache.camel.spi.EventNotifier;
 import org.apache.camel.spi.ManagementStrategy;
 import org.apache.camel.util.ServiceHelper;
 import org.fusesource.bai.AuditEventNotifier;

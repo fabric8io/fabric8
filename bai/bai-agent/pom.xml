@@ -36,7 +36,6 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.bai.agent*;version=${project.version}
         </fuse.osgi.export>
     </properties>
 

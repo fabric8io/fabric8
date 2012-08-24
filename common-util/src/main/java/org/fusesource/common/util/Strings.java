@@ -114,4 +114,7 @@ public class Strings {
         }
     }
 
+    public static boolean isNullOrBlank(String value) {
+        return value == null || value.length() == 0 || value.trim().length() == 0;
+    }
 }

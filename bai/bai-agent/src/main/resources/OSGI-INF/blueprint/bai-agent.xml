@@ -18,7 +18,7 @@
     <property name="auditPolicy" ref="auditPolicy"/>
   </bean>
 
-  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.ConfigAdminAuditPolicy" init-method="init" scope="singleton">
+  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.SimpleConfigAdminAuditPolicy" init-method="init" scope="singleton">
     <property name="configurationAdmin" ref="configurationAdmin"/>
   </bean>
 

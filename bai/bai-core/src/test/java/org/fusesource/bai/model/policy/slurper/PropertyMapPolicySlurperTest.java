@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import org.fusesource.bai.model.policy.Constants;
 import org.fusesource.bai.model.policy.Policy;
 import org.fusesource.bai.model.policy.PolicySet;
 import org.junit.Test;
@@ -42,7 +43,9 @@ public class PropertyMapPolicySlurperTest {
 		slurper.setProperties(properties);
 		
 		PolicySet policies = slurper.slurp();
-		return;
+        PolicySet contextPolicies = policies.queryPolicyWithSingleScope(Constants.FilterElement.CONTEXT);
+        System.out.println(contextPolicies);
+        return;
 		
 	}
 

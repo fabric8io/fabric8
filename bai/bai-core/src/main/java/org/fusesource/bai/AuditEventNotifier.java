@@ -93,6 +93,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
         return "PublishEventNotifier[" + (endpoint != null ? endpoint : URISupport.sanitizeUri(endpointUri)) + "]";
     }
 
+    /**
+     * Updates this notifier with the given configuration set
+     */
+    public void configure(EventTypeConfigurationSet configs) {
+        this.createdConfig = configs.getCreatedConfig();
+        this.completedConfig = configs.getCompletedConfig();
+        this.sendingConfig = configs.getSendingConfig();
+        this.sentConfig = configs.getSentConfig();
+        this.failureConfig = configs.getFailureConfig();
+        this.failureHandledConfig = configs.getFailureHandledConfig();
+        this.redeliveryConfig = configs.getRedeliveryConfig();
+    }
+
 	@Override
 	public boolean isEnabled(EventObject event) {
         EventObject coreEvent = event;

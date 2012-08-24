@@ -51,6 +51,21 @@
             <artifactId>camel-core</artifactId>
             <version>${camel-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.fusesource.common</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
