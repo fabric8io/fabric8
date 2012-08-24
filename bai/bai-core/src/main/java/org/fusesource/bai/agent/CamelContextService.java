@@ -47,4 +47,8 @@ public class CamelContextService {
     public String getBundleSymbolicName() {
         return getReference().getBundle().getSymbolicName();
     }
+
+    public String getDescription() {
+        return "bundle: " + getBundleSymbolicName() + " camelContextId: " + getCamelContextId();
+    }
 }

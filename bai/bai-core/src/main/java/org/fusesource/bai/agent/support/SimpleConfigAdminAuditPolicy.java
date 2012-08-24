@@ -48,9 +48,6 @@ public class SimpleConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport 
                 }
             }
         }
-
-        System.out.println("Updating BAI Agent configuration " + dict + " as Map " + map);
-
         String pattern = getOrElse(map, KEY_CAMEL_CONTEXT_EXCLUDE, DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
         System.out.println("Setting the camelContext exclude pattern to " + pattern);
         setExcludeCamelContextPattern(pattern);
@@ -59,7 +56,7 @@ public class SimpleConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport 
 
     @Override
     public void configureNotifier(CamelContextService camelContextService, AuditEventNotifier notifier) {
-        System.out.println("Updating AuditEventNotifier " + notifier + " for bundle: " + camelContextService.getBundleSymbolicName() + " camelContext: " + camelContextService + " using: " + map);
+        //System.out.println("Updating AuditEventNotifier for " + camelContextService.getDescription() + " using: " + map);
         EventTypeConfigurationSet configs = new EventTypeConfigurationSet();
 
 
@@ -69,7 +66,7 @@ public class SimpleConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport 
             String value = entry.getValue();
             configs.configureValue(camelContextService, key, value);
         }
-        System.out.println("Updating configuration to " + configs);
+        System.out.println("Updating configuration for " + camelContextService.getDescription() + " to " + configs);
         notifier.configure(configs);
     }
 

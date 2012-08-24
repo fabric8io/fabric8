@@ -40,15 +40,12 @@ public abstract class ConfigAdminAuditPolicySupport extends DefaultAuditPolicy i
         @Override
         public void configurationEvent(ConfigurationEvent event) {
             String pid = event.getPid();
-            if (pid.equals(configPid))  {
-                System.out.println("==== got a configuration change PID!");
+            if (event.getType() == ConfigurationEvent.CM_UPDATED && pid.equals(configPid)) {
                 try {
                     refreshConfigAdmin();
                 } catch (Exception e) {
                     LOG.warn("Error updating configuration for " + configPid + ". Caught: " + e);
                 }
-            } else {
-                System.out.println("Config admin event for " + pid);
             }
         }
     };
