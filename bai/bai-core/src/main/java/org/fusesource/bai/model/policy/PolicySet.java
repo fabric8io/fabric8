@@ -18,6 +18,7 @@
 package org.fusesource.bai.model.policy;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.fusesource.bai.model.policy.Constants.ActionType;
 import org.fusesource.bai.model.policy.Constants.FilterElement;
@@ -35,10 +36,16 @@ public class PolicySet extends HashSet<Policy> {
 		for (Policy policy : this) {
 			// if there are no scopes, more than 1 scope, or if the policy action type is not EXCLUDE, 
 			// this is not the policy we are after, so skip
-			if (policy.scope.size() == 0 || policy.scope.size() > 1 || policy.scope.get(0).filterElement != e) {
-				continue;
-			}
-			answer.add(policy);
+            if (policy == null) continue;
+            List<Scope> scopes = policy.scope;
+            if (scopes == null || scopes.isEmpty()) continue;
+            Scope scope = scopes.get(0);
+            if (scope != null) {
+                FilterElement filterElement = scope.filterElement;
+                if (filterElement != null && filterElement.equals(e)) {
+                    answer.add(policy);
+                }
+            }
 		}
 		return answer;
 	}
