@@ -23,10 +23,7 @@ import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.model.policy.Constants.FilterElement;
 import org.fusesource.bai.model.policy.PolicySet;
 import org.fusesource.bai.model.policy.slurper.PropertyMapPolicySlurper;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
 
 /**
  */
@@ -40,7 +37,7 @@ public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
         PropertyMapPolicySlurper pmps = new PropertyMapPolicySlurper(dict);
         this.policies = pmps.slurp();
         // obtain all policies whose scope is only a Context element, and whose resulting action is 'exclude'
-        PolicySet excludedCamelContextsPolicies = policies.queryPolicyWithSingleScope(FilterElement.CONTEXT).queryAllExclusions();
+        PolicySet excludedCamelContextsPolicies = policies.queryWithSingleScope(FilterElement.CONTEXT).queryAllExclusions();
         if (excludedCamelContextsPolicies.size() > 1) {
         	throw new ConfigurationException("*", "Inconsistency in audit policy configuration");
         }
@@ -48,7 +45,7 @@ public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
         if (excludedCamelContextsPolicies.size() == 0) {
         	setExcludeCamelContextPattern(DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
         } else {
-        	setExcludeCamelContextPattern(excludedCamelContextsPolicies.iterator().next().scope.get(0).enumValues);
+        	setExcludeCamelContextPattern(excludedCamelContextsPolicies.getOne().scope.getOne().enumValues);
         }
         updateNotifiersWithNewPolicy();
     }

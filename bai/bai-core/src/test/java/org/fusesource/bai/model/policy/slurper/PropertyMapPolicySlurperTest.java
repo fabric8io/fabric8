@@ -20,11 +20,9 @@ package org.fusesource.bai.model.policy.slurper;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Properties;
 
 import org.fusesource.bai.model.policy.Constants;
-import org.fusesource.bai.model.policy.Policy;
 import org.fusesource.bai.model.policy.PolicySet;
 import org.junit.Test;
 
@@ -43,8 +41,9 @@ public class PropertyMapPolicySlurperTest {
 		slurper.setProperties(properties);
 		
 		PolicySet policies = slurper.slurp();
-        PolicySet contextPolicies = policies.queryPolicyWithSingleScope(Constants.FilterElement.CONTEXT);
-        System.out.println(contextPolicies);
+        assertEquals("Two context policies were expected", 2, policies.queryWithSingleScope(Constants.FilterElement.CONTEXT).size());
+        assertEquals("One excluding context policies was expected", 1, policies.queryWithSingleScope(Constants.FilterElement.CONTEXT).queryAllExclusions().size());
+        
         return;
 		
 	}

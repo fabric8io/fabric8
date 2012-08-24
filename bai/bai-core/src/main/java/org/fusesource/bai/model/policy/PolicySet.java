@@ -18,7 +18,7 @@
 package org.fusesource.bai.model.policy;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
 
 import org.fusesource.bai.model.policy.Constants.ActionType;
 import org.fusesource.bai.model.policy.Constants.FilterElement;
@@ -31,20 +31,31 @@ public class PolicySet extends HashSet<Policy> {
 
 	private static final long serialVersionUID = 531594759418489911L;
 
-	public PolicySet queryPolicyWithSingleScope(FilterElement e) {
+	public PolicySet() { }
+	
+	public PolicySet(Set<Policy> setOfPolicies) {
+		this.addAll(setOfPolicies);
+	}
+	
+	public PolicySet queryWithScope(FilterElement e) {
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {
-			// if there are no scopes, more than 1 scope, or if the policy action type is not EXCLUDE, 
-			// this is not the policy we are after, so skip
-            if (policy == null) continue;
-            List<Scope> scopes = policy.scope;
-            if (scopes == null || scopes.isEmpty()) continue;
-            Scope scope = scopes.get(0);
+            if (!policy.hasScopes()) continue;
+            Scope scope = policy.scope.queryWithFilterElement(e);
             if (scope != null) {
-                FilterElement filterElement = scope.filterElement;
-                if (filterElement != null && filterElement.equals(e)) {
-                    answer.add(policy);
-                }
+            	answer.add(policy);
+            }
+		}
+		return answer;
+	}
+	
+	public PolicySet queryWithSingleScope(FilterElement e) {
+		PolicySet answer = new PolicySet();
+		for (Policy policy : this) {
+            if (!policy.hasScopes() || policy.scope.size() > 1) continue;
+            Scope scope = policy.scope.queryWithFilterElement(e);
+            if (scope != null) {
+            	answer.add(policy);
             }
 		}
 		return answer;
@@ -53,12 +64,23 @@ public class PolicySet extends HashSet<Policy> {
 	public PolicySet queryAllExclusions() {
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {
-			if (policy.action.type != ActionType.EXCLUDE) {
-				continue;
-			}
+			if (policy.action.type != ActionType.EXCLUDE) continue;
 			answer.add(policy);
 		}
 		return answer;
+	}
+	
+	public PolicySet queryAllInclusions() {
+		PolicySet answer = new PolicySet();
+		for (Policy policy : this) {
+			if (policy.action.type != ActionType.INCLUDE) continue;
+			answer.add(policy);
+		}
+		return answer;
+	}
+	
+	public Policy getOne() {
+		return this.iterator().next();
 	}
 
 }

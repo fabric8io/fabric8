@@ -47,5 +47,5 @@ public class Scope {
 	//------ If the Filter Method is 'ENUM_VALUE_ONE' or 'ENUM_VALUE_MULTIPLE', the enumeration values are expressed here in their valueOf() form.
 	//------ It's the responsibility of the consuming logic to determine against what enumeration these values need to match
 	public List<String> enumValues = new ArrayList<String>();
-
+	
 }

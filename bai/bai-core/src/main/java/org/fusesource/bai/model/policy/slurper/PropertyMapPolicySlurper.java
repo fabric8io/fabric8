@@ -114,6 +114,7 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 			policy.action.type = ActionType.INCLUDE;
 		}
 		
+		policy.pruneRedundantScopes();
 		return policy;
 	}
 	
@@ -155,6 +156,7 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 		scope.expression = value;
 		policy.scope.add(scope);
 		
+		policy.pruneRedundantScopes();
 		return policy;
 
 	}
@@ -208,11 +210,13 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 		
 		// TODO: according to the model, there's no capability to exclude; so you need to tailor your expression if you want to do that
 		policy.action.type = ActionType.INCLUDE;
+		policy.pruneRedundantScopes();
 		return policy;
 	}
 	
 	/**
 	 * Parse this format: endpoint.(include|exclude)[/$bundleIDRegex[/$camelContextIDRegex]] = $endpointUriRegex
+	 * TODO: Need to add support for XML namespace definition in XPath expressions, maybe following the Java QName format.
 	 * @param splitKey
 	 * @param value
 	 * @return
@@ -258,6 +262,7 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 			policy.scope.add(scope);
 		}
 		
+		policy.pruneRedundantScopes();
 		return policy;
 	}
 	

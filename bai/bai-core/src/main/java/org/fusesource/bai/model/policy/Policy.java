@@ -17,8 +17,7 @@
 
 package org.fusesource.bai.model.policy;
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 /**
  * A Policy defines what should happen ({@link Action} when some set of conditions matches ({@link Scope}.
@@ -31,11 +30,37 @@ public class Policy {
 	/**
 	 * One-to-many scope items that restrict the visibility of this {@link Policy}.
 	 */
-	public List<Scope> scope = new ArrayList<Scope>();
+	public ScopeSet scope = new ScopeSet();
 	
 	/**
 	 * One-to-one relationship with an action.
 	 */
 	public Action action = new Action();
 	
+	public boolean hasScopes() {
+		return !(scope == null || scope.isEmpty());
+	}
+
+	/**
+	 * Removes redundant {@link Scope} elements if they refer to catch-all wildcards.
+	 * There's no value in restricting the Scope of a Policy to "all contexts", for example.
+	 */
+	public void pruneRedundantScopes() {
+		ScopeSet toRemove = new ScopeSet();
+		for (Scope s : scope) {
+			switch (s.filterElement) {
+			// the BUNDLE and CONTEXT expressions are simple wildcard-aware Strings
+			case BUNDLE:
+			case CONTEXT:
+				if (s.expression.matches("\\**")) toRemove.add(s); //regex: \**
+				break;
+			case EVENT:
+			case EXCHANGE:
+				// nothing, placeholder for additional logic
+				break;
+			}
+
+		}
+	}
 }
+
