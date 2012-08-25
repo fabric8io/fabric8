@@ -18,7 +18,7 @@
 package org.fusesource.bai.agent.support;
 
 import org.fusesource.bai.AuditEventNotifier;
-import org.fusesource.bai.EventTypeConfigurationSet;
+import org.fusesource.bai.support.EventTypeConfigurationSet;
 import org.fusesource.bai.agent.CamelContextService;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;

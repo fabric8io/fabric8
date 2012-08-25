@@ -23,6 +23,7 @@ import org.apache.camel.management.event.*;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
+import org.fusesource.bai.support.EventTypeConfigurationSet;
 
 import java.util.EventObject;
 import java.util.List;
