@@ -15,20 +15,36 @@
  * limitations under the License.
  */
 
-package org.fusesource.bai.model.policy.slurper;
+package org.fusesource.bai.policy.model;
 
-import org.fusesource.bai.model.policy.PolicySet;
+import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
-/**
- * Implementations of this interface are capable of reading policies from different media and formats, 
- * and normalising them to the beans in the org.fusesource.bai.model.policy package.
- * @author Raul Kripalani
- *
- */
-public interface PolicySlurper {
-
-	public PolicySet slurp(); 
-	public PolicySet refresh();
-	public PolicySet getPolicies();
+public abstract class Filter {
 	
+	protected ScopeElement element;
+	protected Policy policy;
+	
+	public Filter(ScopeElement element, Policy policy) {
+		this.element = element;
+		this.policy = policy;
+	}
+
+	public ScopeElement getElement() {
+		return element;
+	}
+
+	public void setElement(ScopeElement element) {
+		this.element = element;
+	}
+
+	public Policy getPolicy() {
+		return policy;
+	}
+
+	public void setPolicy(Policy policy) {
+		this.policy = policy;
+	}
+
+	public abstract boolean matches(Object o);
+
 }

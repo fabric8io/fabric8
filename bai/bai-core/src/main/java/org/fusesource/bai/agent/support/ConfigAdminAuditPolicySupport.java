@@ -28,7 +28,9 @@ import java.util.Hashtable;
 
 /**
  */
+@SuppressWarnings("rawtypes")
 public abstract class ConfigAdminAuditPolicySupport extends DefaultAuditPolicy implements ManagedService {
+	
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigAdminAuditPolicy.class);
     public final String KEY_CAMEL_CONTEXT_EXCLUDE = "camelContext.exclude";
     private String configPid = "org.fusesource.bai.agent";

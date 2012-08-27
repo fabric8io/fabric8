@@ -20,13 +20,14 @@ import java.util.Dictionary;
 
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
-import org.fusesource.bai.model.policy.Constants.FilterElement;
-import org.fusesource.bai.model.policy.PolicySet;
-import org.fusesource.bai.model.policy.slurper.PropertyMapPolicySlurper;
+import org.fusesource.bai.policy.model.Constants.ScopeElement;
+import org.fusesource.bai.policy.model.PolicySet;
+import org.fusesource.bai.policy.slurper.PropertyMapPolicySlurper;
 import org.osgi.service.cm.ConfigurationException;
 
 /**
  */
+@SuppressWarnings("rawtypes")
 public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
 
     private PolicySet policies = null;
@@ -36,16 +37,16 @@ public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
         System.out.println("Updating BAI Agent configuration " + dict);
         PropertyMapPolicySlurper pmps = new PropertyMapPolicySlurper(dict);
         this.policies = pmps.slurp();
-        // obtain all policies whose scope is only a Context element, and whose resulting action is 'exclude'
-        PolicySet excludedCamelContextsPolicies = policies.queryWithSingleScope(FilterElement.CONTEXT).queryAllExclusions();
-        if (excludedCamelContextsPolicies.size() > 1) {
-        	throw new ConfigurationException("*", "Inconsistency in audit policy configuration");
-        }
+        // obtain all policies whose scope is only a Bundle, a Context or both, a Bundle and a Context
+        PolicySet excludedCamelContextsPolicies = policies.policiesWithExactScopeElements(ScopeElement.BUNDLE, ScopeElement.CONTEXT);
+        excludedCamelContextsPolicies.addAll(policies.policiesWithExactScopeElements(ScopeElement.BUNDLE));
+        excludedCamelContextsPolicies.addAll(policies.policiesWithExactScopeElements(ScopeElement.CONTEXT));
+        excludedCamelContextsPolicies = excludedCamelContextsPolicies.queryAllExclusions();
         
         if (excludedCamelContextsPolicies.size() == 0) {
         	setExcludeCamelContextPattern(DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER);
         } else {
-        	setExcludeCamelContextPattern(excludedCamelContextsPolicies.getOne().scope.getOne().enumValues);
+        	setExcludeCamelContextPolicies(excludedCamelContextsPolicies);
         }
         updateNotifiersWithNewPolicy();
     }

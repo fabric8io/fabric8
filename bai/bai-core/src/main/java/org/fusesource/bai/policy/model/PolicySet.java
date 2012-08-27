@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package org.fusesource.bai.model.policy;
+package org.fusesource.bai.policy.model;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.fusesource.bai.model.policy.Constants.ActionType;
-import org.fusesource.bai.model.policy.Constants.FilterElement;
+import org.fusesource.bai.policy.model.Constants.ActionType;
+import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
 /**
  * This class takes a Policy set and returns commonly requested information.
@@ -37,24 +38,29 @@ public class PolicySet extends HashSet<Policy> {
 		this.addAll(setOfPolicies);
 	}
 	
-	public PolicySet queryWithScope(FilterElement e) {
+	public PolicySet policiesContainingScopeElements(ScopeElement... e) {
+		Set<ScopeElement> criteria = new HashSet<ScopeElement>(Arrays.asList(e));
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {
-            if (!policy.hasScopes()) continue;
-            Scope scope = policy.scope.queryWithFilterElement(e);
-            if (scope != null) {
+            if (policy.getScope().size() < criteria.size()) {
+            	continue;
+            }
+            
+            if (policy.getScope().keySet().containsAll(criteria)) {
             	answer.add(policy);
             }
 		}
 		return answer;
 	}
 	
-	public PolicySet queryWithSingleScope(FilterElement e) {
+	public PolicySet policiesWithExactScopeElements(ScopeElement... e) {
+		Set<ScopeElement> criteria = new HashSet<ScopeElement>(Arrays.asList(e));
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {
-            if (!policy.hasScopes() || policy.scope.size() > 1) continue;
-            Scope scope = policy.scope.queryWithFilterElement(e);
-            if (scope != null) {
+            if (policy.getScope().size() != e.length) {
+            	continue;
+            }
+            if (policy.getScope().keySet().equals(criteria)) {
             	answer.add(policy);
             }
 		}
@@ -64,7 +70,7 @@ public class PolicySet extends HashSet<Policy> {
 	public PolicySet queryAllExclusions() {
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {
-			if (policy.action.type != ActionType.EXCLUDE) continue;
+			if (policy.getAction().getType() != ActionType.EXCLUDE) continue;
 			answer.add(policy);
 		}
 		return answer;
@@ -73,14 +79,41 @@ public class PolicySet extends HashSet<Policy> {
 	public PolicySet queryAllInclusions() {
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {
-			if (policy.action.type != ActionType.INCLUDE) continue;
+			if (policy.getAction().getType() != ActionType.INCLUDE) continue;
 			answer.add(policy);
 		}
 		return answer;
+	}
+	
+	public FilterSet<Filter> filtersForScopeElement(ScopeElement e) {
+		FilterSet<Filter> answer = new FilterSet<Filter>();
+		for (Policy policy : this) {
+			Filter filter = policy.getScope().get(e);
+			if (filter != null) {
+				answer.add(filter);
+			}
+		}
+		return answer;
+	}
+	
+	public void pruneRedundantFilters() {
+		
 	}
 	
 	public Policy getOne() {
 		return this.iterator().next();
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("PolicySet [");
+		for (Policy policy : this) {
+			sb.append(policy.toString());
+			sb.append(", ");
+		}
+		sb.delete(sb.length() - 2, sb.length() -1);
+		sb.append(']');
+		return sb.toString();
+	}
+	
 }

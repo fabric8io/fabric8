@@ -15,33 +15,20 @@
  * limitations under the License.
  */
 
-package org.fusesource.bai.model.policy;
+package org.fusesource.bai.policy.slurper;
+
+import org.fusesource.bai.policy.model.PolicySet;
 
 /**
- * Constants that model Actions, Filtering Elements, Event Types, etc.
+ * Implementations of this interface are capable of reading policies from different media and formats, 
+ * and normalising them to the beans in the org.fusesource.bai.model.policy package.
  * @author Raul Kripalani
  *
  */
-public class Constants {
+public interface PolicySlurper {
 
-	public enum ActionType {
-		INCLUDE,
-		EXCLUDE
-	}
-	
-	public enum FilterElement {
-		CONTEXT,
-		EVENT,
-		EXCHANGE,
-		BUNDLE,
-		ENDPOINT
-	}
-
-	
-	public enum FilterMethod {
-		EXPRESSION,
-		ENUM_VALUE_ONE,
-		ENUM_VALUE_MULTIPLE
-	}
+	public PolicySet slurp(); 
+	public PolicySet refresh();
+	public PolicySet getPolicies();
 	
 }
