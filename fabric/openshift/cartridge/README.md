@@ -15,10 +15,10 @@ This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in
 
     ![../do-it-yourself.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/do-it-yourself.png)
 
-3. Clone the Git Openshift project locally using the command provided
+4. Clone the Git Openshift project locally using the command provided
 
     git clone ssh://UUID@SUBDOMAIN.rhcloud.com/~/git/APPLICATION.git/
-    cd
+    cd APPLICATION
 
     where UUID = UUID provided by OpenShift
           SUBDOMAIN = namespace created previously
@@ -28,12 +28,12 @@ This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in
 
     ![../git-ssh-info.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/git-ssh-info.png)
 
-4. Merge the OpenShift project with the Fuse Fabric cartridge
+5. Merge the OpenShift project with the Fuse Fabric cartridge
 
     Copy the content of this directory (except the pom file) locally - https://github.com/fusesource/fuse/raw/master/fabric/openshift/cartridge
     Commit the Git changes to Openshift (git commit -m "Initial import of Fuse Fabric" -a & git push
 
-5. Whenever you publish a git project to Openshift, it will be deployed and the application started.
+6. Whenever you publish a git project to Openshift, it will be deployed and the application started.
 
     So you should see the following message on the screen
 
@@ -75,12 +75,12 @@ This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in
 
     REMARK : There is a issue as the port file is not created by Karaf
 
-6. Now you can connect to the Karaf web console using the link : http://APPLICATION-SUBDOMAIN.rhcloud.com/system/console/bundles
+7. Now you can connect to the Karaf web console using the link : http://APPLICATION-SUBDOMAIN.rhcloud.com/system/console/bundles
 
     login : karaf
     password : karaf
 
-7. You can connect to your cloud instance using ssh and next to karaf
+8. You can connect to your cloud instance using ssh and next to karaf
 
     ssh UUID@APPLICATION-SUBDOMAIN.rhcloud.com
 
@@ -88,7 +88,7 @@ This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in
 
     ssh localhost -p 18101 -l karaf -P karaf
 
-8. Application can be stopped and restarted using these [rhc](https://openshift.redhat.com/app/getting_started) commands
+9. Application can be stopped and restarted using these [rhc](https://openshift.redhat.com/app/getting_started) commands
 
     rhc app stop -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
     rhc app start -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
