@@ -28,7 +28,8 @@ fi
 echo "Copy Fuse Fabric distro to the OPENSHIT RUNTIME DIR"
 cp -rf $TMPAREA/fabric $OPENSHIFT_RUNTIME_DIR 	
 cp -rf $OPENSHIFT_REPO_DIR/diy/fabric $OPENSHIFT_RUNTIME_DIR
-	
+
+echo "Clean log files"
 cd $OPENSHIFT_RUNTIME_DIR/fabric
 rm -rf logs
 ln -s $OPENSHIFT_LOG_DIR logs
