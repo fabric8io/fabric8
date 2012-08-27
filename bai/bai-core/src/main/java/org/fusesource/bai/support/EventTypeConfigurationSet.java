@@ -14,16 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai;
+package org.fusesource.bai.support;
 
 import org.apache.camel.Predicate;
 import org.apache.camel.spi.Language;
+import org.fusesource.bai.EventType;
+import org.fusesource.bai.EventTypeConfiguration;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Represents a set of configurations for each event type
@@ -42,6 +46,8 @@ public class EventTypeConfigurationSet {
     private EventTypeConfiguration failureConfig = new EventTypeConfiguration();
     private EventTypeConfiguration failureHandledConfig = new EventTypeConfiguration();
     private EventTypeConfiguration redeliveryConfig = new EventTypeConfiguration();
+    private EventTypeConfiguration allConfig = new CompositeEventTypeConfiguration(Arrays.asList(
+            createdConfig, completedConfig, sendingConfig, sentConfig, failureConfig, failureHandledConfig, redeliveryConfig));
 
     @Override
     public String toString() {
@@ -69,6 +75,8 @@ public class EventTypeConfigurationSet {
                 return getFailureHandledConfig();
             case REDELIVERY:
                 return getRedeliveryConfig();
+            case ALL:
+                return allConfig;
             default:
                 return null;
         }
@@ -91,7 +99,7 @@ public class EventTypeConfigurationSet {
                 Pair<Predicate, String> languageAndRemaining = parsePredicateAndRemaining(camelContextService, configAndRemaining.getSecond(), value);
                 if (languageAndRemaining != null) {
                     if (matchesCamelContextService(camelContextService, languageAndRemaining.getSecond())) {
-                        configAndRemaining.getFirst().getFilters().add(languageAndRemaining.getFirst());
+                        configAndRemaining.getFirst().addFilter(languageAndRemaining.getFirst());
                     }
                 }
             } else {
@@ -99,7 +107,7 @@ public class EventTypeConfigurationSet {
                 configAndRemaining = parseEventType(key, ENDPOINT_REGEX);
                 if (configAndRemaining != null) {
                     if (matchesCamelContextService(camelContextService, configAndRemaining.getSecond())) {
-                        configAndRemaining.getFirst().getIncludeRegexList().add(value);
+                        configAndRemaining.getFirst().addIncludeRegex(value);
                     }
                 }
             }

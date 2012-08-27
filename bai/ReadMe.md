@@ -173,10 +173,15 @@ Where *$eventName* can be one of
 * sent
 * failure
 * redelivery
+* *
 
 e.g. to exclude the create events in all bundles which begin with "foo" for all CamelContext IDs then use:
 
     event.create.foo* = false
+
+or to exclude all event types for bundles which begin with foo* try:
+
+    event.*.foo* = false
 
 #### Filtering Exchanges via Predicates
 

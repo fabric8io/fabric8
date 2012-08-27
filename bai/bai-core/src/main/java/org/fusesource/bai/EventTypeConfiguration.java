@@ -22,7 +22,6 @@ import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.fusesource.common.util.Strings;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -106,11 +105,22 @@ public class EventTypeConfiguration {
         this.includeRegexList = includeRegexList;
     }
 
+    // Configuration API
+    //-------------------------------------------------------------------------
+
     /**
      * Sets the event include flag to true/false (true if empty)
      */
     public void configureEventFlag(String value) {
         include = Strings.isNullOrBlank(value) || !value.equalsIgnoreCase("false");
+    }
+
+    public void addFilter(Predicate predicate) {
+        getFilters().add(predicate);
+    }
+
+    public void addIncludeRegex(String regex) {
+        getIncludeRegexList().add(regex);
     }
 
 }

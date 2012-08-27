@@ -29,7 +29,8 @@ public enum EventType {
 	SENT,
 	FAILURE,
 	FAILURE_HANDLED,
-	REDELIVERY;
+	REDELIVERY,
+	ALL;
 
     public static Map<String, EventType> simpleNames;
 
@@ -42,5 +43,7 @@ public enum EventType {
         simpleNames.put("failure", FAILURE);
         simpleNames.put("failureHandled", FAILURE_HANDLED);
         simpleNames.put("redelivery", REDELIVERY);
+        simpleNames.put("all", ALL);
+        simpleNames.put("*", ALL);
     }
 }
