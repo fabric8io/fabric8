@@ -38,6 +38,7 @@ This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in
     So you should see the following message on the screen
 
     git push
+
     Counting objects: 19, done.
     Delta compression using up to 8 threads.
     Compressing objects: 100% (10/10), done.
