@@ -1,21 +1,19 @@
-﻿﻿INTRODUCTION
-============
+﻿# ﻿INTRODUCTION
 
 This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in the cloud.
 
-Get started
-===========
+# Get started
 
 1. Get a free OpenShift account by signing up at http://openshift.redhat.com
 
 2. Define your namespace/subdomain -->  "subdomain".rhcloud.com - https://openshift.redhat.com/community/faq/what-is-a-namespace
 
-2. Add a new application and choose "Do it yourself" as application type
+3. Add a new application and choose "Do it yourself" as application type
 
-![../add-application1.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/add-application1.png)
-![../add-application2.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/add-application2.png)
+    ![../add-application1.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/add-application1.png)
+    ![../add-application2.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/add-application2.png)
 
-![../do-it-yourself.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/do-it-yourself.png)
+    ![../do-it-yourself.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/do-it-yourself.png)
 
 3. Clone the Git Openshift project locally using the command provided
 
@@ -28,14 +26,14 @@ Get started
 
     Remark : Do not forget to upload your public key to your openshift account : ['My Account' section of the web console](https://openshift.redhat.com/app/account)
 
-![../git-ssh-info.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/git-ssh-info.png)
+    ![../git-ssh-info.png](https://github.com/fusesource/fuse/raw/master/fabric/openshift/git-ssh-info.png)
 
 4. Merge the OpenShift project with the Fuse Fabric cartridge
 
     Copy the content of this directory (except the pom file) locally - https://github.com/fusesource/fuse/raw/master/fabric/openshift/cartridge
     Commit the Git changes to Openshift (git commit -m "Initial import of Fuse Fabric" -a & git push
 
-5. Whenenever you publish a git project to Openshift, it will be deployed and the application started.
+5. Whenever you publish a git project to Openshift, it will be deployed and the application started.
 
     So you should see the following message on the screen
 
@@ -95,12 +93,11 @@ Get started
     rhc app start -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
 
 
-ISSUES
-======
+# ISSUES
 
-    1) Until now we cannot connect to karaf using ssh port number. A thread has been created on Red Hat Forum () and email send
-    2) As Karaf generates an error when it stops dues to the missing port file under data directory, every new GIT change is not correctly propagated
-      on Openshift and update of the project is very risky.
+    1) Until now we cannot connect to karaf using ssh port number. A thread has been created on [Red Hat Forum] (https://openshift.redhat.com/community/forums/openshift/ssh-issue).
+    2) As Karaf generates an error when it stops due to missing port file under data directory, every new GIT change is not correctly propagated
+      on Openshift and update of the project does not work well (manual changes are required when connected to the instance).
 
 
 
