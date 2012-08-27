@@ -93,7 +93,6 @@ This RedHat OpenShift cartridge "Do it YourSelf" allows to deploy Fuse Fabric in
     rhc app stop -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
     rhc app start -a APPLICATION Application@http://APPLICATION-SUBDOMAIN.rhcloud.com
 
-
 # ISSUES
 
     1) Until now we cannot connect to karaf using ssh port number. A thread has been created on [Red Hat Forum] (https://openshift.redhat.com/community/forums/openshift/ssh-issue).

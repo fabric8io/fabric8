@@ -361,7 +361,7 @@ run() {
         JAVA_EXT_DIRS=`cygpath --path --windows "$JAVA_EXT_DIRS"`
     fi
     cd "$KARAF_BASE"
-    exec "$JAVA" $JAVA_OPTS -Djava.endorsed.dirs="${JAVA_ENDORSED_DIRS}" -Djava.ext.dirs="${JAVA_EXT_DIRS}" -Dkaraf.instances="${KARAF_HOME}/instances" -Dkaraf.home="$KARAF_HOME" -Dkaraf.base="$KARAF_BASE" -Dkaraf.data="$KARAF_DATA" -Djava.io.tmpdir="$KARAF_DATA/tmp" -Djava.util.logging.config.file="$KARAF_BASE/etc/java.util.logging.properties" -Dorg.ops4j.pax.web.listening.addresses="$OPENSHIFT_INTERNAL_IP" -Dorg.apache.karaf.shell.sshHost="$OPENSHIFT_SSH_HOST" -Dorg.apache.karaf.shell.sshPort="$OPENSHIFT_SSH_PORT" $KARAF_OPTS $OPTS -classpath "$CLASSPATH" $MAIN "$@"
+    exec "$JAVA" $JAVA_OPTS -Djava.endorsed.dirs="${JAVA_ENDORSED_DIRS}" -Djava.ext.dirs="${JAVA_EXT_DIRS}" -Dkaraf.instances="${KARAF_HOME}/instances" -Dkaraf.home="$KARAF_HOME" -Dkaraf.base="$KARAF_BASE" -Dkaraf.data="$KARAF_DATA" -Djava.io.tmpdir="$KARAF_DATA/tmp" -Djava.util.logging.config.file="$KARAF_BASE/etc/java.util.logging.properties" -Dorg.ops4j.pax.web.listening.addresses="$OPENSHIFT_INTERNAL_IP" -Dorg.apache.karaf.shell.sshHost="$OPENSHIFT_SSH_HOST" -Dorg.apache.karaf.shell.sshPort="$OPENSHIFT_SSH_PORT" $KARAF_OPTS $OPTS -Dkaraf.shutdown.host="$OPENSHIFT_INTERNAL_IP" -classpath "$CLASSPATH" $MAIN "$@"
 }
 
 main() {
