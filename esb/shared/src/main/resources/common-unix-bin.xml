@@ -124,6 +124,7 @@
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
+        <!--
         <file>
             <source>${basedir}/target/shared/bin/patch</source>
             <outputDirectory>/bin/</outputDirectory>
@@ -131,6 +132,7 @@
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
+        -->
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/fabric_license.txt</source>
             <outputDirectory>/licenses/</outputDirectory>
