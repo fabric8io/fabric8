@@ -105,7 +105,7 @@
         <camel-version>2.9.0.fuse-70-${perfectus-build}</camel-version>
         <commons-codec-version>1.6</commons-codec-version>
         <commons-io-version>1.4_2</commons-io-version>
-        <commons-lang-version>2.4_5</commons-lang-version>
+        <commons-lang-version>2.6</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <cxf-version>2.5.0.fuse-70-${perfectus-build}</cxf-version>
@@ -1171,8 +1171,8 @@
                 <version>${asm.bundle.version}</version>
             </dependency>
             <dependency>
-	            <groupId>org.apache.servicemix.bundles</groupId>
-	            <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+	            <groupId>commons-lang</groupId>
+	            <artifactId>commons-lang</artifactId>
 	            <version>${commons-lang-version}</version>
             </dependency>
 

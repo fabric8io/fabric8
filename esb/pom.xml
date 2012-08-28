@@ -63,7 +63,6 @@
         <commons-beanutils.bundle.version>1.8.2_1</commons-beanutils.bundle.version>
         <commons-collections.bundle.version>3.2.1_1</commons-collections.bundle.version>
         <commons-httpclient.bundle.version>3.1_6</commons-httpclient.bundle.version>
-        <commons-lang.bundle.version>2.4_5</commons-lang.bundle.version>
         <commons-net.bundle.version>2.2</commons-net.bundle.version>
         <commons-pool.bundle.version>1.5.4_2</commons-pool.bundle.version>
         <commons-vfs.bundle.version>1.0_5</commons-vfs.bundle.version>

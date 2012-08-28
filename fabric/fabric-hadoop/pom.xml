@@ -96,8 +96,8 @@
           <artifactId>commons-configuration</artifactId>
       </dependency>
       <dependency>
-          <groupId>org.apache.servicemix.bundles</groupId>
-          <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+          <groupId>commons-lang</groupId>
+          <artifactId>commons-lang</artifactId>
       </dependency>
       <dependency>
           <groupId>org.mortbay.jetty</groupId>
