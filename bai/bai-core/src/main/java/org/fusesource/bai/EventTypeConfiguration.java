@@ -27,21 +27,25 @@ import java.util.List;
  * Represents the configuration of a kind of events
  */
 public class EventTypeConfiguration {
+	public static final String CATCH_ALL_REGEX = ".*";
     private boolean include = true;
-    private List<String> includeRegexList = Arrays.asList(".*");
-    private List<Predicate> filters = new ArrayList<Predicate>();
+    private List<String> endpointIncludeRegexps = Arrays.asList(CATCH_ALL_REGEX);
+    private List<Predicate> exchangeFilters = new ArrayList<Predicate>();
 
     @Override
     public String toString() {
-        return "EventTypeConfig(" + include + ", " + includeRegexList + ", " + filters + ")";
+        return "EventTypeConfig(" + include + ", " + endpointIncludeRegexps + ", " + exchangeFilters + ")";
     }
 
-    public List<Predicate> getFilters() {
-        return filters;
+    public List<Predicate> getExchangeFilters() {
+    	if (exchangeFilters == null) {
+    		exchangeFilters = new ArrayList<Predicate>();
+    	}
+        return exchangeFilters;
     }
 
-    public void setFilters(List<Predicate> filters) {
-        this.filters = filters;
+    public void setExchangeFilters(List<Predicate> exchangeFilters) {
+        this.exchangeFilters = exchangeFilters;
     }
 
     public boolean isInclude() {
@@ -52,12 +56,23 @@ public class EventTypeConfiguration {
         this.include = include;
     }
 
-    public List<String> getIncludeRegexList() {
-        return includeRegexList;
+    public List<String> getEndpointIncludeRegexps() {
+    	if (endpointIncludeRegexps == null) {
+    		endpointIncludeRegexps = new ArrayList<String>();
+    	}
+        return endpointIncludeRegexps;
+    }
+    
+    public void addEndpointIncludeRegexp(String regexp) {
+    	// if it only contains 1 element and that element is the wildcard
+    	if (this.getEndpointIncludeRegexps().size() == 1 && this.getEndpointIncludeRegexps().contains(CATCH_ALL_REGEX)) {
+    		endpointIncludeRegexps.clear();
+    	}
+    	endpointIncludeRegexps.add(regexp);
     }
 
-    public void setIncludeRegexList(List<String> includeRegexList) {
-        this.includeRegexList = includeRegexList;
+    public void setEndpointIncludeRegexps(List<String> endpointIncludeRegexps) {
+        this.endpointIncludeRegexps = endpointIncludeRegexps;
     }
 
     /**

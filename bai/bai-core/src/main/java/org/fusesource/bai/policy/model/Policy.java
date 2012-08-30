@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
@@ -23,6 +22,7 @@ import org.fusesource.bai.policy.model.Constants.ScopeElement;
  * A Policy defines what should happen ({@link Action} when some set of conditions matches ({@link Scope}.
  * Conditions are defined by a set of Scope filters, that limit the application of the Action.
  * A condition could be: the event comes from a specific context, bundle, etc. or is of a specific type, etc.
+ * Core element of the BAI Policy API.
  * @author Raul Kripalani
  */
 public class Policy {
@@ -57,7 +57,9 @@ public class Policy {
 	@SuppressWarnings("unchecked")
 	public <T extends Filter> T getTypedFilterFor(ScopeElement e, Class<T> filterClass) throws IllegalArgumentException {
 		Filter f = scope.get(e);
-		if (!f.getClass().isAssignableFrom(filterClass)) {
+		if (f == null) {
+			return null;
+		} else if (!f.getClass().isAssignableFrom(filterClass)) {
 			throw new IllegalArgumentException("Filter for scope element " + e + " is of type " + f.getClass().getCanonicalName() + ", not " + filterClass.getCanonicalName());
 		}
 		return (T) f;

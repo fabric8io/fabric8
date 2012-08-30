@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import org.fusesource.bai.AuditEvent;
 import org.fusesource.bai.policy.model.Constants.ActionType;
 
 /**
- * Defines the actions for BAI to execute when a match happens.
+ * Defines the action that BAI should execute when the filters of a Policy are matched.
  * @author Raul Kripalani
  *
  */

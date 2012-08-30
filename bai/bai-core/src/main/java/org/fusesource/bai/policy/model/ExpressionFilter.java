@@ -14,11 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
+/**
+ * A {@link Filter} whose filtering condition is an expression.
+ * @author Raul Kripalani
+ *
+ */
 public class ExpressionFilter extends Filter {
 
 	private String language;

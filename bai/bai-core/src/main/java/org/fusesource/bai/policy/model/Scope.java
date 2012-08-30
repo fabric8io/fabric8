@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import java.util.EnumMap;
@@ -22,7 +21,7 @@ import java.util.EnumMap;
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
 /**
- * Defines the filters for a particular policy, i.e. the Scope of action of a policy.
+ * Keeps a relationship between {@link ScopeElement} and their respective {@link Filter}s.
  * @author Raul Kripalani
  *
  */

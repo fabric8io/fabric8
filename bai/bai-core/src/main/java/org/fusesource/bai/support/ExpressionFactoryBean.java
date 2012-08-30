@@ -25,12 +25,10 @@ import org.springframework.beans.factory.FactoryBean;
  */
 public class ExpressionFactoryBean extends ExpressionFactoryBeanSupport implements FactoryBean<Expression> {
 
-
     @Override
     public boolean isSingleton() {
         return false;
     }
-
 
     @Override
     public Class<?> getObjectType() {

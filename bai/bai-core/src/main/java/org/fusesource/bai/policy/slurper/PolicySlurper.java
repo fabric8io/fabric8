@@ -21,7 +21,7 @@ import org.fusesource.bai.policy.model.PolicySet;
 
 /**
  * Implementations of this interface are capable of reading policies from different media and formats, 
- * and normalising them to the beans in the org.fusesource.bai.model.policy package.
+ * and normalising them to the beans in the org.fusesource.bai.policy.model package.
  * @author Raul Kripalani
  *
  */

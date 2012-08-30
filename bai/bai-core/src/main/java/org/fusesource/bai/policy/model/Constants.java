@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 /**
- * Constants that model Actions, Filtering Elements, Event Types, etc.
+ * Constants to parametrize  Actions, Scope Filters, etc.
  * @author Raul Kripalani
  *
  */
@@ -35,12 +34,6 @@ public class Constants {
 		EXCHANGE,
 		BUNDLE,
 		ENDPOINT
-	}
-
-	public enum FilterMethod {
-		EXPRESSION,
-		ENUM_VALUE_ONE,
-		ENUM_VALUE_MULTIPLE
 	}
 	
 }

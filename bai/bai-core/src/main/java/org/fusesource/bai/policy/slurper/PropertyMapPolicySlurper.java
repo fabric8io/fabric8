@@ -25,11 +25,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.fusesource.bai.EventType;
-import org.fusesource.bai.policy.model.EnumerationFilter;
-import org.fusesource.bai.policy.model.Policy;
-import org.fusesource.bai.policy.model.PolicySet;
 import org.fusesource.bai.policy.model.Constants.ActionType;
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
+import org.fusesource.bai.policy.model.Policy;
+import org.fusesource.bai.policy.model.PolicySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
  * @author Raul Kripalani
  *
  */
+@SuppressWarnings("rawtypes")
 public class PropertyMapPolicySlurper implements PolicySlurper {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(PropertyMapPolicySlurper.class);
@@ -51,6 +51,7 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 		this.properties = properties;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public synchronized PolicySet slurp() {
 		if (policyCache != null) {
@@ -138,7 +139,7 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 	}
 	
 	/**
-	 * Parse this format: event.exclude.$eventName.$bundleRegex = (include|exclude) $camelContextIdRegex
+	 * Parse this format: event.$eventName.$camelContextPattern = (true|false)
 	 * @param splitKey
 	 * @param value
 	 * @return
@@ -146,25 +147,28 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 	private Set<Policy> parseEvent(String[] splitKey, String value) {
 		Set<Policy> policies = new HashSet<Policy>();
 		Policy policy = new Policy();
-				
-		if ("exclude".equals(splitKey[1].toLowerCase())) {
-			policy.getAction().setType(ActionType.EXCLUDE);
-		} else {
+		
+		// if the value = 'true', include; if 'false', exclude
+		if (Boolean.parseBoolean(value)) {
 			policy.getAction().setType(ActionType.INCLUDE);
+		} else {
+			policy.getAction().setType(ActionType.EXCLUDE);
 		}
 		
 		// Scope this policy to the specific event
-		EventType et = toEventType(splitKey[2]);
+		EventType et = toEventType(splitKey[1]);
 		if (et == null) {
 			return null;
 		}
 		policy.addNewEnumerationFilterFor(ScopeElement.EVENT).enumValues(et.toString());
 		
 		// Scope this policy to the Bundle
-		policy.addNewExpressionFilterFor(ScopeElement.BUNDLE).language("wildcardAwareString").expression(splitKey[3]);
+		policy.addNewExpressionFilterFor(ScopeElement.BUNDLE).language("wildcardAwareString").expression(splitKey[2]);
 		
-		// Scope this policy to the Camel Context
-		policy.addNewExpressionFilterFor(ScopeElement.CONTEXT).language("wildcardAwareString").expression(value);
+		// Scope this policy to the Camel Context, if defined
+		if (splitKey.length == 4) {
+			policy.addNewExpressionFilterFor(ScopeElement.CONTEXT).language("wildcardAwareString").expression(splitKey[3]);
+		}
 		
 		policies.add(policy);
 		return policies;
@@ -243,6 +247,9 @@ public class PropertyMapPolicySlurper implements PolicySlurper {
 	}
 	
 	private EventType toEventType(String eventType) {
+		if ("*".equals(eventType)) {
+			return EventType.ALL;
+		}
 		// Scope this policy to the specific event
 		EventType et;
 		try {

@@ -17,17 +17,26 @@
 
 package org.fusesource.bai;
 
-import org.apache.camel.*;
+import java.util.EventObject;
+import java.util.List;
+
+import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
+import org.apache.camel.Producer;
 import org.apache.camel.management.PublishEventNotifier;
-import org.apache.camel.management.event.*;
+import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeCompletedEvent;
+import org.apache.camel.management.event.ExchangeCreatedEvent;
+import org.apache.camel.management.event.ExchangeFailedEvent;
+import org.apache.camel.management.event.ExchangeFailureHandledEvent;
+import org.apache.camel.management.event.ExchangeRedeliveryEvent;
+import org.apache.camel.management.event.ExchangeSendingEvent;
+import org.apache.camel.management.event.ExchangeSentEvent;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
-
-import java.util.Arrays;
-import java.util.EventObject;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * A notifier of {@link AuditEvent} objects
@@ -69,6 +78,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  */
 public class AuditEventNotifier extends PublishEventNotifier {
+	
+	// TODO: Substitute all of this for EnumMap<EventType, EventTypeConfiguration>
+	// TODO: Make EventTypeConfigurationSet extend EnumMap<EventType, EventTypeConfiguration>
     private EventTypeConfiguration createdConfig = new EventTypeConfiguration();
     private EventTypeConfiguration completedConfig = new EventTypeConfiguration();
     private EventTypeConfiguration sendingConfig = new EventTypeConfiguration();
@@ -169,41 +181,42 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     private boolean testConfig(String uri, EventTypeConfiguration config, AbstractExchangeEvent exchangeEvent) {
-        if (!config.isInclude()) {
-            return false;
-        }
-        List<String> regexList = config.getIncludeRegexList();
-        if (!regexList.isEmpty()) {
-            if (endpointUri == null) {
-                return false;
-            }
-            for (String regex : regexList) {
-          			if (!uri.matches(regex)) {
-                          return false;
-          			}
-          		}
-        }
-        Exchange exchange = exchangeEvent.getExchange();
-        if (exchange == null) {
-            return false;
-        }
-        List<Predicate> filters = config.getFilters();
-        if (filters.isEmpty()) {
-            return true;
-        } else {
-            for (Predicate filter : filters) {
-                if (filter.matches(exchange)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+    	if (!config.isInclude()) {
+    		return false;
+    	}
+    	List<String> regexList = config.getEndpointIncludeRegexps();
+    	if (!regexList.isEmpty()) {
+    		if (uri == null) {
+    			return false;
+    		}
+    		for (String regex : regexList) {
+    			if (!uri.matches(regex)) {
+    				return false;
+    			}
+    		}
+    	}
+    	Exchange exchange = exchangeEvent.getExchange();
+    	if (exchange == null) {
+    		return false;
+    	}
+    	List<Predicate> filters = config.getExchangeFilters();
+    	if (filters.isEmpty()) {
+    		return true;
+    	} else {
+    		for (Predicate filter : filters) {
+    			if (filter.matches(exchange)) {
+    				return true;
+    			}
+    		}
+    		return false;
+    	}
     }
 
     /**
      * Add a unique dispatchId property to the original Exchange, which will come back to us later.
      * Camel does not correlate the individual sends/dispatches of the same exchange to the same endpoint, e.g.
-     * Exchange X sent to http://localhost:8080, again sent to http://localhost:8080... When both happen in parallel, and are marked in_progress in BAI, when the Sent or Completed
+     * Exchange X sent to http://localhost:8080, again sent to http://localhost:8080... 
+     * When both happen in parallel, and are marked in_progress in BAI, when the Sent or Completed
      * events arrive, BAI won't know which record to update (ambiguity)
      * So to overcome this situation, we enrich the Exchange with a DispatchID only when Created or Sending
      */
@@ -399,19 +412,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getCompletedFilters() {
-        return completedConfig.getFilters();
+        return completedConfig.getExchangeFilters();
     }
 
     public void setCompletedFilters(List<Predicate> filters) {
-        completedConfig.setFilters(filters);
+        completedConfig.setExchangeFilters(filters);
     }
 
     public List<String> getCompletedIncludeRegexList() {
-        return completedConfig.getIncludeRegexList();
+        return completedConfig.getEndpointIncludeRegexps();
     }
 
     public void setCompletedIncludeRegexList(List<String> includeRegexList) {
-        completedConfig.setIncludeRegexList(includeRegexList);
+        completedConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -425,19 +438,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getCreatedFilters() {
-        return createdConfig.getFilters();
+        return createdConfig.getExchangeFilters();
     }
 
     public void setCreatedFilters(List<Predicate> filters) {
-        createdConfig.setFilters(filters);
+        createdConfig.setExchangeFilters(filters);
     }
 
     public List<String> getCreatedIncludeRegexList() {
-        return createdConfig.getIncludeRegexList();
+        return createdConfig.getEndpointIncludeRegexps();
     }
 
     public void setCreatedIncludeRegexList(List<String> includeRegexList) {
-        createdConfig.setIncludeRegexList(includeRegexList);
+        createdConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -451,19 +464,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getSendingFilters() {
-        return sendingConfig.getFilters();
+        return sendingConfig.getExchangeFilters();
     }
 
     public void setSendingFilters(List<Predicate> filters) {
-        sendingConfig.setFilters(filters);
+        sendingConfig.setExchangeFilters(filters);
     }
 
     public List<String> getSendingcludeRegexList() {
-        return sendingConfig.getIncludeRegexList();
+        return sendingConfig.getEndpointIncludeRegexps();
     }
 
     public void setSendingIncludeRegexList(List<String> includeRegexList) {
-        sendingConfig.setIncludeRegexList(includeRegexList);
+        sendingConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -477,19 +490,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getSentFilters() {
-        return sentConfig.getFilters();
+        return sentConfig.getExchangeFilters();
     }
 
     public void setSentFilters(List<Predicate> filters) {
-        sentConfig.setFilters(filters);
+        sentConfig.setExchangeFilters(filters);
     }
 
     public List<String> getSentIncludeRegexList() {
-        return sentConfig.getIncludeRegexList();
+        return sentConfig.getEndpointIncludeRegexps();
     }
 
     public void setSentIncludeRegexList(List<String> includeRegexList) {
-        sentConfig.setIncludeRegexList(includeRegexList);
+        sentConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -503,19 +516,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getFailureFilters() {
-        return failureConfig.getFilters();
+        return failureConfig.getExchangeFilters();
     }
 
     public void setFailureFilters(List<Predicate> filters) {
-        failureConfig.setFilters(filters);
+        failureConfig.setExchangeFilters(filters);
     }
 
     public List<String> getFailureIncludeRegexList() {
-        return failureConfig.getIncludeRegexList();
+        return failureConfig.getEndpointIncludeRegexps();
     }
 
     public void setFailureIncludeRegexList(List<String> includeRegexList) {
-        failureConfig.setIncludeRegexList(includeRegexList);
+        failureConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -529,19 +542,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getFailureHandledFilters() {
-        return failureHandledConfig.getFilters();
+        return failureHandledConfig.getExchangeFilters();
     }
 
     public void setFailureHandledFilters(List<Predicate> filters) {
-        failureHandledConfig.setFilters(filters);
+        failureHandledConfig.setExchangeFilters(filters);
     }
 
     public List<String> getFailureHandledIncludeRegexList() {
-        return failureHandledConfig.getIncludeRegexList();
+        return failureHandledConfig.getEndpointIncludeRegexps();
     }
 
     public void setFailureHandledIncludeRegexList(List<String> includeRegexList) {
-        failureHandledConfig.setIncludeRegexList(includeRegexList);
+        failureHandledConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -555,19 +568,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getRedeliveryFilters() {
-        return redeliveryConfig.getFilters();
+        return redeliveryConfig.getExchangeFilters();
     }
 
     public void setRedeliveryFilters(List<Predicate> filters) {
-        redeliveryConfig.setFilters(filters);
+        redeliveryConfig.setExchangeFilters(filters);
     }
 
     public List<String> getRedeliveryIncludeRegexList() {
-        return redeliveryConfig.getIncludeRegexList();
+        return redeliveryConfig.getEndpointIncludeRegexps();
     }
 
     public void setRedeliveryIncludeRegexList(List<String> includeRegexList) {
-        redeliveryConfig.setIncludeRegexList(includeRegexList);
+        redeliveryConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 

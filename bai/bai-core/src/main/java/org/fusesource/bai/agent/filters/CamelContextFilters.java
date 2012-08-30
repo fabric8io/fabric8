@@ -89,6 +89,10 @@ public class CamelContextFilters {
         return Filters.compositeFilter(filters);
     }
     
+    public static Filter<CamelContextService> createCamelContextFilter(Policy policy) {
+        return createFilterFromScope(policy.getScope());
+    }
+    
     protected static Filter<CamelContextService> createFilterFromScope(Scope scope) {
     	ExpressionFilter bundleExpression = scope.getAs(ScopeElement.BUNDLE, ExpressionFilter.class);
     	ExpressionFilter contextExpression = scope.getAs(ScopeElement.CONTEXT, ExpressionFilter.class);

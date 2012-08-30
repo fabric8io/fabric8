@@ -14,11 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
+/**
+ * Represents a BAI Policy Filter.
+ * @author Raul Kripalani
+ *
+ */
 public abstract class Filter {
 	
 	protected ScopeElement element;

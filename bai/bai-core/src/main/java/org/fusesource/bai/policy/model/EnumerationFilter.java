@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import java.util.Arrays;
@@ -24,6 +23,11 @@ import java.util.Set;
 
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
+/**
+ * A filter whose filtering criteria is an Enumeration.
+ * @author Raul Kripalani
+ *
+ */
 public class EnumerationFilter extends Filter {
 
 	private Set<String> enumValues = new HashSet<String>();
@@ -48,7 +52,11 @@ public class EnumerationFilter extends Filter {
 		}
 		return enumValues;
 	}
-
+	
+	public String getOneEnumValue() {
+		return getEnumValues().size() == 0 ? null : enumValues.iterator().next();
+	}
+	
 	public void setEnumValues(Set<String> enumValues) {
 		this.enumValues = enumValues;
 	}

@@ -64,8 +64,7 @@ public class PropertyMapPolicySlurperTest {
 	
 	@Test
 	public void testBundlePolicies() throws IOException {
-        assertEquals("Five bundle policies were expected", 5, 
-        		policySet.policiesContainingScopeElements(Constants.ScopeElement.BUNDLE).size());
+        assertEquals("Six bundle policies were expected", 6, policySet.policiesContainingAnyScopeElements(Constants.ScopeElement.BUNDLE).size());
 		
 	}
 	
@@ -73,7 +72,7 @@ public class PropertyMapPolicySlurperTest {
 	public void testFilterNavigation() throws IOException {
         assertEquals("Policies that apply to event 'CREATED' should be 2", 2, 
         		policySet.filtersForScopeElement(ScopeElement.EVENT).filtersOfType(EnumerationFilter.class)
-        		.allMatches("CREATED").size());
+        		.allMatchesFor("CREATED").size());
         assertEquals("Policies that apply to event 'CREATED' should be 2", 2, 
         		policySet.filtersForScopeElement(ScopeElement.EVENT).filtersOfType(EnumerationFilter.class).countMatches("CREATED"));
 

@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.policy.model;
 
 import java.util.Arrays;
@@ -25,8 +24,8 @@ import org.fusesource.bai.policy.model.Constants.ActionType;
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
 /**
- * This class takes a Policy set and returns commonly requested information.
- * @author raul
+ * Implements convenient operations on sets of Policies. Core element of the BAI Policy API.
+ * @author Raul Kripalani
  */
 public class PolicySet extends HashSet<Policy> {
 
@@ -38,7 +37,21 @@ public class PolicySet extends HashSet<Policy> {
 		this.addAll(setOfPolicies);
 	}
 	
-	public PolicySet policiesContainingScopeElements(ScopeElement... e) {
+	public PolicySet policiesContainingAnyScopeElements(ScopeElement... e) {
+		Set<ScopeElement> criteria = new HashSet<ScopeElement>(Arrays.asList(e));
+		PolicySet answer = new PolicySet();
+		for (Policy policy : this) {
+			// asymmetric difference of the sets
+			// if this operation returns true, it means that elements have been removed, i.e. some match was found
+			HashSet<ScopeElement> tempMyScopeElements = new HashSet<ScopeElement>(policy.getScope().keySet());
+            if (tempMyScopeElements.removeAll(criteria)) {
+            	answer.add(policy);
+            }
+		}
+		return answer;
+	}
+	
+	public PolicySet policiesContainingAllScopeElements(ScopeElement... e) {
 		Set<ScopeElement> criteria = new HashSet<ScopeElement>(Arrays.asList(e));
 		PolicySet answer = new PolicySet();
 		for (Policy policy : this) {

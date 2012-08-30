@@ -99,13 +99,15 @@ public class BAIAgent implements ServiceListener {
                 CamelContextService camelContextService = new CamelContextService(camelContext, reference);
 
                 if (!getAuditPolicy().isAuditEnabled(camelContextService)) {
-                    LOG.debug("Ignoring camel context " + id + " as its an audit context");
+                    LOG.debug("Ignoring camel context " + id + " as it matches exclude filters in the policy configuration");
                     return;
                 }
 
                 if (type == ServiceEvent.UNREGISTERING) {
+                    LOG.info("Removing audit notifiers from camel context " + id);
                     removeNotifier(id);
                 } else if (type == ServiceEvent.REGISTERED) {
+                    LOG.info("Instrumenting camel context " + id + " with audit notifiers");
                     Map<String, Object> properties = new HashMap<String, Object>();
                     String[] keys = reference.getPropertyKeys();
                     if (keys != null) {

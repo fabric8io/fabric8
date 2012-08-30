@@ -91,7 +91,7 @@ public class EventTypeConfigurationSet {
                 Pair<Predicate, String> languageAndRemaining = parsePredicateAndRemaining(camelContextService, configAndRemaining.getSecond(), value);
                 if (languageAndRemaining != null) {
                     if (matchesCamelContextService(camelContextService, languageAndRemaining.getSecond())) {
-                        configAndRemaining.getFirst().getFilters().add(languageAndRemaining.getFirst());
+                        configAndRemaining.getFirst().getExchangeFilters().add(languageAndRemaining.getFirst());
                     }
                 }
             } else {
@@ -99,7 +99,7 @@ public class EventTypeConfigurationSet {
                 configAndRemaining = parseEventType(key, ENDPOINT_REGEX);
                 if (configAndRemaining != null) {
                     if (matchesCamelContextService(camelContextService, configAndRemaining.getSecond())) {
-                        configAndRemaining.getFirst().getIncludeRegexList().add(value);
+                        configAndRemaining.getFirst().getEndpointIncludeRegexps().add(value);
                     }
                 }
             }
