@@ -23,7 +23,9 @@ import org.fusesource.bai.agent.AuditPolicy;
 import org.fusesource.bai.agent.BAIAgent;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;
+import org.fusesource.bai.policy.model.PolicySet;
 import org.fusesource.common.util.Filter;
+import org.springframework.util.StringUtils;
 
 /**
  * A default implementation of {@link AuditPolicy} which filters out any audit elements
@@ -32,7 +34,6 @@ public class DefaultAuditPolicy implements AuditPolicy {
     public static final String DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER = "*:audit-*";
 
     private String excludeCamelContextPattern = DEFAULT_EXCLUDE_CAMEL_CONTEXT_FILTER;
-    private List<String> excludeCamelContextList;
     private Filter<CamelContextService> excludeCamelContextFilter;
     private BAIAgent agent;
 
@@ -81,21 +82,21 @@ public class DefaultAuditPolicy implements AuditPolicy {
     }
 
     public void setExcludeCamelContextPattern(String excludeCamelContextPattern) {
-        this.excludeCamelContextList = null;
         this.excludeCamelContextPattern = excludeCamelContextPattern;
         this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludeCamelContextPattern);
     }
 
+    public void setExcludeCamelContextPolicies(PolicySet excludePolicies) {
+        this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludePolicies);
+    }
+    
     public void setExcludeCamelContextPattern(List<String> excludedContexts) {
-        this.excludeCamelContextPattern = null;
-        this.excludeCamelContextList = excludedContexts;
+        this.excludeCamelContextPattern = StringUtils.collectionToDelimitedString(excludedContexts, " ");
         this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludedContexts);
     }
 
     // Implementation methods
     //-------------------------------------------------------------------------
-
-
 
     /**
      * Whenever a policy changes we can update all the active policies

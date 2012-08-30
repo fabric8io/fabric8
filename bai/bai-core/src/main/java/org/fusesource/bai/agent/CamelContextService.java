@@ -17,7 +17,6 @@
 package org.fusesource.bai.agent;
 
 import org.apache.camel.CamelContext;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.ServiceReference;
 
 /**

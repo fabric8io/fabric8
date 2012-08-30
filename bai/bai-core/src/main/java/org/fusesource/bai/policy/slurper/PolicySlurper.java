@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.bai.model.policy.slurper;
+package org.fusesource.bai.policy.slurper;
 
-import org.fusesource.bai.model.policy.PolicySet;
+import org.fusesource.bai.policy.model.PolicySet;
 
 /**
  * Implementations of this interface are capable of reading policies from different media and formats, 
- * and normalising them to the beans in the org.fusesource.bai.model.policy package.
+ * and normalising them to the beans in the org.fusesource.bai.policy.model package.
  * @author Raul Kripalani
  *
  */

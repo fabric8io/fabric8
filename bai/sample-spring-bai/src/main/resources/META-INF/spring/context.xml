@@ -6,49 +6,13 @@
        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
-	<bean class="org.fusesource.bai.AuditEventNotifier">
+    <!-- Let's remove this, as it'll be injected by the BAI Agent -->
+	<!-- <bean class="org.fusesource.bai.AuditEventNotifier">
 		<property name="endpointUri" value="vm:audit?waitForTaskToComplete=Never" />
-		<property name="sendingRegex">
-			<list value-type="java.lang.String">
-				<value>.*</value>
-			</list>
-		</property>
-		<property name="sentRegex">
-			<list value-type="java.lang.String">
-				<value>.*</value>
-			</list>
-		</property>
-	</bean>
-
-    <!--- MongoDb back end for asynchronously consuming audit events from vm:audit -->
-    <bean class="org.fusesource.bai.backend.mongo.MongoDBBackend" init-method="init" id="mongoBackend">
-   		<property name="mongo">
-   			<bean class="com.mongodb.Mongo" />
-   		</property>
-   		<property name="dbname" value="bai" />
-   		<property name="context" ref="mongoDbAuditContext" />
-   	</bean>
-
-    <!--
-        TODO this separate camel context will not be necessary soon in Camel 2.10 as we'll be able to use @Consume
-        on the above bean and use a property to specify the "vm:audit" URI
-    -->
-    <camelContext id="mongoDbAuditContext"
-   				  useBreadcrumb="true"
-   				  xmlns="http://camel.apache.org/schema/spring">
-
-        <gro
-   		<route>
-   			<from uri="vm:audit?concurrentConsumers=1" />
-   			<bean ref="mongoBackend" method="audit" />
-   		</route>
-   	</camelContext>
-
+	</bean> -->
 
     <!-- Camel route to be audited -->
-	<camelContext id="context1"
-				  useBreadcrumb="true"
-				  xmlns="http://camel.apache.org/schema/spring">
+	<camelContext id="context1" useBreadcrumb="true"  xmlns="http://camel.apache.org/schema/spring">
 		
         <route id="route1" startupOrder="5">
         	<from uri="timer://foo?fixedRate=true&amp;period=300000" id="timerEndpoint" />

@@ -32,17 +32,16 @@
 
     <name>${project.artifactId}</name>
     <description>FuseSource :: Business Activity Insight :: Sample Spring BAI</description>
+	<packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring</artifactId>
-            <version>${camel-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
-            <version>${camel-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>

@@ -14,14 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.fusesource.bai.model.policy;
+package org.fusesource.bai.policy.model;
 
 import org.fusesource.bai.AuditEvent;
-import org.fusesource.bai.model.policy.Constants.ActionType;
+import org.fusesource.bai.policy.model.Constants.ActionType;
 
 /**
- * Defines the actions for BAI to execute when a match happens.
+ * Defines the action that BAI should execute when the filters of a Policy are matched.
  * @author Raul Kripalani
  *
  */
@@ -32,6 +31,19 @@ public class Action {
 	 * For now, the actions are simple: 'INCLUDE' or 'EXCLUDE', in the sense that the {@link AuditEvent} will be included or excluded.
 	 * In the future, we can extend this, and add more complex action definitions.
 	 */
-	public ActionType type;
+	private ActionType type;
+
+	public ActionType getType() {
+		return type;
+	}
+
+	public void setType(ActionType type) {
+		this.type = type;
+	}
+
+	@Override
+	public String toString() {
+		return "Action [type=" + getType() + "]";
+	}
 	
 }
