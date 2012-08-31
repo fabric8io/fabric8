@@ -30,14 +30,14 @@ import java.util.List;
 public class EventTypeConfiguration {
     private boolean include = true;
     // TODO support exclude regex
-    private List<String> includeRegexList = new ArrayList<String>();
+    private List<String> endpointIncludeRegexpList = new ArrayList<String>();
 
     // TODO cache java.util.regex.Matcher objects for each expression!
-    private List<Predicate> filters = new ArrayList<Predicate>();
+    private List<Predicate> exchangeFilters = new ArrayList<Predicate>();
 
     @Override
     public String toString() {
-        return "EventTypeConfig(" + include + ", " + includeRegexList + ", " + filters + ")";
+        return "EventTypeConfig(" + include + ", " + endpointIncludeRegexpList + ", " + exchangeFilters + ")";
     }
 
     /**
@@ -48,7 +48,7 @@ public class EventTypeConfiguration {
             return false;
         }
         // if an include regex is specified then it matches if any of the match
-        List<String> regexList = getIncludeRegexList();
+        List<String> regexList = getEndpointIncludeRegexps();
         if (!regexList.isEmpty()) {
             if (endpointUri == null) {
                 return false;
@@ -68,7 +68,7 @@ public class EventTypeConfiguration {
         if (exchange == null) {
             return false;
         }
-        List<Predicate> filters = getFilters();
+        List<Predicate> filters = getExchangeFilters();
         if (filters.isEmpty()) {
             return true;
         } else {
@@ -81,12 +81,12 @@ public class EventTypeConfiguration {
         }
     }
 
-    public List<Predicate> getFilters() {
-        return filters;
+    public List<Predicate> getExchangeFilters() {
+        return exchangeFilters;
     }
 
-    public void setFilters(List<Predicate> filters) {
-        this.filters = filters;
+    public void setExchangeFilters(List<Predicate> filters) {
+        this.exchangeFilters = filters;
     }
 
     public boolean isInclude() {
@@ -97,12 +97,12 @@ public class EventTypeConfiguration {
         this.include = include;
     }
 
-    public List<String> getIncludeRegexList() {
-        return includeRegexList;
+    public List<String> getEndpointIncludeRegexps() {
+        return endpointIncludeRegexpList;
     }
 
-    public void setIncludeRegexList(List<String> includeRegexList) {
-        this.includeRegexList = includeRegexList;
+    public void setEndpointIncludeRegexps(List<String> includeRegexList) {
+        this.endpointIncludeRegexpList = includeRegexList;
     }
 
     // Configuration API
@@ -116,11 +116,11 @@ public class EventTypeConfiguration {
     }
 
     public void addFilter(Predicate predicate) {
-        getFilters().add(predicate);
+        getExchangeFilters().add(predicate);
     }
 
-    public void addIncludeRegex(String regex) {
-        getIncludeRegexList().add(regex);
+    public void addEndpointIncludeRegexp(String regex) {
+        getEndpointIncludeRegexps().add(regex);
     }
 
 }

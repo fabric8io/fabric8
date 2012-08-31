@@ -367,19 +367,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getCompletedFilters() {
-        return completedConfig.getFilters();
+        return completedConfig.getExchangeFilters();
     }
 
     public void setCompletedFilters(List<Predicate> filters) {
-        completedConfig.setFilters(filters);
+        completedConfig.setExchangeFilters(filters);
     }
 
     public List<String> getCompletedIncludeRegexList() {
-        return completedConfig.getIncludeRegexList();
+        return completedConfig.getEndpointIncludeRegexps();
     }
 
     public void setCompletedIncludeRegexList(List<String> includeRegexList) {
-        completedConfig.setIncludeRegexList(includeRegexList);
+        completedConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -393,19 +393,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getCreatedFilters() {
-        return createdConfig.getFilters();
+        return createdConfig.getExchangeFilters();
     }
 
     public void setCreatedFilters(List<Predicate> filters) {
-        createdConfig.setFilters(filters);
+        createdConfig.setExchangeFilters(filters);
     }
 
     public List<String> getCreatedIncludeRegexList() {
-        return createdConfig.getIncludeRegexList();
+        return createdConfig.getEndpointIncludeRegexps();
     }
 
     public void setCreatedIncludeRegexList(List<String> includeRegexList) {
-        createdConfig.setIncludeRegexList(includeRegexList);
+        createdConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -419,19 +419,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getSendingFilters() {
-        return sendingConfig.getFilters();
+        return sendingConfig.getExchangeFilters();
     }
 
     public void setSendingFilters(List<Predicate> filters) {
-        sendingConfig.setFilters(filters);
+        sendingConfig.setExchangeFilters(filters);
     }
 
     public List<String> getSendingcludeRegexList() {
-        return sendingConfig.getIncludeRegexList();
+        return sendingConfig.getEndpointIncludeRegexps();
     }
 
     public void setSendingIncludeRegexList(List<String> includeRegexList) {
-        sendingConfig.setIncludeRegexList(includeRegexList);
+        sendingConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -445,19 +445,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getSentFilters() {
-        return sentConfig.getFilters();
+        return sentConfig.getExchangeFilters();
     }
 
     public void setSentFilters(List<Predicate> filters) {
-        sentConfig.setFilters(filters);
+        sentConfig.setExchangeFilters(filters);
     }
 
     public List<String> getSentIncludeRegexList() {
-        return sentConfig.getIncludeRegexList();
+        return sentConfig.getEndpointIncludeRegexps();
     }
 
     public void setSentIncludeRegexList(List<String> includeRegexList) {
-        sentConfig.setIncludeRegexList(includeRegexList);
+        sentConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -471,19 +471,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getFailureFilters() {
-        return failureConfig.getFilters();
+        return failureConfig.getExchangeFilters();
     }
 
     public void setFailureFilters(List<Predicate> filters) {
-        failureConfig.setFilters(filters);
+        failureConfig.setExchangeFilters(filters);
     }
 
     public List<String> getFailureIncludeRegexList() {
-        return failureConfig.getIncludeRegexList();
+        return failureConfig.getEndpointIncludeRegexps();
     }
 
     public void setFailureIncludeRegexList(List<String> includeRegexList) {
-        failureConfig.setIncludeRegexList(includeRegexList);
+        failureConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -497,19 +497,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getFailureHandledFilters() {
-        return failureHandledConfig.getFilters();
+        return failureHandledConfig.getExchangeFilters();
     }
 
     public void setFailureHandledFilters(List<Predicate> filters) {
-        failureHandledConfig.setFilters(filters);
+        failureHandledConfig.setExchangeFilters(filters);
     }
 
     public List<String> getFailureHandledIncludeRegexList() {
-        return failureHandledConfig.getIncludeRegexList();
+        return failureHandledConfig.getEndpointIncludeRegexps();
     }
 
     public void setFailureHandledIncludeRegexList(List<String> includeRegexList) {
-        failureHandledConfig.setIncludeRegexList(includeRegexList);
+        failureHandledConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 
@@ -523,19 +523,19 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     public List<Predicate> getRedeliveryFilters() {
-        return redeliveryConfig.getFilters();
+        return redeliveryConfig.getExchangeFilters();
     }
 
     public void setRedeliveryFilters(List<Predicate> filters) {
-        redeliveryConfig.setFilters(filters);
+        redeliveryConfig.setExchangeFilters(filters);
     }
 
     public List<String> getRedeliveryIncludeRegexList() {
-        return redeliveryConfig.getIncludeRegexList();
+        return redeliveryConfig.getEndpointIncludeRegexps();
     }
 
     public void setRedeliveryIncludeRegexList(List<String> includeRegexList) {
-        redeliveryConfig.setIncludeRegexList(includeRegexList);
+        redeliveryConfig.setEndpointIncludeRegexps(includeRegexList);
     }
 
 

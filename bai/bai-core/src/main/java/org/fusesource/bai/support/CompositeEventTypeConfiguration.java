@@ -45,9 +45,9 @@ public class CompositeEventTypeConfiguration extends EventTypeConfiguration {
     }
 
     @Override
-    public void addIncludeRegex(String regex) {
+    public void addEndpointIncludeRegexp(String regex) {
         for (EventTypeConfiguration config : configs) {
-            config.addIncludeRegex(regex);
+            config.addEndpointIncludeRegexp(regex);
         }
     }
 }

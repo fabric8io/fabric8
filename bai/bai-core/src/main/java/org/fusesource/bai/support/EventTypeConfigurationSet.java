@@ -107,7 +107,7 @@ public class EventTypeConfigurationSet {
                 configAndRemaining = parseEventType(key, ENDPOINT_REGEX);
                 if (configAndRemaining != null) {
                     if (matchesCamelContextService(camelContextService, configAndRemaining.getSecond())) {
-                        configAndRemaining.getFirst().addIncludeRegex(value);
+                        configAndRemaining.getFirst().addEndpointIncludeRegexp(value);
                     }
                 }
             }
