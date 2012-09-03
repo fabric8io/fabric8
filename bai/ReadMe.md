@@ -172,8 +172,8 @@ Where *$eventName* can be one of
 * sending
 * sent
 * failure
+* failureHandled
 * redelivery
-* *
 
 e.g. to exclude the create events in all bundles which begin with "foo" for all CamelContext IDs then use:
 
