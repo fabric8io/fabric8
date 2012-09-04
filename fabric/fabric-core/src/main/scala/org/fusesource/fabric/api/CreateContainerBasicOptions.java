@@ -33,7 +33,8 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected URI providerURI;
     protected boolean ensembleServer;
     protected String preferredAddress;
-    protected String resolver= ZkDefs.DEFAULT_RESOLVER;
+    //The default value is null, so that we know if the user explicitly specified a resolver.
+    protected String resolver = null;
     protected Integer minimumPort = PortUtils.MIN_PORT_NUMBER;
     protected Integer maximumPort = PortUtils.MAX_PORT_NUMBER;
     protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
@@ -204,11 +205,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     }
 
     public void setResolver(String resolver) {
-        if (Arrays.asList(ZkDefs.VALID_RESOLVERS).contains(resolver)) {
-            this.resolver = resolver;
-        } else {
-            this.resolver = ZkDefs.DEFAULT_RESOLVER;
-        }
+        this.resolver = resolver;
     }
 
     @Override

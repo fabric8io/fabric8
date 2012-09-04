@@ -39,4 +39,13 @@ public interface Join {
 
     public void setContainerName(String containerName);
 
+
+    public void setResolver(String resolver);
+
+    public String getResolver();
+
+    public void setManualIp(String manualIp);
+
+    public String getManualIp();
+
 }

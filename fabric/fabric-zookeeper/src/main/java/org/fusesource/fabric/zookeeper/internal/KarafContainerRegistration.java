@@ -128,7 +128,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             }
 
             if (zooKeeper.exists(CONTAINER_RESOLVER.getPath(name)) == null) {
-                zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), getGlobalResolutionPolicy(zooKeeper), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(zooKeeper, name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             }
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -231,16 +231,19 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
      * @throws KeeperException
      */
     private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
-        String policy = ZkDefs.LOCAL_HOSTNAME;
+        String policy = null;
+        String globalPolicy =  getGlobalResolutionPolicy(zookeeper);
         List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (zookeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+        if (zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
             policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
         } else if (System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
             policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
         }
+
         if (policy == null || !validResoverList.contains(policy)) {
-            policy = getGlobalResolutionPolicy(zookeeper);
+            policy = globalPolicy;
         }
+
         if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
             zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }

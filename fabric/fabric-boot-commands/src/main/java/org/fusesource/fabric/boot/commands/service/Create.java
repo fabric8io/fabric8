@@ -40,4 +40,16 @@ public interface Create {
     public boolean isNonManaged();
 
     public void setNonManaged(boolean nonManaged);
+
+    public void setResolver(String resolver);
+
+    public String getResolver();
+
+    public void setGlobalResolver(String resolver);
+
+    public String getGlobalResolver();
+
+    public void setManualIp(String manualIp);
+
+    public String getManualIp();
 }

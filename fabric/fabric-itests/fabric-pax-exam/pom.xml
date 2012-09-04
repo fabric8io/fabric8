@@ -168,6 +168,9 @@
                         <fabricitest.ssh.port>${fabricitest.ssh.port}</fabricitest.ssh.port>
                         <fabricitest.version>${project.version}</fabricitest.version>
                     </systemPropertyVariables>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.slf4j:slf4j-log4j12</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
                 </configuration>
             </plugin>
         </plugins>

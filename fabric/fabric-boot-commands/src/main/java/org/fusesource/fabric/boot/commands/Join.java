@@ -65,6 +65,12 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
 
+    @Option(name = "-r", aliases = {"--resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
+    String resolver;
+
+    @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
+    String manualIp;
+
     @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric. By default a karaf name will be used")
     private String containerName;
 
@@ -74,6 +80,14 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
         String oldName = System.getProperty("karaf.name");
         if (containerName == null) {
             containerName = oldName;
+        }
+
+        if (resolver != null) {
+            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+        }
+
+        if (manualIp != null) {
+            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (!containerName.equals(oldName)) {
@@ -284,5 +298,22 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+
+    public String getResolver() {
+        return resolver;
+    }
+
+    public void setResolver(String resolver) {
+        this.resolver = resolver;
+    }
+
+    public String getManualIp() {
+        return manualIp;
+    }
+
+    public void setManualIp(String manualIp) {
+        this.manualIp = manualIp;
     }
 }

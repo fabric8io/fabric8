@@ -39,8 +39,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private String importDir = getDefaultImportDir();
     @Option(name = "-v", aliases = {"--verbose"}, description = "Flag to enable verbose output of files being imported")
     boolean verbose = false;
-    @Option(name = "-r", aliases = {"--resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
+    @Option(name = "-g", aliases = {"--global-resolver"}, description = "The global resolver policy, which becomes the default resolver policy applied to all new containers created in this fabric. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
+    String globalResolver;
+    @Option(name = "-r", aliases = {"--resolver"}, description = "The local resolver policy. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
     String resolver;
+    @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
+    String manualIp;
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
@@ -70,8 +74,16 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             System.setProperty(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH, importDir);
         }
 
+        if (globalResolver != null) {
+            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, globalResolver);
+        }
+
         if (resolver != null) {
-            System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, resolver);
+            System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
+        }
+
+        if (manualIp != null) {
+            System.setProperty(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (profile != null) {
@@ -176,5 +188,29 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
     public void setNonManaged(boolean nonManaged) {
         this.nonManaged = nonManaged;
+    }
+
+    public String getGlobalResolver() {
+        return globalResolver;
+    }
+
+    public void setGlobalResolver(String globalResolver) {
+        this.globalResolver = globalResolver;
+    }
+
+    public String getResolver() {
+        return resolver;
+    }
+
+    public void setResolver(String resolver) {
+        this.resolver = resolver;
+    }
+
+    public String getManualIp() {
+        return manualIp;
+    }
+
+    public void setManualIp(String manualIp) {
+        this.manualIp = manualIp;
     }
 }

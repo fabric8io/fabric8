@@ -69,6 +69,10 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 StringBuilder jvmOptsBuilder = new StringBuilder();
 
+                if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
+                    jvmOptsBuilder.append(options.getJvmOpts()).append(" ");
+                }
+
                 jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote ")
                         .append(options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "");
 
