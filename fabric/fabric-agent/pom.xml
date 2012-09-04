@@ -63,8 +63,7 @@
             org.slf4j.*,
             org.linkedin.zookeeper.*,
             org.apache.zookeeper.*,
-            org.fusesource.fabric.zookeeper.*,
-            org.fusesource.common.util.*
+            org.fusesource.fabric.zookeeper.*
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
@@ -72,6 +71,7 @@
             =META-INF;-split-package:=merge-first,
             =META-INF.nexus;-split-package:=merge-first,
             org.fusesource.fabric.agent,
+            org.fusesource.common.util.*,
             org.fusesource.fabric.utils,
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
