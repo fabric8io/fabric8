@@ -1,0 +1,4 @@
+<audit endpointUri="vm:audit" xmlns="http://fuse.fusesource.org/schema/bai">
+    <policy id="noContexts">
+    </policy>
+</audit>

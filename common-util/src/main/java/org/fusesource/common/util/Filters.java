@@ -49,6 +49,31 @@ public class Filters {
         };
     }
 
+    /**
+     * Returns true if any of the filters matches the given value
+     */
+    public static <T> boolean matches(T value, List<? extends Filter<T>> filters) {
+        if (filters != null) {
+            for (Filter<T> filter : filters) {
+                if (filter.matches(value)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return true if the value matches an include filter if specified and does not match an exclude filter
+     */
+    public static <T> boolean matches(T value, List<? extends Filter<T>> includeFilters, List<? extends Filter<T>> excludeFilters) {
+        if (matches(value, excludeFilters)) {
+            return false;
+        }
+        return includeFilters == null || includeFilters.isEmpty() || Filters.matches(value, includeFilters);
+    }
+
+
     public static <T> Filter<T> compositeFilter(List<Filter<T>> filters) {
         if (filters.size() == 0) {
             return falseFilter();

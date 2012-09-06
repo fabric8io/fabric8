@@ -1,0 +1,9 @@
+<audit endpointUri="vm:audit" xmlns:ns2="http://camel.apache.org/schema/spring" xmlns="http://fuse.fusesource.org/schema/bai">
+    <policy id="nonAuditContexts">
+      <contexts>
+        <exclude>
+          <context bundle="*" name="audit*"/>
+        </exclude>
+      </contexts>
+    </policy>
+</audit>

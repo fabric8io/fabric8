@@ -67,7 +67,7 @@ import java.util.List;
  *
  * @author raul
  */
-public class AuditEventNotifier extends PublishEventNotifier {
+public class AuditEventNotifier extends AuditEventNotifierSupport {
     private EventTypeConfiguration createdConfig = new EventTypeConfiguration();
     private EventTypeConfiguration completedConfig = new EventTypeConfiguration();
     private EventTypeConfiguration sendingConfig = new EventTypeConfiguration();
@@ -76,20 +76,10 @@ public class AuditEventNotifier extends PublishEventNotifier {
     private EventTypeConfiguration failureHandledConfig = new EventTypeConfiguration();
     private EventTypeConfiguration redeliveryConfig = new EventTypeConfiguration();
 
-    private CamelContext camelContext;
-    private Endpoint endpoint;
-    private String endpointUri;
-    private Producer producer;
-
     public AuditEventNotifier() {
         setIgnoreCamelContextEvents(true);
         setIgnoreRouteEvents(true);
         setIgnoreServiceEvents(true);
-    }
-
-    @Override
-    public String toString() {
-        return "PublishEventNotifier[" + (endpoint != null ? endpoint : URISupport.sanitizeUri(endpointUri)) + "]";
     }
 
     /**
@@ -106,16 +96,7 @@ public class AuditEventNotifier extends PublishEventNotifier {
     }
 
     @Override
-    public boolean isEnabled(EventObject event) {
-        EventObject coreEvent = event;
-        AbstractExchangeEvent exchangeEvent = null;
-        if (event instanceof AuditEvent) {
-            AuditEvent auditEvent = (AuditEvent) event;
-            coreEvent = auditEvent.getEvent();
-        }
-        if (event instanceof AbstractExchangeEvent) {
-            exchangeEvent = (AbstractExchangeEvent) event;
-        }
+    protected boolean isEnabledFor(EventObject coreEvent, AbstractExchangeEvent exchangeEvent) {
         EventTypeConfiguration config = null;
         if (coreEvent instanceof ExchangeCreatedEvent) {
             config = getCreatedConfig();
@@ -137,140 +118,11 @@ public class AuditEventNotifier extends PublishEventNotifier {
             // TODO allow filter by exception class name!
             // return testRegexps(exceptionClassName, failureRegex, filter, exchangeEvent);
         }
-        String uri = endpointUri(event);
+        String uri = endpointUri(coreEvent);
         if (config == null) return false;
         return config.matchesEvent(uri, exchangeEvent);
     }
 
-    public static String endpointUri(EventObject event) {
-        if (event instanceof AuditEvent) {
-            AuditEvent auditEvent = (AuditEvent) event;
-            return auditEvent.getEndpointURI();
-        } else if (event instanceof ExchangeSendingEvent) {
-            ExchangeSendingEvent sentEvent = (ExchangeSendingEvent) event;
-            return sentEvent.getEndpoint().getEndpointUri();
-        } else if (event instanceof ExchangeSentEvent) {
-            ExchangeSentEvent sentEvent = (ExchangeSentEvent) event;
-            return sentEvent.getEndpoint().getEndpointUri();
-        } else if (event instanceof AbstractExchangeEvent) {
-            AbstractExchangeEvent ae = (AbstractExchangeEvent) event;
-            Exchange exchange = ae.getExchange();
-            if (event instanceof ExchangeFailureHandledEvent || event instanceof ExchangeFailedEvent) {
-                return exchange.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
-            } else {
-                Endpoint fromEndpoint = exchange.getFromEndpoint();
-                if (fromEndpoint != null) {
-                    return fromEndpoint.getEndpointUri();
-                }
-            }
-        }
-        return null;
-    }
-
-
-    /**
-     * Add a unique dispatchId property to the original Exchange, which will come back to us later.
-     * Camel does not correlate the individual sends/dispatches of the same exchange to the same endpoint, e.g.
-     * Exchange X sent to http://localhost:8080, again sent to http://localhost:8080... When both happen in parallel, and are marked in_progress in BAI, when the Sent or Completed
-     * events arrive, BAI won't know which record to update (ambiguity)
-     * So to overcome this situation, we enrich the Exchange with a DispatchID only when Created or Sending
-     */
-    @Override
-    public void notify(EventObject event) throws Exception {
-        AuditEvent auditEvent = null;
-        AbstractExchangeEvent ae = null;
-        if (event instanceof AuditEvent) {
-            auditEvent = (AuditEvent) event;
-            ae = auditEvent.getEvent();
-        } else if (event instanceof AbstractExchangeEvent) {
-            ae = (AbstractExchangeEvent) event;
-            auditEvent = createAuditEvent(ae);
-        }
-
-        if (ae == null || auditEvent == null) {
-            log.debug("Ignoring events like " + event + " as its neither a AbstractExchangeEvent or AuditEvent");
-            return;
-        }
-        if (event instanceof ExchangeSendingEvent || event instanceof ExchangeCreatedEvent) {
-            ae.getExchange().setProperty(AuditConstants.DISPATCH_ID, ae.getExchange().getContext().getUuidGenerator().generateUuid());
-        }
-
-        // only notify when we are started
-        if (!isStarted()) {
-            log.debug("Cannot publish event as notifier is not started: {}", event);
-            return;
-        }
-
-        // only notify when camel context is running
-        if (!camelContext.getStatus().isStarted()) {
-            log.debug("Cannot publish event as CamelContext is not started: {}", event);
-            return;
-        }
-
-        Exchange exchange = producer.createExchange();
-        exchange.getIn().setBody(auditEvent);
-
-        // make sure we don't send out events for this as well
-        // mark exchange as being published to event, to prevent creating new events
-        // for this as well (causing a endless flood of events)
-        exchange.setProperty(Exchange.NOTIFY_EVENT, Boolean.TRUE);
-        try {
-            producer.process(exchange);
-        } finally {
-            // and remove it when its done
-            exchange.removeProperty(Exchange.NOTIFY_EVENT);
-        }
-    }
-
-    /**
-     * Factory method to create a new {@link AuditEvent} in case a sub class wants to create a different derived kind of event
-     */
-    protected AuditEvent createAuditEvent(AbstractExchangeEvent ae) {
-        return new AuditEvent(ae.getExchange(), ae);
-    }
-
-    /**
-     * Substitute all arrays with CopyOnWriteArrayLists
-     */
-    @Override
-    protected void doStart() throws Exception {
-        ObjectHelper.notNull(camelContext, "camelContext", this);
-        if (endpoint == null && endpointUri == null) {
-            throw new IllegalArgumentException("Either endpoint or endpointUri must be configured");
-        }
-
-        if (endpoint == null) {
-            endpoint = camelContext.getEndpoint(endpointUri);
-        }
-
-        producer = endpoint.createProducer();
-        ServiceHelper.startService(producer);
-
-    }
-
-    public CamelContext getCamelContext() {
-        return camelContext;
-    }
-
-    public void setCamelContext(CamelContext camelContext) {
-        this.camelContext = camelContext;
-    }
-
-    public Endpoint getEndpoint() {
-        return endpoint;
-    }
-
-    public void setEndpoint(Endpoint endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public String getEndpointUri() {
-        return endpointUri;
-    }
-
-    public void setEndpointUri(String endpointUri) {
-        this.endpointUri = endpointUri;
-    }
 
     public EventTypeConfiguration getConfig(EventType eventType) {
         switch (eventType) {
@@ -347,11 +199,6 @@ public class AuditEventNotifier extends PublishEventNotifier {
 
     public void setSentConfig(EventTypeConfiguration sentConfig) {
         this.sentConfig = sentConfig;
-    }
-
-    @Override
-    protected void doStop() throws Exception {
-        ServiceHelper.stopService(producer);
     }
 
     // Delegate methods to make it easier to configure directly in spring
