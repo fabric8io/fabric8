@@ -34,16 +34,6 @@
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix.specs.version}</bundle>
     </feature>
 
-    <feature name="cxf-osgi" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${cxf.version}">cxf</feature>
-        <feature version="${karaf.version}">war</feature>
-    </feature>
-    <feature name="cxf-jaxrs" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${servicemix.features.version}">cxf-osgi</feature>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.abdera/${abdera.bundle.version}</bundle>
-        <bundle>mvn:org.codehaus.jettison/jettison/${jettison.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlbeans/${xmlbeans.bundle.version}</bundle>
-    </feature>
     <feature name="cxf-nmr" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
         <feature version="${cxf.version}">cxf</feature>
         <feature version="${servicemix.nmr.version}">nmr</feature>
