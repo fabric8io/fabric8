@@ -14,23 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.config;
 
-import org.fusesource.bai.EventType;
-import org.junit.Test;
-
-public class ConfigMarshalTest {
-    @Test
-    public void config() throws Exception {
-        AuditConfig config = new AuditConfig();
-        config.addPolicy("myId").
-                excludeContext("*", "audit*").
-                includeEndpoint("activemq:*").
-                excludeEvent(EventType.FAILURE_HANDLED).
-                filter().xpath("/person[@name='James']");
-
-        String xml = ConfigHelper.toXml(config);
-        System.out.println("XML: " + xml);
-    }
+/**
+ */
+public class Constants {
 }

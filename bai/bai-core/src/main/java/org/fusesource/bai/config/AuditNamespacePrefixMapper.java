@@ -14,23 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.bai.config;
 
-import org.fusesource.bai.EventType;
-import org.junit.Test;
+import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
+import org.apache.camel.builder.xml.Namespaces;
+import org.fusesource.bai.AuditConstants;
 
-public class ConfigMarshalTest {
-    @Test
-    public void config() throws Exception {
-        AuditConfig config = new AuditConfig();
-        config.addPolicy("myId").
-                excludeContext("*", "audit*").
-                includeEndpoint("activemq:*").
-                excludeEvent(EventType.FAILURE_HANDLED).
-                filter().xpath("/person[@name='James']");
-
-        String xml = ConfigHelper.toXml(config);
-        System.out.println("XML: " + xml);
+/**
+ * Use nicer namespace prefixes when marshalling
+ */
+public class AuditNamespacePrefixMapper extends NamespacePrefixMapper {
+    @Override
+    public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
+        if (AuditConstants.AUDIT_NAMESPACE.equals(namespaceUri)) return "";
+        if (Namespaces.DEFAULT_NAMESPACE.equals(namespaceUri)) return AuditConstants.EXPRESSION_NAMESPACE_PREFIX;
+        return suggestion;
     }
 }

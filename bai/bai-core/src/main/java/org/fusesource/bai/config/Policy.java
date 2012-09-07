@@ -17,6 +17,12 @@
 
 package org.fusesource.bai.config;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
+import org.apache.camel.Expression;
+import org.apache.camel.Predicate;
+import org.apache.camel.builder.ExpressionClause;
+import org.apache.camel.model.language.ExpressionDefinition;
 import org.fusesource.bai.AuditEvent;
 import org.fusesource.bai.EventType;
 import org.fusesource.bai.agent.CamelContextService;
@@ -25,7 +31,9 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * Represents a policy of auditing that applies to a selection of CamelContexts
@@ -42,8 +50,14 @@ public class Policy extends HasIdentifier {
     @XmlElement
     private EndpointsFilter endpoints = new EndpointsFilter();
 
+    @XmlElement
+    private ExchangeFilter filter;
+
     @XmlAttribute(required = false)
     private Boolean enabled;
+
+    @XmlTransient
+    private Predicate predicate;
 
     public Policy() {
     }
@@ -55,7 +69,9 @@ public class Policy extends HasIdentifier {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(enabled: " + isEnabled() + " " + contexts +
-                " " + events + ")";
+                " " + events +
+                (filter != null ? " " + filter : "") +
+                ")";
     }
 
     public boolean isEnabled() {
@@ -67,8 +83,26 @@ public class Policy extends HasIdentifier {
     }
 
     public boolean matchesEvent(AuditEvent event) {
-        return isEnabled() && (events == null || events.matches(event)) &&
-                (endpoints == null || endpoints.matches(event));
+        if (isEnabled() && (events == null || events.matches(event)) &&
+                (endpoints == null || endpoints.matches(event))) {
+
+            Exchange exchange = event.getExchange();
+            if (exchange != null) {
+                ExpressionDefinition expression = null;
+                if (filter != null) {
+                    expression = filter.getFilter();
+                }
+                if (predicate == null && expression != null) {
+                    CamelContext camelContext = exchange.getContext();
+                    predicate = expression.createPredicate(camelContext);
+                }
+                if (predicate != null) {
+                    return predicate.matches(exchange);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 
     public Policy excludeContext(String bundle, String name) {
@@ -131,6 +165,15 @@ public class Policy extends HasIdentifier {
         return this;
     }
 
+    /**
+     * Use the DSL to create an expression
+     */
+    public ExpressionClause<Policy> filter() {
+        ExpressionClause<Policy> clause = new ExpressionClause<Policy>(this);
+        setFilter(new ExchangeFilter(clause));
+        return clause;
+    }
+
     // Properties
     //-------------------------------------------------------------------------
     public Boolean getEnabled() {
@@ -155,5 +198,18 @@ public class Policy extends HasIdentifier {
 
     public EventsFilter getEvents() {
         return events;
+    }
+
+    public ExchangeFilter getFilter() {
+        return filter;
+    }
+
+    public void setFilter(ExchangeFilter filter) {
+        this.filter = filter;
+        this.predicate = null;
+    }
+
+    public Predicate getPredicate() {
+        return predicate;
     }
 }

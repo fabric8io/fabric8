@@ -23,6 +23,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
 import org.apache.camel.util.ObjectHelper;
 
 /**
@@ -38,12 +39,19 @@ public class ConfigHelper {
     }
 
     public static String toXml(AuditConfig config) throws JAXBException {
-        JAXBContext context = createConfigJaxbContext();
-        Marshaller marshaller = context.createMarshaller();
-        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+        Marshaller marshaller = createMarshaller();
         StringWriter writer = new StringWriter();
         marshaller.marshal(config, writer);
         return writer.toString();
+    }
+
+    public static Marshaller createMarshaller() throws JAXBException {
+        JAXBContext context = createConfigJaxbContext();
+        Marshaller marshaller = context.createMarshaller();
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            NamespacePrefixMapper mapper = new AuditNamespacePrefixMapper();
+        marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", mapper);
+        return marshaller;
     }
 
     public static AuditConfig loadConfig(InputStream stream) throws JAXBException {

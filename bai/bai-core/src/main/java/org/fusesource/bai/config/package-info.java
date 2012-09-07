@@ -14,6 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@javax.xml.bind.annotation.XmlSchema(namespace = "http://fuse.fusesource.org/schema/bai", elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.fusesource.bai.config;
+@XmlSchema(namespace = "http://fuse.fusesource.org/schema/bai",
+        xmlns = {
+                @XmlNs(namespaceURI = Namespaces.DEFAULT_NAMESPACE, prefix = "c"),
+                @XmlNs(namespaceURI = AuditConstants.AUDIT_NAMESPACE, prefix = AuditConstants.EXPRESSION_NAMESPACE_PREFIX)
+        },
+        elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) package org.fusesource.bai.config;
 
+import org.apache.camel.builder.xml.Namespaces;
+import org.fusesource.bai.AuditConstants;
+
+import javax.xml.bind.annotation.XmlNs;
+import javax.xml.bind.annotation.XmlSchema;
