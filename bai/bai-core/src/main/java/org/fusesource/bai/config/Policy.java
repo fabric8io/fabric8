@@ -17,6 +17,8 @@
 
 package org.fusesource.bai.config;
 
+import org.fusesource.bai.AuditEvent;
+import org.fusesource.bai.EventType;
 import org.fusesource.bai.agent.CamelContextService;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -24,8 +26,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents a policy of auditing that applies to a selection of CamelContexts
@@ -36,8 +36,12 @@ public class Policy extends HasIdentifier {
     @XmlElement
     private ContextsFilter contexts = new ContextsFilter();
 
-    @XmlElement(name = "endpointFilter")
-    private List<String> endpointFilters = new ArrayList<String>();
+    @XmlElement
+    private EventsFilter events = new EventsFilter();
+
+    @XmlElement
+    private EndpointsFilter endpoints = new EndpointsFilter();
+
     @XmlAttribute(required = false)
     private Boolean enabled;
 
@@ -51,7 +55,7 @@ public class Policy extends HasIdentifier {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(enabled: " + isEnabled() + " " + contexts +
-                " endpointFilters: " + endpointFilters + ")";
+                " " + events + ")";
     }
 
     public boolean isEnabled() {
@@ -62,9 +66,14 @@ public class Policy extends HasIdentifier {
         return contexts == null || contexts.matches(contextService);
     }
 
-    public Policy excludeContext(String bundle, String name) {
+    public boolean matchesEvent(AuditEvent event) {
+        return isEnabled() && (events == null || events.matches(event)) &&
+                (endpoints == null || endpoints.matches(event));
+    }
 
-        return excludeContext(new ContextFilter(bundle, name));
+    public Policy excludeContext(String bundle, String name) {
+        getContexts().excludeContext(bundle, name);
+        return this;
     }
 
     public Policy excludeContext(ContextFilter filter) {
@@ -73,7 +82,8 @@ public class Policy extends HasIdentifier {
     }
 
     public Policy includeContext(String bundle, String name) {
-        return includeContext(new ContextFilter(bundle, name));
+        getContexts().includeContext(bundle, name);
+        return this;
     }
 
     public Policy includeContext(ContextFilter filter) {
@@ -81,6 +91,45 @@ public class Policy extends HasIdentifier {
         return this;
     }
 
+    public Policy excludeEvent(EventType eventType) {
+        getEvents().excludeEvent(eventType);
+        return this;
+    }
+
+    public Policy excludeEvent(EventFilter filter) {
+        getEvents().excludeEvent(filter);
+        return this;
+    }
+
+    public Policy includeEvent(EventType eventType) {
+        getEvents().includeEvent(eventType);
+        return this;
+    }
+
+    public Policy includeEvent(EventFilter filter) {
+        getEvents().includeEvent(filter);
+        return this;
+    }
+
+    public Policy excludeEndpoint(EndpointFilter filter) {
+        getEndpoints().excludeEndpoint(filter);
+        return this;
+    }
+
+    public Policy excludeEndpoint(String pattern) {
+        getEndpoints().excludeEndpoint(pattern);
+        return this;
+    }
+
+    public Policy includeEndpoint(String pattern) {
+        getEndpoints().includeEndpoint(pattern);
+        return this;
+    }
+
+    public Policy includeEndpoint(EndpointFilter filter) {
+        getEndpoints().includeEndpoint(filter);
+        return this;
+    }
 
     // Properties
     //-------------------------------------------------------------------------
@@ -100,12 +149,11 @@ public class Policy extends HasIdentifier {
         this.contexts = contexts;
     }
 
-    public List<String> getEndpointFilters() {
-        return endpointFilters;
+    public EndpointsFilter getEndpoints() {
+        return endpoints;
     }
 
-    public void setEndpointFilters(List<String> endpointFilters) {
-        this.endpointFilters = endpointFilters;
+    public EventsFilter getEvents() {
+        return events;
     }
-
 }

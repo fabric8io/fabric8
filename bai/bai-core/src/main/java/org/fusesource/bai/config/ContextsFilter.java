@@ -29,8 +29,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.fusesource.bai.config.ContextFilter.matches;
-
 /**
  * Represents a filter of CamelContexts using the bundle and camelContext name patterns using * to match any characer
  */
@@ -64,7 +62,7 @@ public class ContextsFilter extends HasIdentifier implements Filter<CamelContext
         if (excludeContextFilters == null) {
             excludeContextFilters = new ArrayList<ContextFilter>();
         }
-        getExcludeContextFilters().add(filter);
+        excludeContextFilters.add(filter);
         return this;
     }
 
@@ -76,7 +74,7 @@ public class ContextsFilter extends HasIdentifier implements Filter<CamelContext
         if (includeContextFilters == null) {
             includeContextFilters = new ArrayList<ContextFilter>();
         }
-        getExcludeContextFilters().add(filter);
+        includeContextFilters.add(filter);
         return this;
     }
 

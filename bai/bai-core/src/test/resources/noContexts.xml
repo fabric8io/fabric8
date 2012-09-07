@@ -1,4 +1,14 @@
 <audit endpointUri="vm:audit" xmlns="http://fuse.fusesource.org/schema/bai">
-    <policy id="noContexts">
-    </policy>
+  <policy id="noContexts">
+    <events>
+      <exclude>
+        <event eventType="FAILURE_HANDLED"/>
+      </exclude>
+    </events>
+    <endpoints>
+      <include>
+        <endpoint>activemq:*</endpoint>
+      </include>
+    </endpoints>
+  </policy>
 </audit>

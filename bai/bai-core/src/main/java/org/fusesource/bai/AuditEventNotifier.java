@@ -18,11 +18,7 @@
 package org.fusesource.bai;
 
 import org.apache.camel.*;
-import org.apache.camel.management.PublishEventNotifier;
 import org.apache.camel.management.event.*;
-import org.apache.camel.util.ObjectHelper;
-import org.apache.camel.util.ServiceHelper;
-import org.apache.camel.util.URISupport;
 import org.fusesource.bai.support.EventTypeConfigurationSet;
 
 import java.util.EventObject;
@@ -118,7 +114,7 @@ public class AuditEventNotifier extends AuditEventNotifierSupport {
             // TODO allow filter by exception class name!
             // return testRegexps(exceptionClassName, failureRegex, filter, exchangeEvent);
         }
-        String uri = endpointUri(coreEvent);
+        String uri = AuditEvent.endpointUri(coreEvent);
         if (config == null) return false;
         return config.matchesEvent(uri, exchangeEvent);
     }

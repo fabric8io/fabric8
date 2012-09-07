@@ -41,31 +41,6 @@ public abstract class AuditEventNotifierSupport extends PublishEventNotifier {
     protected String endpointUri;
     private Producer producer;
 
-    public static String endpointUri(EventObject event) {
-        if (event instanceof AuditEvent) {
-            AuditEvent auditEvent = (AuditEvent) event;
-            return auditEvent.getEndpointURI();
-        } else if (event instanceof ExchangeSendingEvent) {
-            ExchangeSendingEvent sentEvent = (ExchangeSendingEvent) event;
-            return sentEvent.getEndpoint().getEndpointUri();
-        } else if (event instanceof ExchangeSentEvent) {
-            ExchangeSentEvent sentEvent = (ExchangeSentEvent) event;
-            return sentEvent.getEndpoint().getEndpointUri();
-        } else if (event instanceof AbstractExchangeEvent) {
-            AbstractExchangeEvent ae = (AbstractExchangeEvent) event;
-            Exchange exchange = ae.getExchange();
-            if (event instanceof ExchangeFailureHandledEvent || event instanceof ExchangeFailedEvent) {
-                return exchange.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
-            } else {
-                Endpoint fromEndpoint = exchange.getFromEndpoint();
-                if (fromEndpoint != null) {
-                    return fromEndpoint.getEndpointUri();
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Add a unique dispatchId property to the original Exchange, which will come back to us later.
      * Camel does not correlate the individual sends/dispatches of the same exchange to the same endpoint, e.g.

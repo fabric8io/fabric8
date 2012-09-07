@@ -17,18 +17,17 @@
 
 package org.fusesource.bai.config;
 
+import org.fusesource.bai.EventType;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 public class ConfigMarshalTest {
     @Test
     public void config() throws Exception {
         AuditConfig config = new AuditConfig();
-        Policy policy = config.addPolicy("myId");
-        policy.excludeContext("*", "audit*");
-        policy.getEndpointFilters().add("activemq:*");
+        config.addPolicy("myId").
+                excludeContext("*", "audit*").
+                includeEndpoint("activemq:*").
+                excludeEvent(EventType.FAILURE_HANDLED);
 
         String xml = ConfigHelper.toXml(config);
         System.out.println("XML: " + xml);

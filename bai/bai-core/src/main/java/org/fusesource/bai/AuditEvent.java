@@ -17,10 +17,19 @@
 
 package org.fusesource.bai;
 
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.camel.management.event.*;
+import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeCompletedEvent;
+import org.apache.camel.management.event.ExchangeCreatedEvent;
+import org.apache.camel.management.event.ExchangeFailedEvent;
+import org.apache.camel.management.event.ExchangeFailureHandledEvent;
+import org.apache.camel.management.event.ExchangeRedeliveryEvent;
+import org.apache.camel.management.event.ExchangeSendingEvent;
+import org.apache.camel.management.event.ExchangeSentEvent;
 
 import java.util.Date;
+import java.util.EventObject;
 
 /**
  * DTO that represents an AuditEvent
@@ -29,13 +38,24 @@ import java.util.Date;
  */
 public class AuditEvent extends AbstractExchangeEvent {
     private static final long serialVersionUID = 6818757465057171170L;
-    
+
+    private final AbstractExchangeEvent event;
+    private final Date timestamp;
+    private final String endpointURI;
+    private final Exception exception;
+    private final String sourceContextId;
+    private final String sourceRouteId;
+    private final String breadCrumbId;
+    private final Boolean redelivered;
+    private final String currentRouteId;
+    private final EventType eventType;
+
     public AuditEvent(Exchange source, AbstractExchangeEvent event) {
         super(source);
         this.event = event;
         this.timestamp = new Date();
 
-        this.endpointURI = AuditEventNotifier.endpointUri(event);
+        this.endpointURI = endpointUri(event);
         this.sourceContextId = source.getContext().getName();
         // if the UoW exists, get the info from there as it's more accurate; if it doesn't exist, we have received an ExchangeCreated event so the info in the
         // exchange's fromRouteId will be correct anyway... so it's all good
@@ -47,24 +67,59 @@ public class AuditEvent extends AbstractExchangeEvent {
         // currentRouteId: what route the Exchange currently is in
         this.currentRouteId = (source.getUnitOfWork() == null || source.getUnitOfWork().getRouteContext() == null)
                 ? null : source.getUnitOfWork().getRouteContext().getRoute().getId();
-        this.breadCrumbId = source.getIn().getHeader(Exchange.BREADCRUMB_ID, String.class);
-        if (this.getBreadCrumbId() == null && source.hasOut()) {
-            this.breadCrumbId = source.getOut().getHeader(Exchange.BREADCRUMB_ID, String.class);
-        }
+        this.breadCrumbId = getBreadCrumbId(source);
         this.exception = source.getException() == null ? source.getProperty(Exchange.EXCEPTION_CAUGHT, Exception.class) : source.getException();
         this.redelivered = source.getProperty(Exchange.REDELIVERED, boolean.class);
-        
+
+        if (event instanceof ExchangeCreatedEvent) {
+            eventType = EventType.CREATED;
+        } else if (event instanceof ExchangeCompletedEvent) {
+            eventType = EventType.COMPLETED;
+        } else if (event instanceof ExchangeSendingEvent) {
+            eventType = EventType.SENDING;
+        } else if (event instanceof ExchangeSentEvent) {
+            eventType = EventType.SENT;
+        } else if (event instanceof ExchangeRedeliveryEvent) {
+            eventType = EventType.REDELIVERY;
+        } else if (event instanceof ExchangeFailureHandledEvent) {
+            eventType = EventType.FAILURE_HANDLED;
+        } else {
+            eventType = EventType.FAILURE;
+        }
     }
-    
-    private AbstractExchangeEvent event;
-    private Date timestamp;
-    private String endpointURI;
-    private Exception exception;
-    private String sourceContextId;
-    private String sourceRouteId;
-    private String breadCrumbId;
-    private Boolean redelivered;
-    private String currentRouteId;
+
+    public static String endpointUri(EventObject event) {
+        if (event instanceof AuditEvent) {
+            AuditEvent auditEvent = (AuditEvent) event;
+            return auditEvent.getEndpointURI();
+        } else if (event instanceof ExchangeSendingEvent) {
+            ExchangeSendingEvent sentEvent = (ExchangeSendingEvent) event;
+            return sentEvent.getEndpoint().getEndpointUri();
+        } else if (event instanceof ExchangeSentEvent) {
+            ExchangeSentEvent sentEvent = (ExchangeSentEvent) event;
+            return sentEvent.getEndpoint().getEndpointUri();
+        } else if (event instanceof AbstractExchangeEvent) {
+            AbstractExchangeEvent ae = (AbstractExchangeEvent) event;
+            Exchange exchange = ae.getExchange();
+            if (event instanceof ExchangeFailureHandledEvent || event instanceof ExchangeFailedEvent) {
+                return exchange.getProperty(Exchange.FAILURE_ENDPOINT, String.class);
+            } else {
+                Endpoint fromEndpoint = exchange.getFromEndpoint();
+                if (fromEndpoint != null) {
+                    return fromEndpoint.getEndpointUri();
+                }
+            }
+        }
+        return null;
+    }
+
+    protected String getBreadCrumbId(Exchange source) {
+        String bid = source.getIn().getHeader(Exchange.BREADCRUMB_ID, String.class);
+        if (bid == null && source.hasOut()) {
+            bid = source.getOut().getHeader(Exchange.BREADCRUMB_ID, String.class);
+        }
+        return bid;
+    }
 
     public static long getSerialVersionUID() {
         return serialVersionUID;
@@ -128,5 +183,9 @@ public class AuditEvent extends AbstractExchangeEvent {
 
     public boolean isRedeliveryEvent() {
         return event instanceof ExchangeRedeliveryEvent;
+    }
+
+    public EventType getEventType() {
+        return eventType;
     }
 }

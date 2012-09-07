@@ -55,18 +55,6 @@ public class ContextFilter implements Filter<CamelContextService> {
         this.name = name;
     }
 
-    public static boolean matches(CamelContextService contextService, List<ContextFilter> list) {
-        if (list != null) {
-            for (ContextFilter contextFilter : list) {
-                if (contextFilter.matches(contextService)) {
-                    return true;
-                }
-            }
-
-        }
-        return false;
-    }
-
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(" + bundle + ":" + name + ")";

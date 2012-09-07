@@ -2,3 +2,7 @@ AuditConfig
 Policy
 ContextFilter
 ContextsFilter
+EndpointFilter
+EndpointsFilter
+EventFilter
+EventsFilter

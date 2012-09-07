@@ -16,11 +16,28 @@
  */
 package org.fusesource.bai.config;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
+import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.DefaultExchange;
+import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeCreatedEvent;
+import org.apache.camel.management.event.ExchangeFailureHandledEvent;
+import org.fusesource.bai.AuditEvent;
+import org.fusesource.bai.EventType;
 import org.junit.Test;
 
 import static org.fusesource.bai.config.AuditAssertions.assertMatchesContext;
+import static org.junit.Assert.assertEquals;
 
 public class ConfigTest {
+    private CamelContext camelContext = new DefaultCamelContext();
+    private Endpoint endpointSeda = camelContext.getEndpoint("seda:a");
+    private Endpoint endpointVm = camelContext.getEndpoint("vm:b");
+    private Object bodyA = "<person name='James'/>";
+    private Object bodyB = "<person name='Raul'/>";
 
     @Test
     public void configMatches() throws Exception {
@@ -28,12 +45,39 @@ public class ConfigTest {
 
         assertMatchesContext(config, true, "com.acme.foo", "myContext");
         assertMatchesContext(config, false, "com.acme.foo", "audit-foo");
-    }
 
+        assertMatchesEvent(config, true, endpointSeda, EventType.CREATED, bodyA);
+        assertMatchesEvent(config, false, endpointVm, EventType.CREATED, bodyA);
+        assertMatchesEvent(config, false, endpointSeda, EventType.FAILURE_HANDLED, bodyA);
+    }
 
     @Test
     public void configMatchesWithNoContextDefintions() throws Exception {
         assertMatchesContext("noContexts.xml", true, "com.acme.foo", "myContext");
     }
 
+    protected AuditEvent createAuditEvent(Endpoint endpoint, EventType eventType, Object body) {
+        Exchange exchange = new DefaultExchange(endpoint);
+        AbstractExchangeEvent event = createEvent(eventType, exchange);
+        return new AuditEvent(exchange, event);
+    }
+
+    protected AbstractExchangeEvent createEvent(EventType eventType, Exchange exchange) {
+        switch (eventType) {
+            case FAILURE_HANDLED:
+                return new ExchangeFailureHandledEvent(exchange, new Processor() {
+                    @Override
+                    public void process(Exchange exchange) throws Exception {
+                    }
+                }, false);
+            default:
+                return new ExchangeCreatedEvent(exchange);
+        }
+    }
+
+    protected void assertMatchesEvent(AuditConfig config, boolean expected, Endpoint endpoint, EventType eventType, Object body) {
+        AuditEvent auditEvent = createAuditEvent(endpoint, eventType, body);
+        boolean actual = config.matchesEvent(auditEvent);
+        assertEquals("Matches " + endpoint + " " + eventType + " body: " + body + " for config " + config + " event: " + auditEvent, expected, actual);
+    }
 }

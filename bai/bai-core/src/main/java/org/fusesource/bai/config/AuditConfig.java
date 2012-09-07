@@ -42,9 +42,9 @@ public class AuditConfig {
      */
     public AuditConfig createConfig(CamelContextService contextService) {
         List<Policy> matching = new ArrayList<Policy>();
-        for (Policy filter : policies) {
-            if (filter.matchesContext(contextService)) {
-                matching.add(filter);
+        for (Policy policy : policies) {
+            if (policy.isEnabled() && policy.matchesContext(contextService)) {
+                matching.add(policy);
             }
         }
         if (matching.isEmpty()) {
@@ -60,6 +60,15 @@ public class AuditConfig {
     public boolean isEnabled(EventObject coreEvent, AbstractExchangeEvent exchangeEvent) {
         // TODO
         return true;
+    }
+
+    public boolean matchesEvent(AuditEvent auditEvent) {
+        for (Policy policy : policies) {
+            if (policy.matchesEvent(auditEvent)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -96,4 +105,5 @@ public class AuditConfig {
     public void setPolicies(List<Policy> policies) {
         this.policies = policies;
     }
+
 }
