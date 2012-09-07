@@ -1,0 +1,55 @@
+<!--
+  ~ Copyright (C) FuseSource, Inc.
+  ~ http://fusesource.com
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<policySet xmlns="http://fuse.fusesource.org/schema/bai"
+           xmlns:in="http://camel.apache.org/xml/in/"
+           endpointUri="vm:audit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+  <!--
+   | this example shows how we could have 2 kinds of auditing:
+   |   * concise - just log a few headers
+   |   * verbose - log the entire message
+   |
+   | we can then configure each policy to use different endpoints and payloads
+   -->
+  <policy id="concise">
+    <to uri="activemq:smallEvents"/>
+
+    <endpoints>
+      <include>
+        <endpoint>activemq:*</endpoint>
+      </include>
+    </endpoints>
+
+    <payload>
+      <!-- lets just pull out a few headers -->
+      <xpath>concat('foo = ', in:header('foo.bar'), ' bar = ', in:header('bar'))</xpath>
+    </payload>
+  </policy>
+
+  <policy id="verbose">
+    <to uri="activemq:full"/>
+
+    <endpoints>
+      <include>
+        <endpoint>settlement:*</endpoint>
+      </include>
+    </endpoints>
+
+    <!-- no payload so we use the entire message body -->
+  </policy>
+</policySet>
