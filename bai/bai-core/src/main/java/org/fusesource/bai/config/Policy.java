@@ -19,7 +19,6 @@ package org.fusesource.bai.config;
 
 import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
-import org.apache.camel.Expression;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.model.language.ExpressionDefinition;
@@ -31,7 +30,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -42,13 +40,13 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Policy extends HasIdentifier {
     @XmlElement
-    private ContextsFilter contexts = new ContextsFilter();
+    private ContextsFilter contexts;
 
     @XmlElement
-    private EventsFilter events = new EventsFilter();
+    private EndpointsFilter endpoints;
 
     @XmlElement
-    private EndpointsFilter endpoints = new EndpointsFilter();
+    private EventsFilter events;
 
     @XmlElement
     private ExchangeFilter filter;
@@ -88,13 +86,15 @@ public class Policy extends HasIdentifier {
 
             Exchange exchange = event.getExchange();
             if (exchange != null) {
-                ExpressionDefinition expression = null;
-                if (filter != null) {
-                    expression = filter.getFilter();
-                }
-                if (predicate == null && expression != null) {
-                    CamelContext camelContext = exchange.getContext();
-                    predicate = expression.createPredicate(camelContext);
+                if (predicate == null) {
+                    ExpressionDefinition expression = null;
+                    if (filter != null) {
+                        expression = filter.getFilter();
+                    }
+                    if (expression != null) {
+                        CamelContext camelContext = exchange.getContext();
+                        predicate = expression.createPredicate(camelContext);
+                    }
                 }
                 if (predicate != null) {
                     return predicate.matches(exchange);
@@ -105,63 +105,94 @@ public class Policy extends HasIdentifier {
         return false;
     }
 
+    /**
+     * Returns the contexts filter, lazily creating one if it does not exist
+     */
+    public ContextsFilter contexts() {
+        if (contexts == null) {
+            contexts = new ContextsFilter();
+        }
+        return contexts;
+    }
+
+    /**
+     * Returns the events filter, lazily creating one if it does not exist
+     */
+    public EventsFilter events() {
+        if (events == null) {
+            events = new EventsFilter();
+        }
+        return events;
+    }
+
+    /**
+     * Returns the endpoints filter, lazily creating one if it does not exist
+     */
+    public EndpointsFilter endpoints() {
+        if (endpoints == null) {
+            endpoints = new EndpointsFilter();
+        }
+        return endpoints;
+    }
+
+
     public Policy excludeContext(String bundle, String name) {
-        getContexts().excludeContext(bundle, name);
+        contexts().excludeContext(bundle, name);
         return this;
     }
 
     public Policy excludeContext(ContextFilter filter) {
-        getContexts().excludeContext(filter);
+        contexts().excludeContext(filter);
         return this;
     }
 
     public Policy includeContext(String bundle, String name) {
-        getContexts().includeContext(bundle, name);
+        contexts().includeContext(bundle, name);
         return this;
     }
 
     public Policy includeContext(ContextFilter filter) {
-        getContexts().includeContext(filter);
+        contexts().includeContext(filter);
         return this;
     }
 
     public Policy excludeEvent(EventType eventType) {
-        getEvents().excludeEvent(eventType);
+        events().excludeEvent(eventType);
         return this;
     }
 
     public Policy excludeEvent(EventFilter filter) {
-        getEvents().excludeEvent(filter);
+        events().excludeEvent(filter);
         return this;
     }
 
     public Policy includeEvent(EventType eventType) {
-        getEvents().includeEvent(eventType);
+        events().includeEvent(eventType);
         return this;
     }
 
     public Policy includeEvent(EventFilter filter) {
-        getEvents().includeEvent(filter);
+        events().includeEvent(filter);
         return this;
     }
 
     public Policy excludeEndpoint(EndpointFilter filter) {
-        getEndpoints().excludeEndpoint(filter);
+        endpoints().excludeEndpoint(filter);
         return this;
     }
 
     public Policy excludeEndpoint(String pattern) {
-        getEndpoints().excludeEndpoint(pattern);
+        endpoints().excludeEndpoint(pattern);
         return this;
     }
 
     public Policy includeEndpoint(String pattern) {
-        getEndpoints().includeEndpoint(pattern);
+        endpoints().includeEndpoint(pattern);
         return this;
     }
 
     public Policy includeEndpoint(EndpointFilter filter) {
-        getEndpoints().includeEndpoint(filter);
+        endpoints().includeEndpoint(filter);
         return this;
     }
 

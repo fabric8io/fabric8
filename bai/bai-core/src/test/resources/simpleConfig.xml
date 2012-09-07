@@ -1,20 +1,23 @@
 <audit endpointUri="vm:audit"
-       xmlns="http://fuse.fusesource.org/schema/bai">
+       xmlns="http://fuse.fusesource.org/schema/bai" xmlns:c="http://camel.apache.org/schema/spring">
   <policy id="nonAuditContexts">
     <contexts>
       <exclude>
         <context bundle="*" name="audit*"/>
       </exclude>
     </contexts>
-    <events>
-      <exclude>
-        <event eventType="FAILURE_HANDLED"/>
-      </exclude>
-    </events>
     <endpoints>
       <include>
         <endpoint>seda:*</endpoint>
       </include>
     </endpoints>
+    <events>
+      <exclude>
+        <event eventType="FAILURE_HANDLED"/>
+      </exclude>
+    </events>
+    <filter>
+      <c:xpath>/person/@name = 'James'</c:xpath>
+    </filter>
   </policy>
 </audit>

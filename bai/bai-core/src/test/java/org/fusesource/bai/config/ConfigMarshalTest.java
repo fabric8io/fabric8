@@ -20,17 +20,33 @@ package org.fusesource.bai.config;
 import org.fusesource.bai.EventType;
 import org.junit.Test;
 
+import javax.xml.bind.JAXBException;
+
 public class ConfigMarshalTest {
     @Test
-    public void config() throws Exception {
+    public void fullConfig() throws Exception {
         AuditConfig config = new AuditConfig();
-        config.addPolicy("myId").
+        config.addPolicy("full").
                 excludeContext("*", "audit*").
                 includeEndpoint("activemq:*").
                 excludeEvent(EventType.FAILURE_HANDLED).
                 filter().xpath("/person[@name='James']");
 
+        printXml(config);
+    }
+
+    @Test
+    public void minimal() throws Exception {
+        AuditConfig config = new AuditConfig();
+        config.addPolicy("minimal").
+                excludeEndpoint("log:*");
+
+        printXml(config);
+    }
+
+    protected void printXml(AuditConfig config) throws JAXBException {
         String xml = ConfigHelper.toXml(config);
         System.out.println("XML: " + xml);
     }
+
 }

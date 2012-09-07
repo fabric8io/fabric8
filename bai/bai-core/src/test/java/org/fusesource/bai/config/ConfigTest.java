@@ -49,6 +49,7 @@ public class ConfigTest {
         assertMatchesEvent(config, true, endpointSeda, EventType.CREATED, bodyA);
         assertMatchesEvent(config, false, endpointVm, EventType.CREATED, bodyA);
         assertMatchesEvent(config, false, endpointSeda, EventType.FAILURE_HANDLED, bodyA);
+        assertMatchesEvent(config, false, endpointSeda, EventType.CREATED, bodyB);
     }
 
     @Test
@@ -58,6 +59,7 @@ public class ConfigTest {
 
     protected AuditEvent createAuditEvent(Endpoint endpoint, EventType eventType, Object body) {
         Exchange exchange = new DefaultExchange(endpoint);
+        exchange.getIn().setBody(body);
         AbstractExchangeEvent event = createEvent(eventType, exchange);
         return new AuditEvent(exchange, event);
     }
