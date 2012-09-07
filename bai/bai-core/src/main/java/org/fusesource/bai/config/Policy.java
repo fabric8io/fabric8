@@ -26,7 +26,7 @@ import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.model.language.ExpressionDefinition;
 import org.apache.camel.util.CamelContextHelper;
 import org.fusesource.bai.AuditEvent;
-import org.fusesource.bai.Auditor;
+import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.common.util.Strings;
 
@@ -95,7 +95,7 @@ public class Policy extends HasIdentifier {
     /**
      * Processes the audit event
      */
-    public void process(Auditor auditor, AuditEvent auditEvent) {
+    public void process(AuditEventNotifier auditor, AuditEvent auditEvent) {
         if (matchesEvent(auditEvent)) {
             ProducerTemplate producer = auditor.getProducerTemplate();
             Endpoint endpoint = getToEndpoint(auditor.getCamelContext());
@@ -123,7 +123,7 @@ public class Policy extends HasIdentifier {
      * Returns true if this policy matches the given Camel context service
      */
     public boolean matchesContext(CamelContextService contextService) {
-        return contexts == null || contexts.matches(contextService);
+        return isEnabled() && (contexts == null || contexts.matches(contextService));
     }
 
     public boolean matchesEvent(AuditEvent event) {

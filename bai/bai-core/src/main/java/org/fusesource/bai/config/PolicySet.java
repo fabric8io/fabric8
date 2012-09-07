@@ -44,7 +44,7 @@ public class PolicySet {
     public PolicySet createConfig(CamelContextService contextService) {
         List<Policy> matching = new ArrayList<Policy>();
         for (Policy policy : policies) {
-            if (policy.isEnabled() && policy.matchesContext(contextService)) {
+            if (policy.matchesContext(contextService)) {
                 matching.add(policy);
             }
         }

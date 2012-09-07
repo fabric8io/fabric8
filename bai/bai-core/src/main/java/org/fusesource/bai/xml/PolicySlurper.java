@@ -14,26 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai.policy.model;
+
+package org.fusesource.bai.xml;
+
+
+import org.fusesource.bai.config.PolicySet;
 
 /**
- * Constants to parametrize  Actions, Scope Filters, etc.
+ * Implementations of this interface are capable of reading policies from different media and formats,
+ * and normalising them to the beans in the org.fusesource.bai.policy.model package.
  *
  * @author Raul Kripalani
  */
-public class Constants {
+public interface PolicySlurper {
 
-    public enum ActionType {
-        INCLUDE,
-        EXCLUDE
-    }
+    public PolicySet slurp();
 
-    public enum ScopeElement {
-        CONTEXT,
-        EVENT,
-        EXCHANGE,
-        BUNDLE,
-        ENDPOINT
-    }
+    public PolicySet refresh();
+
+    public PolicySet getPolicies();
 
 }

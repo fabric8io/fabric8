@@ -21,7 +21,7 @@ import org.apache.camel.core.osgi.OsgiCamelContextPublisher;
 import org.apache.camel.spi.ManagementStrategy;
 import org.apache.camel.util.ServiceHelper;
 import org.fusesource.bai.AuditEventNotifier;
-import org.fusesource.bai.agent.support.DefaultAuditPolicy;
+import org.fusesource.bai.agent.support.ConfigAdminAuditPolicy;
 import org.fusesource.bai.agent.support.NotifierRegistration;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceEvent;
@@ -49,7 +49,7 @@ public class BAIAgent implements ServiceListener {
     private BundleContext bundleContext;
     private Map<String, NotifierRegistration> notifierMap = new HashMap<String, NotifierRegistration>();
     private String auditEndpoint = "vm:audit";
-    private AuditPolicy auditPolicy = new DefaultAuditPolicy();
+    private AuditPolicy auditPolicy = new ConfigAdminAuditPolicy();
 
     public void init() throws Exception {
         bundleContext.addServiceListener(this);

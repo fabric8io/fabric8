@@ -30,12 +30,12 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- * This implementation of {@link org.fusesource.bai.policy.slurper.PolicySlurper} reads a OSGi Config Admin-compatible text property file and constructs the PolicySet.
+ * This implementation of {@link PolicySlurper} reads a OSGi Config Admin-compatible text property file and constructs the PolicySet.
  *
  * @author Raul Kripalani
  */
 @SuppressWarnings("rawtypes")
-public class PropertyMapPolicySlurper { //implements PolicySlurper {
+public class PropertyMapPolicySlurper implements PolicySlurper {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(PropertyMapPolicySlurper.class);
 
@@ -61,7 +61,7 @@ public class PropertyMapPolicySlurper { //implements PolicySlurper {
     }
 
     @SuppressWarnings("unchecked")
-    //@Override
+    @Override
     public synchronized PolicySet slurp() {
         PolicySet answer = new PolicySet();
         List<Object> keys = Collections.list(properties.keys());
