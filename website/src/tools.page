@@ -5,7 +5,7 @@ title: FuseSource Tools
 .container-fluid
   .inner
     :markdown
-      At [FuseSource](http://fusesource.com/) we are committed to providing the best [open source integration and messaging software](index.html) under the [Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0.html).
+      At [JBoss](http://jboss.org/) we are committed to providing the best [open source integration and messaging software](index.html) under the [Apache 2 license](http://www.apache.org/licenses/LICENSE-2.0.html).
       
       In addition we also provide the following tools to help you get the most of our open source:
 
