@@ -19,18 +19,18 @@ package org.fusesource.bai;
 import java.util.EventObject;
 
 import org.apache.camel.management.event.AbstractExchangeEvent;
-import org.fusesource.bai.config.AuditConfig;
+import org.fusesource.bai.config.PolicySet;
 
 /**
- * An Auditor which uses an XML/JSON {@link AuditConfig} to define its filters
+ * An Auditor which uses an XML/JSON {@link org.fusesource.bai.config.PolicySet} to define its filters
  */
 public class Auditor extends AuditEventNotifierSupport {
-    private AuditConfig config;
+    private PolicySet config;
 
     public Auditor() {
     }
 
-    public Auditor(AuditConfig config) {
+    public Auditor(PolicySet config) {
         setConfig(config);
     }
 
@@ -39,11 +39,11 @@ public class Auditor extends AuditEventNotifierSupport {
         return "Auditor(" + config + ")";
     }
 
-    public AuditConfig getConfig() {
+    public PolicySet getConfig() {
         return config;
     }
 
-    public void setConfig(AuditConfig config) {
+    public void setConfig(PolicySet config) {
         this.config = config;
         this.setEndpointUri(config.getEndpointUri());
     }

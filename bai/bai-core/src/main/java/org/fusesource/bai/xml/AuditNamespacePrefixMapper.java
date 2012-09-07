@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai.config;
+package org.fusesource.bai.xml;
 
 import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
 import org.apache.camel.builder.xml.Namespaces;

@@ -1,8 +1,10 @@
-AuditConfig
-Policy
 ContextFilter
 ContextsFilter
 EndpointFilter
 EndpointsFilter
 EventFilter
+ExchangeFilter
 EventsFilter
+EventType
+Policy
+PolicySet

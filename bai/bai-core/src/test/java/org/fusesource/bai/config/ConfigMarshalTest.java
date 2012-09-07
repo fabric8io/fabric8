@@ -17,7 +17,7 @@
 
 package org.fusesource.bai.config;
 
-import org.fusesource.bai.EventType;
+import org.fusesource.bai.xml.ConfigHelper;
 import org.junit.Test;
 
 import javax.xml.bind.JAXBException;
@@ -25,7 +25,7 @@ import javax.xml.bind.JAXBException;
 public class ConfigMarshalTest {
     @Test
     public void fullConfig() throws Exception {
-        AuditConfig config = new AuditConfig();
+        PolicySet config = new PolicySet();
         config.addPolicy("full").
                 excludeContext("*", "audit*").
                 includeEndpoint("activemq:*").
@@ -37,14 +37,14 @@ public class ConfigMarshalTest {
 
     @Test
     public void minimal() throws Exception {
-        AuditConfig config = new AuditConfig();
+        PolicySet config = new PolicySet();
         config.addPolicy("minimal").
                 excludeEndpoint("log:*");
 
         printXml(config);
     }
 
-    protected void printXml(AuditConfig config) throws JAXBException {
+    protected void printXml(PolicySet config) throws JAXBException {
         String xml = ConfigHelper.toXml(config);
         System.out.println("XML: " + xml);
     }

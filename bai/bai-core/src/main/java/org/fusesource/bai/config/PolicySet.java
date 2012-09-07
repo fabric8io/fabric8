@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -14,33 +15,33 @@ import org.fusesource.bai.AuditEvent;
 import org.fusesource.bai.agent.CamelContextService;
 
 /**
- * Represents the configuration of the Auditing in terms of policies
+ * Represents a set of auditing policies
  */
-@XmlRootElement(name = "audit")
+@XmlRootElement(name = "policySet")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class AuditConfig {
+public class PolicySet {
     @XmlAttribute()
     private String endpointUri = "vm:audit";
     @XmlElementRef
     private List<Policy> policies = new ArrayList<Policy>();
 
-    public AuditConfig() {
+    public PolicySet() {
     }
 
-    public AuditConfig(String endpointUri, List<Policy> policies) {
+    public PolicySet(String endpointUri, List<Policy> policies) {
         this.endpointUri = endpointUri;
         this.policies = policies;
     }
 
     @Override
     public String toString() {
-        return "AuditorConfig(endpoint: " + endpointUri + ", policies: " + policies + ")";
+        return "PolicySet(endpoint: " + endpointUri + ", policies: " + policies + ")";
     }
 
     /**
      * Returns a configuration for this {@link CamelContextService} which policies out all of the non-applicable policies
      */
-    public AuditConfig createConfig(CamelContextService contextService) {
+    public PolicySet createConfig(CamelContextService contextService) {
         List<Policy> matching = new ArrayList<Policy>();
         for (Policy policy : policies) {
             if (policy.isEnabled() && policy.matchesContext(contextService)) {
@@ -50,7 +51,7 @@ public class AuditConfig {
         if (matching.isEmpty()) {
             return null;
         } else {
-            return new AuditConfig(endpointUri, matching);
+            return new PolicySet(endpointUri, matching);
         }
     }
 

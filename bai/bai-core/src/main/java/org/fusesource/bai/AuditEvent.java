@@ -27,6 +27,7 @@ import org.apache.camel.management.event.ExchangeFailureHandledEvent;
 import org.apache.camel.management.event.ExchangeRedeliveryEvent;
 import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.management.event.ExchangeSentEvent;
+import org.fusesource.bai.config.EventType;
 
 import java.util.Date;
 import java.util.EventObject;

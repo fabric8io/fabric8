@@ -18,7 +18,6 @@
 package org.fusesource.bai.config;
 
 import org.fusesource.bai.AuditEvent;
-import org.fusesource.bai.EventType;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Filters;
 

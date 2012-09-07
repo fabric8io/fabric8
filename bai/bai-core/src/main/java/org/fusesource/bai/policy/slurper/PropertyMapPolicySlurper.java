@@ -24,7 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.fusesource.bai.EventType;
+import org.fusesource.bai.config.EventType;
 import org.fusesource.bai.policy.model.Constants.ActionType;
 import org.fusesource.bai.policy.model.Constants.ScopeElement;
 import org.fusesource.bai.policy.model.Policy;

@@ -23,7 +23,6 @@ import org.apache.camel.Predicate;
 import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.model.language.ExpressionDefinition;
 import org.fusesource.bai.AuditEvent;
-import org.fusesource.bai.EventType;
 import org.fusesource.bai.agent.CamelContextService;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -39,20 +38,20 @@ import javax.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "policy")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Policy extends HasIdentifier {
-    @XmlElement
-    private ContextsFilter contexts;
-
-    @XmlElement
-    private EndpointsFilter endpoints;
-
-    @XmlElement
-    private EventsFilter events;
-
-    @XmlElement
-    private ExchangeFilter filter;
-
     @XmlAttribute(required = false)
     private Boolean enabled;
+
+    @XmlElement(required = false)
+    private ContextsFilter contexts;
+
+    @XmlElement(required = false)
+    private EndpointsFilter endpoints;
+
+    @XmlElement(required = false)
+    private EventsFilter events;
+
+    @XmlElement(required = false)
+    private ExchangeFilter filter;
 
     @XmlTransient
     private Predicate predicate;

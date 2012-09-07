@@ -19,6 +19,7 @@ package org.fusesource.bai;
 
 import org.apache.camel.*;
 import org.apache.camel.management.event.*;
+import org.fusesource.bai.config.EventType;
 import org.fusesource.bai.support.EventTypeConfigurationSet;
 
 import java.util.EventObject;

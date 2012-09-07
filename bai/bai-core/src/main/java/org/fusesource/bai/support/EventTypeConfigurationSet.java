@@ -18,7 +18,7 @@ package org.fusesource.bai.support;
 
 import org.apache.camel.Predicate;
 import org.apache.camel.spi.Language;
-import org.fusesource.bai.EventType;
+import org.fusesource.bai.config.EventType;
 import org.fusesource.bai.EventTypeConfiguration;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;

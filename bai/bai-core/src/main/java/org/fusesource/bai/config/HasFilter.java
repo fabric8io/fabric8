@@ -19,11 +19,45 @@ package org.fusesource.bai.config;
 import org.apache.camel.Expression;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.ExpressionClause;
+import org.apache.camel.language.simple.SimpleLanguage;
+import org.apache.camel.language.xpath.XPathLanguage;
+import org.apache.camel.model.language.ConstantExpression;
+import org.apache.camel.model.language.ELExpression;
 import org.apache.camel.model.language.ExpressionDefinition;
+import org.apache.camel.model.language.GroovyExpression;
+import org.apache.camel.model.language.HeaderExpression;
+import org.apache.camel.model.language.JXPathExpression;
+import org.apache.camel.model.language.JavaScriptExpression;
+import org.apache.camel.model.language.LanguageExpression;
+import org.apache.camel.model.language.MethodCallExpression;
+import org.apache.camel.model.language.MvelExpression;
+import org.apache.camel.model.language.OgnlExpression;
+import org.apache.camel.model.language.PhpExpression;
+import org.apache.camel.model.language.PropertyExpression;
+import org.apache.camel.model.language.PythonExpression;
+import org.apache.camel.model.language.RefExpression;
+import org.apache.camel.model.language.RubyExpression;
+import org.apache.camel.model.language.SimpleExpression;
+import org.apache.camel.model.language.SpELExpression;
+import org.apache.camel.model.language.SqlExpression;
+import org.apache.camel.model.language.TokenizerExpression;
+import org.apache.camel.model.language.XPathExpression;
+import org.apache.camel.model.language.XQueryExpression;
+import org.apache.camel.model.loadbalancer.CustomLoadBalancerDefinition;
+import org.apache.camel.model.loadbalancer.FailoverLoadBalancerDefinition;
+import org.apache.camel.model.loadbalancer.RandomLoadBalancerDefinition;
+import org.apache.camel.model.loadbalancer.RoundRobinLoadBalancerDefinition;
+import org.apache.camel.model.loadbalancer.StickyLoadBalancerDefinition;
+import org.apache.camel.model.loadbalancer.TopicLoadBalancerDefinition;
+import org.apache.camel.model.loadbalancer.WeightedLoadBalancerDefinition;
+import org.fusesource.bai.AuditConstants;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
+import javax.xml.bind.annotation.XmlElements;
+import javax.xml.bind.annotation.XmlNs;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -59,7 +93,32 @@ public class HasFilter extends HasIdentifier {
         return filter;
     }
 
-    @XmlElementRef
+    @XmlElements({
+            @XmlElement(required = false, name = "constant", type = ConstantExpression.class),
+            @XmlElement(required = false, name = "el", type = ELExpression.class),
+            @XmlElement(required = false, name = "expression", type = ExpressionDefinition.class),
+            @XmlElement(required = false, name = "groovy", type = GroovyExpression.class),
+            @XmlElement(required = false, name = "header", type = HeaderExpression.class),
+            @XmlElement(required = false, name = "javaScript", type = JavaScriptExpression.class),
+            @XmlElement(required = false, name = "jxpath", type = JXPathExpression.class),
+            @XmlElement(required = false, name = "language", type = LanguageExpression.class),
+            @XmlElement(required = false, name = "method", type = MethodCallExpression.class),
+            @XmlElement(required = false, name = "mvel", type = MvelExpression.class),
+            @XmlElement(required = false, name = "ognl", type = OgnlExpression.class),
+            @XmlElement(required = false, name = "php", type = PhpExpression.class),
+            @XmlElement(required = false, name = "property", type = PropertyExpression.class),
+            @XmlElement(required = false, name = "python", type = PythonExpression.class),
+            @XmlElement(required = false, name = "ref", type = RefExpression.class),
+            @XmlElement(required = false, name = "ruby", type = RubyExpression.class),
+            @XmlElement(required = false, name = "simple", type = SimpleExpression.class),
+            @XmlElement(required = false, name = "spel", type = SpELExpression.class),
+            @XmlElement(required = false, name = "sql", type = SqlExpression.class),
+            @XmlElement(required = false, name = "tokenize", type = TokenizerExpression.class),
+            // TODO
+            // @XmlElement(required = false, name = "vtdxml", type = VtdXmlExpression.class),
+            @XmlElement(required = false, name = "xpath", type = XPathExpression.class),
+            @XmlElement(required = false, name = "xquery", type = XQueryExpression.class)
+    })
     public void setFilter(ExpressionDefinition filter) {
         this.filter = filter;
         this.unwrappedFilter = false;

@@ -18,6 +18,7 @@ package org.fusesource.bai.config;
 
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.StubCamelContextService;
+import org.fusesource.bai.xml.ConfigHelper;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,17 +26,17 @@ import static org.junit.Assert.assertNotNull;
 /**
  */
 public class AuditAssertions {
-    public static void assertMatchesContext(AuditConfig config, boolean expected, String bundleId, String camelContextId) {
+    public static void assertMatchesContext(PolicySet config, boolean expected, String bundleId, String camelContextId) {
         CamelContextService contextService = new StubCamelContextService(bundleId, camelContextId);
         assertNotNull("No config!", config);
 
-        AuditConfig contextConfig = config.createConfig(contextService);
+        PolicySet contextConfig = config.createConfig(contextService);
         boolean actual = contextConfig != null;
         assertEquals("Matching " + bundleId + ":" + camelContextId + " for config " + config, expected, actual);
     }
 
     public static void assertMatchesContext(String uri, boolean expected, String bundleId, String contextId) throws Exception {
-        AuditConfig config = ConfigHelper.loadConfigFromClassPath(uri);
+        PolicySet config = ConfigHelper.loadConfigFromClassPath(uri);
         assertMatchesContext(config, expected, bundleId, contextId);
     }
 }

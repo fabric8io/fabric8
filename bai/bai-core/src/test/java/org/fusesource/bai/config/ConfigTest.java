@@ -26,7 +26,7 @@ import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.apache.camel.management.event.ExchangeCreatedEvent;
 import org.apache.camel.management.event.ExchangeFailureHandledEvent;
 import org.fusesource.bai.AuditEvent;
-import org.fusesource.bai.EventType;
+import org.fusesource.bai.xml.ConfigHelper;
 import org.junit.Test;
 
 import static org.fusesource.bai.config.AuditAssertions.assertMatchesContext;
@@ -41,7 +41,7 @@ public class ConfigTest {
 
     @Test
     public void configMatches() throws Exception {
-        AuditConfig config = ConfigHelper.loadConfigFromClassPath("simpleConfig.xml");
+        PolicySet config = ConfigHelper.loadConfigFromClassPath("simpleConfig.xml");
 
         assertMatchesContext(config, true, "com.acme.foo", "myContext");
         assertMatchesContext(config, false, "com.acme.foo", "audit-foo");
@@ -77,7 +77,7 @@ public class ConfigTest {
         }
     }
 
-    protected void assertMatchesEvent(AuditConfig config, boolean expected, Endpoint endpoint, EventType eventType, Object body) {
+    protected void assertMatchesEvent(PolicySet config, boolean expected, Endpoint endpoint, EventType eventType, Object body) {
         AuditEvent auditEvent = createAuditEvent(endpoint, eventType, body);
         boolean actual = config.matchesEvent(auditEvent);
         assertEquals("Matches " + endpoint + " " + eventType + " body: " + body + " for config " + config + " event: " + auditEvent, expected, actual);
