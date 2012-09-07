@@ -18,9 +18,6 @@
       </exclude>
     </events>
     <filter>
-<!--
-      <c:xpath>/person/@name = 'James'</c:xpath>
--->
       <xpath>/person/@name = 'James'</xpath>
     </filter>
   </policy>
