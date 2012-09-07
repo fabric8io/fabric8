@@ -18,13 +18,18 @@
 package org.fusesource.bai.agent.support;
 
 import org.fusesource.bai.AuditEventNotifier;
-import org.fusesource.bai.support.EventTypeConfigurationSet;
 import org.fusesource.bai.agent.CamelContextService;
+import org.fusesource.bai.support.EventTypeConfigurationSet;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * A simple implementation of {@link ConfigAdminAuditPolicySupport} which does not have any kind of policy model
@@ -70,7 +75,7 @@ public class SimpleConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport 
         notifier.configure(configs);
     }
 
-    public static String getOrElse(Map<String,String> map, String key, String defaultValue) {
+    public static String getOrElse(Map<String, String> map, String key, String defaultValue) {
         Object value = map.get(key);
         if (value == null) {
             return defaultValue;

@@ -17,20 +17,15 @@
 
 package org.fusesource.bai.config;
 
-import org.apache.camel.util.StringHelper;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;
 import org.fusesource.common.util.Filter;
-import org.fusesource.common.util.Strings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlValue;
-
-import java.util.List;
 
 import static org.fusesource.common.util.Strings.defaultIfEmpty;
 

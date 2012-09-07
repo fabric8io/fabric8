@@ -18,6 +18,7 @@
 package org.fusesource.bai.config;
 
 import org.fusesource.bai.AuditEvent;
+import org.fusesource.bai.support.FilterHelpers;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Filters;
 
@@ -49,9 +50,16 @@ public class EventsFilter extends HasIdentifier implements Filter<AuditEvent> {
     @Override
     public String toString() {
         return "Events(" +
-                (excludeEventFilters != null ? " exclude: " + excludeEventFilters : "") +
-                (includeEventFilters != null ? " include: " + includeEventFilters : "") +
+                FilterHelpers.includeExcludeListsToText(includeEventFilters, excludeEventFilters) +
                 ")";
+    }
+
+    public void addEvent(boolean include, EventType eventType) {
+        if (include) {
+            includeEvent(eventType);
+        } else {
+            excludeEvent(eventType);
+        }
     }
 
     public EventsFilter excludeEvent(EventType eventType) {

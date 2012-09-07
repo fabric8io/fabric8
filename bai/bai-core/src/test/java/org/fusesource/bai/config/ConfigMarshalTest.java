@@ -26,7 +26,7 @@ public class ConfigMarshalTest {
     @Test
     public void fullConfig() throws Exception {
         PolicySet config = new PolicySet();
-        config.addPolicy("full").
+        config.policy("full").
                 excludeContext("*", "audit*").
                 includeEndpoint("activemq:*").
                 excludeEvent(EventType.FAILURE_HANDLED).
@@ -38,7 +38,7 @@ public class ConfigMarshalTest {
     @Test
     public void minimal() throws Exception {
         PolicySet config = new PolicySet();
-        config.addPolicy("minimal").
+        config.policy("minimal").
                 excludeEndpoint("log:*");
 
         printXml(config);

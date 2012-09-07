@@ -30,12 +30,16 @@ import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Listens to non-audit CamelContext's and registers an {@link AuditEventNotifier} with them
  * so that the contexts are audited according to the audit rules.
- * <p>
+ * <p/>
  * Uses an <code>auditEndpoint</code> to write AuditEvent objects to which can then be processed
  * in any regular Camel way or can be bound to a BAI back end service such as bai-mongodb-backend
  */

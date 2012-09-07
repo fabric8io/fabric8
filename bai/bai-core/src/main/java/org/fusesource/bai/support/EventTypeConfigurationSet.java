@@ -18,10 +18,10 @@ package org.fusesource.bai.support;
 
 import org.apache.camel.Predicate;
 import org.apache.camel.spi.Language;
-import org.fusesource.bai.config.EventType;
 import org.fusesource.bai.EventTypeConfiguration;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.agent.filters.CamelContextFilters;
+import org.fusesource.bai.config.EventType;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Pair;
 import org.slf4j.Logger;
@@ -129,8 +129,7 @@ public class EventTypeConfigurationSet {
                 EventType eventType = EventType.simpleNames.get(eventText);
                 if (eventType == null) {
                     LOG.warn("Invalid EventType: " + eventText + " when parsing " + key);
-                }
-                else {
+                } else {
                     EventTypeConfiguration config = getConfig(eventType);
                     if (config == null) {
                         LOG.warn("Could not find an EventTypeConfiguration for eventType: " + eventType);

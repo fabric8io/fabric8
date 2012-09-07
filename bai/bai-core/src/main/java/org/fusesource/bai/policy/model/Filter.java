@@ -20,35 +20,35 @@ import org.fusesource.bai.policy.model.Constants.ScopeElement;
 
 /**
  * Represents a BAI Policy Filter.
- * @author Raul Kripalani
  *
+ * @author Raul Kripalani
  */
 public abstract class Filter {
-	
-	protected ScopeElement element;
-	protected Policy policy;
-	
-	public Filter(ScopeElement element, Policy policy) {
-		this.element = element;
-		this.policy = policy;
-	}
 
-	public ScopeElement getElement() {
-		return element;
-	}
+    protected ScopeElement element;
+    protected Policy policy;
 
-	public void setElement(ScopeElement element) {
-		this.element = element;
-	}
+    public Filter(ScopeElement element, Policy policy) {
+        this.element = element;
+        this.policy = policy;
+    }
 
-	public Policy getPolicy() {
-		return policy;
-	}
+    public ScopeElement getElement() {
+        return element;
+    }
 
-	public void setPolicy(Policy policy) {
-		this.policy = policy;
-	}
+    public void setElement(ScopeElement element) {
+        this.element = element;
+    }
 
-	public abstract boolean matches(Object o);
+    public Policy getPolicy() {
+        return policy;
+    }
+
+    public void setPolicy(Policy policy) {
+        this.policy = policy;
+    }
+
+    public abstract boolean matches(Object o);
 
 }

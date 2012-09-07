@@ -23,74 +23,75 @@ import org.fusesource.bai.policy.model.Constants.ScopeElement;
  * Conditions are defined by a set of Scope filters, that limit the application of the Action.
  * A condition could be: the event comes from a specific context, bundle, etc. or is of a specific type, etc.
  * Core element of the BAI Policy API.
+ *
  * @author Raul Kripalani
  */
 public class Policy {
 
-	private Scope scope = new Scope(this);
-	private Action action = new Action();
-	
-	public boolean hasScopeFilters() {
-		return !(scope == null || scope.isEmpty());
-	}
+    private Scope scope = new Scope(this);
+    private Action action = new Action();
 
-	public ExpressionFilter addNewExpressionFilterFor(ScopeElement e) {
-		ExpressionFilter answer = this.getScope().containsKey(e) ? null : new ExpressionFilter(e, this);
-		if (answer != null) {
-			scope.put(e, answer);
-		}
-		return answer;
-	}
-	
-	public EnumerationFilter addNewEnumerationFilterFor(ScopeElement e) {
-		EnumerationFilter answer = this.getScope().containsKey(e) ? null : new EnumerationFilter(e, this);
-		if (answer != null) {
-			scope.put(e, answer);
-		}
-		return answer;
-	}
-	
-	public Filter getFilterFor(ScopeElement e) {
-		return scope.get(e);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public <T extends Filter> T getTypedFilterFor(ScopeElement e, Class<T> filterClass) throws IllegalArgumentException {
-		Filter f = scope.get(e);
-		if (f == null) {
-			return null;
-		} else if (!f.getClass().isAssignableFrom(filterClass)) {
-			throw new IllegalArgumentException("Filter for scope element " + e + " is of type " + f.getClass().getCanonicalName() + ", not " + filterClass.getCanonicalName());
-		}
-		return (T) f;
-	}
-	
-	@Override
-	public String toString() {
-		return "Policy [scope=" + scope + ", action=" + action + "]";
-	}
-	
-	public Scope getScope() {
-		if (scope == null) {
-			scope = new Scope(this);
-		}
-		return scope;
-	}
+    public boolean hasScopeFilters() {
+        return !(scope == null || scope.isEmpty());
+    }
 
-	public void setScope(Scope scope) {
-		this.scope = scope;
-	}
+    public ExpressionFilter addNewExpressionFilterFor(ScopeElement e) {
+        ExpressionFilter answer = this.getScope().containsKey(e) ? null : new ExpressionFilter(e, this);
+        if (answer != null) {
+            scope.put(e, answer);
+        }
+        return answer;
+    }
 
-	public Action getAction() {
-		if (action == null) {
-			this.action = new Action();
-		}
-		return action;
-	}
+    public EnumerationFilter addNewEnumerationFilterFor(ScopeElement e) {
+        EnumerationFilter answer = this.getScope().containsKey(e) ? null : new EnumerationFilter(e, this);
+        if (answer != null) {
+            scope.put(e, answer);
+        }
+        return answer;
+    }
 
-	public void setAction(Action action) {
-		this.action = action;
-	}
+    public Filter getFilterFor(ScopeElement e) {
+        return scope.get(e);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Filter> T getTypedFilterFor(ScopeElement e, Class<T> filterClass) throws IllegalArgumentException {
+        Filter f = scope.get(e);
+        if (f == null) {
+            return null;
+        } else if (!f.getClass().isAssignableFrom(filterClass)) {
+            throw new IllegalArgumentException("Filter for scope element " + e + " is of type " + f.getClass().getCanonicalName() + ", not " + filterClass.getCanonicalName());
+        }
+        return (T) f;
+    }
+
+    @Override
+    public String toString() {
+        return "Policy [scope=" + scope + ", action=" + action + "]";
+    }
+
+    public Scope getScope() {
+        if (scope == null) {
+            scope = new Scope(this);
+        }
+        return scope;
+    }
+
+    public void setScope(Scope scope) {
+        this.scope = scope;
+    }
+
+    public Action getAction() {
+        if (action == null) {
+            this.action = new Action();
+        }
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
 
 }
 

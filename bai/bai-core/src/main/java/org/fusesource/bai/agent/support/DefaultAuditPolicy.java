@@ -16,8 +16,6 @@
  */
 package org.fusesource.bai.agent.support;
 
-import java.util.List;
-
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.AuditPolicy;
 import org.fusesource.bai.agent.BAIAgent;
@@ -26,6 +24,8 @@ import org.fusesource.bai.agent.filters.CamelContextFilters;
 import org.fusesource.bai.policy.model.PolicySet;
 import org.fusesource.common.util.Filter;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * A default implementation of {@link AuditPolicy} which filters out any audit elements
@@ -89,7 +89,7 @@ public class DefaultAuditPolicy implements AuditPolicy {
     public void setExcludeCamelContextPolicies(PolicySet excludePolicies) {
         this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludePolicies);
     }
-    
+
     public void setExcludeCamelContextPattern(List<String> excludedContexts) {
         this.excludeCamelContextPattern = StringUtils.collectionToDelimitedString(excludedContexts, " ");
         this.excludeCamelContextFilter = CamelContextFilters.createCamelContextFilter(excludedContexts);

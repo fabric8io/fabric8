@@ -21,11 +21,11 @@ import org.fusesource.bai.AuditEvent;
 
 /**
  * Business Activity Insight backend interface
- * @author Raul Kripalani
  *
+ * @author Raul Kripalani
  */
-public interface BAIAuditBackend  {
-   
-	public void audit(AuditEvent event);
-	
+public interface BAIAuditBackend {
+
+    public void audit(AuditEvent event);
+
 }

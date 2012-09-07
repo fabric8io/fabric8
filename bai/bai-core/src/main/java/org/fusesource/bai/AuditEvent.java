@@ -17,6 +17,7 @@
 
 package org.fusesource.bai;
 
+import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.management.event.AbstractExchangeEvent;
@@ -128,6 +129,14 @@ public class AuditEvent extends AbstractExchangeEvent {
 
     public AbstractExchangeEvent getEvent() {
         return event;
+    }
+
+    public CamelContext getCamelContext() {
+        Exchange exchange = getExchange();
+        if (exchange != null) {
+            return exchange.getContext();
+        }
+        return null;
     }
 
     public Date getTimestamp() {

@@ -18,9 +18,9 @@
 package org.fusesource.bai;
 
 public class AuditConstants {
-	public static final String EVENT_TIMESTAMP = "AuditEventTimestamp";
-	public static final String DISPATCH_ID = "AuditDispatchId";
+    public static final String EVENT_TIMESTAMP = "AuditEventTimestamp";
+    public static final String DISPATCH_ID = "AuditDispatchId";
 
-	public static final String AUDIT_NAMESPACE = "http://fuse.fusesource.org/schema/bai";
+    public static final String AUDIT_NAMESPACE = "http://fuse.fusesource.org/schema/bai";
     public static final String EXPRESSION_NAMESPACE_PREFIX = "c";
 }

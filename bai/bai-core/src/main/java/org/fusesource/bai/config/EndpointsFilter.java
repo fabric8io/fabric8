@@ -18,6 +18,7 @@
 package org.fusesource.bai.config;
 
 import org.fusesource.bai.AuditEvent;
+import org.fusesource.bai.support.FilterHelpers;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Filters;
 
@@ -49,9 +50,17 @@ public class EndpointsFilter extends HasIdentifier implements Filter<AuditEvent>
     @Override
     public String toString() {
         return "Endpoints(" +
-                (excludeEndpointFilters != null ? " exclude: " + excludeEndpointFilters : "") +
-                (includeEndpointFilters != null ? " include: " + includeEndpointFilters : "") +
+                FilterHelpers.includeExcludeListsToText(includeEndpointFilters, excludeEndpointFilters) +
                 ")";
+    }
+
+
+    public void addPattern(boolean include, String pattern) {
+        if (include) {
+            includeEndpoint(pattern);
+        } else {
+            excludeEndpoint(pattern);
+        }
     }
 
     public EndpointsFilter excludeEndpoint(String pattern) {

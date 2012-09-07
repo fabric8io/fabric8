@@ -21,29 +21,29 @@ import org.fusesource.bai.policy.model.Constants.ActionType;
 
 /**
  * Defines the action that BAI should execute when the filters of a Policy are matched.
- * @author Raul Kripalani
  *
+ * @author Raul Kripalani
  */
 public class Action {
 
-	/**
-	 * Defines what type of action will execute when the policy matches (i.e. the policy is WITHIN {@link Scope}).
-	 * For now, the actions are simple: 'INCLUDE' or 'EXCLUDE', in the sense that the {@link AuditEvent} will be included or excluded.
-	 * In the future, we can extend this, and add more complex action definitions.
-	 */
-	private ActionType type;
+    /**
+     * Defines what type of action will execute when the policy matches (i.e. the policy is WITHIN {@link Scope}).
+     * For now, the actions are simple: 'INCLUDE' or 'EXCLUDE', in the sense that the {@link AuditEvent} will be included or excluded.
+     * In the future, we can extend this, and add more complex action definitions.
+     */
+    private ActionType type;
 
-	public ActionType getType() {
-		return type;
-	}
+    public ActionType getType() {
+        return type;
+    }
 
-	public void setType(ActionType type) {
-		this.type = type;
-	}
+    public void setType(ActionType type) {
+        this.type = type;
+    }
 
-	@Override
-	public String toString() {
-		return "Action [type=" + getType() + "]";
-	}
-	
+    @Override
+    public String toString() {
+        return "Action [type=" + getType() + "]";
+    }
+
 }

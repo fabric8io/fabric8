@@ -86,15 +86,51 @@ public class Strings {
         boolean first = true;
         Iterator<?> iter = collection.iterator();
         while (iter.hasNext()) {
+            Object next = iter.next();
             if (first) {
                 first = false;
             } else {
                 buffer.append(separator);
             }
-            buffer.append(iter.next());
+            buffer.append(next);
         }
         return buffer.toString();
     }
+
+    /**
+     * joins a collection of objects together as a String using a separator
+     */
+    public static String join(final String separator, Object... objects) {
+        StringBuffer buffer = new StringBuffer();
+        boolean first = true;
+        for (Object object : objects) {
+            if (first) {
+                first = false;
+            } else {
+                buffer.append(separator);
+            }
+            buffer.append(object);
+        }
+        return buffer.toString();
+    }
+    /**
+     * joins a collection of objects together as a String using a separator, filtering out null values
+     */
+    public static String joinNotNull(final String separator, Object... objects) {
+        StringBuffer buffer = new StringBuffer();
+        boolean first = true;
+        for (Object object : objects) {
+            if (object == null) continue;
+            if (first) {
+                first = false;
+            } else {
+                buffer.append(separator);
+            }
+            buffer.append(object);
+        }
+        return buffer.toString();
+    }
+
 
     public static String toString(Object object) {
         if (object == null) {
@@ -117,4 +153,5 @@ public class Strings {
     public static boolean isNullOrBlank(String value) {
         return value == null || value.length() == 0 || value.trim().length() == 0;
     }
+
 }

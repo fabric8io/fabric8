@@ -1,5 +1,4 @@
 <policySet xmlns="http://fuse.fusesource.org/schema/bai"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            endpointUri="vm:audit">
   <policy id="nonAuditContexts">
     <contexts>

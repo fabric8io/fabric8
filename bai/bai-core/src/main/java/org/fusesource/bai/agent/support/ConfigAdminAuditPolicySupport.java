@@ -19,7 +19,12 @@ package org.fusesource.bai.agent.support;
 import org.fusesource.common.util.Objects;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.*;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +36,7 @@ import java.util.Hashtable;
  */
 @SuppressWarnings("rawtypes")
 public abstract class ConfigAdminAuditPolicySupport extends DefaultAuditPolicy implements ManagedService {
-	
+
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigAdminAuditPolicy.class);
     public final String KEY_CAMEL_CONTEXT_EXCLUDE = "camelContext.exclude";
     private String configPid = "org.fusesource.bai.agent";

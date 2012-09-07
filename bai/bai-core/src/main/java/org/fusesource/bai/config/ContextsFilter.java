@@ -18,8 +18,10 @@
 package org.fusesource.bai.config;
 
 import org.fusesource.bai.agent.CamelContextService;
+import org.fusesource.bai.support.FilterHelpers;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Filters;
+import org.fusesource.common.util.Strings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -49,9 +51,29 @@ public class ContextsFilter extends HasIdentifier implements Filter<CamelContext
     @Override
     public String toString() {
         return "Contexts(" +
-                (excludeContextFilters != null ? " exclude: " + excludeContextFilters : "") +
-                (includeContextFilters != null ? " include: " + includeContextFilters : "") +
+                FilterHelpers.includeExcludeListsToText(includeContextFilters, excludeContextFilters) +
                 ")";
+    }
+
+
+    /**
+     * Parses a space separated set of patterns of the form "bundle:pattern"
+     */
+    public void addPattern(boolean include, String pattern) {
+        String name = "*";
+        String bundle = pattern;
+        String[] values = pattern.split(":", 2);
+        if (values != null && values.length > 1) {
+            bundle = values[0];
+            name = values[1];
+        }
+        bundle = Strings.defaultIfEmpty(bundle, "*");
+        name = Strings.defaultIfEmpty(name, "*");
+        if (include) {
+            includeContext(bundle, name);
+        } else {
+            excludeContext(bundle, name);
+        }
     }
 
     public ContextsFilter excludeContext(String bundle, String name) {

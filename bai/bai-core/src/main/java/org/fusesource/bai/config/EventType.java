@@ -16,6 +16,9 @@
  */
 package org.fusesource.bai.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,19 +26,37 @@ import java.util.Map;
  * Represents the kinds of events that can be audited
  */
 public enum EventType {
-	CREATED,
-	COMPLETED,
-	SENDING,
-	SENT,
-	FAILURE,
-	FAILURE_HANDLED,
-	REDELIVERY,
-	ALL;
+    CREATED,
+    COMPLETED,
+    SENDING,
+    SENT,
+    FAILURE,
+    FAILURE_HANDLED,
+    REDELIVERY,
+    ALL;
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(EventType.class);
+
+    public static EventType parseEventType(String text) {
+        if ("*".equals(text)) {
+            return EventType.ALL;
+        }
+        EventType answer = EventType.simpleNames.get(text);
+        if (answer != null) {
+            return answer;
+        }
+        try {
+            return EventType.valueOf(text.toUpperCase());
+        } catch (Exception e) {
+            LOG.warn("Event-type policy could not be parsed. Contains invalid event type: " + text);
+            return null;
+        }
+    }
 
     public static Map<String, EventType> simpleNames;
 
     static {
-        simpleNames = new HashMap<String,EventType>();
+        simpleNames = new HashMap<String, EventType>();
         simpleNames.put("created", CREATED);
         simpleNames.put("completed", COMPLETED);
         simpleNames.put("sending", SENDING);

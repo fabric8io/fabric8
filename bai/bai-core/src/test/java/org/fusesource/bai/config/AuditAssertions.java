@@ -39,4 +39,9 @@ public class AuditAssertions {
         PolicySet config = ConfigHelper.loadConfigFromClassPath(uri);
         assertMatchesContext(config, expected, bundleId, contextId);
     }
+
+    public static void assertPolicyEnabled(Policy policy, boolean expected) {
+        boolean actual = policy.isEnabled();
+        assertEquals("enabled " + policy, expected, actual);
+    }
 }

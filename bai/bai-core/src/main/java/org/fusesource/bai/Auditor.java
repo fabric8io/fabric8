@@ -16,16 +16,22 @@
  */
 package org.fusesource.bai;
 
-import java.util.EventObject;
-
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.ServiceHelper;
+import org.fusesource.bai.config.Policy;
 import org.fusesource.bai.config.PolicySet;
+
+import java.util.EventObject;
+import java.util.List;
 
 /**
  * An Auditor which uses an XML/JSON {@link org.fusesource.bai.config.PolicySet} to define its filters
  */
 public class Auditor extends AuditEventNotifierSupport {
     private PolicySet config;
+    private ProducerTemplate producerTemplate;
 
     public Auditor() {
     }
@@ -45,7 +51,6 @@ public class Auditor extends AuditEventNotifierSupport {
 
     public void setConfig(PolicySet config) {
         this.config = config;
-        this.setEndpointUri(config.getEndpointUri());
     }
 
 
@@ -53,14 +58,33 @@ public class Auditor extends AuditEventNotifierSupport {
     //-------------------------------------------------------------------------
 
     @Override
-    protected Object createPayload(AuditEvent auditEvent) {
-        return config.createPayload(auditEvent);
-
-    }
-
-    @Override
     protected boolean isEnabledFor(EventObject coreEvent, AbstractExchangeEvent exchangeEvent) {
         return config.isEnabled(coreEvent, exchangeEvent);
     }
 
+    protected void processAuditEvent(AuditEvent auditEvent) throws Exception {
+        List<Policy> policies = config.getPolicies();
+        for (Policy policy : policies) {
+            policy.process(this, auditEvent);
+        }
+    }
+
+    public ProducerTemplate getProducerTemplate() {
+        if (producerTemplate == null) {
+            producerTemplate = getCamelContext().createProducerTemplate();
+        }
+        return producerTemplate;
+    }
+
+    @Override
+    protected void doStart() throws Exception {
+        ObjectHelper.notNull(camelContext, "camelContext", this);
+        ServiceHelper.startService(getProducerTemplate());
+
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        ServiceHelper.stopService(producerTemplate);
+    }
 }

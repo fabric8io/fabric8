@@ -17,11 +17,11 @@
 package org.fusesource.bai.agent.filters;
 
 import org.fusesource.bai.agent.CamelContextService;
+import org.fusesource.bai.policy.model.Constants.ScopeElement;
 import org.fusesource.bai.policy.model.ExpressionFilter;
 import org.fusesource.bai.policy.model.Policy;
 import org.fusesource.bai.policy.model.PolicySet;
 import org.fusesource.bai.policy.model.Scope;
-import org.fusesource.bai.policy.model.Constants.ScopeElement;
 import org.fusesource.common.util.Filter;
 import org.fusesource.common.util.Filters;
 
@@ -35,7 +35,7 @@ public class CamelContextFilters {
 
     /**
      * Creates a new filter taking a String of the form: bundleIdPattern[:camelContextIdPattern]
-     *
+     * <p/>
      * where a pattern uses a String with * for any number of characters and ! at the front meaning to not match the pattern
      */
     public static Filter<CamelContextService> createCamelContextFilter(String contextFilterText) {
@@ -55,61 +55,61 @@ public class CamelContextFilters {
 
     /**
      * Creates a new filter taking a List<String> with items of the form: bundleIdPattern[:camelContextIdPattern]
-     *
+     * <p/>
      * where a pattern uses a String with * for any number of characters and ! at the front meaning to not match the pattern
      */
     public static Filter<CamelContextService> createCamelContextFilter(List<String> contextFilterItems) {
         List<Filter<CamelContextService>> filters = new ArrayList<Filter<CamelContextService>>();
         if (contextFilterItems != null && contextFilterItems.size() > 0) {
             for (String text : contextFilterItems) {
-            	Filter<CamelContextService> filter = parseSingleFilter(text);
+                Filter<CamelContextService> filter = parseSingleFilter(text);
                 if (filter != null) {
                     filters.add(filter);
                 }
-			}
+            }
         }
         return Filters.compositeFilter(filters);
     }
-    
+
     /**
      * Creates a new filter from a {@link Scope} object from the BAI Policy API
-     * 
+     * <p/>
      * containing a BUNDLE {@link ScopeElement}, a CONTEXT {@link ScopeElement} or both.
      */
     public static Filter<CamelContextService> createCamelContextFilter(PolicySet policies) {
         List<Filter<CamelContextService>> filters = new ArrayList<Filter<CamelContextService>>();
         if (policies != null && policies.size() > 0) {
             for (Policy policy : policies) {
-            	Filter<CamelContextService> filter = createFilterFromScope(policy.getScope());
+                Filter<CamelContextService> filter = createFilterFromScope(policy.getScope());
                 if (filter != null) {
                     filters.add(filter);
                 }
-			}
+            }
         }
         return Filters.compositeFilter(filters);
     }
-    
+
     public static Filter<CamelContextService> createCamelContextFilter(Policy policy) {
         return createFilterFromScope(policy.getScope());
     }
-    
+
     protected static Filter<CamelContextService> createFilterFromScope(Scope scope) {
-    	ExpressionFilter bundleExpression = scope.getAs(ScopeElement.BUNDLE, ExpressionFilter.class);
-    	ExpressionFilter contextExpression = scope.getAs(ScopeElement.CONTEXT, ExpressionFilter.class);
-    	Filter<String> groupFilter = Filters.trueFilter();
-    	Filter<String> artifactFilter = Filters.trueFilter();
-    	
-    	if (bundleExpression != null) {
-    		groupFilter = Filters.createStringFilter(bundleExpression.getExpression());
-    	}
-    	
-    	if (contextExpression != null) {
-    		artifactFilter = Filters.createStringFilter(contextExpression.getExpression());
-    	}
-    	
-    	return new CamelContextServiceFilter(groupFilter, artifactFilter);
+        ExpressionFilter bundleExpression = scope.getAs(ScopeElement.BUNDLE, ExpressionFilter.class);
+        ExpressionFilter contextExpression = scope.getAs(ScopeElement.CONTEXT, ExpressionFilter.class);
+        Filter<String> groupFilter = Filters.trueFilter();
+        Filter<String> artifactFilter = Filters.trueFilter();
+
+        if (bundleExpression != null) {
+            groupFilter = Filters.createStringFilter(bundleExpression.getExpression());
+        }
+
+        if (contextExpression != null) {
+            artifactFilter = Filters.createStringFilter(contextExpression.getExpression());
+        }
+
+        return new CamelContextServiceFilter(groupFilter, artifactFilter);
     }
-    
+
     protected static Filter<CamelContextService> parseSingleFilter(String text) {
         String[] split = text.split(":");
         if (split == null || split.length == 0) {

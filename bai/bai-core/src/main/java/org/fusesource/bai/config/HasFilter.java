@@ -17,10 +17,7 @@
 package org.fusesource.bai.config;
 
 import org.apache.camel.Expression;
-import org.apache.camel.Predicate;
 import org.apache.camel.builder.ExpressionClause;
-import org.apache.camel.language.simple.SimpleLanguage;
-import org.apache.camel.language.xpath.XPathLanguage;
 import org.apache.camel.model.language.ConstantExpression;
 import org.apache.camel.model.language.ELExpression;
 import org.apache.camel.model.language.ExpressionDefinition;
@@ -43,21 +40,11 @@ import org.apache.camel.model.language.SqlExpression;
 import org.apache.camel.model.language.TokenizerExpression;
 import org.apache.camel.model.language.XPathExpression;
 import org.apache.camel.model.language.XQueryExpression;
-import org.apache.camel.model.loadbalancer.CustomLoadBalancerDefinition;
-import org.apache.camel.model.loadbalancer.FailoverLoadBalancerDefinition;
-import org.apache.camel.model.loadbalancer.RandomLoadBalancerDefinition;
-import org.apache.camel.model.loadbalancer.RoundRobinLoadBalancerDefinition;
-import org.apache.camel.model.loadbalancer.StickyLoadBalancerDefinition;
-import org.apache.camel.model.loadbalancer.TopicLoadBalancerDefinition;
-import org.apache.camel.model.loadbalancer.WeightedLoadBalancerDefinition;
-import org.fusesource.bai.AuditConstants;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElements;
-import javax.xml.bind.annotation.XmlNs;
 import javax.xml.bind.annotation.XmlTransient;
 
 /**
@@ -73,6 +60,12 @@ public class HasFilter extends HasIdentifier {
 
     public HasFilter(ExpressionDefinition filter) {
         this.filter = filter;
+    }
+
+    @Override
+    public String toString() {
+        ExpressionDefinition exp = getFilter();
+        return getClass().getSimpleName() + "(" + (exp != null ? exp.getLanguage() + ":" + exp.getExpression() : "") + ")";
     }
 
     public ExpressionDefinition getFilter() {

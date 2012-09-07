@@ -17,8 +17,20 @@
 
 package org.fusesource.bai;
 
-import org.apache.camel.*;
-import org.apache.camel.management.event.*;
+import org.apache.camel.Endpoint;
+import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
+import org.apache.camel.Producer;
+import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeCompletedEvent;
+import org.apache.camel.management.event.ExchangeCreatedEvent;
+import org.apache.camel.management.event.ExchangeFailedEvent;
+import org.apache.camel.management.event.ExchangeRedeliveryEvent;
+import org.apache.camel.management.event.ExchangeSendingEvent;
+import org.apache.camel.management.event.ExchangeSentEvent;
+import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.util.URISupport;
 import org.fusesource.bai.config.EventType;
 import org.fusesource.bai.support.EventTypeConfigurationSet;
 
@@ -72,12 +84,22 @@ public class AuditEventNotifier extends AuditEventNotifierSupport {
     private EventTypeConfiguration failureConfig = new EventTypeConfiguration();
     private EventTypeConfiguration failureHandledConfig = new EventTypeConfiguration();
     private EventTypeConfiguration redeliveryConfig = new EventTypeConfiguration();
+    protected Endpoint endpoint;
+    protected String endpointUri;
+    private Producer producer;
 
     public AuditEventNotifier() {
         setIgnoreCamelContextEvents(true);
         setIgnoreRouteEvents(true);
         setIgnoreServiceEvents(true);
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "[" + (endpoint != null ? endpoint : URISupport
+                .sanitizeUri(endpointUri)) + "]";
+    }
+
 
     /**
      * Updates this notifier with the given configuration set
@@ -383,4 +405,68 @@ public class AuditEventNotifier extends AuditEventNotifierSupport {
     }
 
 
+    public Producer getProducer() {
+        return producer;
+    }
+
+    public Endpoint getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(Endpoint endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public String getEndpointUri() {
+        return endpointUri;
+    }
+
+    public void setEndpointUri(String endpointUri) {
+        this.endpointUri = endpointUri;
+    }
+
+    protected void processAuditEvent(AuditEvent auditEvent) throws Exception {
+        Exchange exchange = producer.createExchange();
+        exchange.getIn().setBody(createPayload(auditEvent));
+
+        // make sure we don't send out events for this as well
+        // mark exchange as being published to event, to prevent creating new events
+        // for this as well (causing a endless flood of events)
+        exchange.setProperty(Exchange.NOTIFY_EVENT, Boolean.TRUE);
+        try {
+            producer.process(exchange);
+        } finally {
+            // and remove it when its done
+            exchange.removeProperty(Exchange.NOTIFY_EVENT);
+        }
+    }
+
+
+    @Override
+    protected void doStart() throws Exception {
+        ObjectHelper.notNull(camelContext, "camelContext", this);
+        if (endpoint == null && endpointUri == null) {
+            throw new IllegalArgumentException("Either endpoint or endpointUri must be configured");
+        }
+
+        if (endpoint == null) {
+            endpoint = camelContext.getEndpoint(endpointUri);
+        }
+
+        producer = endpoint.createProducer();
+        ServiceHelper.startService(producer);
+
+    }
+
+    @Override
+    protected void doStop() throws Exception {
+        ServiceHelper.stopService(producer);
+    }
+
+    /**
+     * Creates the audit payload from the audit event
+     */
+    protected Object createPayload(AuditEvent auditEvent) {
+        return auditEvent;
+    }
 }

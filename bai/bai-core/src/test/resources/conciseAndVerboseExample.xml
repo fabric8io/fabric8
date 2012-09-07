@@ -16,8 +16,7 @@
   -->
 
 <policySet xmlns="http://fuse.fusesource.org/schema/bai"
-           xmlns:in="http://camel.apache.org/xml/in/"
-           endpointUri="vm:audit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+           endpointUri="vm:audit">
 
   <!--
    | this example shows how we could have 2 kinds of auditing:

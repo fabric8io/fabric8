@@ -18,12 +18,17 @@
 package org.fusesource.bai.config;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.camel.Predicate;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.ExpressionClause;
 import org.apache.camel.model.language.ExpressionDefinition;
+import org.apache.camel.util.CamelContextHelper;
 import org.fusesource.bai.AuditEvent;
+import org.fusesource.bai.Auditor;
 import org.fusesource.bai.agent.CamelContextService;
+import org.fusesource.common.util.Strings;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -40,6 +45,8 @@ import javax.xml.bind.annotation.XmlTransient;
 public class Policy extends HasIdentifier {
     @XmlAttribute(required = false)
     private Boolean enabled;
+    @XmlAttribute
+    private String to = "vm:audit";
 
     @XmlElement(required = false)
     private ContextsFilter contexts;
@@ -56,6 +63,9 @@ public class Policy extends HasIdentifier {
     @XmlTransient
     private Predicate predicate;
 
+    @XmlTransient
+    private Endpoint toEndpoint;
+
     public Policy() {
     }
 
@@ -65,16 +75,53 @@ public class Policy extends HasIdentifier {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + "(enabled: " + isEnabled() + " " + contexts +
-                " " + events +
-                (filter != null ? " " + filter : "") +
-                ")";
+        return getClass().getSimpleName() + "(" +
+                Strings.joinNotNull(", ",
+                        getId(),
+                        isEnabled() ? null : "disabled",
+                        contexts,
+                        endpoints,
+                        events,
+                        filter) + ")";
     }
 
+    /**
+     * Returns true if this policy is enabled
+     */
     public boolean isEnabled() {
         return enabled == null || enabled.booleanValue();
     }
 
+    /**
+     * Processes the audit event
+     */
+    public void process(Auditor auditor, AuditEvent auditEvent) {
+        if (matchesEvent(auditEvent)) {
+            ProducerTemplate producer = auditor.getProducerTemplate();
+            Endpoint endpoint = getToEndpoint(auditor.getCamelContext());
+            if (endpoint != null) {
+                Exchange exchange = endpoint.createExchange();
+                // make sure we don't send out events for this as well
+                // mark exchange as being published to event, to prevent creating new events
+                // for this as well (causing a endless flood of events)
+                exchange.setProperty(Exchange.NOTIFY_EVENT, Boolean.TRUE);
+
+                Object payload = createPayload(auditEvent);
+                exchange.getIn().setBody(payload);
+                try {
+                    producer.send(endpoint, exchange);
+                } finally {
+                    // TODO why do we bother removing the notify event flag???
+                    // and remove it when its done
+                    exchange.removeProperty(Exchange.NOTIFY_EVENT);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns true if this policy matches the given Camel context service
+     */
     public boolean matchesContext(CamelContextService contextService) {
         return contexts == null || contexts.matches(contextService);
     }
@@ -91,8 +138,7 @@ public class Policy extends HasIdentifier {
                         expression = filter.getFilter();
                     }
                     if (expression != null) {
-                        CamelContext camelContext = exchange.getContext();
-                        predicate = expression.createPredicate(camelContext);
+                        predicate = expression.createPredicate(event.getCamelContext());
                     }
                 }
                 if (predicate != null) {
@@ -134,6 +180,14 @@ public class Policy extends HasIdentifier {
         return endpoints;
     }
 
+
+    /**
+     * Sets the output endpoint
+     */
+    public Policy to(String to) {
+        setTo(to);
+        return this;
+    }
 
     public Policy excludeContext(String bundle, String name) {
         contexts().excludeContext(bundle, name);
@@ -206,6 +260,15 @@ public class Policy extends HasIdentifier {
 
     // Properties
     //-------------------------------------------------------------------------
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+        this.toEndpoint = null;
+    }
+
     public Boolean getEnabled() {
         return enabled;
     }
@@ -242,4 +305,25 @@ public class Policy extends HasIdentifier {
     public Predicate getPredicate() {
         return predicate;
     }
+
+    // Implementation methods
+    //-------------------------------------------------------------------------
+
+    protected Object createPayload(AuditEvent auditEvent) {
+        // TODO use a payload transformer if specified
+        return auditEvent;
+    }
+
+    /**
+     * Returns the to endpoint, lazily resolving it if need be
+     */
+    protected Endpoint getToEndpoint(CamelContext camelContext) {
+        if (toEndpoint == null) {
+            if (to != null) {
+                toEndpoint = CamelContextHelper.getMandatoryEndpoint(camelContext, to);
+            }
+        }
+        return toEndpoint;
+    }
+
 }

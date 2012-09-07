@@ -20,15 +20,17 @@ package org.fusesource.bai.policy.slurper;
 import org.fusesource.bai.policy.model.PolicySet;
 
 /**
- * Implementations of this interface are capable of reading policies from different media and formats, 
+ * Implementations of this interface are capable of reading policies from different media and formats,
  * and normalising them to the beans in the org.fusesource.bai.policy.model package.
- * @author Raul Kripalani
  *
+ * @author Raul Kripalani
  */
 public interface PolicySlurper {
 
-	public PolicySet slurp(); 
-	public PolicySet refresh();
-	public PolicySet getPolicies();
-	
+    public PolicySet slurp();
+
+    public PolicySet refresh();
+
+    public PolicySet getPolicies();
+
 }

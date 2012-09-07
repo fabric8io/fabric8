@@ -22,7 +22,7 @@ import org.fusesource.bai.EventTypeConfiguration;
 import java.util.List;
 
 /**
-*/
+ */
 public class CompositeEventTypeConfiguration extends EventTypeConfiguration {
     private final List<EventTypeConfiguration> configs;
 

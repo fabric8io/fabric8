@@ -14,26 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai.policy.model;
+package org.fusesource.bai.support;
+
+import org.fusesource.common.util.Strings;
 
 /**
- * Constants to parametrize  Actions, Scope Filters, etc.
- *
- * @author Raul Kripalani
  */
-public class Constants {
+public class FilterHelpers {
 
-    public enum ActionType {
-        INCLUDE,
-        EXCLUDE
+    public static String includeExcludeListsToText(Object includes, Object excludes) {
+        return Strings.joinNotNull(" ",
+                excludes != null ? "exclude" + excludes : null,
+                includes != null ? "include" + includes : null);
     }
-
-    public enum ScopeElement {
-        CONTEXT,
-        EVENT,
-        EXCHANGE,
-        BUNDLE,
-        ENDPOINT
-    }
-
 }
