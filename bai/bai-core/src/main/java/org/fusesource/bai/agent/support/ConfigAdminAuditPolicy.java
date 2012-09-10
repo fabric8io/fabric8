@@ -19,7 +19,7 @@ package org.fusesource.bai.agent.support;
 import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.config.*;
-import org.fusesource.bai.xml.PropertyMapPolicySlurper;
+import org.fusesource.bai.xml.PolicySetPropertiesSlurper;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Dictionary;
 
 /**
- * Audit Policy Injecter which uses the Policy Model constructed by {@link PropertyMapPolicySlurper}.
+ * Audit Policy Injecter which uses the Policy Model constructed by {@link org.fusesource.bai.xml.PolicySetPropertiesSlurper}.
  *
  * @author Raul Kripalani
  */
@@ -40,7 +40,7 @@ public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
     @Override
     public void updated(Dictionary dict) throws ConfigurationException {
         System.out.println("Updating BAI Agent configuration " + dict);
-        PropertyMapPolicySlurper pmps = new PropertyMapPolicySlurper(dict);
+        PolicySetPropertiesSlurper pmps = new PolicySetPropertiesSlurper(dict);
         this.policies = pmps.slurp();
         updateNotifiersWithNewPolicy();
     }
@@ -61,7 +61,7 @@ public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
         LOG.info("Updating AuditEventNotifier " + notifier + " for bundle: " + camelContextService.getBundleSymbolicName() + " camelContext: " + camelContextService);
 
         PolicySet contextPolicy = policies.createConfig(camelContextService);
-        notifier.setConfig(contextPolicy);
+        notifier.setPolicySet(contextPolicy);
     }
 
 }

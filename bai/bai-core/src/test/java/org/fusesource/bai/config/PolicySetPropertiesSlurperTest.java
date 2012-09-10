@@ -18,7 +18,7 @@
 package org.fusesource.bai.config;
 
 import org.apache.camel.model.language.ExpressionDefinition;
-import org.fusesource.bai.xml.PropertyMapPolicySlurper;
+import org.fusesource.bai.xml.PolicySetPropertiesSlurper;
 import org.junit.Test;
 
 import java.util.List;
@@ -30,18 +30,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
- * Unit Test for PropertyMapPolicySlurper
+ * Unit Test for {@link PolicySetPropertiesSlurper}
  *
  * @author Raul Kripalani
  */
-public class PropertyMapPolicySlurperTest {
+public class PolicySetPropertiesSlurperTest {
 
     @Test
     public void testLoadProperties() throws Exception {
         Properties properties = new Properties();
-        properties.load(this.getClass().getClassLoader().getResourceAsStream("policySet.cfg"));
+        properties.load(this.getClass().getClassLoader().getResourceAsStream("policySet.properties"));
 
-        PropertyMapPolicySlurper slurper = new PropertyMapPolicySlurper(properties);
+        PolicySetPropertiesSlurper slurper = new PolicySetPropertiesSlurper(properties);
         PolicySet policySet = slurper.slurp();
         List<Policy> policies = policySet.getPolicies();
         assertEquals("Policies were " + policies, 2, policies.size());

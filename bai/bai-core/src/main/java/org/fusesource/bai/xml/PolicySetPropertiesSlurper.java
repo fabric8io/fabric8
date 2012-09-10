@@ -35,14 +35,14 @@ import java.util.StringTokenizer;
  * @author Raul Kripalani
  */
 @SuppressWarnings("rawtypes")
-public class PropertyMapPolicySlurper implements PolicySlurper {
+public class PolicySetPropertiesSlurper implements PolicySlurper {
 
-    private static final transient Logger LOG = LoggerFactory.getLogger(PropertyMapPolicySlurper.class);
+    private static final transient Logger LOG = LoggerFactory.getLogger(PolicySetPropertiesSlurper.class);
 
     private Dictionary properties;
     private PolicySet policyCache;
 
-    public PropertyMapPolicySlurper(Dictionary properties) {
+    public PolicySetPropertiesSlurper(Dictionary properties) {
         this.properties = properties;
     }
 

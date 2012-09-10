@@ -30,27 +30,27 @@ import java.util.List;
  * An Auditor which uses an XML/JSON {@link org.fusesource.bai.config.PolicySet} to define its filters
  */
 public class AuditEventNotifier extends AuditEventNotifierSupport {
-    private PolicySet config;
+    private PolicySet policySet;
     private ProducerTemplate producerTemplate;
 
     public AuditEventNotifier() {
     }
 
     public AuditEventNotifier(PolicySet config) {
-        setConfig(config);
+        setPolicySet(config);
     }
 
     @Override
     public String toString() {
-        return "Auditor(" + config + ")";
+        return "Auditor(" + policySet + ")";
     }
 
-    public PolicySet getConfig() {
-        return config;
+    public PolicySet getPolicySet() {
+        return policySet;
     }
 
-    public void setConfig(PolicySet config) {
-        this.config = config;
+    public void setPolicySet(PolicySet policySet) {
+        this.policySet = policySet;
     }
 
 
@@ -59,11 +59,11 @@ public class AuditEventNotifier extends AuditEventNotifierSupport {
 
     @Override
     protected boolean isEnabledFor(EventObject coreEvent, AbstractExchangeEvent exchangeEvent) {
-        return config.isEnabled(coreEvent, exchangeEvent);
+        return policySet.isEnabled(coreEvent, exchangeEvent);
     }
 
     protected void processAuditEvent(AuditEvent auditEvent) throws Exception {
-        List<Policy> policies = config.getPolicies();
+        List<Policy> policies = policySet.getPolicies();
         for (Policy policy : policies) {
             policy.process(this, auditEvent);
         }
