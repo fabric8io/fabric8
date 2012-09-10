@@ -8,13 +8,12 @@
   <cm:property-placeholder id="agentConfig" persistent-id="org.fusesource.bai.agent" placeholder-prefix="${"
                            placeholder-suffix="}">
     <cm:default-properties>
-      <cm:property name="auditEndpointUri" value="vm:audit"/>
+      <cm:property name="default.to" value="vm:audit"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
   <bean id="serviceListener" class="org.fusesource.bai.agent.OsgiBAIAgent" init-method="init" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
-    <property name="auditEndpoint" value="${auditEndpointUri}"/>
     <property name="auditPolicy" ref="auditPolicy"/>
   </bean>
 
