@@ -85,6 +85,7 @@ public class Policy extends HasIdentifier {
         return getClass().getSimpleName() + "(" +
                 Strings.joinNotNull(", ",
                         getId(),
+                        "to: " + getTo(),
                         isEnabled() ? null : "disabled",
                         contexts,
                         endpoints,

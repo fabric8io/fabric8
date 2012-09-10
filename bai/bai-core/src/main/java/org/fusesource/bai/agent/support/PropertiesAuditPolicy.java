@@ -36,7 +36,8 @@ public class PropertiesAuditPolicy extends DefaultAuditPolicy {
     public void start() {
         Properties properties = getProperties();
         PolicySetPropertiesSlurper slurper = new PolicySetPropertiesSlurper(properties);
-        this.policySet = slurper.getPolicies();
+        this.policySet = slurper.slurp();
+        ObjectHelper.notNull(policySet, "Could not load a PolicySet");
         System.out.println("Loaded policySet from properties: " + policySet);
     }
 

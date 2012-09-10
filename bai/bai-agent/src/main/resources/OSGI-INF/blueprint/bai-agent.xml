@@ -12,7 +12,7 @@
     </cm:default-properties>
   </cm:property-placeholder>
 
-  <bean id="serviceListener" class="org.fusesource.bai.agent.BAIAgent" init-method="init" destroy-method="destroy">
+  <bean id="serviceListener" class="org.fusesource.bai.agent.OsgiBAIAgent" init-method="init" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="auditEndpoint" value="${auditEndpointUri}"/>
     <property name="auditPolicy" ref="auditPolicy"/>

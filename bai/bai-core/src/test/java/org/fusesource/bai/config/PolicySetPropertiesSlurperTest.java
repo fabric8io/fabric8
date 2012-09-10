@@ -59,6 +59,9 @@ public class PolicySetPropertiesSlurperTest {
         assertPolicyEnabled(foo, true);
         assertPolicyEnabled(bar, false);
 
+        assertEquals("foo.to", "mock:audit", foo.getTo());
+        assertEquals("bar.to", "vm:audit", bar.getTo());
+
         assertNull("foo.context.excludes", foo.getContexts().getExcludeContextFilters());
         List<ContextFilter> fooContextIncludes = foo.getContexts().getIncludeContextFilters();
         assertEquals("foo.context.includes size", 1, fooContextIncludes.size());

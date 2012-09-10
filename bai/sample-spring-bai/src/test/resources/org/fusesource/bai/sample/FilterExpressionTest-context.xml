@@ -17,37 +17,25 @@
   -->
 
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="
-       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
-    ">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-    <!-- lets configure the audit notifier with some filter expressions -->
-	<bean class="org.fusesource.bai.AuditEventNotifier">
-        <property name="sentFilters">
-          <list>
-            <bean class="org.fusesource.bai.support.PredicateFactoryBean">
-                <property name="language" value="simple"/>
-                <property name="expression" value="${in.header.foo} == 'cheese'"/>
-            </bean>
-          </list>
-        </property>
-        <property name="sentIncludeRegexList">
-            <list value-type="java.lang.String">
-                <value>mock.*</value>
-            </list>
-        </property>
+  <!-- define the audit policy -->
+  <bean id="auditPolicy" class="org.fusesource.bai.agent.support.PropertiesAuditPolicy">
+    <property name="properties">
+      <util:properties location="classpath:filterExpressionPolicySet.properties"/>
+    </property>
+  </bean>
 
-        <!-- lets turn off some events -->
-        <property name="includeCreated" value="false"/>
-        <property name="includeCompleted" value="false"/>
-        <property name="includeSending" value="false"/>
+  <!-- lets configure the audit notifier to the audit endpoint, vm:audit -->
+  <bean id="auditor" class="org.fusesource.bai.AuditEventNotifier">
+    <property name="policySet">
+      <bean factory-bean="auditPolicy" factory-method="getPolicySet"/>
+    </property>
+  </bean>
 
-        <property name="endpointUri" value="mock:audit"/>
-	</bean>
-
-    <!-- Camel route to be audited -->
+  <!-- Camel route to be audited -->
   <camelContext xmlns="http://camel.apache.org/schema/spring">
     <route>
       <from uri="direct:start"/>

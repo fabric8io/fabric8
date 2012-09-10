@@ -22,12 +22,26 @@ import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.apache.camel.management.event.ExchangeCreatedEvent;
 import org.apache.camel.management.event.ExchangeSendingEvent;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.EventObject;
 
 /**
  */
 public abstract class AuditEventNotifierSupport extends PublishEventNotifier {
     protected CamelContext camelContext;
+
+    @PostConstruct
+    @Override
+    public void start() throws Exception {
+        super.start();
+    }
+
+    @PreDestroy
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+    }
 
     @Override
     public boolean isEnabled(EventObject event) {

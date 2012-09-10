@@ -81,6 +81,8 @@ public class PolicySetPropertiesSlurper implements PolicySlurper {
                         if (flag != null) {
                             policy.setEnabled(flag);
                         }
+                    } else if ("to".equals(qualifier)) {
+                        policy.setTo(value);
                     } else if (splitKey.length == 3) {
                         if ("filter".equals(qualifier)) {
                             policy.filter().language(splitKey[2], value);
