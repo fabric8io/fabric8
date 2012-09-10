@@ -30,7 +30,8 @@ public class ConfigMarshalTest {
                 excludeContext("*", "audit*").
                 includeEndpoint("activemq:*").
                 excludeEvent(EventType.FAILURE_HANDLED).
-                filter().xpath("/person[@name='James']");
+                filter().xpath("/person[@name='James']").
+                body().xpath("/foo");
 
         printXml(config);
     }

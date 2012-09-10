@@ -50,40 +50,40 @@ import javax.xml.bind.annotation.XmlTransient;
 /**
  */
 @XmlAccessorType(XmlAccessType.PROPERTY)
-public class HasFilter extends HasIdentifier {
-    protected ExpressionDefinition filter;
+public class HasExpression extends HasIdentifier {
+    protected ExpressionDefinition expression;
     @XmlTransient
     private boolean unwrappedFilter;
 
-    public HasFilter() {
+    public HasExpression() {
     }
 
-    public HasFilter(ExpressionDefinition filter) {
-        this.filter = filter;
+    public HasExpression(ExpressionDefinition expression) {
+        this.expression = expression;
     }
 
     @Override
     public String toString() {
-        ExpressionDefinition exp = getFilter();
+        ExpressionDefinition exp = getExpression();
         return getClass().getSimpleName() + "(" + (exp != null ? exp.getLanguage() + ":" + exp.getExpression() : "") + ")";
     }
 
-    public ExpressionDefinition getFilter() {
-        if (filter != null && !unwrappedFilter) {
+    public ExpressionDefinition getExpression() {
+        if (expression != null && !unwrappedFilter) {
             unwrappedFilter = true;
             // lets unwrap the expression clause if used
-            Expression exp = filter;
-            if (filter != null && filter.getExpressionValue() != null) {
-                exp = filter.getExpressionValue();
+            Expression exp = expression;
+            if (expression != null && expression.getExpressionValue() != null) {
+                exp = expression.getExpressionValue();
             }
             if (exp instanceof ExpressionClause) {
                 ExpressionClause<?> clause = (ExpressionClause<?>) exp;
                 if (clause.getExpressionType() != null) {
-                    filter = clause.getExpressionType();
+                    expression = clause.getExpressionType();
                 }
             }
         }
-        return filter;
+        return expression;
     }
 
     @XmlElements({
@@ -112,8 +112,8 @@ public class HasFilter extends HasIdentifier {
             @XmlElement(required = false, name = "xpath", type = XPathExpression.class),
             @XmlElement(required = false, name = "xquery", type = XQueryExpression.class)
     })
-    public void setFilter(ExpressionDefinition filter) {
-        this.filter = filter;
+    public void setExpression(ExpressionDefinition expression) {
+        this.expression = expression;
         this.unwrappedFilter = false;
     }
 }

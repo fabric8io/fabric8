@@ -20,6 +20,7 @@ package org.fusesource.bai.config;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.camel.Expression;
 import org.apache.camel.Predicate;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.ExpressionClause;
@@ -60,8 +61,14 @@ public class Policy extends HasIdentifier {
     @XmlElement(required = false)
     private ExchangeFilter filter;
 
+    @XmlElement(required = false)
+    private BodyExpression body;
+
     @XmlTransient
     private Predicate predicate;
+
+    @XmlTransient
+    private Expression bodyExpression;
 
     @XmlTransient
     private Endpoint toEndpoint;
@@ -135,7 +142,7 @@ public class Policy extends HasIdentifier {
                 if (predicate == null) {
                     ExpressionDefinition expression = null;
                     if (filter != null) {
-                        expression = filter.getFilter();
+                        expression = filter.getExpression();
                     }
                     if (expression != null) {
                         predicate = expression.createPredicate(event.getCamelContext());
@@ -250,11 +257,20 @@ public class Policy extends HasIdentifier {
     }
 
     /**
-     * Use the DSL to create an expression
+     * Use the DSL to create a filter predicate
      */
     public ExpressionClause<Policy> filter() {
         ExpressionClause<Policy> clause = new ExpressionClause<Policy>(this);
         setFilter(new ExchangeFilter(clause));
+        return clause;
+    }
+
+    /**
+     * Use the DSL to create a body expression
+     */
+    public ExpressionClause<Policy> body() {
+        ExpressionClause<Policy> clause = new ExpressionClause<Policy>(this);
+        setBody(new BodyExpression(clause));
         return clause;
     }
 
@@ -302,16 +318,43 @@ public class Policy extends HasIdentifier {
         this.predicate = null;
     }
 
+    public BodyExpression getBody() {
+        return body;
+    }
+
+    public void setBody(BodyExpression body) {
+        this.body = body;
+        this.bodyExpression = null;
+    }
+
     public Predicate getPredicate() {
         return predicate;
     }
 
+    public Expression getBodyExpression() {
+        return bodyExpression;
+    }
+
+
     // Implementation methods
     //-------------------------------------------------------------------------
-
-    protected Object createPayload(AuditEvent auditEvent) {
-        // TODO use a payload transformer if specified
-        return auditEvent;
+    protected Object createPayload(AuditEvent event) {
+        Exchange exchange = event.getExchange();
+        if (exchange != null) {
+            if (bodyExpression == null) {
+                ExpressionDefinition expression = null;
+                if (body != null) {
+                    expression = body.getExpression();
+                }
+                if (expression != null) {
+                    bodyExpression = expression.createExpression(event.getCamelContext());
+                }
+            }
+            if (bodyExpression != null) {
+                return bodyExpression.evaluate(exchange, Object.class);
+            }
+        }
+        return event;
     }
 
     /**

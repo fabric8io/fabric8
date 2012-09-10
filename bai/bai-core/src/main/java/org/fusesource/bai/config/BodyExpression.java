@@ -24,15 +24,15 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
- * Represents a filter of exchanges using a Camel expression language
+ * Represents an expression to create the  body of the audit message
  */
-@XmlRootElement(name = "filter")
+@XmlRootElement(name = "body")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class ExchangeFilter extends HasExpression {
-    public ExchangeFilter() {
+public class BodyExpression extends HasExpression {
+    public BodyExpression() {
     }
 
-    public ExchangeFilter(ExpressionDefinition filter) {
+    public BodyExpression(ExpressionDefinition filter) {
         super(filter);
     }
 }

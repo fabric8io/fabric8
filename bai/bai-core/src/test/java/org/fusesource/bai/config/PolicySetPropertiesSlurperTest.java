@@ -95,7 +95,7 @@ public class PolicySetPropertiesSlurperTest {
 
         ExchangeFilter fooFilter = foo.getFilter();
         assertNotNull("foo.filter", fooFilter);
-        ExpressionDefinition fooFilterExp = fooFilter.getFilter();
+        ExpressionDefinition fooFilterExp = fooFilter.getExpression();
         assertNotNull("foo.filter.exp", fooFilterExp);
         assertEquals("foo.filter.language", "xpath", fooFilterExp.getLanguage());
         assertEquals("foo.filter.expression", "/foo/@id = 'bar'", fooFilterExp.getExpression());
