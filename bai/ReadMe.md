@@ -22,13 +22,14 @@ There are different kind of exchange events raised by Camel:
 * failure: an exchange failed
 * redelivery: we had to redeliver an exchange due retry failures
 
-Each of these kinds of events can be filtered by configuring the AuditEventNotifier as follows:
+Each of these kinds of events can be filtered by configuring the Policy configuration as follows:
 
-* setting the include flag to false
-* specifying a Prediate using a [Camel expression language](http://camel.apache.org/languages.html)
-* specifying one or more regular expressions on the [URI name to filter]()
+* including or excluding the event types
+* including or excluding bundles or camel contexts by name
+* including or excluding exchanges based on Prediates using a [Camel expression language](http://camel.apache.org/languages.html)
+* including or excluding events based on endpoint URI patterns
 
-You can configure an instance of AuditEventNotifier using Java or your dependency injection framework like [spring](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/main/resources/META-INF/spring/context.xml#L8) or CDI.
+You can configure a PolicySet which is one or more Policy objects using a Java DSL, an XML document (which has an XSD defined to help editing with XML aware editors) or using a dependency injection framework.
 
 For example see this [sample spring XML](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L27) where the **sentFilter** predicate is set and various events are disabled by setting the related include flag to false and the [sentRegex](https://github.com/fusesource/fuse/blob/master/bai/bai-sample-camel/src/test/resources/org/fusesource/bai/sample/FilterExpressionTest-context.xml#L34) is specified to filter on the endpoint URI.
 
