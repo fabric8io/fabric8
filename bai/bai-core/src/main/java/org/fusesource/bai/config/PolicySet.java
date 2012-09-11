@@ -20,22 +20,19 @@ import java.util.List;
 @XmlRootElement(name = "policySet")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class PolicySet {
-    @XmlAttribute()
-    private String endpointUri = "vm:audit";
     @XmlElementRef
     private List<Policy> policies = new ArrayList<Policy>();
 
     public PolicySet() {
     }
 
-    public PolicySet(String endpointUri, List<Policy> policies) {
-        this.endpointUri = endpointUri;
+    public PolicySet(List<Policy> policies) {
         this.policies = policies;
     }
 
     @Override
     public String toString() {
-        return "PolicySet(endpoint: " + endpointUri + ", policies: " + policies + ")";
+        return "PolicySet(" + policies + ")";
     }
 
     /**
@@ -51,7 +48,7 @@ public class PolicySet {
         if (matching.isEmpty()) {
             return null;
         } else {
-            return new PolicySet(endpointUri, matching);
+            return new PolicySet(matching);
         }
     }
 
@@ -100,14 +97,6 @@ public class PolicySet {
 
     // Properties
     //-------------------------------------------------------------------------
-    public String getEndpointUri() {
-        return endpointUri;
-    }
-
-    public void setEndpointUri(String endpointUri) {
-        this.endpointUri = endpointUri;
-    }
-
     public List<Policy> getPolicies() {
         return policies;
     }

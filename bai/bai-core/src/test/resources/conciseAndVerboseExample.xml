@@ -15,8 +15,7 @@
   ~ limitations under the License.
   -->
 
-<policySet xmlns="http://fuse.fusesource.org/schema/bai"
-           endpointUri="vm:audit">
+<policySet xmlns="http://fuse.fusesource.org/schema/bai">
 
   <!--
    | this example shows how we could have 2 kinds of auditing:
