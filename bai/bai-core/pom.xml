@@ -38,6 +38,10 @@
     <fuse.osgi.export>
       org.fusesource.bai*;version=${project.version}
     </fuse.osgi.export>
+    <fuse.osgi.import.additional>
+      !com.sun*
+    </fuse.osgi.import.additional>
+
     <bai.schema.version>${project.version}</bai.schema.version>
   </properties>
 

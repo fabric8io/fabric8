@@ -16,9 +16,8 @@
  */
 package org.fusesource.bai.agent.support;
 
-import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
-import org.fusesource.bai.config.*;
+import org.fusesource.bai.config.PolicySet;
 import org.fusesource.bai.xml.PolicySetPropertiesSlurper;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
@@ -35,33 +34,12 @@ import java.util.Dictionary;
 public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigAdminAuditPolicy.class);
 
-    private PolicySet policies;
-
     @Override
     public void updated(Dictionary dict) throws ConfigurationException {
-        System.out.println("Updating BAI Agent configuration " + dict);
+        System.out.println("Updating BAI ConfigAdmin from " + dict);
         PolicySetPropertiesSlurper pmps = new PolicySetPropertiesSlurper(dict);
-        this.policies = pmps.slurp();
-        updateNotifiersWithNewPolicy();
+        setPolicySet(pmps.slurp());
     }
 
-    @Override
-    public boolean isAuditEnabled(CamelContextService service) {
-        // for now lets enable for all contexts
-        return true;
-    }
-
-    /**
-     * Apply the current policy to a notifier
-     *
-     * @author Raul Kripalani
-     */
-    @Override
-    public void configureNotifier(CamelContextService camelContextService, AuditEventNotifier notifier) {
-        LOG.info("Updating AuditEventNotifier " + notifier + " for bundle: " + camelContextService.getBundleSymbolicName() + " camelContext: " + camelContextService);
-
-        PolicySet contextPolicy = policies.createConfig(camelContextService);
-        notifier.setPolicySet(contextPolicy);
-    }
 
 }

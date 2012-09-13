@@ -17,7 +17,6 @@
 package org.fusesource.bai.agent.support;
 
 import org.apache.camel.util.ObjectHelper;
-import org.fusesource.bai.AuditEventNotifier;
 import org.fusesource.bai.agent.CamelContextService;
 import org.fusesource.bai.config.PolicySet;
 import org.fusesource.bai.xml.PolicySetPropertiesSlurper;
@@ -29,31 +28,17 @@ import java.util.Properties;
  * Uses a properties file to create the {@link PolicySet}
  */
 public class PropertiesAuditPolicy extends DefaultAuditPolicy {
-    private PolicySet policySet;
     private Properties properties = new Properties();
 
     @PostConstruct
     public void start() {
-        Properties properties = getProperties();
         PolicySetPropertiesSlurper slurper = new PolicySetPropertiesSlurper(properties);
-        this.policySet = slurper.slurp();
-        ObjectHelper.notNull(policySet, "Could not load a PolicySet");
-        System.out.println("Loaded policySet from properties: " + policySet);
-    }
-
-    @Override
-    public void configureNotifier(CamelContextService service, AuditEventNotifier notifier) {
-        ObjectHelper.notNull(policySet, "policySet");
-        notifier.setPolicySet(policySet);
+        setPolicySet(slurper.slurp());
     }
 
     @Override
     public boolean isAuditEnabled(CamelContextService service) {
         return true;
-    }
-
-    public PolicySet getPolicySet() {
-        return policySet;
     }
 
     public Properties getProperties() {

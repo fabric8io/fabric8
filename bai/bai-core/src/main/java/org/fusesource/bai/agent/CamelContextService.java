@@ -31,6 +31,12 @@ public class CamelContextService {
         this.reference = reference;
     }
 
+    @Override
+    public String toString() {
+        return "CamelContextService(" + getDescription() + ")";
+
+    }
+
     public CamelContext getCamelContext() {
         return camelContext;
     }
