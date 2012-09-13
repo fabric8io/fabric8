@@ -31,7 +31,7 @@ public class AuditAssertions {
         assertNotNull("No config!", config);
 
         PolicySet contextConfig = config.createConfig(contextService);
-        boolean actual = contextConfig != null;
+        boolean actual = contextConfig.hasPolicies();
         assertEquals("Matching " + bundleId + ":" + camelContextId + " for config " + config, expected, actual);
     }
 

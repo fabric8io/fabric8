@@ -7,9 +7,11 @@
 
   <cm:property-placeholder id="agentConfig" persistent-id="org.fusesource.bai.agent" placeholder-prefix="${"
                            placeholder-suffix="}">
+<!--
     <cm:default-properties>
       <cm:property name="default.to" value="vm:audit"/>
     </cm:default-properties>
+-->
   </cm:property-placeholder>
 
   <bean id="serviceListener" class="org.fusesource.bai.agent.OsgiBAIAgent" init-method="init" destroy-method="destroy">

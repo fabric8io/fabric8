@@ -69,39 +69,41 @@ public class PolicySetPropertiesSlurper implements PolicySlurper {
         for (Object k : keys) {
             String key = (String) k;
             String value = (String) properties.get(key);
-            String[] splitKey = key.split("\\.", 3);
+            if (key.startsWith("bai.")) {
+                String[] splitKey = key.substring(4).split("\\.", 3);
 
-            if (splitKey != null) {
-                if (splitKey.length >= 2) {
-                    String id = splitKey[0];
-                    String qualifier = splitKey[1];
-                    Policy policy = answer.policy(id);
-                    if ("enabled".equals(qualifier)) {
-                        Boolean flag = parseBoolean(key, value);
-                        if (flag != null) {
-                            policy.setEnabled(flag);
-                        }
-                    } else if ("to".equals(qualifier)) {
-                        policy.setTo(value);
-                    } else if (splitKey.length == 3) {
-                        if ("filter".equals(qualifier)) {
-                            policy.filter().language(splitKey[2], value);
-                        } else {
-                            boolean include = isInclude(splitKey[2]);
-                            List<String> patterns = splitPatterns(value);
-                            if ("context".equals(qualifier)) {
-                                for (String pattern : patterns) {
-                                    policy.contexts().addPattern(include, value);
-                                }
-                            } else if ("endpoint".equals(qualifier)) {
-                                for (String pattern : patterns) {
-                                    policy.endpoints().addPattern(include, pattern);
-                                }
-                            } else if ("event".equals(qualifier)) {
-                                for (String pattern : patterns) {
-                                    EventType eventType = EventType.parseEventType(pattern);
-                                    if (eventType != null) {
-                                        policy.events().addEvent(include, eventType);
+                if (splitKey != null) {
+                    if (splitKey.length >= 2) {
+                        String id = splitKey[0];
+                        String qualifier = splitKey[1];
+                        Policy policy = answer.policy(id);
+                        if ("enabled".equals(qualifier)) {
+                            Boolean flag = parseBoolean(key, value);
+                            if (flag != null) {
+                                policy.setEnabled(flag);
+                            }
+                        } else if ("to".equals(qualifier)) {
+                            policy.setTo(value);
+                        } else if (splitKey.length == 3) {
+                            if ("filter".equals(qualifier)) {
+                                policy.filter().language(splitKey[2], value);
+                            } else {
+                                boolean include = isInclude(splitKey[2]);
+                                List<String> patterns = splitPatterns(value);
+                                if ("context".equals(qualifier)) {
+                                    for (String pattern : patterns) {
+                                        policy.contexts().addPattern(include, value);
+                                    }
+                                } else if ("endpoint".equals(qualifier)) {
+                                    for (String pattern : patterns) {
+                                        policy.endpoints().addPattern(include, pattern);
+                                    }
+                                } else if ("event".equals(qualifier)) {
+                                    for (String pattern : patterns) {
+                                        EventType eventType = EventType.parseEventType(pattern);
+                                        if (eventType != null) {
+                                            policy.events().addEvent(include, eventType);
+                                        }
                                     }
                                 }
                             }

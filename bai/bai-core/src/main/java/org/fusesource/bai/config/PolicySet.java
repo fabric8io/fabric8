@@ -35,6 +35,18 @@ public class PolicySet {
     }
 
     /**
+     * Returns true if this policy set has at least one policy
+     */
+    public boolean hasPolicies() {
+        if (policies != null) {
+            for (Policy policy : policies) {
+                if (policy.isEnabled()) return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Returns a configuration for this {@link CamelContextService} which policies out all of the non-applicable policies
      */
     public PolicySet createConfig(CamelContextService contextService) {
@@ -44,21 +56,14 @@ public class PolicySet {
                 matching.add(policy);
             }
         }
-        if (matching.isEmpty()) {
-            return null;
-        } else {
-            return new PolicySet(matching);
-        }
+        return new PolicySet(matching);
     }
 
     /**
      * Returns true if the given event matches the policies
      */
     public boolean isEnabled(EventObject coreEvent, AbstractExchangeEvent exchangeEvent) {
-        // to simplify the implementation we assume all events are enabled
-        // then we create the AuditEvent then filter on that later on
-        // in each policy
-        return true;
+        return hasPolicies();
     }
 
     public boolean matchesEvent(AuditEvent auditEvent) {

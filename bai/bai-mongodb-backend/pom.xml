@@ -37,21 +37,14 @@
         <fuse.osgi.export>
             org.fusesource.bai.backend.mongo*;version=${project.version}
         </fuse.osgi.export>
-
-        <!-- lets use 2.10 for the mongo db component -->
-<!--
-        <camel-version>2.10.0</camel-version>
--->
 	</properties>
 
 	<dependencies>
-<!--
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-xmljson</artifactId>
 			<version>${camel-version}</version>
 		</dependency>
--->
 		<dependency>
 			<groupId>org.mongodb</groupId>
 			<artifactId>mongo-java-driver</artifactId>

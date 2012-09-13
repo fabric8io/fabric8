@@ -21,7 +21,7 @@ import com.mongodb.*;
 import com.mongodb.util.JSON;
 import com.mongodb.util.JSONParseException;
 import org.apache.camel.*;
-//import org.apache.camel.dataformat.xmljson.XmlJsonDataFormat;
+import org.apache.camel.dataformat.xmljson.XmlJsonDataFormat;
 import org.apache.camel.management.event.*;
 import org.apache.camel.util.ServiceHelper;
 import org.fusesource.bai.AuditConstants;
@@ -61,8 +61,7 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 	private CamelContext context;
 	private TypeConverter typeConverter;
 	private Properties typeHints;
-    // TODO
-	//private XmlJsonDataFormat xmlJson = new XmlJsonDataFormat();
+    private XmlJsonDataFormat xmlJson = new XmlJsonDataFormat();
     private boolean debug = true;
 
 	@Override
@@ -71,9 +70,10 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 	    String srcContextId = ev.getExchange().getContext().getName();
 	    String srcRouteId = ev.getExchange().getFromRouteId();
 
-	    // do some basic logging
-	    LOG.info("Received AuditEvent: " + ev + " | Extracted data: " + endpointId + ", " + srcContextId + ", " + srcRouteId);
-        LOG.info("Breadcrumb ID for: " + ev + " is: " + ev.getBreadCrumbId(), String.class);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Received AuditEvent: " + ev + " breadCrumbID: " + ev.getBreadCrumbId() +
+                       " | Extracted data: " + endpointId + ", " + srcContextId + ", " + srcRouteId);
+        }
 
         boolean handled = false;
 		// a message is being sent
@@ -389,8 +389,7 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
     	    try {
     	        answer = JSON.parse(s);
     	    } catch (JSONParseException ex) {
-    	        LOG.info("Attempt to convert " + payload + " to JSON failed");
-    	        // do nothing
+    	        LOG.warn("Attempt to convert " + payload + " to JSON failed: " + ex, ex);
     	    }
     	    
     	    if (answer != null) {
@@ -399,8 +398,6 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 	    }
 	    
 	    // 2. XML if it starts with <
-        // TODO
-/*
 	    if (s.startsWith("<")) {
     	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
     	    try {
@@ -414,7 +411,7 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
     	        System.out.println(e);
     	    }
 	    }
-*/
+
 	    // 3. String, if it was originally a String
 	    if (payload instanceof String) {
 	        return payload;
@@ -434,11 +431,8 @@ public class MongoDBBackend extends BAIAuditBackendSupport implements BAIAuditBa
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-/*
-        TODO
 		xmlJson.setForceTopLevelObject(true);
 		ServiceHelper.startService(xmlJson);
-*/
 	}
 	
 	
