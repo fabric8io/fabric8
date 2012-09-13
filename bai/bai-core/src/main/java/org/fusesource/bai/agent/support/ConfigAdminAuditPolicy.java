@@ -36,7 +36,7 @@ public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
 
     @Override
     public void updated(Dictionary dict) throws ConfigurationException {
-        System.out.println("Updating BAI ConfigAdmin from " + dict);
+        LOG.info("Updating BAI ConfigAdmin from " + dict);
         PolicySetPropertiesSlurper pmps = new PolicySetPropertiesSlurper(dict);
         setPolicySet(pmps.slurp());
     }

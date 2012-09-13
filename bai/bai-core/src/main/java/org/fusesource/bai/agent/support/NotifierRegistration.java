@@ -67,14 +67,14 @@ public class NotifierRegistration extends ServiceSupport {
 
     @Override
     protected void doStart() throws Exception {
-        LOG.info("Starting notifier " + notifier + " for CamelContext: " + id);
+        LOG.info("Starting notifier " + notifier);
         ServiceHelper.startService(notifier);
         managementStrategy.addEventNotifier(notifier);
     }
 
     @Override
     protected void doStop() throws Exception {
-        LOG.info("Stopping " + notifier + " for CamelContext " + id);
+        LOG.info("Stopping " + notifier);
         managementStrategy.removeEventNotifier(notifier);
         ServiceHelper.stopAndShutdownService(notifier);
     }

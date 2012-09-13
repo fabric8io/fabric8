@@ -32,17 +32,18 @@ import java.util.List;
 public class AuditEventNotifier extends AuditEventNotifierSupport {
     private PolicySet policySet;
     private ProducerTemplate producerTemplate;
+    private String name = "";
 
     public AuditEventNotifier() {
     }
 
-    public AuditEventNotifier(PolicySet config) {
-        setPolicySet(config);
+    public AuditEventNotifier(String name) {
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return "Auditor(" + policySet + ")";
+        return "Auditor(" + name + ")";
     }
 
     public PolicySet getPolicySet() {
@@ -51,6 +52,14 @@ public class AuditEventNotifier extends AuditEventNotifierSupport {
 
     public void setPolicySet(PolicySet policySet) {
         this.policySet = policySet;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 

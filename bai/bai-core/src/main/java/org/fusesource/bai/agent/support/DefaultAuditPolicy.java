@@ -35,7 +35,7 @@ public abstract class DefaultAuditPolicy implements AuditPolicy {
 
     @Override
     public AuditEventNotifier createAuditNotifier(CamelContextService service) {
-        AuditEventNotifier notifier = new AuditEventNotifier();
+        AuditEventNotifier notifier = new AuditEventNotifier(service.getDescription());
         return notifier;
     }
 
@@ -46,7 +46,7 @@ public abstract class DefaultAuditPolicy implements AuditPolicy {
     public void configureNotifier(CamelContextService camelContextService, AuditEventNotifier notifier) {
         PolicySet contextPolicy = getPolicySet().createConfig(camelContextService);
 
-        LOG.info("Updating AuditEventNotifier " + notifier + " for " + camelContextService + " to policySet: " + contextPolicy);
+        LOG.info("Updating AuditEventNotifier " + notifier + " to policySet: " + contextPolicy);
 
         notifier.setPolicySet(contextPolicy);
     }
