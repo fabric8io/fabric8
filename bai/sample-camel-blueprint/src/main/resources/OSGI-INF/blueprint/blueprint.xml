@@ -19,7 +19,7 @@
       <setHeader headerName="foo">
         <constant>cheese</constant>
       </setHeader>
-      <log message="The message contains ${body}"/>
+      <log loggingLevel="DEBUG" message="The message contains ${body}"/>
       <to uri="mock:result"/>
     </route>
   </camelContext>
