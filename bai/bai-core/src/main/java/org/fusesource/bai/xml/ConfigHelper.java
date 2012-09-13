@@ -17,7 +17,9 @@
 package org.fusesource.bai.xml;
 
 import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
+import org.apache.camel.model.language.*;
 import org.apache.camel.util.ObjectHelper;
+import org.fusesource.bai.config.*;
 import org.fusesource.bai.config.PolicySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +34,9 @@ import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.StringWriter;
 
@@ -42,12 +47,49 @@ public class ConfigHelper {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigHelper.class);
 
     protected static Schema schema;
+    private static boolean initialised = false;
 
-    public static final String JAXB_CONTEXT_PACKAGES =
-            "org.fusesource.bai.config:org.apache.camel.model.language";
+    public static final Class[] JAXB_CLASSES = {
+            // BAI classes
+            BodyExpression.class,
+            ContextFilter.class,
+            ContextsFilter.class,
+            EndpointFilter.class,
+            EndpointsFilter.class,
+            EventFilter.class,
+            EventsFilter.class,
+            EventType.class,
+            ExchangeFilter.class,
+            Policy.class,
+            PolicySet.class,
+
+            // Camel language classes
+            ConstantExpression.class,
+            ELExpression.class,
+            ExpressionDefinition.class,
+            GroovyExpression.class,
+            HeaderExpression.class,
+            JavaScriptExpression.class,
+            JXPathExpression.class,
+            LanguageExpression.class,
+            MethodCallExpression.class,
+            MvelExpression.class,
+            NamespaceAwareExpression.class,
+            OgnlExpression.class,
+            PhpExpression.class,
+            PropertyExpression.class,
+            PythonExpression.class,
+            RubyExpression.class,
+            SimpleExpression.class,
+            SpELExpression.class,
+            SqlExpression.class,
+            TokenizerExpression.class,
+            XPathExpression.class,
+            XQueryExpression.class
+    };
 
     public static JAXBContext createConfigJaxbContext() throws JAXBException {
-        return JAXBContext.newInstance(JAXB_CONTEXT_PACKAGES);
+        return JAXBContext.newInstance(JAXB_CLASSES);
     }
 
     public static String toXml(PolicySet config) throws JAXBException {
@@ -82,14 +124,31 @@ public class ConfigHelper {
         return loadConfig(stream);
     }
 
+    public static PolicySet loadConfig(File file) throws FileNotFoundException, JAXBException {
+        return loadConfig(new FileInputStream(file));
+    }
+
     public static Schema getSchema() {
-        if (schema == null) {
+        if (schema == null && !initialised) {
+            initialised = true;
             SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
             try {
                 Source[] sources = {
                         new StreamSource(getSchemaStream("camel-spring.xsd")),
                         new StreamSource(getSchemaStream("bai.xsd"))
                 };
+                schema = schemaFactory.newSchema(sources);
+            } catch (Exception e) {
+                LOG.error("Could not parse BAI schemas. Reason: " + e, e);
+            }
+        }
+        return schema;
+    }
+
+    public static Schema getOrLoadSchema(Source[] sources) {
+        if (schema == null) {
+            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+            try {
                 schema = schemaFactory.newSchema(sources);
             } catch (SAXException e) {
                 LOG.error("Could not parse BAI schemas. Reason: " + e, e);
@@ -98,10 +157,15 @@ public class ConfigHelper {
         return schema;
     }
 
+    public static void setSchema(Schema schema) {
+        ConfigHelper.schema = schema;
+    }
+
     private static InputStream getSchemaStream(String uri) {
         InputStream xsdStream = ConfigHelper.class.getClassLoader().getResourceAsStream(uri);
         ObjectHelper.notNull(xsdStream, "Could not find '" + uri + "' on the classpath");
         return xsdStream;
     }
+
 }
 

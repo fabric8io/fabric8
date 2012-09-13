@@ -23,6 +23,8 @@ import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Dictionary;
 
 /**
@@ -34,12 +36,36 @@ import java.util.Dictionary;
 public class ConfigAdminAuditPolicy extends ConfigAdminAuditPolicySupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfigAdminAuditPolicy.class);
 
+    private Dictionary cachedConfig;
+    private FileWatcher fileWatcher = new FileWatcher() {
+
+        @Override
+        protected void onFileChange(File file) {
+            if (cachedConfig != null) {
+                try {
+                    updated(cachedConfig);
+                } catch (ConfigurationException e) {
+                    LOG.error("Failed to update configuration due to file change of " + file + ". Reason: " + e, e);
+                }
+            }
+        }
+    };
+
     @Override
     public void updated(Dictionary dict) throws ConfigurationException {
+        this.cachedConfig = dict;
         LOG.info("Updating BAI ConfigAdmin from " + dict);
-        PolicySetPropertiesSlurper pmps = new PolicySetPropertiesSlurper(dict);
-        setPolicySet(pmps.slurp());
+        try {
+            OsgiPropertiesPolicySetSlurper slurper = new OsgiPropertiesPolicySetSlurper(dict, getBundleContext(), fileWatcher);
+            setPolicySet(slurper.slurpXml());
+        } catch (Exception e) {
+            throw new ConfigurationException(OsgiPropertiesPolicySetSlurper.BAI_XML_PROPERTY, e.getMessage(), e);
+        }
     }
 
-
+    @Override
+    public void destroy() {
+        fileWatcher.destroy();
+        super.destroy();
+    }
 }

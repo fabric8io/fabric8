@@ -50,6 +50,9 @@ public class ConfigTest {
         assertMatchesEvent(config, false, endpointVm, EventType.CREATED, bodyA);
         assertMatchesEvent(config, false, endpointSeda, EventType.FAILURE_HANDLED, bodyA);
         assertMatchesEvent(config, false, endpointSeda, EventType.CREATED, bodyB);
+
+        Policy policy = config.getPolicies().get(0);
+        assertEquals("policies[0].to", "seda:dummy", policy.getTo());
     }
 
     @Test

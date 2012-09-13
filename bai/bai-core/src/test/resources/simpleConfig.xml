@@ -1,5 +1,5 @@
 <policySet xmlns="http://fuse.fusesource.org/schema/bai">
-  <policy id="nonAuditContexts">
+  <policy id="nonAuditContexts" to="seda:dummy">
     <contexts>
       <exclude>
         <context bundle="*" name="audit*"/>
