@@ -37,7 +37,7 @@ public class MasterEndpoint extends DefaultEndpoint {
     private final String singletonId;
     private final Group group;
     private final String child;
-    private ClusteredSingleton<TextNodeState> cluster;
+    private final ClusteredSingleton<TextNodeState> cluster;
 
 
     public MasterEndpoint(String uri, MasterComponent component, String singletonId, Group group, String child) {
@@ -46,7 +46,7 @@ public class MasterEndpoint extends DefaultEndpoint {
         this.singletonId = singletonId;
         this.group = group;
         this.child = child;
-        cluster = new ClusteredSingleton<TextNodeState>(TextNodeState.class);
+        this.cluster = new ClusteredSingleton<TextNodeState>(TextNodeState.class);
     }
 
     @Override
@@ -59,6 +59,12 @@ public class MasterEndpoint extends DefaultEndpoint {
     }
 
     public boolean isSingleton() {
+        return true;
+    }
+
+    @Override
+    public boolean isLenientProperties() {
+        // to allow properties to be propagated to the child endpoint
         return true;
     }
 
