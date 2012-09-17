@@ -1250,7 +1250,7 @@
     <profile>
       <id>snapshots</id>
       <properties>
-        <activemq-version>5.5.1.fuse-70-x-SNAPSHOT</activemq-version>
+        <activemq-version>5.5.1.fuse-7-0-x-SNAPSHOT</activemq-version>
         <aries.blueprint.version>0.3.1.fuse-70-x-SNAPSHOT</aries.blueprint.version>
         <aries.jmx.version>0.3.1.fuse-70-x-SNAPSHOT</aries.jmx.version>
         <aries.transaction.version>0.3.1.fuse-70-x-SNAPSHOT</aries.transaction.version>

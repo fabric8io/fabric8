@@ -61,9 +61,9 @@
 
            <!-- MQ Dependencies -->
            <dependency>
-               <groupId>org.apache.activemq</groupId>
-               <artifactId>activemq-web-console</artifactId>
-               <version>${activemq-version}</version>
+               <groupId>org.fusesource.mq</groupId>
+               <artifactId>mq-web-console</artifactId>
+               <version>${project.version}</version>
                <type>war</type>
            </dependency>
 
@@ -144,7 +144,7 @@
                                    <feature>activemq-spring</feature>
                                    <!-- needs sp3, feature>activemq-camel</feature -->
                                    <feature>war</feature>
-                                   <feature>activemq-web-console</feature>
+                                   <feature>mq-web-console</feature>
                                    <feature>patch</feature>
                                    <feature>patch-client</feature>
                                </features>
