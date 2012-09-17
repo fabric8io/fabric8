@@ -59,7 +59,6 @@
                <type>zip</type>
            </dependency>
 
-           <!-- MQ Dependencies -->
            <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>mq-web-console</artifactId>

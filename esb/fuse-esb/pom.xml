@@ -133,7 +133,6 @@
                                 <feature>activemq</feature>
                                 <feature>activemq-blueprint</feature>
                                 <feature>activemq-spring</feature>
-                                <feature>activemq-broker</feature>
                                 <feature>camel</feature>
                                 <feature>camel-activemq</feature>
                                 <feature>camel-cxf</feature>

@@ -47,6 +47,7 @@ public class ProfileEdit extends FabricCommand {
     static final String REPOSITORY_PREFIX = "repository.";
     static final String BUNDLE_PREFIX = "bundle.";
     static final String FAB_PREFIX = "fab.";
+    static final String OVERRIDE_PREFIX = "fab.";
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
     static final String DELIMETER = ",";
@@ -65,14 +66,17 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "-f", aliases = {"--fabs"}, description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = false)
     private String fabsList;
 
-    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = false)
-    private String configAdminConfigList;
+    @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides, specifying a comma-separated list of overrides to add (or delete).", required = false, multiValued = false)
+    private String overridesList;
 
-    @Option(name = "-s", aliases = {"--system"}, description = "Edit the Java system properties that affect installed bundles (analogous to editing etc/system.properties in a root container).", required = false, multiValued = false)
-    private String systemPropertyList;
+    @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = true)
+    private String[] configAdminProperties;
 
-    @Option(name = "-c", aliases = {"--config"}, description = "Edit the Java system properties that affect the karaf container (analogous to editing etc/config.properties in a root container).", required = false, multiValued = false)
-    private String configPropertyList;
+    @Option(name = "-s", aliases = {"--system"}, description = "Edit the Java system properties that affect installed bundles (analogous to editing etc/system.properties in a root container).", required = false, multiValued = true)
+    private String[] systemProperties;
+
+    @Option(name = "-c", aliases = {"--config"}, description = "Edit the Java system properties that affect the karaf container (analogous to editing etc/config.properties in a root container).", required = false, multiValued = true)
+    private String[] configProperties;
 
     @Option(name = "-i", aliases = {"--import-pid"}, description = "Imports the pids that are edited, from local OSGi config admin", required = false, multiValued = false)
     private boolean importPid = false;
@@ -118,10 +122,6 @@ public class ProfileEdit extends FabricCommand {
     private void editProfile(Profile profile) throws Exception {
         String pid = AGENT_PID;
 
-        if (configAdminConfigList != null) {
-            pid = configAdminConfigList.substring(0,configAdminConfigList.indexOf(PID_KEY_SEPARATOR));
-        }
-
         Map<String, Map<String, String>> config = profile.getConfigurations();
         Map<String, String> pidConfig = config.get(pid);
 
@@ -153,46 +153,71 @@ public class ProfileEdit extends FabricCommand {
                 updateConfig(pidConfig, FAB_PREFIX + fabsLocation.replace('/', '_'), fabsLocation, set, delete);
             }
         }
+        if (overridesList != null && !overridesList.isEmpty()) {
+            String[] overrides = overridesList.split(DELIMETER);
+            for (String overridesLocation : overrides) {
+                updateConfig(pidConfig, FAB_PREFIX + overridesLocation.replace('/', '_'), overridesLocation, set, delete);
+            }
+        }
 
-        if (configAdminConfigList != null && !configAdminConfigList.isEmpty()) {
-            Map<String, String> configMap = extractConfigs(configAdminConfigList);
-            for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
-                String key = configEntries.getKey();
-                if (key.contains(PID_KEY_SEPARATOR)) {
-                    String currentPid = key.substring(0, key.lastIndexOf(PID_KEY_SEPARATOR));
-                    key = key.substring(key.lastIndexOf(PID_KEY_SEPARATOR) + 1);
+        if (configAdminProperties != null && configAdminProperties.length > 0) {
+
+            for (String configAdminProperty : configAdminProperties) {
+                String currentPid = null;
+                Map<String, String> existingConfig = null;
+
+                if (configAdminProperty != null ) {
+                    String keyValue = "";
+                    if (configAdminProperty.contains(PID_KEY_SEPARATOR)) {
+                        currentPid = configAdminProperty.substring(0, configAdminProperty.indexOf(PID_KEY_SEPARATOR));
+                        keyValue = configAdminProperty.substring(configAdminProperty.indexOf(PID_KEY_SEPARATOR) + 1);
+                    } else {
+                        currentPid = configAdminProperty;
+                    }
+                    
+                    existingConfig = config.get(currentPid);
+                    if (existingConfig == null) {
+                        existingConfig = new HashMap<String, String>();
+                    }
+                    
+                    //We only support import when a single pid is spcecified
+                    if (configAdminProperties.length == 1 && importPid) {
+                        importPidFromLocalConfigAdmin(currentPid, existingConfig);
+                    }
+                    
+                    
+                    Map<String, String> configMap = extractConfigs(keyValue);
+                    for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
+                        String key = configEntries.getKey();
+                        String value = configEntries.getValue();
+                        updatedDelimitedList(existingConfig, key, value, delimiter, set, delete, append, remove);
+                    }
+
+                    config.put(currentPid, existingConfig);
+                } 
+            }
+        }
+
+        if (systemProperties != null && systemProperties.length > 0) { 
+            for (String systemProperty : systemProperties) {
+                Map<String, String> configMap = extractConfigs(systemProperty);
+                for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
+                    String key = configEntries.getKey();
                     String value = configEntries.getValue();
-                    Map<String, String> cfg = config.get(currentPid);
-                    if (cfg == null) {
-                        cfg = new HashMap<String, String>();
-                    }
-                    if (importPid) {
-                        importPidFromLocalConfigAdmin(currentPid, cfg);
-                    }
-                    updatedDelimitedList(pidConfig, key, value, delimiter, set, delete, append, remove);
-                    config.put(currentPid, cfg);
+                    updatedDelimitedList(pidConfig, SYSTEM_PREFIX + key, value, delimiter, set, delete, append, remove);
                 }
             }
         }
 
-        if (systemPropertyList != null && !systemPropertyList.isEmpty()) {
-            String[] keyValues = systemPropertyList.split("=");
-            Map<String, String> configMap = extractConfigs(systemPropertyList);
-            for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
-                String key = configEntries.getKey();
-                String value = configEntries.getValue();
-                updatedDelimitedList(pidConfig, SYSTEM_PREFIX + key, value, delimiter, set, delete, append, remove);
-            }
-        }
-
-        if (configPropertyList != null && !configPropertyList.isEmpty()) {
-            String[] keyValues = configPropertyList.split("=");
-            Map<String, String> configMap = extractConfigs(configPropertyList);
-            for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
-                String key = configEntries.getKey();
-                String value = configEntries.getValue();
-                updatedDelimitedList(pidConfig, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
-            }
+        if (configProperties != null && configProperties.length > 0) {
+            for (String configProperty : configProperties) {
+                Map<String, String> configMap = extractConfigs(configProperty);
+                for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
+                    String key = configEntries.getKey();
+                    String value = configEntries.getValue();
+                    updatedDelimitedList(pidConfig, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
+                }
+            }            
         }
 
         config.put(pid, pidConfig);
@@ -243,7 +268,7 @@ public class ProfileEdit extends FabricCommand {
      */
     private void importPidFromLocalConfigAdmin(String pid, Map<String, String> target) {
         try {
-            Configuration[] configuration = configurationAdmin.listConfigurations("service.pid=" + pid + ")");
+            Configuration[] configuration = configurationAdmin.listConfigurations("(service.pid=" + pid + ")");
             if (configuration != null && configuration.length > 0) {
                 Dictionary dictionary = configuration[0].getProperties();
                 Enumeration keyEnumeration = dictionary.keys();
@@ -269,29 +294,10 @@ public class ProfileEdit extends FabricCommand {
         Map<String, String> configMap = new HashMap<String, String>();
         //If contains key values.
         if (configs.contains("=")) {
-            String[] keyValues = configs.split("=");
-            int index = 0;
-            String prefix = "";
-            while (index + 1 < keyValues.length) {
-                String key = !prefix.isEmpty() ? prefix : keyValues[index];
-                String value = keyValues[index + 1];
-                if (value.contains(DELIMETER) && index + 2 != keyValues.length) {
-                    prefix = value.substring(value.lastIndexOf(DELIMETER) + 1);
-                    value = value.substring(0, value.lastIndexOf(DELIMETER));
-                } else {
-                    prefix = "";
-                }
-                configMap.put(key, value);
-                index += 1;
-            }
-        } else {
-            String[] keys = configs.split(",");
-            for (String key : keys) {
-                configMap.put(key, "");
-            }
-        }
+            String key = configs.substring(0, configs.indexOf("="));
+            String value = configs.substring(configs.indexOf("=") + 1);
+            configMap.put(key, value);
+        } 
         return configMap;
     }
-
-
 }

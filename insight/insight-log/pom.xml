@@ -41,6 +41,7 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
         </fuse.osgi.private.pkg>
+        <fuse.osgi.activator>org.fusesource.insight.log.service.LogQueryActivator</fuse.osgi.activator>
     </properties>
 
     <dependencies>

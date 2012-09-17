@@ -154,7 +154,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 overviewBuilder.append(" operating system: ").append(options.getOsFamily());
                 builder.osFamily(OsFamily.fromValue(options.getOsFamily()));
                 if (!Strings.isNullOrEmpty(options.getOsVersion())) {
-                    overviewBuilder.append(" and version: ");
+                    overviewBuilder.append(" and version: ").append(options.getOsVersion());
                     builder.osVersionMatches(options.getOsVersion());
                 }
             } else {

@@ -93,7 +93,7 @@
         <fabric.embed.dependency>!*</fabric.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>070</perfectus-build>
+        <perfectus-build>079</perfectus-build>
 
         <activemq-version>5.5.1.fuse-70-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
@@ -156,7 +156,7 @@
         <ops4j-pax-web-version>1.0.10</ops4j-pax-web-version>
         <osgi-version>4.2.0</osgi-version>
         <pax-exam-version>2.3.1</pax-exam-version>
-        <pax.logging.version>1.6.9</pax.logging.version>
+        <pax.logging.version>1.6.10</pax.logging.version>
         <pax-runner-version>1.7.6</pax-runner-version>
         <pax.url.version>1.2.8</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>

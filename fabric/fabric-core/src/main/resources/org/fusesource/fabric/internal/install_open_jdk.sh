@@ -1,9 +1,10 @@
-function install-openjdk-deb() {
+function install_openjdk_deb() {
   sudo apt-get update
   sudo apt-get -y install openjdk-6-jdk
   
   # Try to set JAVA_HOME in a number of commonly used locations
-  export JAVA_HOME=/usr/lib/jvm/java-6-openjdk
+  export JVM_DIR=`ls -l /usr/lib/jvm/ | grep java | grep openjdk | grep ^d | awk '{ print $NF }' | sort -n | head -1`
+  export JAVA_HOME=/usr/lib/jvm/${JVM_DIR}
   if [ -f /etc/profile ]; then
     sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
   fi
@@ -25,11 +26,12 @@ function install-openjdk-deb() {
   java -version
 }
 
-function install-openjdk-rpm() {
+function install_openjdk_rpm() {
   sudo yum install -y java-1.6.0-openjdk java-1.6.0-openjdk-devel
   
   # Try to set JAVA_HOME in a number of commonly used locations
-  export JAVA_HOME=/usr/lib/jvm/java-1.6.0
+    export JVM_DIR=`ls -l /usr/lib/jvm/ | grep java | grep openjdk | grep ^d | awk '{ print $NF }' | sort -n | head -1`
+    export JAVA_HOME=/usr/lib/jvm/${JVM_DIR}
   if [ -f /etc/profile ]; then
     sudo echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
   fi
@@ -51,7 +53,7 @@ function install-openjdk-rpm() {
   java -version
 }
 
-function install-openjdk() {
+function install_openjdk() {
     echo "Checking if java is present."
     ARCH=`uname -m`
     JAVA_VERSION=`java -version 2>&1`

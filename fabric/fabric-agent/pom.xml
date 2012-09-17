@@ -78,6 +78,7 @@
             org.apache.felix.bundlerepository*,
             org.apache.felix.bundleplugin*,
             org.apache.karaf.features.*,
+            org.apache.karaf.util.collections.*,
             org.apache.felix.utils.*,
             org.apache.aries.util*,
             org.fusesource.fabric.fab.*,
@@ -131,6 +132,13 @@
         <dependency>
             <groupId>org.apache.karaf.features</groupId>
             <artifactId>org.apache.karaf.features.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+         <dependency>
+            <groupId>org.apache.karaf</groupId>
+            <artifactId>org.apache.karaf.util</artifactId>
+            <version>${karaf-version}</version>
             <scope>provided</scope>
         </dependency>
 
