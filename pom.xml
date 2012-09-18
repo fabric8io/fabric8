@@ -1251,22 +1251,22 @@
       <id>snapshots</id>
       <properties>
         <activemq-version>5.5.1.fuse-7-0-x-SNAPSHOT</activemq-version>
-        <aries.blueprint.version>0.3.1.fuse-70-x-SNAPSHOT</aries.blueprint.version>
-        <aries.jmx.version>0.3.1.fuse-70-x-SNAPSHOT</aries.jmx.version>
-        <aries.transaction.version>0.3.1.fuse-70-x-SNAPSHOT</aries.transaction.version>
-        <aries.util.version>0.3.1.fuse-70-x-SNAPSHOT</aries.util.version>
-        <camel-version>2.9.0.fuse-70-x-SNAPSHOT</camel-version>
-        <cxf-version>2.5.0.fuse-70-x-SNAPSHOT</cxf-version>
-        <felix-configadmin-version>1.3.0.fuse-70-x-SNAPSHOT</felix-configadmin-version>
-        <felix-eventadmin-version>1.2.15.fuse-70-x-SNAPSHOT</felix-eventadmin-version>
-        <felix-fileinstall-version>3.3.11.fuse-70-x-SNAPSHOT</felix-fileinstall-version>
-        <felix-framework-version>4.0.3.fuse-70-x-SNAPSHOT</felix-framework-version>
-        <karaf-version>2.2.5.fuse-70-x-SNAPSHOT</karaf-version>
-        <servicemix.components.version>2012.01.0.fuse-70-x-SNAPSHOT</servicemix.components.version>
+        <aries.blueprint.version>0.3.1.fuse-7-0-x-SNAPSHOT</aries.blueprint.version>
+        <aries.jmx.version>0.3.1.fuse-7-0-x-SNAPSHOT</aries.jmx.version>
+        <aries.transaction.version>0.3.1.fuse-7-0-x-SNAPSHOT</aries.transaction.version>
+        <aries.util.version>0.3.1.fuse-7-0-x-SNAPSHOT</aries.util.version>
+        <camel-version>2.9.0.fuse-7-0-x-SNAPSHOT</camel-version>
+        <cxf-version>2.5.0.fuse-7-0-x-SNAPSHOT</cxf-version>
+        <felix-configadmin-version>1.3.0.fuse-7-0-x-SNAPSHOT</felix-configadmin-version>
+        <felix-eventadmin-version>1.2.15.fuse-7-0-x-SNAPSHOT</felix-eventadmin-version>
+        <felix-fileinstall-version>3.3.11.fuse-7-0-x-SNAPSHOT</felix-fileinstall-version>
+        <felix-framework-version>4.0.3.fuse-7-0-x-SNAPSHOT</felix-framework-version>
+        <karaf-version>2.2.5.fuse-7-0-x-SNAPSHOT</karaf-version>
+        <servicemix.components.version>2012.01.0.fuse-7-0-x-SNAPSHOT</servicemix.components.version>
         <servicemix.features.version>4.5.0-fuse-SNAPSHOT</servicemix.features.version>
-        <servicemix.nmr.version>1.6.0.fuse-70-x-SNAPSHOT</servicemix.nmr.version>
-        <servicemix.specs.version>2.0.0.fuse-70-x-SNAPSHOT</servicemix.specs.version>
-        <servicemix.utils.version>1.5.1.fuse-70-x-SNAPSHOT</servicemix.utils.version>
+        <servicemix.nmr.version>1.6.0.fuse-7-0-x-SNAPSHOT</servicemix.nmr.version>
+        <servicemix.specs.version>2.0.0.fuse-7-0-x-SNAPSHOT</servicemix.specs.version>
+        <servicemix.utils.version>1.5.1.fuse-7-0-x-SNAPSHOT</servicemix.utils.version>
       </properties>
     </profile>
 

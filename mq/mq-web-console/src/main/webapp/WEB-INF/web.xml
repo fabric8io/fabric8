@@ -198,7 +198,7 @@
 
     <login-config>
         <auth-method>BASIC</auth-method>
-        <realm-name>default</realm-name>
+        <realm-name>karaf</realm-name>
     </login-config>
 
 </web-app>
