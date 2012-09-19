@@ -87,7 +87,7 @@ public class EcaDefinition extends FromDefinition {
                 Map parameters = URISupport.parseParameters(u);
                 parameters.put(EcaEndpoint.PATTERN_NAME, getEvaluation());
                 parameters.put(EcaEndpoint.WINDOW_NAME, getEventWindow());
-                Map<Object, Object> sorted = new LinkedHashMap<Object, Object>(parameters.size());
+                Map<String, Object> sorted = new LinkedHashMap<String, Object>(parameters.size());
                 List<String> keys = new ArrayList<String>(parameters.keySet());
                 Collections.sort(keys);
                 for (String key : keys) {

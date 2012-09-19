@@ -68,10 +68,11 @@ public class Main {
     public static final String ARTIFACTS = "artifacts";
     public static final String CACHE = "cache";
 
-    public static final String DEFAULT_REPOSITORIES = "http://repo.fusesource.com/nexus/content/groups/public/";
+    public static final String DEFAULT_REPOSITORIES = "http://repo.fusesource.com/nexus/content/repositories/releases/," +
+                                                      "http://repo.fusesource.com/nexus/content/groups/ea/";
     
     public static final String DEFAULT_ARTIFACTS = 
-            "org.apache.felix:org.apache.felix.framework," +
+            //"org.apache.felix:org.apache.felix.framework," +
             "org.apache.felix:org.apache.felix.configadmin," +
             "org.apache.felix:org.apache.felix.eventadmin," +
             "org.apache.felix:org.apache.felix.fileinstall," +
@@ -84,7 +85,7 @@ public class Main {
             "org.apache.karaf:karaf," +
             "org.apache.cxf:cxf," +
             "org.apache.camel:camel," +
-            "org.apache.activemq:activemq," +
+            "org.apache.activemq:activemq-parent," +
             "org.apache.servicemix:servicemix-utils," +
             "org.apache.servicemix:components," +
             "org.apache.servicemix.nmr:nmr-parent," +
@@ -118,7 +119,6 @@ public class Main {
         downloadPatchMetadata(patches, cache);
         System.out.println("Downloading missing patches in the background ...");
         downloadPatches(patches, cache);
-
 
         while (true) {
             System.out.println();
@@ -198,10 +198,24 @@ public class Main {
         }
 
         System.out.println("Connecting to the local instance:");
-        String host = readLine("Host", "localhost");
+        String host = "localhost"; //readLine("Host", "localhost");
         String port = readLine("Port", "8101");
         String user = readLine("User", "admin");
         String pass = readLine("Password", "admin", true);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("Installing patches on local instance (port ").append(port).append("): ");
+        boolean first = true;
+        for (Patch p : patches) {
+            if (first) {
+                first = false;
+            } else {
+                sb.append(", ");
+            }
+            sb.append(p.metadata.getProperty("id"));
+        }
+        audit(sb.toString());
+
 
         String version = getVersion();
         String osgiVersion = VersionCleaner.clean(version);
@@ -369,10 +383,28 @@ public class Main {
     }
 
     public void downloadPatchMetadata(final List<Patch> locations, final File directory) throws InterruptedException {
+        final Properties ids = new Properties();
+        File idsFile = new File(directory, "ids.txt");
+        if (idsFile.isFile()) {
+            try {
+                FileInputStream fis = new FileInputStream(idsFile);
+                try {
+                    ids.load(fis);
+                } finally {
+                    fis.close();
+                }
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
         final CountDownLatch latch = new CountDownLatch(locations.size());
         for (final Patch patch : locations) {
+            final String id;
+            synchronized (ids) {
+                id = ids.getProperty(patch.artifact + ":" + patch.version, patch.location.getPath());
+            }
             final URL location = patch.location;
-            final File file = new File(directory, new File(location.getPath()).getName());
+            final File file = new File(directory, new File(id + ".patch").getName());
             executor.submit(new Runnable() {
                 @Override
                 public void run() {
@@ -387,6 +419,13 @@ public class Main {
                             fis.close();
                         }
                         patch.metadata = props;
+                        String patchId = patch.metadata.getProperty("id");
+                        if (patchId != null && !file.getName().equals(patchId + ".patch")) {
+                            file.renameTo(new File(directory, patchId + ".patch"));
+                            synchronized (ids) {
+                                ids.setProperty(patch.artifact + ":" + patch.version, patchId);
+                            }
+                        }
                     } catch (FileNotFoundException e) {
                         // Ignore
                     } catch (Exception e) {
@@ -398,6 +437,16 @@ public class Main {
             });
         }
         latch.await();
+        try {
+            FileOutputStream fos = new FileOutputStream(idsFile);
+            try {
+                ids.store(fos, "");
+            } finally {
+                fos.close();
+            }
+        } catch (IOException e) {
+            // Ignore
+        }
     }
 
     private void download(File file, URL location) throws IOException {
@@ -441,9 +490,12 @@ public class Main {
 
     public void downloadPatches(final List<Patch> locations, final File directory) throws InterruptedException, MalformedURLException {
         for (final Patch patch : locations) {
+            if (patch.metadata == null) {
+                continue;
+            }
             final URL location = patch.location;
             final URL patchurl = new URL(location.toExternalForm().replaceAll("-patch.patch", "-patch.zip"));
-            final File file = new File(directory, new File(patchurl.getPath()).getName());
+            final File file = new File(directory, patch.metadata.getProperty("id") + ".zip");
             if (!file.isFile()) {
                 patch.patchFile = executor.submit(new Callable<File>() {
                     @Override
@@ -553,6 +605,13 @@ public class Main {
     public static void main(String[] args) throws Exception {
         System.setProperty(TerminalSupport.JLINE_SHUTDOWNHOOK, "true");
         AnsiConsole.systemInstall();
+
+        for (String arg : args) {
+            int idx = arg.indexOf('=');
+            if (idx > 0) {
+                System.setProperty(arg.substring(0, idx), arg.substring(idx + 1));
+            }
+        }
 
         List<String> repos = new ArrayList<String>();
         String repoStr = System.getProperty(REPOSITORIES, DEFAULT_REPOSITORIES);

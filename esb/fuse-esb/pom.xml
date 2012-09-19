@@ -62,6 +62,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- patch-client -->
+        <dependency>
+            <groupId>org.fusesource.patch</groupId>
+            <artifactId>patch-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- other features required
         <dependency>
             <groupId>org.apache.cxf.karaf</groupId>
@@ -157,7 +164,6 @@
                                 <feature>activemq</feature>
                                 <feature>activemq-blueprint</feature>
                                 <feature>activemq-spring</feature>
-                                <feature>activemq-broker</feature>
                                 <feature>camel</feature>
                                 <feature>camel-activemq</feature>
                                 <feature>camel-cxf</feature>
@@ -167,6 +173,7 @@
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>
                                 <feature>patch</feature>
+                                <feature>patch-client</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>

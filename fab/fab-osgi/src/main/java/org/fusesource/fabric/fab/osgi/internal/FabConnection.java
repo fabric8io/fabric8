@@ -22,14 +22,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import aQute.lib.osgi.Analyzer;
 import org.apache.karaf.features.FeaturesService;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.PomDetails;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
@@ -44,7 +42,6 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositoryException;
 
 import static org.fusesource.fabric.fab.util.Strings.notEmpty;
 
@@ -84,17 +81,6 @@ public class FabConnection extends URLConnection  {
 
     public FabConnection createChild(URL url) throws IOException {
         return new FabConnection(url, fabResolverFactory, serviceProvider);
-    }
-
-    /**
-     * Forces the dependencies to be resolved and returns the resolver
-     */
-    //TODO: figure out how to deal with this one
-    public FabClassPathResolver resolve() throws BundleException, RepositoryException, IOException, XmlPullParserException {
-        Map<String, Object> embeddedResources = new HashMap<String, Object>();
-        //Properties instructions = createInstructions(embeddedResources);
-        //
-        return null;
     }
 
     /**

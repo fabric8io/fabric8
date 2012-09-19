@@ -85,7 +85,10 @@
 
     <feature name="servicemix-shared" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>
         <feature version="${servicemix.nmr.version}">jbi</feature>
+        <feature version="${spring-version}">spring</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.wsdl4j/${wsdl4j.bundle.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${xmlschema.version}</bundle>
+        <bundle dependency="true">mvn:javax.mail/mail/${javax.mail.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-blueprint/${xbean.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean.version}</bundle>
         <bundle>mvn:org.apache.commons/commons-jexl/${commons-jexl.version}</bundle>
@@ -242,9 +245,4 @@
     </feature>
     -->
 
-    <!-- Default broker configuration -->
-    <feature name="activemq-broker" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${activemq.version}">activemq-blueprint</feature>
-        <bundle>blueprint:file:etc/activemq-broker.xml</bundle>
-    </feature>
 </features>

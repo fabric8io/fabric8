@@ -204,7 +204,7 @@ public class EsbFeaturesTest extends EsbTestSupport {
     @Test
     @Ignore
     public void testServicemixWsn2005() throws Exception {
-        installAndCheckFeature("activemq-broker");
+        installAndCheckFeature("mq-fabric");
         installAndCheckFeature("servicemix-wsn2005");
         unInstallAndCheckFeature("servicemix-wsn2005");
     }
@@ -228,13 +228,6 @@ public class EsbFeaturesTest extends EsbTestSupport {
     public void testServicemixSmpp() throws Exception {
         installAndCheckFeature("servicemix-smpp");
         unInstallAndCheckFeature("servicemix-smpp");
-    }
-
-    @Test
-    @Ignore
-    public void testActivemqBroker() throws Exception {
-        installAndCheckFeature("activemq-broker");
-        unInstallAndCheckFeature("activemq-broker");
     }
 
     @Configuration

@@ -58,12 +58,15 @@ set on the SymbolicName osgi header -->
 
   <service ref="fabDeploymentListener" auto-export="interfaces" depends-on="fabDeploymentListener" ranking="1"/>
 
-  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+  <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
     <command name="fab/tree">
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.TreeCommand"/>
     </command>
     <command name="fab/headers">
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.HeadersCommand"/>
+    </command>
+    <command name="fab/info">
+        <action class="org.fusesource.fabric.fab.osgi.commands.fab.InfoCommand"/>
     </command>
     <command name="fab/start">
         <action class="org.fusesource.fabric.fab.osgi.commands.fab.StartCommand"/>

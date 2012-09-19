@@ -26,8 +26,8 @@
                 <property name="service" ref="service"/>
             </action>
         </command>
-        <command name="patch/download">
-            <action class="org.fusesource.patch.commands.Download">
+        <command name="patch/add">
+            <action class="org.fusesource.patch.commands.Add">
                 <property name="service" ref="service"/>
             </action>
         </command>

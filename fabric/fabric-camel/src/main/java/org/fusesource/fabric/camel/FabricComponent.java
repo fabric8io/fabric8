@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.camel;
 
-import java.util.Map;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.util.ObjectHelper;
@@ -26,6 +24,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * The FABRIC camel component for providing endpoint discovery, clustering and load balancing.
@@ -99,8 +101,8 @@ public class FabricComponent extends ZKComponentSupport {
             // we are registering a regular endpoint
             String name = remaining.substring(0, idx);
             String fabricPath = getFabricPath(name);
-            String childUri = remaining.substring(idx + 1);
-
+            // need to replace the "0.0.0.0" with the host and port
+            String childUri = replaceAnyIpAddress(remaining.substring(idx + 1));
             Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath, accessControlList);
             return new FabricPublisherEndpoint(uri, this, group, childUri);
 
@@ -117,6 +119,20 @@ public class FabricComponent extends ZKComponentSupport {
             path = zkRoot + "/" + name;
         }
         return path;
+    }
+
+    protected String replaceAnyIpAddress(String uri) {
+        String result = uri;
+        //TODO do we need to support the IPV6 ?
+        if (uri.indexOf("0.0.0.0") > 0) {
+            try {
+                String hostAddress = InetAddress.getLocalHost().getHostAddress();
+                result = uri.replace("0.0.0.0", hostAddress);
+            } catch (UnknownHostException ex) {
+                LOG.warn("Cannot find the local host name, due to {0}", ex);
+            }
+        }
+        return result;
     }
 
 }

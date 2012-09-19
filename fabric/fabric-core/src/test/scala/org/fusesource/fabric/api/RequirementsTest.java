@@ -32,11 +32,22 @@ public class RequirementsTest {
     @Test
     public void saveAndLoad() throws Exception {
         List<ProfileRequirements> profiles = new ArrayList<ProfileRequirements>();
+        ProfileRequirements dummy = new ProfileRequirements("dummy", 1, null, "mq");
+        profiles.add(dummy);
         profiles.add(new ProfileRequirements("mq", 1, 5));
         profiles.add(new ProfileRequirements("example-camel", 1, null, "mq"));
 
+        // lets check we can make it empty
+        assertEquals(false, dummy.isEmpty());
+
+        dummy.setDependentProfiles(null);
+        dummy.setMinimumInstances(0);
+        assertEquals(true, dummy.isEmpty());
+        dummy.setMinimumInstances(null);
+        assertEquals(true, dummy.isEmpty());
 
         FabricRequirements requirements = new FabricRequirements(profiles);
+        requirements.removeEmptyRequirements();
 
         String json = RequirementsJson.toJSON(requirements);
 

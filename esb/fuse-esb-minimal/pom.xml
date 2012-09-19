@@ -79,6 +79,7 @@
                               <feature>camel-paxlogging</feature>
                               <feature>camel-rmi</feature>
                               <feature>patch</feature>
+                              <feature>patch-client</feature>
                             </features>
                         </configuration>
                     </execution>

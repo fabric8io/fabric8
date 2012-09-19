@@ -73,6 +73,25 @@ public class FabClassPathResolverTest {
     }
 
     @Test
+    public void testDefaultValueForProvidedDependency() {
+        FabClassPathResolver resolver = new FabClassPathResolver(new MockFabFacade(), null, null) {
+
+            @Override
+            public String getManifestProperty(String name) {
+                // no value set for the header
+                return "";
+            }
+        };
+        resolver.processFabInstructions();
+        assertTrue("Apache ActiveMQ dependencies are considered shared by default",
+                   resolver.sharedFilterPatterns.contains("org.apache.activemq:*"));
+        assertTrue("Apache Camel dependencies are considered shared by default",
+                   resolver.sharedFilterPatterns.contains("org.apache.camel:*"));
+        assertTrue("Apache CXF dependencies are considered shared by default",
+                   resolver.sharedFilterPatterns.contains("org.apache.cxf:*"));
+    }
+
+    @Test
     public void testConfigureRequiredFeaturesAndURLS() throws URISyntaxException {
         FabClassPathResolver resolver = new FabClassPathResolver(new FabClassPathResolverTest.MockFabFacade(), null, null) {
 

@@ -73,7 +73,8 @@ public class ProfileImpl implements Profile {
         BUNDLES("bundle"),
         FABS("fab"),
         FEATURES("feature"),
-        REPOSITORIES("repository");
+        REPOSITORIES("repository"),
+        OVERRIDES("override");
 
         private String value;
 
@@ -102,6 +103,11 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    public List<String> getOverrides() {
+        return getContainerConfigList(this, ConfigListType.OVERRIDES);
+    }
+
+    @Override
     public void setBundles(List<String> values) {
         setContainerConfigList(this, values, ConfigListType.BUNDLES);
     }
@@ -121,6 +127,10 @@ public class ProfileImpl implements Profile {
         setContainerConfigList(this, values, ConfigListType.REPOSITORIES);
     }
 
+    @Override
+    public void setOverrides(List<String> values) {
+        setContainerConfigList(this, values, ConfigListType.OVERRIDES);
+    }
 
     public static List<String> getContainerConfigList(Profile p, ConfigListType type) {
         try {

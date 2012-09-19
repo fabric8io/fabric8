@@ -22,11 +22,9 @@ Before building and running this example you need:
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
 * `client.html` - a Web client that can be used to test the Web service from your browser
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorld.java` - a Java interface that defines the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorldImpl.java` - a Java class that implements the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/Client.java` - a Java class implementing a client that uses `JaxWsProxyFactoryBean` to call the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/ClientPasswordCallback.java` - a Java class implementing a JAAS callback handler for retrieving the credentials needed by the client
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/CustomSecurityInterceptor.java` - a Java class implementing a CXF interceptor that configures the standard WSS4J interceptor to provide the credentials needed to invoke the service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/HelloWorld.java` - a Java interface that defines the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/HelloWorldImpl.java` - a Java class that implements the Web service
+* `src/main/java/org/fusesource/examples/cxf/jaxws/client/Client.java` - a Java class implementing a client that uses `JaxWsProxyFactoryBean` to call the Web service
 * `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
@@ -58,6 +56,14 @@ together with a list of operations for the endpoint and some additional informat
 to the WSDL file for the web service:
 
     http://localhost:8181/cxf/HelloWorld?wsdl
+
+You can also use "cxf:list-endpoints" to check the state of all CXF web services like this 
+
+    FuseESB:karaf@root> cxf:list-endpoints
+    
+    Name                      State      Address                                                      BusID                                   
+    [HelloWorldImplPort     ] [Started ] [http://localhost:8181/cxf/HelloWorld                   ] [org.fusesource.examples.soap-cxf2040055609]
+    
 
 ### To run a Web client:
 
@@ -110,6 +116,8 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 1. Add org.apache.cxf.osgi.cfg to the /etc directory and set the 'org.apache.cxf.servlet.context' property, for example:
 
         org.apache.cxf.servlet.context=/custom
+   
+   In this way, Fuse ESB will load the cfg when the CXF Servlet is reloaded, you can restart the CXF bundle to load the change.
 
 2. Use shell config commands, for example:
 
@@ -117,8 +125,10 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
         config:propset org.apache.cxf.servlet.context /custom
         config:update
 
+    Fuse ESB will create org.apache.cxf.osgi.cfg file in the /etc directory and and set the entry as we did in the first way after the commands are run, you need to restart the CXF bundle to load the change.
+
 
 ## More information
 For more information see:
 
-
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise

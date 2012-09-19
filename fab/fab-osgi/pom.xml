@@ -35,8 +35,7 @@
     <fuse.osgi.import.defaults>
     </fuse.osgi.import.defaults>
     <fuse.osgi.import.before.defaults />
-    <fuse.osgi.import.additional />
-    <fuse.osgi.import.pkg>
+    <fuse.osgi.import.additional>
         org.fusesource.fabric.*;${fuse.osgi.import.fabric.version},
         !org.apache.maven.*,
         !org.codehaus.plexus.*,
@@ -48,8 +47,7 @@
         !org.kxml2.*,
         !org.xmlpull.*,
         org.osgi.service.event;resolution:=optional,
-        *
-    </fuse.osgi.import.pkg>
+    </fuse.osgi.import.additional>
     <aetherVersion>1.7</aetherVersion>
     <mavenVersion>3.0</mavenVersion>
   </properties>
@@ -236,15 +234,21 @@
       <version>1.5.9</version>
     </dependency>
 
+    <!-- test dependencies -->
     <dependency>
       <groupId>org.easymock</groupId>
       <artifactId>easymock</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.ops4j.pax.tinybundles</groupId>
+      <artifactId>tinybundles</artifactId>
+      <version>${tinybundles-version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
   <build>
     <plugins>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>

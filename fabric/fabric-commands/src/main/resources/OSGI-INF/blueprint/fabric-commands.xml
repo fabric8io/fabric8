@@ -379,6 +379,7 @@
             </action>
         </command>
 
+        <!--
         <command name="fabric/patch-list-upgrades">
             <action class="org.fusesource.fabric.commands.PatchListUpgrades">
                 <property name="fabricService" ref="fabricService"/>
@@ -389,6 +390,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
+        -->
     </command-bundle>
 
     <bean id="currentContainerCompleter" class="org.fusesource.fabric.boot.commands.support.CurrentContainerCompleter"/>

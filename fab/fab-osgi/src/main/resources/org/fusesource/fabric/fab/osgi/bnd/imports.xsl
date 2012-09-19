@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Copyright (C) FuseSource, Inc.
   http://fusesource.com
@@ -13,17 +14,20 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
-  -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+-->
+<xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:beans="http://www.springframework.org/schema/beans">
 
-  <bean id="logQueryService" class="org.fusesource.insight.log.service.LogQuery" init-method="init" destroy-method="destroy">
-    <property name="bundleContext" ref="blueprintBundleContext"/>
-  </bean>
+    <xsl:output method="text" xml:space="preserve" />
 
-  <service ref="logQueryService" auto-export="interfaces"/>
+    <xsl:template match="beans:import">
+      <xsl:value-of xml:space="preserve" select="@resource"/>
+      <xsl:text xml:space="preserve">
+      </xsl:text>
+    </xsl:template>
 
-  <reference interface="javax.management.MBeanServer">
-    <reference-listener ref="logQueryService" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer"/>
-  </reference>
+    <!-- stripping text nodes -->
+    <xsl:template match="text()" />
 
-</blueprint>
+</xsl:stylesheet>
