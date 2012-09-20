@@ -32,7 +32,6 @@ class FabSamplesWithCamelPreinstalledTest {
   def config : Array[Option] = Array(
     junitBundles(),
     felix(),
-    equinox(),
 
     //vmOption( "-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5005" ),
     systemProperty("project.version").value(VERSION),
