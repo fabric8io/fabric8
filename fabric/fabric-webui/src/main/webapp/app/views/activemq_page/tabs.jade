@@ -1,0 +1,74 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+#camel_tab_menu
+  ul.tabs(if="")
+    li(class="#{'active' if tab=='connections'}")
+      a(href="#{link}!connections")
+        | Connections
+        | (#{connections.length})
+    li(class="#{'active' if tab=='queues'}")
+      a(href="#{link}!queues")
+        | Queues
+        | (#{queues.length})
+    li(class="#{'active' if tab=='topics'}")
+      a(href="#{link}!topics")
+        | Topics
+        | (#{topics.length})
+        
+div
+  - if tab == "connections" 
+    table.zebra-striped
+      thead
+        tr
+          th Remote Address
+          th Slow?
+          th Blocked?
+      tbody
+        - for item in connections 
+          tr(ref="#{item.id}")
+            td #{item.remote_address}
+            td #{item.slow}
+            td #{item.blocked}
+            
+  - else if tab == "queues"
+    table.zebra-striped
+      thead
+        tr
+          th Name
+          th Enqueues
+          th Dequeues
+      tbody
+        - for item in queues
+          tr(ref="#{item.id}")
+            td #{item.name}
+            td #{item.enqueue_count}
+            td #{item.dequeue_count}
+            
+  - else if tab == "topics"
+    table.zebra-striped
+      thead
+        tr
+          th Name
+          th Enqueues
+          th Dequeues
+      tbody
+        - for item in topics 
+          tr(ref="#{item.id}")
+            td #{item.name}
+            td #{item.enqueue_count}
+            td #{item.dequeue_count}

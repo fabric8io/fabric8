@@ -1,0 +1,101 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+table.overviewSection
+  thead
+    tr
+      th(colspan="2").center
+        h4 #{id}
+
+  tbody
+    tr
+      td
+        strong Type:
+      td.less-big
+        - if ensemble_server
+          | Fabric Server
+        - else if managed
+          | Managed Container
+        - else
+          | Unmanaged Container
+
+    tr
+      td
+        strong Profiles:
+      td
+        .edit-list.agents-page
+    tr
+      td(style="vertical-align: middle")
+        strong Service URLs:
+      td
+        - if ssh_url?
+          a.ssh.btn(href="#") SSH
+        - if jmx_url?
+          a.jmx.btn(href="#") JMX
+        - if has_pk
+          a.pk.btn(href="/agents/#{id}/pk.pem" title="Download machine's SSH private key file") PK
+    tr
+      td
+        strong Location:
+      td.ep.location 
+        | #{location || "-"}
+    tr
+      td
+        strong Local IP:
+      td.ep.local_ip
+        | #{local_ip || "-"}
+
+    tr
+      td
+        strong Local Hostname:
+      td.ep.local_hostname
+        | #{local_hostname || "-"}
+
+    tr
+      td
+        strong Public IP:
+      td.ep.public_ip
+        | #{public_ip || "-"}
+
+    tr
+      td
+        strong Public Hostname:
+      td.ep.public_hostname
+        | #{public_hostname || "-"}
+
+    tr
+      td
+        strong Manual IP:
+      td.ep.manual_ip
+        | #{manual_ip || "-"}
+
+    tr
+      td
+        strong Resolver:
+      td.resolver
+        | #{resolver || "-"}
+
+    - if managed
+      tr
+        td
+          strong Provision Status:
+        td.wrap
+          - if !provision_exception?
+            | #{provision_status}
+          - else
+            a.exception(href="#") #{provision_status}
+

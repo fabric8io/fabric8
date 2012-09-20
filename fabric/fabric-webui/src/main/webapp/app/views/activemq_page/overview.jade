@@ -1,0 +1,108 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+table.overviewSection
+  tr
+    td
+      strong Broker Name:
+    td
+      | #{name}
+    td.right
+      strong Version:
+    td
+      | #{version}
+  - if openwire_url && openwire_url != ""
+    tr
+      td
+        strong OpenWire URL:
+      td(colspan="3")
+        | #{openwire_url}
+  - if stomp_url && stomp_url != ""
+    tr
+      td
+        strong STOMP URL:
+      td(colspan="3")
+        | #{stomp_url}
+  - if ssl_url && ssl_url != ""
+    tr
+      td
+        strong OpenWire SSL URL:
+      td(colspan="3")
+        | #{ssl_url}
+  - if stomp_ssl_url && stomp_ssl_url != ""
+    tr
+      td
+        strong STOMP SSL URL:
+      tr(colspan="3")
+        | #{stomp_ssl_url}
+  tr
+    td
+      strong Memory Limit:
+    td
+      | #{as_memory(memory_limit)}
+    td.right
+      strong Usage:
+    td
+      | #{memory_percent_usage}%
+  tr
+    td
+      strong Store Limit:
+    td
+      | #{as_memory(store_limit)}
+    td.right
+      strong Usage:
+    td
+      | #{store_percent_usage}%
+  tr
+    td
+      strong Temp Limit:
+    td
+      | #{as_memory(temp_limit)}
+    td.right
+      strong Usage:
+    td
+      | #{temp_percent_usage}%
+  tr
+    td(colspan="2")
+      strong Total Producers:
+    td(colspan="2")
+      | #{total_producer_count}
+  tr
+    td(colspan="2")
+      strong Total Consumers:
+    td(colspan="2")
+      | #{total_consumer_count}
+  tr
+    td(colspan="2")
+      strong Total Messages Enqueued:
+    td(colspan="2")
+      | #{total_enqueue_count}
+  tr
+    td(colspan="2")
+      strong Total Messages Dequeued:
+    td(colspan="2")
+      | #{total_dequeue_count}
+  tr
+    td(colspan="2")
+      strong Total Messages:
+    td(colspan="2")
+      | #{total_message_count}
+  tr
+    td(style="width: 8em")
+      strong Data Directory:
+    td(colspan="3").wrap
+      | #{data_directory}

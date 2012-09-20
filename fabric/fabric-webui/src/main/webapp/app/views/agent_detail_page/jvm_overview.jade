@@ -1,0 +1,87 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+.span8.columns.detailsBlock
+  table.overviewSection
+    tbody
+      tr
+        td
+          strong Process ID:
+        td #{runtime_name}
+      tr
+        td
+          strong JVM:
+        td #{jvm_name}
+      tr
+        td
+          strong JVM Version:
+        td #{vm_version}
+      tr
+        td
+          strong Classes Loaded:
+        td #{classes_loaded}
+      tr
+        td
+          strong CPU time:
+        td #{duration(os_cpu_time / 1000000)}
+      tr
+        td
+          strong Up time:
+        td #{duration(uptime)}
+      tr
+        td
+          strong OS type:
+        td #{os_name}
+      tr
+        td
+          strong Architecture:
+        td #{os_arch}
+      tr
+        td
+          strong CPU cores:
+        td #{os_processors}
+      tr
+        td
+          strong load average:
+          - load_average = new Number(os_load_average).toFixed(2)
+        td #{load_average}
+
+.span8.center.metrics
+
+.span3.offset1.center
+  .alert-message.block-message.success.center.nowrap
+    strong Threads
+    h4 #{threads_current} running
+    h4 #{threads_peak} peak
+
+  .alert-message.block-message.success.center.nowrap
+    strong File Descriptors
+    h4 #{os_fd_open} used
+    h4 #{os_fd_max} max
+
+.span3.center
+  .alert-message.block-message.success.center.nowrap
+    strong Swap
+    h4 #{as_memory(os_swap_free)} free
+    h4 #{as_memory(os_swap_total)} total   
+
+  .alert-message.block-message.success.center.nowrap
+    strong.nowrap Native Memory
+    h4 #{as_memory(non_heap_memory.used)} used
+    h4 #{as_memory(non_heap_memory.alloc)} alloc
+    h4 #{as_memory(non_heap_memory.max)} max
+

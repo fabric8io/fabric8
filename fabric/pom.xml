@@ -68,12 +68,20 @@
         <module>fabric-hadoop</module>
         <module>fabric-virt</module>
         <module>fabric-branding</module>
+
+        <module>fabric-activemq-facade</module>
+        <module>fabric-camel-facade</module>
+        <module>fabric-servicemix-facade</module>
+        <module>fabric-webui</module>
+
         <module>fuse-fabric</module>
         
         <module>fabric-examples</module>
         <module>fabric-itests</module>
         <module>fabric-utils</module>
+        
         <module>openshift</module>
+
     </modules>
 
 </project>

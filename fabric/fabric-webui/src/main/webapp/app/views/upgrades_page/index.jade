@@ -1,0 +1,58 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+.container
+  section#broker
+    .row
+      .span16.breadcrumbs
+        a(href="#/upgrades") Upgrades 
+    .row
+      .span16
+        .block.left
+          a.select-all.btn(href="#") Select All
+          a.select-none.btn(href="#") Select None
+          | &nbsp;&nbsp;Version: 
+          select(class="small" name="version-select")
+            - for version in versions
+              option(value="#{version.id}") #{version.id}
+        .block.right
+          a.refresh.btn(href="#") Refresh
+          a.apply.btn(href="#") Apply Upgrades
+    .row
+      .span16
+        - if upgrades_available
+          form
+            fieldset
+              legend
+              .clearfix
+                ol.inputs-list
+                  - for artifact, value of upgrades
+                    - if value.length > 0
+                      li
+                        label
+                          input(type="checkbox" name="#{artifact}")
+                          span Upgrade #{artifact} to: 
+                        .clearfix
+                          ul.inputs-list.opts
+                            - values_reversed = value.reverse()
+                            - for upgrade in values_reversed
+                              li
+                                label
+                                  input(type="radio" name="#{artifact}" value="#{upgrade}")
+                                  span #{upgrade}
+        - else
+          .pad1em No upgrades are yet available for this version, click the "Refresh" button to check again or pick a different version.

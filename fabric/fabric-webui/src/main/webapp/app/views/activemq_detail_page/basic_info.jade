@@ -1,0 +1,79 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+.row
+  .span6.columns
+    ul.simple
+      li
+        strong Broker Name : 
+        | #{name}
+      li 
+        strong Version : 
+        | #{version}
+      li
+        strong OpenWire URL : 
+        | #{openwire_url}
+      li
+        strong STOMP URL : 
+        | #{stomp_url}
+      li
+        strong OpenWire SSL URL : 
+        | #{ssl_url}
+      li
+        strong STOMP SSL URL : 
+        | #{stomp_ssl_url}
+  .span4.columns
+    ul.simple
+      li
+        strong Memory Limit : 
+        | #{as_memory(memory_limit)}
+      li
+        strong Memory Limit Usage : 
+        | #{memory_percent_usage}%
+      li
+        strong Store Limit : 
+        | #{as_memory(store_limit)}
+      li
+        strong Store Limit Usage : 
+        | #{store_percent_usage}
+      li
+        strong Temp Limit : 
+        | #{as_memory(temp_limit)}
+      li
+        strong Temp Limit Usage : 
+        | #{temp_percent_usage}%
+  .span5.columns
+    ul.simple
+      li
+        strong Total Producers : 
+        | #{total_producer_count}
+      li
+        strong Total Consumers : 
+        | #{total_consumer_count}
+      li
+        strong Total Messages Enqueued : 
+        | #{total_enqueue_count}
+      li
+        strong Total Messages Dequeued : 
+        | #{total_dequeue_count}
+      li
+        strong Total Messages : 
+        | #{total_message_count}
+.row
+  .span16.columns
+    strong Data Directory : 
+    | #{data_directory}

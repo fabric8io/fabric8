@@ -1,0 +1,67 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+legend Set the container\u2019s basic configuration:
+.clearfix#name
+  label(for="name") Name:
+  .input
+    | <input name="name" class="span6" type="text">
+    span.help-block#name-help
+      | Container name must be unique
+.clearfix
+  label Options:
+  .input
+    ul.inputs-list
+      li
+        label
+          | <input name="ensemble-server" type="checkbox">
+          span Make container a distributed registry server
+.clearfix
+  label(for="jvm-opts") JVM Options:
+  .input
+    .input-prepend
+      label.add-on
+        | <input type="checkbox" name="use-jvm-opts">
+      | <input class="span5" name="jvm-opts" type="text" disabled>
+      span.help-block
+        | If checked, pass the specified arguments to the new container's JVM
+.clearfix
+  label(for="proxy") Maven Proxy URL:
+  .input
+    .input-prepend
+      label.add-on
+        | <input type="checkbox" name="use-proxy">
+      | <input class="span5" name="proxy" type="text" disabled>
+      span.help-block
+        | If checked, use the specified Maven proxy
+.clearfix#number
+  label(for="number") Count:
+  .input
+    | <input name="number" class="span1" type="text" value="1">
+    span.help-block#number-help
+      | If greater than 1, multiple containers will be created with instance numbers appended to the name
+.clearfix#resolver
+  label(for="resolver") Resolver:
+  .input
+    select(name="resolver")
+      option(value="localhostname") Local Hostname
+      option(value="localip") Local IP
+      option(vlaue="publichostname") Public Hostname
+      option(value="publicip") Public IP
+      - #option(vlaue="manualip") Manual IP
+    span.help-block#resolver-help
+

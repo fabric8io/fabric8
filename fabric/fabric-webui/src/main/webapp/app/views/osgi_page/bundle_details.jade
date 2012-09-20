@@ -1,0 +1,83 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+.container
+  section#broker
+    .row
+      .span16.breadcrumbs
+        a(href="#/containers") Containers
+        |  / 
+        a(href="#/containers/details/#{container}") #{container}  
+        |  / 
+        a(href="#/containers/details/#{container}/osgi/bundles") OSGi
+        |  / 
+        a(href="#/containers/details/#{container}/osgi/bundles/#{id}") Bundle Details: #{id}
+    .row
+      .span16
+        table.overviewSection
+          tbody
+            tr
+              td
+                strong ID:
+              td #{id}
+            tr
+              td 
+                strong Symbolic Name:
+              td #{symbolic_name}
+            tr
+              td 
+                strong Version:
+              td #{version}
+            tr
+              td 
+                strong Imported Packages:
+              td
+                - if (import_packages.length > 0)
+                  ul.simple
+                    - for value in import_packages
+                      li #{value}
+                - else
+                  i None
+            tr
+              td 
+                strong Exported Packages:
+              td
+                - if (export_packages.length > 0)
+                  ul.simple
+                    - for value in export_packages
+                      li #{value}
+                - else
+                  i None
+            - splitup = ["Bundle-ClassPath", "Import-Service", "Export-Service", "Embed-Dependency", "Ignore-Package"]
+            - for header in headers
+              - if header.key != "Import-Package" && header.key != "Export-Package"
+                tr
+                  td
+                    strong #{header.key}
+                  td 
+                    - if _.any(splitup, (el) -> header.key == el)
+                      ul.simple
+                        - for el in header.value.split(",")
+                          li #{el}
+                    - else
+                      #{header.value}
+    .row
+      .span16
+        h3 OSGi Services
+    .row
+      .span16
+        .service-info

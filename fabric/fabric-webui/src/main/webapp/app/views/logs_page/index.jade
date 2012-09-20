@@ -1,0 +1,55 @@
+- ###
+
+ Copyright 2010 Red Hat, Inc.
+
+ Red Hat licenses this file to you under the Apache License, version
+ 2.0 (the "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ implied.  See the License for the specific language governing
+ permissions and limitations under the License.
+
+- ###
+.container
+  section
+    .row
+      .span16.columns
+        .page-header
+          h1 Log Events
+        form
+          fieldset
+            .clearfix
+              label(for="log_search") Search:
+              .input
+                input#log_search.xlarge(type="text" size="30")
+                span.help-block
+                  | Text to search for in the logs
+            .clearfix
+              label(for="log_level") Log Level Filter:
+              .input
+                select#log_level.medium
+                  option(value="trace") Trace
+                  option(value="debug") Debug
+                  option(value="info" selected="true") Informational
+                  option(value="warn") Warning
+                  option(value="error") Error
+          
+        table#log_table
+          thead
+            tr
+              th.col_Host Agent
+              th.col_Received Timestamp
+              th.col_Level Level
+              th.col_Message Message
+              th.col_Logger Logger
+              th.col_Thread Thread
+              th.col_Properties Properties
+          tbody
+            tr
+              td(colspan="5")
+            
