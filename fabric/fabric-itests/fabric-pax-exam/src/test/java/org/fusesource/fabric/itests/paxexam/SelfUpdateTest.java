@@ -20,6 +20,7 @@ package org.fusesource.fabric.itests.paxexam;
 import java.io.File;
 import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;

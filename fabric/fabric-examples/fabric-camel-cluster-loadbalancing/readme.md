@@ -6,6 +6,26 @@ framework but using Jetty as Web Server.
 Remark : The container instead of being created locally could be on another machine (ssh) or in the cloud.
 
 The Apache Camel routes exposing a service uses the Jetty component and the Fabric endpoint.
+=======
+﻿﻿INTRODUCTION
+============
+
+This example demonstrates the provisioning feature of fuseSource Fabric based on profiles
+defined in zookeeper configuration registry and how we can use the fabric-camel component in
+a cluster environment.  We will deploy a fabric camel route on Fuse ESB 7 instance
+
+    <route id="fabric-slave">
+      <from uri="timer://foo?fixedRate=true&amp;period=10000"/>
+      <setBody>
+          <simple>Hello from Zookeeper server</simple>
+      </setBody>
+      <to uri="fabric-camel:local"/>
+      <log message=">>> ${body} : ${header.karaf.name}"/>
+    </route>
+
+and sends messages to a fabric called cheese while two other fabric camel routes deployed on zookeeper
+containers and exposing HTTP Servers will be able to answer to the client.
+>>>>>>> 7.1.x.fuse-stable
 
      <route id="fabric-server">
         <from uri="fabric-camel:local:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
@@ -25,8 +45,6 @@ the location of the endpoint. The result hereafter shows you what Zookeeper has 
     registry/camel/endpoints/local/00000000000 = jetty:http://0.0.0.0:9191/fabric
     registry/camel/endpoints/local/00000000001 = jetty:http://0.0.0.0:9090/fabric
 
-This mechanism allows not only to make the consumer and producer independent from each other as the client does not need to know
-what is the IP or Hostname of the target machines, it allow to add new camel enpoints without having to stop/start existing camel routes.
 
 The camel producer (= client), instead of calling directly the camel endpoint as usal, will call a Fabric endpoint using as key
 the group name "local". Then a lookup occurs in the Zookeeper registry to question it and find which endpoints have been registered.
@@ -104,8 +122,14 @@ to the Fabric container camel-client and check the log
     2012-06-28 13:51:20,980 | INFO  | #1 - timer://foo | fabric-client                    | 92 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Fabric Container : camel-9191
 
 # VIDEO
+=======
+    In the root container you should receive messages from the 2 instances deployed
+    in camel-9090 and camel-9191 and loadbalanced
 
- * [Fabric Camel - How it works](http://www.youtube.com/watch?v=CO1WcTFivT0)
- * [Demo](http://www.youtube.com/watch?v=RUg2rgY4BME)
+    2012-06-20 14:15:39,217 | INFO  | #1 - timer://foo | fabric-client                    | 138 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Zookeeper agent : camel-9090
+    2012-06-20 14:15:49,219 | INFO  | #1 - timer://foo | fabric-client                    | 138 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Zookeeper agent : camel-9191
+    2012-06-20 14:15:59,215 | INFO  | #1 - timer://foo | fabric-client                    | 138 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Zookeeper agent : camel-9090
+    2012-06-20 14:16:09,213 | INFO  | #1 - timer://foo | fabric-client                    | 138 - org.apache.camel.camel-core - 2.9.0.fuse-7-061 | >>> Response from Zookeeper agent : camel-9191
 
 Enjoy Cloud Integration with Camel !
+=======

@@ -12,3 +12,4 @@ overlays
 .classpath
 *.fmd
 .cache
+dependency-reduced-pom.xml

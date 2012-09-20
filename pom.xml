@@ -67,6 +67,8 @@
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.9,3)",
+            org.apache.felix.gogo.commands.*;version="[0.10,1)",
+            org.apache.felix.service.command.*;version="[0.10,1)",
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
@@ -156,7 +158,7 @@
         <ops4j-pax-web-version>1.0.10</ops4j-pax-web-version>
         <osgi-version>4.2.0</osgi-version>
         <pax-exam-version>2.3.1</pax-exam-version>
-        <pax.logging.version>1.6.9</pax.logging.version>
+        <pax.logging.version>1.6.10</pax.logging.version>
         <pax-runner-version>1.7.6</pax-runner-version>
         <pax.url.version>1.2.8</pax.url.version>
         <pax.url.mvn.version>${pax.url.version}</pax.url.mvn.version>
@@ -420,6 +422,7 @@
                     <useSystemClassLoader>false</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
                     <failIfNoTests>false</failIfNoTests>
+                    <runOrder>alphabetical</runOrder>
                     <includes>
                         <include>**/*Test.*</include>
                     </includes>
@@ -1189,6 +1192,11 @@
 	          <version>1.8</version>
 	      </dependency>
 	      <dependency>
+	          <groupId>org.apache.servicemix.bundles</groupId>
+	          <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+	          <version>2.4_5</version>
+	      </dependency>
+	      <dependency>
 	          <groupId>org.mortbay.jetty</groupId>
 	          <artifactId>jetty</artifactId>
 	          <version>6.1.26</version>
@@ -1275,23 +1283,24 @@
     <profile>
       <id>snapshots</id>
       <properties>
-        <activemq-version>5.5.1.fuse-SNAPSHOT</activemq-version>
-        <aries.blueprint.version>0.3.2-fuse-SNAPSHOT</aries.blueprint.version>
-        <aries.jmx.version>0.3.1-fuse-SNAPSHOT</aries.jmx.version>
-        <aries.transaction.version>0.3.1-fuse-SNAPSHOT</aries.transaction.version>
-        <aries.util.version>0.3.1-fuse-SNAPSHOT</aries.util.version>
-        <camel-version>2.9.x-fuse-SNAPSHOT</camel-version>
-        <cxf-version>2.5.x-fuse-SNAPSHOT</cxf-version>
-        <felix-configadmin-version>1.3.0-fuse-SNAPSHOT</felix-configadmin-version>
-        <felix-eventadmin-version>1.2.15-fuse-SNAPSHOT</felix-eventadmin-version>
-        <felix-fileinstall-version>3.1.11-fuse-SNAPSHOT</felix-fileinstall-version>
-        <felix-framework-version>4.1.0-fuse-SNAPSHOT</felix-framework-version>
-        <karaf-version>2.2.5-fuse-SNAPSHOT</karaf-version>
-        <servicemix.components.version>2012.01.0-fuse-SNAPSHOT</servicemix.components.version>
-        <servicemix.features.version>4.5.0-fuse-SNAPSHOT</servicemix.features.version>
-        <servicemix.nmr.version>1.6.0-fuse-SNAPSHOT</servicemix.nmr.version>
-        <servicemix.specs.version>2.0.0-fuse-SNAPSHOT</servicemix.specs.version>
-        <servicemix.utils.version>1.5.1-fuse-SNAPSHOT</servicemix.utils.version>
+        <perfectus-build>SNAPSHOT</perfectus-build>
+        <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
+        <aries.blueprint.version>1.0.1.fuse-71-${perfectus-build}</aries.blueprint.version>
+        <aries.jmx.version>1.0.1.fuse-71-${perfectus-build}</aries.jmx.version>
+        <aries.transaction.version>1.0.1.fuse-71-${perfectus-build}</aries.transaction.version>
+        <aries.util.version>1.0.0</aries.util.version>
+        <camel-version>2.10.0.fuse-71-${perfectus-build}</camel-version>
+        <cxf-version>2.6.0.fuse-71-${perfectus-build}</cxf-version>
+        <felix-configadmin-version>1.4.0.fuse-71-${perfectus-build}</felix-configadmin-version>
+        <felix-eventadmin-version>1.3.0.fuse-71-${perfectus-build}</felix-eventadmin-version>
+        <felix-fileinstall-version>3.3.11.fuse-71-${perfectus-build}</felix-fileinstall-version>
+        <felix-framework-version>4.0.3.fuse-71-${perfectus-build}</felix-framework-version>
+        <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>
+        <servicemix.components.version>2012.01.0.fuse-71-${perfectus-build}</servicemix.components.version>
+        <servicemix.features.version>4.5.0-fuse-${perfectus-build}</servicemix.features.version>
+        <servicemix.nmr.version>1.6.0.fuse-71-${perfectus-build}</servicemix.nmr.version>
+        <servicemix.specs.version>2.0.0.fuse-71-${perfectus-build}</servicemix.specs.version>
+        <servicemix.utils.version>1.5.1.fuse-71-${perfectus-build}</servicemix.utils.version>
       </properties>
     </profile>
 
@@ -1300,10 +1309,10 @@
       <id>perfectus</id>
       <properties>
         <perfectus-run>04</perfectus-run>
-        <activemq-version>5.5.1.fuse-00-${perfectus-run}</activemq-version>
-        <cxf-version>2.5.0-fuse-00-${perfectus-run}</cxf-version>
-        <camel-version>2.9.0-fuse-00-${perfectus-run}</camel-version>
-        <karaf-version>2.2.4-fuse-00-${perfectus-run}</karaf-version>
+        <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
+        <cxf-version>2.6.0.fuse-71-${perfectus-build}</cxf-version>
+        <camel-version>2.10.0.fuse-71-${perfectus-build}</camel-version>
+        <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>
       </properties>
 
       <repositories>

@@ -2,6 +2,7 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;

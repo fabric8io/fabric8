@@ -106,7 +106,9 @@ public class ProfileDisplay extends FabricCommand {
             else if (key.startsWith("config.")) {
                 configProperties.add("  " + key.substring("config.".length()) + " = " + value);
             }
-            else if (!key.startsWith("feature.") && !key.startsWith("repository") && !key.startsWith("bundle.") && !key.startsWith("fab.")) {
+            else if (!key.startsWith("feature.") && !key.startsWith("repository") &&
+                        !key.startsWith("bundle.") && !key.startsWith("fab.") &&
+                        !key.startsWith("override.")) {
                 agentProperties.add("  " + key + " = " + value);
             }
         }
@@ -126,6 +128,9 @@ public class ProfileDisplay extends FabricCommand {
             }
             if (profile.getFabs().size() > 0) {
                 printConfigList("Fabs : ", output, profile.getFabs());
+            }
+            if (profile.getOverrides().size() > 0) {
+                printConfigList("Overrides : ", output, profile.getOverrides());
             }
 
             if (agentProperties.size() > 0) {

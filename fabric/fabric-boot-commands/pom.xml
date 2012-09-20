@@ -39,10 +39,9 @@
         <fuse.osgi.export>
             org.fusesource.fabric.boot.commands.service*;version=${project.version};-noimport:=true
         </fuse.osgi.export>
-        <fuse.osgi.import>
+        <fuse.osgi.import.additional>
             org.apache.karaf.features*;resolution:=optional,
-            *
-        </fuse.osgi.import>
+        </fuse.osgi.import.additional>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.boot.commands,
             org.fusesource.fabric.boot.commands.support,

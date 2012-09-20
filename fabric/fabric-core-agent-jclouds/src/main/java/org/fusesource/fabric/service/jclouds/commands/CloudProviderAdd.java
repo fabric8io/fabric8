@@ -122,7 +122,6 @@ public class CloudProviderAdd extends FabricCommand {
 
 
         if (!registerAsync) {
-
             System.out.println("Waiting for " + serviceName + " service to initialize.");
             CloudUtils.waitForComputeService(bundleContext, provider);
         }

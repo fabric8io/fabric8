@@ -159,4 +159,10 @@ public interface FabricService {
      * Get the profile statuses of the fabric in terms of the current number of instances and their max/min requirements
      */
     FabricStatus getFabricStatus();
+
+    /**
+     * Get the patch support service which allow easy upgrades
+     */
+    PatchService getPatchService();
+
 }

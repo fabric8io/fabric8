@@ -34,6 +34,7 @@
                 <exclude>etc/custom.properties</exclude>
                 <exclude>etc/system.properties</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
+                <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
                 <exclude>fabric_license.txt</exclude>
                 <exclude>fabric_notices.txt</exclude>
@@ -118,7 +119,7 @@
         </fileSet>
 
     </fileSets>
-    
+
     <files>
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
@@ -149,7 +150,7 @@
         </file>
         -->
     </files>
-    
+
 
     <componentDescriptors>
       <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>

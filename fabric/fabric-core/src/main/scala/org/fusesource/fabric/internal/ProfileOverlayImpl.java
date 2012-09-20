@@ -78,6 +78,11 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public List<String> getOverrides() {
+        return getContainerConfigList(this, ConfigListType.OVERRIDES);
+    }
+
+    @Override
     public Container[] getAssociatedContainers() {
         return self.getAssociatedContainers();
     }
@@ -123,6 +128,11 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public void setRepositories(List<String> values) {
+        throw new UnsupportedOperationException("Overlay profiles are read-only.");
+    }
+
+    @Override
+    public void setOverrides(List<String> values) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
 

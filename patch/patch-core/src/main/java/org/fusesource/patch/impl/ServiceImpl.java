@@ -28,10 +28,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -58,6 +61,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
 import org.osgi.framework.wiring.FrameworkWiring;
 
@@ -65,7 +69,6 @@ public class ServiceImpl implements Service {
     
     private final BundleContext bundleContext;
     private final File patchDir;
-    private final Map<String, Patch> patches = new HashMap<String, Patch>();
 
     private static final String ID = "id";
     private static final String DESCRIPTION = "description";
@@ -75,12 +78,15 @@ public class ServiceImpl implements Service {
     private static final String COUNT = "count";
     private static final String SYMBOLIC_NAME = "symbolic-name";
     private static final String NEW_VERSION = "new-version";
+    private static final String NEW_LOCATION = "new-location";
     private static final String OLD_VERSION = "old-version";
     private static final String OLD_LOCATION = "old-location";
 
     public ServiceImpl(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        String dir = bundleContext.getProperty("fuse.patch.location");
+        // Use system bundle' bundle context to avoid running into
+        // "Invalid BundleContext" exceptions when updating bundles
+        this.bundleContext = bundleContext.getBundle(0).getBundleContext();
+        String dir = this.bundleContext.getProperty("fuse.patch.location");
         patchDir = dir != null ? new File(dir) : this.bundleContext.getDataFile("patches");
         if (!patchDir.isDirectory()) {
             patchDir.mkdirs();
@@ -88,17 +94,17 @@ public class ServiceImpl implements Service {
                 throw new PatchException("Unable to create patch folder");
             }
         }
-        reload();
+        load();
     }
 
     @Override
     public Iterable<Patch> getPatches() {
-        return Collections.unmodifiableCollection(patches.values());
+        return Collections.unmodifiableCollection(load().values());
     }
 
     @Override
     public Patch getPatch(String id) {
-        return patches.get(id);
+        return load().get(id);
     }
 
     @Override
@@ -169,17 +175,26 @@ public class ServiceImpl implements Service {
                 file.renameTo(new File(patchDir, patch.getId() + ".patch"));
                 patches.add(patch);
             }
-            // Add them to the list of downloaded patches
-            for (Patch patch : patches) {
-                this.patches.put(patch.getId(), patch);
-            }
             return patches;
         } catch (Exception e) {
             throw new PatchException("Unable to download patch from url " + url, e);
         }
     }
 
-    void reload() {
+    public void cliInstall(String[] ids) {
+        final List<Patch> patches = new ArrayList<Patch>();
+        for (String id : ids) {
+            Patch patch = getPatch(id);
+            if (patch == null) {
+                throw new IllegalArgumentException("Unknown patch: " + id);
+            }
+            patches.add(patch);
+        }
+        install(patches, false, false);
+    }
+
+    Map<String, Patch> load() {
+        Map<String, Patch> patches = new HashMap<String, Patch>();
         for (File file : patchDir.listFiles()) {
             if (file.exists() && file.getName().endsWith(".patch")) {
                 try {
@@ -190,6 +205,7 @@ public class ServiceImpl implements Service {
                 }
             }
         }
+        return patches;
     }
 
     Patch load(File file) throws IOException {
@@ -226,9 +242,10 @@ public class ServiceImpl implements Service {
             for (int i = 0; i < count; i++) {
                 String sn = props.getProperty(UPDATES + "." + Integer.toString(i) + "." + SYMBOLIC_NAME);
                 String nv = props.getProperty(UPDATES + "." + Integer.toString(i) + "." + NEW_VERSION);
+                String nl = props.getProperty(UPDATES + "." + Integer.toString(i) + "." + NEW_LOCATION);
                 String ov = props.getProperty(UPDATES + "." + Integer.toString(i) + "." + OLD_VERSION);
                 String ol = props.getProperty(UPDATES + "." + Integer.toString(i) + "." + OLD_LOCATION);
-                updates.add(new BundleUpdateImpl(sn, nv, ov, ol));
+                updates.add(new BundleUpdateImpl(sn, nv, nl, ov, ol));
             }
             return new ResultImpl(patch, false, date, updates);
         } finally {
@@ -247,6 +264,7 @@ public class ServiceImpl implements Service {
             for (BundleUpdate update : result.getUpdates()) {
                 props.put(UPDATES + "." + Integer.toString(i) + "." + SYMBOLIC_NAME, update.getSymbolicName());
                 props.put(UPDATES + "." + Integer.toString(i) + "." + NEW_VERSION, update.getNewVersion());
+                props.put(UPDATES + "." + Integer.toString(i) + "." + NEW_LOCATION, update.getNewLocation());
                 props.put(UPDATES + "." + Integer.toString(i) + "." + OLD_VERSION, update.getPreviousVersion());
                 props.put(UPDATES + "." + Integer.toString(i) + "." + OLD_LOCATION, update.getPreviousLocation());
             }
@@ -256,7 +274,7 @@ public class ServiceImpl implements Service {
         }
     }
 
-    void rollback(PatchImpl patch, boolean force) throws PatchException {
+    void rollback(Patch patch, boolean force) throws PatchException {
         Result result = patch.getResult();
         if (result == null) {
             throw new PatchException("Patch " + patch.getId() + " is not installed");
@@ -286,79 +304,139 @@ public class ServiceImpl implements Service {
             throw new PatchException(sb.toString());
         }
 
-        Set<Bundle> toRefresh = new HashSet<Bundle>();
-        Set<Bundle> toDelete = new HashSet<Bundle>();
-        Set<String> toInstall = new HashSet<String>();
+        Map<Bundle, String> toUpdate = new HashMap<Bundle, String>();
         for (BundleUpdate update : result.getUpdates()) {
             Version v = Version.parseVersion(update.getNewVersion());
             for (Bundle bundle : allBundles) {
                 if (bundle.getSymbolicName().equals(update.getSymbolicName())
                         && bundle.getVersion().equals(v)) {
-                    toInstall.add(update.getPreviousLocation());
-                    toDelete.add(bundle);
+                    toUpdate.put(bundle, update.getPreviousLocation());
                 }
             }
         }
         try {
-            applyChanges(toRefresh, toDelete, toInstall);
+            applyChanges(toUpdate);
         } catch (Exception e) {
             throw new PatchException("Unable to rollback patch " + patch.getId() + ": " + e.getMessage(), e);
         }
-        patch.setResult(null);
+        ((PatchImpl) patch).setResult(null);
         File file = new File(patchDir, result.getPatch().getId() + ".patch.result");
         file.delete();
     }
 
-    Result install(PatchImpl patch, boolean simulate) {
+    Result install(Patch patch, boolean simulate) {
+        Map<String, Result> results = install(Collections.singleton(patch), simulate, true);
+        return results.get(patch.getId());
+    }
+
+    Map<String, Result> install(final Collection<Patch> patches, boolean simulate, boolean synchronous) {
         try {
-            Set<Bundle> toRefresh = new HashSet<Bundle>();
-            Set<Bundle> toDelete = new HashSet<Bundle>();
-            Set<String> toInstall = new HashSet<String>();
-            List<BundleUpdate> updates = new ArrayList<BundleUpdate>();
-            Bundle[] allBundles = bundleContext.getBundles();
-            for (String url : patch.getBundles()) {
-                JarInputStream jis = new JarInputStream(new URL(url).openStream());
-                Attributes att = jis.getManifest().getMainAttributes();
-                jis.close();
-                String sn = att.getValue(Constants.BUNDLE_SYMBOLICNAME);
-                String vr = att.getValue(Constants.BUNDLE_VERSION);
-                Version v = VersionTable.getVersion(vr);
-                // We can't really upgrade with versions such as 2.1.0
-                Version lower = new Version(v.getMajor(), v.getMinor(), 0);
-                if (v.compareTo(lower) > 0) {
-                    VersionRange range = new VersionRange(false, lower, v, true);
-                    for (Bundle bundle : allBundles) {
-                        Version oldV = bundle.getVersion();
-                        if (sn.equals(bundle.getSymbolicName()) && range.contains(oldV)) {
-                            String location = bundle.getLocation();
-                            updates.add(new BundleUpdateImpl(sn, v.toString(), oldV.toString(), location));
-                            toInstall.add(url);
-                            toDelete.add(bundle);
+            // Compute individual patch results
+            final Map<String, Result> results = new LinkedHashMap<String, Result>();
+            final Map<Bundle, String> toUpdate = new HashMap<Bundle, String>();
+            Map<String, BundleUpdate> allUpdates = new HashMap<String, BundleUpdate>();
+            for (Patch patch : patches) {
+                List<BundleUpdate> updates = new ArrayList<BundleUpdate>();
+                Bundle[] allBundles = bundleContext.getBundles();
+                for (String url : patch.getBundles()) {
+                    JarInputStream jis = new JarInputStream(new URL(url).openStream());
+                    jis.close();
+                    Manifest manifest = jis.getManifest();
+                    Attributes att = manifest != null ? manifest.getMainAttributes() : null;
+                    String sn = att != null ? att.getValue(Constants.BUNDLE_SYMBOLICNAME) : null;
+                    String vr = att != null ? att.getValue(Constants.BUNDLE_VERSION) : null;
+                    if (sn == null || vr == null) {
+                        continue;
+                    }
+                    Version v = VersionTable.getVersion(vr);
+                    // We can't really upgrade with versions such as 2.1.0
+                    Version lower = new Version(v.getMajor(), v.getMinor(), 0);
+                    if (v.compareTo(lower) > 0) {
+                        VersionRange range = new VersionRange(false, lower, v, true);
+                        for (Bundle bundle : allBundles) {
+                            Version oldV = bundle.getVersion();
+                            if (bundle.getBundleId() != 0 && sn.equals(bundle.getSymbolicName()) && range.contains(oldV)) {
+                                String location = bundle.getLocation();
+                                BundleUpdate update = new BundleUpdateImpl(sn, v.toString(), url, oldV.toString(), location);
+                                updates.add(update);
+                                // Merge result
+                                BundleUpdate oldUpdate = allUpdates.get(sn);
+                                if (oldUpdate != null) {
+                                    Version upv = VersionTable.getVersion(oldUpdate.getNewVersion());
+                                    if (upv.compareTo(v) < 0) {
+                                        allUpdates.put(sn, update);
+                                        toUpdate.put(bundle, url);
+                                    }
+                                } else {
+                                    toUpdate.put(bundle, url);
+                                }
+                            }
                         }
                     }
                 }
+                Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates);
+                results.put(patch.getId(), result);
             }
-    
-            Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates);
+            // Apply results
+            System.out.println("Bundles to update:");
+            for (Map.Entry<Bundle, String> e : toUpdate.entrySet()) {
+                System.out.println("    " + e.getKey().getSymbolicName() + "/" + e.getKey().getVersion().toString() + " with " + e.getValue());
+            }
+            System.out.println("Installation will begin.  The connection may be lost or the console restarted.");
+            System.out.flush();
             if (!simulate) {
-                applyChanges(toRefresh, toDelete, toInstall);
-                patch.setResult(result);
-                saveResult(result);
+                Thread thread = new Thread() {
+                    public void run() {
+                        try {
+                            applyChanges(toUpdate);
+                            for (Patch patch : patches) {
+                                Result result = results.get(patch.getId());
+                                ((PatchImpl) patch).setResult(result);
+                                saveResult(result);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace(System.err);
+                            System.err.flush();
+                        }
+                    }
+                };
+                if (synchronous) {
+                    thread.run();
+                } else {
+                    thread.start();
+                }
             }
-            return result;
+            return results;
         } catch (Exception e) {
             throw new PatchException(e);
         }
     }
 
-    private void applyChanges(Set<Bundle> toRefresh, Set<Bundle> toDelete, Set<String> toInstall) throws BundleException {
-        for (Bundle bundle : toDelete) {
-            bundle.uninstall();
-            toRefresh.add(bundle);
+    private void applyChanges(Map<Bundle, String> toUpdate) throws BundleException, IOException {
+        List<Bundle> toStop = new ArrayList<Bundle>();
+        toStop.addAll(toUpdate.keySet());
+        while (!toStop.isEmpty()) {
+            List<Bundle> bs = getBundlesToDestroy(toStop);
+            for (Bundle bundle : bs) {
+                String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+                if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
+                    bundle.stop();
+                }
+                toStop.remove(bundle);
+            }
         }
-        for (String url : toInstall) {
-            Bundle bundle = bundleContext.installBundle(url);
-            toRefresh.add(bundle);
+        Set<Bundle> toRefresh = new HashSet<Bundle>();
+        Set<Bundle> toStart = new HashSet<Bundle>();
+        for (Map.Entry<Bundle, String> e : toUpdate.entrySet()) {
+            InputStream is = new URL(e.getValue()).openStream();
+            try {
+                Bundle bundle = e.getKey();
+                bundle.update(is);
+                toRefresh.add(bundle);
+                toStart.add(bundle);
+            } finally {
+                is.close();
+            }
         }
         findBundlesWithOptionalPackagesToRefresh(toRefresh);
         findBundlesWithFramentsToRefresh(toRefresh);
@@ -378,6 +456,65 @@ public class ServiceImpl implements Service {
                 throw new PatchException("Bundle refresh interrupted", e);
             }
         }
+        for (Bundle bundle : toStart) {
+            String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+            if (hostHeader == null) {
+                bundle.start();
+            }
+        }
+    }
+
+    private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
+        List<Bundle> bundlesToDestroy = new ArrayList<Bundle>();
+        for (Bundle bundle : bundles) {
+            ServiceReference[] references = bundle.getRegisteredServices();
+            int usage = 0;
+            if (references != null) {
+                for (ServiceReference reference : references) {
+                    usage += getServiceUsage(reference, bundles);
+                }
+            }
+            if (usage == 0) {
+                bundlesToDestroy.add(bundle);
+            }
+        }
+        if (!bundlesToDestroy.isEmpty()) {
+            Collections.sort(bundlesToDestroy, new Comparator<Bundle>() {
+                public int compare(Bundle b1, Bundle b2) {
+                    return (int) (b2.getLastModified() - b1.getLastModified());
+                }
+            });
+        } else {
+            ServiceReference ref = null;
+            for (Bundle bundle : bundles) {
+                ServiceReference[] references = bundle.getRegisteredServices();
+                for (ServiceReference reference : references) {
+                    if (getServiceUsage(reference, bundles) == 0) {
+                        continue;
+                    }
+                    if (ref == null || reference.compareTo(ref) < 0) {
+                        ref = reference;
+                    }
+                }
+            }
+            if (ref != null) {
+                bundlesToDestroy.add(ref.getBundle());
+            }
+        }
+        return bundlesToDestroy;
+    }
+
+    private static int getServiceUsage(ServiceReference ref, List<Bundle> bundles) {
+        Bundle[] usingBundles = ref.getUsingBundles();
+        int nb = 0;
+        if (usingBundles != null) {
+            for (Bundle bundle : usingBundles) {
+                if (bundles.contains(bundle)) {
+                    nb++;
+                }
+            }
+        }
+        return nb;
     }
 
     protected void findBundlesWithFramentsToRefresh(Set<Bundle> toRefresh) {

@@ -119,6 +119,7 @@ public interface Container {
 
     String getProvisionResult();
     String getProvisionException();
+    List<String> getProvisionList();
     
     String getProvisionStatus();
 

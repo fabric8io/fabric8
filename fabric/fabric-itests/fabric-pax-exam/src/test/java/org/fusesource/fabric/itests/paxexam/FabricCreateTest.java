@@ -23,6 +23,7 @@ import org.apache.maven.profiles.ProfilesConversionUtils;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;

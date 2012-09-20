@@ -582,6 +582,7 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public void setRequirements(FabricRequirements requirements) throws IOException {
         try {
+            requirements.removeEmptyRequirements();
             String json = RequirementsJson.toJSON(requirements);
             zooKeeper.createOrSetWithParents(requirementsJsonPath, json, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         } catch (Exception e) {
@@ -609,5 +610,10 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public FabricStatus getFabricStatus() {
         return new FabricStatus(this);
+    }
+
+    @Override
+    public PatchService getPatchService() {
+        return new PatchServiceImpl(this, configurationAdmin);
     }
 }

@@ -40,6 +40,7 @@
             org.fusesource.fabric.internal,
             org.fusesource.fabric.utils,
             org.apache.felix.utils.properties,
+            org.apache.felix.utils.version,
         </fuse.osgi.private.pkg>
     </properties>
 

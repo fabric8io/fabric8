@@ -51,6 +51,7 @@ import org.apache.karaf.features.Feature;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +76,10 @@ public class ObrResolver {
         this.repositoryAdmin = repositoryAdmin;
     }
 
-    public List<Resource> resolve(Set<Feature> features, Set<String> bundles,
+    public List<Resource> resolve(Set<Feature> features,
+                                  Set<String> bundles,
                                   Map<String, FabBundleInfo> fabs,
+                                  Set<String> overrides,
                                   Map<String, File> downloads) throws Exception {
         List<Requirement> reqs = new ArrayList<Requirement>();
         List<Resource> ress = new ArrayList<Resource>();
@@ -100,14 +103,14 @@ public class ObrResolver {
                     infos.put(req, bundleInfo);
                 }
             }
-            for (final String bundle : bundles) {
-                Resource res = createResource(bundle, downloads, fabs);
-                if (res == null) {
-                    throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundle);
-                }
-                ress.add(res);
-                infos.put(res, new SimpleBundleInfo(bundle, false));
+        }
+        for (String bundle : bundles) {
+            Resource res = createResource(bundle, downloads, fabs);
+            if (res == null) {
+                throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundle);
             }
+            ress.add(res);
+            infos.put(res, new SimpleBundleInfo(bundle, false));
         }
         for (FabBundleInfo fab : fabs.values()) {
             Resource res = repositoryAdmin.getHelper().createResource(fab.getManifest());
@@ -127,6 +130,39 @@ public class ObrResolver {
                     ress.add(resDep);
                     infos.put(resDep, new SimpleBundleInfo(dep.getUrl(), true));
                 }
+            }
+        }
+        for (String override : overrides) {
+            Resource over = null;
+            try {
+                over = createResource(override, downloads, fabs);
+            } catch (Exception e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.info("Ignoring patched resource: {}: {}", new Object[] { override, e.getMessage() }, e);
+                } else {
+                    LOGGER.info("Ignoring patched resource: {}: {}", override, e.getMessage());
+                }
+            }
+            if (over == null) {
+                // Artifacts may not be valid bundles, so just ignore those artifacts
+                continue;
+            }
+            boolean add = false;
+            boolean dependency = true;
+            for (Resource res : new ArrayList<Resource>(ress)) {
+                if (res.getSymbolicName().equals(over.getSymbolicName())) {
+                    Version v1 = res.getVersion();
+                    Version v2 = new Version(v1.getMajor(), v1.getMinor() + 1, 0);
+                    if (compareFuseVersions(v1, over.getVersion()) < 0 && compareFuseVersions(over.getVersion(), v2) < 0) {
+                        ress.remove(res);
+                        dependency &= infos.remove(res).isDependency();
+                        add = true;
+                    }
+                }
+            }
+            if (add) {
+                ress.add(over);
+                infos.put(over, new SimpleBundleInfo(override, dependency));
             }
         }
 
@@ -167,6 +203,34 @@ public class ObrResolver {
         Collections.addAll(deploy, resolver.getAddedResources());
         Collections.addAll(deploy, resolver.getRequiredResources());
         return deploy;
+    }
+
+    private int compareFuseVersions(org.osgi.framework.Version v1, org.osgi.framework.Version v2) {
+        int c = v1.getMajor() - v2.getMajor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMinor() - v2.getMinor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMicro() - v2.getMicro();
+        if (c != 0) {
+            return c;
+        }
+        String q1 = v1.getQualifier();
+        String q2 = v2.getQualifier();
+        if (q1.startsWith("fuse-") && q2.startsWith("fuse-")) {
+            q1 = cleanQualifierForComparison(q1);
+            q2 = cleanQualifierForComparison(q2);
+        }
+        return q1.compareTo(q2);
+    }
+
+    private String cleanQualifierForComparison(String q) {
+        return q.replace("-alpha-", "-").replace("-beta-", "-")
+                .replace("-7-0-", "-70-")
+                .replace("-7-", "-70-");
     }
 
     protected Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {

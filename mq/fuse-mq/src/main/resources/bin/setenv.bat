@@ -14,7 +14,7 @@ rem    distributed under the License is distributed on an "AS IS" BASIS,
 rem    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 rem    See the License for the specific language governing permissions and
 rem    limitations under the License.
-
+rem
 
 rem
 rem handle specific scripts; the SCRIPT_NAME is exactly the name of the Karaf

@@ -22,6 +22,8 @@ public interface BundleUpdate {
 
     String getNewVersion();
 
+    String getNewLocation();
+
     String getPreviousVersion();
 
     String getPreviousLocation();

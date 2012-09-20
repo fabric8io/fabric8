@@ -566,6 +566,12 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public List<String> getProvisionList() {
+        String str = getZkData(ZkPath.CONTAINER_PROVISION_LIST);
+        return str != null ? Arrays.asList(str.split("\n")) : null;
+    }
+
+    @Override
     public CreateContainerMetadata<?> getMetadata() {
         try {                                        
             if (metadata == null) {
@@ -640,6 +646,14 @@ public class ContainerImpl implements Container {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "Container[" +
+                "id=" + id +
+                (parent != null ? ", parent=" + parent.getId() : "") +
+                ']';
     }
 
     public  boolean isAliveAndOK() {

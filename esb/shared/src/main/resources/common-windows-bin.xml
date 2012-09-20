@@ -106,6 +106,15 @@
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
+        <!--
+        <file>
+            <source>${basedir}/target/shared/bin/patch.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>patch.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+        -->
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>

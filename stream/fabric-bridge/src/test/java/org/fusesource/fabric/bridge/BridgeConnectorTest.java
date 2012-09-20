@@ -24,6 +24,7 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.jms.core.MessageCreator;
 
@@ -159,6 +160,7 @@ public class BridgeConnectorTest extends AbstractConnectorTestSupport {
 
 	}
 
+        @Ignore // JIRA ESB-1687
 	@Test
 	public void testDispatch() throws Exception {
 		connector.afterPropertiesSet();

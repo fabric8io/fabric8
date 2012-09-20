@@ -24,8 +24,8 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.patch.Patch;
 import org.fusesource.patch.Service;
 
-@Command(scope = "patch", name = "download", description = "Download a patch")
-public class Download extends PatchCommandSupport {
+@Command(scope = "patch", name = "add", description = "Download a patch")
+public class Add extends PatchCommandSupport {
 
     @Option(name = "--bundles", description = "Show bundles contained in patches")
     boolean bundles;

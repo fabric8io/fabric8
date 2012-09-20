@@ -46,6 +46,7 @@ import org.osgi.util.tracker.ServiceTracker;
 import static org.fusesource.fabric.utils.PortUtils.findPort;
 
 
+
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
 
@@ -465,6 +466,21 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));
+    }
+
+    private int findPort(Map<String, List<Integer>> usedPorts, String ip, int port) {
+        List<Integer> ports = usedPorts.get(ip);
+        if (ports == null) {
+            ports = new ArrayList<Integer>();
+            usedPorts.put(ip, ports);
+        }
+        for (; ; ) {
+            if (!ports.contains(port)) {
+                ports.add(port);
+                return port;
+            }
+            port++;
+        }
     }
 
     private void addUsedPorts(Map<String, List<Integer>> usedPorts, String data) {

@@ -47,6 +47,7 @@ public class ProfileEdit extends FabricCommand {
     static final String REPOSITORY_PREFIX = "repository.";
     static final String BUNDLE_PREFIX = "bundle.";
     static final String FAB_PREFIX = "fab.";
+    static final String OVERRIDE_PREFIX = "fab.";
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
     static final String DELIMETER = ",";
@@ -64,6 +65,9 @@ public class ProfileEdit extends FabricCommand {
 
     @Option(name = "-f", aliases = {"--fabs"}, description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = false)
     private String fabsList;
+
+    @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides, specifying a comma-separated list of overrides to add (or delete).", required = false, multiValued = false)
+    private String overridesList;
 
     @Option(name = "-p", aliases = {"--pid"}, description = "Edit an OSGi configuration property, specified in the format <PID>/<Property>.", required = false, multiValued = true)
     private String[] configAdminProperties;
@@ -147,6 +151,12 @@ public class ProfileEdit extends FabricCommand {
             String[] fabs = fabsList.split(DELIMETER);
             for (String fabsLocation : fabs) {
                 updateConfig(pidConfig, FAB_PREFIX + fabsLocation.replace('/', '_'), fabsLocation, set, delete);
+            }
+        }
+        if (overridesList != null && !overridesList.isEmpty()) {
+            String[] overrides = overridesList.split(DELIMETER);
+            for (String overridesLocation : overrides) {
+                updateConfig(pidConfig, FAB_PREFIX + overridesLocation.replace('/', '_'), overridesLocation, set, delete);
             }
         }
 

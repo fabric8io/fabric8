@@ -39,7 +39,6 @@ public interface Join {
 
     public void setContainerName(String containerName);
 
-
     public void setResolver(String resolver);
 
     public String getResolver();

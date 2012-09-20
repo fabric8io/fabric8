@@ -81,6 +81,7 @@ public interface Profile extends Comparable<Profile> {
     List<String> getFabs();
     List<String> getFeatures();
     List<String> getRepositories();
+    List<String> getOverrides();
 
     Map<String, byte[]> getFileConfigurations();
 
@@ -132,6 +133,8 @@ public interface Profile extends Comparable<Profile> {
     void setFeatures(List<String> values);
 
     void setRepositories(List<String> values);
+
+    void setOverrides(List<String> values);
 
     boolean configurationEquals(Profile other);
 
