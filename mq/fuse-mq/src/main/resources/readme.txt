@@ -23,18 +23,19 @@ To start Fuse MQ Enterprise in the background, type:
 
     ${startCommand}
 
+Note: Be sure to use the appropriate username and password in the following examples
 To display the log using the remote console, type:
 
-    ${clientCommand} log:display
+    ${clientCommand} -u fusemq - p fusemq log:display
 
 To display the current broker statistics using the remote console, type:
     
-    ${clientCommand} activemq:bstat
+    ${clientCommand} -u fusemq -p fusemq activemq:bstat
 
 To validate the installation with a simple JMS producer and consumer, type:
 
-    java -jar lib${fileSeparator}mq-client.jar producer
-    java -jar lib${fileSeparator}mq-client.jar consumer
+    java -jar lib${fileSeparator}mq-client.jar producer --user fusemq --password fusemq
+    java -jar lib${fileSeparator}mq-client.jar consumer --user fusemq --password fusemq
 
 View the webconsole at http://localhost:8181/activemqweb
 
