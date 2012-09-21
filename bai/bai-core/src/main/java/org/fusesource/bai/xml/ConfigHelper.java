@@ -16,10 +16,39 @@
  */
 package org.fusesource.bai.xml;
 
-import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
-import org.apache.camel.model.language.*;
+import org.apache.camel.model.language.ConstantExpression;
+import org.apache.camel.model.language.ELExpression;
+import org.apache.camel.model.language.ExpressionDefinition;
+import org.apache.camel.model.language.GroovyExpression;
+import org.apache.camel.model.language.HeaderExpression;
+import org.apache.camel.model.language.JXPathExpression;
+import org.apache.camel.model.language.JavaScriptExpression;
+import org.apache.camel.model.language.LanguageExpression;
+import org.apache.camel.model.language.MethodCallExpression;
+import org.apache.camel.model.language.MvelExpression;
+import org.apache.camel.model.language.NamespaceAwareExpression;
+import org.apache.camel.model.language.OgnlExpression;
+import org.apache.camel.model.language.PhpExpression;
+import org.apache.camel.model.language.PropertyExpression;
+import org.apache.camel.model.language.PythonExpression;
+import org.apache.camel.model.language.RubyExpression;
+import org.apache.camel.model.language.SimpleExpression;
+import org.apache.camel.model.language.SpELExpression;
+import org.apache.camel.model.language.SqlExpression;
+import org.apache.camel.model.language.TokenizerExpression;
+import org.apache.camel.model.language.XPathExpression;
+import org.apache.camel.model.language.XQueryExpression;
 import org.apache.camel.util.ObjectHelper;
-import org.fusesource.bai.config.*;
+import org.fusesource.bai.config.BodyExpression;
+import org.fusesource.bai.config.ContextFilter;
+import org.fusesource.bai.config.ContextsFilter;
+import org.fusesource.bai.config.EndpointFilter;
+import org.fusesource.bai.config.EndpointsFilter;
+import org.fusesource.bai.config.EventFilter;
+import org.fusesource.bai.config.EventType;
+import org.fusesource.bai.config.EventsFilter;
+import org.fusesource.bai.config.ExchangeFilter;
+import org.fusesource.bai.config.Policy;
 import org.fusesource.bai.config.PolicySet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +58,7 @@ import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -103,9 +133,17 @@ public class ConfigHelper {
         JAXBContext context = createConfigJaxbContext();
         Marshaller marshaller = context.createMarshaller();
         marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-        NamespacePrefixMapper mapper = new AuditNamespacePrefixMapper();
-        marshaller.setProperty("com.sun.xml.internal.bind.namespacePrefixMapper", mapper);
+        addNamespacePrefixMapper(marshaller);
         return marshaller;
+    }
+
+    private static void addNamespacePrefixMapper(Marshaller marshaller) throws PropertyException {
+        try {
+            AuditNamespacePrefixMapper mapper = new AuditNamespacePrefixMapper();
+            marshaller.setProperty("com.sun.xml.bind.namespacePrefixMapper", mapper);
+        } catch (Throwable e) {
+            // ignore due to class loader issues
+        }
     }
 
     public static PolicySet loadConfig(InputStream stream) throws JAXBException {

@@ -38,11 +38,12 @@
     <fuse.osgi.export>
       org.fusesource.bai*;version=${project.version}
     </fuse.osgi.export>
-    <fuse.osgi.import.additional>
-      !com.sun*
+        <fuse.osgi.import.additional>
+          com.sun.xml.bind*;resolution:=optional,
     </fuse.osgi.import.additional>
 
     <bai.schema.version>${project.version}</bai.schema.version>
+    <jaxb-2-version>2.2.5</jaxb-2-version>
   </properties>
 
   <dependencies>
@@ -84,22 +85,17 @@
       <version>${guava-version}</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>${jaxb-2-version}</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 
   <build>
     <defaultGoal>install</defaultGoal>
     <plugins>
-      <!--
-                  <plugin>
-                      <groupId>org.apache.maven.plugins</groupId>
-                      <artifactId>maven-compiler-plugin</artifactId>
-                      <configuration>
-                          <source>1.6</source>
-                          <target>1.6</target>
-                      </configuration>
-                  </plugin>
-      -->
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -223,5 +219,45 @@
     </plugins>
   </build>
 
+  <profiles>
+    <profile>
+      <id>add-tools-jar-if-exists</id>
+      <activation>
+        <file>
+          <exists>${java.home}/../lib/tools.jar</exists>
+        </file>
+      </activation>
+      <build>
+        <pluginManagement>
+          <plugins>
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-antrun-plugin</artifactId>
+              <version>1.6</version>
+              <dependencies>
+                <dependency>
+                  <groupId>com.sun.xml.bind</groupId>
+                  <artifactId>jaxb-impl</artifactId>
+                  <version>${jaxb-version}</version>
+                </dependency>
+                <dependency>
+                  <groupId>com.sun.xml.bind</groupId>
+                  <artifactId>jaxb-xjc</artifactId>
+                  <version>${jaxb-version}</version>
+                </dependency>
+                <dependency>
+                  <groupId>com.sun</groupId>
+                  <artifactId>tools</artifactId>
+                  <version>1.5.0</version>
+                  <scope>system</scope>
+                  <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                </dependency>
+              </dependencies>
+            </plugin>
+          </plugins>
+        </pluginManagement>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

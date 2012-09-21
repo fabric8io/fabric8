@@ -14,20 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.bai.xml;
+@XmlSchema(namespace = "http://fuse.fusesource.org/schema/bai",
+        xmlns = {
+                @XmlNs(namespaceURI = Namespaces.DEFAULT_NAMESPACE, prefix = "c"),
+                @XmlNs(namespaceURI = AuditConstants.AUDIT_NAMESPACE, prefix = AuditConstants.EXPRESSION_NAMESPACE_PREFIX)
+        },
+        elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED) package org.fusesource.bai.config.language;
 
-import com.sun.xml.bind.marshaller.NamespacePrefixMapper;
 import org.apache.camel.builder.xml.Namespaces;
 import org.fusesource.bai.AuditConstants;
 
-/**
- * Use nicer namespace prefixes when marshalling
- */
-public class AuditNamespacePrefixMapper extends NamespacePrefixMapper {
-    @Override
-    public String getPreferredPrefix(String namespaceUri, String suggestion, boolean requirePrefix) {
-        if (AuditConstants.AUDIT_NAMESPACE.equals(namespaceUri)) return "";
-        if (Namespaces.DEFAULT_NAMESPACE.equals(namespaceUri)) return AuditConstants.EXPRESSION_NAMESPACE_PREFIX;
-        return suggestion;
-    }
-}
+import javax.xml.bind.annotation.XmlNs;
+import javax.xml.bind.annotation.XmlSchema;

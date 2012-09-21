@@ -25,12 +25,16 @@ import org.apache.camel.impl.DefaultExchange;
 import org.apache.camel.management.event.AbstractExchangeEvent;
 import org.apache.camel.management.event.ExchangeCreatedEvent;
 import org.apache.camel.management.event.ExchangeFailureHandledEvent;
+import org.apache.camel.model.language.ExpressionDefinition;
+import org.apache.camel.model.language.XPathExpression;
 import org.fusesource.bai.AuditEvent;
 import org.fusesource.bai.xml.ConfigHelper;
 import org.junit.Test;
 
 import static org.fusesource.bai.config.AuditAssertions.assertMatchesContext;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class ConfigTest {
     private CamelContext camelContext = new DefaultCamelContext();
@@ -53,6 +57,12 @@ public class ConfigTest {
 
         Policy policy = config.getPolicies().get(0);
         assertEquals("policies[0].to", "seda:dummy", policy.getTo());
+        ExchangeFilter filter = policy.getFilter();
+        assertNotNull(filter);
+        ExpressionDefinition expression = filter.getExpression();
+        assertTrue("expression should be XPath but was " + expression, expression instanceof XPathExpression);
+        XPathExpression xpath = (XPathExpression) expression;
+        assertEquals("XPath expression", "/person/@name = 'James'", xpath.getExpression());
     }
 
     @Test
