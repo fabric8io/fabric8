@@ -46,7 +46,6 @@ public class SelfUpdateTest extends FabricTestSupport {
 
     private static final String FABRIC_FEATURE_REPO_URL = "mvn:org.fusesource.fabric/fuse-fabric/%s/xml/features";
     private static final String OLD_VERSION = "7.0.0.fuse-061";
-    private static final String NEW_VERSION = "7.0.1.fuse-%s";
 
     @After
     public void tearDown() throws InterruptedException {
@@ -55,8 +54,7 @@ public class SelfUpdateTest extends FabricTestSupport {
 
     @Test
     public void testDefaultProfileUpgrade() throws Exception {
-        String perfecutsBuild = System.getProperty("perfectus-build");
-        String newVersion = String.format(NEW_VERSION, perfecutsBuild);
+        String newVersion = System.getProperty("fabric.version");
 
         FabricService fabricService = getOsgiService(FabricService.class);
         System.err.println(executeCommand("fabric:create"));
@@ -77,7 +75,7 @@ public class SelfUpdateTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                copySystemProperty("perfectus-build"),
+                copySystemProperty("fabric.version"),
                 new DefaultCompositeOption(oldFabricDistributionConfiguration()),
                 //debugConfiguration("5005",true),
                 editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fuse-fabric"))

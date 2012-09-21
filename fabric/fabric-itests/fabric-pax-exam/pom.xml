@@ -158,6 +158,7 @@
                     <systemPropertyVariables>
                         <feature>${feature}</feature>
                         <perfectus-build>${perfectus-build}</perfectus-build>
+                        <fabric.version>${fabric.version}</fabric.version>
                         <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
                         <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
                         <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
