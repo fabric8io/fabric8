@@ -27,20 +27,28 @@ public class MavenUploadProxyServlet extends MavenDownloadProxyServlet {
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String path = req.getPathInfo();
-        //Make sure path is valid
-        if (path == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            return;
-        }
-        if (path.startsWith("/")) {
-            path = path.substring(1);
+
+        try {
+            String path = req.getPathInfo();
+            //Make sure path is valid
+            if (path == null) {
+                resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return;
+            }
+            if (path.startsWith("/")) {
+                path = path.substring(1);
+            }
+
+            if (upload(req.getInputStream(), path)) {
+                resp.setStatus(HttpServletResponse.SC_ACCEPTED);
+            } else {
+                resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
+            }
+        } catch (InvalidMavenArtifactRequest ex) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, ex.getMessage());
+        } catch (Exception ex) {
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
 
-        if (upload(req.getInputStream(), path)) {
-            resp.setStatus(HttpServletResponse.SC_ACCEPTED);
-        } else {
-            resp.setStatus(HttpServletResponse.SC_NOT_ACCEPTABLE);
-        }
     }
 }

@@ -95,7 +95,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     }
 
     @Override
-    public File download(String path) {
+    public File download(String path) throws InvalidMavenArtifactRequest {
         String mvn = convertToMavenUrl(path);
         if (mvn == null) {
             LOGGER.log(Level.WARNING, String.format("Received non maven request : %s", path));
@@ -121,7 +121,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     }
 
     @Override
-    public boolean upload(InputStream is, String path) {
+    public boolean upload(InputStream is, String path) throws InvalidMavenArtifactRequest {
         boolean success = true;
         FileOutputStream fos = null;
         String filename = path.substring(path.lastIndexOf("/") + 1);
@@ -187,7 +187,10 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         return locator.getService(RepositorySystem.class);
     }
 
-    protected String convertToMavenUrl(String location) {
+    public String convertToMavenUrl(String location) throws InvalidMavenArtifactRequest {
+        if (location == null) {
+            throw new InvalidMavenArtifactRequest("Cannot match request path to maven url, request path is empty.");
+        }
         String[] p = location.split("/");
         if (p.length >= 4) {
             String filename = p[p.length - 1];
@@ -224,10 +227,10 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 sb.append(":").append(version);
                 return sb.toString();
             } else {
-                return null;
+                throw new InvalidMavenArtifactRequest("Filename:" + filename + " doesn't match the artifactId:" + artifactId + " and version:" + version + ".");
             }
         } else {
-            return null;
+            throw new InvalidMavenArtifactRequest("Request path is incomplete.");
         }
     }
 

@@ -55,7 +55,7 @@ public class MavenProxyImplTest {
     }
 
     @Test
-    public void testCopyFileToLocalRepo() throws IOException {
+    public void testCopyFileToLocalRepo() throws IOException, InvalidMavenArtifactRequest {
         getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE);
         File file = new File(LOCAL_REPO + File.separatorChar + getArtifactPath(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE));
         assertTrue(file.exists());
@@ -63,7 +63,7 @@ public class MavenProxyImplTest {
 
 
     @Test
-    public void testLocalRepoFirst() throws IOException, InterruptedException {
+    public void testLocalRepoFirst() throws IOException, InterruptedException, InvalidMavenArtifactRequest {
 
         assertTrue("Expected success", getArtifact(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE));
         File file = new File(LOCAL_REPO + File.separatorChar + getArtifactPath(KARAF_GROUP_ID, KARAF_ARTIFACT_ID, KARAF_VERSION, KARAF_TYPE));
@@ -90,7 +90,7 @@ public class MavenProxyImplTest {
         return groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + "." + type;
     }
 
-    protected boolean getArtifact(String groupId, String artifactId, String version, String type) throws IOException {
+    protected boolean getArtifact(String groupId, String artifactId, String version, String type) throws IOException, InvalidMavenArtifactRequest {
         String path = getArtifactPath(groupId, artifactId, version, type);
         File artifactFile = proxy.download(path);
         return artifactFile != null;
