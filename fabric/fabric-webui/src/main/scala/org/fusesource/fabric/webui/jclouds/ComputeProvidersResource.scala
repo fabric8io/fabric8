@@ -16,15 +16,20 @@
 
 package org.fusesource.fabric.webui.jclouds
 
-import org.fusesource.fabric.webui.{BaseResource, Services}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import javax.ws.rs.{PathParam, GET, Path}
+import org.jclouds.providers.ProviderMetadata
+import org.jclouds.apis.ApiMetadata
 
 @Path("/compute_providers")
 class ComputeProvidersResource extends BaseResource {
 
+  def providerMetadataToResource(x: ProviderMetadata) : ComputeProviderResource =  new ComputeProviderResource(x.getId)
+  def apiMetadataToResource(x: ApiMetadata) : ComputeProviderResource =  new ComputeProviderResource(x.getId)
+
+
   @GET
-  override def get: Array[ComputeProviderResource] = Services.compute_providers.map(new ComputeProviderResource(_)).toArray
+  override def get: Array[ComputeProviderResource] = Services.compute_providers.map(providerMetadataToResource).toArray
 
   @Path("{id}")
   def get(@PathParam("id") id: String): ComputeProviderResource = {

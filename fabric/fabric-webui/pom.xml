@@ -260,6 +260,13 @@
       <version>${commons-compress-version}</version>
     </dependency>
 
+    <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+        <version>2.0.1_1</version>
+        <scope>compile</scope>
+    </dependency>
+
     <!-- testing -->
     <dependency>
       <groupId>org.fusesource.scalate</groupId>
@@ -320,7 +327,6 @@
             <Embed-Directory>WEB-INF/lib</Embed-Directory>
             <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
-
             <Bundle-Name>${project.description}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
             <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
@@ -394,7 +400,7 @@
           <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>r09</version>
+            <version>13.0</version>
           </dependency>
           <dependency>
             <groupId>com.google.protobuf</groupId>

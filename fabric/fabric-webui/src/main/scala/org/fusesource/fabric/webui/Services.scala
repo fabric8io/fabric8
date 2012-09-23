@@ -27,8 +27,11 @@ import system.Principal
 import org.slf4j.{Logger, LoggerFactory}
 import java.lang.ExceptionInInitializerError
 import org.fusesource.fabric.api.{ZooKeeperClusterService, Container, FabricService, Version, Profile}
-import org.jclouds.karaf.core.ComputeProviderListener
+import org.jclouds.karaf.core.ComputeProviderOrApiRegistry
 import java.io.File
+import org.jclouds.providers.Providers
+import org.jclouds.apis.Apis
+import scala.collection.JavaConverters._
 
 class Services {
 
@@ -64,8 +67,6 @@ class Services {
   def setConfigurationAdmin(service: ConfigurationAdmin): Unit = _config_admin = service
 
   def setComputeServiceListener(listener: ComputeServiceListener): Unit = _compute_service_listener = listener
-
-  def setComputeProviderListener(listener: ComputeProviderListener): Unit = _compute_provider_listener = listener
 
 }
 
@@ -152,7 +153,6 @@ object Services {
   protected var _config_admin: ConfigurationAdmin = _
   protected var _zoo_keeper: IZKClient = _
   protected var _compute_service_listener: ComputeServiceListener = _
-  protected var _compute_provider_listener: ComputeProviderListener = _
   protected var _tempDir: String = _
   protected var _patchDir: String = _
 
@@ -172,7 +172,9 @@ object Services {
 
   def compute_services = _compute_service_listener.services
 
-  def compute_providers = _compute_provider_listener.getInstalledProviders
+  def compute_providers = Providers.all().asScala
+
+  def compute_apis = Apis.all().asScala
 
   def map_provider_name(key: String) = jcloud_name_mapping.get(key).getOrElse {
     ""

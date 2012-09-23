@@ -29,7 +29,16 @@ import org.fusesource.fabric.service.jclouds.internal.CloudUtils
 class CreateComputeServiceDTO {
 
   @JsonProperty
+  var serviceId: String = _
+
+  @JsonProperty
   var provider: String = _
+
+  @JsonProperty
+  var api: String = _
+
+  @JsonProperty
+  var endpoint: String = _
 
   @JsonProperty
   var identity: String = _
@@ -61,10 +70,21 @@ class ComputeServicesResource extends BaseResource {
     val options = args.options.split('\n').map(_.trim)
     val props = CloudUtils.parseProviderOptions(options)
 
+    if (!Option(args.serviceId).isDefined && Option(args.provider).isDefined) {
+      args.serviceId = args.provider
+    } else if (!Option(args.serviceId).isDefined && Option(args.provider).isDefined) {
+      args.serviceId = args.api
+    }
+
+    if (Option(args.provider).isDefined) {
+      CloudUtils.registerProvider(Services.zoo_keeper, Services.config_admin, args.serviceId, args.provider, args.identity, args.credential, props)
+    } else if (Option(args.api).isDefined && Option(args.endpoint).isDefined) {
+      CloudUtils.registerApi(Services.zoo_keeper, Services.config_admin, args.serviceId, args.api, args.endpoint, args.identity, args.credential, props)
+    }
     //System.out.printf("Registering new provider with %s\n", args)
-    CloudUtils.registerProvider(Services.zoo_keeper, Services.config_admin, args.provider, args.identity, args.credential, props)
+
     //System.out.printf("Waiting...\n")
-    CloudUtils.waitForComputeService(Services.bundle_context, args.provider)
+    CloudUtils.waitForComputeService(Services.bundle_context, args.serviceId)
     //System.out.printf("Done!\n")
   }
 

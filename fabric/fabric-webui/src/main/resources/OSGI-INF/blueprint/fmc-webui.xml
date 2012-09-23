@@ -26,8 +26,6 @@
 
   <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" availability="optional"/>
 
-  <reference id="computeProviderListener" interface="org.jclouds.karaf.core.ComputeProviderListener" availability="optional"/>
-
   <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
     <reference-listener ref="computeServiceListener" bind-method="bind" unbind-method="unbind"/>
   </reference-list>
@@ -55,7 +53,6 @@
     <property name="zooKeeper" ref="zooKeeper"/>
     <property name="zooKeeperClusterService" ref="zooKeeperClusterService"/>
     <property name="computeServiceListener" ref="computeServiceListener"/>
-    <property name="computeProviderListener" ref="computeProviderListener"/>
   </bean>
 
 </blueprint>
