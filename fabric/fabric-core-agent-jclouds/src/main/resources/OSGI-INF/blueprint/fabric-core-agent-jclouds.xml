@@ -29,6 +29,17 @@
                filter="(completer-type=group)" availability="optional"/>
     <reference id="osFamilyCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=osfamily)" availability="optional"/>
+    <reference id="computeServiceIdCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=compute-service-id)" availability="optional"/>
+    <reference id="computeProviderCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=compute-provider)" availability="optional"/>
+    <reference id="availableComputeProviderCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=available-compute-provider)" availability="optional"/>
+    <reference id="computeApiCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=compute-api)" availability="optional"/>
+    <reference id="availableComputeApiCompleter" interface="org.apache.karaf.shell.console.Completer"
+               filter="(completer-type=available-compute-api)" availability="optional"/>
+
     <reference id="activeNodeCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=active-node)" availability="optional"/>
 
@@ -50,7 +61,9 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <optional-completers>
+                <entry key="--serviceId" value-ref="computeServiceIdCompleter"/>
                 <entry key="--provider" value-ref="computeProviderCompleter"/>
+                <entry key="--api" value-ref="computeApiCompleter"/>
                 <entry key="--image" value-ref="imageCompleter"/>
                 <entry key="--location" value-ref="locationCompleter"/>
                 <entry key="--group" value-ref="groupCompleter"/>
@@ -67,6 +80,10 @@
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
             </action>
+            <optional-completers>
+                <entry key="--provider" value-ref="availableComputeProviderCompleter"/>
+                <entry key="--api" value-ref="availableComputeApiCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/cloud-provider-remove">
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderRemove">
@@ -124,10 +141,6 @@
     <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
-    </bean>
-
-    <bean id="computeProviderCompleter" class="org.fusesource.fabric.service.jclouds.commands.completers.ComputeProviderCompleter">
-        <property name="computeServices" ref="computeServices"/>
     </bean>
 
     <bean id="zookeeperCredentialStore" class="org.fusesource.fabric.service.jclouds.modules.ZookeeperCredentialStore" init-method="init">

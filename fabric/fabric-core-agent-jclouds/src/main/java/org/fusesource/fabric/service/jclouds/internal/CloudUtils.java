@@ -25,6 +25,7 @@ import java.util.Properties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.compute.ComputeService;
+import org.jclouds.karaf.core.Constants;
 import org.jclouds.karaf.services.ServiceFactorySupport;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.osgi.framework.BundleContext;
@@ -66,18 +67,19 @@ public class CloudUtils {
         return providerOptions;
     }
 
-    public static void registerProvider(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String provider, final String identity, final String credential, final Map<String, String> props) throws Exception {
+    public static void registerProvider(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String id, final String provider, final String identity, final String credential, final Map<String, String> props) throws Exception {
         Runnable registrationTask = new Runnable() {
             @Override
             public void run() {
                 try {
-                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", provider);
+                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute",id, provider, null);
                     if (configuration != null) {
                         Dictionary dictionary = configuration.getProperties();
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
-                        dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+provider.replaceAll("-", ""));
+                        dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+id.replaceAll("-", ""));
+                        dictionary.put(Constants.JCLOUDS_SERVICE_ID, id);
                         dictionary.put(ServiceFactorySupport.PROVIDER, provider);
                         dictionary.put(ServiceFactorySupport.CREDENTIAL, credential);
                         dictionary.put(ServiceFactorySupport.IDENTITY, identity);
@@ -116,18 +118,19 @@ public class CloudUtils {
     }
 
 
-    public static void registerApi(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
+    public static void registerApi(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String id, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
         Runnable registrationTask = new Runnable() {
             @Override
             public void run() {
                 try {
-                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", api);
+                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", id, null, api);
                     if (configuration != null) {
                         Dictionary dictionary = configuration.getProperties();
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
-                        dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-" + api.replaceAll("-", ""));
+                        //dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-" + id.replaceAll("-", ""));
+                        dictionary.put(Constants.JCLOUDS_SERVICE_ID, id);
                         dictionary.put(ServiceFactorySupport.API, api);
                         dictionary.put(ServiceFactorySupport.ENDPOINT, endpoint);
                         dictionary.put(ServiceFactorySupport.CREDENTIAL, credential);
@@ -170,11 +173,12 @@ public class CloudUtils {
      * Search the configuration admin for the specified factoryPid that refers to the provider.
      *
      * @param factoryPid
+     * @param id
      * @param provider
      * @return
      * @throws java.io.IOException
      */
-    private static Configuration findOrCreateFactoryConfiguration(ConfigurationAdmin configurationAdmin, String factoryPid, String provider) throws IOException {
+    private static Configuration findOrCreateFactoryConfiguration(ConfigurationAdmin configurationAdmin, String factoryPid, String id, String provider, String api) throws IOException {
         Configuration configuration = null;
         if (configurationAdmin != null) {
             try {
@@ -182,8 +186,18 @@ public class CloudUtils {
                 if (configurations != null) {
                     for (Configuration conf : configurations) {
                         Dictionary dictionary = conf.getProperties();
-                        if (dictionary != null && provider.equals(dictionary.get("provider"))) {
-                            return conf;
+                        //If id has been specified only try to match by id, ignore the rest.
+                        if (dictionary != null && id != null) {
+                            if (id.equals(dictionary.get(Constants.JCLOUDS_SERVICE_ID))) {
+                                return conf;
+                            }
+                        } else {
+                            if (dictionary != null && provider != null && provider.equals(dictionary.get("provider"))) {
+                                return conf;
+                            }
+                            if (dictionary != null && api != null && api.equals(dictionary.get("api"))) {
+                                return conf;
+                            }
                         }
                     }
                 }
@@ -199,14 +213,14 @@ public class CloudUtils {
     /**
      * Returns the compute service when it becomes registered to the OSGi service registry.
      *
-     * @param provider
+     * @param id
      * @return
      */
-    public static synchronized ComputeService waitForComputeService(BundleContext bundleContext, String provider) {
+    public static synchronized ComputeService waitForComputeService(BundleContext bundleContext, String id) {
         ComputeService computeService = null;
         try {
             for (int r = 0; r < 6; r++) {
-                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "(provider=" + provider + ")");
+                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "("+Constants.JCLOUDS_SERVICE_ID+"=" + id + ")");
                 if (references != null && references.length > 0) {
                     computeService = (ComputeService) bundleContext.getService(references[0]);
                     return computeService;

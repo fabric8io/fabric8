@@ -33,8 +33,12 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     static final String DISPLAY_FORMAT = "%22s %-30s %-30s %-30s ";
     static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]", "[status]"};
 
-    @Option(name = "--provider", required = true, description = "The cloud provider name")
+    @Option(name = "--service-id", required = true, description = "The service id. Used to distinct between multiple service of the same provider/api. Only ")
+    protected String serviceId;
+    @Option(name = "--provider", required = false, description = "The cloud provider name")
     private String providerName;
+    @Option(name = "--api", required = false, description = "The cloud api name")
+    private String apiName;
     @Option(name = "--os-family", multiValued = false, required = false, description = "OS Family")
     private String osFamily = "ubuntu";
     @Option(name = "--os-version", multiValued = false, required = false, description = "OS Version")
@@ -102,7 +106,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .owner(owner)
         .adminAccess(!disableAdminAccess)
         .publicKeyFile(publicKeyFile)
+        .serviceId(serviceId)
         .providerName(providerName)
+        .apiName(apiName)
         .user(user).password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())

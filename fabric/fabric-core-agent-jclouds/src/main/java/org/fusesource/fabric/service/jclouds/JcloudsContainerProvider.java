@@ -55,6 +55,7 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.LoginCredentials;
+import org.jclouds.karaf.core.Constants;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -87,18 +88,18 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public synchronized void bind(ComputeService computeService) {
         if (computeService != null) {
-            String providerName = computeService.getContext().unwrap().getId();
-            if (providerName != null) {
-                computeServiceMap.put(providerName, computeService);
+            String serviceId = (String) computeService.getContext().unwrap().getProviderMetadata().getDefaultProperties().get(Constants.JCLOUDS_SERVICE_ID);
+            if (serviceId != null) {
+                computeServiceMap.put(serviceId, computeService);
             }
         }
     }
 
     public void unbind(ComputeService computeService) {
         if (computeService != null) {
-            String providerName = computeService.getContext().unwrap().getId();
-            if (providerName != null) {
-                computeServiceMap.remove(providerName);
+            String serviceId = (String) computeService.getContext().unwrap().getProviderMetadata().getDefaultProperties().get(Constants.JCLOUDS_SERVICE_ID);
+            if (serviceId != null) {
+                computeServiceMap.remove(serviceId);
             }
         }
     }
@@ -389,8 +390,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (object instanceof ComputeService) {
                 computeService = (ComputeService) object;
             }
-            if (computeService == null) {
-                computeService = computeServiceMap.get(options.getProviderName());
+            if (computeService == null && options.getServiceId() != null) {
+                computeService = computeServiceMap.get(options.getServiceId());
             }
             if (computeService == null) {
                 options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
@@ -401,8 +402,12 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
                 Map<String, String> serviceOptions = options.getServiceOptions();
                 try {
-                    CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
-                    computeService = CloudUtils.waitForComputeService(bundleContext, options.getProviderName());
+                    if (options.getProviderName() != null) {
+                        CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getServiceId(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
+                    } else if (options.getApiName() != null) {
+                        CloudUtils.registerApi(zooKeeper, configurationAdmin, options.getServiceId(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
+                    }
+                    computeService = CloudUtils.waitForComputeService(bundleContext, options.getServiceId());
                 } catch (Exception e) {
                     LOGGER.warn("Did not manage to register compute cloud provider.");
                     return computeService;
