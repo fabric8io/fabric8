@@ -1,0 +1,126 @@
+<!--
+
+    Copyright (C) 2011 Progress Software, Inc. All rights reserved.
+    http://fusesource.com
+
+    The software in this package is published under the terms of the CDDL license
+    a copy of which has been included with this distribution in the license.txt file.
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+      <artifactId>tooling</artifactId>
+      <groupId>org.fusesource</groupId>
+      <version>99-master-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>tooling-jclouds-all</artifactId>
+  <packaging>bundle</packaging>
+
+  <name>${project.artifactId}</name>
+  <description>FuseSource :: Tooling JClouds All</description>
+
+  <properties>
+    <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
+
+    <fuse.osgi.export>
+      javax.inject*;version=${fuse.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
+      com.google.gson*;version=${fuse.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
+      com.google.common*;version=${guava.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
+      com.google.inject*;version=${fuse.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
+      org.jclouds*;version=${jclouds.osgi.version.clean};-noimport:=true,
+      net.oauth*,;version=${fuse.osgi.version.clean};-noimport:=true
+    </fuse.osgi.export>
+    <fuse.osgi.private.pkg>
+      net.iharder.base64*,
+      biz.source_code.base64Coder*,
+      com.jamesmurty*,
+      org.yaml*
+    </fuse.osgi.private.pkg>
+    <fuse.osgi.import.before.defaults>
+      !com.google.inject.internal.asm.util*,
+      !com.google.gdata*,
+      !sun.misc,
+      !org.apache.log4j*,
+      !jline*,
+      !org.xml.*,
+      !org.w3c.dom*,
+      !javax.xml*,
+      !junit*,
+      !org.aopalliance*,
+  	  !org.jclouds.javax.annotation
+    </fuse.osgi.import.before.defaults>
+          <!--
+      TODO find jar with these packages?
+      !com.google.inject.internal.asm.util*,
+      !com.google.gdata*,
+    -->
+    <fuse.osgi.import.additional>
+    </fuse.osgi.import.additional>
+    <fuse.osgi.services.export>
+    </fuse.osgi.services.export>
+    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=org.jclouds.provider|org.jclouds|org.jclouds.api|net.schmizz|org.apache.servicemix.bundles|org.bouncycastle</fuse.osgi.embed.dependency>
+    <fuse.osgi.embed.transitive>true</fuse.osgi.embed.transitive>
+  </properties>
+
+  <dependencies>
+
+<!--
+      <dependency>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+          <version>${google-guava-version}</version>
+      </dependency>
+-->
+      <dependency>
+        <groupId>org.apache.servicemix.bundles</groupId>
+        <artifactId>org.apache.servicemix.bundles.guava</artifactId>
+        <version>${guava-version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-core-agent-ssh</artifactId>
+          <version>${fabric-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-core-agent-jclouds</artifactId>
+          <version>${fabric-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.jclouds</groupId>
+          <artifactId>jclouds-all</artifactId>
+          <version>${jclouds-version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>net.schmizz</groupId>
+          <artifactId>sshj</artifactId>
+          <version>${sshj.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.servicemix.bundles</groupId>
+          <artifactId>org.apache.servicemix.bundles.jzlib</artifactId>
+          <version>${org.apache.servicemix.bundles.jzlib.version}</version>
+      </dependency>
+<!--
+      <dependency>
+          <groupId>org.bouncycastle</groupId>
+          <artifactId>bcprov-jdk15</artifactId>
+          <version>1.46</version>
+      </dependency>
+-->
+  </dependencies>
+
+  <build>
+    <plugins>
+
+    </plugins>
+  </build>
+
+</project>

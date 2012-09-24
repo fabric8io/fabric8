@@ -33,6 +33,7 @@
 
     <modules>
         <module>camel-tooling-util</module>
+        <module>tooling-jclouds-all</module>
         <module>testing</module>
     </modules>
 
