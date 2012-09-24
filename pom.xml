@@ -1290,7 +1290,7 @@
       <properties>
         <perfectus-build>SNAPSHOT</perfectus-build>
         <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
-        <aries.blueprint.version>1.0.1.fuse-71-${perfectus-build}</aries.blueprint.version>
+        <aries.blueprint.version>0.3.1.fuse-71-${perfectus-build}</aries.blueprint.version>
         <aries.jmx.version>1.0.1.fuse-71-${perfectus-build}</aries.jmx.version>
         <aries.transaction.version>1.0.1.fuse-71-${perfectus-build}</aries.transaction.version>
         <aries.util.version>1.0.0</aries.util.version>
