@@ -28,8 +28,8 @@
 
     <artifactId>org.fusesource.esb.karaf.branding</artifactId>
     <packaging>bundle</packaging>
-    <name>Fuse ESB :: Branding Support</name>
-    <description>Fuse ESB Branding</description>
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Branding Support</description>
 
     <build>
         <resources>

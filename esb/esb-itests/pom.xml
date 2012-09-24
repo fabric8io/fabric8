@@ -12,7 +12,8 @@
     <groupId>org.fusesource.esb</groupId>
     <artifactId>esb-itests</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Integration Tests</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Integration Tests</description>
 
     <modules>
         <module>esb-pax-exam</module>

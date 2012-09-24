@@ -28,7 +28,8 @@
 
     <artifactId>fuse-esb-minimal</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Assembly (Minimal)</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Assembly (Minimal)</description>
 
     <build>
         <plugins>

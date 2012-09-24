@@ -28,7 +28,9 @@
     <groupId>org.fusesource.esb</groupId>
     <artifactId>esb-project</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Project</name>
+
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Project</description>
 
     <!-- TODO: Need to align the versions placeholder with fuse-project and clear this mess a bit -->
     <properties>

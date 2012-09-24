@@ -29,7 +29,8 @@
     <groupId>org.fusesource.esb</groupId>
     <artifactId>shared</artifactId>
     <packaging>jar</packaging>
-    <name>Fuse ESB :: Assembly :: Shared files</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Assembly :: Shared files</description>
 
     <dependencies>
 

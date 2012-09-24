@@ -23,7 +23,7 @@
     <artifactId>project</artifactId>
     <version>${project.version}</version>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Examples</name>
+    <description>Fuse ESB :: Examples</description>
 
     <modules>
         <module>cbr</module>

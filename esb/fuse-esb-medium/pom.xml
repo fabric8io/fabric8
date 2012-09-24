@@ -28,7 +28,8 @@
 
     <artifactId>fuse-esb-medium</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Assembly (Medium)</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Assembly (Medium)</description>
 
     <build>
         <plugins>

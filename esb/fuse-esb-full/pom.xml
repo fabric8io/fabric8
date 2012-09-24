@@ -27,7 +27,8 @@
 
     <artifactId>fuse-esb-full</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Assembly (Full)</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse ESB :: Assembly (Full)</description>
 
     <build>
         <plugins>

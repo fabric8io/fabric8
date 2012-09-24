@@ -29,7 +29,7 @@
 
     <groupId>org.fusesource.esb.itests</groupId>
     <artifactId>esb-pax-exam</artifactId>
-    <name>Fuse ESB :: Integration Tests :: Pax Exam Karaf</name>
+    <description>Fuse ESB :: Integration Tests :: Pax Exam Karaf</description>
 
     <dependencies>
         <dependency>
