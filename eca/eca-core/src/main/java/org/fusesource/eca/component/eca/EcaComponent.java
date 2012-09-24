@@ -37,10 +37,6 @@ public class EcaComponent extends SedaComponent {
                     + maxConcurrentConsumers + " was " + consumers);
         }
 
-<<<<<<< HEAD
-        Integer size = getAndRemoveParameter(parameters, "size", Integer.class);
-=======
->>>>>>> 7.1.x.fuse-stable
         EcaEndpoint answer = new EcaEndpoint(uri, this, getOrCreateQueue(uri, size), consumers);
         answer.setCepRouteId(remaining);
         answer.configureProperties(parameters);

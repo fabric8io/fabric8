@@ -47,10 +47,6 @@ public class StatisticsComponent extends SedaComponent {
                     + maxConcurrentConsumers + " was " + consumers);
         }
 
-<<<<<<< HEAD
-        Integer size = getAndRemoveParameter(parameters, "size", Integer.class);
-=======
->>>>>>> 7.1.x.fuse-stable
         StatisticsEndpoint answer = new StatisticsEndpoint(uri, this, getOrCreateQueue(uri, size), consumers);
         answer.configureProperties(parameters);
         return answer;
