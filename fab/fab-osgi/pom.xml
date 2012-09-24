@@ -32,7 +32,7 @@
     <description>Fuse Application Bundles :: OSGi</description>
 
     <properties>
-        <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>
+        <fuse.osgi.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fuse.osgi.embed.dependency>
 
         <fuse.osgi.import.defaults>
         </fuse.osgi.import.defaults>

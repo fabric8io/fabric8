@@ -50,7 +50,7 @@
       com.googlecode.jmxtrans*,
       org.apache.log4j*
     </fuse.osgi.private.pkg>
-    <fabric.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=*jmxtrans|log4j</fabric.embed.dependency>
+    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=*jmxtrans|log4j</fuse.osgi.embed.dependency>
   </properties>
 
   <dependencies>

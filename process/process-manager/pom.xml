@@ -34,7 +34,7 @@
 
     <properties>
 <!--
-        <fabric.embed.dependency>*;groupId=org.fusesource.process;path-</fabric.embed.dependency>
+        <fuse.osgi.embed.dependency>*;groupId=org.fusesource.process;path-</fuse.osgi.embed.dependency>
 -->
         <fuse.osgi.resource>${basedir}/target/classes/process-launcher.tar.gz,{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.export>

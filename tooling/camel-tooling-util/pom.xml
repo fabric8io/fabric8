@@ -46,7 +46,7 @@
       !org.xml.sax,
       *
     </fuse.osgi.import>
-     <fabric.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=decentxml</fabric.embed.dependency>
+     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=decentxml</fuse.osgi.embed.dependency>
 
     <camel.file>src/test/resources/simpleRoute.xml</camel.file>
   </properties>

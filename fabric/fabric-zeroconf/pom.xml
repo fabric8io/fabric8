@@ -34,7 +34,7 @@
         <fuse.osgi.export>
             org.fusesource.fabric.zeroconf
         </fuse.osgi.export>
-        <fabric.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=activemq-jmdns*</fabric.embed.dependency>
+        <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=activemq-jmdns*</fuse.osgi.embed.dependency>
     </properties>
 
     <dependencies>
