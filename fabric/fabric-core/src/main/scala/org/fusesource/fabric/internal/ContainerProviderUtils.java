@@ -146,12 +146,12 @@ public class ContainerProviderUtils {
 
         if (options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
         } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
         }
 
-        appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,");
         //Add the proxyURI to the list of repositories
         if (options.getProxyUri() != null) {
             appendToLineInFile(sb, "etc/org.ops4j.pax.url.mvn.cfg", "repositories=", options.getProxyUri().toString() + ",");
