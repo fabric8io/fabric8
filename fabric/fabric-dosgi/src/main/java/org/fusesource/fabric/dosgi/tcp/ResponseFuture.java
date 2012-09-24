@@ -16,9 +16,9 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-
 import java.util.concurrent.TimeUnit;
+
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
 
 /**
  * <p>
@@ -29,4 +29,5 @@ import java.util.concurrent.TimeUnit;
 public interface ResponseFuture {
     void set(DataByteArrayInputStream responseStream) throws Exception;
     Object get(long timeout, TimeUnit unit) throws Exception;
+    void fail(Throwable throwable);
 }

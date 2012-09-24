@@ -16,18 +16,18 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.AsyncCallback;
-import org.fusesource.fabric.dosgi.api.SerializationStrategy;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
-import org.fusesource.hawtdispatch.Dispatch;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
+
+import org.fusesource.fabric.dosgi.api.AsyncCallback;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.Dispatch;
 
 /**
  * <p>
@@ -64,6 +64,10 @@ public class BlockingInvocationStrategy implements InvocationStrategy {
             } catch (Throwable e) {
                 super.setException(e);
             }
+        }
+
+        public void fail(Throwable failure) {
+            super.setException(failure);
         }
 
         public void onSuccess(Object result) {

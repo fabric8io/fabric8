@@ -16,22 +16,21 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.AsyncCallback;
-import org.fusesource.fabric.dosgi.api.SerializationStrategy;
-import org.fusesource.fabric.dosgi.util.ClassLoaderObjectInputStream;
-import org.fusesource.hawtbuf.DataByteArrayInputStream;
-import org.fusesource.hawtbuf.DataByteArrayOutputStream;
-import org.fusesource.hawtdispatch.Dispatch;
-import org.fusesource.hawtdispatch.DispatchQueue;
-
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.rmi.RemoteException;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.fusesource.fabric.dosgi.api.AsyncCallback;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtdispatch.Dispatch;
+import org.fusesource.hawtdispatch.DispatchQueue;
 
 /**
  * <p>
@@ -90,6 +89,10 @@ public class AsyncInvocationStrategy implements InvocationStrategy {
             return null;
         }
 
+        @Override
+        public void fail(Throwable throwable) {
+            callback.onFailure(throwable);
+        }
     }
 
     public ResponseFuture request(SerializationStrategy serializationStrategy, ClassLoader loader, Method method, Object[] args, DataByteArrayOutputStream target) throws Exception {

@@ -18,8 +18,10 @@ package org.fusesource.fabric.dosgi.tcp;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,8 +44,8 @@ public abstract class TransportPool implements Service {
 
     protected final String uri;
     protected final DispatchQueue queue;
-    protected final LinkedList<Object> pending = new LinkedList<Object>();
-    protected final Map<Transport, Long> transports = new HashMap<Transport, Long>();
+    protected final LinkedList<Pair> pending = new LinkedList<Pair>();
+    protected final Map<Transport, TransportState> transports = new HashMap<Transport, TransportState>();
     protected AtomicBoolean running = new AtomicBoolean(false);
 
     protected int poolSize;
@@ -66,7 +68,17 @@ public abstract class TransportPool implements Service {
 
     protected abstract void onCommand(Object command);
 
-    public void offer(final Object data) {
+    protected abstract void onFailure(Object id, Throwable throwable);
+
+    protected void onDone(Object id) {
+        for (TransportState state : transports.values()) {
+            if (state.inflight.remove(id)) {
+                break;
+            }
+        }
+    }
+
+    public void offer(final Object data, final Object id) {
         if (!running.get()) {
             throw new IllegalStateException("Transport pool stopped");
         }
@@ -74,20 +86,25 @@ public abstract class TransportPool implements Service {
             public void run() {
                 Transport transport = getIdleTransport();
                 if (transport != null) {
-                    transport.offer(data);
+                    doOffer(transport, data, id);
                     if( transport.full() ) {
-                        transports.put(transport, 0L);
+                        transports.get(transport).time = 0L;
                     }
                 } else {
-                    pending.add(data);
+                    pending.add(new Pair(data, id));
                 }
             }
         });
     }
 
+    protected boolean doOffer(Transport transport, Object command, Object id) {
+        transports.get(transport).inflight.add(id);
+        return transport.offer(command);
+    }
+
     protected Transport getIdleTransport() {
-        for (Map.Entry<Transport, Long> entry : transports.entrySet()) {
-            if (entry.getValue() > 0) {
+        for (Map.Entry<Transport, TransportState> entry : transports.entrySet()) {
+            if (entry.getValue().time > 0) {
                 return entry.getKey();
             }
         }
@@ -142,8 +159,28 @@ System.err.println("Creating new transport for: " + this.uri);
         transport.setDispatchQueue(queue);
         transport.setProtocolCodec(createCodec());
         transport.setTransportListener(new Listener());
-        transports.put(transport, 0L);
+        transports.put(transport, new TransportState());
         transport.start();
+    }
+
+    protected static class Pair {
+        Object command;
+        Object id;
+
+        public Pair(Object command, Object id) {
+            this.command = command;
+            this.id = id;
+        }
+    }
+
+    protected static class TransportState {
+        long time;
+        final Set<Object> inflight;
+
+        public TransportState() {
+            time = 0;
+            inflight = new HashSet<Object>();
+        }
     }
 
     protected class Listener implements TransportListener {
@@ -154,19 +191,20 @@ System.err.println("Creating new transport for: " + this.uri);
 
         public void onRefill(final Transport transport) {
             while (pending.size() > 0 &&  !transport.full()) {
-                boolean accepted = transport.offer(pending.removeFirst());
+                Pair pair = pending.removeFirst();
+                boolean accepted = doOffer(transport, pair.command, pair.id);
                 assert accepted: "Should have been accepted since the transport was not full";
             }
 
             if( transport.full() ) {
-                transports.put(transport, 0L);
+                transports.get(transport).time = 0L;
             } else {
                 final long time = System.currentTimeMillis();
-                transports.put(transport, time);
+                transports.get(transport).time = time;
                 if (evictionDelay > 0) {
                     queue.executeAfter(evictionDelay, TimeUnit.MILLISECONDS, new Runnable() {
                         public void run() {
-                            if (transports.get(transport) == time) {
+                            if (transports.get(transport).time == time) {
                                 transports.remove(transport);
                                 transport.stop();
                             }
@@ -180,7 +218,12 @@ System.err.println("Creating new transport for: " + this.uri);
         public void onTransportFailure(Transport transport, IOException error) {
             if (!transport.isDisposed()) {
                 LOGGER.info("Transport failure", error);
-                transports.remove(transport);
+                TransportState state = transports.remove(transport);
+                if (state != null) {
+                    for (Object id : state.inflight) {
+                        onFailure(id, error);
+                    }
+                }
                 transport.stop();
             }
         }
@@ -191,7 +234,12 @@ System.err.println("Creating new transport for: " + this.uri);
         }
 
         public void onTransportDisconnected(Transport transport) {
-            transports.remove(transport);
+            TransportState state = transports.remove(transport);
+            if (state != null) {
+                for (Object id : state.inflight) {
+                    onFailure(id, new IOException("Transport disconnected"));
+                }
+            }
         }
     }
 }

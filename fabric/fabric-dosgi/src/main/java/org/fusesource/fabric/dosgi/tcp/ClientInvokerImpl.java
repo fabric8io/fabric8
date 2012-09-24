@@ -16,19 +16,6 @@
  */
 package org.fusesource.fabric.dosgi.tcp;
 
-import org.fusesource.fabric.dosgi.api.Dispatched;
-import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
-import org.fusesource.fabric.dosgi.api.Serialization;
-import org.fusesource.fabric.dosgi.api.SerializationStrategy;
-import org.fusesource.fabric.dosgi.impl.Manager;
-import org.fusesource.fabric.dosgi.io.ClientInvoker;
-import org.fusesource.fabric.dosgi.io.ProtocolCodec;
-import org.fusesource.fabric.dosgi.io.Transport;
-import org.fusesource.hawtbuf.*;
-import org.fusesource.hawtdispatch.DispatchQueue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -39,6 +26,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.fusesource.fabric.dosgi.api.Dispatched;
+import org.fusesource.fabric.dosgi.api.ObjectSerializationStrategy;
+import org.fusesource.fabric.dosgi.api.Serialization;
+import org.fusesource.fabric.dosgi.api.SerializationStrategy;
+import org.fusesource.fabric.dosgi.io.ClientInvoker;
+import org.fusesource.fabric.dosgi.io.ProtocolCodec;
+import org.fusesource.fabric.dosgi.io.Transport;
+import org.fusesource.hawtbuf.Buffer;
+import org.fusesource.hawtbuf.BufferEditor;
+import org.fusesource.hawtbuf.DataByteArrayInputStream;
+import org.fusesource.hawtbuf.DataByteArrayOutputStream;
+import org.fusesource.hawtbuf.UTF8Buffer;
+import org.fusesource.hawtdispatch.DispatchQueue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientInvokerImpl implements ClientInvoker, Dispatched {
 
@@ -126,17 +129,25 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
         return new ProxyInvocationHandler(address, service, classLoader);
     }
 
-    protected void onCommand(Object data) {
+    protected void onCommand(TransportPool pool, Object data) {
         try {
             DataByteArrayInputStream bais = new DataByteArrayInputStream( (Buffer) data);
             int size = bais.readInt();
             long correlation = bais.readVarLong();
+            pool.onDone(correlation);
             ResponseFuture response = requests.remove(correlation);
             if( response!=null ) {
                 response.set(bais);
             }
         } catch (Exception e) {
             LOGGER.info("Error while reading response", e);
+        }
+    }
+
+    protected void onFailure(Object id, Throwable throwable) {
+        ResponseFuture response = requests.remove(id);
+        if( response!=null ) {
+            response.fail(throwable);
         }
     }
 
@@ -248,7 +259,7 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
                         pool.start();
                     }
                     requests.put(correlation, future);
-                    pool.offer(command);
+                    pool.offer(command, correlation);
                 } catch (Exception e) {
                     LOGGER.info("Error while sending request", e);
                 }
@@ -301,7 +312,12 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
 
         @Override
         protected void onCommand(Object command) {
-            ClientInvokerImpl.this.onCommand(command);
+            ClientInvokerImpl.this.onCommand(this, command);
+        }
+
+        @Override
+        protected void onFailure(Object id, Throwable throwable) {
+            ClientInvokerImpl.this.onFailure(id, throwable);
         }
     }
 
