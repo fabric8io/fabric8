@@ -27,7 +27,8 @@
   <artifactId>fab-core</artifactId>
   <packaging>bundle</packaging>
 
-  <name>Fuse Application Bundles :: Core</name>
+  <name>${project.artifactId}</name>
+  <description>Fuse Application Bundles :: Core</description>
 
   <properties>
     <aetherVersion>1.7</aetherVersion>

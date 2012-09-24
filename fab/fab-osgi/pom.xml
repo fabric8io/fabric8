@@ -28,7 +28,8 @@
     <artifactId>fab-osgi</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Fuse Application Bundles :: OSGi</name>
+    <name>${project.artifactId}</name>
+    <description>Fuse Application Bundles :: OSGi</description>
 
     <properties>
         <fabric.embed.dependency>*;scope=compile|runtime;artifactId=!*console*</fabric.embed.dependency>

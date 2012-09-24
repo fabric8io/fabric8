@@ -27,7 +27,8 @@
   <artifactId>fab-sample-camel-blueprint-share</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Application Bundles :: Tests :: Camel Blueprint Share</name>
+  <name>${project.artifactId}</name>
+  <description>Fuse Application Bundles :: Tests :: Camel Blueprint Share</description>
 
   <dependencies>
     <dependency>

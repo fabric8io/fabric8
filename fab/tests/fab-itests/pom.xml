@@ -28,7 +28,8 @@
   <artifactId>fab-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>Fuse Application Bundles :: Tests :: Integration Tests</name>
+  <name>${project.artifactId}</name>
+  <description>Fuse Application Bundles :: Tests :: Integration Tests</description>
 
   <dependencies>
       <!-- Set up Pax Exam with Pax Runner and @Inject support -->
