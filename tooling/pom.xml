@@ -32,6 +32,7 @@
     <name>FuseSource :: Tooling</name>
 
     <modules>
+        <module>camel-tooling-util</module>
         <module>testing</module>
     </modules>
 
