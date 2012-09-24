@@ -18,16 +18,18 @@ package org.fusesource.fabric.dosgi;
 
 import org.fusesource.fabric.dosgi.impl.Manager;
 import org.linkedin.zookeeper.client.IZKClient;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-public class Activator {
+public class Activator implements LifecycleListener {
 
     private BundleContext bundleContext;
     private Manager manager;
     private String uri;
     private String exportedAddress;
     private ServiceReference reference;
+    private IZKClient zookeeper;
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -42,22 +44,29 @@ public class Activator {
     }
 
     public void destroy() {
-        if (manager != null) {
-            Manager mgr = manager;
+        destroyManager();
+        if (reference != null) {
             ServiceReference ref = reference;
             reference = null;
-            manager = null;
+            zookeeper = null;
             this.bundleContext.ungetService(ref);
+        }
+    }
+
+    protected void destroyManager() {
+        if (manager != null) {
+            Manager mgr = manager;
+            manager = null;
             mgr.destroy();
         }
     }
 
     public void registerZooKeeper(ServiceReference ref) {
+        destroy();
         try {
-            destroy();
             reference = ref;
-            manager = new Manager(this.bundleContext, (IZKClient) this.bundleContext.getService(reference), uri, exportedAddress);
-            manager.init();
+            zookeeper = (IZKClient) this.bundleContext.getService(reference);
+            zookeeper.registerListener(this);
         } catch (Exception e) {
             throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);
         }
@@ -67,4 +76,19 @@ public class Activator {
         destroy();
     }
 
+    @Override
+    public void onConnected() {
+        destroyManager();
+        try {
+            manager = new Manager(this.bundleContext, zookeeper, uri, exportedAddress);
+            manager.init();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void onDisconnected() {
+        destroyManager();
+    }
 }
