@@ -175,18 +175,27 @@ public enum ZkPath {
 
     public static void createContainerPaths(IZKClient zooKeeper, String container, String version, String profiles) throws InterruptedException, KeeperException {
         boolean versionProvided = version != null;
-        if (version == null) {
-            version = ZooKeeperUtils.get(zooKeeper, CONFIG_VERSION.getPath(container));
+
+        //Try to find the version to use
+        if (version == null && zooKeeper.exists(CONFIG_CONTAINER.getPath(container)) != null) {
+            //Try to acquire the version from the registry path /fabric/configs/containers/{container}
+            version = ZooKeeperUtils.get(zooKeeper, CONFIG_CONTAINER.getPath(container));
+        }  else if (zooKeeper.exists(CONFIG_DEFAULT_VERSION.getPath()) != null) {
+            //If version is still null, try the default version.
+            version = ZooKeeperUtils.get(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
+        } else {
+            //Else assume version 1.0.
+            version = ZkDefs.DEFAULT_VERSION;
         }
 
-        if (version != null) {
-            if (zooKeeper.exists(ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
-                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), version);
-            }
+        //Set the version
+        if (zooKeeper.exists(ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), version);
+        }
 
-            if (zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container)) == null || versionProvided) {
-                ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container), profiles);
-            }
+        //Set the profiles
+        if (profiles != null && !profiles.isEmpty() && zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container)) == null) {
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, container), profiles);
         }
     }
 }
