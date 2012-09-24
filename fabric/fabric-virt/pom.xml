@@ -29,7 +29,8 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-virt</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource :: Fabric :: Virt :: Pom</name>
+    <name>${project.artifactId}</name>
+    <description>FuseSource :: Fabric :: Virt :: Pom</description>
 
     <modules>
         <module>bundles</module>

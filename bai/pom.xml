@@ -32,7 +32,8 @@
     <groupId>org.fusesource.bai</groupId>
     <artifactId>bai</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource :: Business Activity Insight</name>
+    <name>${project.artifactId}</name>
+    <description>FuseSource :: Business Activity Insight</description>
 
     <properties>
     </properties>
