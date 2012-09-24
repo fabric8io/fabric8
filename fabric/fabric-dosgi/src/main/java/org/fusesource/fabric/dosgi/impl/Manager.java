@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -113,15 +114,17 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     private final String exportedAddress;
 
+    private final long timeout;
+
     private ClientInvoker client;
 
     private ServerInvoker server;
 
     public Manager(BundleContext context, IZKClient zooKeeper) throws Exception {
-        this(context, zooKeeper, "tcp://0.0.0.0:2543", null);
+        this(context, zooKeeper, "tcp://0.0.0.0:2543", null, TimeUnit.MINUTES.toMillis(5));
     }
 
-    public Manager(BundleContext context, IZKClient zooKeeper, String uri, String exportedAddress) throws Exception {
+    public Manager(BundleContext context, IZKClient zooKeeper, String uri, String exportedAddress, long timeout) throws Exception {
         this.queue = Dispatch.createQueue();
         this.importedServices = new ConcurrentHashMap<EndpointDescription, Map<Long, ImportRegistration>>();
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
@@ -133,11 +136,12 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.zooKeeper = zooKeeper;
         this.uri = uri;
         this.exportedAddress = exportedAddress;
+        this.timeout = timeout;
     }
 
     public void init() throws Exception {
         // Create client and server
-        this.client = new ClientInvokerImpl(queue, serializationStrategies);
+        this.client = new ClientInvokerImpl(queue, timeout, serializationStrategies);
         this.server = new ServerInvokerImpl(uri, queue, serializationStrategies);
         this.client.start();
         this.server.start();

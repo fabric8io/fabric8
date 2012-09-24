@@ -21,6 +21,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.util.Dictionary;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.easymock.EasyMock;
@@ -86,7 +87,7 @@ public class ManagerTest {
 
             BundleContext bundleContext = createMock(BundleContext.class);
             ServiceRegistration registration = createMock(ServiceRegistration.class);
-            Manager manager = new Manager(bundleContext, zooKeeper, "tcp://localhost:" + serverPort, "localhost");
+            Manager manager = new Manager(bundleContext, zooKeeper, "tcp://localhost:" + serverPort, "localhost", TimeUnit.MINUTES.toMillis(5));
 
             bundleContext.addServiceListener(manager, "(service.exported.interfaces=*)");
             expect(bundleContext.getProperty("org.osgi.framework.uuid")).andReturn("the-framework-uuid");

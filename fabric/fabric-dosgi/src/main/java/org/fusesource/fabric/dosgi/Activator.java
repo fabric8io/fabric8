@@ -28,6 +28,7 @@ public class Activator implements LifecycleListener {
     private Manager manager;
     private String uri;
     private String exportedAddress;
+    private long timeout;
     private ServiceReference reference;
     private IZKClient zookeeper;
 
@@ -41,6 +42,10 @@ public class Activator implements LifecycleListener {
 
     public void setExportedAddress(String exportedAddress) {
         this.exportedAddress = exportedAddress;
+    }
+
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 
     public void destroy() {
@@ -80,7 +85,7 @@ public class Activator implements LifecycleListener {
     public void onConnected() {
         destroyManager();
         try {
-            manager = new Manager(this.bundleContext, zookeeper, uri, exportedAddress);
+            manager = new Manager(this.bundleContext, zookeeper, uri, exportedAddress, timeout);
             manager.init();
         } catch (Exception e) {
             throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);
