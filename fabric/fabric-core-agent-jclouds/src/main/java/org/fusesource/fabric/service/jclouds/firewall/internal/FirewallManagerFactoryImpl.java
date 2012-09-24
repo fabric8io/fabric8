@@ -24,11 +24,51 @@ import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
 import org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport;
 import org.jclouds.compute.ComputeService;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 public class FirewallManagerFactoryImpl implements FirewallManagerFactory {
 
     private final Map<String, ProviderFirewallSupport> support = new HashMap<String, ProviderFirewallSupport>();
     private final Map<String, FirewallManager> managers = new HashMap<String, FirewallManager>();
+
+    private BundleContext bundleContext;
+    private ServiceTracker firewallSupportModuleTracker;
+
+    public void init() {
+        firewallSupportModuleTracker = new ServiceTracker(bundleContext,ProviderFirewallSupport.class.getName(), null) {
+
+            @Override
+            public Object addingService(ServiceReference reference) {
+                ProviderFirewallSupport support = (ProviderFirewallSupport) bundleContext.getService(reference);
+                bind(support);
+                return support;
+            }
+
+
+            @Override
+            public void removedService(ServiceReference reference, Object service) {
+                ProviderFirewallSupport support = (ProviderFirewallSupport) service;
+                unbind(support);
+                super.removedService(reference, service);
+            }
+
+            @Override
+            public void modifiedService(ServiceReference reference, Object service) {
+                ProviderFirewallSupport support = (ProviderFirewallSupport) service;
+                bind(support);
+                super.modifiedService(reference, service);
+            }
+        };
+        firewallSupportModuleTracker.open();
+    }
+
+    public void destroy() {
+        if (firewallSupportModuleTracker != null) {
+            firewallSupportModuleTracker.close();
+        }
+    }
 
     /**
      * Returns a {@link org.fusesource.fabric.service.jclouds.firewall.FirewallManager} for the specified {@link org.jclouds.compute.ComputeService}.
@@ -70,4 +110,11 @@ public class FirewallManagerFactoryImpl implements FirewallManagerFactory {
         }
     }
 
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 }

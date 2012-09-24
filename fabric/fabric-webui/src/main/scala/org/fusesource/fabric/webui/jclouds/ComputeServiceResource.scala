@@ -179,7 +179,7 @@ class ComputeServiceResource(self: ComputeService) extends BaseResource {
   @DELETE
   def delete: Unit = {
 
-    Services.zoo_keeper.deleteWithChildren(ZkPath.CLOUD_PROVIDER.getPath(id))
+    Services.zoo_keeper.deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(id))
 
     val delete_config = Option(Services.fabric_service.getCurrentContainer) match {
       case Some(c: Container) =>

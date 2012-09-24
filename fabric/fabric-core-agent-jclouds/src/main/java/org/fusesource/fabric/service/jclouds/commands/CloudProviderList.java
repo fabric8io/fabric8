@@ -27,12 +27,13 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.karaf.core.ComputeProviderOrApiRegistry;
+import org.jclouds.karaf.core.Constants;
 import org.jclouds.providers.ProviderMetadata;
 
 @Command(name = "cloud-provider-list", scope = "fabric", description = "Lists the cloud providers registered with the fabric.")
 public class CloudProviderList extends FabricCommand {
 
-    public static final String PROVIDERFORMAT = "%-24s %-12s %-12s";
+    public static final String PROVIDERFORMAT = "%-24s %-12s %-24s %-24s";
 
     private ComputeProviderOrApiRegistry computeProviderOrApiRegistry;
     private List<ComputeService> computeServices;
@@ -65,32 +66,30 @@ public class CloudProviderList extends FabricCommand {
     }
 
     protected void printComputeProvidersOrApis(Set<String> providersOrApis, List<ComputeService> computeServices, String indent, PrintStream out) {
-        out.println(String.format(PROVIDERFORMAT, "[id]", "[type]", "[service registration]"));
+        out.println(String.format(PROVIDERFORMAT, "[id]", "[type]", "[local services]","[fabric services]"));
         for (String providerOrApi : providersOrApis) {
             boolean registered = false;
-            String registrationType = "none";
+            StringBuffer localServices = new StringBuffer();
+            StringBuffer fabricServices = new StringBuffer();
+
+            localServices.append("[ ");
+            fabricServices.append("[ ");
+
 
             for (ComputeService computeService : computeServices) {
                 if (computeService.getContext().unwrap().getId().equals(providerOrApi)) {
-                    registered = true;
-                    break;
-                }
-            }
-
-            if (registered && getZooKeeper() != null && getZooKeeper().isConnected()) {
-                try {
-                    if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(providerOrApi)) == null) {
-                        registrationType = "local";
+                    String serviceId = (String) computeService.getContext().unwrap().getProviderMetadata().getDefaultProperties().get(Constants.JCLOUDS_SERVICE_ID);
+                    if (getZooKeeper() != null && getZooKeeper().isConnected()) {
+                         fabricServices.append(serviceId).append(" ");
                     } else {
-                        registrationType = "fabric";
+                        localServices.append(serviceId).append(" ");
                     }
-                } catch (Exception e) {
-                    //noop
+
                 }
-            } else if (registered) {
-                registrationType = "local";
             }
-            out.println(String.format(PROVIDERFORMAT, providerOrApi, "compute", registrationType));
+            localServices.append("]");
+            fabricServices.append("]");
+            out.println(String.format(PROVIDERFORMAT, providerOrApi, "compute", localServices.toString(), fabricServices.toString()));
         }
     }
 

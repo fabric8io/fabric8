@@ -18,8 +18,10 @@
 package org.fusesource.fabric.service.jclouds;
 
 import java.util.Dictionary;
+import java.util.Enumeration;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.jclouds.karaf.core.Constants;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.service.cm.Configuration;
@@ -38,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CloudProviderBridge implements LifecycleListener {
 
-    private static final Logger LOGGGER = LoggerFactory.getLogger(CloudProviderBridge.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CloudProviderBridge.class);
 
     private static final String COMPUTE_FILTER = "(service.factoryPid=org.jclouds.compute)";
     private static final String BLOBSTORE_FILTER = "(service.factoryPid=org.jclouds.blobstore)";
@@ -65,21 +67,26 @@ public class CloudProviderBridge implements LifecycleListener {
                 for (Configuration configuration : configurations) {
                     Dictionary properties = configuration.getProperties();
                     if (properties != null) {
-                        String provider = String.valueOf(properties.get("provider"));
+                        String id = String.valueOf(properties.get(Constants.JCLOUDS_SERVICE_ID));
                         String identity = String.valueOf(properties.get("identity"));
                         String credential = String.valueOf(properties.get("credential"));
-                        if (provider != null && identity != null && credential != null && getZooKeeper().isConnected()) {
-                            if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
-                                ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_PROVIDER.getPath(provider));
-                                ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
-                                ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
+                        if (id != null && identity != null && credential != null && getZooKeeper().isConnected()) {
+                            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(id)) == null) {
+                                ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(id));
+
+                                Enumeration keys = properties.keys();
+                                while (keys.hasMoreElements()) {
+                                    String key = String.valueOf(keys.nextElement());
+                                    String value = String.valueOf(properties.get(key));
+                                    ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(id,key), value);
+                                }
                             }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            LOGGGER.error("Failed to retrieve compute service information from configuration admin.",e);
+            LOGGER.error("Failed to retrieve compute service information from configuration admin.", e);
         }
     }
 

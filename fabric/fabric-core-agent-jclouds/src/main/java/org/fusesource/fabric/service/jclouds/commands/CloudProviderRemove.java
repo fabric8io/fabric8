@@ -29,27 +29,27 @@ import org.osgi.service.cm.Configuration;
 public class CloudProviderRemove extends FabricCommand {
     private static final String PID_FILTER = "(service.pid=%s*)";
 
-    @Argument(index = 0, name = "provider", required = true, description = "JClouds provider name")
-    private String provider;
+    @Argument(index = 0, name = "id", required = true, description = "JClouds service id.")
+    private String serviceId;
 
     @Override
     protected Object doExecute() throws Exception {
         boolean connected = getZooKeeper().isConnected();
         Container current = null;
         if (connected) {
-            if (getZooKeeper().exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) != null) {
-                getZooKeeper().deleteWithChildren(ZkPath.CLOUD_PROVIDER.getPath(provider));
+            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(serviceId)) != null) {
+                getZooKeeper().deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(serviceId));
             }
             current = fabricService.getCurrentContainer();
         }
-        //Remove compute configurations for the provider.
+        //Remove compute configurations for the service.
         Configuration[] computeConfigs = findConfigurationByFactoryPid("org.jclouds.compute");
         if (computeConfigs != null) {
             for (Configuration configuration : computeConfigs) {
                 Dictionary props = configuration.getProperties();
                 if (props != null) {
                     String fabricPid = (String) props.get("fabric.zookeeper.pid");
-                    if (fabricPid.equals("org.jclouds.compute-" + provider.replaceAll("-", ""))) {
+                    if (fabricPid.equals("org.jclouds.compute-" + serviceId.replaceAll("-", ""))) {
                         configuration.delete();
                     }
                 }

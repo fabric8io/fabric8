@@ -45,9 +45,9 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport" availability="optional">
+    <!--reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport" availability="optional">
         <reference-listener ref="firewallManagerFactory" bind-method="bind" unbind-method="unbind"/>
-    </reference-list>
+    </reference-list-->
 
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
         <reference-listener ref="jcloudsContainerProvider" bind-method="bind" unbind-method="unbind"/>
@@ -61,7 +61,7 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <optional-completers>
-                <entry key="--serviceId" value-ref="computeServiceIdCompleter"/>
+                <entry key="--service-id" value-ref="computeServiceIdCompleter"/>
                 <entry key="--provider" value-ref="computeProviderCompleter"/>
                 <entry key="--api" value-ref="computeApiCompleter"/>
                 <entry key="--image" value-ref="imageCompleter"/>
@@ -92,7 +92,7 @@
                 <property name="zooKeeper" ref="zooKeeper"/>
             </action>
             <completers>
-                <ref component-id="computeProviderCompleter"/>
+                <ref component-id="computeServiceIdCompleter"/>
                 <null/>
             </completers>
         </command>
@@ -148,7 +148,9 @@
     </bean>
 
 
-    <bean id="firewallManagerFactory" class="org.fusesource.fabric.service.jclouds.firewall.internal.FirewallManagerFactoryImpl"/>
+    <bean id="firewallManagerFactory" class="org.fusesource.fabric.service.jclouds.firewall.internal.FirewallManagerFactoryImpl" init-method="init" destroy-method="destroy">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
 
     <bean id="ec2FirewallSupport" class="org.fusesource.fabric.service.jclouds.firewall.internal.Ec2FirewallSupport"/>
 

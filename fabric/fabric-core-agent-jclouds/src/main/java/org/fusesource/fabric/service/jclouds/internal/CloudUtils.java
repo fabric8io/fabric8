@@ -100,11 +100,14 @@ public class CloudUtils {
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {
-                            if (zooKeeper.exists(ZkPath.CLOUD_PROVIDER.getPath(provider)) == null) {
-                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_PROVIDER.getPath(provider));
+                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(id)) == null) {
+                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(id));
                             }
-                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(provider), identity);
-                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(provider), credential);
+                            for (Map.Entry<String, String> entry : props.entrySet()) {
+                                String key = entry.getKey();
+                                String value = entry.getValue();
+                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(id, key), value);
+                            }
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
                         }
@@ -152,11 +155,14 @@ public class CloudUtils {
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {
-                            if (zooKeeper.exists(ZkPath.CLOUD_PROVIDER.getPath(api)) == null) {
-                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_PROVIDER.getPath(api));
+                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(id)) == null) {
+                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(id));
                             }
-                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_IDENTIY.getPath(api), identity);
-                            ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_PROVIDER_CREDENTIAL.getPath(api), credential);
+                            for (Map.Entry<String, String> entry : props.entrySet()) {
+                                String key = entry.getKey();
+                                String value = entry.getValue();
+                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(id,key), value);
+                            }
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
                         }
