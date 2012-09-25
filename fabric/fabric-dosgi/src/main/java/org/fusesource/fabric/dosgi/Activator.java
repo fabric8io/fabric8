@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.dosgi;
 
+import java.util.concurrent.TimeUnit;
+
 import org.fusesource.fabric.dosgi.impl.Manager;
 import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
@@ -28,7 +30,7 @@ public class Activator implements LifecycleListener {
     private Manager manager;
     private String uri;
     private String exportedAddress;
-    private long timeout;
+    private long timeout = TimeUnit.MINUTES.toMillis(5);
     private ServiceReference reference;
     private IZKClient zookeeper;
 

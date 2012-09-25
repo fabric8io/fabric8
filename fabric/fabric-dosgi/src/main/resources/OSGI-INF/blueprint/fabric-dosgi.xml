@@ -26,6 +26,7 @@
             <!-- Where to bind -->
             <cm:property name="host" value="0.0.0.0"/>
             <cm:property name="uri" value="tcp://${host}:${port}"/>
+            <cm:property name="timeout" value="300000"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
@@ -33,6 +34,7 @@
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="exportedAddress" value="${exportedAddress}"/>
         <property name="uri" value="${uri}"/>
+        <property name="timeout" value="${timeout}"/>
     </bean>
 
     <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient">
