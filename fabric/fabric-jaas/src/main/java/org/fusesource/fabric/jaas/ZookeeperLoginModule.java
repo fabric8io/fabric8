@@ -16,9 +16,10 @@
  */
 package org.fusesource.fabric.jaas;
 
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
 import org.apache.karaf.jaas.modules.Encryption;
-import org.apache.karaf.jaas.modules.RolePrincipal;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.IZKClient;
@@ -119,7 +120,7 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         }
 
         principals = new HashSet<Principal>();
-        principals.add(new org.apache.karaf.jaas.modules.UserPrincipal(user));
+        principals.add(new UserPrincipal(user));
         for (int i = 1; i < infos.length; i++) {
             principals.add(new RolePrincipal(infos[i]));
         }
