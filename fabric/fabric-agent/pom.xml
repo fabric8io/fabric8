@@ -119,12 +119,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-mvn</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.utils</artifactId>
             <scope>provided</scope>
