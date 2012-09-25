@@ -40,6 +40,10 @@
     </licenses>
 
     <modules>
+        <module>fabric-activemq-facade</module>
+        <module>fabric-camel-facade</module>
+        <module>fabric-servicemix-facade</module>
+
         <module>fabric-core</module>
         <module>fabric-linkedin-zookeeper</module>
         <module>fabric-zookeeper</module>
@@ -69,9 +73,6 @@
         <module>fabric-virt</module>
         <module>fabric-branding</module>
 
-        <module>fabric-activemq-facade</module>
-        <module>fabric-camel-facade</module>
-        <module>fabric-servicemix-facade</module>
         <module>fabric-webui</module>
 
         <module>fuse-fabric</module>
