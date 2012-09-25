@@ -20,7 +20,7 @@ import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import javax.ws.rs._
 import core.Context
-import org.apache.karaf.jaas.modules.{UserPrincipal, RolePrincipal}
+import org.apache.karaf.jaas.boot.principal.{UserPrincipal, RolePrincipal}
 import com.sun.jersey.api.core.ResourceContext
 import org.fusesource.fabric.webui.system.Authenticator
 
