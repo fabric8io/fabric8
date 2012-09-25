@@ -103,9 +103,9 @@
         TODO is this correct?
         <aries-util-version>1.0.0</aries-util-version>
 -->
-        <aries-util-version>0.3.1.fuse-71-009</aries-util-version>
-        <aries.version>0.3</aries.version>
-        <aries.proxy.version>0.3</aries.proxy.version>
+        <aries-util-version>1.0.0</aries-util-version>
+        <aries.version>1.0.0</aries.version>
+        <aries.proxy.version>1.0.0</aries.proxy.version>
         <asm.bundle.version>3.3_2</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
         <brew-version>0.2.11</brew-version>
