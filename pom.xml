@@ -140,7 +140,7 @@
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
         <junit-version>4.10</junit-version>
-        <karaf-version>2.2.5.fuse-71-${perfectus-build}</karaf-version>
+        <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
         <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
