@@ -35,14 +35,15 @@
 
   <properties>
     <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
+    <guava.osgi.version.clean>${jclouds-version}</guava.osgi.version.clean>
 
     <fuse.osgi.export>
-      javax.inject*;version=${fuse.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
-      com.google.gson*;version=${fuse.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
-      com.google.common*;version=${guava.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
-      com.google.inject*;version=${fuse.osgi.version.clean};-noimport:=true;version=${fuse.osgi.version.clean};-noimport:=true,
+      javax.inject*;version=${guava.osgi.version.clean};-noimport:=true;version=${guava.osgi.version.clean};-noimport:=true,
+      com.google.gson*;version=${guava.osgi.version.clean};-noimport:=true;version=${guava.osgi.version.clean};-noimport:=true,
+      com.google.common*;version=${guava.osgi.version.clean};-noimport:=true;version=${guava.osgi.version.clean};-noimport:=true,
+      com.google.inject*;version=${guava.osgi.version.clean};-noimport:=true;version=${guava.osgi.version.clean};-noimport:=true,
       org.jclouds*;version=${jclouds.osgi.version.clean};-noimport:=true,
-      net.oauth*,;version=${fuse.osgi.version.clean};-noimport:=true
+      net.oauth*,;version=${jclouds.osgi.version.clean};-noimport:=true
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
       net.iharder.base64*,
