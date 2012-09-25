@@ -93,13 +93,13 @@
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>009</perfectus-build>
+        <perfectus-build>013</perfectus-build>
         <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
-        <aries-blueprint-version>0.3.1.fuse-71-${perfectus-build}</aries-blueprint-version>
-        <aries-jmx-version>0.3.1.fuse-71-${perfectus-build}</aries-jmx-version>
-        <aries-transaction-version>0.3.1.fuse-71-${perfectus-build}</aries-transaction-version>
-        <aries-util-version>0.3.1.fuse-71-${perfectus-build}</aries-util-version>
+        <aries-blueprint-version>1.0.1.fuse-71-${perfectus-build}</aries-blueprint-version>
+        <aries-jmx-version>1.0.1.fuse-71-${perfectus-build}</aries-jmx-version>
+        <aries-transaction-version>1.0.1.fuse-71-${perfectus-build}</aries-transaction-version>
+        <aries-util-version>1.0.1.fuse-71-${perfectus-build}</aries-util-version>
         <aries.version>0.3</aries.version>
         <aries.proxy.version>0.3</aries.proxy.version>
         <asm.bundle.version>3.3_2</asm.bundle.version>
@@ -502,6 +502,17 @@
             <id>fusesource.ea</id>
             <name>FuseSource Community Early Access Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource-nexus-staging</id>
+            <name>FuseSource Release Proxy</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -1292,7 +1303,7 @@
       <properties>
         <perfectus-build>SNAPSHOT</perfectus-build>
         <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
-        <aries.blueprint.version>0.3.1.fuse-71-${perfectus-build}</aries.blueprint.version>
+        <aries.blueprint.version>1.0.1.fuse-71-${perfectus-build}</aries.blueprint.version>
         <aries.jmx.version>1.0.1.fuse-71-${perfectus-build}</aries.jmx.version>
         <aries.transaction.version>1.0.1.fuse-71-${perfectus-build}</aries.transaction.version>
         <aries.util.version>1.0.0</aries.util.version>
