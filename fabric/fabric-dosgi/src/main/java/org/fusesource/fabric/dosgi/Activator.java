@@ -26,6 +26,7 @@ public class Activator {
     private BundleContext bundleContext;
     private Manager manager;
     private String uri;
+    private String exportedAddress;
     private ServiceReference reference;
 
     public void setBundleContext(BundleContext bundleContext) {
@@ -34,6 +35,10 @@ public class Activator {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public void setExportedAddress(String exportedAddress) {
+        this.exportedAddress = exportedAddress;
     }
 
     public void destroy() {
@@ -51,7 +56,7 @@ public class Activator {
         try {
             destroy();
             reference = ref;
-            manager = new Manager(this.bundleContext, (IZKClient) this.bundleContext.getService(reference), uri);
+            manager = new Manager(this.bundleContext, (IZKClient) this.bundleContext.getService(reference), uri, exportedAddress);
             manager.init();
         } catch (Exception e) {
             throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);

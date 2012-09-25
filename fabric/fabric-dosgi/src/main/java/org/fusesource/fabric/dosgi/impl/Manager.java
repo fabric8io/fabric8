@@ -18,6 +18,8 @@ package org.fusesource.fabric.dosgi.impl;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -109,15 +111,17 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     private final String uri;
 
+    private final String exportedAddress;
+
     private ClientInvoker client;
 
     private ServerInvoker server;
 
     public Manager(BundleContext context, IZKClient zooKeeper) throws Exception {
-        this(context, zooKeeper, "tcp://0.0.0.0:2543");
+        this(context, zooKeeper, "tcp://0.0.0.0:2543", null);
     }
 
-    public Manager(BundleContext context, IZKClient zooKeeper, String uri) throws Exception {
+    public Manager(BundleContext context, IZKClient zooKeeper, String uri, String exportedAddress) throws Exception {
         this.queue = Dispatch.createQueue();
         this.importedServices = new ConcurrentHashMap<EndpointDescription, Map<Long, ImportRegistration>>();
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
@@ -128,6 +132,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.bundleContext = context;
         this.zooKeeper = zooKeeper;
         this.uri = uri;
+        this.exportedAddress = exportedAddress;
     }
 
     public void init() throws Exception {
@@ -393,10 +398,13 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
             throw new UnsupportedOperationException();
         }
 
+        URI connectUri = new URI(this.server.getConnectAddress());
+        String fabricAddress = connectUri.getScheme() + "://" + exportedAddress + ":" + connectUri.getPort();
+
         properties.remove(SERVICE_EXPORTED_CONFIGS);
         properties.put(SERVICE_IMPORTED_CONFIGS, new String[] { CONFIG });
         properties.put(ENDPOINT_FRAMEWORK_UUID, this.uuid);
-        properties.put(FABRIC_ADDRESS, this.server.getConnectAddress());
+        properties.put(FABRIC_ADDRESS, fabricAddress);
 
         String uuid = UuidGenerator.getUUID();
         properties.put(ENDPOINT_ID, uuid);

@@ -86,7 +86,7 @@ public class ManagerTest {
 
             BundleContext bundleContext = createMock(BundleContext.class);
             ServiceRegistration registration = createMock(ServiceRegistration.class);
-            Manager manager = new Manager(bundleContext, zooKeeper, "tcp://localhost:" + serverPort);
+            Manager manager = new Manager(bundleContext, zooKeeper, "tcp://localhost:" + serverPort, "localhost");
 
             bundleContext.addServiceListener(manager, "(service.exported.interfaces=*)");
             expect(bundleContext.getProperty("org.osgi.framework.uuid")).andReturn("the-framework-uuid");
