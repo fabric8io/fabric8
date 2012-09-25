@@ -103,7 +103,7 @@
         TODO I think this is a bug?
         <aries-util-version>1.0.1.fuse-71-${perfectus-build}</aries-util-version>
 -->
-        <aries-util-version>0.3.1.fuse-71-${perfectus-build}</aries-util-version>
+        <aries-util-version>0.3.1.fuse-71-009</aries-util-version>
         <aries.version>0.3</aries.version>
         <aries.proxy.version>0.3</aries.proxy.version>
         <asm.bundle.version>3.3_2</asm.bundle.version>
