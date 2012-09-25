@@ -169,7 +169,6 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
         <!-- generate dependencies versions -->
         <groupId>org.apache.servicemix.tooling</groupId>
         <artifactId>depends-maven-plugin</artifactId>
-        <version>4.3.1-fuse-00-00</version>
         <executions>
           <execution>
             <id>generate-depends-file</id>

@@ -100,8 +100,8 @@
         <aries-jmx-version>1.0.1.fuse-71-${perfectus-build}</aries-jmx-version>
         <aries-transaction-version>1.0.1.fuse-71-${perfectus-build}</aries-transaction-version>
 <!--
-        TODO I think this is a bug?
-        <aries-util-version>1.0.1.fuse-71-${perfectus-build}</aries-util-version>
+        TODO is this correct?
+        <aries-util-version>1.0.0</aries-util-version>
 -->
         <aries-util-version>0.3.1.fuse-71-009</aries-util-version>
         <aries.version>0.3</aries.version>
@@ -118,6 +118,7 @@
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
         <cxf-version>2.6.0.fuse-71-${perfectus-build}</cxf-version>
+        <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
         <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <fabric-version>${project.version}</fabric-version>
@@ -486,6 +487,12 @@
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-shade-plugin</artifactId>
               <version>1.5</version>
+          </plugin>
+
+          <plugin>
+              <groupId>org.apache.servicemix.tooling</groupId>
+              <artifactId>depends-maven-plugin</artifactId>
+              <version>${depends-maven-plugin.version}</version>
           </plugin>
         </plugins>
     </build>

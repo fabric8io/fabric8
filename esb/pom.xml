@@ -107,7 +107,6 @@
         <ode.version>1.3.5</ode.version>
 
         <!-- Maven Plugins -->
-        <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
         <jbi-maven-plugin.version>4.5</jbi-maven-plugin.version>
         <maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
         <maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
