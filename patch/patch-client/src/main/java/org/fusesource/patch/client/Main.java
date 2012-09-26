@@ -50,8 +50,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import jline.TerminalSupport;
 import jline.console.ConsoleReader;
+import jline.internal.ShutdownHooks;
+
 import org.apache.felix.utils.version.VersionCleaner;
 import org.apache.sshd.ClientChannel;
 import org.apache.sshd.ClientSession;
@@ -603,7 +604,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        System.setProperty(TerminalSupport.JLINE_SHUTDOWNHOOK, "true");
+        System.setProperty(ShutdownHooks.JLINE_SHUTDOWNHOOK, "true");
         AnsiConsole.systemInstall();
 
         for (String arg : args) {
