@@ -49,7 +49,9 @@
       net.iharder.base64*,
       biz.source_code.base64Coder*,
       com.jamesmurty*,
-      org.yaml*
+      org.yaml*,
+      org.bouncycastle*,
+      org.nnsoft*
     </fuse.osgi.private.pkg>
     <fuse.osgi.import.before.defaults>
       !com.google.inject.internal.asm.util*,
@@ -118,13 +120,11 @@
           <artifactId>org.apache.servicemix.bundles.jzlib</artifactId>
           <version>${org.apache.servicemix.bundles.jzlib.version}</version>
       </dependency>
-<!--
       <dependency>
           <groupId>org.bouncycastle</groupId>
           <artifactId>bcprov-jdk15</artifactId>
           <version>1.46</version>
       </dependency>
--->
   </dependencies>
 
   <build>
