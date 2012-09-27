@@ -1,0 +1,35 @@
+- import org.fusesource.insight.maven.aether._
+- val optionalStyle = if (isOptional) " optional" else ""
+
+div(class={"dependency " + scope + optionalStyle})
+  span.group #{groupId}
+  span.artifact #{artifactId}
+
+  - change match
+    - case SameVersion(v) =>
+      a(class="version same" href={uri("/projects/project/" + groupId + "/" + artifactId + "/" + v)} title="Version not changed") #{v}
+    - case AddVersion(v) =>
+      a(class="version add" href={uri("/projects/project/" + groupId + "/" + artifactId + "/" + v)} title="Added version")
+        img(src={uri("/images/scalate/plus.png")})
+        | #{v}
+
+    - case RemoveVersion(v) =>
+      a(class="version remove" href={uri("/projects/project/" + groupId + "/" + artifactId + "/" + v)} title="Removed version")
+        img(src={uri("/images/scalate/minus.png")})
+        | #{v}
+
+    - case UpdateVersion(v1, v2) =>
+      span.update
+        a(class="version from" href={uri("/projects/project/" + groupId + "/" + artifactId + "/" + v1)} title="From version") #{v1}
+        img(src={uri("/images/arrow_right.png")})
+        a(class="version to" href={uri("/projects/project/" + groupId + "/" + artifactId + "/" + v2)} title="To version") #{v2}
+
+  - if (scope != "runtime")
+    span.scope #{scope}
+
+
+- if (children.size > 0)
+  ul
+    - for (c <- children)
+      li
+        = view(c)

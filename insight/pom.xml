@@ -55,6 +55,8 @@
     <module>insight-log</module>
     <module>insight-log-elasticsearch</module>
     <module>insight-elasticsearch</module>
+    <module>insight-maven</module>
+    <module>insight-maven-web</module>
   </modules>
 
 </project>

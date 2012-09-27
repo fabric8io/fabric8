@@ -1,0 +1,53 @@
+#scalate-console {
+  position:fixed;
+  top:40px;
+  right:10px;
+  background: #FDFCAD;
+  padding:10px;
+  border: 1px solid #BDBD81;
+  font-family:Arial,Verdana,Helvetica,sans-serif;
+  font-size: 80%;
+  max-width: 400px;
+}
+
+#scalate-console .archetypes ul, #scalate-console .templates ul, #scalate-console .resources ul, #scalate-console .layouts ul   {
+  padding-left:20px;
+  overflow: auto;
+}
+
+#scalate-console .toggle {
+  text-align: right;
+}
+
+#scalate-console .toggle img {
+  vertical-align: middle;
+}
+
+#scalate-console div.attributes {
+  margin: 10px;
+  overflow: auto;
+  background: white;
+}
+
+#scalate-console div.attributes table th {
+  text-align: left;
+  color: #993333;
+}
+#scalate-console div.attributes table td {
+  padding:2px;
+  border-top: 1px solid #BDBD81;
+}
+
+#scalate-console div.body {
+  margin: 10px;
+  overflow: auto;
+  max-height: 300px;
+  background: white;
+}
+
+#scalate-console div.systemProperties {
+  margin: 10px;
+  overflow: auto;
+  max-height: 300px;
+  background: white;
+}

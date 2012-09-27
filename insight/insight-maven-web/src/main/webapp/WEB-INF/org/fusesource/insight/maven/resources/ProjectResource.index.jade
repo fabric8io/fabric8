@@ -1,0 +1,12 @@
+- include("/snippets/jqueryShowHide.jade")
+
+- captureAttribute("navigationBar")
+  li
+    a(href={version + "/legal"} title="View the dependencies your legal team may want to check, excluding Apache or other Fuse dependencies") Legal
+  li
+    a(href={version + "/csv"} title="Legal CSV") CSV
+
+
+
+p
+  = view(result.root)

@@ -1,0 +1,205 @@
+body, html {
+    font-family:Arial,Verdana,Helvetica,sans-serif;
+    color: #666666;
+}
+body, html, table, tr, td, tbody {
+    padding:0;
+    margin:0;
+    vertical-align: top;
+}
+body {
+    padding-top: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    overflow: visible;
+    color: #993333;
+}
+
+/*
+h1 {
+	margin-top: 0em;
+    margin-bottom: 2em;
+}
+*/
+
+p { margin-bottom:0px; }
+
+a {
+	color: #990000;
+	font-weight:bold;
+	text-decoration: none;
+}
+
+a:hover {
+	color: #ff3333;
+	text-decoration: underline;
+	}
+
+img {
+	border: none;
+/*
+	padding-right:2em
+*/
+}
+
+.wrapper { min-width: 762px; width: 762px; margin: 0 auto; }
+
+#navigation { width: 100%; float: left;
+    font-family: Helvetica,Verdana,Arial,sans-serif;
+    background: black;
+	text-align:center; padding: 8px;
+    color: #b55;
+	font-size: 10pt;
+	font-weight: bold;
+  position: absolute;
+    top: 0px;
+}
+#navigation a { color: white; }
+#navigation ul { display: block; margin:0; padding:0; }
+#navigation li { list-style-type: none; display: inline; margin:0 5px 0 5px;}
+
+#overview { width: 100%; padding-top:20px}
+#overview div.message {
+    font-size: 11pt;
+    margin-top: -20px;
+    padding-left: 120px;
+    width: 350px;
+}
+#overview div.message h1{ margin-bottom: 5px; display:none; }
+#overview div.message p{ margin-top: 0px; padding-bottom:14px; }
+
+#content { width: 100%; float: left; }
+#content .wrapper { min-width: 700px; width: 700px; margin: 0 auto; padding-top: 1em}
+#content div.left {
+  float:left;
+  width:200px;
+  text-align:right;
+  font-size: 18pt;
+  clear:both;
+}
+#content h1 {
+  font-size: 18pt;
+}
+#content div.right {
+  float:right;
+  width:450px;
+  text-align:left;
+}
+
+#blog { width: 100%; float: left; }
+#blog .wrapper { min-width: 600px; width: 600px; margin: 0 auto; }
+#blog h1 {
+  font-family: HelveticaNeue,"Helvetica Neue",Helvetica,Arial,Verdana,sans-serif;
+  font-size: 18pt; color: #993333;
+}
+#blog h2 {
+  border-bottom: thin dashed #DDD;
+  font-size: 16pt;
+  margin-bottom: 5px;
+}
+#blog div.post p {
+  padding-left: 10px;
+}
+#blog div.post .details {
+  padding-top: 5px;
+  color: #ccc;
+  font-size: 10pt;
+  font-family: HelveticaNeue,"Helvetica Neue",Helvetica,Arial,Verdana,sans-serif;
+}
+
+#content .post h2 {
+  margin-bottom:5px;
+}
+#content .post .details {
+  color: #ccc;
+  font-size: 10pt;
+  font-family: HelveticaNeue,"Helvetica Neue",Helvetica,Arial,Verdana,sans-serif;
+  margin-top:0px;
+}
+
+
+
+/* Table Updates */
+
+table.sortable {
+  margin: 0px;
+  padding: 0px;
+  margin-bottom: 1em;
+
+  margin: 1em auto;
+}
+
+th {
+  padding: 2px;
+  padding-left: 10px;
+  text-align: left;
+  background-color: #ccc;
+}
+
+td {
+  padding: 0.5em;
+}
+
+tr {
+  background-color: #ffffff;
+}
+
+tr.odd {
+  background-color: #f3f3f3;
+}
+
+td.numeric,
+  th.numeric {
+  text-align: right;
+}
+
+/** forms using table layout */
+td.label {
+  background-color: #f3f3f3;
+}
+
+
+
+.test {
+  color: green;
+}
+
+.optional {
+  color: #bbb;
+}
+
+.provided {
+  color: brown;
+}
+
+div.dependency {
+  margin: 12px;
+}
+
+a.add {
+  background-color: #c0ffc0;
+
+  padding: 0.2em;
+  border: 1px solid #CCC;
+  border-radius: 15px;
+  box-shadow:rgba(0,0,0,0.5) 0px 0px 24px;
+}
+
+a.remove {
+  background-color: #ffc0c0;
+
+  padding: 0.2em;
+  border: 1px solid #CCC;
+  border-radius: 15px;
+  box-shadow:rgba(0,0,0,0.5) 0px 0px 24px;
+}
+
+.update {
+  background-color: #e0e0ff;
+
+  padding: 0.2em;
+  border: 1px solid #CCC;
+  border-radius: 15px;
+  box-shadow:rgba(0,0,0,0.5) 0px 0px 24px;
+}

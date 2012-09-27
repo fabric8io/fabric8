@@ -1,0 +1,12 @@
+- include("/snippets/jqueryShowHide.jade")
+
+- captureAttribute("navigationBar")
+  li
+    a(href={"../" + version2} title="View all dependencies in both versions") All Dependencies
+  li
+    a(href={"legal"} title="View the legal report for teh changes") Legal
+  li
+    a(href={"legal.csv"} title="Download the Legal CSV file for this report") CSV
+
+p
+  = view(result.root, "legal")

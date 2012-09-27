@@ -1,0 +1,20 @@
+<%@ val legalReports: List[org.fusesource.insight.maven.resources.LegalReport] %>
+
+<table>
+  <tr>
+    <th>Product</th>
+    <th>Vendor</th>
+    <th>License</th>
+    <th>Change</th>
+    <th>Notes</th>
+  </tr>
+#for(r <- legalReports)
+  <tr>
+    <td>${r.product}</td>
+    <td>${r.vendor}</td>
+    <td>${r.license}</td>
+    <td>${r.change}</td>
+    <td>${r.notes}</td>
+  </tr>
+#end
+</table>

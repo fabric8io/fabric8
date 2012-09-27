@@ -1,0 +1,11 @@
+- captureAttribute("head")
+  script(type="text/javascript" src={uri("/js/jquery.js")})
+
+  :javascript
+    $(document).ready(function() {
+      $('li div span.group').click(function(e) {
+        $(e.target).parent().parent().children('ol').toggle();
+        $(e.target).parent().parent().children('ul').toggle();
+        return false;
+      });
+    });

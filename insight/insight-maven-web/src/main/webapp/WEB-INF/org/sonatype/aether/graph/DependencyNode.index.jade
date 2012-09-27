@@ -1,0 +1,23 @@
+- val d = getDependency
+- val a = d.getArtifact
+- val groupId = a.getGroupId
+- val artifactId = a.getArtifactId
+- val extension = a.getExtension
+- val classifier = a.getClassifier
+- val version = a.getVersion
+- val scope = d.getScope
+- val optionalStyle = if (d.isOptional) " optional" else ""
+
+div(class={"dependency " + scope + optionalStyle})
+  span.group #{groupId}
+  span.artifact #{artifactId}
+  a(class="version" href={uri("/projects/project/" + groupId + "/" + artifactId + "/" + extension + "/" + classifier + "/" + version)} title="View this project") #{version}
+  - if (scope != "runtime")
+    span.scope #{scope}
+
+
+- if (getChildren.size > 0)
+  ul
+    - for (c <- getChildren)
+      li
+        = view(c)
