@@ -16,18 +16,15 @@
 package org.fusesource.fabric.webui
 
 import jclouds.ComputeServiceListener
-import org.linkedin.zookeeper.client.{ZKClient, IZKClient}
-import org.linkedin.util.clock.Timespan
-import org.fusesource.fabric.service.{ContainerTemplate, FabricServiceImpl}
+import org.linkedin.zookeeper.client.IZKClient
+import org.fusesource.fabric.service.ContainerTemplate
 import java.util.concurrent.ConcurrentHashMap
 import org.osgi.service.cm.{ConfigurationAdmin, Configuration}
-import java.util.{Properties, Dictionary}
 import org.osgi.framework.FrameworkUtil
 import system.Principal
 import org.slf4j.{Logger, LoggerFactory}
 import java.lang.ExceptionInInitializerError
-import org.fusesource.fabric.api.{ZooKeeperClusterService, Container, FabricService, Version, Profile}
-import org.jclouds.karaf.core.ComputeProviderOrApiRegistry
+import org.fusesource.fabric.api.{ZooKeeperClusterService, Container, FabricService}
 import java.io.File
 import org.jclouds.providers.Providers
 import org.jclouds.apis.Apis
@@ -37,26 +34,17 @@ class Services {
 
   import Services._
 
-  def setProfileName(name: String) = {
-    _profile_name = name
-  }
+  def setProfileName(name: String) = _profile_name = name
 
-  def setResolver(resolver: String) = {
-    _resolver = resolver
-  }
+  def setResolver(resolver: String) = _resolver = resolver
 
-  def setManaged(managed: Boolean) = {
-    _managed = managed
-  }
+  def setManaged(managed: Boolean) = _managed = managed
 
-  def setTempDir(tempDir: String) = {
-    _tempDir = tempDir
-  }
+  def setTempDir(tempDir: String) = _tempDir = tempDir
 
-  def setPatchDir(patchDir: String) = {
-    _patchDir = patchDir
+  def setPatchDir(patchDir: String) =  _patchDir = patchDir
 
-  }
+  def setRealm(realm:String) = _realm = realm
 
   def setZooKeeper(service: IZKClient) = _zoo_keeper = service
 
@@ -155,6 +143,7 @@ object Services {
   protected var _compute_service_listener: ComputeServiceListener = _
   protected var _tempDir: String = _
   protected var _patchDir: String = _
+  protected var _realm:String = _
 
   def profile_name = _profile_name
 
@@ -189,6 +178,7 @@ object Services {
       _tempDir
     }
   }
+  def realm = _realm
 
   case class AgentTemplateHolder(agent: Container) {
     lazy val template = new ContainerTemplate(agent, true, principal.username, principal.password)

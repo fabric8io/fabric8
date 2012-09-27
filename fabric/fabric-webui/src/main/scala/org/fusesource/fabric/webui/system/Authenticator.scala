@@ -26,7 +26,6 @@ import org.apache.karaf.jaas.config.JaasRealm
 import org.apache.karaf.jaas.modules.{BackingEngineFactory, BackingEngine}
 import java.util.HashMap
 import org.osgi.framework.FrameworkUtil
-import org.fusesource.fabric.jaas.{ZookeeperLoginModule, ZookeeperBackingEngineFactory}
 import org.fusesource.fabric.webui.Services
 
 @Singleton
@@ -35,51 +34,26 @@ class Authenticator(@Context servletContext: ServletContext) {
   private val _bundle = FrameworkUtil.getBundle(getClass)
   private val _bundle_context = if (_bundle != null) _bundle.getBundleContext else null
 
-  protected val logger: Logger = LoggerFactory getLogger getClass
-  val DEFAULT_DOMAIN = "karaf"
-  protected var domain: String = DEFAULT_DOMAIN
-
-  try {
-    var path = System.getProperty("java.security.auth.login.config");
-    if (path == null) {
-      val resource = servletContext.getResource("/WEB-INF/login.config")
-      if (resource != null) {
-        path = resource.getFile();
-        System.setProperty("java.security.auth.login.config", path);
-      }
-    }
-
-    val zk = Services.zoo_keeper
-    domain = zk.getStringData("fabric/authentication/domain")
-
-  } catch {
-    case e => logger.error("Error initializing authenticator", e)
-  } finally {
-    if (domain == null) {
-      domain = DEFAULT_DOMAIN
-    }
-  }
+  protected val logger : Logger = LoggerFactory getLogger getClass
+  protected var domain: String = Services.realm
 
   def authenticate(username: String, password: String): Boolean = {
-    ZookeeperLoginModule.ZOOKEEPER_CONTEXT.set(Services.zoo_keeper)
     try {
-      val callback = new LoginCallbackHandler(username, password);
-      val lc = new LoginContext(domain, callback);
-      lc.login();
-      return true
+      val callback = new LoginCallbackHandler(username, password)
+      val lc = new LoginContext(domain, callback)
+      lc.login()
+      true
     } catch {
-      case e => {
+      case e:Throwable => {
         logger.info("Authentication failed", e)
-        return false
+        false
       }
-    } finally {
-      ZookeeperLoginModule.ZOOKEEPER_CONTEXT.remove()
     }
   }
 
   private val _auth_backing_engine: BackingEngine = {
     if (_bundle_context == null) {
-      createDefaultEngine
+      null
     } else {
       var services = _bundle_context.getServiceReferences(classOf[JaasRealm].getName, null)
       var engine: BackingEngine = null
@@ -99,24 +73,8 @@ class Authenticator(@Context servletContext: ServletContext) {
           }
         })
       }
-      if (engine == null) {
-        engine = createDefaultEngine
-      }
       engine
     }
-  }
-
-  def createDefaultEngine: BackingEngine = {
-    val factory = new ZookeeperBackingEngineFactory();
-    val map = new HashMap[Object, Object]();
-    factory.setService(Services.fabric_service);
-    map.put("encryption.enabled", "true")
-    map.put("encryption.algorithm", "MD5")
-    map.put("encryption.encoding", "hexadecimal")
-    map.put("encryption.prefix", "{CRYPT}")
-    map.put("encryption.suffix", "{CRYPT}")
-
-    factory.build(map);
   }
 
   def auth_backing_engine = _auth_backing_engine

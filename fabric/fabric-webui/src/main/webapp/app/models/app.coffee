@@ -29,7 +29,6 @@ define [
       flash: null
       page: null
       poll_interval: 0
-      doingOurOwnUserManagement: true
 
   class FormModel extends FON.Model
     error_message: null
@@ -76,7 +75,7 @@ define [
     menu.push
       href: "#/patches"
       label: "Patching"      
-    if app.model.get "doingOurOwnUserManagement"
+    if app.system_state.get "has_backing_engine"
       menu.push
         href: "#/users"
         label: "Users"
@@ -85,14 +84,14 @@ define [
     #  label: "Upgrades"
     app.menu menu
   app.update_menu = update_menu
+
   app.versions.bind "all", update_menu
+  app.system_state.bind "change:has_backing_engine", update_menu
 
   app.model.set({url: window.location.hash})
   $(window).bind('hashchange', (url)->
     app.model.set({url: window.location.hash})
   )
-
-  app.model.set doingOurOwnUserManagement: true # figure out how to know the real value of this...
 
 
   # Update the username when the whoami info changes..

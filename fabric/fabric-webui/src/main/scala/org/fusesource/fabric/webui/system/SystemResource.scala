@@ -17,25 +17,16 @@
 package org.fusesource.fabric.webui.system
 
 import javax.ws.rs._
-import core.{Response, Context}
-import java.util.Date
-import java.io.File
-import java.io.{InputStream, FileOutputStream}
+import core.Context
 import javax.servlet.http.{HttpSession, HttpServletRequest, HttpServletResponse}
-import javax.ws.rs.core.Response.Status._
 import org.codehaus.jackson.annotate.JsonProperty
 import com.sun.jersey.api.core.ResourceContext
-import com.sun.jersey.core.header.FormDataContentDisposition
-import com.sun.jersey.multipart.FormDataParam
-import org.fusesource.fabric.webui._
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.boot.commands.service.Create
 import org.fusesource.fabric.boot.commands.service.Join
-import org.apache.commons.io.IOUtils
 import org.jclouds.compute.reference.ComputeServiceConstants
 import scala.concurrent.ops._
 import org.fusesource.fabric.zookeeper.ZkDefs
-import org.fusesource.fabric.api.ZooKeeperClusterService
 
 
 class Principal extends BaseResource {
@@ -55,7 +46,9 @@ class ConnectionStatusDTO {
   @JsonProperty
   var provision_complete: Boolean = _
   @JsonProperty
-  var managed: Boolean = _
+  var managed:Boolean = _
+  @JsonProperty
+  var has_backing_engine:Boolean = _
 }
 
 class JoinEnsembleDTO {
@@ -67,12 +60,12 @@ class JoinEnsembleDTO {
 class SystemResource extends BaseResource {
 
   @Context
-  var rc: ResourceContext = null;
+  var resource_context: ResourceContext = null
 
   @POST
   @Path("login")
   def login(@Context request: HttpServletRequest, @Context response: HttpServletResponse, @FormParam("username") username: String, @FormParam("password") password: String): Boolean = {
-    val auth: Authenticator = rc.getResource(classOf[Authenticator]);
+    val auth: Authenticator = resource_context.getResource(classOf[Authenticator]);
     if (auth.authenticate(username, password)) {
       val session: HttpSession = request.getSession(true);
       session.setAttribute("username", username)
@@ -150,6 +143,13 @@ class SystemResource extends BaseResource {
     } catch {
       case t: Throwable =>
         rc.zk_cluster_service_available = false
+    }
+
+    try {
+      rc.has_backing_engine = resource_context.getResource(classOf[Authenticator]).auth_backing_engine != null
+    } catch {
+      case t:Throwable =>
+      rc.has_backing_engine = false
     }
     rc
   }

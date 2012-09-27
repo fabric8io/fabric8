@@ -22,11 +22,6 @@
     <display-name>Fuse Console</display-name>
 
     <context-param>
-      <param-name>login.config</param-name>
-      <param-value>/WEB-INF/login.config</param-value>
-    </context-param>
-
-    <context-param>
       <param-name>fabric.username</param-name>
       <param-value>admin</param-value>
     </context-param>

@@ -1,5 +1,18 @@
 == Fuse Management Console ${project.version} ==
 
+===================================================
+                   IMPORTANT!
+===================================================
+Before using the Fuse Management Console you must edit:
+
+etc/fmc-users.properties
+
+to create a user account.
+
+Otherwise you will be unable to log into the management
+console.
+===================================================
+
 To start the Fuse Management Console (FMC) run the following
 command in a terminal:
 
@@ -35,9 +48,8 @@ http://localhost:${fmc-port}
 Follow the guide on the welcome page to either create a new
 Fabric Ensemble Server or join an existing Fabric Ensemble.
 
-Then log in (default username/password is admin/admin) and
-you'll be prompted to activate the product if it hasn't been
-activated already.
+Then log in using the username and password you've configured
+in etc/fmc-users.properties
 
 For more information about Fuse Management Console please
 visit:

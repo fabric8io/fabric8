@@ -461,6 +461,7 @@
         <feature>war</feature>
         <feature>fabric-core</feature>
         <feature>fabric-boot-commands</feature>
+        <bundle>mvn:org.fusesource.fmc/fmc-jaas/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-webui/${project.version}/war</bundle>
     </feature>
 
