@@ -31,7 +31,14 @@
     <description>Fuse Fabric :: JAAS</description>
 
     <properties>
-        <fuse.osgi.export>
+      <fuse.osgi.import>
+      org.apache.karaf.jaas.config,
+      org.apache.karaf.jaas.modules,
+      org.apache.karaf.jaas.modules.encryption,
+      org.apache.karaf.jaas.modules.properties,
+      *
+      </fuse.osgi.import>
+      <fuse.osgi.export>
           org.fusesource.fabric.jaas
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
