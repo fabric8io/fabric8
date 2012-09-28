@@ -145,6 +145,16 @@
           <excludes>
             <exclude>**/ArchetypeTest.*</exclude>
           </excludes>
+          <systemProperties>
+            <systemProperty>
+              <key>basedir</key>
+              <value>${basedir}</value>
+            </systemProperty>
+            <systemProperty>
+              <key>camel-version</key>
+              <value>${camel-version}</value>
+            </systemProperty>
+          </systemProperties>
         </configuration>
       </plugin>
 

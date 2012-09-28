@@ -28,8 +28,15 @@ class ArchetypeTest extends FunSuiteSupport {
   var groupId = "myGroup"
   var artifactId = "myArtifact"
   var packageName = "org.acme.mystuff"
-  var version = "1.2-SNAPSHOT"
 
+  // lets get the latest version from the pom.xml via a system property
+  var version = System.getProperty("camel-version", "2.10.0.fuse-71-013")
+
+
+  // TODO this test fails currently!!!
+  ignore("generate activemq archetype") {
+    assertArchetypeCreated("camel-archetype-activemq-")
+  }
 
   test("generate spring archetype") {
     assertArchetypeCreated("camel-archetype-spring-")
@@ -51,7 +58,7 @@ class ArchetypeTest extends FunSuiteSupport {
     val outDir = new File(baseDir, "target/" + archetypePrefix + "output")
 
     // lets find an archtype
-    val archetypesDir = new File(baseDir, "../eclipse-tooling/com.fusesource.rider.branding/archetypes")
+    val archetypesDir = new File(baseDir, "../../../ridersource/eclipse-tooling/org.fusesource.ide.branding/archetypes")
     assertFileExists(archetypesDir)
     assertTrue("should be directory: " + archetypesDir, archetypesDir.isDirectory)
 
