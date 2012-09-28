@@ -269,8 +269,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             } else {
                 LOGGER.info("ZooKeeper not available");
             }
-        } catch (Exception e) {
-            LOGGER.error("Unable to set provisioning result");
+        } catch (Throwable e) {
+            LOGGER.warn("Unable to set provisioning result");
         }
     }
 
