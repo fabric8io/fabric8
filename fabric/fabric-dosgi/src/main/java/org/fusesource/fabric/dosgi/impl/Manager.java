@@ -319,8 +319,10 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
                     case UPDATED: {
                         EndpointDescription endpoint = Utils.getEndpointDescription(event.getData());
                         Map<Long, ImportRegistration> registrations = importedServices.get(endpoint);
-                        for (ImportRegistration reg : registrations.values()) {
-                            reg.importedService.setProperties(new Hashtable<String, Object>(endpoint.getProperties()));
+                        if (registrations != null) {
+                            for (ImportRegistration reg : registrations.values()) {
+                                reg.importedService.setProperties(new Hashtable<String, Object>(endpoint.getProperties()));
+                            }
                         }
                     }
                     break;
@@ -328,8 +330,10 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
                         EndpointDescription endpoint = Utils.getEndpointDescription(event.getData());
                         remoteEndpoints.removeCapability(endpoint);
                         Map<Long, ImportRegistration> registrations = importedServices.remove(endpoint);
-                        for (ImportRegistration reg : registrations.values()) {
-                            reg.getImportedService().unregister();
+                        if (registrations != null) {
+                            for (ImportRegistration reg : registrations.values()) {
+                                reg.getImportedService().unregister();
+                            }
                         }
                     }
                     break;
