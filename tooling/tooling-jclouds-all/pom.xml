@@ -34,9 +34,6 @@
   <description>FuseSource :: Tooling JClouds All</description>
 
   <properties>
-    <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
-    <guava.osgi.version.clean>${jclouds-version}</guava.osgi.version.clean>
-
     <fuse.osgi.export>
       javax.inject*;version=${guava.osgi.version.clean};-noimport:=true;version=${guava.osgi.version.clean};-noimport:=true,
       com.google.gson*;version=${guava.osgi.version.clean};-noimport:=true;version=${guava.osgi.version.clean};-noimport:=true,

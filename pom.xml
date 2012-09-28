@@ -127,6 +127,7 @@
         <felix-eventadmin-version>1.3.0.fuse-71-${perfectus-build}</felix-eventadmin-version>
         <felix-fileinstall-version>3.3.11.fuse-71-${perfectus-build}</felix-fileinstall-version>
         <guava-version>11_1</guava-version>
+        <guava.osgi.version.clean>11.1.0</guava.osgi.version.clean>
         <hadoop-version>1.0.3</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.9</hawtdispatch-version>
@@ -136,6 +137,7 @@
         <jaxb-version>2.1.13</jaxb-version>
         <jclouds-version>1.5.0</jclouds-version>
         <jclouds-karaf-version>1.5.0</jclouds-karaf-version>
+        <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
         <jersey-version>1.12</jersey-version>
         <jetty6-version>6.1.26_4</jetty6-version>
         <jetty-plugin-version>7.5.4.v20111024</jetty-plugin-version>

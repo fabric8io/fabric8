@@ -32,8 +32,9 @@
     <name>FuseSource :: Tooling</name>
 
     <modules>
-        <module>camel-tooling-util</module>
+        <module>tooling-fabric-all</module>
         <module>tooling-jclouds-all</module>
+        <module>camel-tooling-util</module>
         <module>testing</module>
     </modules>
 
