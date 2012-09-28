@@ -24,10 +24,10 @@ import org.apache.maven.model.Model
 
 
 object Authentications {
+  val home = System.getProperty("user.home", ".")
+  val repoFile = new File(home, ".repo.fusesource.com.properties")
 
   def getFuseRepoAuthentication(): Authentication = {
-    val home = System.getProperty("user.home", ".")
-    val repoFile = new File(home, ".repo.fusesource.com.properties")
     if (!repoFile.exists()) {
       throw new IllegalArgumentException("No file available at " + repoFile + " to contain the username and password to connect to the fusesource repo!")
     }

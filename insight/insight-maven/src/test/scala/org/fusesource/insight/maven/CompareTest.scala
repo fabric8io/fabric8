@@ -1,6 +1,6 @@
 package org.fusesource.insight.maven
 
-import aether.CompareDependencyNode
+import aether.{Authentications, CompareDependencyNode}
 
 class CompareTest  extends TestSupport {
   test("compare versions") {
@@ -15,7 +15,11 @@ class CompareTest  extends TestSupport {
       }
     }
 
-    val c = aether.compare("org.apache.camel", "camel-core", "2.4.0", "2.5.0")
-    dump(c.root)
+    if (Authentications.repoFile.exists()) {
+      val c = aether.compare("org.apache.camel", "camel-core", "2.4.0", "2.5.0")
+      dump(c.root)
+    } else {
+      println("Warning: no authentications file at " + Authentications.repoFile)
+    }
   }
 }
