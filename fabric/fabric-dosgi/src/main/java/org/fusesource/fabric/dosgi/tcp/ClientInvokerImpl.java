@@ -104,7 +104,7 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
             queue().execute(new Runnable() {
                 public void run() {
                     final AtomicInteger latch = new AtomicInteger(transports.size());
-                    final Runnable coutDown = new Runnable() {
+                    final Runnable countDown = new Runnable() {
                         public void run() {
                             if (latch.decrementAndGet() == 0) {
                                 if (onComplete != null) {
@@ -114,7 +114,7 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
                         }
                     };
                     for (TransportPool pool : transports.values()) {
-                        pool.stop(coutDown);
+                        pool.stop(countDown);
                     }
                 }
             });
@@ -221,6 +221,9 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
     }
 
     protected Object request(ProxyInvocationHandler handler, final String address, final UTF8Buffer service, final ClassLoader classLoader, final Method method, final Object[] args) throws Exception {
+        if (!running.get()) {
+            throw new IllegalStateException("DOSGi Client stopped");
+        }
 
         final long correlation = correlationGenerator.incrementAndGet();
 
@@ -262,6 +265,7 @@ public class ClientInvokerImpl implements ClientInvoker, Dispatched {
                     pool.offer(command, correlation);
                 } catch (Exception e) {
                     LOGGER.info("Error while sending request", e);
+                    future.fail(e);
                 }
             }
         });

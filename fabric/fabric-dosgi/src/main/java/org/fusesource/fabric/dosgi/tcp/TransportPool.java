@@ -138,12 +138,22 @@ public abstract class TransportPool implements Service {
                     final Runnable coutDown = new Runnable() {
                         public void run() {
                             if (latch.decrementAndGet() == 0) {
-                                pending.clear();
+                                while (!pending.isEmpty()) {
+                                    Pair p = pending.removeFirst();
+                                    onFailure(p.id, new IOException("Transport stopped"));
+                                }
                                 onComplete.run();
                             }
                         }
                     };
-                    for (Transport transport : transports.keySet()) {
+                    while (!transports.isEmpty()) {
+                        Transport transport = transports.keySet().iterator().next();
+                        TransportState state = transports.remove(transport);
+                        if (state != null) {
+                            for (Object id : state.inflight) {
+                                onFailure(id, new IOException("Transport stopped"));
+                            }
+                        }
                         transport.stop(coutDown);
                     }
                 }
@@ -154,7 +164,7 @@ public abstract class TransportPool implements Service {
     }
 
     protected void startNewTransport() throws Exception {
-System.err.println("Creating new transport for: " + this.uri);
+        LOGGER.debug("Creating new transport for: {}", this.uri);
         Transport transport = createTransport(this.uri);
         transport.setDispatchQueue(queue);
         transport.setProtocolCodec(createCodec());
@@ -204,7 +214,8 @@ System.err.println("Creating new transport for: " + this.uri);
                 if (evictionDelay > 0) {
                     queue.executeAfter(evictionDelay, TimeUnit.MILLISECONDS, new Runnable() {
                         public void run() {
-                            if (transports.get(transport).time == time) {
+                            TransportState state = transports.get(transport);
+                            if (state != null && state.time == time) {
                                 transports.remove(transport);
                                 transport.stop();
                             }
@@ -225,6 +236,12 @@ System.err.println("Creating new transport for: " + this.uri);
                     }
                 }
                 transport.stop();
+                if (transports.isEmpty()) {
+                    while (!pending.isEmpty()) {
+                        Pair p = pending.removeFirst();
+                        onFailure(p.id, error);
+                    }
+                }
             }
         }
 
@@ -234,12 +251,7 @@ System.err.println("Creating new transport for: " + this.uri);
         }
 
         public void onTransportDisconnected(Transport transport) {
-            TransportState state = transports.remove(transport);
-            if (state != null) {
-                for (Object id : state.inflight) {
-                    onFailure(id, new IOException("Transport disconnected"));
-                }
-            }
+            onTransportFailure(transport, new IOException("Transport disconnected"));
         }
     }
 }
