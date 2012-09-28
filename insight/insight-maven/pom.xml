@@ -217,6 +217,7 @@
             <!-- lets exclude the really slow unit tests for now -->
             <exclude>**/AetherTest.*</exclude>
             <exclude>**/AetherPomTest.*</exclude>
+            <exclude>**/CompareTest.*</exclude>
             <exclude>**/ProjectResolveTest.*</exclude>
           </excludes>
         </configuration>
