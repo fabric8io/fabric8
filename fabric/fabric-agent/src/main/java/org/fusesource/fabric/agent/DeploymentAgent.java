@@ -669,12 +669,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             LOGGER.info("  " + agentResource.getURI());
             InputStream is = getBundleInputStream(agentResource, downloads, infos);
             Bundle bundle = bundleContext.getBundle();
-            checksums.save(); // Force the needed classes to be loaded
-            bundle.update(is);
+            //We need to store the agent checksum and save before we update the agent.
             if (newCheckums.containsKey(bundle.getLocation())) {
                 checksums.put(bundle.getLocation(), newCheckums.get(bundle.getLocation()));
-                checksums.save();
             }
+            checksums.save(); // Force the needed classes to be loaded
+            bundle.update(is);
             return;
         }
 
