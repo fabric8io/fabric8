@@ -227,7 +227,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 sb.append(":").append(version);
                 return sb.toString();
             } else {
-                throw new InvalidMavenArtifactRequest("Filename:" + filename + " doesn't match the artifactId:" + artifactId + " and version:" + version + ".");
+                //We don't want to throw an exception here as it may break the upload.
+                return null;
             }
         } else {
             throw new InvalidMavenArtifactRequest("Request path is incomplete.");
