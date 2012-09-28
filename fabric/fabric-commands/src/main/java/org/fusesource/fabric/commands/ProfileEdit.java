@@ -47,7 +47,7 @@ public class ProfileEdit extends FabricCommand {
     static final String REPOSITORY_PREFIX = "repository.";
     static final String BUNDLE_PREFIX = "bundle.";
     static final String FAB_PREFIX = "fab.";
-    static final String OVERRIDE_PREFIX = "fab.";
+    static final String OVERRIDE_PREFIX = "override.";
     static final String CONFIG_PREFIX = "config.";
     static final String SYSTEM_PREFIX = "system.";
     static final String DELIMETER = ",";
@@ -156,7 +156,7 @@ public class ProfileEdit extends FabricCommand {
         if (overridesList != null && !overridesList.isEmpty()) {
             String[] overrides = overridesList.split(DELIMETER);
             for (String overridesLocation : overrides) {
-                updateConfig(pidConfig, FAB_PREFIX + overridesLocation.replace('/', '_'), overridesLocation, set, delete);
+                updateConfig(pidConfig, OVERRIDE_PREFIX + overridesLocation.replace('/', '_'), overridesLocation, set, delete);
             }
         }
 
