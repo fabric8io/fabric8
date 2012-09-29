@@ -36,6 +36,7 @@
       org.apache.karaf.jaas.modules,
       org.apache.karaf.jaas.modules.encryption,
       org.apache.karaf.jaas.modules.properties,
+      org.apache.felix.service.command,
       *
       </fuse.osgi.import>
       <fuse.osgi.export>

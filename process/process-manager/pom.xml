@@ -41,8 +41,9 @@
             org.fusesource.process.manager*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            org.apache.karaf.features*;resolution:=optional,
-            !junit.*,
+            org.apache.felix.service.command,
+            org.apache.felix.gogo.commands,
+            org.apache.karaf.shell.console;version="[2.2,4)",
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
