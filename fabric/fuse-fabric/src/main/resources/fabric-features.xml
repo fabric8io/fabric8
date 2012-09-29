@@ -33,12 +33,10 @@
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-service/${pax.logging.version}</bundle>
 
-        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.shell/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.console/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.osgi/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.commands/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.dev2/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.log/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
@@ -63,10 +61,12 @@
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.admin/org.apache.karaf.admin.management/${karaf-version}</bundle>
 
-        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.management/${karaf-version}</bundle>
+        <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
+             Till then we need to comment this out.-->
+        <!--bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.management/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.core/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle-->
 
         <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/${felix.fileinstall.version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
