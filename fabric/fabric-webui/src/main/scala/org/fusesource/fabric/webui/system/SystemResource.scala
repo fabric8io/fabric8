@@ -69,7 +69,6 @@ class SystemResource extends BaseResource {
     if (auth.authenticate(username, password)) {
       val session: HttpSession = request.getSession(true);
       session.setAttribute("username", username)
-      session.setAttribute("password", password)
       return true;
     } else {
       return false;

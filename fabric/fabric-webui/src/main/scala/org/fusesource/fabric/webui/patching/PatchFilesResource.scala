@@ -134,18 +134,13 @@ class PatchFilesResource extends BaseUpgradeResource {
   @Path("go")
   def apply_patches(args: ApplyFilePatchesDTO, @Context request: HttpServletRequest) = {
 
-    val session: HttpSession = request.getSession(false)
-    if (session == null) {
-      throw new WebApplicationException(UNAUTHORIZED)
-    }
-
     val version = create_version(args.target_version)
     Services.LOG.info("Created version {}", version.getName)
 
     patch_files.foreach((x) => {
       try {
         Services.LOG.info("Applying patch {} to version {}", x.getName, version.getName)
-        patch_service.applyFinePatch(version, x.toURI.toURL, session.getAttribute("username").asInstanceOf[String], session.getAttribute("password").asInstanceOf[String])
+        patch_service.applyFinePatch(version, x.toURI.toURL, "admin", "admin")
       } catch {
         case t: Throwable =>
           version.delete()
