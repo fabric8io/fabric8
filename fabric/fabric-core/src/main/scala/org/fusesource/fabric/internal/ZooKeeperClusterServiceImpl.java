@@ -140,6 +140,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
             properties = new Properties();
             properties.put("zookeeper.url", connectionUrl);
+            properties.put("zookeeper.timeout", System.getProperties().containsKey("zookeeper.timeout") ? System.getProperties().getProperty("zookeeper.timeout") : "30000");
             properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper");
             config.setBundleLocation(null);
             config.update(properties);
