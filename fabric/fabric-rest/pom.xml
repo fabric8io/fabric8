@@ -23,14 +23,14 @@
     <relativePath>../fabric-scala</relativePath>
   </parent>
 
-  <artifactId>fabric-webui</artifactId>
+  <artifactId>fabric-rest</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Management Console</description>
+  <description>Fuse Fabric :: REST API</description>
   <packaging>war</packaging>
 
   <properties>
     <commons-io-version>1.3.2</commons-io-version>
-    <fuse.osgi.symbolic.name>org.fusesource.fabric.fabric-webui</fuse.osgi.symbolic.name>
+    <fuse.osgi.symbolic.name>org.fusesource.fabric.fabric-rest</fuse.osgi.symbolic.name>
     <fuse.osgi.export />
     <fuse.osgi.import>
       org.fusesource.fabric.jaas;resolution:=dynamic,
@@ -40,7 +40,7 @@
       org.fusesource.fabric.webui*
     </fuse.osgi.private.pkg>
 
-    <webapp-outdir>${basedir}/target/fabric-webui-${project.version}</webapp-outdir>
+    <webapp-outdir>${basedir}/target/fabric-rest-${project.version}</webapp-outdir>
   </properties>
 
   <dependencies>
@@ -321,8 +321,8 @@
           </supportedProjectTypes>
           <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
           <instructions>
-            <Webapp-Context>/</Webapp-Context>
-            <Web-ContextPath>/</Web-ContextPath>
+            <Webapp-Context>/rest</Webapp-Context>
+            <Web-ContextPath>/rest</Web-ContextPath>
             <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
             <Embed-Directory>WEB-INF/lib</Embed-Directory>
             <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
@@ -347,68 +347,6 @@
       <plugin>
         <groupId>org.scala-tools</groupId>
         <artifactId>maven-scala-plugin</artifactId>
-      </plugin>
-
-
-      <plugin>
-        <groupId>org.fusesource.coffeebar</groupId>
-        <artifactId>brew</artifactId>
-        <version>${brew-version}</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>compile</goal>
-              <goal>optimize</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <coffeeSourceDir>${basedir}/src/main/webapp</coffeeSourceDir>
-          <coffeeOutputDir>${webapp-outdir}</coffeeOutputDir>
-
-          <hamlSourceDir>${basedir}/src/main/webapp/app/views</hamlSourceDir>
-          <hamlOutputDir>${webapp-outdir}/app/views</hamlOutputDir>
-
-          <jadeSourceDir>${basedir}/src/main/webapp/app/views</jadeSourceDir>
-          <jadeOutputDir>${webapp-outdir}/app/views</jadeOutputDir>
-
-          <resourceSourceDir>${basedir}/src/main/webapp</resourceSourceDir>
-          <resourceOutputDir>${webapp-outdir}</resourceOutputDir>
-
-          <viewsMapOutputFile>${webapp-outdir}/app/views/jade.js</viewsMapOutputFile>
-
-          <optimizeSourceDir>${webapp-outdir}/app</optimizeSourceDir>
-          <optimizeBuildDir>${project.build.directory}/tmp</optimizeBuildDir>
-          <optimizeOutputDir>${webapp-outdir}/app</optimizeOutputDir>
-
-          <optimizedFileNameSuffix>false</optimizedFileNameSuffix>
-          <cssOptimizer>standard.keepLines</cssOptimizer>
-          <jsOptimizer>closure.keepLines</jsOptimizer>
-
-        </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>com.google.javascript</groupId>
-            <artifactId>closure-compiler</artifactId>
-            <version>r1352</version>
-          </dependency>
-          <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>2.0.12</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>${guava-version}</version>
-          </dependency>
-          <dependency>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-            <version>2.4.1</version>
-          </dependency>
-        </dependencies>
-
       </plugin>
 
       <plugin>

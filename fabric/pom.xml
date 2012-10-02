@@ -73,7 +73,7 @@
         <module>fabric-virt</module>
         <module>fabric-branding</module>
 
-        <module>fabric-webui</module>
+        <module>fabric-rest</module>
 
         <module>fuse-fabric</module>
         

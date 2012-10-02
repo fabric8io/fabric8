@@ -1,4 +1,3 @@
-<?xml version="1.0"  encoding="ISO-8859-1"?>
 <!--
   ~ Copyright 2010 Red Hat, Inc.
   ~
@@ -15,15 +14,16 @@
   ~  permissions and limitations under the License.
   -->
 
-<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
-<Configure class="org.mortbay.jetty.webapp.WebAppContext">
-  <Set name="baseResource">
-    <New class="org.mortbay.resource.ResourceCollection">
-      <Arg>
-        <Array type="java.lang.String">
-          <Item>${basedir}/src/main/resources</Item>
-        </Array>
-      </Arg>
-    </New>
-  </Set>
-</Configure>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+         version="2.5">
+
+    <display-name>Fuse Console UI</display-name>
+
+    <welcome-file-list>
+      <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+</web-app>
+

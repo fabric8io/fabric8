@@ -45,8 +45,9 @@
   </properties>
 
   <modules>
-    <module>fmc-jaas</module>
+    <module>fmc-jaas</module>    
     <module>fmc-branding</module>
+    <module>fmc-webui</module>
     <module>fmc-distro</module>
   </modules>
 

@@ -1,0 +1,177 @@
+<!--
+  ~ Copyright 2010 Red Hat, Inc.
+  ~
+  ~  Red Hat licenses this file to you under the Apache License, version
+  ~  2.0 (the "License"); you may not use this file except in compliance
+  ~  with the License.  You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~  Unless required by applicable law or agreed to in writing, software
+  ~  distributed under the License is distributed on an "AS IS" BASIS,
+  ~  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+  ~  implied.  See the License for the specific language governing
+  ~  permissions and limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.fusesource.fmc</groupId>
+    <artifactId>fmc-project</artifactId>
+    <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+
+  <artifactId>fmc-webui</artifactId>
+  <name>${project.artifactId}</name>
+  <description>Fuse Fabric :: Management Console Frontend</description>
+  <packaging>war</packaging>
+
+  <properties>
+    <webapp-outdir>${basedir}/target/fmc-webui-${project.version}</webapp-outdir>
+  </properties>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <manifestLocation>${webapp-outdir}/META-INF</manifestLocation>
+          <supportedProjectTypes>
+            <supportedProjectType>jar</supportedProjectType>
+            <supportedProjectType>bundle</supportedProjectType>
+            <supportedProjectType>war</supportedProjectType>
+          </supportedProjectTypes>
+          <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
+          <instructions>
+            <Webapp-Context>/</Webapp-Context>
+            <Web-ContextPath>/</Web-ContextPath>
+            <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
+            <Embed-Directory>WEB-INF/lib</Embed-Directory>
+            <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+            <Embed-Transitive>true</Embed-Transitive>
+            <Bundle-Name>${project.description}</Bundle-Name>
+            <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+            <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
+            <Export-Package>${fuse.osgi.export}</Export-Package>
+            <Import-Package>${fuse.osgi.import}</Import-Package>
+            <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
+            <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
+            <Implementation-Title>Fuse Fabric Management Console</Implementation-Title>
+            <Implementation-Version>${project.version}</Implementation-Version>
+            <Include-Resource>${fuse.osgi.resource}</Include-Resource>
+            <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
+            <_failok>${fuse.osgi.failok}</_failok>
+            <Export-Service>${fuse.osgi.services.export}</Export-Service>
+          </instructions>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.fusesource.coffeebar</groupId>
+        <artifactId>brew</artifactId>
+        <version>${brew-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>compile</goal>
+              <goal>optimize</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <coffeeSourceDir>${basedir}/src/main/webapp</coffeeSourceDir>
+          <coffeeOutputDir>${webapp-outdir}</coffeeOutputDir>
+
+          <hamlSourceDir>${basedir}/src/main/webapp/app/views</hamlSourceDir>
+          <hamlOutputDir>${webapp-outdir}/app/views</hamlOutputDir>
+
+          <jadeSourceDir>${basedir}/src/main/webapp/app/views</jadeSourceDir>
+          <jadeOutputDir>${webapp-outdir}/app/views</jadeOutputDir>
+
+          <resourceSourceDir>${basedir}/src/main/webapp</resourceSourceDir>
+          <resourceOutputDir>${webapp-outdir}</resourceOutputDir>
+
+          <viewsMapOutputFile>${webapp-outdir}/app/views/jade.js</viewsMapOutputFile>
+
+          <optimizeSourceDir>${webapp-outdir}/app</optimizeSourceDir>
+          <optimizeBuildDir>${project.build.directory}/tmp</optimizeBuildDir>
+          <optimizeOutputDir>${webapp-outdir}/app</optimizeOutputDir>
+
+          <optimizedFileNameSuffix>false</optimizedFileNameSuffix>
+          <cssOptimizer>standard.keepLines</cssOptimizer>
+          <jsOptimizer>closure.keepLines</jsOptimizer>
+
+        </configuration>
+        <dependencies>
+          <dependency>
+            <groupId>com.google.javascript</groupId>
+            <artifactId>closure-compiler</artifactId>
+            <version>r1352</version>
+          </dependency>
+          <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.0.12</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava-version}</version>
+          </dependency>
+          <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>2.4.1</version>
+          </dependency>
+        </dependencies>
+
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.1.1</version>
+        <configuration>
+          <outputFileNameMapping>@{artifactId}@-@{baseVersion}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
+          <warSourceDirectory>${webapp-outdir}</warSourceDirectory>
+          <archive>
+            <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
+          </archive>     
+          <webResources>
+            <resource>
+          <!--
+          <targetPath>.</targetPath>
+        -->
+        <filtering>true</filtering>
+        <directory>src/main/resources</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+      </resource>
+    </webResources>
+  </configuration>
+</plugin>
+
+</plugins>
+</build>
+</project>
