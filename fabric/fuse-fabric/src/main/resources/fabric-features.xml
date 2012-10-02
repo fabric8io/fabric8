@@ -462,7 +462,7 @@
         <feature>fabric-core</feature>
         <feature>fabric-boot-commands</feature>
         <bundle dependency="true">mvn:org.fusesource.fmc/fmc-jaas/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.fabric/fabric-webui/${project.version}/war</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-rest/${project.version}/war</bundle>
     </feature>
 
     <feature name="fabric-webui" version="${project.version}" resolver="(obr)">
