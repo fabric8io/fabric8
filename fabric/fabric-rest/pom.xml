@@ -261,10 +261,10 @@
     </dependency>
 
     <dependency>
-        <groupId>org.apache.servicemix.bundles</groupId>
-        <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
-        <version>2.0.1_1</version>
-        <scope>compile</scope>
+      <groupId>org.apache.servicemix.bundles</groupId>
+      <artifactId>org.apache.servicemix.bundles.jsr305</artifactId>
+      <version>2.0.1_1</version>
+      <scope>compile</scope>
     </dependency>
 
     <!-- testing -->
@@ -290,13 +290,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
 
     <plugins>
 
@@ -360,20 +353,27 @@
             <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
           </archive>     
           <webResources>
-            <resource>
-          <!--
-          <targetPath>.</targetPath>
-        -->
-        <filtering>true</filtering>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-      </resource>
-    </webResources>
-  </configuration>
-</plugin>
 
-</plugins>
-</build>
+            <resource>
+              <filtering>true</filtering>
+              <directory>src/main/resources</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+
+            <resource>
+              <filtering>true</filtering>
+              <directory>src/main/webapp</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+            
+          </webResources>
+        </configuration>
+      </plugin>
+
+    </plugins>
+  </build>
 </project>

@@ -25,12 +25,39 @@
 
   <artifactId>fmc-webui</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Management Console Frontend</description>
+  <description>FMC :: Console Frontend</description>
   <packaging>war</packaging>
 
   <properties>
+    <fuse.osgi.import>
+      org.apache.log4j,
+      org.osgi.framework,
+      *;resolution:=optional
+    </fuse.osgi.import>
+    <fuse.osgi.private.pkg>
+      org.fusesource.fabric.webui*
+    </fuse.osgi.private.pkg>
+
     <webapp-outdir>${basedir}/target/fmc-webui-${project.version}</webapp-outdir>
   </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+      <version>${osgi-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+  </dependencies>
 
   <build>
     <resources>
@@ -61,27 +88,15 @@
             <supportedProjectType>bundle</supportedProjectType>
             <supportedProjectType>war</supportedProjectType>
           </supportedProjectTypes>
-          <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
           <instructions>
             <Webapp-Context>/</Webapp-Context>
             <Web-ContextPath>/</Web-ContextPath>
+            <Bundle-Activator>org.fusesource.fmc.webui.Activator</Bundle-Activator>
             <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
-            <Embed-Directory>WEB-INF/lib</Embed-Directory>
-            <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
             <Bundle-Name>${project.description}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-            <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
-            <Export-Package>${fuse.osgi.export}</Export-Package>
-            <Import-Package>${fuse.osgi.import}</Import-Package>
-            <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
-            <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
-            <Implementation-Title>Fuse Fabric Management Console</Implementation-Title>
+            <Implementation-Title>FMC Frontend</Implementation-Title>
             <Implementation-Version>${project.version}</Implementation-Version>
-            <Include-Resource>${fuse.osgi.resource}</Include-Resource>
-            <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
-            <_failok>${fuse.osgi.failok}</_failok>
-            <Export-Service>${fuse.osgi.services.export}</Export-Service>
           </instructions>
         </configuration>
       </plugin>
@@ -154,24 +169,22 @@
         <configuration>
           <outputFileNameMapping>@{artifactId}@-@{baseVersion}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
           <warSourceDirectory>${webapp-outdir}</warSourceDirectory>
+          <failOnMissingWebXml>false</failOnMissingWebXml>
           <archive>
             <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
           </archive>     
           <webResources>
             <resource>
-          <!--
-          <targetPath>.</targetPath>
-        -->
-        <filtering>true</filtering>
-        <directory>src/main/resources</directory>
-        <includes>
-          <include>**/*.*</include>
-        </includes>
-      </resource>
-    </webResources>
-  </configuration>
-</plugin>
+              <filtering>true</filtering>
+              <directory>src/main/resources</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
 
-</plugins>
-</build>
+    </plugins>
+  </build>
 </project>
