@@ -30,7 +30,7 @@ define [
 
     create_version: (options) ->
       options = _.extend({
-        url: "#{@url}"
+        url: "rest/#{@url}"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -40,17 +40,17 @@ define [
 
     delete_versions: (options) ->
       options = _.extend({
-        url: "#{@url}/delete"
+        url: "rest/#{@url}/delete"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
         dataType: "json"
       }, options)
       $.ajax(options)
-      
+
     change_default: (options) ->
       options = _.extend({
-        url: "#{@url}/set_default"
+        url: "rest/#{@url}/set_default"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

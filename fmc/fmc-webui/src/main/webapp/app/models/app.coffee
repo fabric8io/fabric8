@@ -124,7 +124,7 @@ define [
   Backbone.sync = (method, model, options) ->
     getUrl = (object) ->
       return null  unless (object and object.url)
-      (if _.isFunction(object.url) then object.url() else object.url)
+      (if _.isFunction(object.url) then "rest/#{object.url()}" else "rest/#{object.url}")
 
     params = _.extend({}, options)
     unless params.url

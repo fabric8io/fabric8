@@ -54,14 +54,14 @@ define [
 
     start: (options)-> 
       options = _.extend({
-        url: @url()+"/start"
+        url: "rest/#{@url()}/start"
         type: "POST"
       }, options) 
       $.ajax(options)
       
     stop: (options)-> 
       options = _.extend({
-        url: @url()+"/stop"
+        url: "rest/#{@url()}/stop"
         type: "POST"
       }, options) 
       $.ajax(options)

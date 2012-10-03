@@ -36,7 +36,7 @@ define [
 
     set_parents: (options) ->
       options = _.extend({
-        url: "#{@url}/parents"
+        url: "rest/#{@url}/parents"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

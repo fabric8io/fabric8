@@ -23,14 +23,14 @@ define [
 
     create_ensemble: (options) ->
       opts = 
-        url: "#{@url}/create_ensemble"
+        url: "rest/#{@url}/create_ensemble"
         type: "POST"
       options = _.extend opts, options
       $.ajax(options)
 
     join_ensemble: (options) ->
       opts =
-        url: "#{@url}/join_ensemble"
+        url: "rest/#{@url}/join_ensemble"
         timeout: 30000
         type: "POST"
         data: JSON.stringify(options)

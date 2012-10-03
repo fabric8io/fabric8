@@ -24,7 +24,7 @@ define [
 
     apply_patches: (data, options) ->
       options = _.extend({
-        url: "#{@url}/go"
+        url: "rest/#{@url}/go"
         type: "POST"
         data: JSON.stringify data
         contentType: "application/json"

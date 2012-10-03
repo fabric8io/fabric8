@@ -23,7 +23,7 @@ define [
     base_url: ->
       base = @url()
       base = base.split("?")[0]
-      "#{base}"
+      "rest/#{base}"
 
     do_action: (action) ->
       data = JSON.stringify({

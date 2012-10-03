@@ -26,7 +26,7 @@ define [
 
     create_compute_service: (options) ->
       options = _.extend({
-        url: @url
+        url: "rest/#{@url}"
         type: "POST"
         data: JSON.stringify options
         contentType: "application/json"

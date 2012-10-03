@@ -36,7 +36,7 @@ define [
 
     create_profile: (options) ->
       options = _.extend({
-        url: "#{@url()}/profiles"
+        url: "rest/#{@url()}/profiles"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -46,7 +46,7 @@ define [
 
     delete_profiles: (options) ->
       options = _.extend({
-        url: "#{@url()}/delete_profiles"
+        url: "rest/#{@url()}/delete_profiles"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

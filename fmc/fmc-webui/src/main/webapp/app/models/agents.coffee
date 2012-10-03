@@ -24,7 +24,7 @@ define [
 
     migrate_containers: (options) ->
       options = _.extend({
-        url: "#{@url}/migrate"
+        url: "rest/#{@url}/migrate"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

@@ -23,7 +23,7 @@ define [
 
     apply_upgrades: (data, options) ->
       options = _.extend({
-        url: @url
+        url: "rest/#{@url}"
         type: "POST"
         data: JSON.stringify data
         contentType: "application/json"
