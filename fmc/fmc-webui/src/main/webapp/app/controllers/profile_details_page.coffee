@@ -264,7 +264,7 @@ define [
     initialize: ->
       super
       @repos = new FON.Collection
-      @repos.url = "/versions/#{@model.get("version")}/profiles/#{@model.id}/available_repos"
+      @repos.url = "versions/#{@model.get("version")}/profiles/#{@model.id}/available_repos"
       @repos.bind "add", @update_select, @
       @repos.bind "remove", @update_select, @
       @repos.fetch
