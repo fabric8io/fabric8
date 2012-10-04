@@ -377,7 +377,10 @@ case class XmlModel(contextElement: CamelContextFactoryBean,
               val node = e.getAttributeValue("node")
               val sid = e.getAttributeValue("id")
               if (node != null && node.length > 0 && sid != null && sid.length > 0) {
-                uris += "drools:" + node + "/" + sid
+                val du = "drools:" + node + "/" + sid
+                if (!uris.exists{_.startsWith(du)}) {
+                  uris += du
+                }
               }
             case _ =>
           }
