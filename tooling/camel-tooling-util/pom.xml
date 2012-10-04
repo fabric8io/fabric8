@@ -105,6 +105,24 @@
       <version>${slf4j-version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-core</artifactId>
+      <version>${drools.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-spring</artifactId>
+      <version>${drools.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-camel</artifactId>
+      <version>${drools.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

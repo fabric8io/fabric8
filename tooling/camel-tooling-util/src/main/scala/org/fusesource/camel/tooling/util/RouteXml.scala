@@ -25,6 +25,7 @@ import javax.xml.parsers.{DocumentBuilder, DocumentBuilderFactory}
 import collection.Map
 import collection.immutable.TreeSet
 import collection.mutable.HashMap
+import collection.mutable.ListBuffer
 import collection.JavaConversions._
 
 import org.apache.camel.CamelContext
@@ -60,6 +61,7 @@ object CamelNamespaces extends Logging {
   val camelNamespaces = Set(springNS, blueprintNS)
 
   val springNamespace = new Namespace("", "http://www.springframework.org/schema/beans")
+  val droolsNamespace = new Namespace("drools", "http://drools.org/schema/drools-spring")
 
   private var _schema: Schema = _
 
@@ -361,11 +363,32 @@ case class XmlModel(contextElement: CamelContextFactoryBean,
       val field = contextElement.getClass.getDeclaredField("endpoints")
       field.setAccessible(true)
       val endpoints = field.get(contextElement).asInstanceOf[ju.List[CamelEndpointFactoryBean]]
-      val uris = endpoints.map(_.getUri)
+      val uris = ListBuffer[String]()
+      if (endpoints != null) {
+        uris ++= endpoints.map(_.getUri)
+      }
+
+      // lets detect any drools endpoints...
+      val sessions = nodesByNamespace(doc, droolsNamespace.getURI, "ksession")
+      if (sessions != null) {
+        for (session <- sessions) {
+          session match {
+            case e: Element =>
+              val node = e.getAttributeValue("node")
+              val sid = e.getAttributeValue("id")
+              if (node != null && node.length > 0 && sid != null && sid.length > 0) {
+                uris += "drools:" + node + "/" + sid
+              }
+            case _ =>
+          }
+        }
+      }
       TreeSet(uris: _*)
     }
     catch {
       case e =>
+        println("Caught: " + e)
+        e.printStackTrace()
         Set()
     }
   }

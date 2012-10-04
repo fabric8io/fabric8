@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:drools="http://drools.org/schema/drools-spring"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://drools.org/schema/drools-spring http://drools.org/schema/drools-spring.xsd">
+
+    <!-- Setup Drools -->
+    <drools:grid-node id="node1"/>
+
+    <drools:kbase id="kbase1" node="node1">
+        <drools:resources>
+            <drools:resource type="DRL" source="classpath:testSpring.drl"/>
+        </drools:resources>
+    </drools:kbase>
+
+    <drools:ksession id="ksession1" type="stateless" name="ksession1" kbase="kbase1" node="node1"/>
+
+    <bean id="droolsHelper" class="com.redhat.example.drools.DroolsCommandHelper"/>
+
+    <bean id="personHelper" class="com.redhat.example.drools.PersonHelper"/>
+ 
+    <camelContext xmlns="http://camel.apache.org/schema/spring">
+   
+</camelContext>
+
+</beans>
