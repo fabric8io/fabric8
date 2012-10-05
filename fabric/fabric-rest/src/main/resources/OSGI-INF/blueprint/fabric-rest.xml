@@ -30,7 +30,7 @@
     <reference-listener ref="computeServiceListener" bind-method="bind" unbind-method="unbind"/>
   </reference-list>
 
-  <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.webui" update-strategy="reload">
+  <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.rest" update-strategy="reload">
     <cm:default-properties>
       <cm:property name="profileName" value="fmc" />
       <cm:property name="resolver" value="localhostname"/>
