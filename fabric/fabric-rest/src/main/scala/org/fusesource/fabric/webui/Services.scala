@@ -16,7 +16,7 @@
 package org.fusesource.fabric.webui
 
 import jclouds.ComputeServiceListener
-import org.linkedin.zookeeper.client.IZKClient
+import org.fusesource.fabric.zookeeper.IZKClient
 import org.fusesource.fabric.service.ContainerTemplate
 import java.util.concurrent.ConcurrentHashMap
 import org.osgi.service.cm.{ConfigurationAdmin, Configuration}

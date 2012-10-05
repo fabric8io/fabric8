@@ -19,10 +19,11 @@ package org.fusesource.fabric.service.jclouds;
 
 import java.util.Dictionary;
 import java.util.Enumeration;
+
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.karaf.core.Constants;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;

@@ -32,7 +32,7 @@
     <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="zooKeeper">
-      <reference interface="org.linkedin.zookeeper.client.IZKClient"/>
+      <reference interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     </property>
     <property name="fabricService">
       <reference interface="org.fusesource.fabric.api.FabricService"/>
@@ -51,7 +51,7 @@
     <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="zooKeeper">
-      <reference interface="org.linkedin.zookeeper.client.IZKClient"/>
+      <reference interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     </property>
     <property name="fabricService">
       <reference interface="org.fusesource.fabric.api.FabricService"/>

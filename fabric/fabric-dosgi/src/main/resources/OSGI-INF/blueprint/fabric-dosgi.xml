@@ -37,7 +37,7 @@
         <property name="timeout" value="${timeout}"/>
     </bean>
 
-    <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient">
+    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient">
         <reference-listener ref="activator" bind-method="registerZooKeeper" unbind-method="unregisterZooKeeper"/>
     </reference>
 

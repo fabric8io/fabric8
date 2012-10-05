@@ -16,24 +16,32 @@
  */
 package org.fusesource.fabric.camel;
 
-import org.apache.camel.*;
+import java.util.Collection;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.apache.camel.CamelContext;
+import org.apache.camel.Component;
+import org.apache.camel.Endpoint;
+import org.apache.camel.ErrorHandlerFactory;
+import org.apache.camel.Processor;
+import org.apache.camel.Route;
+import org.apache.camel.Service;
+import org.apache.camel.VetoCamelContextStartException;
 import org.apache.camel.builder.ErrorHandlerBuilder;
 import org.apache.camel.spi.LifecycleStrategy;
 import org.apache.camel.spi.RouteContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.*;
+import org.fusesource.fabric.groups.ChangeListener;
+import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
@@ -54,7 +62,6 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     IZKClient zkClient;
     boolean managedZkClient;
     ClusteredSingleton<CamelNode> singleton = new ClusteredSingleton<CamelNode>(CamelNode.class);
-    public List<ACL> acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
     static void info(String msg, Object... args) {
         if(LOG.isInfoEnabled()) {
@@ -94,13 +101,13 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
             managedZkClient = true;
             ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
             client.start();
-            client.waitForStart();
+            client.waitForConnected();
             zkClient = client;
         } else {
             managedZkClient = false;
         }
 
-        group = ZooKeeperGroupFactory.create(zkClient, "/fabric/camel-clusters/" + groupName, acl);
+        group = ZooKeeperGroupFactory.create(zkClient, "/fabric/camel-clusters/" + groupName);
         singleton.start(group);
         singleton.join(createState());
 
@@ -211,12 +218,6 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     ///////////////////////////////////////////////////////////////////
     // Getters/Setters for IOC injection.
     ///////////////////////////////////////////////////////////////////
-    public List<ACL> getAcl() {
-        return acl;
-    }
-    public void setAcl(List<ACL> acl) {
-        this.acl = acl;
-    }
     public String getGroupName() {
         return groupName;
     }

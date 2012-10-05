@@ -19,7 +19,7 @@ package org.fusesource.fabric.bridge.zk.internal;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;

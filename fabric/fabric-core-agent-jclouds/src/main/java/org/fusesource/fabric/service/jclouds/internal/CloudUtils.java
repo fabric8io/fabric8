@@ -27,7 +27,7 @@ import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.karaf.core.Constants;
 import org.jclouds.karaf.services.ServiceFactorySupport;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;

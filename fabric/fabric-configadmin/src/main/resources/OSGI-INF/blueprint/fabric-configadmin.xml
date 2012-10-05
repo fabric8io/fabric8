@@ -26,7 +26,7 @@
             <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
         </property>
         <property name="zooKeeper">
-            <reference interface="org.linkedin.zookeeper.client.IZKClient"/>
+            <reference interface="org.fusesource.fabric.zookeeper.IZKClient"/>
         </property>
     </bean>
 

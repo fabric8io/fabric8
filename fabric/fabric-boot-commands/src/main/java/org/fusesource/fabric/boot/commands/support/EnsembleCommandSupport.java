@@ -18,7 +18,7 @@ package org.fusesource.fabric.boot.commands.support;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.ServiceReference;
 
 /**

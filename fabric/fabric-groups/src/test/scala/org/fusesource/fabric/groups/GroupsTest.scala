@@ -19,7 +19,7 @@ package org.fusesource.fabric.groups
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxnFactory}
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog
-import org.linkedin.zookeeper.client.ZKClient
+import org.fusesource.fabric.zookeeper.internal.ZKClient
 import org.linkedin.util.clock.Timespan
 import java.net.InetSocketAddress
 import scala.collection.immutable.List
@@ -80,7 +80,7 @@ abstract class ZooKeeperFunSuiteSupport extends FunSuite with BeforeAndAfterAll 
     val client = new ZKClient("localhost:"+connector.getLocalPort, Timespan.parse("30s"), null)
     client.start
     zk_clients ::= client
-    client.waitForStart(Timespan.parse("30s"))
+    client.waitForConnected(Timespan.parse("30s"))
     client
   }
 

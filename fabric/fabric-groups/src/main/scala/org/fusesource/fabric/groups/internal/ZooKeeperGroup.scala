@@ -23,10 +23,11 @@ import org.linkedin.zookeeper.tracker._
 import org.fusesource.fabric.groups.{ChangeListener, Group}
 import scala.collection.mutable.HashMap
 import org.apache.zookeeper.data.ACL
-import org.linkedin.zookeeper.client.{LifecycleListener, IZKClient}
+import org.linkedin.zookeeper.client.LifecycleListener
 import collection.JavaConversions._
 import java.util.{LinkedHashMap, Collection}
 import org.apache.zookeeper.KeeperException.{ConnectionLossException, NoNodeException, Code}
+import org.fusesource.fabric.zookeeper.IZKClient
 
 /**
  *
@@ -58,7 +59,7 @@ object ZooKeeperGroup {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List[ACL]) extends Group with LifecycleListener with ChangeListenerSupport {
+class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with LifecycleListener with ChangeListenerSupport {
 
   val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root, 1)
   val joins = HashMap[String, Int]()
@@ -95,7 +96,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
   def onDisconnected() = fireDisconnected()
 
   def join(data:Array[Byte]=null): String = this.synchronized {
-    val id = zk.create(member_path_prefix, data, acl, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
+    val id = zk.create(member_path_prefix, data, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
     joins.put(id, 0)
     id
   }
@@ -143,7 +144,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String, val acl:java.util.List
       }
       try {
         // try create given path in persistent mode
-        zk.createOrSetWithParents(path, "", acl, CreateMode.PERSISTENT)
+        zk.createOrSetWithParents(path, "", CreateMode.PERSISTENT)
       } catch {
         case ignore: KeeperException.NodeExistsException =>
       }

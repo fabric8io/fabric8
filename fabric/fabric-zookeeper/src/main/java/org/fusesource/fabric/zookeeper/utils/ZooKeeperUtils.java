@@ -16,14 +16,6 @@
  */
 package org.fusesource.fabric.zookeeper.utils;
 
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.Watcher;
-import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKData;
-
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -36,6 +28,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.Watcher;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.linkedin.zookeeper.client.ZKData;
 
 public class ZooKeeperUtils {
 
@@ -64,7 +63,7 @@ public class ZooKeeperUtils {
 
     public static void add(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
-            zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(path, value, CreateMode.PERSISTENT);
         } else {
             String data = zooKeeper.getStringData(path);
             if (data == null) {
@@ -111,7 +110,7 @@ public class ZooKeeperUtils {
     }
 
     public static void set(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        zooKeeper.createOrSetWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        zooKeeper.createOrSetWithParents(path, value, CreateMode.PERSISTENT);
     }
 
     public static void set(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
@@ -119,7 +118,7 @@ public class ZooKeeperUtils {
             zooKeeper.setByteData(path, value);
         }
         try {
-            zooKeeper.createBytesNodeWithParents(path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createWithParents(path, value, CreateMode.PERSISTENT);
         } catch(KeeperException.NodeExistsException e) {
             // this should not happen very often (race condition)
             zooKeeper.setByteData(path, value);
@@ -127,12 +126,12 @@ public class ZooKeeperUtils {
     }
 
     public static void create(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        zooKeeper.createWithParents(path, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        zooKeeper.createWithParents(path, CreateMode.PERSISTENT);
     }
 
     public static void createDefault(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
-            zooKeeper.createWithParents( path, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT );
+            zooKeeper.createWithParents( path, value, CreateMode.PERSISTENT );
         }
     }
 

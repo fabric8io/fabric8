@@ -31,14 +31,14 @@ import javax.management.MBeanServerNotification;
 import javax.management.Notification;
 import javax.management.NotificationListener;
 import javax.management.ObjectName;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceException;
@@ -50,22 +50,7 @@ import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MAX;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MIN;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PUBLIC_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
+import static org.fusesource.fabric.zookeeper.ZkPath.*;
 
 public class KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
 
@@ -106,10 +91,10 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             if (stat != null) {
                 if (stat.getEphemeralOwner() != zooKeeper.getSessionId()) {
                     zooKeeper.delete(nodeAlive);
-                    zooKeeper.createWithParents(nodeAlive, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                    zooKeeper.createWithParents(nodeAlive, CreateMode.EPHEMERAL);
                 }
             } else {
-                zooKeeper.createWithParents(nodeAlive, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                zooKeeper.createWithParents(nodeAlive, CreateMode.EPHEMERAL);
             }
 
             String domainsNode = CONTAINER_DOMAINS.getPath(name);
@@ -120,19 +105,19 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
             String jmxUrl = getJmxUrl();
             if (jmxUrl != null) {
-                zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), CreateMode.PERSISTENT);
             }
             String sshUrl = getSshUrl();
             if (sshUrl != null) {
-                zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), CreateMode.PERSISTENT);
             }
 
             if (zooKeeper.exists(CONTAINER_RESOLVER.getPath(name)) == null) {
-                zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(zooKeeper, name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(zooKeeper, name), CreateMode.PERSISTENT);
             }
-            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name), CreateMode.PERSISTENT);
 
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
@@ -140,7 +125,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 String address = System.getProperty(resolver);
                 if (address != null && !address.isEmpty()) {
                     if (zooKeeper.exists(CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
-                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), address, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), address, CreateMode.PERSISTENT);
                     }
                 }
             }
@@ -149,11 +134,11 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             if (zooKeeper.exists(CONTAINER_PORT_MIN.getPath(name)) == null) {
-                zooKeeper.createOrSetWithParents(CONTAINER_PORT_MIN.getPath(name), minimumPort, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_PORT_MIN.getPath(name), minimumPort, CreateMode.PERSISTENT);
             }
 
             if (zooKeeper.exists(CONTAINER_PORT_MAX.getPath(name)) == null) {
-                zooKeeper.createOrSetWithParents(CONTAINER_PORT_MAX.getPath(name), maximumPort, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_PORT_MAX.getPath(name), maximumPort, CreateMode.PERSISTENT);
             }
 
             String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
@@ -164,10 +149,10 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, name);
 
                 if (zooKeeper.exists(versionNode) == null) {
-                    zooKeeper.createOrSetWithParents(versionNode, version, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    zooKeeper.createOrSetWithParents(versionNode, version, CreateMode.PERSISTENT);
                 }
                 if (zooKeeper.exists(profileNode) == null) {
-                    zooKeeper.createOrSetWithParents(profileNode, profiles, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    zooKeeper.createOrSetWithParents(profileNode, profiles, CreateMode.PERSISTENT);
                 }
             }
             registerDomains();
@@ -217,7 +202,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             policy = zookeeper.getStringData(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
         } else if (System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY) != null && validResoverList.contains(System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY))) {
             policy = System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY);
-            zookeeper.createOrSetWithParents(ZkPath.POLICIES.getPath("resolver"), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zookeeper.createOrSetWithParents(ZkPath.POLICIES.getPath("resolver"), policy, CreateMode.PERSISTENT);
         }
         return policy;
     }
@@ -245,7 +230,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         }
 
         if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
-            zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            zookeeper.createOrSetWithParents(ZkPath.CONTAINER_RESOLVER.getPath(container), policy, CreateMode.PERSISTENT);
         }
         return policy;
     }
@@ -329,7 +314,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             String name = System.getProperty("karaf.name");
             domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
-                zooKeeper.createOrSetWithParents(CONTAINER_DOMAIN.getPath(name, domain), null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null, CreateMode.PERSISTENT);
             }
         }
     }
@@ -360,7 +345,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 lock.lock();
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     if (domains.add(domain) && zooKeeper.exists(path) == null) {
-                        zooKeeper.createOrSetWithParents(path, "", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zooKeeper.createOrSetWithParents(path, "", CreateMode.PERSISTENT);
                     }
                 } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     domains.clear();
@@ -399,13 +384,13 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 if (event.getPid().equals("org.apache.karaf.shell") && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     String sshUrl = getSshUrl();
                     if (sshUrl != null) {
-                        zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), CreateMode.PERSISTENT);
                     }
                 }
                 if (event.getPid().equals("org.apache.karaf.management") && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     String jmxUrl = getJmxUrl();
                     if (jmxUrl != null) {
-                        zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                        zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), CreateMode.PERSISTENT);
                     }
                 }
             }

@@ -16,16 +16,16 @@
  */
 package org.fusesource.fabric.zookeeper.spring;
 
+import java.util.concurrent.TimeoutException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.zookeeper.Watcher;
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
-
-import java.util.concurrent.TimeoutException;
 
 /**
  * A Spring factory bean for creating ZK Clients
@@ -92,7 +92,7 @@ public class ZKClientFactoryBean implements FactoryBean<IZKClient>, DisposableBe
         zkClient = new ZKClient(connectString, getTimeout(), watcher);
         zkClient.start();
         try {
-            zkClient.waitForStart(connectTimeout);
+            zkClient.waitForConnected(connectTimeout);
         } catch (TimeoutException e) {
             throw new Exception("Failed to connect to ZooKeeper on " + connectString, e);
         }
@@ -111,7 +111,7 @@ public class ZKClientFactoryBean implements FactoryBean<IZKClient>, DisposableBe
         if (zkClient != null) {
             // Note we cannot use zkClient.close()
             // since you cannot currently close a client which is not connected
-            zkClient.destroy();
+            zkClient.close();
             zkClient = null;
         }
 

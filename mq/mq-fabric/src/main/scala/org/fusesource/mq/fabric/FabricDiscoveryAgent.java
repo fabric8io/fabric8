@@ -16,20 +16,6 @@
  */
 package org.fusesource.mq.fabric;
 
-import org.apache.activemq.command.DiscoveryEvent;
-import org.apache.activemq.transport.discovery.DiscoveryAgent;
-import org.apache.activemq.transport.discovery.DiscoveryListener;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.*;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +25,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.activemq.command.DiscoveryEvent;
+import org.apache.activemq.transport.discovery.DiscoveryAgent;
+import org.apache.activemq.transport.discovery.DiscoveryListener;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.fabric.groups.ChangeListener;
+import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.linkedin.util.clock.Timespan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FabricDiscoveryAgent implements DiscoveryAgent {
     
     private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryAgent.class);
@@ -46,7 +48,6 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private IZKClient zkClient;
     private boolean managedZkClient;
 
-    private List<ACL> acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private Group group;
     private String groupName = "default";
 
@@ -218,13 +219,13 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
                 managedZkClient = true;
                 ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
                 client.start();
-                client.waitForStart();
+                client.waitForConnected();
                 zkClient = client;
             } else {
                 managedZkClient = false;
             }
 
-            group = ZooKeeperGroupFactory.create(zkClient, "/fabric/registry/clusters/fusemq/" + groupName, acl);
+            group = ZooKeeperGroupFactory.create(zkClient, "/fabric/registry/clusters/fusemq/" + groupName);
             singleton.start(group);
             if( id!=null ) {
                 singleton.join(createState());

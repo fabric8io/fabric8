@@ -27,7 +27,7 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.insight.graph.JmxCollector;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.linkedin.zookeeper.client.ZKData;
 import org.linkedin.zookeeper.tracker.TrackedNode;
 import org.linkedin.zookeeper.tracker.ZKDataReader;
@@ -51,7 +51,7 @@ public class ZKClusterOutputWriter extends BaseOutputWriter implements OutputWri
 
         ZKDataReader<OutputWriter> reader = new ZKDataReader<OutputWriter>() {
             @Override
-            public ZKData<OutputWriter> readData(IZKClient zkClient, String path, Watcher watcher) throws InterruptedException, KeeperException {
+            public ZKData<OutputWriter> readData(org.linkedin.zookeeper.client.IZKClient zkClient, String path, Watcher watcher) throws InterruptedException, KeeperException {
                 Stat stat = new Stat();
 
                 Unmarshaller<OutputWriter> unmarshaller = null;

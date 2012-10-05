@@ -38,19 +38,28 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
     </dependency>
-    <dependency>
-        <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fabric-linkedin-zookeeper</artifactId>
-    </dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-linkedin-zookeeper</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-zookeeper</artifactId>
+      </dependency>
 
-    
-    <!-- for osgi integration -->
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
+
+      <!-- for osgi integration -->
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.core</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
+          <groupId>org.osgi</groupId>
+          <artifactId>org.osgi.compendium</artifactId>
+          <scope>provided</scope>
+      </dependency>
+      <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${jackson-version}</version>

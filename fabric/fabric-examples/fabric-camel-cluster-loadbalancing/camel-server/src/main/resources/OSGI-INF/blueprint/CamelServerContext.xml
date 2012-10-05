@@ -29,10 +29,10 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
-    <reference id="org.linkedin.zookeeper.client.IZKClient" interface="org.linkedin.zookeeper.client.IZKClient"/>
+    <reference id="org.fusesource.fabric.zookeeper.IZKClient" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
 
     <bean id="fabric-camel" class="org.fusesource.fabric.camel.FabricComponent">
-        <property name="zkClient" ref="org.linkedin.zookeeper.client.IZKClient"/>
+        <property name="zkClient" ref="org.fusesource.fabric.zookeeper.IZKClient"/>
     </bean>
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">

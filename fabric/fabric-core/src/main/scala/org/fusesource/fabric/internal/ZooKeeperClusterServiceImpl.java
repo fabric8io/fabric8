@@ -17,7 +17,9 @@
 package org.fusesource.fabric.internal;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
@@ -27,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
@@ -34,18 +37,15 @@ import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.ZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-import static org.fusesource.fabric.utils.PortUtils.findPort;
-
-
 
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
@@ -125,8 +125,13 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             // Create configuration
             String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(mappedPort);
 
+            String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
+
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Properties();
+            if (autoImportFrom != null) {
+                loadPropertiesFrom(properties, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
+            }
             properties.put("tickTime", "2000");
             properties.put("initLimit", "10");
             properties.put("syncLimit", "5");
@@ -139,6 +144,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             // Update the client configuration
             config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
             properties = new Properties();
+            if (autoImportFrom != null) {
+                loadPropertiesFrom(properties, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.properties");
+            }
             properties.put("zookeeper.url", connectionUrl);
             properties.put("zookeeper.timeout", System.getProperties().containsKey("zookeeper.timeout") ? System.getProperties().getProperty("zookeeper.timeout") : "30000");
             properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper");
@@ -159,7 +167,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             client.waitForConnected();
 
             // Import data into zookeeper
-            String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
             if (autoImportFrom != null) {
                 ZookeeperImportUtils.importFromFileSystem(client, autoImportFrom, "/", null, null, false, false, false);
             }
@@ -175,6 +182,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             p.put("initLimit", "10");
             p.put("syncLimit", "5");
             p.put("dataDir", "data/zookeeper/0000");
+            loadPropertiesFrom(p, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
             ZooKeeperUtils.set(client, profileNode, toString(p));
 
             ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000-1"), "parents=fabric-ensemble-0000\nhidden=true");
@@ -206,6 +214,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/domain", "karaf");
             ZooKeeperUtils.createDefault(client, "/fabric/authentication/users", "admin={CRYPT}21232f297a57a5a743894a0e4a801fc3{CRYPT},admin\nsystem={CRYPT}1d0258c2440a8d19e716292b231e3190{CRYPT},admin");
 
+            // Fix acls
+            client.fixACLs("/", true);
+
             // Reset the autostart flag
             if (ensembleAutoStart) {
                 System.setProperty(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
@@ -229,6 +240,24 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             bundleFabricMavenProxy.start();
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
+        }
+    }
+
+    private void loadPropertiesFrom(Properties properties, String from) {
+        InputStream is = null;
+        try {
+            is = new FileInputStream(from);
+            properties.load(is);
+        } catch (Exception e) {
+            // Ignore
+        } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
         }
     }
 
@@ -405,7 +434,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 ZKClient dst = new ZKClient(realConnectionUrl, Timespan.ONE_MINUTE, null);
                 try {
                     dst.start();
-                    dst.waitForStart(new Timespan(30, Timespan.TimeUnit.SECOND));
+                    dst.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
 
                     ZooKeeperUtils.copy(zooKeeper, dst, "/fabric/registry");
                     ZooKeeperUtils.copy(zooKeeper, dst, "/fabric/authentication");
@@ -428,7 +457,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
 
                 } finally {
-                    dst.destroy();
+                    dst.close();
                 }
             } else {
                 setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
@@ -450,7 +479,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         return rc;
     }
 
-    static public Properties getProperties(org.linkedin.zookeeper.client.IZKClient client, String file, Properties defaultValue) throws InterruptedException, KeeperException, IOException {
+    static public Properties getProperties(IZKClient client, String file, Properties defaultValue) throws InterruptedException, KeeperException, IOException {
         try {
             String v = ZooKeeperUtils.get(client, file);
             if (v != null) {
@@ -463,7 +492,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    static public void setConfigProperty(org.linkedin.zookeeper.client.IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
+    static public void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));

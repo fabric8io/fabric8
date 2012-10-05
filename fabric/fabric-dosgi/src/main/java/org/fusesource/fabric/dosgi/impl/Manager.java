@@ -19,7 +19,6 @@ package org.fusesource.fabric.dosgi.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URI;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.dosgi.api.Dispatched;
 import org.fusesource.fabric.dosgi.api.SerializationStrategy;
 import org.fusesource.fabric.dosgi.capset.CapabilitySet;
@@ -47,9 +45,9 @@ import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
 import org.fusesource.fabric.dosgi.util.AriesFrameworkUtil;
 import org.fusesource.fabric.dosgi.util.Utils;
 import org.fusesource.fabric.dosgi.util.UuidGenerator;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.tracker.NodeEvent;
 import org.linkedin.zookeeper.tracker.NodeEventsListener;
 import org.linkedin.zookeeper.tracker.ZKStringDataReader;
@@ -147,7 +145,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.server.start();
         // ZooKeeper tracking
         try {
-            this.zooKeeper.createWithParents(DOSGI_REGISTRY, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+            this.zooKeeper.createWithParents(DOSGI_REGISTRY, CreateMode.PERSISTENT);
         } catch (KeeperException.NodeExistsException e) {
             // The node already exists, that's fine
         }
@@ -432,9 +430,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
         String descStr = Utils.getEndpointDescriptionXML(description);
         // Publish in ZooKeeper
-        final String nodePath = zooKeeper.create(DOSGI_REGISTRY + "/" + uuid,
-                descStr.getBytes("UTF-8"),
-                ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+        final String nodePath = zooKeeper.create(DOSGI_REGISTRY + "/" + uuid, descStr, CreateMode.EPHEMERAL);
         // Return
         return new ExportRegistration(reference, description, nodePath);
     }

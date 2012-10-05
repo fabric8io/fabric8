@@ -32,8 +32,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooDefs;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
@@ -73,7 +72,7 @@ public class ZookeeperImportUtils {
                     if (verbose) {
                         System.out.println("importing: " + key);
                     }
-                    zooKeeper.createOrSetWithParents(key, data, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    zooKeeper.createOrSetWithParents(key, data, CreateMode.PERSISTENT);
                 }
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
@@ -106,7 +105,7 @@ public class ZookeeperImportUtils {
                 continue;
             }
             if (!dryRun) {
-                zooKeeper.createOrSetWithParents(name, value, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                zooKeeper.createOrSetWithParents(name, value, CreateMode.PERSISTENT);
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
             }

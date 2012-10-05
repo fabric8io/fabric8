@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 import java.util.List;
 

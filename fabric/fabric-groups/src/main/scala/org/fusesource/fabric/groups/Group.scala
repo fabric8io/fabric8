@@ -17,10 +17,10 @@
 package org.fusesource.fabric.groups
 
 import internal.ZooKeeperGroup
-import org.linkedin.zookeeper.client.IZKClient
 import org.apache.zookeeper.data.ACL
 import org.apache.zookeeper.ZooDefs.Ids
 import java.util.LinkedHashMap
+import org.fusesource.fabric.zookeeper.IZKClient
 
 /**
  * <p>
@@ -30,8 +30,7 @@ import java.util.LinkedHashMap
  */
 object ZooKeeperGroupFactory {
 
-  def create(zk: IZKClient, path: String):Group = create(zk, path, Ids.OPEN_ACL_UNSAFE)
-  def create(zk: IZKClient, path: String, acl:java.util.List[ACL]):Group = new ZooKeeperGroup(zk, path, acl)
+  def create(zk: IZKClient, path: String):Group = new ZooKeeperGroup(zk, path)
   def members(zk: IZKClient, path: String):LinkedHashMap[String, Array[Byte]] = ZooKeeperGroup.members(zk, path)
 }
 

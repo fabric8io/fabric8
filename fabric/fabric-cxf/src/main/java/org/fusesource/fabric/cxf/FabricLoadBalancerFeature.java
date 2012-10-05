@@ -24,15 +24,11 @@ import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.endpoint.Client;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.linkedin.zookeeper.client.ZKClient;
-
-import java.util.List;
 
 
 public class FabricLoadBalancerFeature extends AbstractFeature implements BusLifeCycleListener {
@@ -42,10 +38,8 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     private String fabricPath;
     private boolean shouldCloseZkClient = false;
     private long maximumConnectionTimeout = 10 * 1000L;
-    private long connectionRetryTime = 100L;
     private volatile Group group;
     private LoadBalanceStrategy loadBalanceStrategy;
-    private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
     private ServerAddressResolver addressResolver;
 
@@ -91,7 +85,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     
     public synchronized Group getGroup() throws Exception {
          if (group == null) {
-             group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath, accessControlList);
+             group = ZooKeeperGroupFactory.create(getZkClient(), zkRoot + fabricPath);
          }
         return group;
     }
@@ -110,14 +104,6 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         this.fabricPath = fabricPath;
     }
 
-    public List<ACL> getAccessControlList() {
-        return accessControlList;
-    }
-
-    public void setAccessControlList(List<ACL> accessControlList) {
-        this.accessControlList = accessControlList;
-    }
-
     public synchronized IZKClient getZkClient() throws Exception {
         if (zkClient == null) {
             String connectString = System.getProperty("zookeeper.url", "localhost:2181");
@@ -134,7 +120,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
                 ((ZKClient) zkClient).start();
             }
         }
-        checkZkConnected();
+        zkClient.waitForConnected(new Timespan(getMaximumConnectionTimeout()));
         return zkClient;
     }
 
@@ -172,45 +158,12 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         this.maximumConnectionTimeout = maximumConnectionTimeout;
     }
 
-    public long getConnectionRetryTime() {
-        return connectionRetryTime;
-    }
-
-    public void setConnectionRetryTime(long connectionRetryTime) {
-        this.connectionRetryTime = connectionRetryTime;
-    }
-
     public ServerAddressResolver getAddressResolver() {
         return addressResolver;
     }
 
     public void setAddressResolver(ServerAddressResolver addressResolver) {
         this.addressResolver = addressResolver;
-    }
-
-
-    /**
-     * Lets check if we are connected and throw an exception if we are not.
-     * Note that if start() has just been called on IZKClient then it will take a little
-     * while for the connection to be established, so we keep checking up to the {@link #getMaximumConnectionTimeout()}
-     * until we throw the exception
-     */
-    protected void checkZkConnected() throws Exception {
-        long start = System.currentTimeMillis();
-        do {
-            if (zkClient.isConnected()) {
-                return;
-            }
-            try {
-                Thread.sleep(getConnectionRetryTime());
-            } catch (InterruptedException e) {
-                // ignore
-            }
-        } while (System.currentTimeMillis() < start + getMaximumConnectionTimeout());
-
-        if (!zkClient.isConnected()) {
-            throw new Exception("Could not connect to ZooKeeper " + zkClient + " at " + zkClient.getConnectString());
-        }
     }
 
     @Override

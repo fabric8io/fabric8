@@ -19,7 +19,6 @@ package org.fusesource.fabric.configadmin;
 import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.io.StringReader;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,14 +33,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooDefs;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.linkedin.zookeeper.client.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.tracker.NodeEvent;
 import org.linkedin.zookeeper.tracker.NodeEventsListener;
@@ -106,7 +103,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 track(versionNode);
                 node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
                 if (zooKeeper.exists(node) == null) {
-                    zooKeeper.createWithParents(node, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    zooKeeper.createWithParents(node, CreateMode.PERSISTENT);
                 }
                 track(node);
                 resolutionPolicy = ZkPath.CONTAINER_RESOLVER.getPath(name);

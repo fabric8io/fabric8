@@ -21,7 +21,7 @@ import org.osgi.service.cm.ConfigurationException
 import org.osgi.service.cm.ManagedServiceFactory
 import org.slf4j.LoggerFactory
 import reflect.BeanProperty
-import org.linkedin.zookeeper.client.IZKClient
+import org.fusesource.fabric.zookeeper.IZKClient
 import java.util.{Properties, Dictionary}
 import collection.mutable.HashMap
 import java.util.concurrent.atomic.AtomicBoolean

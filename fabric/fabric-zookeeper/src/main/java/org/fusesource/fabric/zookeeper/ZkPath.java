@@ -30,7 +30,6 @@ import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.linkedin.zookeeper.client.IZKClient;
 
 /**
  * Set of paths which are used by fon.

@@ -21,7 +21,7 @@
     <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <!-- Zookeeper client -->
-    <bean id="zkClient" class="org.fusesource.fabric.zookeeper.internal.OsgiZkClient" init-method="init" destroy-method="destroy">
+    <bean id="zkClient" class="org.fusesource.fabric.zookeeper.internal.OsgiZkClient" init-method="start" destroy-method="close">
         <property name="bundleContext" ref="blueprintBundleContext" />
         <property name="configurationAdmin" ref="configAdmin" />
     </bean>

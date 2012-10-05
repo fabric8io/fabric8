@@ -22,16 +22,14 @@ import java.net.ServerSocket;
 import java.util.Dictionary;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.fusesource.fabric.dosgi.impl.Manager;
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.Test;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.LifecycleListener;
-import org.linkedin.zookeeper.client.ZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -61,29 +59,8 @@ public class ManagerTest {
 
 
             ZKClient zooKeeper = new ZKClient("localhost:" + zooKeeperPort, Timespan.ONE_MINUTE, null);
-            final AtomicBoolean connected = new AtomicBoolean(false);
-            zooKeeper.registerListener(new LifecycleListener() {
-                public void onConnected() {
-                    synchronized (connected) {
-                        connected.set(true);
-                        connected.notifyAll();
-                    }
-                }
-
-                public void onDisconnected() {
-                    synchronized (connected) {
-                        connected.set(false);
-                        connected.notifyAll();
-                    }
-                }
-            });
             zooKeeper.start();
-
-            synchronized (connected) {
-                while (!zooKeeper.isConnected()) {
-                    connected.wait();
-                }
-            }
+            zooKeeper.waitForConnected();
 
             BundleContext bundleContext = createMock(BundleContext.class);
             ServiceRegistration registration = createMock(ServiceRegistration.class);

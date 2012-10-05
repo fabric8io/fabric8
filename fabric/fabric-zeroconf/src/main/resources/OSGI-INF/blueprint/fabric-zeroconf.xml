@@ -25,7 +25,7 @@
   </cm:property-placeholder>
 -->
 
-  <reference id="zooKeeper" interface="org.linkedin.zookeeper.client.IZKClient"/>
+  <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
   <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
        
   <bean id="zeroconfBridge" class="org.fusesource.fabric.zeroconf.ZeroConfBridge" init-method="start" destroy-method="stop">

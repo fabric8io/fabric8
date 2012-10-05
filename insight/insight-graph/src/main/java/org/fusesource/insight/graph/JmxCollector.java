@@ -17,39 +17,6 @@
 
 package org.fusesource.insight.graph;
 
-import com.googlecode.jmxtrans.OutputWriter;
-import com.googlecode.jmxtrans.jobs.ServerJob;
-import com.googlecode.jmxtrans.model.JmxProcess;
-import com.googlecode.jmxtrans.model.Query;
-import com.googlecode.jmxtrans.model.Server;
-import com.googlecode.jmxtrans.util.JmxUtils;
-import com.googlecode.jmxtrans.util.LifecycleException;
-import com.googlecode.jmxtrans.util.ValidationException;
-import org.apache.commons.pool.KeyedObjectPool;
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.insight.graph.support.Json;
-import org.fusesource.insight.graph.support.SchedulerFactory;
-import org.fusesource.insight.graph.support.ZKClusterOutputWriter;
-import org.linkedin.zookeeper.client.IZKClient;
-import org.quartz.CronExpression;
-import org.quartz.CronTrigger;
-import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.TriggerUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,6 +28,38 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.management.MBeanServer;
+
+import com.googlecode.jmxtrans.OutputWriter;
+import com.googlecode.jmxtrans.jobs.ServerJob;
+import com.googlecode.jmxtrans.model.JmxProcess;
+import com.googlecode.jmxtrans.model.Query;
+import com.googlecode.jmxtrans.model.Server;
+import com.googlecode.jmxtrans.util.JmxUtils;
+import com.googlecode.jmxtrans.util.LifecycleException;
+import com.googlecode.jmxtrans.util.ValidationException;
+import org.apache.commons.pool.KeyedObjectPool;
+import org.apache.zookeeper.data.ACL;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.insight.graph.support.Json;
+import org.fusesource.insight.graph.support.SchedulerFactory;
+import org.fusesource.insight.graph.support.ZKClusterOutputWriter;
+import org.quartz.CronExpression;
+import org.quartz.CronTrigger;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Collects all the charting statistics defined against its profiles
@@ -78,7 +77,6 @@ public class JmxCollector {
     private Map<String, KeyedObjectPool> objectPoolMap;
     private Scheduler scheduler;
     private MBeanServer mbeanServer;
-    private List<ACL> accessControlList = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private IZKClient zkClient;
     private String clusterRoot = "/fabric/registry/clusters/stats";
     private Map<String,ZKClusterOutputWriter> outputWriters = new HashMap<String, ZKClusterOutputWriter>();
@@ -134,14 +132,6 @@ public class JmxCollector {
 
     public void setZkClient(IZKClient zkClient) {
         this.zkClient = zkClient;
-    }
-
-    public List<ACL> getAccessControlList() {
-        return accessControlList;
-    }
-
-    public void setAccessControlList(List<ACL> accessControlList) {
-        this.accessControlList = accessControlList;
     }
 
     public String getClusterRoot() {

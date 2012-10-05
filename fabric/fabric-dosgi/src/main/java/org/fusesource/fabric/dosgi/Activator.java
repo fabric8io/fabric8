@@ -19,7 +19,7 @@ package org.fusesource.fabric.dosgi;
 import java.util.concurrent.TimeUnit;
 
 import org.fusesource.fabric.dosgi.impl.Manager;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;

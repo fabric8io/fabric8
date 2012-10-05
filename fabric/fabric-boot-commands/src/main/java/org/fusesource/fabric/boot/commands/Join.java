@@ -16,6 +16,10 @@
  */
 package org.fusesource.fabric.boot.commands;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -27,17 +31,12 @@ import org.fusesource.fabric.utils.PortUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-
+import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.linkedin.util.clock.Timespan;
-import org.linkedin.zookeeper.client.ZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
 
 @Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
 public class Join extends OsgiCommandSupport implements org.fusesource.fabric.boot.commands.service.Join {
@@ -152,20 +151,20 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private boolean registerContainer(String name, String profile, boolean force) throws InterruptedException, KeeperException {
+    private boolean registerContainer(String name, String profile, boolean force) throws Exception {
         boolean exists = false;
         ZKClient zkClient = null;
         try {
             zkClient = new ZKClient(zookeeperUrl, Timespan.ONE_MINUTE, null);
             zkClient.start();
-            zkClient.waitForStart();
+            zkClient.waitForConnected();
             exists = zkClient.exists(ZkPath.CONTAINER.getPath(name)) != null;
             if (!exists || force) {
                 ZkPath.createContainerPaths(zkClient, containerName, version, profile);
             }
         } finally {
             if (zkClient != null) {
-                zkClient.destroy();
+                zkClient.close();
             }
         }
         return !exists || force;

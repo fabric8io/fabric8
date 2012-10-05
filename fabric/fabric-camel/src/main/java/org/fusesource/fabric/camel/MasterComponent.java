@@ -54,7 +54,7 @@ public class MasterComponent extends ZKComponentSupport {
         String fabricPath = getFabricPath(name);
         String childUri = remaining.substring(idx + 1);
 
-        Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath, accessControlList);
+        Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
         return new MasterEndpoint(uri, this, name, group, childUri);
     }
 

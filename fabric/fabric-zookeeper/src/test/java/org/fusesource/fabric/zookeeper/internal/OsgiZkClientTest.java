@@ -73,7 +73,7 @@ public class OsgiZkClientTest {
         replay(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
 
         
-        client.destroy();
+        client.close();
         serverFactory.destroy();
 
         verify(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
@@ -88,7 +88,7 @@ public class OsgiZkClientTest {
         expect(bundleContext.registerService(eq(ManagedService.class.getName()), same(client), (Dictionary) anyObject())).andReturn(managedServiceRegistration);
 
         replay(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
-        client.init();
+        client.start();
         verify(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
 
         assertFalse(client.isConfigured());

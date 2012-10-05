@@ -16,7 +16,7 @@
 package org.fusesource.fabric.webui.zookeeper
 
 import javax.ws.rs.{PathParam, GET, Path}
-import org.linkedin.zookeeper.client.IZKClient
+import org.fusesource.fabric.zookeeper.IZKClient
 import javax.xml.bind.annotation.{XmlElement, XmlAttribute, XmlRootElement}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.webui.{Services, BaseResource}

@@ -18,13 +18,10 @@
 package org.elasticsearch.discovery.fabric;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.data.ACL;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;
@@ -51,8 +48,6 @@ import org.elasticsearch.common.UUID;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.internal.Nullable;
-import org.elasticsearch.common.io.stream.BytesStreamInput;
-import org.elasticsearch.common.io.stream.BytesStreamOutput;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.discovery.Discovery;
 import org.elasticsearch.discovery.InitialStateDiscoveryListener;
@@ -67,7 +62,7 @@ import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -99,7 +94,6 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     @Nullable private NodeService nodeService;
     private volatile DiscoveryNodes latestDiscoNodes;
     private final PublishClusterStateAction publishClusterState;
-    private List<ACL> acl = ZooDefs.Ids.OPEN_ACL_UNSAFE;
     private volatile Group group;
     private final ClusteredSingleton<ESNode> singleton;
     private final AtomicBoolean initialStateSent = new AtomicBoolean();
@@ -215,7 +209,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     @Override
     public Object addingService(ServiceReference reference) {
         IZKClient zk = (IZKClient) context.getService(reference);
-        group = ZooKeeperGroupFactory.create(zk, "/fabric/registry/clusters/elasticsearch/" + clusterName.value(), acl);
+        group = ZooKeeperGroupFactory.create(zk, "/fabric/registry/clusters/elasticsearch/" + clusterName.value());
         joined = false;
         singleton.start(group);
         joined = true;

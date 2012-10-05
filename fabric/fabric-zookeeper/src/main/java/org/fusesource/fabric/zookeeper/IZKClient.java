@@ -33,8 +33,32 @@ public interface IZKClient extends org.linkedin.zookeeper.client.IZKClient {
     Stat createOrSetByteWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode)
             throws InterruptedException, KeeperException;
 
-    public void waitForConnected(Timespan timeout) throws InterruptedException, TimeoutException;
+    // ACL free methods
 
-    public void waitForConnected() throws InterruptedException, TimeoutException;
+    String create(String path, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    String create(String path, String data, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    String create(String path, byte[] data, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    String createWithParents(String path, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    String createWithParents(String path, String data, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    String createWithParents(String path, byte[] data, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    Stat createOrSetWithParents(String path, String data, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    Stat createOrSetWithParents(String path, byte[] data, CreateMode createMode) throws InterruptedException, KeeperException;
+
+    // State methods
+
+    void waitForConnected(Timespan timeout) throws InterruptedException, TimeoutException;
+
+    void waitForConnected() throws InterruptedException, TimeoutException;
+
+    // ACLs methods
+
+    void fixACLs(String path, boolean recursive) throws InterruptedException, KeeperException;
 
 }

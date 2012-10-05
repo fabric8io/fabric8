@@ -18,7 +18,7 @@
 package org.fusesource.fabric.jaas;
 
 import java.util.Dictionary;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;

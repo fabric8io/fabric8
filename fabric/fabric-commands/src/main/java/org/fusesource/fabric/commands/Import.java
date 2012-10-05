@@ -17,13 +17,13 @@
 package org.fusesource.fabric.commands;
 
 import java.io.File;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
-import org.linkedin.zookeeper.client.IZKClient;
-
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
 

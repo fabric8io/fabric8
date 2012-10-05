@@ -19,7 +19,7 @@ package org.fusesource.fabric.commands.support;
 import java.util.List;
 
 import org.apache.karaf.shell.console.Completer;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 public class ZNodeCompleter implements Completer {
     private IZKClient zk;

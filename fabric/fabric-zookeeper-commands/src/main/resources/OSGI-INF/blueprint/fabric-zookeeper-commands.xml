@@ -18,7 +18,7 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="zkClient" interface="org.linkedin.zookeeper.client.IZKClient" />
+    <reference id="zkClient" interface="org.fusesource.fabric.zookeeper.IZKClient" />
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="zk/create">

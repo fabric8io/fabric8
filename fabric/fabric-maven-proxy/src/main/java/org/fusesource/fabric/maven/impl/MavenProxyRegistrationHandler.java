@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.ServletException;
+
 import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -107,10 +107,10 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         try {
             if (zookeeper.isConnected()) {
                 if (zookeeper.exists(parentPath) == null) {
-                    zookeeper.createWithParents(parentPath, null, ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+                    zookeeper.createWithParents(parentPath, CreateMode.PERSISTENT);
                 }
                 if (zookeeper.exists(path) == null) {
-                    registeredProxies.get(type).add(zookeeper.create(path, mavenProxyUrl.getBytes("UTF-8"), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL));
+                    registeredProxies.get(type).add(zookeeper.create(path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
                 }
             }
         } catch (Exception e) {
