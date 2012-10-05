@@ -20,23 +20,22 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>fuse-project</artifactId>
         <groupId>org.fusesource</groupId>
+        <artifactId>tooling</artifactId>
         <version>99-master-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource</groupId>
-    <artifactId>tooling</artifactId>
+    <groupId>org.fusesource.archetypes</groupId>
+    <artifactId>archetypes</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource :: Tooling</name>
+    <name>FuseSource :: Tooling :: Archetypes</name>
 
     <modules>
-        <module>archetypes</module>
-        <module>tooling-fabric-all</module>
-        <module>tooling-jclouds-all</module>
-        <module>camel-tooling-util</module>
-        <module>testing</module>
+        <module>examples</module>
+<!--
+        <module>archetype-generator</module>
+-->
     </modules>
 
 
