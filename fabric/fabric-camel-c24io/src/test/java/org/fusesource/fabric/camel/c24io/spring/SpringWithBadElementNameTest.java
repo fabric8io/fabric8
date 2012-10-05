@@ -18,6 +18,7 @@ package org.fusesource.fabric.camel.c24io.spring;
 
 import junit.framework.TestCase;
 import org.apache.camel.RuntimeCamelException;
+import org.junit.Test;
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -25,6 +26,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
  * @version $Revision$
  */
 public class SpringWithBadElementNameTest extends TestCase {
+    @Test
     public void testBadElementName() throws Exception {
         try {
             AbstractXmlApplicationContext appContext = new ClassPathXmlApplicationContext("org/fusesource/fabric/camel/c24io/spring/badElementName.xml");

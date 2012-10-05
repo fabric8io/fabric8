@@ -23,6 +23,7 @@ import biz.c24.io.gettingstarted.transaction.Transactions;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit38.AbstractJUnit38SpringContextTests;
 
@@ -35,6 +36,7 @@ public class SpringWithMissingElementNameTest extends AbstractJUnit38SpringConte
     @EndpointInject(uri = "mock:result")
     MockEndpoint resultEndpoint;
 
+    @Test
     public void testBadElementName() throws Exception {
         resultEndpoint.expectedMessageCount(1);
         resultEndpoint.assertIsSatisfied();
