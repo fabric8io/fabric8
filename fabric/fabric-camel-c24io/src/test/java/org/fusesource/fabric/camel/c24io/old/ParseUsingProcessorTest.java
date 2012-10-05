@@ -22,8 +22,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
 import org.fusesource.fabric.camel.c24io.C24IOSource;
+import org.junit.Test;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ import java.util.List;
  * @version $Revision$
  */
 public class ParseUsingProcessorTest extends CamelTestSupport {
+    @Test
     public void testParsingMessage() throws Exception {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);

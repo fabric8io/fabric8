@@ -20,7 +20,7 @@ package org.fusesource.fabric.camel.c24io.spring;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Service;
 import org.apache.camel.spring.SpringCamelContext;
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
 
 import org.springframework.context.support.AbstractXmlApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;

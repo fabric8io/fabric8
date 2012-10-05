@@ -21,12 +21,13 @@ import java.util.List;
 import biz.c24.io.gettingstarted.transaction.Transactions;
 
 import biz.c24.io.gettingstarted.transaction.transactions.StatGenTransform;
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.fusesource.fabric.camel.c24io.C24IOSource;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 import static org.fusesource.fabric.camel.c24io.C24IOTransform.transform;
 
@@ -34,6 +35,7 @@ import static org.fusesource.fabric.camel.c24io.C24IOTransform.transform;
  * @version $Revision$
  */
 public class TransformUsingProcessorTest extends CamelTestSupport {
+    @Test
     public void testC24() throws Exception {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);

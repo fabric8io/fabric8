@@ -19,17 +19,19 @@ package org.fusesource.fabric.camel.c24io;
 import java.util.List;
 
 import biz.c24.io.gettingstarted.transaction.transactions.StatGenTransform;
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.junit.Test;
 
 /**
  * @version $Revision$
  */
 public class TransformUsingBeanTest extends CamelTestSupport {
 
+    @Test
     public void testTransform() throws Exception {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);

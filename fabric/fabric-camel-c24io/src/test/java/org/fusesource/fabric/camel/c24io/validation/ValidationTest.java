@@ -25,10 +25,11 @@ import org.apache.camel.builder.Builder;
 import org.apache.camel.builder.ProcessorBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
 
 import org.fusesource.fabric.camel.c24io.C24IOValidator;
 import org.fusesource.fabric.camel.c24io.SampleDataFiles;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,6 +41,7 @@ public class ValidationTest extends CamelTestSupport {
     protected MockEndpoint validEndpoint;
     protected MockEndpoint invalidEndpoint;
 
+    @Test
     public void testValidMessage() throws Exception {
         validEndpoint.expectedMessageCount(1);
         invalidEndpoint.expectedMessageCount(0);
@@ -51,6 +53,7 @@ public class ValidationTest extends CamelTestSupport {
         assertEquals("validResult", result);
     }
 
+    @Test
     public void testInvalidMessage() throws Exception {
         invalidEndpoint.expectedMessageCount(1);
         validEndpoint.expectedMessageCount(0);
@@ -62,7 +65,8 @@ public class ValidationTest extends CamelTestSupport {
         assertEquals("invalidResult", result);
     }
 
-    public void testinvalidThenValidMessage() throws Exception {
+    @Test
+    public void testInvalidThenValidMessage() throws Exception {
         validEndpoint.expectedMessageCount(2);
         invalidEndpoint.expectedMessageCount(1);
 
@@ -84,7 +88,7 @@ public class ValidationTest extends CamelTestSupport {
     }
 
     @Override
-    protected void setUp() throws Exception {
+    public void setUp() throws Exception {
         super.setUp();
 
         validEndpoint = getMockEndpoint("mock:valid");

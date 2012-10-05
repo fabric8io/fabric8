@@ -20,18 +20,22 @@ import java.util.List;
 
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.gettingstarted.transaction.Transactions;
+import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.builder.xml.Namespaces;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.dataformat.C24IOContentType;
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
+import org.junit.Test;
 
 /**
  * @version $Revision$
  */
 public class XPathTest extends CamelTestSupport {
+
+    @Test
     public void testParsingMessage() throws Exception {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);
@@ -45,6 +49,13 @@ public class XPathTest extends CamelTestSupport {
         ComplexDataObject object = assertIsInstanceOf(ComplexDataObject.class, in.getBody());
         log.info("Received: " + object);
     }
+
+/*
+    protected CamelContext createCamelContext() throws Exception {
+        CamelContext camelContext = super.createCamelContext();
+        camelContext.setTracing(true);
+        return camelContext;
+    }*/
 
     protected RouteBuilder createRouteBuilder() {
         return new RouteBuilder() {

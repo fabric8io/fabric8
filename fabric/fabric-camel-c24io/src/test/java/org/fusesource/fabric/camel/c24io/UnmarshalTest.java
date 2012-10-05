@@ -21,17 +21,19 @@ import java.util.List;
 import biz.c24.io.api.data.ComplexDataObject;
 import biz.c24.io.gettingstarted.transaction.Transactions;
 
-import org.apache.camel.test.CamelTestSupport;
+import org.apache.camel.test.junit4.CamelTestSupport;
 import org.apache.camel.Exchange;
 import org.apache.camel.Message;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.model.dataformat.C24IOContentType;
+import org.junit.Test;
 
 /**
  * @version $Revision$
  */
 public class UnmarshalTest extends CamelTestSupport {
+    @Test
     public void testParsingMessage() throws Exception {
         MockEndpoint resultEndpoint = resolveMandatoryEndpoint("mock:result", MockEndpoint.class);
         resultEndpoint.expectedMessageCount(1);
