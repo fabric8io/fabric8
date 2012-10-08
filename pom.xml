@@ -96,6 +96,7 @@
         <perfectus-build>013</perfectus-build>
         <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
+        <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-version>1.0.1.fuse-71-${perfectus-build}</aries-blueprint-version>
         <aries-jmx-version>1.0.1.fuse-71-${perfectus-build}</aries-jmx-version>
         <aries-transaction-version>1.0.1.fuse-71-${perfectus-build}</aries-transaction-version>
@@ -426,6 +427,12 @@
               <groupId>org.codehaus.mojo</groupId>
               <artifactId>build-helper-maven-plugin</artifactId>
               <version>1.5</version>
+            </plugin>
+
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-archetype-plugin</artifactId>
+              <version>2.2</version>
             </plugin>
 
             <plugin>

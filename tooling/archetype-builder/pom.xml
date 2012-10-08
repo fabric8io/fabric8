@@ -94,6 +94,7 @@
             <goals>
               <goal>java</goal>
             </goals>
+            <phase>test-compile</phase>
           </execution>
         </executions>
         <configuration>

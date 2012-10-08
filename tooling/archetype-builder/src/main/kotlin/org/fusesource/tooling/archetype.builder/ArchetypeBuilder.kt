@@ -42,7 +42,8 @@ public open class ArchetypeBuilder() {
                 if (file.isDirectory()) {
                     var pom = File(file, "pom.xml")
                     if (pom.exists()) {
-                        generateArchetype(file, outputDir)
+                        val outputName = file.name.replace("example", "archetype")
+                        generateArchetype(file, File(outputDir, outputName))
                     }
                 }
             }
@@ -50,6 +51,7 @@ public open class ArchetypeBuilder() {
     }
 
     protected open fun generateArchetype(directory: File, outputDir: File): Unit {
+        println("Generating archetype at $outputDir from $directory")
         val srcDir = File(directory, "src/main")
         val testDir = File(directory, "src/test")
         var archetypeOutputDir = File(outputDir, "src/main/resources/archetype-resources")
@@ -67,7 +69,7 @@ public open class ArchetypeBuilder() {
                 val packageName = packagePath.replaceAll("/", ".") // .replaceAll("/", "\\\\.")
                 val regex = packageName.replaceAll("\\.", "\\\\.")
 
-                replaceFunction = {(s: String) -> s.replaceAll(regex, "\\\${packageName}") }
+                replaceFunction = {(s: String) -> s.replaceAll(regex, "\\\${package}") }
 
                 // lets recursively copy files replacing the package names
                 val outputMainSrc = File(archetypeOutputDir, directory.relativePath(mainSrcDir))
