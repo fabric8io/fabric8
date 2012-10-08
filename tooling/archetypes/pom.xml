@@ -32,8 +32,6 @@
     <name>FuseSource :: Tooling :: Archetypes</name>
 
     <modules>
-        <module>examples</module>
-        <module>archetype-builder</module>
     </modules>
 
 

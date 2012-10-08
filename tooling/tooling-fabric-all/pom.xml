@@ -21,8 +21,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <artifactId>tooling</artifactId>
     <groupId>org.fusesource</groupId>
+    <artifactId>tooling</artifactId>
     <version>99-master-SNAPSHOT</version>
   </parent>
 

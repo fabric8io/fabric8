@@ -32,6 +32,8 @@
     <name>FuseSource :: Tooling</name>
 
     <modules>
+        <module>examples</module>
+        <module>archetype-builder</module>
         <module>archetypes</module>
         <module>tooling-fabric-all</module>
         <module>tooling-jclouds-all</module>
