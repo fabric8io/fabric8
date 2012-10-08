@@ -60,12 +60,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
 
     <plugins>
 
@@ -173,15 +167,6 @@
           <archive>
             <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
           </archive>     
-          <webResources>
-            <resource>
-              <filtering>true</filtering>
-              <directory>src/main/resources</directory>
-              <includes>
-                <include>**/*.*</include>
-              </includes>
-            </resource>
-          </webResources>
         </configuration>
       </plugin>
 
