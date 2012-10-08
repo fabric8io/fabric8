@@ -33,9 +33,7 @@
 
     <modules>
         <module>examples</module>
-<!--
-        <module>archetype-generator</module>
--->
+        <module>archetype-builder</module>
     </modules>
 
 
