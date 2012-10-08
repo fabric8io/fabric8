@@ -32,6 +32,8 @@
     <fuse.osgi.import>
       org.apache.log4j,
       org.osgi.framework,
+      javax.servlet,
+      javax.servlet.http,
       *;resolution:=optional
     </fuse.osgi.import>
     <fuse.osgi.private.pkg>
@@ -47,6 +49,13 @@
       <groupId>org.osgi</groupId>
       <artifactId>org.osgi.core</artifactId>
       <version>${osgi-version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+      <version>${servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>
 
@@ -163,10 +172,20 @@
         <configuration>
           <outputFileNameMapping>@{artifactId}@-@{baseVersion}@@{dashClassifier?}@.@{extension}@</outputFileNameMapping>
           <warSourceDirectory>${webapp-outdir}</warSourceDirectory>
+          <packagingExcludes>**/classes/OSGI-INF/**</packagingExcludes>
           <failOnMissingWebXml>false</failOnMissingWebXml>
           <archive>
             <manifestFile>${webapp-outdir}/META-INF/MANIFEST.MF</manifestFile>
-          </archive>     
+          </archive>
+          <webResources>
+            <resource>
+              <filtering>true</filtering>
+              <directory>src/main/resources</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+          </webResources>
         </configuration>
       </plugin>
 
