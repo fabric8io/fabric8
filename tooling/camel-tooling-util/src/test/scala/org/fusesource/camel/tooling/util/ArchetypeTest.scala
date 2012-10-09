@@ -32,9 +32,7 @@ class ArchetypeTest extends FunSuiteSupport {
   // lets get the latest version from the pom.xml via a system property
   var version = System.getProperty("camel-version", "2.10.0.fuse-71-013")
 
-
-  // TODO this test fails currently!!!
-  ignore("generate activemq archetype") {
+  test("generate activemq archetype") {
     assertArchetypeCreated("camel-archetype-activemq-")
   }
 

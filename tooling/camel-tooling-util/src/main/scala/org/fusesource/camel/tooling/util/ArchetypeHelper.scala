@@ -221,7 +221,13 @@ class ArchetypeHelper(val archetypeIn: InputStream, val outputDir: File, val gro
   }
 
   protected def replaceVariable(text: String, name: String, value: String): String = {
-    text.replaceAll(Pattern.quote("${" + name + "}"), value)
+    if (value.contains('}')) {
+      println("Ignoring dodgy value '" + value + "'")
+      text
+    } else {
+      //println("Replacing '" + name + "' with '" + value + "'")
+      text.replaceAll(Pattern.quote("${" + name + "}"), value)
+    }
   }
 
   protected def replaceAllVariable(text: String, name: String, value: String): String = {
