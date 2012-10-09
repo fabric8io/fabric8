@@ -43,6 +43,12 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
         return getCamelContext().getEndpoint(child).createProducer();
     }
 
+    @Override
+    public boolean isLenientProperties() {
+        // to allow properties to be propagated to the child endpoint
+        return true;
+    }
+    
     public Consumer createConsumer(Processor processor) throws Exception {
         return getCamelContext().getEndpoint(child).createConsumer(processor);
     }
