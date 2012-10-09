@@ -34,7 +34,7 @@ class ArchetypeTest extends FunSuiteSupport {
 
 
   // TODO this test fails currently!!!
-  ignore("generate activemq archetype") {
+  test("generate activemq archetype") {
     assertArchetypeCreated("camel-archetype-activemq-")
   }
 
