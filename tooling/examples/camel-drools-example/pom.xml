@@ -38,19 +38,17 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
 <!--
-    <camel.version>${camel-version}</camel.version>
-    <cxf.version>${cxf-version}</cxf.version>
+    <camel-version>${camel-version}</camel-version>
+    <cxf-version>${cxf-version}</cxf-version>
 -->
     <!--
       TODO dirty hack until 2.10.x of camel works....
       TODO switch back to using camel-test-spring too when going back to 2.10.x!
     -->
-    <camel.version>2.9.0.fuse-70-084</camel.version>
-    <cxf.version>2.5.0.fuse-70-084</cxf.version>
-
-    <spring.version>${spring-version}</spring.version>
-    <slf4j.version>${slf4j-version}</slf4j.version>
-    <drools-jbpm-version>${drools.version}</drools-jbpm-version>
+<!--
+-->
+    <camel-version>2.9.0.fuse-70-084</camel-version>
+    <cxf-version>2.5.0.fuse-70-084</cxf-version>
   </properties>
 
   <repositories>
@@ -99,64 +97,64 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${spring.version}</version>
+      <version>${spring-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>${spring.version}</version>
+      <version>${spring-version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${spring.version}</version>
+      <version>${spring-version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>${camel.version}</version>
+      <version>${camel-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
-      <version>${camel.version}</version>
+      <version>${camel-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-jaxb</artifactId>
-      <version>${camel.version}</version>
+      <version>${camel-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-xstream</artifactId>
-      <version>${camel.version}</version>
+      <version>${camel-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-cxf</artifactId>
-      <version>${camel.version}</version>
+      <version>${camel-version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.apache.cxf</groupId>
       <artifactId>cxf-bundle-jaxrs</artifactId>
-      <version>${cxf.version}</version>
+      <version>${cxf-version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-core</artifactId>
-      <version>${drools-jbpm-version}</version>
+      <version>${drools-version}</version>
     </dependency>
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-spring</artifactId>
-      <version>${drools-jbpm-version}</version>
+      <version>${drools-version}</version>
       <exclusions>
         <exclusion>
           <artifactId>spring-core</artifactId>
@@ -175,7 +173,7 @@
     <dependency>
       <groupId>org.drools</groupId>
       <artifactId>drools-camel</artifactId>
-      <version>${drools-jbpm-version}</version>
+      <version>${drools-version}</version>
       <exclusions>
         <exclusion>
           <artifactId>spring-core</artifactId>
@@ -196,12 +194,12 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j.version}</version>
+      <version>${slf4j-version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j.version}</version>
+      <version>${slf4j-version}</version>
       <scope>runtime</scope>
     </dependency>
     <dependency>
@@ -220,7 +218,7 @@
 
       <artifactId>camel-test-spring</artifactId>
 -->
-        <version>${camel.version}</version>
+        <version>${camel-version}</version>
         <scope>test</scope>
     </dependency>
   </dependencies>
@@ -295,7 +293,7 @@
       <plugin>
         <groupId>org.apache.camel</groupId>
         <artifactId>camel-maven-plugin</artifactId>
-        <version>${camel.version}</version>
+        <version>${camel-version}</version>
       </plugin>
 
       <plugin>
