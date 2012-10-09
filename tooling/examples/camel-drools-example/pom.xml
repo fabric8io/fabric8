@@ -36,19 +36,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
-<!--
-    <camel-version>${camel-version}</camel-version>
-    <cxf-version>${cxf-version}</cxf-version>
--->
-    <!--
-      TODO dirty hack until 2.10.x of camel works....
-      TODO switch back to using camel-test-spring too when going back to 2.10.x!
-    -->
-<!--
--->
-    <camel-version>2.9.0.fuse-70-084</camel-version>
-    <cxf-version>2.5.0.fuse-70-084</cxf-version>
   </properties>
 
   <repositories>
@@ -187,6 +174,10 @@
           <artifactId>cxf-rt-frontend-jaxws</artifactId>
           <groupId>org.apache.cxf</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>org.apache.camel</artifactId>
+          <groupId>camel-test</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
 
@@ -212,15 +203,17 @@
     <!-- testing -->
     <dependency>
         <groupId>org.apache.camel</groupId>
-        <artifactId>camel-test</artifactId>
-<!--
-      TODO switch back to this when camel 2.10.x is back!
-
-      <artifactId>camel-test-spring</artifactId>
--->
+        <artifactId>camel-test-spring</artifactId>
         <version>${camel-version}</version>
         <scope>test</scope>
     </dependency>
+    <dependency>
+	  <groupId>org.apache.camel</groupId>
+	  <artifactId>camel-test</artifactId>
+	  <version>${camel-version}</version>
+	  <scope>test</scope>
+	</dependency>
+
   </dependencies>
 
   <build>
