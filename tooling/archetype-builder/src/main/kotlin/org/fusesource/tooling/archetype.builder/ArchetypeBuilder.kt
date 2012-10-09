@@ -1,6 +1,13 @@
 package org.fusesource.tooling.archetype.builder
 
 import java.io.File
+import kotlin.dom.*
+import org.w3c.dom.Element
+import org.w3c.dom.Node
+import org.w3c.dom.Document
+import org.xml.sax.InputSource
+import java.io.StringReader
+import java.io.FileWriter
 
 val sourceFileExtensions = hashSet(
         "bpmn",
@@ -28,7 +35,10 @@ val excludeExtensions = hashSet("iml", "iws", "ipr")
 
 val sourceCodeDirNames = arrayList("java", "kotlin", "scala")
 
-val sourceCodeDirPaths = (sourceCodeDirNames.map { "src/main/$it" } + sourceCodeDirNames.map { "src/test/$it" }).toSet()
+val sourceCodeDirPaths = (
+sourceCodeDirNames.map { "src/main/$it" } +
+sourceCodeDirNames.map { "src/test/$it" } +
+arrayList("target", "build", "pom.xml")).toSet()
 
 public open class ArchetypeBuilder() {
     public open fun configure(args: Array<String>): Unit {
@@ -43,14 +53,14 @@ public open class ArchetypeBuilder() {
                     var pom = File(file, "pom.xml")
                     if (pom.exists()) {
                         val outputName = file.name.replace("example", "archetype")
-                        generateArchetype(file, File(outputDir, outputName))
+                        generateArchetype(file, pom, File(outputDir, outputName))
                     }
                 }
             }
         }
     }
 
-    protected open fun generateArchetype(directory: File, outputDir: File): Unit {
+    protected open fun generateArchetype(directory: File, pom: File, outputDir: File): Unit {
         println("Generating archetype at $outputDir from $directory")
         val srcDir = File(directory, "src/main")
         val testDir = File(directory, "src/test")
@@ -87,6 +97,7 @@ public open class ArchetypeBuilder() {
                 }
             }
         }
+        copyPom(pom, File(archetypeOutputDir, "pom.xml"), replaceFunction)
 
         // now lets copy all non-ignored files across
         copyOtherFiles(directory, directory, archetypeOutputDir, replaceFunction)
@@ -109,15 +120,53 @@ public open class ArchetypeBuilder() {
         }
     }
 
-    protected fun copyFile(srcDir: File, outDir: File, replaceFn: (String) -> String): Unit {
-        if (isSourceFile(srcDir)) {
-            val text = replaceFn(srcDir.readText())
-            outDir.writeText(text)
-        } else {
-            println("Not a source dir as the extention is ${srcDir.extension}")
-            srcDir.copyTo(outDir)
-        }
+    protected fun copyPom(pom: File, outFile: File, replaceFn: (String) -> String): Unit {
+        val text = replaceFn(pom.readText())
 
+        // lets update the XML
+        val doc = parseXml(InputSource(StringReader(text)))
+        val root = doc.documentElement
+        if (root != null) {
+            // remove the parent element
+            val parents = root.elements("parent")
+            if (parents.notEmpty()) {
+                root.removeChild(parents[0])
+            }
+
+            // now lets replace the contents of some elements (adding new elements if they are not present)
+            val beforeNames = arrayList("artifactId", "version", "packaging", "name", "properties")
+            replaceOrAddElement(doc, root, "version", "\${version}", beforeNames)
+            replaceOrAddElement(doc, root, "artifactId", "\${artifactId}", beforeNames)
+            replaceOrAddElement(doc, root, "groupId", "\${groupId}", beforeNames)
+        }
+        doc.writeXmlString(FileWriter(outFile), true)
+    }
+
+    protected fun replaceOrAddElement(doc: Document, parent: Element, name: String, content: String, beforeNames: Iterable<String>) {
+        val elements = parent.children().filter { it.nodeName == name }
+        val element = if (elements.isEmpty()) {
+            val newElement = doc.createElement(name)
+            val before = beforeNames.map{ parent.elements(it).first }
+            val node = before.first ?: parent.getFirstChild()
+            println("Inserting new element with name $name before element ${node?.toXmlString()}")
+            val text = doc.createTextNode("\n  ")
+            parent.insertBefore(text, node)
+            parent.insertBefore(newElement, text)
+            newElement
+        } else {
+            elements[0]
+        }
+        element!!.text = content
+    }
+
+    protected fun copyFile(src: File, dest: File, replaceFn: (String) -> String): Unit {
+        if (isSourceFile(src)) {
+            val text = replaceFn(src.readText())
+            dest.writeText(text)
+        } else {
+            println("Not a source dir as the extention is ${src.extension}")
+            src.copyTo(dest)
+        }
     }
 
     /**
