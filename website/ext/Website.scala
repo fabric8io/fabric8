@@ -55,7 +55,7 @@ object Website {
   val project_forums_url= "http://fuse.fusesource.org/community.html"
   val project_wiki_url= "http://wiki.github.com/fusesource/fuse/"
   val project_logo= "/images/project-logo.gif"
-  val project_version= "7.0.0.fuse-061"
+  val project_version= "7.0.1.fuse-084"
   val project_snapshot_version= "99-master-SNAPSHOT"
   val project_versions = List(
         project_version)  
