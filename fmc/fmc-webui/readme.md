@@ -6,7 +6,7 @@ ______ ___  ___ _____
 \_|    \_|  |_/ \____/ 
 ______________________
 
-This is the Fabric  Management Console WAR project, this readme is pretty much for copy/pasting commands.
+This is the Fabric Management Console WAR project, this readme is pretty much for copy/pasting commands.
 
 To watch changes to coffeescript and jade files do:
 
