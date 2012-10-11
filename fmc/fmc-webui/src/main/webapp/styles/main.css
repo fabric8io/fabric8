@@ -459,9 +459,8 @@ table tbody tr.selected:first-child td {
 #productname {
     float: right;
     font-size: 20px;
-    font-weight: bold;
     color: white;
-    padding-top: 9px;
+    padding-top: 14px;
 }
 
 #flash_container {
