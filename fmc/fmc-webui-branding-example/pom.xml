@@ -13,43 +13,25 @@
   ~  implied.  See the License for the specific language governing
   ~  permissions and limitations under the License.
 -->
-
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource</groupId>
-    <artifactId>fuse-project</artifactId>
+    <groupId>org.fusesource.fmc</groupId>
+    <artifactId>fmc-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
-  <groupId>org.fusesource.fmc</groupId>
-  <artifactId>fmc-project</artifactId>
+  <artifactId>fmc-webui-branding-example</artifactId>
+  <name>${project.artifactId}</name>
+  <description>FMC :: Frontend Branding Example</description>
   <packaging>pom</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Management Console :: Project</description>
-
-  <licenses>
-    <license>
-      <name>Fuse Management Console License</name>
-      <url>fmc_license.txt</url>
-      <distribution>repo</distribution>
-      <comments>Fabric license is based on ASL 2.0</comments>
-    </license>
-  </licenses>
-
-  <properties>
-    <fmc-port>8107</fmc-port>
-  </properties>
-
   <modules>
-    <module>fmc-jaas</module>    
-    <module>fmc-branding</module>
-    <module>fmc-webui</module>
-    <module>fmc-webui-branding-example</module>
-    <module>fmc-distro</module>
+    <module>fmc-webui-branding</module>
+    <module>fmc-webui-branding-bundle</module>
   </modules>
+
 
 </project>

@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-Name: FMC :: Example Custom Logo Fragment
+Bundle-SymbolicName: org.fusesource.fmc.fmc-webui-branding-bundle
+Fragment-Host: org.fusesource.fmc.fmc-webui
+Bundle-ManifestVersion: 2
+Bundle-Version: 1.0
+

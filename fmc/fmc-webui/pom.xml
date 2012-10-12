@@ -95,7 +95,7 @@
             <Webapp-Context>/</Webapp-Context>
             <Web-ContextPath>/</Web-ContextPath>
             <Bundle-Activator>org.fusesource.fmc.webui.Activator</Bundle-Activator>
-            <Bundle-ClassPath>.,WEB-INF/classes</Bundle-ClassPath>
+            <Bundle-ClassPath>fmc-webui-branding.jar,.,WEB-INF/classes</Bundle-ClassPath>
             <Bundle-Name>${project.description}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
             <Implementation-Title>FMC Frontend</Implementation-Title>
