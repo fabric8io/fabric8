@@ -209,7 +209,7 @@ define [
     accept: -> "Import"
     header: -> "Import Profile"
     form_enctype: -> "multipart/form-data"
-    form_action: -> "versions/#{@options.model.id}/import"
+    form_action: -> "/rest/versions/#{@options.model.id}/import"
 
     on_accept: (body, options) ->
       @do_hide()
@@ -241,7 +241,7 @@ define [
   class ImportVersionDialog extends ImportProfileDialog
 
     header: -> "Import Version"
-    form_action: -> "versions/import"
+    form_action: -> "/rest/versions/import"
 
     on_accept: (body, options) ->
       @do_hide()
@@ -483,7 +483,7 @@ define [
 
     do_export: ->
       selected = app.session_state.get("selected_version")
-      window.location = "/versions/#{selected.id}/export/#{selected.id}-export.zip"
+      window.location = "/rest/versions/#{selected.id}/export/#{selected.id}-export.zip"
       false
 
     on_render: ->
