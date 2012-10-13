@@ -71,7 +71,7 @@ define [
     if path == "/"
       path=""
     model = new FON.model
-    model.url = "/zookeeper#{path}"
+    model.url = "zookeeper#{path}"
     model.fetch
       success: (model, resp) ->
         app.page new RegistryPage
