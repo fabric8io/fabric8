@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.process</groupId>
+        <groupId>org.fusesource.fabric</groupId>
         <artifactId>process-project</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -61,7 +61,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.fusesource.process</groupId>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>process-launcher</artifactId>
             <version>${project.version}</version>
             <classifier>bin</classifier>
