@@ -26,7 +26,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.process.samples</groupId>
+    <groupId>org.fusesource.fabric.samples</groupId>
     <artifactId>samples</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
