@@ -24,7 +24,7 @@
       <relativePath>..</relativePath>
     </parent>
 
-  <groupId>org.fusesource.common</groupId>
+  <groupId>org.fusesource.fabric</groupId>
   <artifactId>common-util</artifactId>
   <packaging>bundle</packaging>
 

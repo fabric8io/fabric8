@@ -37,7 +37,7 @@
 
   <dependencies>
     <dependency>
-        <groupId>org.fusesource.common</groupId>
+        <groupId>org.fusesource.fabric</groupId>
         <artifactId>common-util</artifactId>
         <version>${project.version}</version>
     </dependency>
