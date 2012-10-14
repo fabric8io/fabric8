@@ -65,7 +65,7 @@
 
         <!-- patch-client -->
         <dependency>
-            <groupId>org.fusesource.fabric.patch</groupId>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>patch-client</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -153,7 +153,7 @@
                                 <descriptor>file:${basedir}/target/classes/features.xml</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
-                                <descriptor>mvn:org.fusesource.fabric.patch/patch-features/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.fusesource.fabric/patch-features/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                             </descriptors>
                             <features>
