@@ -87,7 +87,7 @@
 
     <feature name="process-manager" version="${project.version}" resolver="(obr)">
         <feature>fabric-bundle</feature>
-        <bundle>mvn:org.fusesource.process/process-manager/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/process-manager/${project.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-net/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-lang/${ops4j-base.version}</bundle>
         <bundle>mvn:org.ops4j.base/ops4j-base-monitors/${ops4j-base.version}</bundle>
