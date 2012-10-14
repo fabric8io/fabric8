@@ -19,12 +19,12 @@
 
     <feature name="patch" version="${project.version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
-        <bundle>mvn:org.fusesource.patch/patch-core/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.patch/patch-commands/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric.patch/patch-core/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric.patch/patch-commands/${project.version}</bundle>
     </feature>
 
     <feature name="patch-client" version="${project.version}">
-        <bundle>mvn:org.fusesource.patch/patch-client/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric.patch/patch-client/${project.version}</bundle>
     </feature>
 
 </features>

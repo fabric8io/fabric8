@@ -24,7 +24,7 @@
     <relativePath>..</relativePath>
   </parent>
 
-  <groupId>org.fusesource.patch</groupId>
+  <groupId>org.fusesource.fabric.patch</groupId>
   <artifactId>patch-project</artifactId>
   <packaging>pom</packaging>
   <name>${project.artifactId}</name>
