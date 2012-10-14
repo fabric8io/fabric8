@@ -26,7 +26,7 @@
       <version>99-master-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.fusesource.tooling</groupId>
+  <groupId>org.fusesource.fabric</groupId>
   <artifactId>camel-tooling-util</artifactId>
   <packaging>bundle</packaging>
 

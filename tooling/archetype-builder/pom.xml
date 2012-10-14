@@ -26,6 +26,7 @@
     <version>99-master-SNAPSHOT</version>
   </parent>
 
+  <groupId>org.fusesource.fabric</groupId>
   <artifactId>archetype-builder</artifactId>
 
   <name>${project.artifactId}</name>

@@ -26,7 +26,7 @@
     <version>99-master-SNAPSHOT</version>
   </parent>
 
-  <groupId>org.fusesource.tooling</groupId>
+  <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-fabric-all</artifactId>
   <packaging>bundle</packaging>
 
@@ -76,7 +76,7 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.fusesource.tooling</groupId>
+      <groupId>org.fusesource.fabric</groupId>
       <artifactId>tooling-jclouds-all</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
