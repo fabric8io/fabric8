@@ -838,7 +838,7 @@
                <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.process</groupId>
+                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>process-manager</artifactId>
                 <version>${project.version}</version>
             </dependency>

@@ -33,6 +33,9 @@
 
     <modules>
         <module>camel-drools-example</module>
+<!--
+        <module>camel-jbpm-example</module>
+-->
     </modules>
 
 </project>

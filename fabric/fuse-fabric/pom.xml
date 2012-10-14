@@ -117,7 +117,7 @@
                <artifactId>insight-log-elasticsearch</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.process</groupId>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>process-manager</artifactId>
            </dependency>
            <dependency>
