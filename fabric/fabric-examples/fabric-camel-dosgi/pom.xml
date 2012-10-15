@@ -24,7 +24,7 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>org.fusesource.fabric.fabric-examples</groupId>
+    <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-camel-dosgi</artifactId>
     <description>Fuse Fabric :: Example :: Camel DOSGI</description>
     <packaging>pom</packaging>

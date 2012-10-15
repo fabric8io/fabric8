@@ -20,13 +20,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric.fabric-examples</groupId>
+        <groupId>org.fusesource.examples</groupId>
         <artifactId>fabric-cxf-demo</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>org.fusesource.fabric.fabric-examples</groupId>
+    <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-cxf-demo-server</artifactId>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
@@ -42,7 +42,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric.fabric-examples</groupId>
+            <groupId>org.fusesource.examples</groupId>
             <artifactId>fabric-cxf-demo-client</artifactId>
             <version>${project.version}</version>
         </dependency>

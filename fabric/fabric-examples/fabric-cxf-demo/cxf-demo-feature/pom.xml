@@ -19,14 +19,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.fabric.fabric-examples</groupId>
+        <groupId>org.fusesource.examples</groupId>
         <artifactId>fabric-cxf-demo</artifactId>
         <version>99-master-SNAPSHOT</version>
     </parent>
 
     <name>Fuse Fabric :: Example :: Simple Fabric CXF Demo :: Features</name>
     <packaging>jar</packaging>
-    <groupId>org.fusesource.fabric.fabric-examples</groupId>
+    <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-cxf-demo-features</artifactId>
 
     <build>
