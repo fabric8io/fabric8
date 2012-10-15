@@ -179,7 +179,11 @@
                       tofile="${project.build.directory}/classes/bai-v${bai.schema.version}.xsd"/>
 
                 <copy file="${user.home}/.m2/repository/org/apache/camel/camel-spring/${camel-version}/camel-spring-${camel-version}.xsd"
-                      tofile="${project.build.directory}/classes/camel-spring.xsd"/>
+                      tofile="${project.build.directory}/classes/camel-spring.xsd" failonerror="false"/>
+
+                <!-- or use a system property to find the local mvn repo -->
+                <copy file="${maven.repo.local}/org/apache/camel/camel-spring/${camel-version}/camel-spring-${camel-version}.xsd"
+                      tofile="${project.build.directory}/classes/camel-spring.xsd" failonerror="false"/>
 
                 <!--
                                     <replace file="${project.build.directory}/schema/bai-v${bai.schema.version}.xsd" token="http://fuse.fusesource.org/schema/bai" value="http://fuse.fusesource.org/schema/bai/v${bai.schema.version}" />
