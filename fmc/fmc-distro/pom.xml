@@ -322,29 +322,6 @@
 </plugin>
 
 <plugin>
-  <groupId>org.codehaus.mojo</groupId>
-  <artifactId>build-helper-maven-plugin</artifactId>
-  <executions>
-    <execution>
-      <id>attach-artifacts</id>
-      <phase>package</phase>
-      <goals>
-        <goal>attach-artifact</goal>
-      </goals>
-      <configuration>
-        <artifacts>
-          <artifact>
-            <file>target/classes/features.xml</file>
-            <type>xml</type>
-            <classifier>features</classifier>
-          </artifact>                              
-        </artifacts>
-      </configuration>
-    </execution>
-  </executions>
-</plugin>
-
-<plugin>
  <groupId>org.apache.maven.plugins</groupId>
  <artifactId>maven-dependency-plugin</artifactId>
  <executions>
