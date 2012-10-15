@@ -50,7 +50,8 @@
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>patch-features</artifactId>
                <version>${project.version}</version>
-               <classifier>pom</classifier>
+               <type>xml</type>
+               <classifier>features</classifier>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
