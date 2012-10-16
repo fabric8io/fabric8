@@ -75,6 +75,8 @@
 
         <module>fabric-rest</module>
 
+        <module>fabric-ldap</module>
+
         <module>fuse-fabric</module>
         
         <module>fabric-examples</module>

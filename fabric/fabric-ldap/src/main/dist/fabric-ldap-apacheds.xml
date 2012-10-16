@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<bp:blueprint xmlns="http://apacheds.org/config/1.5.7"
+              xmlns:bp="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+              xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder/>
+
+    <defaultDirectoryService bp:id="directoryService"
+                             instanceId="default"
+                             replicaId="1"
+                             workingDirectory="${karaf.data}/ldap"
+                             allowAnonymousAccess="true"
+                             accessControlEnabled="false"
+                             denormalizeOpAttrsEnabled="false"
+                             syncPeriodMillis="15000"
+                             maxPDUSize="2000000">
+
+        <interceptors>
+            <normalizationInterceptor/>
+            <authenticationInterceptor/>
+            <referralInterceptor/>
+            <aciAuthorizationInterceptor/>
+            <defaultAuthorizationInterceptor/>
+            <exceptionInterceptor/>
+            <operationalAttributeInterceptor/>
+            <schemaInterceptor/>
+            <subentryInterceptor/>
+            <collectiveAttributeInterceptor/>
+            <eventInterceptor/>
+            <triggerInterceptor/>
+        </interceptors>
+
+        <partitions>
+            <jdbmPartition id="fon"
+                           cacheSize="100"
+                           suffix="dc=fon"
+                           optimizerEnabled="true"
+                           syncOnWrite="true"/>
+        </partitions>
+
+        <systemPartition>
+            <jdbmPartition id="system"
+                           cacheSize="100"
+                           suffix="ou=system"
+                           optimizerEnabled="true"
+                           syncOnWrite="true"/>
+        </systemPartition>
+
+    </defaultDirectoryService>
+
+
+    <ldapServer bp:id="ldapServer"
+                allowAnonymousAccess="false"
+                searchBaseDn="ou=users,ou=system"
+                maxTimeLimit="15000"
+                maxSizeLimit="1000"
+                directoryService="#directoryService">
+
+        <extendedOperationHandlers>
+            <startTlsHandler/>
+            <gracefulShutdownHandler/>
+            <launchDiagnosticUiHandler/>
+        </extendedOperationHandlers>
+
+        <transports>
+            <tcpTransport address="0.0.0.0"
+                          port="10389"
+                          nbThreads="8"
+                          backLog="50"
+                          enableSSL="false"/>
+        </transports>
+
+    </ldapServer>
+
+    <apacheDS bp:id="apacheDS"
+              ldapServer="#ldapServer"
+              ldifDirectory="${karaf.data}/ldap/default"/>
+
+</bp:blueprint>

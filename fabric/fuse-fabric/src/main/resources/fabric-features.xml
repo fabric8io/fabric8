@@ -470,4 +470,23 @@
         <bundle>mvn:org.fusesource.fmc/fmc-webui/${project.version}/war</bundle>
     </feature>
 
+    <feature name="fabric-ldap-apacheds" version="${project.version}" resolver="(obr)">
+        <configfile finalname="/data/ldap/default/fabric.ldif">mvn:org.fusesource.fabric/fabric-ldap/${project.version}/ldif/default</configfile>
+        <configfile finalname="/etc/fabric-ldap-apacheds-${project.version}.xml">mvn:org.fusesource.fabric/fabric-ldap/${project.version}/xml/apacheds</configfile>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.bcprov-jdk16/1.46_3</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr/2.7.7_3</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-lang/2.4_4</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-collections/3.2.1_1</bundle>
+        <bundle>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.scripting-api-1.0/2.1.0</bundle>
+        <bundle>mvn:org.apache.commons/commons-jexl/2.0.1</bundle>
+        <bundle>mvn:org.apache.xbean/xbean-blueprint/3.12</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-ldap/${project.version}</bundle>
+        <bundle>blueprint:file:etc/fabric-ldap-apacheds-${project.version}.xml</bundle>
+    </feature>
+
+    <feature name="fabric-ldap-jaas" version="${project.version}" resolver="(obr)">
+        <configfile finalname="/etc/fabric-ldap-jaas-${project.version}.xml">mvn:org.fusesource.fabric/fabric-ldap/${project.version}/xml/jaas</configfile>
+        <bundle>blueprint:file:etc/fabric-ldap-jaas-${project.version}.xml</bundle>
+    </feature>
+
 </features>
