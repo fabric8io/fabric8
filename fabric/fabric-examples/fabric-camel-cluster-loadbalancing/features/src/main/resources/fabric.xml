@@ -31,6 +31,6 @@
 
     <feature name="camel-server" version="${pom.version}">
         <feature>fusesource-fabric-camel</feature>
-        <bundle>mvn:org.fusesource.fabric.fabric-examples.fabric-camel-cluster/camel-server/${pom.version}</bundle>
+        <bundle>mvn:org.fusesource.examples.fabric-camel-cluster/camel-server/${pom.version}</bundle>
     </feature>
 </features>

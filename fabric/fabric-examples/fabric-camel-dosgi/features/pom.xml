@@ -26,7 +26,7 @@
 
     <name>Fuse Fabric :: Example :: Camel DOSGI :: Features</name>
     <packaging>jar</packaging>
-    <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+    <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
     <artifactId>features</artifactId>
 
     <build>

@@ -24,13 +24,13 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>Fuse Fabric :: Example :: Camel DOSGI :: Distributed Service</name>
-    <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+    <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
     <artifactId>dosgi-service</artifactId>
     <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
             <artifactId>service</artifactId>
             <version>${project.version}</version>
         </dependency>

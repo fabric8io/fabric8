@@ -25,12 +25,12 @@
 
     <name>Fuse Fabric :: Example :: Camel DOSGI :: Route</name>
     <packaging>bundle</packaging>
-    <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+    <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
     <artifactId>camel-route</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-dosgi</groupId>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
             <artifactId>service</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -27,7 +27,7 @@
 
     <name>Fuse Fabric :: Example :: Cluster with Fabric Camel :: Features</name>
     <packaging>jar</packaging>
-    <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-cluster</groupId>
+    <groupId>org.fusesource.examples.fabric-camel-cluster</groupId>
     <artifactId>features</artifactId>
 
     <build>

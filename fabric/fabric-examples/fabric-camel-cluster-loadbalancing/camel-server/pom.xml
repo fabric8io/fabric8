@@ -26,7 +26,7 @@
 
     <name>Fuse Fabric :: Example :: Cluster with Fabric Camel :: Server</name>
     <packaging>bundle</packaging>
-    <groupId>org.fusesource.fabric.fabric-examples.fabric-camel-cluster</groupId>
+    <groupId>org.fusesource.examples.fabric-camel-cluster</groupId>
     <artifactId>camel-server</artifactId>
 
     <dependencies>
