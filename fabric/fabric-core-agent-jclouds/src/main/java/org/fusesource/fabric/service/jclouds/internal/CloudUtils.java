@@ -67,22 +67,22 @@ public class CloudUtils {
         return providerOptions;
     }
 
-    public static void registerProvider(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String id, final String provider, final String identity, final String credential, final Map<String, String> props) throws Exception {
+    public static void registerProvider(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String name, final String provider, final String identity, final String credential, final Map<String, String> props) throws Exception {
         Runnable registrationTask = new Runnable() {
             @Override
             public void run() {
                 try {
-                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute",id, provider, null);
+                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute",name, provider, null);
                     if (configuration != null) {
                         Dictionary dictionary = configuration.getProperties();
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
-                        dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+id.replaceAll("-", ""));
-                        dictionary.put(Constants.JCLOUDS_SERVICE_ID, id);
-                        dictionary.put(ServiceFactorySupport.PROVIDER, provider);
-                        dictionary.put(ServiceFactorySupport.CREDENTIAL, credential);
-                        dictionary.put(ServiceFactorySupport.IDENTITY, identity);
+                        //dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+id.replaceAll("-", ""));
+                        dictionary.put(Constants.NAME, name);
+                        dictionary.put(Constants.PROVIDER, provider);
+                        dictionary.put(Constants.CREDENTIAL, credential);
+                        dictionary.put(Constants.IDENTITY, identity);
                         dictionary.put("credential-store", "zookeeper");
                         //This is set to workaround race conditions with ssh pk copies.
                         //Required workaround for some images (e.g. Red Hat) on Amazon EC2.
@@ -100,13 +100,13 @@ public class CloudUtils {
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {
-                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(id)) == null) {
-                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(id));
+                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
                             for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
-                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(id, key), value);
+                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                             }
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
@@ -121,23 +121,23 @@ public class CloudUtils {
     }
 
 
-    public static void registerApi(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String id, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
+    public static void registerApi(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String name, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
         Runnable registrationTask = new Runnable() {
             @Override
             public void run() {
                 try {
-                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", id, null, api);
+                    Configuration configuration = findOrCreateFactoryConfiguration(configurationAdmin, "org.jclouds.compute", name, null, api);
                     if (configuration != null) {
                         Dictionary dictionary = configuration.getProperties();
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
                         //dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-" + id.replaceAll("-", ""));
-                        dictionary.put(Constants.JCLOUDS_SERVICE_ID, id);
-                        dictionary.put(ServiceFactorySupport.API, api);
-                        dictionary.put(ServiceFactorySupport.ENDPOINT, endpoint);
-                        dictionary.put(ServiceFactorySupport.CREDENTIAL, credential);
-                        dictionary.put(ServiceFactorySupport.IDENTITY, identity);
+                        dictionary.put(Constants.NAME, name);
+                        dictionary.put(Constants.API, api);
+                        dictionary.put(Constants.ENDPOINT, endpoint);
+                        dictionary.put(Constants.CREDENTIAL, credential);
+                        dictionary.put(Constants.IDENTITY, identity);
                         dictionary.put("credential-store", "zookeeper");
                         //This is set to workaround race conditions with ssh pk copies.
                         //Required workaround for some images (e.g. Red Hat) on Amazon EC2.
@@ -155,13 +155,13 @@ public class CloudUtils {
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {
-                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(id)) == null) {
-                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(id));
+                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
                             for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
-                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(id,key), value);
+                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name,key), value);
                             }
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
@@ -179,12 +179,12 @@ public class CloudUtils {
      * Search the configuration admin for the specified factoryPid that refers to the provider.
      *
      * @param factoryPid
-     * @param id
+     * @param name
      * @param provider
      * @return
      * @throws java.io.IOException
      */
-    private static Configuration findOrCreateFactoryConfiguration(ConfigurationAdmin configurationAdmin, String factoryPid, String id, String provider, String api) throws IOException {
+    private static Configuration findOrCreateFactoryConfiguration(ConfigurationAdmin configurationAdmin, String factoryPid, String name, String provider, String api) throws IOException {
         Configuration configuration = null;
         if (configurationAdmin != null) {
             try {
@@ -193,8 +193,8 @@ public class CloudUtils {
                     for (Configuration conf : configurations) {
                         Dictionary dictionary = conf.getProperties();
                         //If id has been specified only try to match by id, ignore the rest.
-                        if (dictionary != null && id != null) {
-                            if (id.equals(dictionary.get(Constants.JCLOUDS_SERVICE_ID))) {
+                        if (dictionary != null && name != null) {
+                            if (name.equals(dictionary.get(Constants.NAME))) {
                                 return conf;
                             }
                         } else {
@@ -219,14 +219,14 @@ public class CloudUtils {
     /**
      * Returns the compute service when it becomes registered to the OSGi service registry.
      *
-     * @param id
+     * @param name
      * @return
      */
-    public static synchronized ComputeService waitForComputeService(BundleContext bundleContext, String id) {
+    public static synchronized ComputeService waitForComputeService(BundleContext bundleContext, String name) {
         ComputeService computeService = null;
         try {
             for (int r = 0; r < 6; r++) {
-                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "("+Constants.JCLOUDS_SERVICE_ID+"=" + id + ")");
+                ServiceReference[] references = bundleContext.getAllServiceReferences(ComputeService.class.getName(), "("+Constants.NAME+"=" + name + ")");
                 if (references != null && references.length > 0) {
                     computeService = (ComputeService) bundleContext.getService(references[0]);
                     return computeService;

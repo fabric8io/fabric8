@@ -28,8 +28,8 @@ import org.jclouds.karaf.utils.EnvHelper;
 @Command(name = "cloud-provider-add", scope = "fabric", description = "Registers a cloud provider with the fabric.")
 public class CloudProviderAdd extends FabricCommand {
 
-    @Option(name = "--service-id", required = false, description = "The service id. Used to distinct between multiple service of the same provider/api. Only ")
-    protected String serviceId;
+    @Option(name = "--name", required = false, description = "The service id. Used to distinct between multiple service of the same provider/api. Only ")
+    protected String contextName;
 
     @Option(name = "--provider", required = false, description = "The cloud provider name. Example: aws-ec2.")
     private String provider;
@@ -64,10 +64,10 @@ public class CloudProviderAdd extends FabricCommand {
         String identityValue = EnvHelper.getComputeIdentity(identity);
         String credentialValue = EnvHelper.getComputeCredential(credential);
 
-        if (serviceId == null && providerValue != null) {
-            serviceId = providerValue;
-        } else if (serviceId == null && apiValue != null) {
-            serviceId = apiValue;
+        if (contextName == null && providerValue != null) {
+            contextName = providerValue;
+        } else if (contextName == null && apiValue != null) {
+            contextName = apiValue;
         }
 
         Map<String, String> props = CloudUtils.parseProviderOptions(options);
@@ -99,28 +99,28 @@ public class CloudProviderAdd extends FabricCommand {
         // Only Provider is specified.
         else if (!Strings.isNullOrEmpty(providerValue) && (Strings.isNullOrEmpty(apiValue) || Strings.isNullOrEmpty(endpointValue))) {
             serviceName = providerValue;
-            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, serviceId, providerValue, identityValue, credentialValue, props);
+            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
         }
         //Only Api specified
         else if (Strings.isNullOrEmpty(providerValue) && (!Strings.isNullOrEmpty(apiValue) && !Strings.isNullOrEmpty(endpointValue))) {
             serviceName = apiValue;
-            CloudUtils.registerApi(getZooKeeper(), configurationAdmin, serviceId, apiValue, endpointValue, identityValue, credentialValue, props);
+            CloudUtils.registerApi(getZooKeeper(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
         }
         //Both are specified but Api is passed as an option, so it gains priority.
         else if (Strings.isNullOrEmpty(api)) {
             serviceName = apiValue;
-            CloudUtils.registerApi(getZooKeeper(), configurationAdmin, serviceId, apiValue, endpointValue, identityValue, credentialValue, props);
+            CloudUtils.registerApi(getZooKeeper(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
         }
         //In all other cases we assume the user wants to use a provider.
         else {
             serviceName = providerValue;
-            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, serviceId, providerValue, identityValue, credentialValue, props);
+            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
         }
 
 
         if (!registerAsync) {
             System.out.println("Waiting for " + serviceName + " service to initialize.");
-            CloudUtils.waitForComputeService(bundleContext, serviceId);
+            CloudUtils.waitForComputeService(bundleContext, contextName);
         }
         return null;
     }

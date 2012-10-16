@@ -169,6 +169,7 @@ public class ContainerProviderUtils {
             }
         }
         if (options instanceof CreateJCloudsContainerOptions) {
+
             sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
         }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {

@@ -55,7 +55,6 @@ import org.jclouds.compute.domain.TemplateBuilder;
 import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.LoginCredentials;
-import org.jclouds.karaf.core.Constants;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -88,16 +87,16 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public synchronized void bind(ComputeService computeService) {
         if (computeService != null) {
-            String serviceId = (String) computeService.getContext().unwrap().getProviderMetadata().getDefaultProperties().get(Constants.JCLOUDS_SERVICE_ID);
-            if (serviceId != null) {
-                computeServiceMap.put(serviceId, computeService);
+            String name = (String) computeService.getContext().unwrap().getName();
+            if (name != null) {
+                computeServiceMap.put(name, computeService);
             }
         }
     }
 
     public void unbind(ComputeService computeService) {
         if (computeService != null) {
-            String serviceId = (String) computeService.getContext().unwrap().getProviderMetadata().getDefaultProperties().get(Constants.JCLOUDS_SERVICE_ID);
+            String serviceId = (String) computeService.getContext().unwrap().getName();
             if (serviceId != null) {
                 computeServiceMap.remove(serviceId);
             }
@@ -120,26 +119,38 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             options.getCreationStateListener().onStateChange("Looking up for compute service.");
             ComputeService computeService = getOrCreateComputeService(options);
 
+            if (Strings.isNullOrEmpty(options.getProviderName())) {
+                options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
+            }
+
             if (computeService == null) {
                 throw new IllegalStateException("Compute service could not be found or created.");
             }
 
             TemplateBuilder builder = computeService.templateBuilder();
             builder.any();
-            switch (options.getInstanceType()) {
-                case Smallest:
-                    builder.smallest();
-                    break;
-                case Biggest:
-                    builder.biggest();
-                    break;
-                case Fastest:
-                    builder.fastest();
-                    break;
-                default:
-                    builder.fastest();
-            }
 
+            //If no options about hardware has been specified ...
+            if (options.getInstanceType() == null && Strings.isNullOrEmpty(options.getHardwareId())) {
+                builder.minRam(1024);
+            } else if (!Strings.isNullOrEmpty(options.getHardwareId())) {
+                builder.hardwareId(options.getHardwareId());
+            }
+            else if (options.getInstanceType() != null) {
+                switch (options.getInstanceType()) {
+                    case Smallest:
+                        builder.smallest();
+                        break;
+                    case Biggest:
+                        builder.biggest();
+                        break;
+                    case Fastest:
+                        builder.fastest();
+                        break;
+                    default:
+                        builder.fastest();
+                }
+            }
             StringBuilder overviewBuilder = new StringBuilder();
 
             overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", options.getNumber()));
@@ -168,10 +179,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (!Strings.isNullOrEmpty(options.getLocationId())) {
                 overviewBuilder.append(" On location: ").append(options.getLocationId()).append(".");
                 builder.locationId(options.getLocationId());
-            }
-
-            if (!Strings.isNullOrEmpty(options.getHardwareId())) {
-                builder.hardwareId(options.getHardwareId());
             }
 
             AdminAccess.Builder adminAccess = AdminAccess.builder();
@@ -390,8 +397,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (object instanceof ComputeService) {
                 computeService = (ComputeService) object;
             }
-            if (computeService == null && options.getServiceId() != null) {
-                computeService = computeServiceMap.get(options.getServiceId());
+            if (computeService == null && options.getContextName() != null) {
+                computeService = computeServiceMap.get(options.getContextName());
             }
             if (computeService == null) {
                 options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
@@ -403,15 +410,24 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 Map<String, String> serviceOptions = options.getServiceOptions();
                 try {
                     if (options.getProviderName() != null) {
-                        CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getServiceId(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
                     } else if (options.getApiName() != null) {
-                        CloudUtils.registerApi(zooKeeper, configurationAdmin, options.getServiceId(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerApi(zooKeeper, configurationAdmin, options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
                     }
-                    computeService = CloudUtils.waitForComputeService(bundleContext, options.getServiceId());
+                    computeService = CloudUtils.waitForComputeService(bundleContext, options.getContextName());
                 } catch (Exception e) {
                     LOGGER.warn("Did not manage to register compute cloud provider.");
-                    return computeService;
                 }
+            }
+        }
+
+        //If a service has been found, make sure that the options are updated with provider id and api id.
+        if (computeService != null) {
+            if (Strings.isNullOrEmpty(options.getProviderName())) {
+                options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
+            }
+            if (Strings.isNullOrEmpty(options.getApiName())) {
+                options.setApiName(computeService.getContext().unwrap().getProviderMetadata().getApiMetadata().getId());
             }
         }
         return computeService;

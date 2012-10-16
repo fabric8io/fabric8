@@ -2,18 +2,18 @@ function configure_hostnames() {
   CLOUD_PROVIDER=$1
   case $CLOUD_PROVIDER in
     aws-ec2 )
-      echo "Resovling public hostname for ec2 node"
-      PUBLIC_HOSTNAME=`curl http://169.254.169.254/latest/meta-data/public-hostname`
-      echo $HOSTNAME
+      echo "Resolving public hostname for ec2 node"
+      export PUBLIC_HOSTNAME=`curl http://169.254.169.254/latest/meta-data/public-hostname | sed 's/ /_/g'`
+      echo PUBLIC_HOSTNAME
     ;;
     cloudservers | cloudservers-uk | cloudservers-us )
       echo "Resovling public hostname for rackspace node"
       PRIVATE_IP=`/sbin/ifconfig eth0 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'`
-      PUBLIC_HOSTNAME=`echo $PRIVATE_IP | tr . -`.static.cloud-ips.com
+      export PUBLIC_HOSTNAME=`echo $PRIVATE_IP | tr . -`.static.cloud-ips.com
     ;;
   esac
-   if [ ! -z "PUBLIC_HOSTNAME" ]; then
-        LOOKUP_ADDRESS=`nslookup $PUBLIC_HOSTNAME > /dev/null | grep Address | tail -n 1 | cut -d " " -f 3`
+   if [ ! -z ${PUBLIC_HOSTNAME} ]; then
+        LOOKUP_ADDRESS=`nslookup $PUBLIC_HOSTNAME > /dev/null | grep Address | tail -n 1 | cut -d " " -f 3 | sed 's/ /_/g'`
         echo "Found hostname: $PUBLIC_HOSTNAME matching with address: $LOOKUP_ADDRESS"
         echo "publichostname=$PUBLIC_HOSTNAME" >> etc/system.properties
         cat etc/system.properties | grep -v 'local.resolver=' | grep -v 'global.resolver=' > etc/system.properties.tmp

@@ -6,7 +6,7 @@ function validate_requirements() {
       echo "Command Failed:Java is not installed.";
       exit -1;
   else
-    check-java-version
+    check_java_version
   fi
   if ! which tar &> /dev/null; then
         echo "Command Failed:Tar is not installed.";

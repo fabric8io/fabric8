@@ -61,15 +61,15 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
             <optional-completers>
-                <entry key="--service-id" value-ref="computeServiceIdCompleter"/>
+                <entry key="--name" value-ref="computeServiceIdCompleter"/>
                 <entry key="--provider" value-ref="computeProviderCompleter"/>
                 <entry key="--api" value-ref="computeApiCompleter"/>
-                <entry key="--image" value-ref="imageCompleter"/>
-                <entry key="--location" value-ref="locationCompleter"/>
+                <entry key="--imageId" value-ref="imageCompleter"/>
+                <entry key="--locationId" value-ref="locationCompleter"/>
                 <entry key="--group" value-ref="groupCompleter"/>
                 <entry key="--profile" value-ref="profileCompleter"/>
                 <entry key="--version" value-ref="versionCompleter"/>
-                <entry key="--hardware" value-ref="hadrwareCompleter"/>
+                <entry key="--hardwareId" value-ref="hadrwareCompleter"/>
                 <entry key="--resolver" value-ref="resolverCompleter"/>
                 <entry key="--os-family" value-ref="osFamilyCompleter"/>
             </optional-completers>

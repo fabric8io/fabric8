@@ -137,8 +137,8 @@
         <jasypt-version>1.7</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
-        <jclouds-version>1.5.0</jclouds-version>
-        <jclouds-karaf-version>1.5.0</jclouds-karaf-version>
+        <jclouds-version>1.5.2</jclouds-version>
+        <jclouds-karaf-version>1.5.2</jclouds-karaf-version>
         <jclouds.osgi.version.clean>${jclouds-version}</jclouds.osgi.version.clean>
         <jersey-version>1.12</jersey-version>
         <jetty6-version>6.1.26_4</jetty6-version>

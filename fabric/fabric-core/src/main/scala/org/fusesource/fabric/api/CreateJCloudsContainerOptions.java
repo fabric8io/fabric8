@@ -33,7 +33,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String group;
     private String user;
     private String password;
-    private String serviceId;
+    private String contextName;
     private String providerName;
     private String apiName;
     private String endpoint;
@@ -105,8 +105,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return this;
     }
 
-    public CreateJCloudsContainerOptions serviceId(final String serviceId) {
-        this.serviceId = serviceId;
+    public CreateJCloudsContainerOptions contextName(final String contextName) {
+        this.contextName = contextName;
         return this;
     }
     public CreateJCloudsContainerOptions providerName(final String providerName) {
@@ -234,12 +234,12 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.password = password;
     }
 
-    public String getServiceId() {
-        return serviceId;
+    public String getContextName() {
+        return contextName;
     }
 
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
+    public void setContextName(String contextName) {
+        this.contextName = contextName;
     }
 
     public String getProviderName() {

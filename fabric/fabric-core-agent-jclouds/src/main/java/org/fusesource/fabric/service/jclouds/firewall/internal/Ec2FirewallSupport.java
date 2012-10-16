@@ -25,7 +25,6 @@ import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.domain.IpPermission;
-import org.jclouds.ec2.domain.IpPermissionImpl;
 import org.jclouds.ec2.domain.IpProtocol;
 import org.jclouds.ec2.domain.SecurityGroup;
 
@@ -107,7 +106,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
             EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
-            String groupName = "jclouds#" + node.getGroup() + "#" + region;
+            String groupName = "jclouds#" + node.getGroup();
             for (int port : ports) {
                 try {
                     ec2Client.getSecurityGroupServices()
@@ -153,7 +152,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
             Set<SecurityGroup> matchedSecurityGroups = ec2Client.getSecurityGroupServices().describeSecurityGroupsInRegion(region, groupName);
             for (SecurityGroup securityGroup : matchedSecurityGroups) {
-                for (IpPermissionImpl ipPermission : securityGroup.getIpPermissions()) {
+                for (IpPermission ipPermission : securityGroup) {
                     for (String cdr : ipPermission.getIpRanges()) {
                         ec2Client.getSecurityGroupServices().revokeSecurityGroupIngressInRegion(region, groupName,
                                 IpProtocol.TCP, ipPermission.getFromPort(), ipPermission.getToPort(),

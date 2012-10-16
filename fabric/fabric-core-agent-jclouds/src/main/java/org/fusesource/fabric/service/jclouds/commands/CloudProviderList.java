@@ -78,11 +78,11 @@ public class CloudProviderList extends FabricCommand {
 
             for (ComputeService computeService : computeServices) {
                 if (computeService.getContext().unwrap().getId().equals(providerOrApi)) {
-                    String serviceId = (String) computeService.getContext().unwrap().getProviderMetadata().getDefaultProperties().get(Constants.JCLOUDS_SERVICE_ID);
+                    String name = (String) computeService.getContext().unwrap().getName();
                     if (getZooKeeper() != null && getZooKeeper().isConnected()) {
-                         fabricServices.append(serviceId).append(" ");
+                         fabricServices.append(name).append(" ");
                     } else {
-                        localServices.append(serviceId).append(" ");
+                        localServices.append(name).append(" ");
                     }
 
                 }

@@ -33,8 +33,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     static final String DISPLAY_FORMAT = "%22s %-30s %-30s %-30s ";
     static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]", "[status]"};
 
-    @Option(name = "--service-id", required = true, description = "The service id. Used to distinct between multiple service of the same provider/api. Only ")
-    protected String serviceId;
+    @Option(name = "--name", required = true, description = "The context name. Used to distinct between multiple services of the same provider/api.")
+    protected String contextName;
     @Option(name = "--provider", required = false, description = "The cloud provider name")
     private String providerName;
     @Option(name = "--api", required = false, description = "The cloud api name")
@@ -47,13 +47,13 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String identity;
     @Option(name = "--credential", required = false, description = "The credential used The identity used to access the cloud provider")
     private String credential;
-    @Option(name = "--hardware", required = false, description = "The kind of hardware to use")
+    @Option(name = "--hardwareId", required = false, description = "The kind of hardware to use")
     private String hardwareId;
     @Option(name = "--instanceType", required = false, description = "The kind of instance required")
-    private JCloudsInstanceType instanceType = JCloudsInstanceType.Smallest;
-    @Option(name = "--image", required = false, description = "The image ID to use for the new node(s)")
+    private JCloudsInstanceType instanceType;
+    @Option(name = "--imageId", required = false, description = "The image ID to use for the new node(s)")
     private String imageId;
-    @Option(name = "--location", required = false, description = "The location to use to create the new node(s)")
+    @Option(name = "--locationId", required = false, description = "The location to use to create the new node(s)")
     private String locationId;
     @Option(name = "--user", required = false, description = "The user account to use on the new node(s)")
     private String user;
@@ -65,7 +65,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private String publicKeyFile;
     @Option(name = "--owner", description = "Optional owner of images; only really used for EC2 and deprecated going forward")
     private String owner;
-    @Option(name = "--option", required = false, multiValued = true, description = "Node specific properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
+    @Option(name = "--add-option", required = false, multiValued = true, description = "Node specific properties. These options are provider specific. Example: --option withSubnetId=someAwsSubnetId.")
     private String[] options;
     @Option(name = "--group", description = "The group tag to use on the new node(s)")
     private String group = "fabric";
@@ -106,7 +106,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .owner(owner)
         .adminAccess(!disableAdminAccess)
         .publicKeyFile(publicKeyFile)
-        .serviceId(serviceId)
+        .contextName(contextName)
         .providerName(providerName)
         .apiName(apiName)
         .user(user).password(password)

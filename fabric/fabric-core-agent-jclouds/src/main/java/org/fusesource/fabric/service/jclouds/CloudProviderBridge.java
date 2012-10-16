@@ -68,18 +68,18 @@ public class CloudProviderBridge implements LifecycleListener {
                 for (Configuration configuration : configurations) {
                     Dictionary properties = configuration.getProperties();
                     if (properties != null) {
-                        String id = String.valueOf(properties.get(Constants.JCLOUDS_SERVICE_ID));
+                        String name = String.valueOf(properties.get(Constants.NAME));
                         String identity = String.valueOf(properties.get("identity"));
                         String credential = String.valueOf(properties.get("credential"));
-                        if (id != null && identity != null && credential != null && getZooKeeper().isConnected()) {
-                            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(id)) == null) {
-                                ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(id));
+                        if (name != null && identity != null && credential != null && getZooKeeper().isConnected()) {
+                            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
 
                                 Enumeration keys = properties.keys();
                                 while (keys.hasMoreElements()) {
                                     String key = String.valueOf(keys.nextElement());
                                     String value = String.valueOf(properties.get(key));
-                                    ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(id,key), value);
+                                    ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name,key), value);
                                 }
                             }
                         }
