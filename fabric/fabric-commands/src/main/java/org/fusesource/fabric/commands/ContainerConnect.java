@@ -30,9 +30,6 @@ public class ContainerConnect extends FabricCommand {
     @Option(name="-u", aliases={"--username"}, description="Remote user name (Default: admin)", required = false, multiValued = false)
     private String username = "admin";
 
-    @Option(name="-p", aliases={"--password"}, description="Remote user password (Default: admin)", required = false, multiValued = false)
-    private String password = "admin";
-
     @Argument(index = 0, name="container", description="The container name", required = true, multiValued = false)
     private String container = null;
 
@@ -63,7 +60,7 @@ public class ContainerConnect extends FabricCommand {
         if (ssh.length < 2) {
             throw new IllegalArgumentException("Container " + container + " has an invalid SSH URL '" + sshUrl + "'");
         }
-        session.execute("ssh -l " + username + " -P " + password + " -p " + ssh[1] + " " + ssh[0] + " " + cmdStr);
+        session.execute("ssh -l " + username + " -p " + ssh[1] + " " + ssh[0] + " " + cmdStr);
         return null;
     }
 
