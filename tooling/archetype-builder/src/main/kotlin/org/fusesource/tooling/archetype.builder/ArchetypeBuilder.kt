@@ -312,7 +312,9 @@ public open class ArchetypeBuilder() {
     <fileSet filtered="true" encoding="UTF-8">
       <directory>src/main/resources</directory>
       <includes>
+        <include>**/*.bpm*</include>
         <include>**/*.drl</include>
+        <include>**/*.wsdl</include>
         <include>**/*.xml</include>
         <include>**/*.properties</include>
       </includes>
