@@ -32,6 +32,8 @@
     <name>FuseSource :: Tooling :: Examples</name>
 
     <modules>
+        <module>camel-cxf-code-first</module>
+        <module>camel-cxf-contract-first</module>
         <module>camel-drools-example</module>
 <!--
         <module>camel-jbpm-example</module>
