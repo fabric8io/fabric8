@@ -32,6 +32,8 @@
     <name>FuseSource :: Tooling :: Archetypes</name>
 
     <modules>
+      <module>camel-cxf-code-first</module>
+      <module>camel-cxf-contract-first</module>
       <module>camel-drools-archetype</module>
     </modules>
 

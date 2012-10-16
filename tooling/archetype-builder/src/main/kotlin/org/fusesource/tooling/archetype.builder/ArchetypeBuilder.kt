@@ -162,6 +162,7 @@ public open class ArchetypeBuilder() {
             replaceOrAddElementText(doc, root, "artifactId", "\${artifactId}", beforeNames)
             replaceOrAddElementText(doc, root, "groupId", "\${groupId}", beforeNames)
         }
+        outFile.getParentFile()?.mkdirs()
         doc.writeXmlString(FileWriter(outFile), true)
 
         // lets update the archetype-metadata.xml file

@@ -157,9 +157,11 @@
         <log4j-version>1.2.16</log4j-version>
         <logback-version>1.0.0</logback-version>
         <maven-assembly-plugin-version>2.2.2</maven-assembly-plugin-version>
+        <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
         <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
         <maven-jar-plugin-version>2.4</maven-jar-plugin-version>
+        <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
         <mina-version>2.0.4</mina-version>
         <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
         <mvnplugins-version>1.14</mvnplugins-version>
@@ -409,7 +411,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
+                <version>${maven-compiler-plugin-version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
