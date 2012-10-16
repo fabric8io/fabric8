@@ -9,9 +9,9 @@
     <version>99-master-SNAPSHOT</version>
   </parent>
 
-  <artifactId>camel-cxf-contract-first</artifactId>
-  <name>Camel CXF Contract First Example</name>
-  <description>Creates a web service using the WSDL contract first</description>
+  <artifactId>camel-cxf-code-first-example</artifactId>
+  <name>Camel CXF Code First Example</name>
+  <description>Creates a web service using Java code first</description>
 
   <repositories>
     <repository>
@@ -77,7 +77,6 @@
     </pluginRepository>
   </pluginRepositories>
 
-
   <dependencies>
 
     <dependency>
@@ -134,33 +133,6 @@
 
   <build>
     <plugins>
-
-      <plugin>
-        <groupId>org.apache.cxf</groupId>
-        <artifactId>cxf-codegen-plugin</artifactId>
-        <version>${cxf-version}</version>
-        <executions>
-          <execution>
-            <id>generate-sources</id>
-            <phase>generate-sources</phase>
-            <configuration>
-              <sourceRoot>${basedir}/target/generated/src/main/java</sourceRoot>
-              <wsdlOptions>
-                <wsdlOption>
-                  <wsdl>${basedir}/src/main/resources/wsdl/order.wsdl</wsdl>
-                  <extraargs>
-                    <extraarg>-impl</extraarg>
-                  </extraargs>
-                </wsdlOption>
-              </wsdlOptions>
-            </configuration>
-            <goals>
-              <goal>wsdl2java</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -185,6 +157,5 @@
       </plugin>
     </plugins>
   </build>
-
 </project>
 
