@@ -20,7 +20,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>org.fusesource.patch</groupId>
     <artifactId>patch-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
@@ -45,7 +45,7 @@
   <dependencies>
 
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
+          <groupId>org.fusesource.patch</groupId>
           <artifactId>patch-core</artifactId>
       </dependency>
 
