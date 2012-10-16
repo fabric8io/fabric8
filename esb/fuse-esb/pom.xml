@@ -65,7 +65,7 @@
 
         <!-- patch-client -->
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
+            <groupId>org.fusesource.patch</groupId>
             <artifactId>patch-client</artifactId>
             <version>${project.version}</version>
         </dependency>

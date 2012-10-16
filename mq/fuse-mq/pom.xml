@@ -42,21 +42,21 @@
                <version>${project.version}</version>
            </dependency>
          <dependency>
-             <groupId>org.fusesource.fabric</groupId>
+             <groupId>org.fusesource.patch</groupId>
              <artifactId>patch-client</artifactId>
              <version>${project.version}</version>
+         </dependency>
+         <dependency>
+             <groupId>org.fusesource.patch</groupId>
+             <artifactId>patch-features</artifactId>
+             <version>${project.version}</version>
+             <type>xml</type>
+             <classifier>features</classifier>
          </dependency>
            <dependency>
                <groupId>org.fusesource.mq</groupId>
                <artifactId>mq-client</artifactId>
                <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>patch-features</artifactId>
-               <version>${project.version}</version>
-               <type>xml</type>
-               <classifier>features</classifier>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
