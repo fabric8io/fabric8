@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A {@link LifecycleListener} that makes sure that whenever it connect to a new ensemble, it updates it with the cloud
- * provider information that are present in the {@link ConfigurationAdmin}.
+ * provider information that are present in the {
+ * @link ConfigurationAdmin}.
  *
  * A typical use case is when creating a cloud ensemble and join it afterwards to update it after the join, with the
  * cloud provider information, so that the provider doesn't have to be registered twice.
@@ -52,8 +53,8 @@ public class CloudProviderBridge implements LifecycleListener {
 
     @Override
     public void onConnected() {
-       registerProviders(COMPUTE_FILTER);
-       registerProviders(BLOBSTORE_FILTER);
+       registerServices(COMPUTE_FILTER);
+       registerServices(BLOBSTORE_FILTER);
     }
 
     @Override
@@ -61,16 +62,16 @@ public class CloudProviderBridge implements LifecycleListener {
 
     }
 
-    public void registerProviders(String filter) {
+    public void registerServices(String filter) {
         try {
             Configuration[] configurations = configurationAdmin.listConfigurations(filter);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
                     Dictionary properties = configuration.getProperties();
                     if (properties != null) {
-                        String name = String.valueOf(properties.get(Constants.NAME));
-                        String identity = String.valueOf(properties.get("identity"));
-                        String credential = String.valueOf(properties.get("credential"));
+                        String name = properties.get(Constants.NAME) != null ? String.valueOf(properties.get(Constants.NAME)) : null;
+                        String identity = properties.get(Constants.IDENTITY) != null ? String.valueOf(properties.get(Constants.IDENTITY)) : null;
+                        String credential = properties.get(Constants.CREDENTIAL) != null ? String.valueOf(properties.get(Constants.CREDENTIAL)) : null;
                         if (name != null && identity != null && credential != null && getZooKeeper().isConnected()) {
                             if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
                                 ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
@@ -79,7 +80,9 @@ public class CloudProviderBridge implements LifecycleListener {
                                 while (keys.hasMoreElements()) {
                                     String key = String.valueOf(keys.nextElement());
                                     String value = String.valueOf(properties.get(key));
-                                    ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name,key), value);
+                                    if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
+                                        ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                    }
                                 }
                             }
                         }

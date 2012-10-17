@@ -78,7 +78,6 @@ public class CloudUtils {
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
-                        //dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-"+id.replaceAll("-", ""));
                         dictionary.put(Constants.NAME, name);
                         dictionary.put(Constants.PROVIDER, provider);
                         dictionary.put(Constants.CREDENTIAL, credential);
@@ -106,7 +105,9 @@ public class CloudUtils {
                             for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
-                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
+                                    ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                }
                             }
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");
@@ -132,7 +133,6 @@ public class CloudUtils {
                         if (dictionary == null) {
                             dictionary = new Properties();
                         }
-                        //dictionary.put("fabric.zookeeper.pid", "org.jclouds.compute-" + id.replaceAll("-", ""));
                         dictionary.put(Constants.NAME, name);
                         dictionary.put(Constants.API, api);
                         dictionary.put(Constants.ENDPOINT, endpoint);
@@ -161,7 +161,9 @@ public class CloudUtils {
                             for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
-                                ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name,key), value);
+                                if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
+                                    ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                }
                             }
                         } else {
                             System.out.println("Fabric has not been initialized. Provider registration will be local to the current container.");

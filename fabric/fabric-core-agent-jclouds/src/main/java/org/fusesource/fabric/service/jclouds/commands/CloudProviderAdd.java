@@ -28,7 +28,7 @@ import org.jclouds.karaf.utils.EnvHelper;
 @Command(name = "cloud-provider-add", scope = "fabric", description = "Registers a cloud provider with the fabric.")
 public class CloudProviderAdd extends FabricCommand {
 
-    @Option(name = "--name", required = false, description = "The service id. Used to distinct between multiple service of the same provider/api. Only ")
+    @Option(name = "--name", required = false, description = "The service context name. Used to distinct between multiple service of the same provider/api.")
     protected String contextName;
 
     @Option(name = "--provider", required = false, description = "The cloud provider name. Example: aws-ec2.")
