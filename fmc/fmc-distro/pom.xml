@@ -144,6 +144,11 @@
      <artifactId>fmc-branding</artifactId>
      <version>${project.version}</version>
    </dependency>
+   <dependency>
+     <groupId>org.fusesource.examples</groupId>
+     <artifactId>fabric-camel-demo</artifactId>
+     <version>${project.version}</version>
+   </dependency>
 
  </dependencies>
 
