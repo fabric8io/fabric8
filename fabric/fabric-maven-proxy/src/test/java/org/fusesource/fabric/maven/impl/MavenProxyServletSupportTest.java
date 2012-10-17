@@ -12,11 +12,6 @@ public class MavenProxyServletSupportTest {
         servlet.convertToMavenUrl(null);
     }
 
-    @Test(expected = InvalidMavenArtifactRequest.class)
-         public void testConvertEmptyPath() throws InvalidMavenArtifactRequest {
-        servlet.convertToMavenUrl("");
-    }
-
     @Test
     public void testConvertNormalPath() throws InvalidMavenArtifactRequest {
         Assert.assertEquals("org.fusesource.fabric:fuse-fabric:jar:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST.jar"));

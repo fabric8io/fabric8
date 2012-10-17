@@ -231,7 +231,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 return null;
             }
         } else {
-            throw new InvalidMavenArtifactRequest("Request path is incomplete.");
+            return null;
         }
     }
 
