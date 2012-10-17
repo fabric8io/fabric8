@@ -53,7 +53,7 @@
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
             <completers>
-                <ref component-id="currentContainerCompleter"/>
+                <ref component-id="containerCompleter"/>
                 <null/>
             </completers>
             <optional-completers>
