@@ -93,7 +93,7 @@
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>017</perfectus-build>
+        <perfectus-build>018</perfectus-build>
         <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
