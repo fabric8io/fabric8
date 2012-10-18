@@ -22,20 +22,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.ServletException;
 
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.LifecycleListener;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.http.HttpService;
-import org.osgi.service.http.NamespaceException;
+
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,33 +57,54 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
     private ConfigurationAdmin configurationAdmin;
 
+    private BundleContext bundleContext;
+    private ServiceTracker httpServiceTracker;
+
     public MavenProxyRegistrationHandler() {
         registeredProxies.put(MavenProxy.DOWNLOAD_TYPE, new HashSet<String>());
         registeredProxies.put(MavenProxy.UPLOAD_TYPE, new HashSet<String>());
     }
 
-    public void init() throws ServletException, NamespaceException {
-        this.port = getPortFromConfig();
-        try {
-            httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
-            httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
-        } catch (Throwable t) {
-            //There is a chance that the http service is not there upon initialization.
-            //The reference is option to avoid resolution issues.
-            //So we just log a warn.
-            LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
-        }
+
+    public void init() {
+       httpServiceTracker = new ServiceTracker(bundleContext, HttpService.class.getName(), null){
+           public Object addingService(ServiceReference reference) {
+               HttpService service = (HttpService) super.addingService(reference);
+               bindHttpService(service);
+               return service;
+           }
+       };
+       httpServiceTracker.open();
     }
 
     public void destroy() {
         unregister(MavenProxy.DOWNLOAD_TYPE);
         unregister(MavenProxy.UPLOAD_TYPE);
-
         try {
-            httpService.unregister("/maven/download");
-            httpService.unregister("/maven/upload");
+            if (httpService != null) {
+                httpService.unregister("/maven/download");
+                httpService.unregister("/maven/upload");
+            }
         } catch (Exception ex) {
             LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
+        }
+        if (httpServiceTracker != null) {
+            httpServiceTracker.close();
+        }
+    }
+
+    public void bindHttpService(HttpService httpService) {
+        this.httpService = httpService;
+        this.port = getPortFromConfig();
+
+        if (httpService != null && mavenDownloadProxyServlet != null && mavenUploadProxyServlet != null) {
+
+            try {
+                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
+                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
+            } catch (Throwable t) {
+                LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
+            }
         }
     }
 
@@ -184,14 +207,6 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         return port;
     }
 
-    public HttpService getHttpService() {
-        return httpService;
-    }
-
-    public void setHttpService(HttpService httpService) {
-        this.httpService = httpService;
-    }
-
     public MavenDownloadProxyServlet getMavenDownloadProxyServlet() {
         return mavenDownloadProxyServlet;
     }
@@ -222,5 +237,13 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
+    }
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 }

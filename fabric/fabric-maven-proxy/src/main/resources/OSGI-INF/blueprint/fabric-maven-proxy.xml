@@ -46,10 +46,10 @@
     <bean id="registrationHandler" class="org.fusesource.fabric.maven.impl.MavenProxyRegistrationHandler" init-method="init" destroy-method="destroy">
         <property name="zookeeper" ref="zookeeper"/>
         <property name="secureHttpContext" ref="secureHttpContext"/>
-        <property name="httpService" ref="httpService"/>
         <property name="mavenDownloadProxyServlet" ref="mavenDownloadProxyServlet"/>
         <property name="mavenUploadProxyServlet" ref="mavenUploadProxyServlet"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
+        <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
     <bean id="secureHttpContext" class="org.fusesource.fabric.maven.impl.SecureHttpContext">
@@ -60,6 +60,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+
     <reference id="httpService" interface="org.osgi.service.http.HttpService" availability="optional"/>
     <service ref="registrationHandler">
         <interfaces>
