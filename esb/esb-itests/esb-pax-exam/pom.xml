@@ -24,7 +24,7 @@
     <parent>
         <artifactId>esb-itests</artifactId>
         <groupId>org.fusesource.esb</groupId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.1.0.fuse-019</version>
     </parent>
 
     <groupId>org.fusesource.esb.itests</groupId>
