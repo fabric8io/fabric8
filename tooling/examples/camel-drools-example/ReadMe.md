@@ -5,7 +5,7 @@ To build this project use
 
     mvn install
 
-This project includes a unit test, org.fusesource.example.drools.CamelContextXmlTest, that shows calling this component
+This project includes a unit test, ${package}.CamelContextXmlTest, that shows calling this component
 
 To run this project use
 
@@ -19,8 +19,8 @@ Start Fuse ESB
 
 In the Fuse ESB console, use the following
 
-    FuseESB:karaf@root> features:addurl mvn:com.redhat.example/camel-drools-example/1.0.0-SNAPSHOT/xml/features
-    FuseESB:karaf@root> features:install camel-drools-examples
+    FuseESB:karaf@root> features:addurl mvn:${groupId}/${artifactId}/${version}/xml/features
+    FuseESB:karaf@root> features:install camel-drools-example
 
 To see the results tail the Fuse ESB log
 
