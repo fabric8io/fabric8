@@ -203,8 +203,13 @@ public class ContainerImpl implements Container {
                 return new Profile[0];
             }
             List<Profile> profiles = new ArrayList<Profile>();
-            for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, service));
+            if (!str.trim().isEmpty()) {
+                for (String p : str.split(" +")) {
+                    profiles.add(new ProfileImpl(p, version, service));
+                }
+            }
+            if (profiles.isEmpty()) {
+                profiles.add(new ProfileImpl("default", version, service));
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
@@ -217,19 +222,24 @@ public class ContainerImpl implements Container {
             String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
             String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
             String str = "";
-            for (Profile parent : profiles) {
-                if (!version.equals(parent.getVersion())) {
-                    throw new IllegalArgumentException("Version mismatch setting profile " + parent + " with version "
-                            + parent.getVersion() + " expected version " + version);
+            if (profiles != null) {
+                for (Profile parent : profiles) {
+                    if (!version.equals(parent.getVersion())) {
+                        throw new IllegalArgumentException("Version mismatch setting profile " + parent + " with version "
+                                + parent.getVersion() + " expected version " + version);
+                    }
+                    if (parent.isAbstract()) {
+                        throw new IllegalArgumentException("The profile " + parent + " is abstract and can not "
+                                + "be associated to containers");
+                    }
+                    if (!str.isEmpty()) {
+                        str += " ";
+                    }
+                    str += parent.getId();
                 }
-                if (parent.isAbstract()) {
-                    throw new IllegalArgumentException("The profile " + parent + " is abstract and can not "
-                            + "be associated to containers");
-                }
-                if (!str.isEmpty()) {
-                    str += " ";
-                }
-                str += parent.getId();
+            }
+            if (str.trim().isEmpty()) {
+                str = "default";
             }
             service.getZooKeeper().setData(node, str);
         } catch (Exception e) {
