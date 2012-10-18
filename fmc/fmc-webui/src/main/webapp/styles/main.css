@@ -828,7 +828,8 @@ span.error {
 }
 
 .modal-header {
-	background-color: #be1e2d;
+    background-image: url("../img/modal-header.png");
+	background-color: #6F6F6F;
     border-radius: 6px 6px 0 0;
 }
 
