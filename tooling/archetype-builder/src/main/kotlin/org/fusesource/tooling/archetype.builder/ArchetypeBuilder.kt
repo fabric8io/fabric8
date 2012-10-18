@@ -338,10 +338,10 @@ public open class ArchetypeBuilder() {
         <include>**/*.xml</include>
       </includes>
     </fileSet>
-    <fileSet encoding="UTF-8">
+    <fileSet filtered="true" encoding="UTF-8">
       <directory></directory>
       <includes>
-        <include>ReadMe.txt</include>
+        <include>ReadMe.*</include>
       </includes>
     </fileSet>
   </fileSets>
