@@ -17,53 +17,77 @@
 
 package org.fusesource.camel.tooling.util
 
+import org.apache.maven.cli.MavenCli
+import org.fusesource.insight.maven.aether.Aether
 import org.fusesource.scalate.test.FunSuiteSupport
 import org.junit.Assert._
 import java.io.{FileInputStream, File}
 import org.fusesource.scalate.util.IOUtil
+import scala.collection.JavaConversions._
+import java.util
 
 class ArchetypeTest extends FunSuiteSupport {
   val verbose = true
+
+  var aether = new Aether()
 
   var groupId = "myGroup"
   var artifactId = "myArtifact"
   var packageName = "org.acme.mystuff"
 
-  // lets get the latest version from the pom.xml via a system property
-  var version = System.getProperty("camel-version", "2.10.0.fuse-71-013")
+  // lets get the versions from the pom.xml via a system property
+  val camelVersion = System.getProperty("camel-version", "2.10.0.fuse-71-013")
+  val projectVersion = System.getProperty("project.version", "2.10.0.fuse-71-013")
+  val basedir = new File(System.getProperty("basedir", "."))
+
+  val outDirs = new util.ArrayList[String]()
 
   test("generate activemq archetype") {
-    assertArchetypeCreated("camel-archetype-activemq-")
+    assertArchetypeCreated("camel-archetype-activemq")
   }
 
   test("generate spring archetype") {
-    assertArchetypeCreated("camel-archetype-spring-")
+    assertArchetypeCreated("camel-archetype-spring")
   }
 
   test("generate java archetype") {
-    assertArchetypeCreated("camel-archetype-java-")
+    assertArchetypeCreated("camel-archetype-java")
   }
 
   test("generate component archetype") {
-    assertArchetypeCreated("camel-archetype-component-")
+    assertArchetypeCreated("camel-archetype-component")
   }
 
   test("generate dataformat archetype") {
-    assertArchetypeCreated("camel-archetype-dataformat-")
+    assertArchetypeCreated("camel-archetype-dataformat")
   }
 
-  protected def assertArchetypeCreated(archetypePrefix: String): Unit = {
-    val outDir = new File(baseDir, "target/" + archetypePrefix + "output")
+  test("generate drools archetype") {
+    assertArchetypeCreated("camel-drools-archetype", "org.fusesource.fabric", projectVersion,
+      new File(basedir, "../archetypes/camel-drools-archetype/target/camel-drools-archetype-" + projectVersion + ".jar"))
+  }
 
-    // lets find an archtype
-    val archetypesDir = new File(baseDir, "../../../ridersource/eclipse-tooling/org.fusesource.ide.branding/archetypes")
-    assertFileExists(archetypesDir)
-    assertTrue("should be directory: " + archetypesDir, archetypesDir.isDirectory)
+  protected def assertArchetypeCreated(artifactId: String, groupId: String = "org.apache.camel.archetypes",
+                                       version: String = camelVersion): Unit = {
+    val result = aether.resolve(groupId, artifactId, version)
 
-    val archetypejar = archetypesDir.listFiles.find(_.getName.startsWith(archetypePrefix)).
-            getOrElse(throw new Exception("Failed to find archetype!"))
+    val files = result.resolvedFiles
+    assertTrue("No files resolved for " + artifactId + " version: " + version, files.size > 0)
+    val archetypejar = files.get(0)
+    assertTrue("archetype jar does not exist", archetypejar.exists())
 
-    val properties = new ArchetypeHelper(new FileInputStream(archetypejar), outDir, groupId, artifactId, version).parseProperties
+
+    assertArchetypeCreated(artifactId, groupId, version, archetypejar)
+  }
+
+
+  def assertArchetypeCreated(artifactId: String, groupId: String, version: String, archetypejar: File) {
+    val outDir = new File(baseDir, "target/" + artifactId + "-output")
+
+    println("Creating archetype " + groupId + ":" + artifactId + ":" + version)
+    val properties = new
+        ArchetypeHelper(new FileInputStream(archetypejar), outDir, groupId, artifactId, version)
+      .parseProperties
     println("Has preferred properties: " + properties)
 
     val helper = new ArchetypeHelper(new FileInputStream(archetypejar), outDir, groupId, artifactId, version)
@@ -85,9 +109,22 @@ class ArchetypeTest extends FunSuiteSupport {
       }
       fail("" + pom + " contains " + badText)
     }
-    outDir
+
+    outDirs.add(outDir.getPath)
   }
 
+  override def afterAll(): Unit = {
+    super.afterAll()
+
+    // now let invoke the projects
+    for (outDir <- outDirs) {
+      println("Invoking project in " + outDir)
+      val maven = new MavenCli()
+      val results = maven.doMain(Array("compile"), outDir, System.out, System.out)
+      println("result: " + results)
+      assertEquals("Build of project " + outDir + " failed. Result = " + results, 0, results)
+    }
+  }
 
   protected def assertFileExists(file: File): Unit = {
     assertTrue("file should exist: " + file, file.exists)

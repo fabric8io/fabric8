@@ -94,6 +94,12 @@
 
     <!-- testing -->
     <dependency>
+      <groupId>org.fusesource.insight</groupId>
+      <artifactId>insight-maven</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.fusesource.scalate</groupId>
       <artifactId>scalate-test</artifactId>
       <version>${scalate-version}</version>
@@ -123,6 +129,43 @@
       <version>${drools-version}</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.camel.archetypes</groupId>
+      <artifactId>camel-archetype-activemq</artifactId>
+      <version>${camel-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.archetypes</groupId>
+      <artifactId>camel-archetype-spring</artifactId>
+      <version>${camel-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.archetypes</groupId>
+      <artifactId>camel-archetype-java</artifactId>
+      <version>${camel-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.archetypes</groupId>
+      <artifactId>camel-archetype-component</artifactId>
+      <version>${camel-version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel.archetypes</groupId>
+      <artifactId>camel-archetype-dataformat</artifactId>
+      <version>${camel-version}</version>
+      <scope>test</scope>
+    </dependency>
+
+      <dependency>
+      	<groupId>org.apache.maven</groupId>
+      	<artifactId>maven-embedder</artifactId>
+      	<version>3.0.4</version>
+        <scope>test</scope>
+      </dependency>
   </dependencies>
 
   <build>
@@ -157,25 +200,22 @@
 
 
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-version}</version>
-        <configuration>
-          <excludes>
-            <exclude>**/ArchetypeTest.*</exclude>
-          </excludes>
-          <systemProperties>
-            <systemProperty>
-              <key>basedir</key>
-              <value>${basedir}</value>
-            </systemProperty>
-            <systemProperty>
-              <key>camel-version</key>
-              <value>${camel-version}</value>
-            </systemProperty>
-          </systemProperties>
-        </configuration>
+          <configuration>
+<!--
+              <excludes>
+                  <exclude>**/ArchetypeTest.*</exclude>
+              </excludes>
+-->
+              <systemPropertyVariables>
+                  <camel-version>${camel-version}</camel-version>
+                  <basedir>${basedir}</basedir>
+                  <project.version>${project.version}</project.version>
+              </systemPropertyVariables>
+          </configuration>
       </plugin>
-
 
       <plugin>
               <groupId>org.codehaus.mojo</groupId>
