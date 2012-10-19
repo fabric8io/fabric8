@@ -56,6 +56,13 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     private transient Logger logger = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
+    public static final String IP_REGEX = "([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}";
+    public static final String HOST_REGEX = "[a-zA-Z][a-zA-Z0-9\\-\\.]*[a-zA-Z]";
+    public static final String IP_OR_HOST_REGEX = "(("+IP_REGEX+")|("+HOST_REGEX+")|0.0.0.0)";
+    public static final String RMI_HOST_REGEX= "://" + IP_OR_HOST_REGEX;
+
+
+
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private BundleContext bundleContext;
@@ -168,8 +175,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.management");
         if (config.getProperties() != null) {
             String jmx = (String) config.getProperties().get("serviceUrl");
-            jmx = jmx.replace("service:jmx:rmi://localhost:", "service:jmx:rmi://${zk:" + name + "/ip}:");
-            jmx = jmx.replace("jndi/rmi://localhost", "jndi/rmi://${zk:" + name + "/ip}");
+            jmx = replaceJmxHost(jmx, "\\${zk:"+name+"/ip}");
             return jmx;
         } else {
             return null;
@@ -365,6 +371,20 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             }
         }
     }
+
+    /**
+     * Replaces hostname/ip occurances inside the jmx url, with the specified hostname
+     * @param jmxUrl
+     * @param hostName
+     * @return
+     */
+    public static String replaceJmxHost(String jmxUrl, String hostName) {
+        if (jmxUrl == null) {
+            return null;
+        }
+        return jmxUrl.replaceAll(RMI_HOST_REGEX,  "://" + hostName);
+    }
+
 
     private boolean isConnected() {
         // we are only considered connected if we have a client and its connected
