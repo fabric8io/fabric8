@@ -74,19 +74,21 @@ define [
     #  label: "Registry"
     menu.push
       href: "#/patches"
-      label: "Patching"      
-    if app.system_state.get "has_backing_engine"
-      menu.push
-        href: "#/users"
-        label: "Users"
-    #menu.push
-    #  href: "#/upgrades"
-    #  label: "Upgrades"
-    app.menu menu
-  app.update_menu = update_menu
+      label: "Patching"
+    if !app.system_state.get("has_backing_engine")
+      app.system_state.fetch
+        success: ->
+          if app.system_state.get "has_backing_engine"
+            menu.push
+              href: "#/users"
+              label: "Users"
+          app.menu menu
+        error: ->
+          app.menu menu
 
-  app.versions.bind "all", update_menu
-  app.system_state.bind "change:has_backing_engine", update_menu
+  app.update_menu = update_menu
+  app.versions.bind  "all", update_menu
+  app.system_state.bind  "change:has_backing_engine", update_menu
 
   app.model.set({url: window.location.hash})
   $(window).bind('hashchange', (url)->
