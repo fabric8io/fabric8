@@ -202,7 +202,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService) = _
 
-    var cfServiceRegistration:ServiceRegistration = null
+    var cfServiceRegistration:ServiceRegistration[_] = null
 
 
     def ensure_broker_name_is_set = {
@@ -388,7 +388,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   ////////////////////////////////////////////////////////////////////////////
   val configurations = new HashMap[String, ClusteredConfiguration]
 
-  def updated(pid: String, properties: Dictionary[_, _]): Unit = this.synchronized {
+  def updated(pid: String, properties: Dictionary[java.lang.String, _]): Unit = this.synchronized {
     try {
       deleted(pid)
       configurations.put(pid, ClusteredConfiguration(properties))
