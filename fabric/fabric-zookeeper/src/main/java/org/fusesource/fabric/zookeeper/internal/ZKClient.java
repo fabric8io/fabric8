@@ -17,6 +17,8 @@
 
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.zookeeper.Watcher;
 import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.IZooKeeperFactory;
@@ -27,6 +29,9 @@ public class ZKClient extends AbstractZKClient {
 
     public ZKClient(String connectString, Timespan sessionTimeout, Watcher watcher) {
         super(connectString, sessionTimeout, watcher);
+        Map<String, String> acls = new HashMap<String, String>();
+        acls.put("/", "world:anyone:acdrw");
+        setACLs(acls);
     }
 
     public ZKClient(IZooKeeperFactory factory) {
