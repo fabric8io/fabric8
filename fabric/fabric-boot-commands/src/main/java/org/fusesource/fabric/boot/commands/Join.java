@@ -18,6 +18,7 @@ package org.fusesource.fabric.boot.commands;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.felix.gogo.commands.Argument;
@@ -112,7 +113,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                     installBundles();
                 }
                 org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-                Properties properties = new Properties();
+                Hashtable<String,Object> properties = new Hashtable<String,Object>();
                 properties.put("zookeeper.url", zookeeperUrl);
                 config.setBundleLocation(null);
                 config.update(properties);
@@ -132,7 +133,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 return null;
             }
             org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-            Properties properties = new Properties();
+            Hashtable<String,Object> properties = new Hashtable<String,Object>();
             properties.put("zookeeper.url", zookeeperUrl);
             config.setBundleLocation(null);
             config.update(properties);

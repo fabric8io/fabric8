@@ -160,7 +160,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         // Service registration
         this.registration = this.bundleContext.registerService(new String[] { ListenerHook.class.getName(), EventHook.class.getName(), FindHook.class.getName() }, this, null);
         // Check existing services
-        ServiceReference[] references = this.bundleContext.getServiceReferences(null, filter);
+        ServiceReference[] references = this.bundleContext.getServiceReferences((String) null, filter);
         if (references != null) {
             for (ServiceReference reference : references) {
                 exportService(reference);

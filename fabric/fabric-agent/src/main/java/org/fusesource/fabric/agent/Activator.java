@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.agent;
 
+import java.util.Hashtable;
 import java.util.Properties;
 
 import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
@@ -49,8 +50,8 @@ public class Activator implements BundleActivator {
         agent.setStartLevel(getStartLevel(context));
         agent.setZkClient(getZkClient(context));
         agent.start();
-        Properties props = new Properties();
-        props.setProperty(Constants.SERVICE_PID, AGENT_PID);
+        Hashtable<String, String> props = new Hashtable<String, String>();
+        props.put(Constants.SERVICE_PID, AGENT_PID);
         registration = context.registerService(ManagedService.class.getName(), agent, props);
     }
 

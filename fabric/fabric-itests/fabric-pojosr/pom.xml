@@ -51,7 +51,7 @@
         <dependency>
           <groupId>org.osgi</groupId>
           <artifactId>org.osgi.enterprise</artifactId>
-          <version>${osgi-version}</version>
+          <version>${osgi-enterprise-version}</version>
         </dependency>
 
         <dependency>

@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +94,7 @@ public class ZooKeeperTest {
 
         ConfigurationAdmin ca = getOsgiService(ConfigurationAdmin.class);
         Configuration cfgServer = ca.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
-        Properties props = new Properties();
+        Hashtable<String, Object> props = new Hashtable<String, Object>();
         props.put("tickTime", "2000");
         props.put("initLimit", "10");
         props.put("syncLimit", "5");
@@ -103,7 +104,7 @@ public class ZooKeeperTest {
         cfgServer.update(props);
 
         Configuration cfgClient = ca.getConfiguration("org.fusesource.fabric.zookeeper");
-        props = new Properties();
+        props = new Hashtable<String, Object>();
         props.put("zookeeper.url", "localhost:2181");
         cfgClient.setBundleLocation(null);
         cfgClient.update(props);

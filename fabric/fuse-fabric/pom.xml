@@ -131,7 +131,7 @@
            <dependency>
                <groupId>commons-codec</groupId>
                <artifactId>commons-codec</artifactId>
-               <version>1.1</version>
+               <version>${commons-codec-version}</version>
            </dependency>
 
         <!-- these are copied to the lib folder -->

@@ -72,7 +72,7 @@ public class ManagerTest {
                     EasyMock.<String[]>anyObject(),
                     same(manager),
                     EasyMock.<Dictionary>same(null))).andReturn(registration);
-            expect(bundleContext.getServiceReferences(null, "(service.exported.interfaces=*)")).andReturn(null);
+            expect(bundleContext.getServiceReferences((String) null, "(service.exported.interfaces=*)")).andReturn(null);
 
             replay(bundleContext, registration);
 

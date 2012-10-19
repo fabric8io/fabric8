@@ -25,7 +25,9 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -46,6 +48,7 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
+
 
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
@@ -104,7 +107,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     public void createLocalServer(int port) {
         try {
             IZKClient client;
-            Properties properties;
+            Hashtable<String, Object> properties;
             String karafName = System.getProperty("karaf.name");
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
@@ -128,7 +131,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
 
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
-            properties = new Properties();
+            properties = new Hashtable<String, Object>();
             if (autoImportFrom != null) {
                 loadPropertiesFrom(properties, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
             }
@@ -143,7 +146,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             // Update the client configuration
             config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-            properties = new Properties();
+            properties = new Hashtable<String, Object>();
             if (autoImportFrom != null) {
                 loadPropertiesFrom(properties, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.properties");
             }
@@ -243,11 +246,15 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    private void loadPropertiesFrom(Properties properties, String from) {
+    private void loadPropertiesFrom(Hashtable hashtable, String from) {
         InputStream is = null;
+        Properties properties = new Properties();
         try {
             is = new FileInputStream(from);
             properties.load(is);
+            for (String key : properties.stringPropertyNames()) {
+                hashtable.put(key, properties.get(key));
+            }
         } catch (Exception e) {
             // Ignore
         } finally {
