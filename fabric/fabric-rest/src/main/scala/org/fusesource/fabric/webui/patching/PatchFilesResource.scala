@@ -88,7 +88,7 @@ class PatchFilesResource extends BaseUpgradeResource {
   }
 
   @Consumes(Array("multipart/form-data"))
-  @Produces(Array("text/html"))
+  @Produces(Array("application/json"))
   @POST
   @Path("upload")
   def add(@FormDataParam("patch_file") patch_file: InputStream,
