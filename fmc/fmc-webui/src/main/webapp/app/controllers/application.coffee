@@ -135,6 +135,8 @@ define [
         @poll_interval = null
 
     poll: ->
+      app.system_state.fetch
+        op: "update"
       page = app.page()
       page.poll()  if page and page.poll
 

@@ -75,16 +75,11 @@ define [
     menu.push
       href: "#/patches"
       label: "Patching"
-    if !app.system_state.get("has_backing_engine")
-      app.system_state.fetch
-        success: ->
-          if app.system_state.get "has_backing_engine"
-            menu.push
-              href: "#/users"
-              label: "Users"
-          app.menu menu
-        error: ->
-          app.menu menu
+    if app.system_state.get "has_backing_engine"
+      menu.push
+        href: "#/users"
+        label: "Users"
+    app.menu menu
 
   app.update_menu = update_menu
   app.versions.bind  "all", update_menu
@@ -97,8 +92,9 @@ define [
 
 
   # Update the username when the whoami info changes..
-  app.whoami.bind "change", ->
-    app.model.set username: app.whoami.get("username")
+  app.whoami.bind  "change", ->
+    app.model.set
+      username: app.whoami.get("username")
 
   app.handle_ajax_error = (resp, next)->
     if resp.status == 401

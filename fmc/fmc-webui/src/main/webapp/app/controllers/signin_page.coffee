@@ -26,10 +26,8 @@ define [
       success: (model) ->
         username = app.whoami.get "username"
         if username && username != ""
-          app.versions.fetch
-            success: (model) ->
-              app.update_menu()
-              app.router.navigate "/containers", true
+          app.update_menu()
+          app.router.navigate "/containers", true
         else
           app.flash
             kind: "error"
@@ -66,6 +64,7 @@ define [
                 app.flash
                   kind: "error"
                   title: "Invalid username or password."
+                  hide_after: 2000
 
             error: (data) ->
               app.flash
@@ -88,7 +87,7 @@ define [
           kind: "error"
           title: "Error communicating with the server."
 
-  app.router.route "/signout", "signout", (tab, test) ->
+  app.router.route "/signout", "signout", ->
     $.ajax
       url: "rest/system/logout.json"
       dataType: "json"
@@ -99,8 +98,10 @@ define [
             kind: "info"
             title: "Logged out! "
             message: "Your session has been closed."
-            actions: "<a href='#/signin' class='btn'>Ok</a>"
+            hide_after: 2000
             on_close: ->
+              app.whoami.set
+                username: null
               app.router.navigate "/signin", true
 
       error: (data) ->
