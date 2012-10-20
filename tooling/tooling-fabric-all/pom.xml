@@ -35,7 +35,7 @@
 
   <properties>
     <fuse.osgi.export>
-      org.fusesource.fabric*;version=${project.version},
+      org.fusesource.fabric*;version=${project.version}
     </fuse.osgi.export>
     <!--
         <fuse.osgi.private.pkg>
@@ -63,6 +63,11 @@
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-zookeeper-spring</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>
