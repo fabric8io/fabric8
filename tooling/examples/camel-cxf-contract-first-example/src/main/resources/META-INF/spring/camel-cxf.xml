@@ -25,10 +25,6 @@
          http://camel.apache.org/schema/cxf 
          http://camel.apache.org/schema/cxf/camel-cxf.xsd">
 
-  <import resource="classpath:META-INF/cxf/cxf.xml"/>
-  <import resource="classpath:META-INF/cxf/cxf-extension-soap.xml"/>
-  <import resource="classpath:META-INF/cxf/cxf-extension-http-jetty.xml"/>
-  
   <cxf:cxfEndpoint id="orderEndpoint"
                    address="http://localhost:9000/order/"
                    serviceClass="camelinaction.order.OrderEndpoint"
