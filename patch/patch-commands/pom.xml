@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.fusesource.patch</groupId>
     <artifactId>patch-project</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.1.0.fuse-020</version>
     <relativePath>..</relativePath>
   </parent>
 
