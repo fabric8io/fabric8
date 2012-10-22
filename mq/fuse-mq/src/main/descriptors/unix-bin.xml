@@ -149,6 +149,11 @@
             <fileMode>0644</fileMode>
         </file>
         -->
+        <file>
+            <source>${basedir}/target/dependencies/unix/apache-activemq-${activemq.version}-bin.tar.gz</source>
+            <outputDirectory>extras</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
     </files>
 
 

@@ -31,4 +31,17 @@
         <componentDescriptor>target/shared/examples-unix-bin.xml</componentDescriptor>
     </componentDescriptors>
 
+    <files>
+        <file>
+            <source>${basedir}/target/dependencies/unix/apache-camel-${camel.version}.tar.gz</source>
+            <outputDirectory>extras</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/apache-cxf-${cxf.version}.tar.gz</source>
+            <outputDirectory>extras</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
+    </files>
+
 </assembly>

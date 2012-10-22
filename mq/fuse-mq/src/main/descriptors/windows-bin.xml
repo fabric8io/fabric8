@@ -128,6 +128,10 @@
             <fileMode>0644</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
+        <file>
+            <source>${basedir}/target/dependencies/win/apache-activemq-${activemq.version}-bin.zip</source>
+            <outputDirectory>extras</outputDirectory>
+        </file>       
     </files>
 
   <componentDescriptors>

@@ -83,6 +83,34 @@
                                     <type>tar.gz</type>
                                     <outputDirectory>target/features-repo/org/fusesource/fabric/fuse-fabric/${project.version}</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.camel</groupId>
+                                    <artifactId>apache-camel</artifactId>
+                                    <version>${camel.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.camel</groupId>
+                                    <artifactId>apache-camel</artifactId>
+                                    <version>${camel.version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>target/dependencies/win</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.cxf</groupId>
+                                    <artifactId>apache-cxf</artifactId>
+                                    <version>${cxf.version}</version>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.cxf</groupId>
+                                    <artifactId>apache-cxf</artifactId>
+                                    <version>${cxf.version}</version>
+                                    <type>zip</type>
+                                    <outputDirectory>target/dependencies/win</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>

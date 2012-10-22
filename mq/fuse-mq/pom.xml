@@ -263,6 +263,33 @@
                                </artifactItems>
                            </configuration>
                        </execution>
+                    <execution>
+                        <id>copy-unix</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.apache.activemq</groupId>
+                                    <artifactId>apache-activemq</artifactId>
+                                    <version>${activemq.version}</version>
+                                    <classifier>bin</classifier>
+                                    <type>tar.gz</type>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                                </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.activemq</groupId>
+                                    <artifactId>apache-activemq</artifactId>
+                                    <version>${activemq.version}</version>
+                                    <classifier>bin</classifier>
+                                    <type>zip</type>
+                                    <outputDirectory>target/dependencies/win</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
                    </executions>
                </plugin>
             <plugin>
