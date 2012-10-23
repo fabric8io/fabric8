@@ -149,6 +149,7 @@ You can configure the fabricPath of the FabricLoadBalancerFeature for the CXF se
   </bean>
 
   <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
+      <property name="zkClient" ref="zkClient" />
       <property name="fabricPath" value="simple" />
   </bean>
   <!-- configure the feature on the bus -->
@@ -180,6 +181,10 @@ Here you can use the CXF normal code to publish the CXF service, but you need to
    // The address is not the actual address that the client will access
    clientFactory.setAddress("http://someotherplace");
    List<AbstractFeature> features = new ArrayList<AbstractFeature>();
+   Feature feature = new FabricFailOverFeature();
+   // you need setting the feature with zkClient and fabricPath to load the server addresses
+   ......
+   // add the instance of FabricLoadBalancerFeature into features list
    features.add(feature);
    // we need to setup the feature on the clientfactory
    clientFactory.setFeatures(features);
