@@ -457,11 +457,14 @@
 -->
     </feature>
 
+    <feature name="fmc-jaas" version="${project.version}" resolver="(obr)">
+      <bundle>mvn:org.fusesource.fmc/fmc-jaas/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-rest" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <feature>fabric-core</feature>
         <feature>fabric-boot-commands</feature>
-        <bundle dependency="true">mvn:org.fusesource.fmc/fmc-jaas/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-rest/${project.version}/war</bundle>
     </feature>
 
