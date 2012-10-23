@@ -3,6 +3,6 @@
     "pidFile": "wrapper/hq-agent.pid",
     "restartCommand": "",
     "statusCommand": "bin/version.sh",
-    "killCommand": ""
+    "killCommand": "",
     "configureCommand": ""
 }

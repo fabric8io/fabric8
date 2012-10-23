@@ -50,11 +50,13 @@ then once installed you can start/stop/restart/status it like any other process.
 
 Process Manager ships with some default **kinds** of controller which lets you use a more concise command to run some common processes.
 
-For example to install an Apache Tomcat:
+For example to install an [Apache Tomcat](http://tomcat.apache.org/) distro, in this case [Apache TomEE](http://tomee.apache.org/):
 
-    process:install -k tomcat http://apache.favoritelinks.net/tomcat/tomcat-7/v7.0.29/bin/apache-tomcat-7.0.29.tar.gz
+    process:install -k tomcat http://repo2.maven.org/maven2/org/apache/openejb/apache-tomee/1.5.0/apache-tomee-1.5.0-plus.tar.gz
 
-To run Jetty:
+You can use any URL for a distro of Tomcat you wish in the above command.
+
+To run [Jetty](http://www.eclipse.org/jetty/):
 
     process:install -k jetty http://central.maven.org/maven2/org/eclipse/jetty/jetty-distribution/8.1.4.v20120524/jetty-distribution-8.1.4.v20120524.tar.gz
 
