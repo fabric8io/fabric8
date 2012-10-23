@@ -183,24 +183,22 @@ class ComputeServiceResource(self: ComputeService) extends BaseResource {
   def image(@PathParam("id") id: String) = images.find(_.id == id) getOrElse not_found
 
   @DELETE
-  def delete: Unit = {
+  def delete() {
 
-    Services.zoo_keeper.deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(id))
+    val id = context.getName
+    val provider_id = context.getProviderMetadata.getId
 
-    val delete_config = Option(Services.fabric_service.getCurrentContainer) match {
-      case Some(c: Container) =>
-        !c.isManaged
-      case None =>
-        true
+    try {
+      Services.zoo_keeper.deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(id))
+    } catch {
+      case _ => // Ignore
     }
 
-    if (delete_config) {
-      Services.configs_by_factory_pid("org.jclouds.compute").foreach((x) => {
-        if (x.getProperties.get("provider") == id) {
-          x.delete
-        }
-      })
-    }
+    Services.configs_by_factory_pid("org.jclouds.compute").foreach((x) => {
+      if (x.getProperties.get("provider") == provider_id && x.getProperties.get("name") == id) {
+        x.delete()
+      }
+    })
   }
 
 
