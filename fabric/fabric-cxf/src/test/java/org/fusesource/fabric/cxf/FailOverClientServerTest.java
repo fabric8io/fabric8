@@ -65,6 +65,7 @@ public class FailOverClientServerTest extends AbstractJUnit4SpringContextTests {
         clientFactory.setAddress("http://someotherplace");
 
         List<AbstractFeature> features = new ArrayList<AbstractFeature>();
+        // add the instance of FabricLoadBalancerFeature into features list
         features.add(feature);
         // we need to setup the feature on the clientfactory
         clientFactory.setFeatures(features);
