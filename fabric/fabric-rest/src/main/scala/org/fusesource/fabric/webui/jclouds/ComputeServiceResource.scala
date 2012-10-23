@@ -29,6 +29,7 @@ import org.jclouds.compute.domain.ComputeMetadata
 import org.fusesource.fabric.zookeeper.ZkPath
 import org.fusesource.fabric.api.Container
 import scala.Some
+import org.jclouds.Context
 
 /**
  *
@@ -60,11 +61,16 @@ class NodeActionDTO {
 
 class ComputeServiceResource(self: ComputeService) extends BaseResource {
 
-  @JsonProperty
-  def id = self.getContext.getProviderSpecificContext.getId
+  def context:Context = self.getContext().unwrap()
 
   @JsonProperty
-  def name = Services.map_provider_name(id)
+  def id = context.getProviderMetadata.getId + " - " + context.getName
+
+  @JsonProperty
+  def name = context.getProviderMetadata.getName + " - " + context.getName
+
+  @JsonProperty
+  def endpoint = context.getProviderMetadata.getEndpoint
 
   @JsonProperty
   def regions = regions_resource.toArray

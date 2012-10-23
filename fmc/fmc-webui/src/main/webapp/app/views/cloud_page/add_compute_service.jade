@@ -32,6 +32,11 @@
         h4 Enter the login details and options for your cloud provider
         form
           fieldset
+            .clearfix#name
+              label(for="name") Name
+              .input
+                input(name="service-id" type="text")
+                span.help-block#name-help
             .clearfix#identity
               label(for="identity") Identity
               .input
@@ -42,6 +47,11 @@
               .input
                 input(name="credential" type="password")
                 span.help-block#credential-help
+            .clearfix#endpoint
+              label(for="endpoint") Endpoint
+              .input
+                input(name="endpoint" type="text")
+                span.help-block#endpoint-help
             .clearfix#options
               label(for="options") Options
               .input

@@ -79,6 +79,8 @@ define [
       ".block.right": "right_buttons"
       "input[name=identity]": "identity"
       "input[name=credential]": "credential"
+      "input[name=service-id]": "service_id"
+      "input[name=endpoint]": "endpoint"
       "textarea[name=options]": "opts"
 
     initialize: ->
@@ -163,6 +165,8 @@ define [
 
           arguments =
             provider: @selected().id
+            serviceId: @service_id.val() if @service_id.val() != ""
+            endpoint: @endpoint.val() if @endpoint.val() != ""
             identity: @identity.val()
             credential: @credential.val()
             options: @opts.val()

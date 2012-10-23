@@ -32,9 +32,6 @@ class ComputeProviderResource(_id: String) extends BaseResource {
   def id = _id
 
   @JsonProperty
-  def name = Services.map_provider_name(_id)
-
-  @JsonProperty
-  def configured = Services.compute_services.find(_.getContext().unwrap.asInstanceOf[Context].getProviderMetadata.getId == _id).isDefined
+  def name = Services.compute_providers.find(_.getId == id).get.getName()
 
 }
