@@ -210,8 +210,10 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         List<Installation> installations = processManager.listInstallations();
         for (Installation installation : installations) {
             Map<String, String> env = installation.getEnvironment();
-            if (PROCESS_SERVICE_FACTORY_PID.equals(env.get("service.factoryPid"))) {
-                installationMap.put(env.get("service.pid"), installation);
+            String factoryPid = env.get("service.factoryPid");
+            String servicePid = env.get("service.pid");
+            if (servicePid != null && factoryPid != null && PROCESS_SERVICE_FACTORY_PID.equals(factoryPid)) {
+                installationMap.put(servicePid, installation);
             }
         }
 
