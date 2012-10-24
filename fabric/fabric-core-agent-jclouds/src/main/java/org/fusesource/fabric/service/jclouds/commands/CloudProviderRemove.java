@@ -23,22 +23,23 @@ import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.jclouds.karaf.core.Constants;
 import org.osgi.service.cm.Configuration;
 
 @Command(name = "cloud-provider-remove", scope = "fabric", description = "Removes a cloud provider from the fabric's registry.")
 public class CloudProviderRemove extends FabricCommand {
     private static final String PID_FILTER = "(service.pid=%s*)";
 
-    @Argument(index = 0, name = "id", required = true, description = "JClouds service id.")
-    private String serviceId;
+    @Argument(index = 0, name = "name", required = true, description = "JClouds context name.")
+    private String name;
 
     @Override
     protected Object doExecute() throws Exception {
         boolean connected = getZooKeeper().isConnected();
         Container current = null;
         if (connected) {
-            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(serviceId)) != null) {
-                getZooKeeper().deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(serviceId));
+            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(name)) != null) {
+                getZooKeeper().deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(name));
             }
             current = fabricService.getCurrentContainer();
         }
@@ -48,8 +49,8 @@ public class CloudProviderRemove extends FabricCommand {
             for (Configuration configuration : computeConfigs) {
                 Dictionary props = configuration.getProperties();
                 if (props != null) {
-                    String fabricPid = (String) props.get("fabric.zookeeper.pid");
-                    if (fabricPid.equals("org.jclouds.compute-" + serviceId.replaceAll("-", ""))) {
+                    String contextName = (String) props.get(Constants.NAME);
+                    if (name.equals(contextName)) {
                         configuration.delete();
                     }
                 }
