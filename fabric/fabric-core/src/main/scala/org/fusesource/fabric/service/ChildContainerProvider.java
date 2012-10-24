@@ -16,27 +16,29 @@
  */
 package org.fusesource.fabric.service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.karaf.admin.management.AdminServiceMBean;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerChildMetadata;
 import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 
-import static org.fusesource.fabric.utils.PortUtils.*;
+import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 
 
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
@@ -51,7 +53,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     @Override
     public Set<CreateContainerChildMetadata> create(final CreateContainerChildOptions options) throws Exception {
         final Set<CreateContainerChildMetadata> result = new LinkedHashSet<CreateContainerChildMetadata>();
-        String parentName = options.getParent();
+        final String parentName = options.getParent();
         final Container parent = service.getContainer(parentName);
         ContainerTemplate containerTemplate = service.getContainerTemplate(parent);
 
@@ -106,6 +108,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                     ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
                     ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
+
+                    inheritAddresses(service.getZooKeeper(), parentName, containerName, options);
 
                     //This is not enough as it will not work if children has been created and then deleted.
                     //The admin service should be responsible for allocating ports
@@ -238,5 +242,30 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
             }
         }
         return rmiPorts;
+    }
+
+    /**
+     * Links child container resolver and addresses to its parents resolver and addresses.
+     * @param zooKeeper
+     * @param parent
+     * @param name
+     * @param options
+     * @throws KeeperException
+     * @throws InterruptedException
+     */
+    private void inheritAddresses(IZKClient zooKeeper, String parent, String name, CreateContainerChildOptions options) throws KeeperException, InterruptedException {
+        //Link to the addresses from the parent container.
+        for (String resolver : ZkDefs.VALID_RESOLVERS) {
+            zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}", CreateMode.PERSISTENT);
+        }
+
+        if (options.getResolver() != null) {
+            zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), options.getResolver(), CreateMode.PERSISTENT);
+        } else {
+            zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}", CreateMode.PERSISTENT);
+        }
+
+        zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}", CreateMode.PERSISTENT);
+        zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), "${zk:"+name+"/resolver}", CreateMode.PERSISTENT);
     }
 }

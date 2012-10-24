@@ -288,7 +288,11 @@ public class FabricServiceImpl implements FabricService {
                             ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(),key),value);
                         }
 
-                        if (options.getResolver() != null) {
+                        //If no resolver specified but a resolver is already present in the registry, use the registry value
+                        if (options.getResolver() == null && zooKeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())) != null) {
+                             options.setResolver(zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())));
+                        }
+                        else if (options.getResolver() != null) {
                             //use the resolver specified in the options and do nothing.
                         }
                         else if (zooKeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
@@ -298,7 +302,7 @@ public class FabricServiceImpl implements FabricService {
                             //Fallback to the default resolver
                             options.setResolver(ZkDefs.DEFAULT_RESOLVER);
                         }
-                        //Set the resolver
+                        //Set the resolver if not exists
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName()), options.getResolver());
                     }
                     metadata.setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));

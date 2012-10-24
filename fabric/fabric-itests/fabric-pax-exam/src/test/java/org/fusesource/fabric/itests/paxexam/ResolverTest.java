@@ -30,7 +30,12 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.service.blueprint.container.BlueprintContainer;
+
+
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -44,7 +49,9 @@ public class ResolverTest extends FabricTestSupport {
         Assert.assertEquals("localhostname", current.getResolver());
         String sshUrlWithLocalhostResolver = current.getSshUrl();
 
-        executeCommand("fabric:container-resolver-set localip");
+        //We need to wait till fabric commands are available.
+        getOsgiService(BlueprintContainer.class, "(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+        System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
         Assert.assertEquals("localip", current.getResolver());
         String sshUrlWithLocalIpResolver = current.getSshUrl();
         //Check that the SSH URL has been updated.
@@ -54,8 +61,6 @@ public class ResolverTest extends FabricTestSupport {
     }
 
 
-    //Ignore this test case, as it's prone to errors due to knwon issues.
-    @Ignore
     @Test
     public void testResolverPriorities() throws Exception {
         Container current = getFabricService().getCurrentContainer();
@@ -79,25 +84,25 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
+        IZKClient zookeeper = getOsgiService(IZKClient.class);
         try {
             createAndAssertChildContainer("child1", "root", "default");
             Container child1 = getFabricService().getContainer("child1");
 
-            Assert.assertEquals("localhostname", child1.getResolver());
+            Assert.assertEquals("localhostname", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
             String sshUrlWithLocalhostResolver = child1.getSshUrl();
 
             executeCommand("fabric:container-resolver-set --container child1 localip");
-            Assert.assertEquals("localip", child1.getResolver());
+            Assert.assertEquals("localip", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
             String sshUrlWithLocalIpResolver = child1.getSshUrl();
             //Check that the SSH URL has been updated.
             System.out.println("SSH URL with "+sshUrlWithLocalhostResolver+" resolver: localhostname");
             System.out.println("SSH URL with "+ sshUrlWithLocalIpResolver+" resolver: localip" );
             Assert.assertNotSame(sshUrlWithLocalhostResolver, sshUrlWithLocalIpResolver);
 
-            IZKClient zookeeper  = getOsgiService(IZKClient.class);
             ZooKeeperUtils.set(zookeeper, ZkPath.CONTAINER_PUBLIC_IP.getPath("child1"), "my.public.ip.address");
             executeCommand("fabric:container-resolver-set --container child1 publicip");
-            Assert.assertEquals("publicip", child1.getResolver());
+            Assert.assertEquals("publicip", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
             String sshUrlWithPublicIpResolver = child1.getSshUrl();
             System.out.println("SSH URL with "+ sshUrlWithPublicIpResolver+" resolver: publicip" );
             Assert.assertNotNull(sshUrlWithPublicIpResolver);
@@ -105,7 +110,7 @@ public class ResolverTest extends FabricTestSupport {
 
             ZooKeeperUtils.set(zookeeper, ZkPath.CONTAINER_MANUAL_IP.getPath("child1"), "my.manual.ip.address");
             executeCommand("fabric:container-resolver-set --container child1 manualip");
-            Assert.assertEquals("manualip", child1.getResolver());
+            Assert.assertEquals("manualip", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
             String sshUrlWithManualIpResolver = child1.getSshUrl();
 
             System.out.println("SSH URL with "+sshUrlWithManualIpResolver+" resolver: manualip" );
@@ -119,14 +124,19 @@ public class ResolverTest extends FabricTestSupport {
     }
 
     @Test
-    public void testGlobalResolverInheritanceOnChild() throws Exception {
+    public void testResolverInheritanceOnChild() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost"));
+        IZKClient zookeeper = getOsgiService(IZKClient.class);
         try {
             createAndAssertChildContainer("child1", "root", "default");
-            Container child1 = getFabricService().getContainer("child1");
 
-            Assert.assertEquals("localip", child1.getResolver());
+            Assert.assertEquals("manualip", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
             Assert.assertEquals("manualip", getFabricService().getCurrentContainer().getResolver());
+
+            //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
+            getOsgiService(BlueprintContainer.class, "(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+            System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
+            Assert.assertEquals("localip", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
 
         } finally {
             destroyChildContainer("child1");
@@ -135,6 +145,9 @@ public class ResolverTest extends FabricTestSupport {
 
     @Configuration
     public Option[] config() {
-        return fabricDistributionConfiguration();
+        return new Option[] {
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                //debugConfiguration("5005",true)
+        };
     }
 }

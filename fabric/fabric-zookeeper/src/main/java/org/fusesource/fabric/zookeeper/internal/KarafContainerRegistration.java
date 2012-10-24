@@ -223,7 +223,6 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
      */
     private static String getContainerResolutionPolicy(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
         String policy = null;
-        String globalPolicy =  getGlobalResolutionPolicy(zookeeper);
         List<String> validResoverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
         if (zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
             policy = zookeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(container));
@@ -231,8 +230,8 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
         }
 
-        if (policy == null || !validResoverList.contains(policy)) {
-            policy = globalPolicy;
+        if (policy == null) {
+            policy = getGlobalResolutionPolicy(zookeeper);
         }
 
         if (policy != null && zookeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
