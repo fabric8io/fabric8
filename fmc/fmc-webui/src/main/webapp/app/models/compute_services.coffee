@@ -28,7 +28,7 @@ define [
       options = _.extend({
         url: "rest/#{@url}"
         type: "POST"
-        data: JSON.stringify options
+        data: JSON.stringify(options)
         contentType: "application/json"
         dataType: "json"
       }, options)

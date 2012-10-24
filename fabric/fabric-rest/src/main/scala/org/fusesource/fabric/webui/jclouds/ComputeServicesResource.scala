@@ -20,7 +20,8 @@ import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.ws.rs.{POST, PathParam, Path, GET}
-import org.fusesource.fabric.service.jclouds.internal.CloudUtils
+import org.fusesource.fabric.service.jclouds.internal.CloudUtils._
+import java.util.UUID
 
 /**
  *
@@ -29,13 +30,16 @@ import org.fusesource.fabric.service.jclouds.internal.CloudUtils
 class CreateComputeServiceDTO {
 
   @JsonProperty
+  var id: String = _
+
+  @JsonProperty
   var serviceId: String = _
 
   @JsonProperty
   var provider: String = _
 
   @JsonProperty
-  var api: String = _
+  var _type: String = _
 
   @JsonProperty
   var endpoint: String = _
@@ -48,8 +52,6 @@ class CreateComputeServiceDTO {
 
   @JsonProperty
   var options: String = _
-
-  override def toString = "provider : " + provider + " identity: " + identity + " credential : " + credential + " options : " + options
 
 }
 
@@ -67,25 +69,49 @@ class ComputeServicesResource extends BaseResource {
 
   @POST
   def create(args: CreateComputeServiceDTO): Unit = {
+
+    require(args.identity != null && !args.identity.equals(""), "Must specify cloud provider/api identity")
+    require(args.credential != null && !args.credential.equals(""), "Must specify cloud provider/api credential")
+
     val options = args.options.split('\n').map(_.trim)
-    val props = CloudUtils.parseProviderOptions(options)
+    val props = parseProviderOptions(options)
 
-    if (!Option(args.serviceId).isDefined && Option(args.provider).isDefined) {
-      args.serviceId = args.provider
-    } else if (!Option(args.serviceId).isDefined && Option(args.provider).isDefined) {
-      args.serviceId = args.api
+    def generate_service_id (provider:String) = provider + "-" + UUID.randomUUID().toString
+
+    val service_id = Option(args.serviceId) match {
+      case Some(id) =>
+        if (id.equals(""))
+          generate_service_id(args.provider)
+        else
+          id
+      case None =>
+          generate_service_id(args.provider)
     }
 
-    if (Option(args.provider).isDefined) {
-      CloudUtils.registerProvider(Services.zoo_keeper, Services.config_admin, args.serviceId, args.provider, args.identity, args.credential, props)
-    } else if (Option(args.api).isDefined && Option(args.endpoint).isDefined) {
-      CloudUtils.registerApi(Services.zoo_keeper, Services.config_admin, args.serviceId, args.api, args.endpoint, args.identity, args.credential, props)
-    }
-    //System.out.printf("Registering new provider with %s\n", args)
+    args._type match {
+      case "provider" =>
+        registerProvider(Services.zoo_keeper,
+                         Services.config_admin,
+                         service_id,
+                         args.provider,
+                         args.identity,
+                         args.credential,
+                         props)
+      case "api" =>
+        require(args.endpoint != null && !args.endpoint.equals(""), "Must specify endpoint URI when registering a cloud API")
+        registerApi(Services.zoo_keeper,
+                    Services.config_admin,
+                    service_id,
+                    args.provider,
+                    args.endpoint,
+                    args.identity,
+                    args.credential,
+                    props)
 
-    //System.out.printf("Waiting...\n")
-    CloudUtils.waitForComputeService(Services.bundle_context, args.serviceId)
-    //System.out.printf("Done!\n")
+      case _ =>
+        throw new RuntimeException("Unknown cloud api/provider type")
+    }
+
   }
 
 

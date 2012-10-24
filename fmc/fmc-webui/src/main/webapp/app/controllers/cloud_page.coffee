@@ -88,7 +88,6 @@ define [
       @state = new FON.Model
       @selected = @state.property "selected"
       @state.bind "change:selected", @selection_changed, @
-      @wait = new ModalWaitDialog
 
     selection_changed: ->
       old_selection = @selection
@@ -160,37 +159,35 @@ define [
         parent: @
         on_cancel: => @options.on_cancel() if @options.on_cancel
         on_add: =>
-
-          @wait.render()
-
-          arguments =
+          @compute_services.create_compute_service
             provider: @selected().id
+            _type: @selected().get "_type"
             serviceId: @service_id.val() if @service_id.val() != ""
             endpoint: @endpoint.val() if @endpoint.val() != ""
             identity: @identity.val()
             credential: @credential.val()
             options: @opts.val()
-
-          options =
             success: (data, textStatus, jqXHR) =>
-              @wait.do_hide()
-              @compute_services.fetch
-                success: =>
-                  @compute_providers.fetch
-                    success: =>
-                      app.page new CloudPage
-                        compute_services: @compute_services
-                        compute_providers: @compute_providers
+              app.flash
+                kind: "info"
+                title: "Success: "
+                message: "Registered new cloud provider"
+                hide_after: 2000
 
             error: (model, response, options) =>
-              @wait.do_hide()
               app.flash
                 kind: "error"
                 title: "Error creating cloud service"
                 message: "Unable to create cloud service, error message was #{response.responseText}"
-                on_close: -> window.location.reload()
 
-          @compute_services.create arguments, options
+          app.page new CloudPage
+            compute_services: @compute_services
+            compute_providers: @compute_providers
+
+          app.flash
+            kind: "info"
+            title: "Working: "
+            message: "Registering new cloud provider or API..."
 
       @right_buttons.html @buttons.render().el
 
@@ -305,6 +302,7 @@ define [
 
       @state.bind "change:selected", @selection_changed, @
       @model.bind "remove", @element_removed, @
+      @model.bind "add", @render, @
 
     selection_changed: ->
       old_selection = @old_selection
@@ -323,6 +321,7 @@ define [
 
       if !@selected() || @selected().id == options.id
         @selected @model.at(0)
+      @render()
 
     on_render: ->
       services = new FON.CollectionController
@@ -339,18 +338,23 @@ define [
 
     delete_selected: ->
       dialog = FON.confirm_delete @selected().get("name"), "provider", =>
+        app.flash
+          kind: "info"
+          title: "Deleting: "
+          message: "Deleting registered cloud provider"
+
         @selected().destroy
           success: =>
             app.flash
-              kind: ""
+              kind: "info"
               title: "Success: "
-              message: "Successfully deleted provider"
-              on_close: load_page
+              message: "Successfully deleted cloud provider"
+              hide_after: 2000
           error: =>
             app.flash
               kind: "error"
               title: "Error: "
-              message: "Error deleting provider"
+              message: "Error deleting cloud provider"
       dialog.render()
 
 
@@ -449,6 +453,9 @@ define [
       on_close: -> window.location.reload()
 
   load_page = ->
+
+    app.page new FON.LoadingPage
+
     compute_services = new ComputeServices()
     compute_providers = new ComputeProviders()
 

@@ -20,20 +20,32 @@ import org.fusesource.fabric.webui.{Services, BaseResource}
 import javax.ws.rs.{PathParam, GET, Path}
 import org.jclouds.providers.ProviderMetadata
 import org.jclouds.apis.ApiMetadata
+import Utils._
 
 @Path("/compute_providers")
 class ComputeProvidersResource extends BaseResource {
 
-  def providerMetadataToResource(x: ProviderMetadata) : ComputeProviderResource =  new ComputeProviderResource(x.getId)
-  def apiMetadataToResource(x: ApiMetadata) : ComputeProviderResource =  new ComputeProviderResource(x.getId)
-
-
   @GET
-  override def get: Array[ComputeProviderResource] = Services.compute_providers.map(providerMetadataToResource).toArray
+  override def get: Array[ComputeProviderResource] = {
+    val providers = Services.compute_providers.map(asResource(_)).toList
+    val apis = Services.compute_apis.map(asResource(_)).toList
 
-  @Path("{id}")
-  def get(@PathParam("id") id: String): ComputeProviderResource = {
-    val provider = get.find(_.id == id)
+    val rc = providers ::: apis
+    rc.toArray
+  }
+
+  @Path("{type}")
+  def get(@PathParam("type") _type:String) = {
+    _type match {
+      case "provider" => Services.compute_providers.map(Utils.asResource(_)).toArray
+      case "api" => Services.compute_apis.map(asResource(_)).toArray
+      case _ => not_found
+    }
+  }
+
+  @Path("{type}/{id}")
+  def get(@PathParam("type") _type:String, @PathParam("id") id: String): ComputeProviderResource = {
+    val provider = get.find(x => x.id.equals(id) && x._type.equals(_type) )
     provider getOrElse not_found
   }
 

@@ -16,22 +16,27 @@
 
 package org.fusesource.fabric.webui.jclouds
 
-import org.jclouds.compute.{ComputeServiceContext, ComputeService}
-import org.jclouds.karaf.core.Constants
 import org.codehaus.jackson.annotate.JsonProperty
 import org.fusesource.fabric.webui.{Services, BaseResource}
-import org.fusesource.fabric.webui.{Services, BaseResource}
-import org.jclouds.Context
 
 /**
  *
  */
-class ComputeProviderResource(_id: String) extends BaseResource {
+class ComputeProviderResource(_id: String, provider_or_metadata: String) extends BaseResource {
 
   @JsonProperty
   def id = _id
 
   @JsonProperty
-  def name = Services.compute_providers.find(_.getId == id).get.getName()
+  def name = {
+    _type match {
+      case "provider" => Services.compute_providers.find(_.getId.equals(id)).get.getName()
+      case "api" => Services.compute_apis.find(_.getId.equals(id)).get.getName()
+      case _ => ""
+    }
+  }
+
+  @JsonProperty
+  def _type = provider_or_metadata
 
 }

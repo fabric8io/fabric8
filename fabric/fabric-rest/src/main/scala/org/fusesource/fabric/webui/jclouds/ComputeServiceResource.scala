@@ -195,11 +195,31 @@ class ComputeServiceResource(self: ComputeService) extends BaseResource {
     }
 
     Services.configs_by_factory_pid("org.jclouds.compute").foreach((x) => {
-      if (x.getProperties.get("provider") == provider_id && x.getProperties.get("name") == id) {
-        x.delete()
+      val props = x.getProperties
+      val name = props.get("name")
+      Option(name) match {
+        case Some(name) =>
+          if (name.equals(id)) {
+            Option(props.get("api")) match {
+              case Some(api) =>
+                if (api.equals(provider_id)) {
+                  x.delete()
+                }
+              case None =>
+            }
+            Option(props.get("provider")) match {
+              case Some(provider) =>
+                if (provider.equals(provider_id)) {
+                  x.delete()
+                }
+              case None =>
+            }
+
+
+          }
+        case None =>
       }
     })
   }
-
 
 }
