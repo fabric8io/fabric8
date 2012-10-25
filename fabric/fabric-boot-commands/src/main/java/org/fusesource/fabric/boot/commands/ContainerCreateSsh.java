@@ -56,8 +56,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
-    @Argument(index = 1, required = false, description = "The number of containers that should be created")
-    protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -68,7 +66,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .name(name)
         .resolver(resolver)
         .ensembleServer(isEnsembleServer)
-        .number(number)
+        .number(1)
         .host(host)
         .username(user)
         .password(password)
@@ -95,11 +93,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     @Override
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
-
-        // validate number is not out of bounds
-        if (number < 1 || number > 99) {
-            throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
-        }
 
         // Check if the specified host is local
         try {
