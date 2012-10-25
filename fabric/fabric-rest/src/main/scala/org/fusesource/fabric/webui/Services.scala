@@ -62,33 +62,6 @@ object Services {
 
   val PID_FILTER = "(service.pid=%s*)"
 
-  protected val jcloud_name_mapping = Map(
-    "aws-ec2" -> "Amazon Elastic Compute Cloud (EC2)",
-    "bluelock-vcloud-zone01" -> "Bluelock vCloud Zone 1",
-    "cloudsigma-lvs" -> "CloudSigma LasVegas",
-    "cloudsigma-zrh" -> "CloudSigma Zurich",
-    "elastichosts-lon-b" -> "ElasticHosts London BlueSquare",
-    "elastichosts-lon-p" -> "ElasticHosts London Peer 1",
-    "elastichosts-sat-p" -> "ElasticHosts San Antonio Peer 1",
-    "eucalyptus-partnercloud-ec2" -> "Eucalyptus Partner Cloud (EC2)",
-    "go2cloud-jhb1" -> "Go2Cloud Johannesburg1",
-    "gogrid" -> "GoGrid",
-    "greenhousedata-element-vcloud" -> "Green House Data Element vCloud",
-    "ninefold-compute" -> "Ninefold Compute",
-    "openhosting-east1" -> "OpenHosting East1",
-    "cloudservers-uk" -> "Rackspace Cloud Servers UK",
-    "cloudservers-us" -> "Rackspace Cloud Servers US",
-    "rimuhosting" -> "RimuHosting",
-    "savvis-symphonyvpdc" -> "Savvis Symphony VPDC",
-    "serverlove-z1-man" -> "Serverlove Manchester",
-    "skalicloud-sdg-my" -> "SkaliCloud Malaysia",
-    "slicehost" -> "Slicehost",
-    "softlayer" -> "SoftLayer",
-    "stratogen-vcloud-mycloud" -> "StratoGen VMware hosting",
-    "trmk-ecloud" -> "Terremark Enterprise Cloud",
-    "trmk-vcloudexpress" -> "Terremark vCloud Express"
-  )
-
   val LOG: Logger = LoggerFactory.getLogger("org.fusesource.fabric.webui.Services")
 
   def debug = System.getProperty("org.fusesource.fabric.fabric-webui.debug", "false").asInstanceOf[String].toBoolean
@@ -164,10 +137,6 @@ object Services {
   def compute_providers = Providers.all().asScala
 
   def compute_apis = Apis.all().asScala
-
-  def map_provider_name(key: String) = jcloud_name_mapping.get(key).getOrElse {
-    ""
-  }
 
   def patch_dir = temp_dir + File.separator + _patchDir
 
