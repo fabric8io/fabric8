@@ -18,14 +18,19 @@ package org.fusesource.fabric.boot.commands.support;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
@@ -113,6 +118,27 @@ public abstract class FabricCommand extends OsgiCommandSupport {
             throw new IllegalArgumentException("Profile " + name + " does not exist.");
         }
         return p;
+    }
+
+    /**
+     * Checks if container is part of the ensemble.
+     * @param containerName
+     * @return
+     */
+    protected boolean isPartOfEnsemble(String containerName) {
+        boolean result = false;
+        Container container = fabricService.getContainer(containerName);
+        String version = container.getVersion().toString();
+        try {
+            List<String> containerList = new ArrayList<String>();
+            String clusterId = zooKeeper.getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble");
+            String containers = zooKeeper.getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + clusterId);
+            Collections.addAll(containerList, containers.split(","));
+            result = containerList.contains(containerName);
+        } catch (Throwable t) {
+            //ignore
+        }
+        return result;
     }
 
     /**

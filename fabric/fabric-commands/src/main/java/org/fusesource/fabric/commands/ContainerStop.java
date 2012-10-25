@@ -18,17 +18,26 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "container-stop", scope = "fabric", description = "Shut down an existing container")
 public class ContainerStop extends FabricCommand {
 
+    @Option(name = "-f", aliases = {"--force"}, multiValued = false, required = false, description = "Forces stopping of the container.")
+    protected Boolean force = Boolean.FALSE;
+
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
     private String container = null;
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        if (isPartOfEnsemble(container) && !force) {
+            System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
+            return null;
+        }
+
         Container found = getContainer(container);
         if (found.isAlive()) {
             found.stop();

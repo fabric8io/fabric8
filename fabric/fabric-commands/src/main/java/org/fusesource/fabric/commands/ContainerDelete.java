@@ -27,12 +27,21 @@ public class ContainerDelete extends FabricCommand {
 
     @Argument(index = 0, description = "The name of the container to delete.", multiValued = false, required = true)
     private String name;
+
     @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
     protected Boolean recursive = Boolean.FALSE;
+
+    @Option(name = "-f", aliases = {"--force"}, multiValued = false, required = false, description = "Forces the deletion of the container.")
+    protected Boolean force = Boolean.FALSE;
 
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        if (isPartOfEnsemble(name) && !force) {
+            System.out.println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
+            return null;
+        }
+
         Container found = getContainer(name);
         if (recursive) {
             for (Container child : found.getChildren()) {
