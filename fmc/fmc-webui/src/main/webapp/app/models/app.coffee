@@ -60,25 +60,28 @@ define [
 
   update_menu = ->
     menu = []
-    menu.push
-      href: "#/containers"
-      label: "Containers"
-    menu.push
-      href: "#/cloud"
-      label: "Cloud"
-    menu.push
-      href: "#/versions"
-      label: "Profiles"
-    #menu.push
-    #  href: "#/registry"
-    #  label: "Registry"
-    menu.push
-      href: "#/patches"
-      label: "Patching"
-    if app.system_state.get "has_backing_engine"
+
+    if app.whoami.get("username") && app.whoami.get("username") != ""
       menu.push
-        href: "#/users"
-        label: "Users"
+        href: "#/containers"
+        label: "Containers"
+      menu.push
+        href: "#/cloud"
+        label: "Cloud"
+      menu.push
+        href: "#/versions"
+        label: "Profiles"
+      #menu.push
+      #  href: "#/registry"
+      #  label: "Registry"
+      menu.push
+        href: "#/patches"
+        label: "Patching"
+      if app.system_state.get "has_backing_engine"
+        menu.push
+          href: "#/users"
+          label: "Users"
+
     app.menu menu
 
   app.update_menu = update_menu

@@ -95,7 +95,7 @@ define [
             window.open "doc/help/index.html"
 
       topbar_user_container.bind "render", (controller)-> bind_menu_actions controller.el
-      app.model.bind "change:username", => topbar_user_container.render()
+      app.model.bind "change:username", topbar_user_container.render, topbar_user_container
 
       flash_container = new FlashContainer
         el: $("#flash_container")
