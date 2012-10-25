@@ -140,7 +140,7 @@ class PatchFilesResource extends BaseUpgradeResource {
     patch_files.foreach((x) => {
       try {
         Services.LOG.info("Applying patch {} to version {}", x.getName, version.getName)
-        patch_service.applyFinePatch(version, x.toURI.toURL, "admin", "admin")
+        patch_service.applyFinePatch(version, x.toURI.toURL, Services.principal.username, Services.principal.password)
       } catch {
         case t: Throwable =>
           version.delete()
