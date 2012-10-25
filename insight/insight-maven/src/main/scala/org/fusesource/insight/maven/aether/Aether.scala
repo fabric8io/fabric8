@@ -50,7 +50,9 @@ object Authentications {
 object Aether {
   def userRepository = System.getProperty("user.home", ".") + "/.m2/repository"
 
-  def defaultRepositories = List(
+  var authorised = false
+
+  def unauthorizedRepositories = List(
     Repository("proxy.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()),
     Repository("central", "http://repo2.maven.org/maven2/"),
     Repository("public.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/public"),
@@ -65,6 +67,12 @@ object Aether {
     Repository("com.springsource.repository.libraries.release", "http://repository.springsource.com/maven/libraries/release"),
     Repository("com.springsource.repository.libraries.external", "http://repository.springsource.com/maven/libraries/external")
   )
+
+  def defaultRepositories = if (authorised) {
+      Repository("proxy.fusesource.com", "http://repo.fusesource.com/nexus/content/groups/m2-proxy", Authentications.getFuseRepoAuthentication()) :: unauthorizedRepositories
+  } else {
+    unauthorizedRepositories
+  }
 
 
   def artifact(node: DependencyNode) = node.getDependency.getArtifact
