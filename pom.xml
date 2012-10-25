@@ -107,7 +107,7 @@
         <aries-util-version>1.0.0</aries-util-version>
         <aries.version>1.0.0</aries.version>
         <aries.proxy.version>1.0.0</aries.proxy.version>
-        <asm.bundle.version>3.3_2</asm.bundle.version>
+        <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
         <brew-version>0.2.11</brew-version>
         <camel-version>2.10.0.fuse-71-${perfectus-build}</camel-version>
