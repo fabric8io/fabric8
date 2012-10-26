@@ -75,8 +75,9 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(options.getJvmOpts()).append(" ");
                 }
 
-                jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote ")
-                        .append(options.getZookeeperUrl() != null ? "-Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "");
+                jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote")
+                        .append(options.getZookeeperUrl() != null ? " -Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "")
+                        .append(options.getZookeeperPassword() != null ? " -Dzookeeper.password=\"" + options.getZookeeperPassword() + "\"" : "");
 
                 if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
                     jvmOptsBuilder.append(" -Xmx512m");

@@ -25,7 +25,6 @@ import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -48,7 +47,6 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.util.tracker.ServiceTracker;
-
 
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
@@ -112,6 +110,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
+            String password = generatePassword();
+
 
             // Install or stop the fabric-configadmin bridge
             Bundle bundleFabricConfigAdmin = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
@@ -153,6 +153,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             properties.put("zookeeper.url", connectionUrl);
             properties.put("zookeeper.timeout", System.getProperties().containsKey("zookeeper.timeout") ? System.getProperties().getProperty("zookeeper.timeout") : "30000");
             properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper");
+            properties.put("zookeeper.password", password);
             config.setBundleLocation(null);
             config.update(properties);
 
@@ -176,6 +177,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             String defaultProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "default");
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(mappedPort));
+            setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", password);
 
             ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000"), "abstract=true\nhidden=true");
 
@@ -244,6 +246,21 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
         }
+    }
+
+    private static String generatePassword() {
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
+            if (l < 10) {
+                password.append((char) ('0' + l));
+            } else if (l < 36) {
+                password.append((char) ('A' + l - 10));
+            } else {
+                password.append((char) ('a' + l - 36));
+            }
+        }
+        return password.toString();
     }
 
     private void loadPropertiesFrom(Hashtable hashtable, String from) {

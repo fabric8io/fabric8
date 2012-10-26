@@ -48,6 +48,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .ensembleServer(isEnsembleServer)
                 .number(number)
                 .zookeeperUrl(fabricService.getZookeeperUrl())
+                .zookeeperPassword(fabricService.getZookeeperPassword())
                 .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);

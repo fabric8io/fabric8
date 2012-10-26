@@ -18,12 +18,11 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+
 import org.fusesource.fabric.utils.PortUtils;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
 
@@ -41,6 +40,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected Integer number = 1;
     protected URI proxyUri;
     protected String zookeeperUrl;
+    protected String zookeeperPassword;
     protected String jvmOpts;
     protected boolean adminAccess = false;
     protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
@@ -123,6 +123,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public T zookeeperUrl(final String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
+        return (T) this;
+    }
+
+    public T zookeeperPassword(final String zookeeperPassword) {
+        this.zookeeperPassword = zookeeperPassword;
         return (T) this;
     }
 
@@ -255,6 +260,14 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public void setZookeeperUrl(String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
+    }
+
+    public String getZookeeperPassword() {
+        return zookeeperPassword;
+    }
+
+    public void setZookeeperPassword(String zookeeperPassword) {
+        this.zookeeperPassword = zookeeperPassword;
     }
 
     public String getJvmOpts() {

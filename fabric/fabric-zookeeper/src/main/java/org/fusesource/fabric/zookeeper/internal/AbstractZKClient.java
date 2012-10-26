@@ -59,6 +59,7 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractZKClient.class.getName());
 
     private Map<String, String> acls;
+    private String password;
 
     public void start() throws Exception {
         // Grab the lock to make sure that the registration of the ManagedService
@@ -73,6 +74,10 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
 
     protected void setACLs(Map<String, String> acls) {
         this.acls = acls;
+    }
+
+    protected void setPassword(String password) {
+        this.password = password;
     }
 
     protected abstract void doStart() throws InvalidSyntaxException, ConfigurationException;
@@ -187,6 +192,9 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
         synchronized (_lock) {
             changeState(State.CONNECTING);
             _zk = _factory.createZooKeeper(this);
+            if (password != null) {
+                _zk.addAuthInfo("digest", ("fabric:" + password).getBytes());
+            }
         }
     }
 

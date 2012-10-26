@@ -102,6 +102,12 @@ public interface FabricService {
     String getZookeeperUrl();
 
     /**
+     * Returns the password used to connect to Zookeeper.
+     * @return
+     */
+    String getZookeeperPassword();
+
+    /**
      * Returns all the {@link Profile}s for the specified {@link Version}.
      * @param version   The {@link Version} that will be used for querying {@link Profile}s.
      * @return          The matching {@link Profile}s.

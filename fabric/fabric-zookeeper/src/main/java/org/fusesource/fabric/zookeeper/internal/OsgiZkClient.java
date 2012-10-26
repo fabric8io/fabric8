@@ -51,7 +51,6 @@ public class OsgiZkClient extends AbstractZKClient implements ManagedService {
     private ServiceRegistration managedServiceRegistration;
     private ServiceRegistration zkClientRegistration;
 
-
     public OsgiZkClient() {
         super(null);
     }
@@ -115,6 +114,7 @@ public class OsgiZkClient extends AbstractZKClient implements ManagedService {
     public void updated(Dictionary properties) throws ConfigurationException {
         synchronized (_lock) {
             String url = System.getProperty("zookeeper.url");
+            String password = System.getProperty("zookeeper.password");
             Map<String, String> acls = new HashMap<String, String>();
             if (properties != null) {
                 if (properties.get("zookeeper.url") != null) {
@@ -122,6 +122,9 @@ public class OsgiZkClient extends AbstractZKClient implements ManagedService {
                 }
                 if (properties.get("zookeeper.timeout") != null) {
                     sessionTimeout = Timespan.parse((String) properties.get("zookeeper.timeout"));
+                }
+                if (properties.get("zookeeper.password") != null) {
+                    password = (String) properties.get("zookeeper.password");
                 }
                 for (Enumeration e = properties.keys(); e.hasMoreElements();) {
                     String key = e.nextElement().toString();
@@ -133,8 +136,10 @@ public class OsgiZkClient extends AbstractZKClient implements ManagedService {
             }
             if (!acls.containsKey("/")) {
                 acls.put("/", "world:anyone:acdrw");
+                acls.put("/fabric", "auth::acdrw,world:anyone:");
             }
             setACLs(acls);
+            setPassword(password);
             if (_factory == null && url == null
                     || _factory != null && url != null && getConnectString().equals(url)) {
                 // No configuration changes at all

@@ -112,6 +112,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .user(user).password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
+        .zookeeperPassword(fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
         .creationStateListener(new PrintStreamCreationStateListener(System.out));
 

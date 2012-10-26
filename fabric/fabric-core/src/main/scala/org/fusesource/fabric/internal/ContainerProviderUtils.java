@@ -18,11 +18,8 @@
 package org.fusesource.fabric.internal;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -145,11 +142,14 @@ public class ContainerProviderUtils {
         }
 
         if (options.isEnsembleServer()) {
+            String password = generatePassword();
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + password));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
         } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
             appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,");
         }
@@ -178,6 +178,21 @@ public class ContainerProviderUtils {
         sb.append("nohup bin/start &").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
         return sb.toString();
+    }
+
+    private static String generatePassword() {
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < 16; i++) {
+            long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
+            if (l < 10) {
+                password.append((char) ('0' + l));
+            } else if (l < 36) {
+                password.append((char) ('A' + l - 10));
+            } else {
+                password.append((char) ('a' + l - 36));
+            }
+        }
+        return password.toString();
     }
 
 

@@ -413,6 +413,14 @@ public class FabricServiceImpl implements FabricService {
 
 
     public String getZookeeperUrl() {
+        return getZookeeperInfo("zookeeper.url");
+    }
+
+    public String getZookeeperPassword() {
+        return getZookeeperInfo("zookeeper.password");
+    }
+
+    protected String getZookeeperInfo(String name) {
         String zooKeeperUrl = null;
         //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
         //Also this is required for the integration with the IDE.
@@ -426,7 +434,7 @@ public class FabricServiceImpl implements FabricService {
                         if (configurations != null) {
                             Map<String, String> zookeeperConfig = configurations.get("org.fusesource.fabric.zookeeper");
                             if (zookeeperConfig != null) {
-                                zooKeeperUrl = ZooKeeperUtils.getSubstitutedData(zooKeeper, zookeeperConfig.get("zookeeper.url"));
+                                zooKeeperUrl = ZooKeeperUtils.getSubstitutedData(zooKeeper, zookeeperConfig.get(name));
                             }
                         }
                     }
@@ -439,7 +447,7 @@ public class FabricServiceImpl implements FabricService {
         if (zooKeeperUrl == null) {
             try {
                 Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
-                zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
+                zooKeeperUrl = (String) config.getProperties().get(name);
             } catch (Exception e) {
                 //Ignore it.
             }

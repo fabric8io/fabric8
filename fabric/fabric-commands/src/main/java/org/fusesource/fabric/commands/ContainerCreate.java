@@ -66,6 +66,7 @@ public class ContainerCreate extends ContainerCreateSupport {
                 .providerUri(url)
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
                 .zookeeperUrl(fabricService.getZookeeperUrl())
+                .zookeeperPassword(fabricService.getZookeeperPassword())
                 .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
