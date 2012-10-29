@@ -1227,3 +1227,7 @@ ul.repo-list li {
   height: 20em;
   background-color: #fff;
 }
+
+#cloud-options {
+  height: 12em;
+}

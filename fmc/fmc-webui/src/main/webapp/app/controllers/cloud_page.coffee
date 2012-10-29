@@ -96,11 +96,38 @@ define [
       old_selection.trigger("change") if old_selection
       @selection.trigger("change") if @selection
 
+      if @selection.get("_type") == "api"
+        @endpoint.val("")        
+        @validated_endpoint = new FON.ValidatingTextInput
+          control: @endpoint
+          controller: @
+          validator: (text) ->
+            if !text || text == ""
+              ok: false,
+              msg: "You must specify the cloud API endpoint"
+            else
+              ok: true,
+              msg: ""
+          cb: @maybe_enable_add
+
+        @endpoint.attr "disabled", false
+      else
+        @endpoint.val("")
+        @endpoint.attr "disabled", true
+        if @validated_endpoint
+          @validated_endpoint.validator = (text) ->
+            ok: true,
+            msg: ""
+
       @maybe_enable_add @
 
     maybe_enable_add: (self) ->
       valid = true
-      keep_checking = true
+
+      if self.validated_endpoint
+        if !self.validated_endpoint.validate()
+          valid = false
+
       for control in self.validated_controls
         if !control.validate() && valid
           valid = false
