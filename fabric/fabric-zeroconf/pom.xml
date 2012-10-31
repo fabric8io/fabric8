@@ -34,7 +34,7 @@
         <fuse.osgi.export>
             org.fusesource.fabric.zeroconf
         </fuse.osgi.export>
-        <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=activemq-jmdns*</fuse.osgi.embed.dependency>
+        <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=jmdns*</fuse.osgi.embed.dependency>
     </properties>
 
     <dependencies>
@@ -51,9 +51,10 @@
         </dependency>
 
         <dependency>
-            <groupId>org.apache.activemq</groupId>
-            <artifactId>activemq-jmdns_1.0</artifactId>
-            <version>${activemq-version}</version>
+           <groupId>javax.jmdns</groupId>
+           <artifactId>jmdns</artifactId>
+           <version>${jmdns-version}</version>
+           <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
