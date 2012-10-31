@@ -88,7 +88,6 @@ public class EsbFeaturesTest extends EsbTestSupport {
         unInstallAndCheckFeature("camel-activemq");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testJpaHibernate() throws Exception {
         installAndCheckFeature("jpa-hibernate");
