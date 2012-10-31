@@ -17,28 +17,25 @@
 
 package org.fusesource.fabric.maven.impl;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
+import org.apache.commons.codec.binary.Base64;
+import org.osgi.service.http.HttpContext;
+import org.osgi.service.http.HttpService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
+import javax.security.auth.callback.*;
 import javax.security.auth.login.AccountException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.codec.binary.Base64;
-import org.osgi.service.http.HttpContext;
-import org.osgi.service.http.HttpService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
 
 public class SecureHttpContext implements HttpContext {
 
@@ -106,7 +103,7 @@ public class SecureHttpContext implements HttpContext {
             });
             loginContext.login();
             if (role != null && role.length() > 0) {
-                String clazz = "org.apache.karaf.jaas.modules.RolePrincipal";
+                String clazz = "org.apache.karaf.jaas.boot.principal.RolePrincipal";
                 String name = role;
                 int idx = role.indexOf(':');
                 if (idx > 0) {
