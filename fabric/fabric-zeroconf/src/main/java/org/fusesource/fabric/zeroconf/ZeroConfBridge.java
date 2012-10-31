@@ -26,10 +26,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import org.apache.activemq.jmdns.JmDNS;
-import org.apache.activemq.jmdns.ServiceEvent;
-import org.apache.activemq.jmdns.ServiceInfo;
-import org.apache.activemq.jmdns.ServiceListener;
+import javax.jmdns.JmDNS;
+import javax.jmdns.ServiceEvent;
+import javax.jmdns.ServiceInfo;
+import javax.jmdns.ServiceListener;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -120,7 +120,13 @@ public class ZeroConfBridge {
             final JmDNS closeTarget = jmdns;
             Thread thread = new Thread() {
                 public void run() {
-                    closeTarget.close();
+                    try {
+                        if (JmDNSFactory.onClose(getLocalAddress())) {
+                            closeTarget.close(); 
+                        }
+                    } catch (IOException e) {
+                        LOG.debug("Error closing JmDNS " + getLocalhost() + ". This exception will be ignored.", e);
+                    }
                 }
             };
 
@@ -270,7 +276,7 @@ public class ZeroConfBridge {
         if (LOG.isDebugEnabled()) {
             LOG.debug("Registering service type: " + type + " name: " + name + " details: " + map);
         }
-        return new ServiceInfo(type, name + "." + type, port, weight, priority, "");
+        return ServiceInfo.create(type, name + "." + type, port, weight, priority, "");
     }
 
     protected JmDNS createJmDNS() throws IOException {
