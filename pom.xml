@@ -93,8 +93,9 @@
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>020</perfectus-build>
-        <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
+        <perfectus-build>024</perfectus-build>
+        <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
+        <jmdns-version>3.4.1</jmdns-version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-version>1.0.1.fuse-71-${perfectus-build}</aries-blueprint-version>

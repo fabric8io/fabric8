@@ -21,14 +21,14 @@ define [
   "controllers/profile_list_control"
   "controllers/add_agent_wizard"
   "controllers/migrate_container_page"
-  "controllers/jvm_metrics"
   "controllers/add_profile_dialog"
   "controllers/controls/collection"
   "controllers/controls/composite"
   "controllers/controls/table"
   "controllers/controls/editable_property"
   "controllers/controls/swappable_model_view"
-], (app, jade, Agents, ProfileList, AddAgentWizard, MigrateContainerPage, JVMMetrics) ->
+  "controllers/controls/loading_page"
+], (app, jade, Agents, ProfileList, AddAgentWizard, MigrateContainerPage) ->
 
 
   class AgentOverview extends FON.SwappableModelView
@@ -328,10 +328,13 @@ define [
       false
 
     do_add: (event) ->
-      app.page new AddAgentWizard
-        model: @model
-        do_return: =>
-          @reset()
+      app.page new FON.LoadingPage
+      app.versions.fetch
+        success: =>
+          app.page new AddAgentWizard
+            model: @model
+            do_return: =>
+              @reset()
       false
 
     on_render: ->
