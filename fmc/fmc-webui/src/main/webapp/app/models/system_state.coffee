@@ -25,6 +25,9 @@ define [
       opts = 
         url: "rest/#{@url}/create_ensemble"
         type: "POST"
+        data: JSON.stringify(options)
+        contentType: "application/json"
+        dataType: "json"
       options = _.extend opts, options
       $.ajax(options)
 

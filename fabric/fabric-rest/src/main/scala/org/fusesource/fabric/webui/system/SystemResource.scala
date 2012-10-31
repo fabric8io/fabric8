@@ -51,6 +51,17 @@ class ConnectionStatusDTO {
   var has_backing_engine:Boolean = _
 }
 
+class CreateEnsembleDTO {
+  @JsonProperty
+  var global_resolver: String = _
+
+  @JsonProperty
+  var local_resolver: String = _
+
+  @JsonProperty
+  var manualip: String = _
+}
+
 class JoinEnsembleDTO {
   @JsonProperty
   var zk_url: String = _
@@ -155,13 +166,15 @@ class SystemResource extends BaseResource {
 
   @POST
   @Path("status/create_ensemble")
-  def create_ensemble: Unit = {
+  def create_ensemble(options: CreateEnsembleDTO): Unit = {
     spawn {
       try {
         val create = Services.get_service(classOf[Create])
         create.setClean(true)
         create.setProfile(Services.profile_name)
-        System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, Services.resolver)
+        Option(options.global_resolver).foreach(System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, _))
+        Option(options.local_resolver).foreach(System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, _))
+        Option(options.manualip).foreach(System.setProperty(ZkDefs.MANUAL_IP, _))
         create.setNonManaged(!Services.managed)
         create.run
       } catch {

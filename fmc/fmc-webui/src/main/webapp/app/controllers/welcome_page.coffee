@@ -21,18 +21,8 @@ define [
   "controllers/controls/validating_text_input"
 ], (app, jade, ModalWaitDialog) ->
 
-  class JoinPanel extends FON.TemplateController
-    template: jade["welcome_page/join_panel.jade"]
 
-    elements:
-      "input[name='host']": "host"
-      "input[name='port']": "port"
-      "a.join": "join"
-
-    events:
-      "click a.back": "back"
-      "click a.join": "join_ensemble"
-
+  class BasePanel extends FON.TemplateController
     initialize: ->
       super
       @parent = @options.parent if @options.parent
@@ -43,6 +33,70 @@ define [
           model: @model
           parent: @parent
       false
+
+  class CreatePanel extends BasePanel
+    template: jade["welcome_page/create_panel.jade"]
+
+    elements:
+      "#manualip-val": "manualip_div"
+      "select[name=local-resolver]": "local_resolver"
+      "select[name=global-resolver]": "global_resolver"
+      "input[name=manualip-val]": "manualip"
+
+    events:
+      "click a.back": "back"
+      "click a.create": "create_ensemble"
+
+    create_ensemble: ->
+      if @model.get "zk_cluster_service_available"
+        @parent.wait.render()
+        if @model.get("managed")
+          @old_ajax_handler = app.handle_ajax_error
+          app.handle_ajax_error = (resp, next) ->
+
+        @model.create_ensemble
+          global_resolver: @global_resolver.val()
+          local_resolver: @local_resolver.val()
+          manualip: @manualip.val()
+
+          success: =>
+            if @model.get("managed")
+              @model.bind "change:provision_complete", =>
+                if @model.get("provision_complete")
+                  app.handle_ajax_error = @old_ajax_handler
+                  @parent.hide_wait()
+              , @
+            else
+              setTimeout ( => @parent.hide_wait()), 2000
+          error: (data) =>
+            if @model.get("managed")
+              app.handle_ajax_error = @old_ajax_handler
+            @parent.hide_wait()
+            app.flash
+              kind: "error"
+              title: "Error creating ensemble server"
+              message: "Unable to create ensemble server, error message was #{data.responseText}"
+              on_close: -> window.location.reload()
+      false
+
+    on_render: ->
+
+      @local_resolver.change (event) =>
+        @manualip_div.toggleClass "hide", @local_resolver.val() != "manualip"
+
+
+
+  class JoinPanel extends BasePanel
+    template: jade["welcome_page/join_panel.jade"]
+
+    elements:
+      "input[name='host']": "host"
+      "input[name='port']": "port"
+      "a.join": "join"
+
+    events:
+      "click a.back": "back"
+      "click a.join": "join_ensemble"
 
     join_ensemble: ->
       @parent.wait.render()
@@ -118,7 +172,7 @@ define [
     template: jade["welcome_page/button_panel.jade"]
 
     events:
-      "click a.create": "create_ensemble"
+      "click a.show-create-panel": "show_create_panel"
       "click a.show-join-panel": "show_join_panel"
 
     elements:
@@ -130,39 +184,19 @@ define [
       @parent = @options.parent if @options.parent
       @model.bind "change", => @render()
 
-    create_ensemble: ->
-      if @model.get "zk_cluster_service_available"
-        @parent.wait.render()
-        if @model.get("managed")
-          @old_ajax_handler = app.handle_ajax_error
-          app.handle_ajax_error = (resp, next) ->
-
-        @model.create_ensemble
-          success: =>
-            if @model.get("managed")
-              @model.bind "change:provision_complete", =>
-                if @model.get("provision_complete")
-                  app.handle_ajax_error = @old_ajax_handler
-                  @parent.hide_wait()
-              , @
-            else
-              setTimeout ( => @parent.hide_wait()), 2000
-          error: (data) =>
-            if @model.get("managed")
-              app.handle_ajax_error = @old_ajax_handler
-            @parent.hide_wait()
-            app.flash
-              kind: "error"
-              title: "Error creating ensemble server"
-              message: "Unable to create ensemble server, error message was #{data.responseText}"
-              on_close: -> window.location.reload()
-      false
-
     show_join_panel: ->
       @parent.panel.set
         active: new JoinPanel
           model: @model
           parent: @parent
+      false
+
+    show_create_panel: ->
+      if !@create.hasClass("disabled")
+        @parent.panel.set
+          active: new CreatePanel
+            model:@model
+            parent: @parent
       false
 
     on_render: ->

@@ -41,7 +41,6 @@ class ContextListener extends ServletContextListener {
     Services.LOG.info("-- FMC Context Initialized --")
     Services.LOG.info("Patch upload directory at {}", Services.patch_dir)
     Services.LOG.info("Profile name is {}", Services.profile_name)
-    Services.LOG.info("Resolver to use is {}", Services.resolver)
     Services.LOG.info("Create managed container : {}", Services.managed)
 
   }

@@ -36,8 +36,6 @@ class Services {
 
   def setProfileName(name: String) = _profile_name = name
 
-  def setResolver(resolver: String) = _resolver = resolver
-
   def setManaged(managed: Boolean) = _managed = managed
 
   def setTempDir(tempDir: String) = _tempDir = tempDir
@@ -106,8 +104,6 @@ object Services {
   }
 
   protected var _profile_name: String = _
-  protected var _resolver: String = _
-
   protected var _managed: Boolean = _
   protected var _fabric_service: FabricService = _
   protected var _zoo_keeper_cluster_service: ZooKeeperClusterService = _
@@ -121,8 +117,6 @@ object Services {
   def profile_name = _profile_name
 
   def managed = _managed
-
-  def resolver = _resolver
 
   def config_admin = _config_admin
 

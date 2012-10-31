@@ -33,7 +33,6 @@
   <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.rest" update-strategy="reload">
     <cm:default-properties>
       <cm:property name="profileName" value="fmc" />
-      <cm:property name="resolver" value="localhostname"/>
       <cm:property name="managed" value="false"/>
       <cm:property name="tempDirectoryPath" value=""/>
       <cm:property name="patchDirectoryName" value="patches"/>
@@ -45,7 +44,6 @@
 
   <bean id="FMCServices" class="org.fusesource.fabric.webui.Services">
     <property name="profileName" value="${profileName}"/>
-    <property name="resolver" value="${resolver}"/>
     <property name="managed" value="${managed}"/>
     <property name="tempDir" value="${tempDirectoryPath}"/>
     <property name="patchDir" value="${patchDirectoryName}"/>
