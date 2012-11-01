@@ -20,7 +20,7 @@
 
     <reference id="service" interface="org.fusesource.patch.Service"/>
 
-    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="patch/list">
             <action class="org.fusesource.patch.commands.List">
                 <property name="service" ref="service"/>

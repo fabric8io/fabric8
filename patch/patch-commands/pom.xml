@@ -35,6 +35,9 @@
         <fuse.osgi.export>
         </fuse.osgi.export>
         <fuse.osgi.import>
+            org.apache.felix.gogo.commands,
+            org.apache.felix.service.command;status=provisional,
+            org.apache.karaf.shell.console,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
