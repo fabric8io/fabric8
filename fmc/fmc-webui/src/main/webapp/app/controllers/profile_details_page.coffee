@@ -221,15 +221,18 @@ define [
   class FeatureRepositoryDisplay extends FON.TemplateController
     template: jade["profiles_page/detail_page/feature_repo.jade"]
     template_data: -> 
-      json_model = @model.features().toJSON()
+      installed_features = @model.features().toJSON()
+      installed_repos = _.map(@parent.repos.toJSON(), (repo) -> repo.id)
       {
-        installed: _.map(json_model, (model) -> model.value)
+        installed_features: _.map(installed_features, (model) -> model.value)
+        installed_repos: installed_repos
         error: @error if @error
         features: @json if @json
       }
 
     elements:
       "a.add-feature": "add_feature"
+      "a.add-repo": "add_repo"
       "a.view-feature": "view_feature"
 
     initialize: ->
@@ -247,6 +250,16 @@ define [
         @model.features().create
           id: "feature.#{feature}"
           value: feature
+        false
+
+      @add_repo.click (event) =>
+        repo = event.currentTarget.id.substring(3)
+        repo = repo.trim()
+        id = "repository.#{repo.replace(/\//g, "_")}"
+        @model.repositories().create(
+          id: id
+          value: repo
+        )
         false
 
       #@view_feature.click (event) =>
@@ -291,6 +304,7 @@ define [
         json = $.xml2json(@selected_repo.get("xml")) if @selected_repo.get("xml")
 
         @display = new FeatureRepositoryDisplay
+          parent: @
           model: @model
           repo: @selected_repo
           json: json

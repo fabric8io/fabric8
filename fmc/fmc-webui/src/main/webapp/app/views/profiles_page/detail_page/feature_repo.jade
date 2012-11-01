@@ -23,11 +23,22 @@
   h5 Repository Name: #{features.name}
   - if features.repository?
     h6 Feature Repositories
-    ul.repo-list
-      - if !$.isArray(features.repository)
-        - features.repository = [features.repository]
-      - for repo in features.repository
-        li #{repo}
+    table.zebra-striped.repo-list
+      thead
+        tr
+          th Name
+          th
+      tbody
+        - if !$.isArray(features.repository)
+          - features.repository = [features.repository]
+        - for r in features.repository
+          tr
+            td #{r}
+            td
+              .block.right
+                - if !_.any(installed_repos, (repo) -> r == repo)
+                  a.add-repo(id="add#{r}" href="#" title="Add Feature Repository")
+                    img(src="img/plus-16.png")
 
   - if features.feature?
     h6 Features
@@ -56,7 +67,7 @@
               .block.right
                 - #a.view-feature(id="view#{f.name}" href="#" title="View Feature")
                 - #  img(src="img/search-16.png")
-                - if !_.any(installed, (feature) -> f.name == feature)
+                - if !_.any(installed_features, (feature) -> f.name == feature)
                   a.add-feature(id="add#{f.name}" href="#" title="Add Feature")
                     img(src="img/plus-16.png")
 - else
