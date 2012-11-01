@@ -43,7 +43,6 @@
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.utils,
         </fuse.osgi.private.pkg>
-        <fuse.osgi.activator>org.fusesource.fabric.commands.Activator</fuse.osgi.activator>
     </properties>
 
     <dependencies>

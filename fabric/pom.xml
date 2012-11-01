@@ -84,6 +84,7 @@
         <module>fabric-utils</module>
         
         <module>openshift</module>
+        <module>fabric-features-service</module>
 
     </modules>
 

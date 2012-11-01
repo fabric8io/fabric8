@@ -18,6 +18,7 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
@@ -442,19 +443,19 @@
 
     <bean id="allFeatureCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
         <argument index="0">
-            <bean class="org.fusesource.fabric.commands.support.FeaturesCompleterDelegate"/>
+            <ref component-id="karafAllFeatureCompleter"/>
         </argument>
     </bean>
 
     <bean id="featureUrlCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
         <argument index="0">
-            <bean class="org.fusesource.fabric.commands.support.FeaturesRepositoryCompleterDelegate"/>
+            <ref component-id="karafFeatureUrlCompleter"/>
         </argument>
     </bean>
 
     <bean id="bundleCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
         <argument index="0">
-            <bean class="org.fusesource.fabric.commands.support.BundleCompleter"/>
+            <ref component-id="bundleLocationCompleter"/>
         </argument>
     </bean>
 
@@ -484,6 +485,19 @@
         <argument index="2" value="false"/>
         <property name="fabricService" ref="fabricService"/>
         <property name="zooKeeper" ref="zooKeeper"/>
+    </bean>
+
+    <bean id="bundleLocationCompleter" class="org.fusesource.fabric.commands.support.BundleLocationCompleter">
+        <property name="featuresService" ref="featuresService" />
+    </bean>
+
+     <!-- Karaf Completers -->
+    <bean id="karafAllFeatureCompleter" class="org.apache.karaf.features.command.completers.AllFeatureCompleter">
+        <property name="featuresService" ref="featuresService" />
+    </bean>
+
+    <bean id="karafFeatureUrlCompleter" class="org.apache.karaf.features.command.completers.FeatureRepositoryCompleter">
+        <property name="featuresService" ref="featuresService" />
     </bean>
 
     <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
