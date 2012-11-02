@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.fusesource.fabric.security</groupId>
     <artifactId>fabric-security-project</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.1.0.fuse-024</version>
     <relativePath>..</relativePath>
   </parent>
 
