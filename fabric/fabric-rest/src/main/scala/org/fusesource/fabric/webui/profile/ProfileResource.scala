@@ -206,17 +206,19 @@ class ProfileResource(val self: Profile) extends BaseResource with HasID with Ex
   @Path("available_repos")
   def available_repos: Array[FeaturesRepositoryResource] = {
     self.getOverlay.getRepositories.map((x) => {
+      var in:InputStream = null
       try {
         val url = new URL(x)
-        val in = url.openStream
-        val buffer = new Array[Byte](in.available())
-        in.read(buffer)
-        new FeaturesRepositoryResource(x, new String(buffer), null)
+        in = url.openStream
+        val lines = IOUtils.toString(in)
+        new FeaturesRepositoryResource(x, lines , null)
       } catch {
         case t: Throwable =>
+          Services.LOG.info("Error fetching features repository", t)
           new FeaturesRepositoryResource(x, null, new String(t.getMessage))
+      } finally {
+        Option(in).foreach(_.close())
       }
-
     }).toArray
   }
 
