@@ -78,6 +78,7 @@ class AgentsResource extends BaseResource {
       val value: CreateContainerChildOptions = mapper.convertValue(options, classOf[CreateContainerChildOptions])
       require(value.getParent != null, "parent must be set")
       value.setProviderURI(new URI("child://" + value.getParent))
+      value.setResolver(null)
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       fabric_service.createContainers(value)
@@ -86,6 +87,7 @@ class AgentsResource extends BaseResource {
 
       val value: CreateSshContainerOptions = mapper.convertValue(options, classOf[CreateSshContainerOptions])
       require(value.getHost != null, "host must be set")
+      value.setNumber(1)
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       fabric_service.createContainers(value)
