@@ -75,7 +75,7 @@
         </systemUsage>
         
         <transportConnectors>
-            <transportConnector name="openwire" uri="tcp://0.0.0.0:0"/>
+            <transportConnector name="openwire" uri="tcp://0.0.0.0:0?maximumConnections=1000"/>
         </transportConnectors>
     </broker>
 

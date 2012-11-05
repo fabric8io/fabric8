@@ -9,7 +9,7 @@ The xml configuration is .${fileSeparator}etc${fileSeparator}activemq.xml
 Security
 --------
 Before starting Fuse MQ, you need to set at least one valid user in .${fileSeparator}etc${fileSeparator}users.properties
-You must also make sure that appropriate properties in .${fileSeparator}etc${fileSeparator}system.properties
+You must also make sure that appropriate properties are in .${fileSeparator}etc${fileSeparator}system.properties
 
 These properies include:
 * activemq.jmx.user, activemq.jmx.password
