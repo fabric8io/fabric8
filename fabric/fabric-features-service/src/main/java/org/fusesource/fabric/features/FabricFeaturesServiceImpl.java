@@ -32,6 +32,8 @@ import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.fusesource.fabric.utils.features.FeatureUtils.search;
+
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
@@ -46,7 +48,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
 
 
     private final Set<Repository> repositories = new HashSet<Repository>();
-    private final Set<Feature> features = new HashSet<Feature>();
+    private final Set<Feature> allfeatures = new HashSet<Feature>();
     private final Set<Feature> installed = new HashSet<Feature>();
 
     public void init() throws Exception {
@@ -61,7 +63,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
         try {
             repositories.clear();
             listRepositories();
-            features.clear();
+            allfeatures.clear();
             listFeatures();
             installed.clear();
             listInstalledFeatures();
@@ -205,17 +207,17 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
 
     @Override
     public Feature[] listFeatures() throws Exception {
-        if (features.isEmpty()) {
+        if (allfeatures.isEmpty()) {
             Repository[] repositories = listRepositories();
             for (Repository repository : repositories) {
                 for (Feature feature : repository.getFeatures()) {
-                    if (!features.contains(feature)) {
-                        features.add(feature);
+                    if (!allfeatures.contains(feature)) {
+                        allfeatures.add(feature);
                     }
                 }
             }
         }
-        return features.toArray(new Feature[features.size()]);
+        return allfeatures.toArray(new Feature[allfeatures.size()]);
     }
 
     @Override
@@ -241,8 +243,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
                                     TreeMap<String, Feature> versionMap = (TreeMap<String, Feature>) allFeatures.get(featureName);
                                     f = versionMap.lastEntry().getValue();
                                 }
-                                installed.add(f);
-                                installed.addAll(f.getDependencies());
+                                addFeatures(f, installed);
                             } catch (Exception ex) {
                                 LOGGER.debug("Error while adding {} to the features list");
                             }
@@ -360,6 +361,25 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
             addProfiles(parent, profiles);
         }
     }
+
+    /**
+     * Adds {@link Feature} and its dependencies to the set of {@link Feature}s.
+     *
+     * @param feature
+     * @param features
+     */
+    protected void addFeatures(Feature feature, Set<Feature> features) {
+        if (features.contains(feature)) {
+            return;
+        }
+
+        features.add(feature);
+        for (Feature dependency : feature.getDependencies()) {
+            addFeatures(search(dependency.getName(), dependency.getVersion(), repositories), features);
+        }
+    }
+
+
 
     public FabricService getFabricService() {
         return fabricService;

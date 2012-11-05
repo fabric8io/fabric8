@@ -73,6 +73,7 @@
             org.fusesource.fabric.agent,
             org.fusesource.common.util.*,
             org.fusesource.fabric.utils,
+            org.fusesource.fabric.utils.features,
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
             org.fusesource.fabric.agent.utils,
