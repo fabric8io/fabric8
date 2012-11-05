@@ -78,18 +78,24 @@ class AgentsResource extends BaseResource {
       val value: CreateContainerChildOptions = mapper.convertValue(options, classOf[CreateContainerChildOptions])
       require(value.getParent != null, "parent must be set")
       value.setProviderURI(new URI("child://" + value.getParent))
+      value.setZookeeperUrl(fabric_service.getZookeeperUrl())
+      value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       fabric_service.createContainers(value)
 
     } else if (providerType == "ssh") {
 
       val value: CreateSshContainerOptions = mapper.convertValue(options, classOf[CreateSshContainerOptions])
       require(value.getHost != null, "host must be set")
+      value.setZookeeperUrl(fabric_service.getZookeeperUrl())
+      value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       fabric_service.createContainers(value)
 
     } else if (providerType == "jclouds") {
 
       val value: CreateJCloudsContainerOptions = mapper.convertValue(options, classOf[CreateJCloudsContainerOptions])
       require(value.getProviderName != null, "provider name must be set")
+      value.setZookeeperUrl(fabric_service.getZookeeperUrl())
+      value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       fabric_service.createContainers(value)
 
     } else {
