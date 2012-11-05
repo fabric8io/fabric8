@@ -31,6 +31,7 @@
     <name>${project.artifactId}</name>
     <description>Fuse ESB :: Assembly (Medium)</description>
 
+
     <build>
         <plugins>
             <plugin>

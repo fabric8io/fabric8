@@ -121,7 +121,7 @@ public class EsbExampleFeaturesTest extends EsbTestSupport {
     public Option[] config() {
         return new Option[]{
                 esbDistributionConfiguration(), keepRuntimeFolder(),
-                editConfigurationFilePut("etc/system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
+                editConfigurationFilePut("system.properties", "esb.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
                 logLevel(LogLevelOption.LogLevel.INFO)};
     }
 }

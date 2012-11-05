@@ -378,6 +378,18 @@
                                    <echo message="Fixing start/stop scripts in unix assembly" />
                                    <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fusemq"/>
                                    <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fusemq"/>
+                                   <echo message="Updating etc/system.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties"
+                                           append="true" eol="unix">
+                                       <fileset file="target/classes/etc/system-mq.properties" />
+                                   </concat>
+                                   <echo file="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
+                                   <echo message="Updating etc/system.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties"
+                                           append="true" eol="unix">
+                                       <fileset file="target/classes/etc/system-mq.properties" />
+                                   </concat>
+                                   <echo file="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
                                </target>
                            </configuration>
                        </execution>

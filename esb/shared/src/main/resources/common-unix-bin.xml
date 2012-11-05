@@ -25,7 +25,6 @@
               <exclude>**/demos/**</exclude>
               <exclude>lib/fabric-version.jar</exclude>
               <exclude>bin/**</exclude>
-              <exclude>etc/system.properties</exclude>
               <exclude>etc/org.apache.karaf.features.cfg</exclude>
               <exclude>etc/org.apache.karaf.features.obr.cfg</exclude>
               <exclude>etc/org.ops4j.pax.logging.cfg</exclude>

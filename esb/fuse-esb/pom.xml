@@ -316,12 +316,24 @@
                                         append="true" eol="dos">
                                     <fileset file="target/shared/startup-obr.properties" />
                                 </concat>
-                                   <echo message="Fixing start/stop scripts in windows assembly" />
-                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fuseesb.bat"/>
-                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fuseesb.bat"/>
-                                   <echo message="Fixing start/stop scripts in unix assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fuseesb"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fuseesb"/>
+                                <echo message="Fixing start/stop scripts in windows assembly" />
+                                <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="fuseesb.bat"/>
+                                <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="fuseesb.bat"/>
+                                <echo message="Fixing start/stop scripts in unix assembly" />
+                                <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fuseesb"/>
+                                <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fuseesb"/>
+                                <echo message="Updating etc/system.properties in unix assembly" />
+                                <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties"
+                                        append="true" eol="unix">
+                                    <fileset file="target/shared/system-smx.properties" />
+                                </concat>
+                                <echo file="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=${project.artifactId}</echo>
+                                <echo message="Updating etc/system.properties in windows assembly" />
+                                <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties"
+                                        append="true" eol="unix">
+                                    <fileset file="target/shared/system-smx.properties" />
+                                </concat>
+                                <echo file="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=${project.artifactId}</echo>
                             </target>
                         </configuration>
                     </execution>
