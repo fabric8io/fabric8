@@ -58,7 +58,7 @@ To run the example:
 ** `2012_0003.xml` and `2012_0005.xml` in `work/eip/output/AMER`
 ** `2012_0020.xml` in `work/eip/output/APAC`
 ** `2012_0001.xml`, `2012_0002.xml` and `2012_0004.xml` in `work/eip/output/EMEA`
-6. Use `log:display` to check out the business logging.
+6. Use `log:display` on the ESB shell to check out the business logging.
         [main]    Processing orders.xml
         [wiretap]  Archiving orders.xml
         [splitter] Shipping order 2012_0001 to region EMEA
@@ -68,8 +68,8 @@ To run the example:
 
 ## More information
 For more information see:
-* http://www.eaipatterns.com/RecipientList.html for the Recipient List EIP
-* http://www.eaipatterns.com/WireTap.html for the Wire Tap EIP
-* http://www.eaipatterns.com/Filter.html for the Message Filter EIP
-* http://www.eaipatterns.com/Sequencer.html for the Splitter EIP
+* http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-RecipientList.html for the Recipient List EIP
+* http://fusesource.com/docs/esbent/7.0/camel_eip/_IDU_WireTap.html for the Wire Tap EIP
+* http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-MsgFilter.html for the Message Filter EIP
+* http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-Splitter.html for the Splitter EIP
 * http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
