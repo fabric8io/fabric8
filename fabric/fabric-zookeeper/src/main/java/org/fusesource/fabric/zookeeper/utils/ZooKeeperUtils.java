@@ -176,7 +176,7 @@ public class ZooKeeperUtils {
         return null;
     }
 
-    public static String getSubstitutedData(final IZKClient zooKeeper, String data) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+    public static String getSubstitutedData(final IZKClient zooKeeper, String data) throws   URISyntaxException {
         Map<String, String> props = new HashMap<String, String>();
         props.put("data", data);
 
@@ -187,7 +187,7 @@ public class ZooKeeperUtils {
                     try {
                         return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        //ignore and just return null.
                     }
                 }
                 return null;

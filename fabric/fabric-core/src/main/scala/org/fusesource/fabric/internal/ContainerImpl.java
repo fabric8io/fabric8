@@ -278,7 +278,7 @@ public class ContainerImpl implements Container {
     @Override
     public String getResolver() {
         try {
-            return service.getZooKeeper().getStringData(ZkPath.CONTAINER_RESOLVER.getPath(id));
+            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -319,7 +319,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_IP.getPath(id)) == null) {
                 return null;
             } else {
-                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_LOCAL_IP.getPath(id));
+                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(),ZkPath.CONTAINER_LOCAL_IP.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -341,7 +341,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id)) == null) {
                 return null;
             } else {
-                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
+                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -363,7 +363,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_IP.getPath(id)) == null) {
                 return null;
             } else {
-                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
+                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -385,7 +385,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id)) == null) {
                 return null;
             } else {
-                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
+                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -407,7 +407,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_MANUAL_IP.getPath(id)) == null) {
                 return null;
             } else {
-                return service.getZooKeeper().getStringData(ZkPath.CONTAINER_MANUAL_IP.getPath(id));
+                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
