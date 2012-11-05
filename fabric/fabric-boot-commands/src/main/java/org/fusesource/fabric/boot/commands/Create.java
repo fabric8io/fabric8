@@ -50,7 +50,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
     @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
-    private String profile = "fabric";
+    private String profile = null;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = PortUtils.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
