@@ -72,11 +72,11 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
         }
     }
 
-    protected void setACLs(Map<String, String> acls) {
+    public void setACLs(Map<String, String> acls) {
         this.acls = acls;
     }
 
-    protected void setPassword(String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 

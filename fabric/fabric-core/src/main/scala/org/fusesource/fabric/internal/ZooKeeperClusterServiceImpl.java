@@ -38,7 +38,7 @@ import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.internal.ZKClient;
+import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.util.clock.Timespan;
@@ -103,6 +103,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createLocalServer(int port) {
+        createLocalServer(port, null);
+    }
+
+    public void createLocalServer(int port, String password) {
         try {
             IZKClient client;
             Hashtable<String, Object> properties;
@@ -110,8 +114,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
-            String password = generatePassword();
 
+            if (password == null) {
+                password = generatePassword();
+            }
 
             // Install or stop the fabric-configadmin bridge
             Bundle bundleFabricConfigAdmin = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
@@ -355,7 +361,14 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createCluster(List<String> containers) {
+        createCluster(containers, null);
+    }
+
+    public void createCluster(List<String> containers, String password) {
         try {
+            if (password == null) {
+                password = generatePassword();
+            }
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
             }
@@ -365,7 +378,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 if (containers.size() != 1 || !containers.get(0).equals(System.getProperty("karaf.name"))) {
                     throw new FabricException("The first zookeeper cluster must be configured on this container only.");
                 }
-                createLocalServer();
+                createLocalServer(2181, password);
                 return;
             }
 
@@ -455,9 +468,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.set(zooKeeper, profileNode, toString(profileNodeProperties));
 
             if (oldClusterId != null) {
-                ZKClient dst = new ZKClient(realConnectionUrl, Timespan.ONE_MINUTE, null);
+                Properties properties = ZooKeeperUtils.getProperties(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties");
+                properties.put("zookeeper.url", realConnectionUrl);
+                properties.put("zookeeper.password", password);
+                OsgiZkClient dst = new OsgiZkClient();
+                dst.updated(properties);
                 try {
-                    dst.start();
                     dst.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
 
                     ZooKeeperUtils.copy(zooKeeper, dst, "/fabric/registry");
@@ -477,13 +493,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     for (String container : dst.getChildren("/fabric/configs/versions/" + version + "/containers")) {
                         ZooKeeperUtils.remove(dst, "/fabric/configs/versions/" + version + "/containers/" + container, "fabric-ensemble-" + oldClusterId + "-.*");
                     }
+                    setConfigProperty(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", password);
                     setConfigProperty(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
+                    setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", password);
                     setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
 
                 } finally {
                     dst.close();
                 }
             } else {
+                setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", password);
                 setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", connectionUrl);
             }
         } catch (Exception e) {

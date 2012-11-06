@@ -158,7 +158,9 @@ public class OsgiZkClient extends AbstractZKClient implements ManagedService {
                 _factory = new ZooKeeperFactory(url, sessionTimeout, this);
                 tryConnect();
             }
-            zkClientRegistration.setProperties(properties);
+            if (zkClientRegistration != null) {
+                zkClientRegistration.setProperties(properties);
+            }
         }
     }
 
