@@ -501,4 +501,8 @@
         <bundle>blueprint:file:etc/fabric-ldap-jaas-${project.version}.xml</bundle>
     </feature>
 
+    <feature name="jolokia" version="${project.version}" resolver="(obr)">
+        <bundle>mvn:org.jolokia/jolokia-osgi/${jolokia-version}</bundle>
+    </feature>
+
 </features>

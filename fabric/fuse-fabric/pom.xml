@@ -134,6 +134,13 @@
                <version>${commons-codec-version}</version>
            </dependency>
 
+           <!-- for jolokia -->
+           <dependency>
+               <groupId>org.jolokia</groupId>
+               <artifactId>jolokia-osgi</artifactId>
+               <version>${jolokia-version}</version>
+           </dependency>
+
         <!-- these are copied to the lib folder -->
         <dependency>
             <groupId>org.apache.xerces</groupId>
