@@ -38,7 +38,6 @@ import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 public class ProfileImpl implements Profile {
 
     public final static String AGENT_PID = "org.fusesource.fabric.agent";
-;
 
     private final String id;
     private final String version;
