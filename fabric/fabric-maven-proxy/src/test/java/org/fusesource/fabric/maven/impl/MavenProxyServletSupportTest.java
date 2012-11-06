@@ -17,4 +17,9 @@ public class MavenProxyServletSupportTest {
         Assert.assertEquals("org.fusesource.fabric:fuse-fabric:jar:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST.jar"));
     }
 
+    @Test
+    public void testConvertWithPlainGroupId() throws InvalidMavenArtifactRequest {
+        Assert.assertEquals("fusesource:fuse-fabric:jar:LATEST",servlet.convertToMavenUrl("fusesource/fuse-fabric/LATEST/fuse-fabric-LATEST.jar"));
+    }
+
 }
