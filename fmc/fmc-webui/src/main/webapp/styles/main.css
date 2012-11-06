@@ -370,10 +370,10 @@ html, body {
 }
 
 body {
-    font-family: Calibri,Verdana,Helvetica,Arial;
+    font-family: "Helvetica Neue", "Liberation Sans", FreeSans, Arial, sans-serif;
     color: #000;
     background-color: #333;
-    font-size: 16px;
+    font-size: 12px;
 }
 
 
@@ -478,7 +478,7 @@ table tbody tr.selected:first-child td {
 }
 
 #footer {
-    background-color: #333;
+    background-color: #272727;
     height: 30px;
     line-height: 30px;
     font-size: 13px;
