@@ -254,6 +254,7 @@
                                    <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
                                </descriptors>
                                <features>
+                                   <feature>karaf</feature>
                                    <feature>fabric-agent</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
@@ -263,6 +264,7 @@
                                    <feature>fabric-bundle</feature>
                                    <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
+                                   <feature>fabric-webui</feature>
                                    <feature>mq-fabric</feature>
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-elasticsearch</feature>
