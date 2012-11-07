@@ -37,7 +37,7 @@ class AuthenticationFilter extends ContainerRequestFilter {
   var http_response: HttpServletResponse = null;
 
   @Context
-  var rc: ResourceContext = null;
+  var resource_context: ResourceContext = null;
 
   val LOGIN_URL = "/system/login"
   val LOGOUT_URL = "/system/logout"
@@ -87,19 +87,19 @@ class AuthenticationFilter extends ContainerRequestFilter {
                 var username: String = srcString.substring(0, i)
                 var password: String = srcString.substring(i + 1)
 
-                val auth: Authenticator = rc.getResource(classOf[Authenticator]);
+                val auth: Authenticator = resource_context.getResource(classOf[Authenticator]);
 
                 if (auth.authenticate(username, password)) {
                   return request
-                } else {
-                  throw new WebApplicationException(401)
-                }
-
+                } 
               } catch {
                 case e: Exception =>
               }
             }
           }
+          if (session != null) {
+            session.invalidate()
+          }          
           throw new WebApplicationException(401)
         } else {
           val http_realm = "FON"
