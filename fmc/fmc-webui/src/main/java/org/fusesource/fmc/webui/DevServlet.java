@@ -102,6 +102,7 @@ public class DevServlet extends HttpServlet {
         } finally {
             close(output);
             close(input);
+            close(in);
         }
     }
 
