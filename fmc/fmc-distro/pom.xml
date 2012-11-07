@@ -218,7 +218,8 @@
             <feature>insight-elasticsearch</feature>
             <feature>insight-log-elasticsearch</feature>
             <feature>fabric-webui</feature>
-          </features>                              
+            <feature>war</feature>
+           </features>
           <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
           <repository>target/features-repo</repository>
         </configuration>
