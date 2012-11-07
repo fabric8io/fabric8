@@ -40,7 +40,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                 <Set name="loginModuleName">karaf</Set>
                 <Set name="roleClassNames">
                     <Array type="java.lang.String">
-                        <Item>org.apache.karaf.jaas.modules.RolePrincipal</Item>
+                        <Item>org.apache.karaf.jaas.boot.principal.RolePrincipal</Item>
                     </Array>
                 </Set>
             </New>
