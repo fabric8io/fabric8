@@ -53,6 +53,7 @@
       !org.apache.sshd*,
       !org.apache.karaf*,
       !org.apache.maven.wagon.providers.http*,
+      !org.apache.log4j.spi*,
       !org.ops4j.pax.logging*,
     </fuse.osgi.import.before.defaults>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true</fuse.osgi.embed.dependency>
