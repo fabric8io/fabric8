@@ -106,8 +106,10 @@
         <aries-util-version>1.0.0</aries-util-version>
 -->
         <aries-util-version>1.0.0</aries-util-version>
+        <aries.util.version>1.0.0</aries.util.version>
         <aries.version>1.0.0</aries.version>
         <aries.proxy.version>1.0.0</aries.proxy.version>
+        <aries-proxy-version>1.0.0</aries-proxy-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
         <brew-version>0.2.11</brew-version>
@@ -218,7 +220,6 @@
         <aries.blueprint.version>${aries-blueprint-version}</aries.blueprint.version>
         <aries.jmx.version>${aries-jmx-version}</aries.jmx.version>
         <aries.transaction.version>${aries-transaction-version}</aries.transaction.version>
-        <aries.util.version>${aries-util-version}</aries.util.version>
         <camel.version>${camel-version}</camel.version>
         <cxf.version>${cxf-version}</cxf.version>
         <felix.framework.version>${felix-framework-version}</felix.framework.version>
@@ -1373,7 +1374,7 @@
       <id>snapshots</id>
       <properties>
         <perfectus-build>SNAPSHOT</perfectus-build>
-        <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
+        <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
         <aries.blueprint.version>1.0.1.fuse-71-${perfectus-build}</aries.blueprint.version>
         <aries.jmx.version>1.0.1.fuse-71-${perfectus-build}</aries.jmx.version>
         <aries.transaction.version>1.0.1.fuse-71-${perfectus-build}</aries.transaction.version>
