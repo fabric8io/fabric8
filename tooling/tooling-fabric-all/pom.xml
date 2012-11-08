@@ -55,6 +55,7 @@
       !org.apache.maven.wagon.providers.http*,
       !org.apache.log4j.spi*,
       !org.ops4j.pax.logging*,
+      org.osgi.service.cm;version="[1.3,2)"
     </fuse.osgi.import.before.defaults>
     <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true</fuse.osgi.embed.dependency>
     <fuse.osgi.embed.transitive>true</fuse.osgi.embed.transitive>
