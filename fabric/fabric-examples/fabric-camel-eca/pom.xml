@@ -20,7 +20,7 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-examples</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.1.0.fuse-025</version>
     <relativePath>..</relativePath>
   </parent>
 
@@ -40,7 +40,7 @@
     <dependency>
       <groupId>org.fusesource.eca</groupId>
       <artifactId>eca-core</artifactId>
-      <version>99-master-SNAPSHOT</version>
+      <version>7.1.0.fuse-025</version>
     </dependency>
 
     <dependency>
