@@ -116,17 +116,6 @@ define [
         @accept_btn.removeClass("primary")
         @cancel_btn.addClass("primary")
         @cancel_btn.addClass("secondary")
-        $("body").unbind("keyup")
-        $("body").keyup (event) =>
-          if @dialog.is(":visible")
-            if event.which == 13
-              @do_hide()
-            else if event.which == 27
-              @do_hide()
-            else
-              true
-          else
-            false
 
   window.FON.ConfirmationDialog = ConfirmationDialog
 
