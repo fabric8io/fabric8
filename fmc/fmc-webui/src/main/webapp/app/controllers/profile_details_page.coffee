@@ -231,6 +231,7 @@ define [
       }
 
     elements:
+      ".feature-detail": "detail_container"
       "a.add-feature": "add_feature"
       "a.add-repo": "add_repo"
       "a.view-feature": "view_feature"
@@ -262,9 +263,35 @@ define [
         )
         false
 
-      #@view_feature.click (event) =>
-      #   console.error "Clicked #{@id}"
-      #  false
+      @view_feature.click (event) =>
+        feature = event.currentTarget.id.substring(4)
+        for f in @json.feature
+          if f.name == feature
+            if f.feature && !_.isArray(f.feature)
+              f.feature = [f.feature]
+            if f.bundle && !_.isArray(f.bundle)
+              f.bundle = [f.bundle]
+            if f.config && !_.isArray(f.config)
+              f.config = [f.config]
+              
+            offset = $(event.srcElement).offset()
+            offset.top = offset.top - 250
+            offset.left = offset.left - 500 - event.srcElement.width
+
+            @show_detail FON.template
+              template: jade["profiles_page/detail_page/feature_details.jade"]
+              template_data: => _.extend(f, {offset: offset})
+
+        false
+
+    show_detail: (controller) ->
+      @detail_container.empty()
+      if controller
+        @detail_container.append controller.render().el
+        controller.$("a.close").click =>
+          @show_detail(null)  
+          false      
+
 
 
   class FeaturesListController extends FON.TemplateController
@@ -302,6 +329,12 @@ define [
       if @selected_repo
 
         json = $.xml2json(@selected_repo.get("xml")) if @selected_repo.get("xml")
+
+        if json
+          if json.repository && !$.isArray(json.repository)
+            json.repository = [json.repository]
+          if json.feature && !$.isArray(json.feature)
+            json.feature = [json.feature]
 
         @display = new FeatureRepositoryDisplay
           parent: @

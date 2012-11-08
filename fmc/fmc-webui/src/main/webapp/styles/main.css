@@ -1231,3 +1231,11 @@ ul.repo-list li {
 #cloud-options {
   height: 12em;
 }
+
+.config-display {
+  border: 1px solid #ddd; 
+  border-radius: 4px; 
+  padding: 5px;  
+  margin-bottom: 5px;
+  margin-right: 5px;
+}

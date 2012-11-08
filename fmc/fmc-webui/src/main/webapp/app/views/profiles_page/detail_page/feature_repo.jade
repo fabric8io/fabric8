@@ -15,6 +15,7 @@
  permissions and limitations under the License.
 
 - ###
+.feature-detail
 - if error?
   .alert-message.block-message.error(style="margin-top: 18px") 
     strong Error fetching features repository: 
@@ -29,8 +30,6 @@
           th Name
           th
       tbody
-        - if !$.isArray(features.repository)
-          - features.repository = [features.repository]
         - for r in features.repository
           tr
             td #{r}
@@ -53,8 +52,6 @@
             strong Description
           td(style="border-top: none")
       tbody
-        - if !$.isArray(features.feature)
-          - features.feature = [features.feature]
         - for f in features.feature
           tr(id="#{f.name}" class="feature")
             td #{f.name}
@@ -65,8 +62,9 @@
               td
             td
               .block.right
-                - #a.view-feature(id="view#{f.name}" href="#" title="View Feature")
-                - #  img(src="img/search-16.png")
+                a.view-feature(id="view#{f.name}" href="#" title="View Feature")
+                  img(src="img/search-16.png")
+                &nbsp;
                 - if !_.any(installed_features, (feature) -> f.name == feature)
                   a.add-feature(id="add#{f.name}" href="#" title="Add Feature")
                     img(src="img/plus-16.png")
