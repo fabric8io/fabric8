@@ -271,9 +271,12 @@ define [
               f.feature = [f.feature]
             if f.bundle && !_.isArray(f.bundle)
               f.bundle = [f.bundle]
-            if f.config && !_.isArray(f.config)
-              f.config = [f.config]
-              
+            if f.config
+              if !_.isArray(f.config)
+                f.configs = [f.config]
+              else
+                f.configs = f.config
+
             offset = $(event.srcElement).offset()
             offset.top = offset.top - 250
             offset.left = offset.left - 500 - event.srcElement.width

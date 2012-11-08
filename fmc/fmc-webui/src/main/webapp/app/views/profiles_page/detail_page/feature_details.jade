@@ -56,10 +56,10 @@
                   li #{b}&nbsp;&nbsp;<strong>Dependency:</strong> #{b.dependency}
                 - else
                   li #{b}
-            - if config?
+            - if configs?
               h6 Configuration
               ul.repo-list
-                - for c in config
+                - for c in configs
                   li.config-display
                     strong #{c.name}
                     ul.repo-list
