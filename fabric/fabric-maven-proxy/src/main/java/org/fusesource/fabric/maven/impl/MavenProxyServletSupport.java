@@ -18,15 +18,20 @@
 package org.fusesource.fabric.maven.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpServlet;
 
 import org.apache.maven.repository.internal.DefaultServiceLocator;
@@ -39,39 +44,59 @@ import org.sonatype.aether.connector.wagon.WagonProvider;
 import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.installation.InstallRequest;
 import org.sonatype.aether.installation.InstallResult;
+import org.sonatype.aether.metadata.Metadata;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactRequest;
 import org.sonatype.aether.resolution.ArtifactResult;
+import org.sonatype.aether.resolution.MetadataRequest;
+import org.sonatype.aether.resolution.MetadataResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
+import org.sonatype.aether.util.metadata.DefaultMetadata;
 
 public class MavenProxyServletSupport extends HttpServlet implements MavenProxy {
 
     protected static final Logger LOGGER = Logger.getLogger(MavenProxyServletSupport.class.getName());
 
+    //The pattern below matches a path to the following:
+    //1: groupId
+    //2: artifactId
+    //3: version
+    //4: atifact filename
+    public static final Pattern ARTIFACT_REQUEST_URL_REGEX = Pattern.compile("([^ ]+)/([^/ ]+)/([^/ ]+)/([^/ ]+)");
+
+    //The pattern bellow matches the path to the following:
+    //1: groupId
+    //2: artifactId
+    //3: version
+    //4: maven-metadata xml filename
+    //7: repository id.
+    public static final Pattern ARTIFACT_METADATA_URL_REGEX = Pattern.compile("([^ ]+)/([^/ ]+)/([^/ ]+)/((maven-metadata([-]([^ .]+))?.xml))");
+
+    public static final Pattern REPOSITORY_ID_REGEX  = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
+
     protected String localRepository;
-    protected String remoteRepositories = "repo1.maven.org/maven2,repo.fusesource.com/nexus/content/groups/public,repo.fusesource.com/nexus/content/groups/releases,repo.fusesource.com/nexus/content/groups/public-snapshots,repo.fusesource.com/nexus/content/groups/ea";
+    protected String remoteRepositories = "repo1.maven.org/maven2@id=central,repo.fusesource.com/nexus/content/groups/public@id=fusepublic,repo.fusesource.com/nexus/content/groups/releases@id=fusereleases,repo.fusesource.com/nexus/content/groups/public-snapshots@id=fusesnapshots,repo.fusesource.com/nexus/content/groups/ea@id=fuseeasrlyaccess";
     protected String updatePolicy;
     protected String checksumPolicy;
 
-    protected List<RemoteRepository> repositories;
+    protected Map<String, RemoteRepository> repositories;
     protected RepositorySystem system;
     protected RepositorySystemSession session;
 
     protected ConcurrentMap<String, Object> artifactLocks = new ConcurrentHashMap<String, Object>();
 
-    protected File tmpFolder = new File(System.getProperty("karaf.home") + File.separator + "data" + File.separator + "maven" + File.separator);
+    protected File tmpFolder = new File(System.getProperty("karaf.data") +  File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
     public synchronized void start() throws IOException {
         if (!tmpFolder.exists()) {
             tmpFolder.mkdirs();
         }
-
         if (localRepository.equals("")) {
             //It doesn't work when using the file:// protocol prefix.
-            localRepository = System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository";
+            localRepository = System.getProperty("karaf.data") +  File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
         }
         if (system == null) {
             system = newRepositorySystem();
@@ -79,16 +104,28 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         if (session == null) {
             session = newSession(system, localRepository);
         }
-        repositories = new ArrayList<RemoteRepository>();
-        repositories.add(new RemoteRepository("local", "default", "file://" + localRepository));
-        repositories.add(new RemoteRepository("karaf.default.repo", "default", "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
+        repositories = new HashMap<String, RemoteRepository>();
 
-        int i = 0;
         for (String rep : remoteRepositories.split(",")) {
-            RemoteRepository remoteRepository = new RemoteRepository("repo-" + i++, "default", rep);
+            String id = "";
+            RemoteRepository remoteRepository = null;
+            rep = rep.trim();
+            Matcher idMatcher = REPOSITORY_ID_REGEX.matcher(rep);
+            if (idMatcher.matches()) {
+                id = idMatcher.group(2);
+                rep = cleanUpRepositorySpec(rep);
+                remoteRepository = new RemoteRepository(id + Math.abs(rep.hashCode()), "default", rep);
+            }   else {
+                id = "rep-" + rep.hashCode();
+                rep = cleanUpRepositorySpec(rep);
+                remoteRepository = new RemoteRepository("repo-" + Math.abs(rep.hashCode()), "default", rep);
+            }
             remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
-            repositories.add(remoteRepository);
+            repositories.put(id, remoteRepository);
         }
+
+        repositories.put("local", new RemoteRepository("local", "default", "file://" + localRepository));
+        repositories.put("karaf", new RemoteRepository("karaf", "default", "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
     }
 
     public synchronized void stop() {
@@ -96,81 +133,103 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     @Override
     public File download(String path) throws InvalidMavenArtifactRequest {
-        String mvn = convertToMavenUrl(path);
-        if (mvn == null) {
-            LOGGER.log(Level.WARNING, String.format("Received non maven request : %s", path));
-            return null;
-        } else {
-            LOGGER.log(Level.INFO, String.format("Received request for file : %s", mvn));
-        }
+        Matcher artifactMatcher = ARTIFACT_REQUEST_URL_REGEX.matcher(path);
+        Matcher metdataMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
 
-        Artifact artifact = new DefaultArtifact(mvn, null);
-        String id = artifact.getGroupId() + ":" + artifact.getArtifactId();
-        artifactLocks.putIfAbsent(id, new Object());
-        final Object lock = artifactLocks.get(id);
-        synchronized (lock) {
+        if (path == null) {
+            throw new InvalidMavenArtifactRequest();
+        } else if (metdataMatcher.matches()) {
+            LOGGER.log(Level.INFO, String.format("Received request for maven metadata : %s", path));
+            Metadata metadata = null;
             try {
-                ArtifactRequest request = new ArtifactRequest(artifact, repositories, null);
-                ArtifactResult result = system.resolveArtifact(session, request);
-                return result.getArtifact().getFile();
+                metadata = convertPathToMetadata(path);
+                List<MetadataRequest> requests = new ArrayList<MetadataRequest>();
+                String id = metdataMatcher.group(7);
+                if (repositories.containsKey(id)) {
+                    MetadataRequest request = new MetadataRequest(metadata, repositories.get(id), null);
+                    request.setFavorLocalRepository(false);
+                    requests.add(request);
+                } else {
+                    for (RemoteRepository repository : repositories.values()) {
+                        MetadataRequest request = new MetadataRequest(metadata, repository, null);
+                        request.setFavorLocalRepository(false);
+                        requests.add(request);
+                    }
+                }
+                List<MetadataResult> results = system.resolveMetadata(session, requests);
+                for (MetadataResult result : results) {
+                    if (result.getMetadata() != null && result.getMetadata().getFile() != null) {
+                        return result.getMetadata().getFile();
+                    }
+                }
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Could not find file : %s due to %s", mvn, e));
+                LOGGER.log(Level.WARNING, String.format("Could not find metadata : %s due to %s", metadata, e));
                 return null;
             }
+            //If no matching metadata found return nothing
+            return null;
+        } else if (artifactMatcher.matches()) {
+            LOGGER.log(Level.INFO, String.format("Received request for maven artifact : %s", path));
+            Artifact artifact = convertPathToArtifact(path);
+            String id = artifact.getGroupId() + ":" + artifact.getArtifactId();
+            artifactLocks.putIfAbsent(id, new Object());
+            final Object lock = artifactLocks.get(id);
+            synchronized (lock) {
+                try {
+                    ArtifactRequest request = new ArtifactRequest(artifact, new ArrayList<RemoteRepository>(repositories.values()), null);
+                    ArtifactResult result = system.resolveArtifact(session, request);
+                    return result.getArtifact().getFile();
+                } catch (Exception e) {
+                    LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e));
+                    return null;
+                }
+            }
         }
+        return null;
     }
 
     @Override
     public boolean upload(InputStream is, String path) throws InvalidMavenArtifactRequest {
         boolean success = true;
-        FileOutputStream fos = null;
-        String filename = path.substring(path.lastIndexOf("/") + 1);
-
-        if (path.startsWith("/")) {
-            path = path.substring(1);
-        }
-        String mvn = convertToMavenUrl(path);
-        if (mvn != null) {
-
+        Matcher artifactMatcher = ARTIFACT_REQUEST_URL_REGEX.matcher(path);
+        Matcher metdataMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
+        if (path == null) {
+            throw new InvalidMavenArtifactRequest();
+        } else if (metdataMatcher.matches()) {
+            LOGGER.log(Level.INFO, String.format("Received upload request for maven metadata : %s", path));
             try {
-                File tmpFile = new File(tmpFolder, filename);
-                if (tmpFile.exists()) {
-                    tmpFile.delete();
-                }
-                fos = new FileOutputStream(tmpFile);
-
-                int length = 0;
-                byte buffer[] = new byte[4096];
-
-                while ((length = is.read(buffer)) != -1) {
-                    fos.write(buffer, 0, length);
-                }
-
-                fos.flush();
-                fos.close();
-
-
-                Artifact artifact = new DefaultArtifact(mvn, null);
-                artifact = artifact.setFile(tmpFile);
+                String filename = path.substring(path.lastIndexOf("/") + 1);
+                Metadata metadata = convertPathToMetadata(path);
+                metadata = metadata.setFile(readFile(is, tmpFolder, filename));
+                InstallRequest request = new InstallRequest();
+                request.addMetadata(metadata);
+                InstallResult result = system.install(session, request);
+                success = true;
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, String.format("Failed to uploade metadata: %s due to %s", path, e));
+                success = false;
+            }
+            //If no matching metadata found return nothing
+        } else if (artifactMatcher.matches()) {
+            LOGGER.log(Level.INFO, String.format("Received upload request for maven artifact : %s", path));
+            Artifact artifact = null;
+            try {
+                String filename = path.substring(path.lastIndexOf("/") + 1);
+                artifact = convertPathToArtifact(path);
+                artifact = artifact.setFile(readFile(is, tmpFolder, filename));
                 InstallRequest request = new InstallRequest();
                 request.addArtifact(artifact);
                 InstallResult result = system.install(session, request);
-                LOGGER.log(Level.INFO, "Artifact installed: " + mvn);
+                success = true;
+                LOGGER.log(Level.INFO, "Artifact installed: " + artifact.toString());
             } catch (Exception e) {
                 success = false;
-                LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", mvn, e), e);
-            } finally {
-                if (fos != null) {
-                    try {
-                        fos.close();
-                    } catch (Exception ex) {
-                    }
-                }
+                LOGGER.log(Level.WARNING, String.format("Failed to upload artifact : %s due to %s", artifact, e), e);
             }
         }
         return success;
-    }
 
+    }
 
     protected RepositorySystemSession newSession(RepositorySystem system, String localRepository) {
         MavenRepositorySystemSession session = new MavenRepositorySystemSession();
@@ -187,53 +246,131 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         return locator.getService(RepositorySystem.class);
     }
 
-    public String convertToMavenUrl(String location) throws InvalidMavenArtifactRequest {
-        if (location == null) {
+
+    /**
+     * Converts the path of the request to maven coords.
+     * The format is the same as the one used in {@link DefaultArtifact}.
+     *
+     * @param path The request path, following the format: {@code <groupId>/<artifactId>/<version>/<artifactId>-<version>-[<classifier>].extension}
+     * @return A {@link String} in the following format: {@code <groupId>:<artifactId>[:<extension>[:<classifier>]]:<version>}
+     * @throws InvalidMavenArtifactRequest
+     */
+    protected String convertToMavenUrl(String path) throws InvalidMavenArtifactRequest {
+        String url = null;
+        StringBuilder sb = new StringBuilder();
+
+        if (path == null) {
             throw new InvalidMavenArtifactRequest("Cannot match request path to maven url, request path is empty.");
         }
-        String[] p = location.split("/");
-        if (p.length >= 4) {
-            String filename = p[p.length - 1];
-            String version = p[p.length - 2];
-            String artifactId = p[p.length - 3];
-            String artifactBase = artifactId + "-" + version;
+        Matcher pathMatcher = ARTIFACT_REQUEST_URL_REGEX.matcher(path);
+        if (pathMatcher.matches()) {
+            String groupId = pathMatcher.group(1).replaceAll("/", ".");
+            String artifactId = pathMatcher.group(2);
+            String version = pathMatcher.group(3);
+            String filename = pathMatcher.group(4);
+            String extension = "jar";
+            String classifier = "";
+            String filePerfix = artifactId + "-" + version;
+            String stripedFileName = filename.substring(filePerfix.length());
 
-            if (version.contains("SNAPSHOT")) {
-                filename = filename.replaceAll("\\d{8}.\\d+-\\d+", "SNAPSHOT");
+            if (version.endsWith("SNAPSHOT")) {
+                stripedFileName = stripedFileName.replaceAll("\\d{8}.\\d+-\\d+", "SNAPSHOT");
             }
 
-            if (filename.startsWith(artifactBase)) {
-                String classifier;
-                String type;
-                String artifactIdVersion = artifactId + "-" + version;
-                StringBuffer sb = new StringBuffer();
-                if (p[p.length - 1].charAt(artifactIdVersion.length()) == '-') {
-                    classifier = p[p.length - 1].substring(artifactIdVersion.length() + 1, p[p.length - 1].lastIndexOf('.'));
-                    artifactIdVersion += "-" + classifier;
-                } else {
-                    classifier = "";
-                }
-                type = filename.substring(artifactIdVersion.length() + 1);
-                for (int j = 0; j < p.length - 3; j++) {
-                    if (j > 0) {
-                        sb.append('.');
-                    }
-                    sb.append(p[j]);
-                }
-                sb.append(':').append(artifactId).append(':').append(type);
-                if (classifier.length() > 0) {
-                    sb.append(":").append(classifier);
-                }
-                sb.append(":").append(version);
-                return sb.toString();
-            } else {
-                //We don't want to throw an exception here as it may break the upload.
-                return null;
+            if (stripedFileName != null && stripedFileName.startsWith("-") && stripedFileName.contains(".")) {
+                classifier = stripedFileName.substring(1, stripedFileName.indexOf("."));
             }
-        } else {
-            return null;
+            extension = stripedFileName.substring(stripedFileName.indexOf(".") + 1);
+            sb.append(groupId).append(":").append(artifactId).append(":").append(extension).append(":");
+            if (classifier != null && !classifier.isEmpty()) {
+                sb.append(classifier).append(":");
+            }
+            sb.append(version);
+            url = sb.toString();
         }
+        return url;
     }
+
+    /**
+     * Converts the path of the request to an {@link Artifact}.
+     *
+     * @param path The request path, following the format: {@code <groupId>/<artifactId>/<version>/<artifactId>-<version>-[<classifier>].extension}
+     * @return A {@link DefaultArtifact} that matches the request path.
+     * @throws InvalidMavenArtifactRequest
+     */
+    protected Artifact convertPathToArtifact(String path) throws InvalidMavenArtifactRequest {
+        return new DefaultArtifact(convertToMavenUrl(path), null);
+    }
+
+    /**
+     * Converts the path of the request to {@link Metadata}.
+     *
+     * @param path The request path, following the format: {@code <groupId>/<artifactId>/<version>/<artifactId>-<version>-[<classifier>].extension}
+     * @return
+     * @throws InvalidMavenArtifactRequest
+     */
+    protected Metadata convertPathToMetadata(String path) throws InvalidMavenArtifactRequest {
+        DefaultMetadata metadata = null;
+        StringBuilder sb = new StringBuilder();
+        if (path == null) {
+            throw new InvalidMavenArtifactRequest("Cannot match request path to maven url, request path is empty.");
+        }
+        Matcher pathMatcher = ARTIFACT_METADATA_URL_REGEX.matcher(path);
+        if (pathMatcher.matches()) {
+            String groupId = pathMatcher.group(1).replaceAll("/", ".");
+            String artifactId = pathMatcher.group(2);
+            String version = pathMatcher.group(3);
+            metadata = new DefaultMetadata(groupId, artifactId, version, "", Metadata.Nature.RELEASE_OR_SNAPSHOT);
+
+        }
+        return metadata;
+    }
+
+    /**
+     * Reads a {@link File} from the {@link InputStream} then saves it under a temp location and returns the file.
+     * @param is            The source input stream.
+     * @param tempLocation  The temporary location to save the content of the stream.
+     * @param name          The name of the file.
+     * @return
+     * @throws FileNotFoundException
+     */
+    protected File readFile(InputStream is, File tempLocation, String name) throws FileNotFoundException {
+        File tmpFile = null;
+        FileOutputStream fos = null;
+        try {
+            tmpFile = new File(tempLocation, name);
+            if (tmpFile.exists()) {
+                tmpFile.delete();
+            }
+            fos = new FileOutputStream(tmpFile);
+
+            int length = 0;
+            byte buffer[] = new byte[4096];
+
+            while ((length = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, length);
+            }
+        } catch (Exception ex) {
+        } finally {
+            try {fos.flush();}catch (Exception ex) {}
+            try {fos.close();}catch (Exception ex) {}
+        }
+        return tmpFile;
+    }
+
+    /**
+     * Removes all options from the repository spec.
+     * @param spec
+     * @return
+     */
+    protected String cleanUpRepositorySpec(String spec) {
+        if (spec == null || spec.isEmpty()) {
+            return spec;
+        } else if (!spec.contains("@")) {
+            return spec;
+        } else return spec.substring(0, spec.indexOf("@"));
+    }
+
 
     public void setLocalRepository(String localRepository) {
         this.localRepository = localRepository;
@@ -245,10 +382,6 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     public void setRemoteRepositories(String remoteRepositories) {
         this.remoteRepositories = remoteRepositories;
-    }
-
-    public List<RemoteRepository> getRepositories() {
-        return repositories;
     }
 
     public String getUpdatePolicy() {

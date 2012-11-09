@@ -317,7 +317,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
     /**
      * Resolves snapshot version of the artifact.
      * Snapshot versions are resolved by parsing the metadata within the directory that contains the version as:
-     * 1. if the metadata containes entries like "versioning/snapshot/timestamp (most likely on remote repos) it will
+     * 1. if the metadata contains entries like "versioning/snapshot/timestamp (most likely on remote repos) it will
      * use the timestamp and buildnumber to point the real version
      * 2. if the metatdata does not contain the above (most likely a local repo) it will use as version the
      * versioning/lastUpdated

@@ -188,12 +188,25 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             try {
                 if (bundle.getLocation().endsWith("SNAPSHOT")) {
                     org.fusesource.fabric.agent.mvn.Parser parser = new org.fusesource.fabric.agent.mvn.Parser(bundle.getLocation());
-                    String path = System.getProperty("karaf.home") + File.separator + "system" + File.separator + parser.getArtifactPath().substring(4);
-                    long checksum = ChecksumUtils.checksum(new FileInputStream(path));
+                    String systemPath = System.getProperty("karaf.home") + File.separator + "system" + File.separator + parser.getArtifactPath().substring(4);
+                    String agentDownloadsPath = System.getProperty("karaf.data") + "/maven/agent" + File.separator + parser.getArtifactPath().substring(4);
+                    long systemChecksum = 0;
+                    long agentChecksum = 0;
+                    try {
+                        systemChecksum = ChecksumUtils.checksum(new FileInputStream(systemPath));
+                    } catch (Exception e) {
+                        LOGGER.debug("Error calculating checksum for file: %s", systemPath, e);
+                    }
+                    try {
+                        agentChecksum = ChecksumUtils.checksum(new FileInputStream(agentDownloadsPath));
+                    } catch (Exception e) {
+                        LOGGER.debug("Error calculating checksum for file: %s", agentDownloadsPath, e);
+                    }
+                    long checksum = agentChecksum > 0 ? agentChecksum : systemChecksum;
                     checksums.put(bundle.getLocation(), Long.toString(checksum));
                 }
             } catch (Exception e) {
-                LOGGER.debug("Error calculating checksum", e);
+                LOGGER.debug("Error creating checksum map.", e);
             }
         }
         checksums.save();

@@ -72,6 +72,10 @@ public class MavenRepositoryURL {
                 snapshotEnabled = true;
             } else if (segments[i].trim().equalsIgnoreCase(MavenConstants.OPTION_DISALLOW_RELEASES)) {
                 releasesEnabled = false;
+            } else if (segments[i].trim().startsWith(MavenConstants.OPTION_ID)) {
+                if (segments[i].length() > MavenConstants.OPTION_ID.length()) {
+                    m_id = segments[i].substring(MavenConstants.OPTION_ID.length() + 1);
+                }
             } else {
                 if (i > 0) {
                     urlBuilder.append(MavenConstants.SEPARATOR_OPTIONS);
@@ -86,7 +90,7 @@ public class MavenRepositoryURL {
         m_repositoryURL = new URL(spec);
         m_snapshotsEnabled = snapshotEnabled;
         m_releasesEnabled = releasesEnabled;
-        m_id = "" + spec.hashCode();
+        m_id = m_id != null ? m_id : "" + spec.hashCode();
         if (m_repositoryURL.getProtocol().equals("file")) {
             m_file = new File(m_repositoryURL.getPath());
         } else {

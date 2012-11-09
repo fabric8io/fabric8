@@ -64,6 +64,11 @@ public interface MavenConstants {
      * Option to mark repository as not allowing releases.
      */
     String OPTION_DISALLOW_RELEASES = "noreleases";
+
+    /**
+     * Option to to mark the repository id
+     */
+    String OPTION_ID = "id";
     /**
      * Options separator in repository url.
      */
