@@ -136,7 +136,7 @@ class ProfileResource(val self: Profile) extends BaseResource with HasID with Ex
   def is_hidden = self.isHidden
 
   @JsonProperty
-  def attributes = self.getAttributes
+  def profile_attributes = self.getAttributes
 
   @POST
   @Path("set_attribute")
