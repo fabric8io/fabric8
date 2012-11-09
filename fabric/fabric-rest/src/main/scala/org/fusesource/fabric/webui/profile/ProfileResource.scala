@@ -39,6 +39,14 @@ class PutParentsDTO {
   var parents: Array[String] = _
 }
 
+class SetAttributeDTO {
+  @JsonProperty
+  var key:String = _
+
+  @JsonProperty
+  var value:String = _
+}
+
 class FeaturesRepositoryResource(_id: String, _xml: String, var _error: String) extends BaseResource with HasID {
 
   @JsonProperty
@@ -120,6 +128,20 @@ class ProfileResource(val self: Profile) extends BaseResource with HasID with Ex
 
   @JsonProperty
   def is_abstract = self.isAbstract
+
+  @JsonProperty
+  def is_locked = self.isLocked
+
+  @JsonProperty
+  def is_hidden = self.isHidden
+
+  @JsonProperty
+  def attributes = self.getAttributes
+
+  @POST
+  @Path("set_attribute")
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def set_attribute(attribute:SetAttributeDTO):Unit = self.setAttribute(attribute.key, attribute.value)
 
   @JsonProperty
   def children = fabric_service.getVersion(self.getVersion).getProfiles.filter(_.getParents.iterator.contains(self)).map(_.getId)
