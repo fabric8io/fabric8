@@ -826,7 +826,7 @@ define [
       proxy = null
       jvmopts = null
       proxy = @proxy.val() if @use_proxy.is ":checked"
-      jvmopts = @jvm_opts if @use_jvm_opts is ":checked"
+      jvmopts = @jvm_opts.val() if @use_jvm_opts.is ":checked"
       ensemble_server = @ensemble_server.is ":checked"
 
       @state.set {
