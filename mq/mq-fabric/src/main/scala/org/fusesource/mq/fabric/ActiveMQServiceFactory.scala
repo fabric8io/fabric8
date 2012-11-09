@@ -325,7 +325,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
                 Thread.sleep(1000*10);
                 start_failure = e
             } finally {
-              if(started.get && start_failure!=null){
+              if(started.get && start_failure!=null && !isInterrupted){
                 trystartup
               } else {
                 start_thread = null
@@ -340,13 +340,6 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
 
     val stop_runnable = new Runnable {
       override def run() {
-        var t = start_thread // working with a volatile
-        while(t!=null) {
-          t.interrupt()
-          t.join()
-          t = start_thread // when the start up thread gives up trying to start this gets set to null.
-        }
-
         val s = server // working with a volatile
         if( s!=null ) {
           try {
@@ -370,6 +363,13 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
           }
           server = null
         }
+
+        var t = start_thread // working with a volatile
+          while(t!=null) {
+            t.interrupt()
+            t.join()
+            t = start_thread // when the start up thread gives up trying to start this gets set to null.
+          }
       }
     }
     
