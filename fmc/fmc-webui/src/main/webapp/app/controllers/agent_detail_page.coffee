@@ -23,6 +23,7 @@ define [
   "controllers/osgi_page"
   "controllers/jvm_metrics"
   "controllers/add_profile_dialog"
+  "controllers/controls/loading_page"
 ], (app, jade, Agent, Agents, ProfileList, OSGiPage, JVMMetrics) ->
 
 
@@ -96,10 +97,16 @@ define [
         collection: @model.profiles()
       @list.html ul.render().el
 
-      @add_profile.click (event)=>
-        dialog = new FON.AddProfileDialog
-          model: @model
-        dialog.render()
+      @add_profile.click (event) =>
+        @model.fetch
+          op: "update"
+          success: =>
+            app.versions.fetch
+              op: "update"
+              success: =>
+                dialog = new FON.AddProfileDialog
+                  model: @model
+                dialog.render()
         false
 
       @jvm_details = new JvmDetails
@@ -126,6 +133,8 @@ define [
 
 
   app.router.route "/containers/details/:agent", "agent_details", (name) ->
+
+    app.page new FON.LoadingPage
 
     model = new Agent
       id: name

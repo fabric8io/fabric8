@@ -138,8 +138,11 @@ define [
         el: @parents
         collection: @model
         child_control: (model) ->
-          new CreateProfileItem
-            model: model
+          if !model.get("_hidden")
+            new CreateProfileItem
+              model: model
+          else
+            null
       
       collection.render()
 
@@ -314,15 +317,19 @@ define [
             tagName: "ul"
             collection: model
             child_control: (model) =>
-              controller = new ProfileRow
-                tagName: "li"
-                className: "btn"
-                parent: @
-                model: model
-              model.bind "change", controller.render, controller
-              controller
+              if !model.get("_hidden")
+                controller = new ProfileRow
+                  tagName: "li"
+                  className: "btn"
+                  parent: @
+                  model: model
+                model.bind "change", controller.render, controller
+                controller
+              else
+                null
 
           $(@el).html profiles.render().el
+
     poll: ->
       @poll_count = @poll_count + 1
       if @poll_count >= @poll_max

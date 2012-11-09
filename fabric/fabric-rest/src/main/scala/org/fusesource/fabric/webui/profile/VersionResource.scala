@@ -106,6 +106,9 @@ class VersionResource(val self: Version) extends BaseResource with HasID with Ex
   @JsonProperty
   def abstract_profiles = profiles.filter(_.is_abstract).map(_.id)
 
+  @JsonProperty
+  def hidden_profiles = profiles.filter(_.is_hidden).map(_.id)
+
   @GET
   @Path("profiles")
   def profiles: Array[ProfileResource] = self.getProfiles().map(new ProfileResource(_)).sortWith(ByID(_, _))

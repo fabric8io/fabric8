@@ -221,9 +221,12 @@ define [
       @model.fetch
         op: "update"
         success: =>
-          dialog = new FON.AddProfileDialog
-            model: @model
-          dialog.render()
+          app.versions.fetch
+            op: "update"
+            success: =>
+              dialog = new FON.AddProfileDialog
+                model: @model
+              dialog.render()
       false
 
     on_render: ->

@@ -35,8 +35,10 @@ define [
 
       all_profiles = version.get "_profiles"
       abstract_profiles = version.get "abstract_profiles"
+      hidden_profiles = version.get "hidden_profiles"
       available = _.difference all_profiles, existing
       available = _.difference available, abstract_profiles
+      available = _.difference available, hidden_profiles
       for profile in available
         @profiles_list.append("<li><label><input value=\"#{profile}\" type=\"checkbox\"><span> #{profile}</span></label></li>")
 
