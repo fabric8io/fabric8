@@ -210,10 +210,14 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
         if (allfeatures.isEmpty()) {
             Repository[] repositories = listRepositories();
             for (Repository repository : repositories) {
-                for (Feature feature : repository.getFeatures()) {
-                    if (!allfeatures.contains(feature)) {
-                        allfeatures.add(feature);
+                try {
+                    for (Feature feature : repository.getFeatures()) {
+                        if (!allfeatures.contains(feature)) {
+                            allfeatures.add(feature);
+                        }
                     }
+                } catch (Exception ex) {
+                    LOGGER.debug("Could not load features from %s.", repository.getURI());
                 }
             }
         }
@@ -270,14 +274,18 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
     protected Map<String, Map<String, Feature>> getFeatures(Repository[] repositories) throws Exception {
         Map<String, Map<String, Feature>> features = new HashMap<String, Map<String, Feature>>();
         for (Repository repo : repositories) {
-            for (Feature f : repo.getFeatures()) {
-                if (features.get(f.getName()) == null) {
-                    Map<String, Feature> versionMap = new TreeMap<String, Feature>();
-                    versionMap.put(f.getVersion(), f);
-                    features.put(f.getName(), versionMap);
-                } else {
-                    features.get(f.getName()).put(f.getVersion(), f);
+            try {
+                for (Feature f : repo.getFeatures()) {
+                    if (features.get(f.getName()) == null) {
+                        Map<String, Feature> versionMap = new TreeMap<String, Feature>();
+                        versionMap.put(f.getVersion(), f);
+                        features.put(f.getName(), versionMap);
+                    } else {
+                        features.get(f.getName()).put(f.getVersion(), f);
+                    }
                 }
+            } catch (Exception ex) {
+                LOGGER.debug("Could not load features from %s.", repo.getURI());
             }
         }
         return features;
