@@ -37,6 +37,7 @@ import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import junit.framework.Assert;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.fusesource.patch.Patch;
@@ -51,6 +52,7 @@ import org.osgi.framework.wiring.FrameworkWiring;
 
 import static org.easymock.EasyMock.*;
 import static org.junit.Assert.*;
+import static org.fusesource.patch.impl.ServiceImpl.stripSymbolicName;
 
 public class ServiceImplTest {
 
@@ -74,53 +76,13 @@ public class ServiceImplTest {
         
         generateData();
     }
-    
-    private void generateData() throws Exception {
-        storage = new File(baseDir, "storage");
-        delete(storage);
-        storage.mkdirs();
 
-        bundlev131 = createBundle("my-bsn", "1.3.1");
-        bundlev132 = createBundle("my-bsn", "1.3.2");
-        bundlev140 = createBundle("my-bsn", "1.4.0");
-        
-        patch132 = createPatch("patch-1.3.2", bundlev132);
-        patch140 = createPatch("patch-1.4.0", bundlev140);
-    }
-    
-    private File createPatch(String id, File bundle) throws Exception {
-        File patchFile = new File(storage, "temp/" + id + ".zip");
-        File pd = new File(storage, "temp/" + id + "/" + id + ".patch");
-        pd.getParentFile().mkdirs();
-        Properties props = new Properties();
-        props.put("id", id);
-        props.put("bundle.count", "1");
-        props.put("bundle.0", bundle.toURI().toURL().toString());
-        FileOutputStream fos = new FileOutputStream(pd);
-        props.store(fos, null);
-        fos.close();
-        fos = new FileOutputStream(patchFile);
-        jarDir(pd.getParentFile(), fos);
-        fos.close();
-        return patchFile;
-    }
-    
-    private File createBundle(String bundleSymbolicName, String version) throws Exception {
-        File jar = new File(storage, "temp/" + bundleSymbolicName + "-" + version + ".jar");
-        File man = new File(storage, "temp/" + bundleSymbolicName + "-" + version + "/META-INF/MANIFEST.MF");
-        man.getParentFile().mkdirs();
-        Manifest mf = new Manifest();
-        mf.getMainAttributes().putValue("Manifest-Version", "1.0");
-        mf.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
-        mf.getMainAttributes().putValue("Bundle-SymbolicName", bundleSymbolicName);
-        mf.getMainAttributes().putValue("Bundle-Version", version);
-        FileOutputStream fos = new FileOutputStream(man);
-        mf.write(fos);
-        fos.close();
-        fos = new FileOutputStream(jar);
-        jarDir(man.getParentFile().getParentFile(), fos);
-        fos.close();
-        return jar;
+    @Test
+    public void testSymbolicNameStrip() {
+        Assert.assertEquals("my.bundle", stripSymbolicName("my.bundle"));
+        Assert.assertEquals("my.bundle", stripSymbolicName("my.bundle;singleton:=true"));
+        Assert.assertEquals("my.bundle", stripSymbolicName("my.bundle;blueprint.graceperiod:=false;"));
+        Assert.assertEquals("my.bundle", stripSymbolicName("my.bundle;blueprint.graceperiod:=false; blueprint.timeout=10000;"));
     }
     
     @Test
@@ -267,6 +229,54 @@ public class ServiceImplTest {
         assertNotNull(patch.getResult());
         verify(sysBundleContext, sysBundle, bundleContext, bundle);
 
+    }
+
+    private void generateData() throws Exception {
+        storage = new File(baseDir, "storage");
+        delete(storage);
+        storage.mkdirs();
+
+        bundlev131 = createBundle("my-bsn", "1.3.1");
+        bundlev132 = createBundle("my-bsn;directive1:=true; directve2:=1000", "1.3.2");
+        bundlev140 = createBundle("my-bsn", "1.4.0");
+
+        patch132 = createPatch("patch-1.3.2", bundlev132);
+        patch140 = createPatch("patch-1.4.0", bundlev140);
+    }
+
+    private File createPatch(String id, File bundle) throws Exception {
+        File patchFile = new File(storage, "temp/" + id + ".zip");
+        File pd = new File(storage, "temp/" + id + "/" + id + ".patch");
+        pd.getParentFile().mkdirs();
+        Properties props = new Properties();
+        props.put("id", id);
+        props.put("bundle.count", "1");
+        props.put("bundle.0", bundle.toURI().toURL().toString());
+        FileOutputStream fos = new FileOutputStream(pd);
+        props.store(fos, null);
+        fos.close();
+        fos = new FileOutputStream(patchFile);
+        jarDir(pd.getParentFile(), fos);
+        fos.close();
+        return patchFile;
+    }
+
+    private File createBundle(String bundleSymbolicName, String version) throws Exception {
+        File jar = new File(storage, "temp/" + stripSymbolicName(bundleSymbolicName) + "-" + version + ".jar");
+        File man = new File(storage, "temp/" + stripSymbolicName(bundleSymbolicName) + "-" + version + "/META-INF/MANIFEST.MF");
+        man.getParentFile().mkdirs();
+        Manifest mf = new Manifest();
+        mf.getMainAttributes().putValue("Manifest-Version", "1.0");
+        mf.getMainAttributes().putValue("Bundle-ManifestVersion", "2");
+        mf.getMainAttributes().putValue("Bundle-SymbolicName", bundleSymbolicName);
+        mf.getMainAttributes().putValue("Bundle-Version", version);
+        FileOutputStream fos = new FileOutputStream(man);
+        mf.write(fos);
+        fos.close();
+        fos = new FileOutputStream(jar);
+        jarDir(man.getParentFile().getParentFile(), fos);
+        fos.close();
+        return jar;
     }
 
     private <T> Set<T> asSet(T... objects) {

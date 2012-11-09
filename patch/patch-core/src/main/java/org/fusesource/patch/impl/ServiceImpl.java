@@ -43,6 +43,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.jar.Attributes;
 import java.util.jar.JarInputStream;
 import java.util.jar.Manifest;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -81,6 +83,8 @@ public class ServiceImpl implements Service {
     private static final String NEW_LOCATION = "new-location";
     private static final String OLD_VERSION = "old-version";
     private static final String OLD_LOCATION = "old-location";
+
+    private static final Pattern SYMBOLIC_NAME_PATTERN = Pattern.compile("([^;: ]+)(.*)");
 
     public ServiceImpl(BundleContext bundleContext) {
         // Use system bundle' bundle context to avoid running into
@@ -285,7 +289,7 @@ public class ServiceImpl implements Service {
             boolean found = false;
             Version v = Version.parseVersion(update.getNewVersion());
             for (Bundle bundle : allBundles) {
-                if (bundle.getSymbolicName().equals(update.getSymbolicName())
+                if (stripSymbolicName(bundle.getSymbolicName()).equals(stripSymbolicName(update.getSymbolicName()))
                         && bundle.getVersion().equals(v)) {
                     found = true;
                     break;
@@ -308,7 +312,7 @@ public class ServiceImpl implements Service {
         for (BundleUpdate update : result.getUpdates()) {
             Version v = Version.parseVersion(update.getNewVersion());
             for (Bundle bundle : allBundles) {
-                if (bundle.getSymbolicName().equals(update.getSymbolicName())
+                if (stripSymbolicName(bundle.getSymbolicName()).equals(stripSymbolicName(update.getSymbolicName()))
                         && bundle.getVersion().equals(v)) {
                     toUpdate.put(bundle, update.getPreviousLocation());
                 }
@@ -355,7 +359,7 @@ public class ServiceImpl implements Service {
                         VersionRange range = new VersionRange(false, lower, v, true);
                         for (Bundle bundle : allBundles) {
                             Version oldV = bundle.getVersion();
-                            if (bundle.getBundleId() != 0 && sn.equals(bundle.getSymbolicName()) && range.contains(oldV)) {
+                            if (bundle.getBundleId() != 0 && stripSymbolicName(sn).equals(stripSymbolicName(bundle.getSymbolicName())) && range.contains(oldV)) {
                                 String location = bundle.getLocation();
                                 BundleUpdate update = new BundleUpdateImpl(sn, v.toString(), url, oldV.toString(), location);
                                 updates.add(update);
@@ -665,4 +669,17 @@ public class ServiceImpl implements Service {
         }
     }
 
+    /**
+     * Strips symbolic name from directives.
+     * @param symbolicName
+     * @return
+     */
+    static String stripSymbolicName(String symbolicName) {
+        Matcher m = SYMBOLIC_NAME_PATTERN.matcher(symbolicName);
+        if (m.matches() && m.groupCount() >= 1) {
+            return m.group(1);
+        } else {
+            return symbolicName;
+        }
+    }
 }
