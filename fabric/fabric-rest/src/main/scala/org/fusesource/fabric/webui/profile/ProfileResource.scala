@@ -16,6 +16,7 @@
 package org.fusesource.fabric.webui.profile
 
 import org.fusesource.fabric.api.Profile
+import org.fusesource.fabric.api.Container
 import javax.ws.rs._
 import javax.ws.rs.core.MediaType
 import org.codehaus.jackson.annotate.JsonProperty
@@ -59,7 +60,7 @@ class FeaturesRepositoryResource(_id: String, _xml: String, var _error: String) 
   def error = _error
 }
 
-class ProfileResource(val self: Profile) extends BaseResource with HasID with Exportable {
+class ProfileResource(val self: Profile, val container:Container = null ) extends BaseResource with HasID with Exportable {
 
   @JsonProperty
   def id = self.getId
@@ -127,13 +128,16 @@ class ProfileResource(val self: Profile) extends BaseResource with HasID with Ex
   def version = self.getVersion
 
   @JsonProperty
-  def is_abstract = self.isAbstract
+  def is_abstract = Option(profile_attributes.getProperty(Profile.ABSTRACT)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def is_locked = self.isLocked
+  def is_locked = Option(profile_attributes.getProperty(Profile.LOCKED)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def is_hidden = self.isHidden
+  def is_hidden = Option(profile_attributes.getProperty(Profile.HIDDEN)).getOrElse({"false"}).toBoolean
+
+  @JsonProperty
+  def description = Option(profile_attributes.getProperty(Profile.DESCRIPTION)).getOrElse({""})
 
   @JsonProperty
   def profile_attributes = self.getAttributes
@@ -299,7 +303,14 @@ class ProfileResource(val self: Profile) extends BaseResource with HasID with Ex
   }
 
   @DELETE
-  def delete = self delete
+  def delete = {
+    Option(container) match {
+      case Some(agent) =>
+        val profiles = agent.getProfiles
+        agent.setProfiles(profiles.filterNot(_.getId == self.getId).toArray)
+      case None =>
+    }
+  }
 
   def add_agent_config(config: CreateConfigurationEntryDTO) = {
     val map = self.getConfigurations

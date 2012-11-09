@@ -36,7 +36,7 @@ define [
     tagName: "ul"
     className: "profiles"
     child_control: (model) ->
-      if model && model.id != ""
+      if model && model.id != "" && !model.get("_hidden")
         new ProfileItem
           model: model
       else

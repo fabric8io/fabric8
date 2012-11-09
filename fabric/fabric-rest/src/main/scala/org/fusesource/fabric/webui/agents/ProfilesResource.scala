@@ -23,6 +23,7 @@ import scala.Array._
 import org.fusesource.fabric.webui.{ByID, BaseResource}
 import org.fusesource.fabric.webui.{ByID, BaseResource}
 import collection.mutable.ListBuffer
+import org.fusesource.fabric.webui.profile.ProfileResource
 
 
 class AddProfileDTO {

@@ -357,6 +357,7 @@ define [
       on_close: -> window.location.reload()
 
   create_page = ->
+    app.page new FON.LoadingPage
     model = new Agents
     model.fetch
       success: (model, resp) =>
