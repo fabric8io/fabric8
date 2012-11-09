@@ -62,6 +62,7 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService {
     public static String requirementsJsonPath = "/fabric/configs/org.fusesource.fabric.requirements.json";
+    public static String jvmOptionsPath = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
     private static final Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
 
@@ -260,6 +261,9 @@ public class FabricServiceImpl implements FabricService {
         }
         if (options.getProxyUri() == null) {
             options.setProxyUri(getMavenRepoURI());
+        }
+        if (options.getJvmOpts() == null || options.getJvmOpts().length() == 0) {
+            options.setJvmOpts(getDefaultJvmOptions());
         }
         try {
             ContainerProvider provider = getProvider(options.getProviderType());
@@ -640,5 +644,30 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public PatchService getPatchService() {
         return new PatchServiceImpl(this, configurationAdmin);
+    }
+
+    @Override
+    public String getDefaultJvmOptions() {
+        try {
+            if (zooKeeper.exists(jvmOptionsPath) != null) {
+                return zooKeeper.getStringData(jvmOptionsPath);
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setDefaultJvmOptions(String jvmOptions) {
+        try {
+            if (jvmOptions == null) {
+                jvmOptions = "";
+            }
+            zooKeeper.createOrSetWithParents(jvmOptionsPath, jvmOptions, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 }

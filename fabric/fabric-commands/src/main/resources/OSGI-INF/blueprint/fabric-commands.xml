@@ -167,6 +167,12 @@
           <ref component-id="containerCompleter"/>
         </completers>
       </command>
+      <command name="fabric/container-default-jvm-options">
+        <action class="org.fusesource.fabric.commands.ContainerDefaultJvmOptions">
+          <property name="fabricService" ref="fabricService"/>
+          <property name="zooKeeper" ref="zooKeeper"/>
+        </action>
+      </command>
 
         <command name="fabric/container-domains">
             <action class="org.fusesource.fabric.commands.ContainerDomains">

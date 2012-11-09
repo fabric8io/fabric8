@@ -171,4 +171,16 @@ public interface FabricService {
      */
     PatchService getPatchService();
 
+    /**
+     * Get the default JVM options used when creating containers
+     * @return
+     */
+    String getDefaultJvmOptions();
+
+    /**
+     * Set the default JVM options used when creating containers
+     * @param jvmOptions
+     */
+    void setDefaultJvmOptions(String jvmOptions);
+
 }
