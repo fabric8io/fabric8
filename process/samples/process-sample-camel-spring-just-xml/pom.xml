@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.fusesource.fabric.samples</groupId>
         <artifactId>samples</artifactId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.1.0.fuse-026</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
