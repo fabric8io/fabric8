@@ -128,6 +128,7 @@
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <fabric-version>${project.version}</fabric-version>
         <felix-framework-version>4.0.3.fuse-71-${perfectus-build}</felix-framework-version>
+        <felix-framework-security-version>2.1.0.fuse-71-${perfectus-build}</felix-framework-security-version>
         <felix-configadmin-version>1.4.0.fuse-71-${perfectus-build}</felix-configadmin-version>
         <felix-eventadmin-version>1.3.0.fuse-71-${perfectus-build}</felix-eventadmin-version>
         <felix-fileinstall-version>3.3.11.fuse-71-${perfectus-build}</felix-fileinstall-version>
@@ -223,6 +224,7 @@
         <camel.version>${camel-version}</camel.version>
         <cxf.version>${cxf-version}</cxf.version>
         <felix.framework.version>${felix-framework-version}</felix.framework.version>
+        <felix.framework.security.version>${felix-framework-security-version}</felix.framework.security.version>
         <felix.configadmin.version>${felix-configadmin-version}</felix.configadmin.version>
         <felix.eventadmin.version>${felix-eventadmin-version}</felix.eventadmin.version>
         <felix.fileinstall.version>${felix-fileinstall-version}</felix.fileinstall.version>
@@ -1084,6 +1086,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework.security</artifactId>
+                <version>${felix.framework.security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.fileinstall</artifactId>
                 <version>${felix.fileinstall.version}</version>
             </dependency>
@@ -1390,6 +1397,7 @@
         <felix-eventadmin-version>1.3.0.fuse-71-${perfectus-build}</felix-eventadmin-version>
         <felix-fileinstall-version>3.3.11.fuse-71-${perfectus-build}</felix-fileinstall-version>
         <felix-framework-version>4.0.3.fuse-71-${perfectus-build}</felix-framework-version>
+        <felix-framework-security-version>2.1.0.fuse-71-${perfectus-build}</felix-framework-security-version>
         <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>
         <servicemix.components.version>2012.01.0.fuse-71-${perfectus-build}</servicemix.components.version>
         <servicemix.features.version>4.5.0-fuse-${perfectus-build}</servicemix.features.version>
