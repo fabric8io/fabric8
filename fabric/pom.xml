@@ -77,9 +77,14 @@
 
         <module>fabric-ldap</module>
 
-        <module>fmc</module>
+        <module>fmc/fmc-jaas</module>
+        <module>fmc/fmc-branding</module>
+        <module>fmc/fmc-webui</module>
+        <module>fmc/fmc-webui-branding-example</module>
+
         <module>fuse-fabric</module>
-        
+        <module>fmc/fmc-distro</module>
+
         <module>fabric-examples</module>
         <module>fabric-itests</module>
         <module>fabric-utils</module>

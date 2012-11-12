@@ -20,9 +20,9 @@
 
   <parent>
     <groupId>org.fusesource.fmc</groupId>
-    <artifactId>fmc-project</artifactId>
+    <artifactId>fabric-project</artifactId>
     <version>99-master-SNAPSHOT</version>
-    <relativePath>..</relativePath>
+    <relativePath>../../</relativePath>
   </parent>
 
   <groupId>org.fusesource.fmc</groupId>
