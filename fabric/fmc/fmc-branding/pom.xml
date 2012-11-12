@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fmc</groupId>
+    <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>../../</relativePath>
