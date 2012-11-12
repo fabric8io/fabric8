@@ -32,7 +32,7 @@ define [
 
     elements:
       "#dialog": "dialog"
-      ".body": "body"
+      "form.body": "body"
       ".accept": "accept_btn"
       ".cancel": "cancel_btn"
       ".flash": "flash"
@@ -68,11 +68,23 @@ define [
       @accept_btn.click (event) =>
         if !@accept_btn.hasClass "disabled"
           @do_accept()
+
       @cancel_btn.click (event) =>
         @do_hide()
 
       @dialog.bind "shown", =>
         @body.find("input[type='text']:first").focus()
+        $("input").keypress (event) =>
+          if e.which == 13
+            if !$(e.eventTarget).hasClass("no-submit")
+              false
+            else
+              @do_accept()
+              false
+
+      @body.submit (event) =>
+        @do_accept()
+        false
 
       @dialog.bind "hidden", =>
         @dialog.remove()
