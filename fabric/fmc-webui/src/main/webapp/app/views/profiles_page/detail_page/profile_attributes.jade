@@ -16,14 +16,16 @@
 
 - ###
 - if $.browser.msie
-  .clearfix
-    label(for="locked" onclick="") Locked:
-    .input
-      input#locked(name="locked" type="checkbox")
-  .clearfix
-    label(for="abstract" onclick="") Abstract:
-    .input
-      input#abstract(name="abstract" type="checkbox")
+  form
+    fieldset
+      .clearfix
+        label(for="locked" onclick="") Locked:
+        .input
+          input#locked(name="locked" type="checkbox" style="margin-top: 8px;")
+      .clearfix
+        label(for="abstract" onclick="") Abstract:
+        .input
+          input#abstract(name="abstract" type="checkbox" style="margin-top: 8px;")
 - else
   fieldset.toggle
     input#locked(name="locked" type="checkbox")
