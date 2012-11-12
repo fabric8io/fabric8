@@ -649,7 +649,7 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public String getDefaultJvmOptions() {
         try {
-            if (zooKeeper.exists(jvmOptionsPath) != null) {
+            if (zooKeeper.isConnected() && zooKeeper.exists(jvmOptionsPath) != null) {
                 return zooKeeper.getStringData(jvmOptionsPath);
             } else {
                 return "";
