@@ -44,5 +44,15 @@ define [
       }, options)
       $.ajax(options)
 
+    set_attribute: (options) ->
+      options = _.extend({
+      url: "rest/#{@url}/set_attribute"
+      type: "POST"
+      data: JSON.stringify(options)
+      contentType: "application/json"
+      dataType: "json"
+      }, options)
+      $.ajax(options)
+
 
   Profile

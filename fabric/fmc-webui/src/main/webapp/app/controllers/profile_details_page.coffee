@@ -425,7 +425,50 @@ define [
 
   class ProfileVersionAndParents extends FON.ModelBackedTemplate
     template: jade["profiles_page/detail_page/parent_block.jade"]
-    
+
+
+  class ProfileAttributes extends FON.TemplateController
+    template: jade["profiles_page/detail_page/profile_attributes.jade"]
+    template_data: -> @model.toJSON()
+
+    elements:
+      ":input[name=locked]": "locked"
+      ":input[name=abstract]": "abstract"
+
+    initialize: ->
+      super
+      @model.bind "change:_locked", =>
+        @locked.attr "checked", @model.get("_locked")
+
+      @model.bind "change:_abstract", =>
+        @abstract.attr "checked", @model.get("_abstract")
+
+    on_render: ->
+      @locked.attr "checked", @model.get("_locked")
+      @abstract.attr "checked", @model.get("_abstract")
+
+      @locked.change (event) =>
+        @model.set_attribute
+          key: "locked"
+          value: @locked.is(":checked")
+          error: ->
+            app.flash
+              kind: "error"
+              title: "Error: "
+              message: "Error modifying profile attribute"
+        false
+
+      @abstract.change (event) =>
+        @model.set_attribute
+          key: "abstract"
+          value: @abstract.is(":checked")
+          error: ->
+            app.flash
+              kind: "error"
+              title: "Error: "
+              message: "Error modifying profile attribute"
+        false
+
 
   class ProfileDetailController extends FON.TemplateController
     template: jade["profiles_page/detail_page/index.jade"]
@@ -437,6 +480,7 @@ define [
     elements:
       "#tabs": "tabs"
       ".parent-block": "parent_detail_block"
+      ".profile-attributes": "profile_attributes"
 
     events:
       "click a.set-parents": "do_set_parents"
@@ -444,6 +488,9 @@ define [
     initialize: ->
       super
       @parent_block = new ProfileVersionAndParents
+        model: @model
+
+      @attributes_block = new ProfileAttributes
         model: @model
 
     do_set_parents: ->
@@ -531,7 +578,7 @@ define [
                 id = _.strLeft(items, "=")
                 id = _.trim(id)
                 value = _.strRight(items, "=")
-                value = _.trim(value)                
+                value = _.trim(value)
                 @model.config_props().create
                   id: "config.#{id}"
                   value: value
@@ -566,6 +613,7 @@ define [
 
       @tabs_controller.render()
       @parent_detail_block.html @parent_block.render().el
+      @profile_attributes.html @attributes_block.render().el
 
     poll: ->
       @model.fetch

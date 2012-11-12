@@ -1239,3 +1239,133 @@ ul.repo-list li {
   margin-bottom: 5px;
   margin-right: 5px;
 }
+
+/* ------------------------------------------
+CSS TOGGLE SWITCHES (Ionuț Colceriu)
+Licensed under Unlicense
+https://github.com/ghinda/css-toggle-switch
+------------------------------------------ */
+@media only screen {
+
+    /* Checkbox
+     */
+    .toggle {
+        position: relative;
+        display: block;
+        width: 150px;
+
+        padding: 0;
+        margin: 0;
+        margin-bottom: 1em;
+
+        font-family: sans-serif;
+        font-weight: bold;
+        font-size: 12px;
+        color: #fff;
+
+        text-shadow: 1px 1px 1px #191b1e;
+    }
+
+    /* Position the label over all the elements, except the toggle-button
+     * Clicking anywhere on the label will change the switch-state
+     */
+    .toggle label {
+        position: relative;
+        z-index: 3;
+        text-align: left;
+
+        display: block;
+        width: 100%;
+        padding: 3px 0;
+        text-shadow: none;
+        font-size: 12px;
+    }
+
+    /* Don't hide the input from screen-readers and keyboard access
+     */
+    .toggle input {
+        position: absolute;
+        opacity: 0;
+        z-index: 5;
+    }
+
+    /* Outline the toggle when the input is focused */
+    .toggle input:focus ~ .toggle-button {
+        outline: 1px dotted #fff;
+    }
+
+    /* Track */
+    .toggle label:after {
+
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 0;
+        display: block;
+        width: 80px;
+        height: 18px;
+        padding: 2px 0;
+
+        background-color: #dd7e6d;
+        border: 1px solid #b15b4d;
+        border-radius: 2px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.17), 0 1px 0px rgba(255, 255, 255, 0.9);
+
+        /* Text labels */
+        content: "NO \a YES";
+        white-space: pre;
+
+        color: #8f5247;
+        font-weight: bold;
+        text-align: center;
+        text-shadow: 0 1px 0px rgba(255, 255, 255, 0.4);
+
+        -webkit-column-count: 2;
+        -moz-column-count: 2;
+        column-count: 2;
+        -webkit-column-gap: 0;
+        -moz-column-gap: 0;
+        column-gap: 0;
+    }
+
+    /* We could use label:after to create the toggle button
+     * But we won't be able to use transitions on it, except in Firefox
+     */
+    .toggle span {
+        display: block;
+        position: absolute;
+        right: -1px;
+        top: -2px;
+        z-index: 4;
+        width: 40px;
+        height: 26px;
+
+        border: 1px solid #bbbbbb;
+
+        background-color: #f7f7f7;
+        background-image: -webkit-linear-gradient(top, #f7f7f7, #ececec);
+        background-image:    -moz-linear-gradient(top, #f7f7f7, #ececec);
+        background-image:     -ms-linear-gradient(top, #f7f7f7, #ececec);
+        background-image:      -o-linear-gradient(top, #f7f7f7, #ececec);
+        background-image:         linear-gradient(top, #f7f7f7, #ececec);
+
+        box-shadow: inset 0 1px 2px rgba(255, 255, 255, 1), 0 1px 1px rgba(0, 0, 0, 0.12);
+        border-radius: 2px;
+
+        -webkit-transition: all 0.3s ease-out;
+        -moz-transition: all 0.3s ease-out;
+        -o-transition: all 0.3s ease-out;
+        transition: all 0.3s ease-out;
+    }
+
+    .toggle input:checked ~ span {
+        right: 45px;
+    }
+
+    .toggle input:checked + label:after {
+        background-color: #a0c66b;
+        border-color: #87aa5b;
+
+        color: #60783f;
+    }
+}

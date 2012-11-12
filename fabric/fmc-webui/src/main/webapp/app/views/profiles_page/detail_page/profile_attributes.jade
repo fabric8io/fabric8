@@ -1,6 +1,6 @@
 - ###
 
- Copyright 2010 Red Hat, Inc.
+ Copyright 2012 Red Hat, Inc.
 
  Red Hat licenses this file to you under the Apache License, version
  2.0 (the "License"); you may not use this file except in compliance
@@ -15,24 +15,21 @@
  permissions and limitations under the License.
 
 - ###
-.container
-  section#broker
-    .row
-      .span16.breadcrumbs
-        a(href="#/versions") Profiles
-        |  / 
-        a(href="#/versions/profiles/details/#{version}/#{name}") #{name}
-    .row
-      .span16
-        .block.left
-          a.set-parents.btn(href="#") Change Parents
-        .block.right
-          a.download.btn(href="/rest/versions/#{version}/profiles/#{name}/export/#{name}.zip") Export
-    .row
-      .span8
-        .detailsBlock.parent-block
-      .span8.profile-attributes
-    .row
-      .span16
-        #tabs
-        
+- if $.browser.msie
+  .clearfix
+    label(for="locked" onclick="") Locked:
+    .input
+      input#locked(name="locked" type="checkbox")
+  .clearfix
+    label(for="abstract" onclick="") Abstract:
+    .input
+      input#abstract(name="abstract" type="checkbox")
+- else
+  fieldset.toggle
+    input#locked(name="locked" type="checkbox")
+    label(for="locked" onclick="") Locked:
+    span.toggle-button
+  fieldset.toggle
+    input#abstract(name="abstract" type="checkbox")
+    label(for="abstract" onclick="") Abstract:
+    span.toggle-button
