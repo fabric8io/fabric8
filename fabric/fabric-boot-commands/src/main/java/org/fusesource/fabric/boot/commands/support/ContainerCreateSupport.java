@@ -39,6 +39,8 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected String resolver;
     @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the new container should be a fabric ensemble server (ZooKeeper ensemble server).")
     protected Boolean isEnsembleServer = Boolean.FALSE;
+    @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
+    protected String zookeeperPassword;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
 

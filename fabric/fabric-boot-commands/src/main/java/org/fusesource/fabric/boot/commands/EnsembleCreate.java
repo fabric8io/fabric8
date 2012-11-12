@@ -31,6 +31,8 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     private boolean clean;
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
+    @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
+    private String zookeeperPassword;
     @Argument(required = true, multiValued = true, description = "List of containers")
     private List<String> containers;
 
@@ -44,7 +46,7 @@ public class EnsembleCreate extends EnsembleCommandSupport {
         } else {
             System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "true");
         }
-        service.createCluster(containers);
+        service.createCluster(containers, zookeeperPassword);
         return null;
     }
 }

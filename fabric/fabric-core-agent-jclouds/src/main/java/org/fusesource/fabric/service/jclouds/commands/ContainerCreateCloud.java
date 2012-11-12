@@ -33,6 +33,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     static final String DISPLAY_FORMAT = "%22s %-30s %-30s %-30s ";
     static final String[] OUTPUT_HEADERS = {"[id]", "[container]", "[public addresses]", "[status]"};
 
+    static final String ENSEMBLE_SERVER_DISPLAY_FORMAT = "%22s %-30s %-16s %-30s %-30s ";
+    static final String[] ENSEMBLE_SERVER_OUTPUT_HEADERS = {"[id]", "[container]", "[registry password]", "[public addresses]", "[status]"};
+
     @Option(name = "--name", required = true, description = "The context name. Used to distinct between multiple services of the same provider/api.")
     protected String contextName;
     @Option(name = "--provider", required = false, description = "The cloud provider name")
@@ -112,7 +115,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .user(user).password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
-        .zookeeperPassword(fabricService.getZookeeperPassword())
+        .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
         .creationStateListener(new PrintStreamCreationStateListener(System.out));
 
@@ -125,17 +128,33 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     }
 
     protected void displayContainers(CreateContainerMetadata[] metadatas) {
-        System.out.println(String.format(DISPLAY_FORMAT,OUTPUT_HEADERS));
-        if (metadatas != null && metadatas.length > 0) {
-            for (CreateContainerMetadata ccm : metadatas) {
-                CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
-                String status = "success";
-                if (ccm.getFailure() != null) {
-                    status = ccm.getFailure().getMessage();
+        if (isEnsembleServer) {
+            System.out.println(String.format(ENSEMBLE_SERVER_DISPLAY_FORMAT, ENSEMBLE_SERVER_OUTPUT_HEADERS));
+            if (metadatas != null && metadatas.length > 0) {
+                for (CreateContainerMetadata ccm : metadatas) {
+                    CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
+                    String status = "success";
+                    if (ccm.getFailure() != null) {
+                        status = ccm.getFailure().getMessage();
+                    }
+                    String nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
+                    String containerName = metadata.getContainerName() != null ? metadata.getContainerName() : "";
+                    System.out.println(String.format(ENSEMBLE_SERVER_DISPLAY_FORMAT, nodeId, containerName, metadata.getCreateOptions().getZookeeperPassword(), metadata.getPublicAddresses(), status));
                 }
-                String nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
-                String containerName = metadata.getContainerName() != null ? metadata.getContainerName() : "";
-                System.out.println(String.format(DISPLAY_FORMAT, nodeId, containerName, metadata.getPublicAddresses(), status));
+            }
+        } else {
+            System.out.println(String.format(DISPLAY_FORMAT, OUTPUT_HEADERS));
+            if (metadatas != null && metadatas.length > 0) {
+                for (CreateContainerMetadata ccm : metadatas) {
+                    CreateJCloudsContainerMetadata metadata = (CreateJCloudsContainerMetadata) ccm;
+                    String status = "success";
+                    if (ccm.getFailure() != null) {
+                        status = ccm.getFailure().getMessage();
+                    }
+                    String nodeId = metadata.getNodeId() != null ? metadata.getNodeId() : "";
+                    String containerName = metadata.getContainerName() != null ? metadata.getContainerName() : "";
+                    System.out.println(String.format(DISPLAY_FORMAT, nodeId, containerName, metadata.getPublicAddresses(), status));
+                }
             }
         }
     }

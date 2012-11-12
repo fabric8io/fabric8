@@ -80,7 +80,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .password(password)
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
-        .zookeeperPassword(fabricService.getZookeeperPassword())
+        .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);

@@ -19,7 +19,6 @@ package org.fusesource.fabric.boot.commands;
 import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Properties;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -71,6 +70,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
     String manualIp;
 
+    @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
+    private String zookeeperPassword;
+
     @Argument(required = false, index = 1, multiValued = false, description = "Container name to use in fabric. By default a karaf name will be used")
     private String containerName;
 
@@ -92,7 +94,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
-                if (!registerContainer(containerName, profile, force)) {
+                if (!registerContainer(containerName, zookeeperPassword, profile, force)) {
                     System.err.print("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
                     return null;
                 }
@@ -107,6 +109,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
                 props.put("karaf.name", containerName);
                 props.put("zookeeper.url", zookeeperUrl);
+                props.put("zookeeper.password", zookeeperPassword);
                 props.save();
                 //Install required bundles
                 if (!nonManaged) {
@@ -115,6 +118,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
                 Hashtable<String,Object> properties = new Hashtable<String,Object>();
                 properties.put("zookeeper.url", zookeeperUrl);
+                properties.put("zookeeper.password", zookeeperPassword);
                 config.setBundleLocation(null);
                 config.update(properties);
 
@@ -128,13 +132,14 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 return null;
             }
         } else {
-            if (!registerContainer(containerName, profile, force)) {
+            if (!registerContainer(containerName, zookeeperPassword, profile, force)) {
                 System.err.println("A container with the name: " + containerName + " is already member of the cluster. You can specify a different name as an argument.");
                 return null;
             }
             org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
             Hashtable<String,Object> properties = new Hashtable<String,Object>();
             properties.put("zookeeper.url", zookeeperUrl);
+            properties.put("zookeeper.password", zookeeperPassword);
             config.setBundleLocation(null);
             config.update(properties);
 
@@ -152,11 +157,14 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private boolean registerContainer(String name, String profile, boolean force) throws Exception {
+    private boolean registerContainer(String name, String registryPassword, String profile, boolean force) throws Exception {
         boolean exists = false;
         ZKClient zkClient = null;
         try {
             zkClient = new ZKClient(zookeeperUrl, Timespan.ONE_MINUTE, null);
+            if (registryPassword != null && !registryPassword.isEmpty()) {
+                zkClient.setPassword(registryPassword);
+            }
             zkClient.start();
             zkClient.waitForConnected();
             exists = zkClient.exists(ZkPath.CONTAINER.getPath(name)) != null;
@@ -315,5 +323,13 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
     public void setManualIp(String manualIp) {
         this.manualIp = manualIp;
+    }
+
+    public String getZookeeperPassword() {
+        return zookeeperPassword;
+    }
+
+    public void setZookeeperPassword(String zookeeperPassword) {
+        this.zookeeperPassword = zookeeperPassword;
     }
 }

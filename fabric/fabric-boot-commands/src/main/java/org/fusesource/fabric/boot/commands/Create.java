@@ -55,8 +55,9 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private int minimumPort = PortUtils.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
     private int maximumPort = PortUtils.MAX_PORT_NUMBER;
-    @Option(name = "--password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
-    private String password;
+    @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
+    private String zookeeperPassword;
+
 
 
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
@@ -102,7 +103,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         if (containers != null && !containers.isEmpty()) {
-            service.createCluster(containers, password);
+            service.createCluster(containers, zookeeperPassword);
         }
         return null;
     }

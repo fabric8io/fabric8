@@ -115,8 +115,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
 
-            if (password == null) {
-                password = generatePassword();
+            if (password != null ) {
+                //do nothing
+            } else if (System.getProperties().containsKey(ZOOKEEPER_PASSWORD)) {
+                password = System.getProperty(ZOOKEEPER_PASSWORD);
+            } else {
+                password = ZooKeeperUtils.generatePassword();
             }
 
             // Install or stop the fabric-configadmin bridge
@@ -254,21 +258,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    private static String generatePassword() {
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
-            long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
-            if (l < 10) {
-                password.append((char) ('0' + l));
-            } else if (l < 36) {
-                password.append((char) ('A' + l - 10));
-            } else {
-                password.append((char) ('a' + l - 36));
-            }
-        }
-        return password.toString();
-    }
-
     private void loadPropertiesFrom(Hashtable hashtable, String from) {
         InputStream is = null;
         Properties properties = new Properties();
@@ -366,9 +355,14 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void createCluster(List<String> containers, String password) {
         try {
-            if (password == null) {
-                password = generatePassword();
+            if (password != null ) {
+                //do nothing
+            } else if (System.getProperties().containsKey(ZOOKEEPER_PASSWORD)) {
+                password = System.getProperty(ZOOKEEPER_PASSWORD);
+            } else {
+                password = ZooKeeperUtils.generatePassword();
             }
+
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
             }

@@ -265,6 +265,11 @@ public class FabricServiceImpl implements FabricService {
         if (options.getJvmOpts() == null || options.getJvmOpts().length() == 0) {
             options.setJvmOpts(getDefaultJvmOptions());
         }
+
+        if (options.isEnsembleServer() && (options.getZookeeperPassword() == null || options.getZookeeperPassword().isEmpty())) {
+            options.setZookeeperPassword(ZooKeeperUtils.generatePassword());
+        }
+
         try {
             ContainerProvider provider = getProvider(options.getProviderType());
             if (provider == null) {

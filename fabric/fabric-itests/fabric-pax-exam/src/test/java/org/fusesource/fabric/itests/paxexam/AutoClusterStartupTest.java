@@ -17,10 +17,11 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.Dictionary;
+import javax.inject.Inject;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -31,28 +32,39 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.service.cm.ConfigurationAdmin;
+
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
 
+    @Inject
+    protected IZKClient zooKeeper;
+
+    @Inject
+    protected FabricService fabricService;
+
     @Test
     public void testLocalFabricCluster() throws Exception {
-        //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
-
-        FabricService fabricService = getOsgiService(FabricService.class);
+        //Test autostartup.
         assertNotNull(fabricService);
-
         Thread.sleep(DEFAULT_WAIT);
-
         Container[] containers = fabricService.getContainers();
         assertNotNull(containers);
         assertEquals("Expected to find 1 container", 1, containers.length);
         assertEquals("Expected to find the root container", "root", containers[0].getId());
+
+        //Test that a generated password exists
+        //We don't inject the configuration admin as it causes issues when the tracker gets closed.
+        ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+        Dictionary<String, Object> dictionary = configuration.getProperties();
+        assertNotNull("Expected a generated zookeeper password",dictionary.get("zookeeper.password"));
     }
 
     @Configuration

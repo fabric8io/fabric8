@@ -142,8 +142,7 @@ public class ContainerProviderUtils {
         }
 
         if (options.isEnsembleServer()) {
-            String password = generatePassword();
-            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + password));
+            appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));

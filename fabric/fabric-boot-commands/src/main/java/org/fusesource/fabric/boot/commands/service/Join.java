@@ -23,6 +23,10 @@ public interface Join {
 
     void setZookeeperUrl(String zookeeperUrl);
 
+    String getZookeeperPassword();
+
+    void setZookeeperPassword(String zookeeperPassword);
+
     public boolean isNonManaged();
 
     public void setNonManaged(boolean nonManaged);
