@@ -126,6 +126,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
         repositories.put("local", new RemoteRepository("local", "default", "file://" + localRepository));
         repositories.put("karaf", new RemoteRepository("karaf", "default", "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
+        repositories.put("user", new RemoteRepository("user", "default", "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+
     }
 
     public synchronized void stop() {
