@@ -1,7 +1,7 @@
 function karaf_check() {
    KARAF_HOME=$1
    INSTANCES_FILE=$KARAF_HOME/instances/instance.properties
-   for i in `seq 1 30`;
+   for i in {1..5};
      do
        if [ ! -f $INSTANCES_FILE ]; then
          sleep 1
@@ -10,7 +10,7 @@ function karaf_check() {
        fi
      done
    if [ -f $INSTANCES_FILE ]; then
-      for j in `seq 1 10`;
+      for j in {1..5};
          do
            PID=`cat $INSTANCES_FILE | grep "item.0.pid" | awk -F "=" '{print $2}'`
            if [ "$PID" = "" ]; then
