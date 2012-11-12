@@ -121,6 +121,16 @@
                <artifactId>process-manager</artifactId>
            </dependency>
            <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-features-service</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fmc</groupId>
+               <artifactId>fmc-webui</artifactId>
+               <type>war</type>
+               <version>${project.version}</version>
+           </dependency>
+           <dependency>
                <groupId>org.fusesource.fabric.fab</groupId>
                <artifactId>fab-osgi</artifactId>
                <version>${project.version}</version>
