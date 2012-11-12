@@ -82,16 +82,17 @@
         <module>fmc-webui</module>
         <module>fmc-webui-branding-example</module>
 
-        <module>fuse-fabric</module>
+        <module>fabric-features-service</module>
 
-        <module>fmc-distro</module>
+        <module>fuse-fabric</module>
 
         <module>fabric-examples</module>
         <module>fabric-itests</module>
         <module>fabric-utils</module>
         
         <module>openshift</module>
-        <module>fabric-features-service</module>
+        <module>fmc-distro</module>
+
 
     </modules>
 
