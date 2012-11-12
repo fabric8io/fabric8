@@ -318,7 +318,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    public List<String> getClusterContainers() {
+    public List<String> getEnsembleContainers() {
         try {
             Configuration[] configs = configurationAdmin.listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
             if (configs == null || configs.length == 0) {
@@ -564,7 +564,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void addToCluster(List<String> containers) {
         try {
-            List<String> current = getClusterContainers();
+            List<String> current = getEnsembleContainers();
             current.addAll(containers);
             createCluster(current);
         } catch (Exception e) {
@@ -574,7 +574,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void removeFromCluster(List<String> containers) {
         try {
-            List<String> current = getClusterContainers();
+            List<String> current = getEnsembleContainers();
             current.removeAll(containers);
             createCluster(current);
         } catch (Exception e) {

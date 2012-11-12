@@ -28,7 +28,7 @@ public interface ZooKeeperClusterService {
     static final String ZOOKEEPER_PASSWORD ="zookeeper.password";
     static final String PROFILE ="profile";
 
-    List<String> getClusterContainers();
+    List<String> getEnsembleContainers();
 
     String getZooKeeperUrl();
 

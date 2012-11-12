@@ -27,7 +27,6 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.utils.PortUtils;
 import org.osgi.framework.ServiceReference;
 
 public abstract class ContainerCreateSupport extends FabricCommand {
@@ -65,7 +64,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             if (zkcs == null) {
                 throw new IllegalStateException("Unable to find ZooKeeperClusterService service");
             }
-            if (zkcs.getClusterContainers().isEmpty()) {
+            if (zkcs.getEnsembleContainers().isEmpty()) {
                 if (!isEnsembleServer) {
                     throw new IllegalStateException("The use of the --ensemble-server option is mandatory when creating an initial container");
                 }
