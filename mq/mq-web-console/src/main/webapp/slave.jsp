@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <title>${requestContext.brokerQuery.brokerAdmin.brokerName} : <decorator:title default="FuseMQ Console" /></title>
+    <title>${requestContext.brokerQuery.brokerAdmin.brokerName} : FuseMQ Console/></title>
     <style type="text/css" media="screen">
         @import url('${pageContext.request.contextPath}/styles/sorttable.css');
         @import url('${pageContext.request.contextPath}/styles/type-settings.css');
@@ -19,7 +19,6 @@
         <script>addEvent(window, 'load', prettyPrint)</script>
     </c:if>
 
-    <decorator:head />
 </head>
 
   <body>
@@ -66,7 +65,9 @@
                             <tr>
                                 <td valign="top" width="100%" style="overflow:hidden;">
                                     <div class="body-content">
-                                        <decorator:body/>
+                                        <div class="body-content">
+                                          <p align="center">Broker is currently in <b>slave</b> mode!</p>
+                                        </div>
                                     </div>
                                 </td>
                                 <td valign="top">
