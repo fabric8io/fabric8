@@ -28,9 +28,11 @@
              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
-    <!-- Use the fabric protocol in the brokerURL to connect to the ActiveMQ broker registered as default name -->
+    <!-- connect to the local ActiveMQ broker -->
     <bean id="activemq" class="org.apache.activemq.camel.component.ActiveMQComponent">
-        <property name="brokerURL" value="discovery:(fabric:default)"/>
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+        <property name="userName" value="admin"/>
+        <property name="password" value="admin"/>
     </bean>
 
     <!--
@@ -45,17 +47,17 @@
                   id="jms-example-context">
 
         <!--
-          When this route is started, it will automatically create the work/cbr/input directory where you can drop the
+          When this route is started, it will automatically create the work/jms/input directory where you can drop the
           file that need to be processed.
 
           The <log/> elements are used to add human-friendly business logging statements. They make it easier to see what the
           route is doing.
 
-          Files that are consumed from the work/cbr/input directory, are then sent to the JMS queue incomingOrders on the 
+          Files that are consumed from the work/jms/input directory, are then sent to the JMS queue incomingOrders on the 
           ActiveMQ broker within the ESB.
         -->
         <route id="file-to-jms-route">
-            <from uri="file:work/cbr/input" />
+            <from uri="file:work/jms/input" />
             <log message="Receiving order ${file:name}"/>
             <to uri="activemq:incomingOrders" />
         </route>
@@ -66,24 +68,24 @@
           The <choice/> element contains the content based router. The two <when/> clauses use XPath to define the criteria 
           for entering that part of the route. When the country in the XML message is set to UK or US, the file will be 
           moved to a directory for that country. The <otherwise/> element ensures that any file that does not meet the 
-          requirements for either of the <when/> elements will be moved to the work/cbr/output/others directory.
+          requirements for either of the <when/> elements will be moved to the work/jms/output/others directory.
         -->
-        <route id="cbr-route">
+        <route id="jms-cbr-route">
             <from uri="activemq:incomingOrders" />
             <choice>
                 <when>
                     <xpath>/order:order/order:customer/order:country = 'UK'</xpath>
                     <log message="Sending order ${file:name} to the UK"/>
-                    <to uri="file:work/cbr/output/uk"/>
+                    <to uri="file:work/jms/output/uk"/>
                 </when>
                 <when>
                     <xpath>/order:order/order:customer/order:country = 'US'</xpath>
                     <log message="Sending order ${file:name} to the US"/>
-                    <to uri="file:work/cbr/output/us"/>
+                    <to uri="file:work/jms/output/us"/>
                 </when>
                 <otherwise>
                     <log message="Sending order ${file:name} to another country"/>
-                    <to uri="file:work/cbr/output/others"/>
+                    <to uri="file:work/jms/output/others"/>
                 </otherwise>
             </choice>
             <log message="Done processing ${file:name}"/>

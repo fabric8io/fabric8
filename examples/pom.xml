@@ -41,11 +41,11 @@
         <module>cbr</module>
         <module>eip</module>
         <module>errors</module>
+        <module>jms</module>
         <module>soap</module>
         <module>rest</module>
         <module>secure-soap</module>
         <module>secure-rest</module>
     </modules>
-    
 
 </project>
