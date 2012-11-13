@@ -92,6 +92,8 @@
         <fuse.osgi.services.export />
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
 
+        <fmc-port>8107</fmc-port>
+
         <fabric.version>${project.version}</fabric.version>
         <perfectus-build>025</perfectus-build>
         <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
