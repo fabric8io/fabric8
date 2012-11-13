@@ -96,6 +96,10 @@ define [
     tagName: "tr"
     template: jade["agents_page/agent_row.jade"]
     template_data: -> @model.toJSON()
+    interval_id: null
+
+    elements:
+      "span#provision": "provision"
 
     initialize: ->
       super
@@ -105,7 +109,20 @@ define [
       super
       @model.unbind()
 
+    toggle_class: ->
+      console.error("hi!")
+      @provision.toggleClass("yellow-dot.png")
+      @provision.toggleClass("pending.gif")
+
     on_render: ->
+
+      if @model.get("provision_indicator") == "pending.gif" && @interval_id == null
+        @interval_id = setInterval (=> @toggle_class()), 250
+      else if @model.get("provision_indicator") != "pending.gif" && @interval_id != null
+        clearInterval @interval_id
+        @interval_id = null
+
+
       selected = @options.parent.selected()
       el = $(@el)
       el.toggleClass "selected", (selected && selected.id == @model.id)

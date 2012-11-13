@@ -287,7 +287,6 @@ ul.simple li {
 
 table tbody tr.selected td {
   color: #000;
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
   background-color: #0064cd;
   background-repeat: repeat-x;
   background-image: -khtml-gradient(linear, left top, left bottom, from(#049cdb), to(#0064cd));
@@ -298,10 +297,24 @@ table tbody tr.selected td {
   background-image: -o-linear-gradient(top, #80D6F7, #4E9FDD);
   background-image: linear-gradient(top, #80D6F7, #4E9FDD);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#80D6F7', endColorstr='#4E9FDD', GradientType=0);
-  border-color: #80D6F7 #80D6F7 #26404A;
-  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-  border-top: 0px;
 }
+
+table tbody tr:last-child:hover td:first-child {
+    border-radius: 0px 0px 0px 4px;
+}
+
+table tbody tr:last-child:hover td:last-child {
+    border-radius: 0px 0px 4px 0px;
+}
+
+table tbody tr.selected:last-child td:first-child {
+    border-radius: 0px 0px 0px 4px;
+}
+
+table tbody tr.selected:last-child td:last-child {
+    border-radius: 0px 0px 4px 0px;
+}
+
 
 .alert-message.block-message.error {
     background-color: #FADCDF;
@@ -1368,4 +1381,52 @@ https://github.com/ghinda/css-toggle-switch
 
         color: #60783f;
     }
+}
+
+/* TODO - rename these classes */
+
+.indicator span {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    clear: both;
+    position: absolute;
+    bottombottom: 0;
+    left: 42%;
+    margin-top: -5px;
+
+}
+
+span.red-dot\.png {
+    background-color: rgb(226,0,0);
+    box-shadow: inset 0px 1px 0px 0px rgba(117, 117, 117, 0.49),
+    0px 0px 3px 2px rgba(226,0,0,0.5);
+}
+
+span.gray-dot\.png {
+    background-color: rgb(137, 127, 133);
+    box-shadow: inset 0px 1px 0px 0px rgba(250,250,250,0.5);
+}
+
+span.green-dot\.png {
+    background-color: rgb(0, 255, 13);
+    box-shadow: inset 0px 1px 0px 0px rgba(116, 116, 116, 0.49),
+    0px 0px 3px 2px rgba(29, 236, 41, 0.48);
+}
+
+span.yellow-dot\.png {
+    background-color: rgb(255, 229, 0);
+    box-shadow: inset 0px 1px 0px 0px rgba(116, 116, 116, 0.49),
+    0px 0px 3px 2px rgba(235, 236, 26, 0.47);
+}
+
+span.spacer\.gif {
+    background-color: rgb(137, 127, 133);
+    box-shadow: inset 0px 1px 0px 0px rgba(250,250,250,0.5)
+}
+
+span.pending\.gif {
+    background-color: rgb(137, 127, 133);
+    box-shadow: inset 0px 1px 0px 0px rgba(250,250,250,0.5);
 }

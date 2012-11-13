@@ -17,8 +17,10 @@
 - ###
 td #{id}
 td.indicator
-  img.indicator(src="img/#{alive_indicator}" title="#{alive_status}")
+  span(class="#{alive_indicator}" title="#{alive_status}")
+  - #img.indicator(src="img/#{alive_indicator}" title="#{alive_status}")
 td.indicator
-  img(src="img/#{provision_indicator}" title="#{provision_status}")
+  span#provision(class="#{provision_indicator}" title="#{provision_status}")
+  - #img(src="img/#{provision_indicator}" title="#{provision_status}")
 td.center
   #{version}
