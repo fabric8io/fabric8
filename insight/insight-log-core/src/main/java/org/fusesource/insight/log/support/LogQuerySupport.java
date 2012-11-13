@@ -77,6 +77,13 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         return getLogResults(-1);
     }
 
+    @Override
+    public LogResults logResultsSince(long time) throws IOException {
+        LogFilter filter = new LogFilter();
+        filter.setAfterTimestamp(time);
+        return queryLogResults(filter);
+    }
+
     public String getLogEvents(int maxCount) throws IOException {
         LogResults results = getLogResults(maxCount);
         return toJSON(results);

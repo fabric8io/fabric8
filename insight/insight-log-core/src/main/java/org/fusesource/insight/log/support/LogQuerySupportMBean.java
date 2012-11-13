@@ -36,6 +36,13 @@ public interface LogQuerySupportMBean {
     public LogResults allLogResults() throws IOException;
 
     /**
+     * Returns all the available log events since the given timestamp (millis)
+     *
+     * @return the log events as a serialized object
+     */
+    public LogResults logResultsSince(long time) throws IOException;
+
+    /**
      * Returns the recent log events as a {@link LogResults} object which is then serialized
      *
      * @param count maximum number to return o <0 for all of them
@@ -74,4 +81,5 @@ public interface LogQuerySupportMBean {
      * Allows a JSON filter to be specified then returns the log results as a serialised object
      */
     public LogResults jsonQueryLogResults(String jsonFilter) throws IOException;
+
 }
