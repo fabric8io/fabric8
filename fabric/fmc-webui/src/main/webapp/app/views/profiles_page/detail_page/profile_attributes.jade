@@ -17,12 +17,12 @@
 - ###
 - if $.browser.msie
   form
-    fieldset
-      .clearfix
+    fieldset(style="margin-bottom: 0px; padding-top: 0px;")
+      .clearfix(style="margin-bottom: 7px;")
         label(for="locked" onclick="") Locked:
         .input
           input#locked(name="locked" type="checkbox" style="margin-top: 8px;")
-      .clearfix
+      .clearfix(style="margin-bottom: 0px")
         label(for="abstract" onclick="") Abstract:
         .input
           input#abstract(name="abstract" type="checkbox" style="margin-top: 8px;")
