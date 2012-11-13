@@ -23,6 +23,7 @@
     <relativePath>../</relativePath>
   </parent>
 
+  <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-webui</artifactId>
   <name>${project.artifactId}</name>
   <description>FMC :: Console Frontend</description>

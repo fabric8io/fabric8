@@ -27,6 +27,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.fusesource.fmc</groupId>
     <artifactId>fmc-jaas</artifactId>
     <packaging>bundle</packaging>
 
