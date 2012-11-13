@@ -92,6 +92,7 @@ define [
     elements:
       "input[name='host']": "host"
       "input[name='port']": "port"
+      "input[name='password']": "password"
       "a.join": "join"
 
     events:
@@ -104,6 +105,7 @@ define [
 
       @model.join_ensemble
         zk_url: "#{@host.val()}:#{@port.val()}"
+        password: @password.val()
         success: =>
             setTimeout ( => @parent.hide_wait()), 2000
         error: (data) =>
@@ -162,8 +164,19 @@ define [
             msg: ""
         cb: @maybe_enable_join
 
+      @validated.push new FON.ValidatingTextInput
+        control: @password
+        controller: @
+        validator: (text) ->
+          if !text || text == ""
+            ok: false
+            msg: "Must specify a password"
+          else
+            ok: true
+            msg: ""
+        cb: @maybe_enable_join
 
-      @host.bind "DOMNodeInsertedIntoDocument", => 
+      $(@el).bind "DOMNodeInsertedIntoDocument", =>
         @host.focus()
         @maybe_enable_join(@)
 

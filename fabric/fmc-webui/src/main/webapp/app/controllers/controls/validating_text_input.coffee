@@ -32,6 +32,7 @@ define [
       @cb = @options.cb if @options.cb
 
       @control.keyup (event) => @cb(@controller)
+      @control.bind "paste", (event) => @cb(@controller)
 
     validate: ->
       rc = @validator(@control.val())

@@ -65,6 +65,9 @@ class CreateEnsembleDTO {
 class JoinEnsembleDTO {
   @JsonProperty
   var zk_url: String = _
+
+  @JsonProperty
+  var password: String = _
 }
 
 @Path("system")
@@ -193,6 +196,7 @@ class SystemResource extends BaseResource {
         join.setZookeeperUrl(options.zk_url)
         join.setProfile(Services.profile_name)
         join.setNonManaged(true)
+        join.setZookeeperPassword(options.password)
         //join.setNonManaged(!Services.managed)
         join.run
       } catch {
