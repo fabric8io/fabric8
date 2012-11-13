@@ -21,7 +21,7 @@ import java.io.File;
 /**
  * Arguments for creating a new container via SSH
  */
-public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> {
+public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> implements CreateRemoteContainerOptions {
 
     private static final long serialVersionUID = -1171578973712670970L;
 
@@ -39,6 +39,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private Integer retryDelay = 1;
     private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
     private String passPhrase;
+    private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
 
     public CreateSshContainerOptions() {
         this.providerType = "ssh";
@@ -92,6 +93,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public CreateSshContainerOptions passPhrase(final String passPhrase) {
         this.passPhrase = passPhrase;
+        return this;
+    }
+
+    public CreateSshContainerOptions createEnsembleOptions(final CreateEnsembleOptions createEnsembleOptions) {
+        this.createEnsembleOptions = createEnsembleOptions;
         return this;
     }
 
@@ -177,5 +183,13 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public void setPassPhrase(String passPhrase) {
         this.passPhrase = passPhrase;
+    }
+
+    public CreateEnsembleOptions getCreateEnsembleOptions() {
+        return createEnsembleOptions;
+    }
+
+    public void setCreateEnsembleOptions(CreateEnsembleOptions createEnsembleOptions) {
+        this.createEnsembleOptions = createEnsembleOptions;
     }
 }

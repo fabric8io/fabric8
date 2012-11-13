@@ -20,8 +20,12 @@ package org.fusesource.fabric.utils;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ObjectUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ObjectUtils.class);
 
     public static byte[] toBytes(Object object) {
         byte[] result = null;
@@ -38,7 +42,7 @@ public class ObjectUtils {
             oos.writeObject(object);
             result = baos.toByteArray();
         } catch (IOException e) {
-            //ignore
+            LOGGER.error("Failed to serialize object {}.", object, e);
         } finally {
             if (oos != null) {
                 try {

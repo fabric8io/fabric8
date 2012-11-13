@@ -23,19 +23,19 @@ import org.fusesource.fabric.api.Container;
  */
 public class Containers {
 
-    public static JmxTemplateSupport newJmxTemplate(Container container) {
-        return newContainerTemplate(container).getJmxTemplate();
+    public static JmxTemplateSupport newJmxTemplate(Container container, String username, String password) {
+        return newContainerTemplate(container, username, password).getJmxTemplate();
     }
 
-    public static JmxTemplateSupport newNonCachingJmxTemplate(Container container) {
-        return newContainerTemplate(container, false).getJmxTemplate();
+    public static JmxTemplateSupport newNonCachingJmxTemplate(Container container, String username, String password) {
+        return newContainerTemplate(container, username, password, false).getJmxTemplate();
     }
 
-    public static ContainerTemplate newContainerTemplate(Container container) {
-        return newContainerTemplate(container, true);
+    public static ContainerTemplate newContainerTemplate(Container container, String username, String password) {
+        return newContainerTemplate(container, username, password, true);
     }
 
-    public static ContainerTemplate newContainerTemplate(Container container, boolean caching) {
-        return new ContainerTemplate(container, caching);
+    public static ContainerTemplate newContainerTemplate(Container container, String username, String password, boolean caching) {
+        return new ContainerTemplate(container, username, password, caching);
     }
 }

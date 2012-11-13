@@ -16,15 +16,24 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.IOException;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 
 @Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers", detailedDescription = "classpath:containerCreateChild.txt")
 public class ContainerCreateChild extends ContainerCreateSupport {
+
+
+    @Option(name = "--jmx-user", multiValued = false, required = false, description = "The jmx user name of the parent container.")
+    protected String jmxUser;
+    @Option(name = "--jmx-password", multiValued = false, required = false, description = "The jmx password of the parent container.")
+    protected String jmxPassword;
 
     @Argument(index = 0, required = true, description = "Parent containers ID")
     protected String parent;
@@ -37,7 +46,8 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     protected Object doExecute() throws Exception {
         // validate input before creating containers
         preCreateContainer(name);
-        
+        promptForJmxCredentialsIfNeeded();
+
         // okay create child container
         String url = "child://" + parent;
         CreateContainerOptions options = CreateContainerOptionsBuilder.child()
@@ -49,7 +59,9 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .number(number)
                 .zookeeperUrl(fabricService.getZookeeperUrl())
                 .zookeeperPassword(fabricService.getZookeeperPassword())
-                .jvmOpts(jvmOpts);
+                .jvmOpts(jvmOpts)
+                .jmxUser(jmxUser)
+                .jmxPassword(jmxPassword);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
         // display containers
@@ -68,6 +80,20 @@ public class ContainerCreateChild extends ContainerCreateSupport {
         }
         if (isEnsembleServer && number > 1) {
             throw new IllegalArgumentException("Can not create a new ZooKeeper ensemble on multiple containers.  Create the containers first and then use the fabric:create command instead.");
+        }
+    }
+
+    private void promptForJmxCredentialsIfNeeded() throws IOException {
+        // If the username was not configured via cli, then prompt the user for the values
+        if (jmxUser == null) {
+            log.debug("Prompting user for jmx login");
+            jmxUser = ShellUtils.readLine(session, "Jmx Login for " + parent + ": ", false);
+            System.out.println();
+        }
+
+        if (jmxPassword == null) {
+            jmxPassword = ShellUtils.readLine(session, "Jmx Password for " + parent + ": ", true);
+            System.out.println();
         }
     }
 }

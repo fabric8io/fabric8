@@ -71,8 +71,6 @@ public class FabricServiceImpl implements FabricService {
     private ConfigurationAdmin configurationAdmin;
     private String profile = ZkDefs.DEFAULT_PROFILE;
     private ObjectName mbeanName;
-    private String userName = "admin";
-    private String password = "admin";
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
 
     public FabricServiceImpl() {
@@ -86,22 +84,6 @@ public class FabricServiceImpl implements FabricService {
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
     }
 
     public String getDefaultRepo() {
@@ -606,11 +588,11 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
-    protected ContainerTemplate getContainerTemplate(Container container) {
+    protected ContainerTemplate getContainerTemplate(Container container, String jmxUser, String jmxPassword) {
         // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same container any time soon
         // though in the future we could possibly pool them
         boolean cacheJmx = false;
-        return new ContainerTemplate(container, cacheJmx, userName, password);
+        return new ContainerTemplate(container, jmxUser, jmxPassword, cacheJmx);
     }
 
     @Override

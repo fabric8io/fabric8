@@ -24,6 +24,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.utils.PortUtils;
@@ -54,6 +55,13 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     @Option(name = "--pass-phrase", description = "The pass phrase of the key. This is for use with private keys that require a pass phrase.")
     private String passPhrase;
 
+    @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUser;
+    @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserPassword;
+    @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserRole = "admin";
+
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
 
@@ -62,6 +70,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         // validate input before creating containers
         preCreateContainer(name);
 
+        CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
         CreateSshContainerOptions options = CreateContainerOptionsBuilder.ssh()
         .name(name)
         .resolver(resolver)
@@ -81,7 +90,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
-        .jvmOpts(jvmOpts);
+        .jvmOpts(jvmOpts)
+        .createEnsembleOptions(ensembleOptions);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
         // display containers

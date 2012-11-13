@@ -16,11 +16,14 @@
  */
 package org.fusesource.fabric.boot.commands;
 
+import java.io.File;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.utils.properties.Properties;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
@@ -33,6 +36,12 @@ public class EnsembleCreate extends EnsembleCommandSupport {
     private boolean nonManaged;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
+    @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUser;
+    @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserPassword;
+    @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserRole = "admin";
     @Argument(required = true, multiValued = true, description = "List of containers")
     private List<String> containers;
 
@@ -46,7 +55,17 @@ public class EnsembleCreate extends EnsembleCommandSupport {
         } else {
             System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "true");
         }
-        service.createCluster(containers, zookeeperPassword);
+
+        Properties userProps = new Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+        if (userProps.isEmpty()) {
+            String[]credentials = promptForNewUser(newUser, newUserPassword);
+            newUser = credentials[0];
+            newUserPassword = credentials[1];
+        }
+
+        CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ","+ newUserRole);
+        options.getUsers().putAll(userProps);
+        service.createCluster(containers, options);
         return null;
     }
 }

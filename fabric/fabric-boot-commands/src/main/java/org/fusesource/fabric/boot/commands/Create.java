@@ -17,15 +17,19 @@
 package org.fusesource.fabric.boot.commands;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.apache.felix.utils.properties.Properties;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
@@ -57,6 +61,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private int maximumPort = PortUtils.MAX_PORT_NUMBER;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
+    @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUser;
+    @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserPassword;
+    @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserRole = "admin";
 
 
 
@@ -102,8 +112,18 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
+        Properties userProps = new Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+        if (userProps.isEmpty()) {
+            String[]credentials = promptForNewUser(newUser, newUserPassword);
+            newUser = credentials[0];
+            newUserPassword = credentials[1];
+        }
+
+        CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ","+ newUserRole);
+        options.getUsers().putAll(userProps);
+
         if (containers != null && !containers.isEmpty()) {
-            service.createCluster(containers, zookeeperPassword);
+            service.createCluster(containers, options);
         }
         return null;
     }

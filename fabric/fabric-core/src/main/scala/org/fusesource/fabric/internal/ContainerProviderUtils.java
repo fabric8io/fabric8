@@ -32,6 +32,7 @@ import java.util.Properties;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
+import org.fusesource.fabric.api.CreateRemoteContainerOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
@@ -83,7 +84,7 @@ public class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildInstallAndStartScript(CreateContainerOptions options) throws MalformedURLException, URISyntaxException {
+    public static String buildInstallAndStartScript(CreateRemoteContainerOptions options) throws MalformedURLException, URISyntaxException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
@@ -146,6 +147,11 @@ public class ContainerProviderUtils {
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
+            if (options.getCreateEnsembleOptions() != null && options.getCreateEnsembleOptions().getUsers() != null) {
+                for (Map.Entry<String, String> entry : options.getCreateEnsembleOptions().getUsers().entrySet()) {
+                    appendFile(sb, "etc/users.properties", Arrays.asList(entry.getKey() + "=" + entry.getValue()));
+                }
+            }
         } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));

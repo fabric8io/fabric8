@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api;
 
 import java.util.List;
+import java.util.Map;
 
 import org.fusesource.fabric.zookeeper.IZKClient;
 
@@ -34,7 +35,7 @@ public interface ZooKeeperClusterService {
 
     void createCluster(List<String> containers);
 
-    void createCluster(List<String> containers, String password);
+    void createCluster(List<String> containers, CreateEnsembleOptions options);
 
     void addToCluster(List<String> containers);
 
