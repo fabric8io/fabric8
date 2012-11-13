@@ -32,6 +32,7 @@
   <properties>
     <assembly-name>fmc-${project.version}</assembly-name>
     <fmc-version>${project.version}</fmc-version>
+    <fmc-port>8107</fmc-port>
   </properties>
 
   <dependencies>
