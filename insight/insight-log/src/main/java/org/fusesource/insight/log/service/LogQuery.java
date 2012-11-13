@@ -19,10 +19,10 @@ package org.fusesource.insight.log.service;
 
 import org.apache.karaf.shell.log.LruList;
 import org.apache.karaf.shell.log.VmLogAppender;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.fusesource.insight.log.LogFilter;
 import org.fusesource.insight.log.LogResults;
+import org.fusesource.insight.log.support.LogQuerySupport;
 import org.fusesource.insight.log.support.Predicate;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.BundleContext;
@@ -31,24 +31,16 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 /**
+ * An implementation of {@link LogQueryMBean} using the embedded pax appender used by karaf
  */
-public class LogQuery implements LogQueryMBean {
-    private transient Logger logger = LoggerFactory.getLogger(LogQuery.class);
+public class LogQuery extends LogQuerySupport implements LogQueryMBean {
+    private transient Logger LOG = LoggerFactory.getLogger(LogQuery.class);
 
     private BundleContext bundleContext;
     private VmLogAppender appender;
-    private ObjectName mbeanName;
-    private ObjectMapper mapper = new ObjectMapper();
     private ServiceTracker serviceTracker;
 
     public LogQuery() {
@@ -79,73 +71,14 @@ public class LogQuery implements LogQueryMBean {
         this.bundleContext = bundleContext;
     }
 
-    public ObjectName getMbeanName() throws MalformedObjectNameException {
-        if (mbeanName == null) {
-            mbeanName = new ObjectName("org.fusesource.insight:type=LogQuery");
-        }
-        return mbeanName;
-    }
-
-    public void setMbeanName(ObjectName mbeanName) {
-        this.mbeanName = mbeanName;
-    }
-
-    public void registerMBeanServer(MBeanServer mbeanServer) {
-        try {
-            ObjectName name = getMbeanName();
-            ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
-        } catch (Exception e) {
-            logger.warn("An error occured during mbean server registration: " + e, e);
-        }
-    }
-
-    public void unregisterMBeanServer(MBeanServer mbeanServer) {
-        if (mbeanServer != null) {
-            try {
-                mbeanServer.unregisterMBean(getMbeanName());
-            } catch (Exception e) {
-                logger.warn("An error occured during mbean server registration: " + e, e);
-            }
-        }
-    }
-
     @Override
-    public String filterLogEvents(String jsonFilter) throws IOException {
-        LogFilter filter = jsonToLogFilter(jsonFilter);
-        LogResults events = getLogEventList(filter);
-        return toJSON(events);
-    }
-
-    @Override
-    public String getLogEvents(int count) throws IOException {
+    public LogResults getLogResults(int count) throws IOException {
         LogResults events = getLogEventList(count, null);
-        return toJSON(events);
+        return events;
     }
 
-    protected String toJSON(LogResults answer) throws IOException {
-        try {
-            StringWriter writer = new StringWriter();
-            mapper.writeValue(writer, answer);
-            return writer.toString();
-        } catch (IOException e) {
-            logger.warn("Failed to marshal the events: " + e, e);
-            throw new IOException(e.getMessage());
-        }
-    }
-
-    protected LogFilter jsonToLogFilter(String json) throws IOException {
-        if (json == null) {
-            return null;
-        }
-        json = json.trim();
-        if (json.length() == 0 || json.equals("{}")) {
-            return null;
-        }
-        return mapper.reader(LogFilter.class).readValue(json);
-    }
-
-
-    public  LogResults getLogEventList(LogFilter filter) {
+    @Override
+    public  LogResults queryLogResults(LogFilter filter) {
         Predicate<PaxLoggingEvent> predicate = Logs.createPredicate(filter);
         int count = -1;
         if (filter != null) {
@@ -156,40 +89,40 @@ public class LogQuery implements LogQueryMBean {
 
     public LogResults getLogEventList(int count, Predicate<PaxLoggingEvent> predicate) {
         LogResults answer = new LogResults();
-        try {
-            answer.setHost(InetAddress.getLocalHost().getHostName());
-        } catch (UnknownHostException e) {
-            logger.warn("Failed to get host name: " + e, e);
-        }
+        answer.setHost(getHostName());
 
+        long from = Long.MAX_VALUE;
+        long to = Long.MIN_VALUE;
         VmLogAppender a = getAppender();
         if (a != null) {
             LruList events = a.getEvents();
-            Iterable<PaxLoggingEvent> iterable =  events.getElements();
-            int matched = 0;
-            long from = Long.MAX_VALUE;
-            long to = Long.MIN_VALUE;
-            for (PaxLoggingEvent event : iterable) {
-                long timestamp = event.getTimeStamp();
-                if (timestamp > to) {
-                    to = timestamp;
-                }
-                if (timestamp < from) {
-                    from = timestamp;
-                }
-                if (predicate == null || predicate.matches(event)) {
-                    answer.addEvent(Logs.newInstance(event));
-                    matched += 1;
-                    if (count > 0 && matched >= count) {
-                        break;
+            if (events != null) {
+                Iterable<PaxLoggingEvent> iterable =  events.getElements();
+                if (iterable != null) {
+                    int matched = 0;
+                    for (PaxLoggingEvent event : iterable) {
+                        long timestamp = event.getTimeStamp();
+                        if (timestamp > to) {
+                            to = timestamp;
+                        }
+                        if (timestamp < from) {
+                            from = timestamp;
+                        }
+                        if (predicate == null || predicate.matches(event)) {
+                            answer.addEvent(Logs.newInstance(event));
+                            matched += 1;
+                            if (count > 0 && matched >= count) {
+                                break;
+                            }
+                        }
                     }
                 }
             }
-            answer.setFromTimestamp(from);
-            answer.setToTimestamp(to);
         } else {
-            logger.warn("No VmLogAppender available!");
+            LOG.warn("No VmLogAppender available!");
         }
+        answer.setFromTimestamp(from);
+        answer.setToTimestamp(to);
         return answer;
     }
 

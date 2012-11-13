@@ -14,19 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.fusesource.insight.log.service;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.fusesource.insight.log.LogFilter;
-import org.fusesource.insight.log.LogResults;
-import org.fusesource.insight.log.support.LogQuerySupportMBean;
-
-import java.io.IOException;
+package org.fusesource.insight.log.support;
 
 /**
- * An MBean for querying log events which has a serialized API and a simple JSON API to avoid serialization issues
  */
-public interface LogQueryMBean extends LogQuerySupportMBean {
-
+public class Strings {
+    public static boolean contains(String matchesText, String... values) {
+        for (String v : values) {
+            if (v != null && v.contains(matchesText)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

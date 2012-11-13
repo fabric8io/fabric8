@@ -14,19 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.fusesource.insight.log.log4j;
 
-package org.fusesource.insight.log.service;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.fusesource.insight.log.LogFilter;
-import org.fusesource.insight.log.LogResults;
 import org.fusesource.insight.log.support.LogQuerySupportMBean;
 
-import java.io.IOException;
-
 /**
- * An MBean for querying log events which has a serialized API and a simple JSON API to avoid serialization issues
+ * The MBean operations for {@link Log4jLogQuery}
  */
-public interface LogQueryMBean extends LogQuerySupportMBean {
-
+public interface Log4jLogQueryMBean extends LogQuerySupportMBean {
 }

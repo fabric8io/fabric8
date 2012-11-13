@@ -25,51 +25,26 @@
     <relativePath>..</relativePath>
   </parent>
 
-  <artifactId>insight-log</artifactId>
+  <artifactId>insight-log4j</artifactId>
   <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Logging</description>
-  <packaging>bundle</packaging>
-
-  <properties>
-    <fuse.osgi.export>
-      org.fusesource.insight.log*;version=${project.version},
-      org.fusesource.insight.log.service*;version=${project.version};-noimport:=true
-    </fuse.osgi.export>
-    <fuse.osgi.import>
-      org.apache.karaf.shell.log*;resolution:=optional,
-      org.ops4j.pax.logging.spi*;version="[1.6,2)";resolution:=optional,
-      org.slf4j;version="[1.6,2)",
-      *
-    </fuse.osgi.import>
-    <fuse.osgi.private.pkg>
-    </fuse.osgi.private.pkg>
-    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=insight-log-core</fuse.osgi.embed.dependency>
-    <fuse.osgi.activator>org.fusesource.insight.log.service.LogQueryActivator</fuse.osgi.activator>
-  </properties>
+  <description>Fuse Insight :: Logging Log4j</description>
+  <packaging>jar</packaging>
 
   <dependencies>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.core</artifactId>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.osgi</groupId>
-      <artifactId>org.osgi.compendium</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency>
       <groupId>org.fusesource.insight</groupId>
       <artifactId>insight-log-core</artifactId>
       <version>${project.version}</version>
     </dependency>
-
     <dependency>
-      <groupId>org.apache.karaf.shell</groupId>
-      <artifactId>org.apache.karaf.shell.log</artifactId>
-      <scope>provided</scope>
-      <optional>true</optional>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>${log4j-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-log4j12</artifactId>
+      <version>${slf4j-version}</version>
     </dependency>
 
     <dependency>
@@ -77,7 +52,5 @@
       <artifactId>jackson-mapper-asl</artifactId>
       <version>${jackson-version}</version>
     </dependency>
-
-
   </dependencies>
 </project>

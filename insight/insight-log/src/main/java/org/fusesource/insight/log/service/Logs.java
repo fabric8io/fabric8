@@ -17,8 +17,10 @@
 
 package org.fusesource.insight.log.service;
 
-import org.fusesource.insight.log.*;
+import org.fusesource.insight.log.LogEvent;
+import org.fusesource.insight.log.LogFilter;
 import org.fusesource.insight.log.support.Predicate;
+import org.fusesource.insight.log.support.Strings;
 import org.ops4j.pax.logging.spi.PaxLevel;
 import org.ops4j.pax.logging.spi.PaxLocationInfo;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -116,18 +118,20 @@ public class Logs {
             predicates.add(new Predicate<PaxLoggingEvent>() {
                 @Override
                 public boolean matches(PaxLoggingEvent event) {
-                    if (contains(matchesText, event.getFQNOfLoggerClass(), event.getMessage(), event.getLoggerName(), event.getThreadName())) {
+                    if (Strings.contains(matchesText,
+                            event.getFQNOfLoggerClass(), event.getMessage(),
+                            event.getLoggerName(), event.getThreadName())) {
                         return true;
                     }
                     String[] throwableStrRep = event.getThrowableStrRep();
-                    if (throwableStrRep != null && contains(matchesText, throwableStrRep)) {
+                    if (throwableStrRep != null && Strings.contains(matchesText, throwableStrRep)) {
                         return true;
                     }
                     Map properties = event.getProperties();
-                    if (properties != null && contains(matchesText, properties.toString())) {
+                    if (properties != null && Strings.contains(matchesText, properties.toString())) {
                         return true;
                     }
-                    return true;
+                    return false;
                 }
             });
         }
@@ -156,12 +160,4 @@ public class Logs {
         }
     }
 
-    protected static boolean contains(String matchesText, String... values) {
-        for (String v : values) {
-            if (v != null && v.contains(matchesText)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

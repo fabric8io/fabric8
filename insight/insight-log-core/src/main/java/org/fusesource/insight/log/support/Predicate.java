@@ -15,18 +15,11 @@
  * limitations under the License.
  */
 
-package org.fusesource.insight.log.service;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.fusesource.insight.log.LogFilter;
-import org.fusesource.insight.log.LogResults;
-import org.fusesource.insight.log.support.LogQuerySupportMBean;
-
-import java.io.IOException;
+package org.fusesource.insight.log.support;
 
 /**
- * An MBean for querying log events which has a serialized API and a simple JSON API to avoid serialization issues
+ * Applies a predicate to a type; can be replaced by the Predicate from Guava later maybe?
  */
-public interface LogQueryMBean extends LogQuerySupportMBean {
-
+public interface Predicate<T> {
+    boolean matches(T t);
 }

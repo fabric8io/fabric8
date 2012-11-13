@@ -15,18 +15,27 @@
  * limitations under the License.
  */
 
-package org.fusesource.insight.log.service;
+package org.fusesource.insight.log.rest;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.fusesource.insight.log.LogFilter;
-import org.fusesource.insight.log.LogResults;
-import org.fusesource.insight.log.support.LogQuerySupportMBean;
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.insight.log.LogEvent;
 
-import java.io.IOException;
+@JsonIgnoreProperties(ignoreUnknown=true)
+public class LogResponseHit {
+	@JsonProperty("_source")
+	private LogEvent event;
 
-/**
- * An MBean for querying log events which has a serialized API and a simple JSON API to avoid serialization issues
- */
-public interface LogQueryMBean extends LogQuerySupportMBean {
+
+	public LogResponseHit() {
+	}
+
+	public LogEvent getEvent() {
+		return event;
+	}
+
+	public void setEvent(LogEvent event) {
+		this.event = event;
+	}
 
 }
