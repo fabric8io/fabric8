@@ -19,7 +19,8 @@ package org.fusesource.camel.tooling.util
 
 class Languages {
   val languages = List(
-    Language("beanshell", "BeanShell", "BeanShell expression"),
+    // No longer supported by Camel
+    // Language("beanshell", "BeanShell", "BeanShell expression"),
     Language("constant", "Constant", "Constant expression"),
     Language("el", "EL", "Unified expression language from JSP / JSTL / JSF"),
     Language("header", "Header", "Header value"),
