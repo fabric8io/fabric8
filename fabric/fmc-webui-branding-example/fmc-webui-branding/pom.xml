@@ -17,12 +17,13 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
+    <groupId>org.fusesource.fmc</groupId>
     <artifactId>fmc-webui-branding-example</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
+  <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-webui-branding</artifactId>
   <name>${project.artifactId}</name>
   <description>FMC :: Frontend Branding</description>
