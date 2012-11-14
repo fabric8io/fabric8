@@ -32,12 +32,6 @@ class ContextListener extends ServletContextListener {
 
   def contextInitialized(ctxEvent: ServletContextEvent) {
 
-    val ctx = ctxEvent.getServletContext
-    val principal = new Principal
-    principal.username = ctx.getInitParameter("fabric.username")
-    principal.password = ctx.getInitParameter("fabric.password")
-    Services.principal = principal
-
     Services.LOG.info("-- FMC Context Initialized --")
     Services.LOG.info("Patch upload directory at {}", Services.patch_dir)
     Services.LOG.info("Profile name is {}", Services.profile_name)

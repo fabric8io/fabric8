@@ -21,17 +21,6 @@
 
     <display-name>Fuse Console REST</display-name>
 
-    <context-param>
-      <param-name>fabric.username</param-name>
-      <param-value>admin</param-value>
-    </context-param>
-
-    <!-- TODO: use jasypt -->
-    <context-param>
-      <param-name>fabric.password</param-name>
-      <param-value>admin</param-value>
-    </context-param>
-
     <listener>
       <listener-class>org.fusesource.fabric.webui.ContextListener</listener-class>
     </listener>

@@ -18,6 +18,27 @@
 .row
   .span8
     form
+      legend
+      .clearfix#new-username
+        label(for="new-username") Username:
+        .input
+          input(name="new-username" type="text")
+          span.help-block#new-username-help
+      .clearfix#password
+        label(for="password") Password:
+        .input
+          input(name="password" type="password")
+          span.help-block#password-help
+      .clearfix#role
+        label(for="role") Role:
+        .input
+          input(name="role" type="text" value="admin")
+          span.help-block#role-help
+      .clearfix#zk-password
+        label(for="zk-password") ZooKeeper Password:
+        .input
+          input(name="zk-password" type="password")
+          span.help-block#zk-password-help Leave blank to have a password generated
       .clearfix#global-resolver
         label(for="global-resolver") Global Resolver:
         .input
@@ -42,10 +63,20 @@
         .input
           | <input name="manualip-val" type="text" class="hardware-id">
           span.help-block#manualip-val-help
+      .clearfix#max-port
+        label(for="max-port") Maximum Port Value:
+        .input
+          input(name="max-port" type="text" value="0")
+          span.help-block#max-port-help
+      .clearfix#min-port
+        label(for="min-port") Minimum Port Value:
+        .input
+          input(name="min-port" type="text" value="0")
+          span.help-block#min-port-help
 
 .row
   .span8
     .block.left
     .block.right
       a.back.btn(href="#") Cancel
-      a.create.btn(href="#") Create
+      a.create.btn.disabled(href="#") Create

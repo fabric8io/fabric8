@@ -60,6 +60,25 @@ class CreateEnsembleDTO {
 
   @JsonProperty
   var manualip: String = _
+
+  @JsonProperty
+  var zk_password: String = _
+
+  @JsonProperty
+  var username: String = _
+
+  @JsonProperty
+  var password: String = _
+
+  @JsonProperty
+  var role: String = _
+
+  @JsonProperty
+  var max_port: String = _
+
+  @JsonProperty
+  var min_port: String = _
+
 }
 
 class JoinEnsembleDTO {
@@ -81,18 +100,19 @@ class SystemResource extends BaseResource {
   def login(@Context request: HttpServletRequest, @Context response: HttpServletResponse, @FormParam("username") username: String, @FormParam("password") password: String): Boolean = {
     val auth: Authenticator = resource_context.getResource(classOf[Authenticator]);
     if (auth.authenticate(username, password)) {
-      val session: HttpSession = request.getSession(true);
+      val session: HttpSession = request.getSession(true)
       session.setAttribute("username", username)
-      return true;
+      session.setAttribute("password", password)
+      return true
     } else {
-      return false;
+      return false
     }
   }
 
   @GET
   @Path("logout")
   def logout(@Context request: HttpServletRequest): Boolean = {
-    val session: HttpSession = request.getSession(false);
+    val session: HttpSession = request.getSession(false)
     if (session != null) {
       session.invalidate()
     }
@@ -102,7 +122,7 @@ class SystemResource extends BaseResource {
   @GET
   @Path("whoami")
   def whoami(@Context request: HttpServletRequest): Principal = {
-    val session: HttpSession = request.getSession(false);
+    val session: HttpSession = request.getSession(false)
     val principal = new Principal()
     if (session != null && session.getAttribute("username") != null) {
       principal.username = session.getAttribute("username").asInstanceOf[String]
@@ -167,14 +187,56 @@ class SystemResource extends BaseResource {
     rc
   }
 
+  def isInt(value:String):Boolean = {
+    try {
+      Integer.parseInt(value)
+      true
+    } catch {
+      case _ => false
+    }
+  }
+
   @POST
   @Path("status/create_ensemble")
   def create_ensemble(options: CreateEnsembleDTO): Unit = {
+    require(options.username != null, "Must supply initial user account")
+    require(options.password != null, "Must supply initial user account password")
+    require(options.role != null, "Must supply initial user account role")
+    require(options.max_port == null || options.max_port.equals("") || isInt(options.max_port), "Max port must be an integer, null or an empty string")
+
+    require(options.max_port == null || options.max_port.equals("") || isInt(options.max_port), "Min port must be an integer, null or an empty string")
+
     spawn {
       try {
+        options.zk_password match {
+          case "" =>
+            options.zk_password = null
+          case _ =>
+        }
+        options.max_port match {
+          case "" =>
+            options.max_port = null
+          case "0" =>
+            options.max_port = null
+          case _ =>
+        }
+        options.min_port match {
+          case "" =>
+            options.min_port = null
+          case "0" =>
+            options.min_port = null
+          case _ =>
+        }
+
         val create = Services.get_service(classOf[Create])
         create.setClean(true)
         create.setProfile(Services.profile_name)
+        create.setZookeeperPassword(options.zk_password)
+        create.setNewUser(options.username)
+        create.setNewUserPassword(options.password)
+        create.setNewUserRole(options.role)
+        Option(options.max_port).foreach(x => create.setMaximumPort(Integer.parseInt(x)))
+        Option(options.min_port).foreach(x => create.setMinimumPort(Integer.parseInt(x)))
         Option(options.global_resolver).foreach(System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, _))
         Option(options.local_resolver).foreach(System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, _))
         Option(options.manualip).foreach(System.setProperty(ZkDefs.MANUAL_IP, _))

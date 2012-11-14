@@ -17,7 +17,7 @@ package org.fusesource.fabric.webui.agents
 
 import java.lang.String
 import javax.ws.rs._
-import core.MediaType
+import core.{Context, MediaType}
 import org.codehaus.jackson.annotate.JsonProperty
 import org.codehaus.jackson.map.ObjectMapper;
 import java.net.URI
@@ -25,6 +25,7 @@ import collection.JavaConversions
 import org.fusesource.fabric.webui._
 import org.fusesource.fabric.webui.{Services, ByID, JsonProvider, BaseResource}
 import org.fusesource.fabric.api._
+import javax.servlet.http.HttpServletRequest
 
 /**
  * Resource representing root agents resource.
@@ -43,8 +44,12 @@ class MigrateContainerDTO {
 @Path("/agents")
 class AgentsResource extends BaseResource {
 
+  @Context
+  var request:HttpServletRequest = null
+
+
   @GET
-  override def get: Array[AgentResource] = fabric_service.getContainers.map(new AgentResource(_)).sortWith(ByID(_, _))
+  override def get: Array[AgentResource] = fabric_service.getContainers.map(new AgentResource(_, request)).sortWith(ByID(_, _))
 
   @Path("{id}")
   def get(@PathParam("id") id: String): AgentResource = {
@@ -81,6 +86,8 @@ class AgentsResource extends BaseResource {
       value.setResolver(null)
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
+      value.setJmxUser(Services.jmx_username(request))
+      value.setJmxPassword(Services.jmx_password(request))
       fabric_service.createContainers(value)
 
     } else if (providerType == "ssh") {

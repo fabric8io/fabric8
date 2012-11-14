@@ -19,13 +19,15 @@ import org.slf4j.{LoggerFactory, Logger}
 import scala.collection.JavaConversions._
 import scala.collection.mutable.Map
 import javax.ws.rs._
+import core.Response.Status._
 import javax.ws.rs.core.{Response, UriInfo, Context, MediaType}
-import javax.servlet.http.{HttpServletResponse, HttpServletRequest}
+import javax.servlet.http.{HttpSession, HttpServletResponse, HttpServletRequest}
 import javax.ws.rs.core.Response.Status
 import org.codehaus.jackson.annotate.{JsonMethod, JsonAutoDetect}
 import org.fusesource.fabric.api.Container
 import java.io.{PipedInputStream, PipedOutputStream, OutputStream}
 import concurrent.ops._
+import sun.management.resources.agent
 
 trait HasID {
   def id: String
@@ -60,7 +62,8 @@ class BaseResource {
 
   def fabric_service = Services.fabric_service
 
-  def agent_template(agent: Container) = Services.agent_template(agent)
+  def agent_template(agent: Container, jmx_username: String, jmx_password: String) =
+    Services.agent_template(agent, jmx_username, jmx_password)
 
   @Context
   protected val uriInfo: UriInfo = null

@@ -52,4 +52,28 @@ public interface Create {
     public void setManualIp(String manualIp);
 
     public String getManualIp();
+
+    int getMinimumPort();
+
+    void setMinimumPort(int minimumPort);
+
+    int getMaximumPort();
+
+    void setMaximumPort(int maximumPort);
+
+    String getZookeeperPassword();
+
+    void setZookeeperPassword(String zookeeperPassword);
+
+    String getNewUser();
+
+    void setNewUser(String newUser);
+
+    String getNewUserPassword();
+
+    void setNewUserPassword(String newUserPassword);
+
+    String getNewUserRole();
+
+    void setNewUserRole(String newUserRole);
 }

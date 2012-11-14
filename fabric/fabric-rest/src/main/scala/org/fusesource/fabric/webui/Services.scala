@@ -29,6 +29,10 @@ import java.io.File
 import org.jclouds.providers.Providers
 import org.jclouds.apis.Apis
 import scala.collection.JavaConverters._
+import sun.management.resources.agent
+import javax.servlet.http.{HttpSession, HttpServletRequest}
+import javax.ws.rs.WebApplicationException
+import javax.ws.rs.core.Response.Status._
 
 class Services {
 
@@ -68,8 +72,6 @@ object Services {
   private lazy val _bundle_context = if (_bundle != null) _bundle.getBundleContext else null
 
   def bundle_context = _bundle_context
-
-  var principal = new Principal
 
   def refresh = _bundle.update
 
@@ -141,16 +143,29 @@ object Services {
       _tempDir
     }
   }
+
   def realm = _realm
 
-  case class AgentTemplateHolder(agent: Container) {
-    lazy val template = new ContainerTemplate(agent, principal.username, principal.password, true)
+  def get_session(request:HttpServletRequest) = {
+    val session:HttpSession = request.getSession(false)
+    if (session == null) {
+      throw new WebApplicationException(UNAUTHORIZED)
+    }
+    session
+  }
+
+  def jmx_username(request:HttpServletRequest) = get_session(request).getAttribute("username").asInstanceOf[String]
+
+  def jmx_password(request:HttpServletRequest) = get_session(request).getAttribute("password").asInstanceOf[String]
+
+  case class AgentTemplateHolder(agent: Container, jmx_username:String, jmx_password:String) {
+    lazy val template = new ContainerTemplate(agent, jmx_username, jmx_password, true)
   }
 
   val jmx_template = new ConcurrentHashMap[String, AgentTemplateHolder]()
 
-  def agent_template(agent: Container) = {
-    val tmp = AgentTemplateHolder(agent)
+  def agent_template(agent: Container, jmx_username:String, jmx_password:String) = {
+    val tmp = AgentTemplateHolder(agent, jmx_username, jmx_password)
     var rc = jmx_template.putIfAbsent(agent.getId, tmp)
     if (rc == null) {
       rc = tmp

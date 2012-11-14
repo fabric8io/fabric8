@@ -16,11 +16,6 @@
  */
 package org.fusesource.fabric.boot.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -29,8 +24,11 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.utils.PortUtils;
-import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.boot.commands.service.Create {
@@ -197,8 +195,69 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         this.containers = containers;
     }
 
+    @Override
+    public int getMinimumPort() {
+        return minimumPort;
+    }
+
+    @Override
+    public void setMinimumPort(int minimumPort) {
+        this.minimumPort = minimumPort;
+    }
+
+    @Override
+    public int getMaximumPort() {
+        return maximumPort;
+    }
+
+    @Override
+    public void setMaximumPort(int maximumPort) {
+        this.maximumPort = maximumPort;
+    }
+
+    @Override
+    public String getZookeeperPassword() {
+        return zookeeperPassword;
+    }
+
+    @Override
+    public void setZookeeperPassword(String zookeeperPassword) {
+        this.zookeeperPassword = zookeeperPassword;
+    }
+
+    @Override
+    public String getNewUser() {
+        return newUser;
+    }
+
+    @Override
+    public void setNewUser(String newUser) {
+        this.newUser = newUser;
+    }
+
+    @Override
+    public String getNewUserPassword() {
+        return newUserPassword;
+    }
+
+    @Override
+    public void setNewUserPassword(String newUserPassword) {
+        this.newUserPassword = newUserPassword;
+    }
+
+    @Override
+    public String getNewUserRole() {
+        return newUserRole;
+    }
+
+    @Override
+    public void setNewUserRole(String newUserRole) {
+        this.newUserRole = newUserRole;
+    }
+
     public String getProfile() {
         return profile;
+
     }
 
     public void setProfile(String profile) {
@@ -236,4 +295,6 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     public void setManualIp(String manualIp) {
         this.manualIp = manualIp;
     }
+
+
 }

@@ -32,9 +32,9 @@ import org.fusesource.fabric.webui.BaseResource
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object MonitorAgentResource extends ManagementExtensionFactory {
-  def create(a: Container) = {
+  def create(a: Container, jmx_username: String, jmx_password: String) = {
     if (a.getJmxDomains.contains("org.fusesource.fabric")) {
-      Some(new MonitorAgentResource(a))
+      Some(new MonitorAgentResource(a, jmx_username, jmx_password))
     } else {
       None
     }
@@ -47,7 +47,7 @@ object MonitorAgentResource extends ManagementExtensionFactory {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class MonitorAgentResource(val agent: Container) extends BaseResource with ManagementExtension {
+class MonitorAgentResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource with ManagementExtension {
 
   def id: String = "monitor"
 
@@ -55,7 +55,7 @@ class MonitorAgentResource(val agent: Container) extends BaseResource with Manag
   @Path("fetch")
   def fetch(fetch: FetchMonitoredViewDTO) = {
 
-    val template = agent_template(agent)
+    val template = agent_template(agent, jmx_username, jmx_password)
     val response = MonitorFacade.fetch(template.getJmxTemplate(), fetch)
     if (response == null) {
       respond(Response.Status.NOT_FOUND)

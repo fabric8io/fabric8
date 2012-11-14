@@ -28,9 +28,9 @@ import org.fusesource.fabric.webui.{ByID, BaseResource}
 import org.fusesource.fabric.camel.facade.JmxTemplateCamelFacade
 
 object CamelAgentResource extends ManagementExtensionFactory {
-  def create(a: Container) = {
+  def create(a: Container, jmx_username: String, jmx_password: String) = {
     if (a.getJmxDomains.contains("org.apache.camel")) {
-      Some(new CamelAgentResource(a))
+      Some(new CamelAgentResource(a, jmx_username, jmx_password))
     } else {
       None
     }
@@ -38,9 +38,9 @@ object CamelAgentResource extends ManagementExtensionFactory {
 }
 
 
-class CamelAgentResource(val agent: Container) extends BaseResource with ManagementExtension {
+class CamelAgentResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource with ManagementExtension {
 
-  private val facade = new JmxTemplateCamelFacade(agent_template(agent).getJmxTemplate())
+  private val facade = new JmxTemplateCamelFacade(agent_template(agent, jmx_username, jmx_password).getJmxTemplate())
 
   def id = "camel"
 

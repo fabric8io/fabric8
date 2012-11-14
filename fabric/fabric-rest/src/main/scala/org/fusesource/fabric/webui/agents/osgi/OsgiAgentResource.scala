@@ -25,9 +25,9 @@ import org.codehaus.jackson.annotate.JsonProperty
 import org.fusesource.fabric.webui.BaseResource
 
 object OsgiAgentResource extends ManagementExtensionFactory {
-  def create(a: Container) = {
+  def create(a: Container, jmx_username: String, jmx_password: String) = {
     if (a.getJmxDomains.contains("osgi.core")) {
-      Some(new OsgiAgentResource(a))
+      Some(new OsgiAgentResource(a, jmx_username, jmx_password))
     } else {
       None
     }
@@ -40,20 +40,20 @@ object OsgiAgentResource extends ManagementExtensionFactory {
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  * @author ldywicki
  */
-class OsgiAgentResource(val agent: Container) extends BaseResource with ManagementExtension {
+class OsgiAgentResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource with ManagementExtension {
   def id = "osgi"
 
   @JsonProperty
-  def bundles = new BundlesResource(agent).get
+  def bundles = new BundlesResource(agent, jmx_username, jmx_password).get
 
   @JsonProperty
-  def services = new ServicesResource(agent).get
+  def services = new ServicesResource(agent, jmx_username, jmx_password).get
 
   @Path("bundles")
-  def bundles_resource = new BundlesResource(agent)
+  def bundles_resource = new BundlesResource(agent, jmx_username, jmx_password)
 
   @Path("services")
-  def services_resource = new ServicesResource(agent)
+  def services_resource = new ServicesResource(agent, jmx_username, jmx_password)
 
 }
 

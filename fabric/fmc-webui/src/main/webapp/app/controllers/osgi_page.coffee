@@ -186,7 +186,7 @@ define [
     model.url = "agents/#{container}/extensions/osgi/bundles/#{id}"
 
     services = new FON.Collection
-    services.url = "/agents/#{container}/extensions/osgi/services"
+    services.url = "agents/#{container}/extensions/osgi/services"
 
     model.fetch
       success: (model, r) ->

@@ -466,10 +466,6 @@
 -->
     </feature>
 
-    <feature name="fmc-jaas" version="${project.version}" resolver="(obr)">
-      <bundle>mvn:org.fusesource.fmc/fmc-jaas/${project.version}</bundle>
-    </feature>
-
     <feature name="fabric-rest" version="${project.version}" resolver="(obr)">
         <feature>fabric-core</feature>
         <feature>fabric-boot-commands</feature>

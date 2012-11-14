@@ -27,9 +27,9 @@ import javax.management.remote.JMXConnector
 import org.fusesource.fabric.webui.BaseResource
 
 object JVMAgentResource extends ManagementExtensionFactory {
-  def create(a: Container) = {
+  def create(a: Container, jmx_username: String, jmx_password: String) = {
     if (a.getJmxDomains.contains("java.lang")) {
-      Some(new JVMAgentResource(a))
+      Some(new JVMAgentResource(a, jmx_username, jmx_password))
     } else {
       None
     }
@@ -37,9 +37,9 @@ object JVMAgentResource extends ManagementExtensionFactory {
 }
 
 
-class JVMAgentResource(val agent: Container) extends BaseResource with ManagementExtension {
+class JVMAgentResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource with ManagementExtension {
 
-  private val template = agent_template(agent)
+  private val template = agent_template(agent, jmx_username, jmx_password)
 
   def id = "jvm"
 

@@ -17,16 +17,17 @@ package org.fusesource.fabric.webui.agents
 
 import java.lang.String
 import javax.ws.rs._
+import core.Context
 import scala.Array._
-import org.fusesource.fabric.webui.{BaseResource, HasID}
-import org.fusesource.fabric.webui.{HasID, BaseResource}
+import org.fusesource.fabric.webui._
 import org.fusesource.fabric.api.{CreateJCloudsContainerMetadata, Container, CreateContainerMetadata}
 import org.codehaus.jackson.annotate.JsonProperty
+import javax.servlet.http.HttpServletRequest
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class AgentResource(val agent: Container) extends BaseResource with HasID {
+class AgentResource(val agent: Container, val request:HttpServletRequest) extends BaseResource with HasID {
 
   def parent_agent = agent.getParent
 
@@ -39,7 +40,7 @@ class AgentResource(val agent: Container) extends BaseResource with HasID {
   //  }
   @GET
   @Path("effective_config")
-  def effective_config = agent.getProfiles.map(_.getOverlay).map(new org.fusesource.fabric.webui.profile.ProfileResource(_));
+  def effective_config = agent.getProfiles.map(_.getOverlay).map(new org.fusesource.fabric.webui.profile.ProfileResource(_))
 
   ////////////////////////////////////////////////
   // Mapping to nice JSON objects.
@@ -219,12 +220,12 @@ class AgentResource(val agent: Container) extends BaseResource with HasID {
   @GET
   @Path("extensions")
   def extensions: Array[String] = {
-    ManagementExtensionFactory.extensions(agent).map(_.id).toArray
+    ManagementExtensionFactory.extensions(agent, Services.jmx_username(request), Services.jmx_password(request)).map(_.id).toArray
   }
 
   @Path("extensions/{id}")
   def extensions(@PathParam("id") id: String) = {
-    ManagementExtensionFactory.extensions(agent).find(_.id == id) getOrElse not_found
+    ManagementExtensionFactory.extensions(agent, Services.jmx_username(request), Services.jmx_password(request)).find(_.id == id) getOrElse not_found
   }
 
   @JsonProperty

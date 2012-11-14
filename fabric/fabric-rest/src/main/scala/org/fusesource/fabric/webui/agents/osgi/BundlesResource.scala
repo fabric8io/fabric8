@@ -20,9 +20,9 @@ import org.fusesource.fabric.api.Container
 import javax.ws.rs.{Path, GET, PathParam}
 import org.fusesource.fabric.webui.BaseResource
 
-class BundlesResource(val agent: Container) extends BaseResource {
+class BundlesResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource {
 
-  private def bundles: Array[BundleInfo] = agent.getBundles(agent_template(agent))
+  private def bundles: Array[BundleInfo] = agent.getBundles(agent_template(agent, jmx_username, jmx_password))
 
   @GET
   override def get: Array[BundleResource] = {

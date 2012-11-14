@@ -42,44 +42,141 @@ define [
       "select[name=local-resolver]": "local_resolver"
       "select[name=global-resolver]": "global_resolver"
       "input[name=manualip-val]": "manualip"
+      "a.create": "create"
+      "input[name=new-username]": "username"
+      ":input[name=password]": "password"
+      ":input[name=role]": "role"
+      ":input[name=zk-password]": "zk_password"
+      ":input[name=max-port]": "max_port"
+      ":input[name=min-port]": "min_port"
 
     events:
       "click a.back": "back"
       "click a.create": "create_ensemble"
 
     create_ensemble: ->
-      if @model.get "zk_cluster_service_available"
-        @parent.wait.render()
-        if @model.get("managed")
-          @old_ajax_handler = app.handle_ajax_error
-          app.handle_ajax_error = (resp, next) ->
+      if !@create.hasClass("disabled")
+        if @model.get "zk_cluster_service_available"
+          @parent.wait.render()
+          if @model.get("managed")
+            @old_ajax_handler = app.handle_ajax_error
+            app.handle_ajax_error = (resp, next) ->
 
-        @model.create_ensemble
-          global_resolver: @global_resolver.val()
-          local_resolver: @local_resolver.val()
-          manualip: @manualip.val()
+          @model.create_ensemble
+            username: @username.val()
+            password: @password.val()
+            role: @role.val()
+            zk_password: @zk_password.val()
+            global_resolver: @global_resolver.val()
+            local_resolver: @local_resolver.val()
+            manualip: @manualip.val()
+            max_port: @max_port.val()
+            min_port: @min_port.val()
 
-          success: =>
-            if @model.get("managed")
-              @model.bind "change:provision_complete", =>
-                if @model.get("provision_complete")
-                  app.handle_ajax_error = @old_ajax_handler
-                  @parent.hide_wait()
-              , @
-            else
-              setTimeout ( => @parent.hide_wait()), 2000
-          error: (data) =>
-            if @model.get("managed")
-              app.handle_ajax_error = @old_ajax_handler
-            @parent.hide_wait()
-            app.flash
-              kind: "error"
-              title: "Error creating ensemble server"
-              message: "Unable to create ensemble server, error message was #{data.responseText}"
-              on_close: -> window.location.reload()
+            success: =>
+              if @model.get("managed")
+                @model.bind "change:provision_complete", =>
+                  if @model.get("provision_complete")
+                    app.handle_ajax_error = @old_ajax_handler
+                    @parent.hide_wait()
+                , @
+              else
+                setTimeout ( => @parent.hide_wait()), 2000
+            error: (data) =>
+              if @model.get("managed")
+                app.handle_ajax_error = @old_ajax_handler
+              @parent.hide_wait()
+              app.flash
+                kind: "error"
+                title: "Error creating ensemble server"
+                message: "Unable to create ensemble server, error message was #{data.responseText}"
+                on_close: -> window.location.reload()
       false
 
+    maybe_enable_create: (self) ->
+      valid = true
+
+      for control in self.validated
+        if !control.validate() && valid
+          valid = false
+
+      if valid
+        self.create.removeClass("disabled")
+      else
+        self.create.addClass("disabled")
+
+
     on_render: ->
+      @validated = []
+
+      @validated.push new FON.ValidatingTextInput
+        control: @username
+        controller: @
+        validator: (text) ->
+          if !text || text == ""
+            ok: false
+            msg: "Must specify a username"
+          else
+            ok: true
+            msg: ""
+        cb: @maybe_enable_create
+
+      @validated.push new FON.ValidatingTextInput
+        control: @password
+        controller: @
+        validator: (text) ->
+          if !text || text == ""
+            ok: false
+            msg: "Must specify a password"
+          else
+            ok: true
+            msg: ""
+        cb: @maybe_enable_create
+
+      @validated.push new FON.ValidatingTextInput
+        control: @role
+        controller: @
+        validator: (text) ->
+          if !text || text == ""
+            ok: false
+            msg: "Must specify a role"
+          else
+            ok: true
+            msg: ""
+        cb: @maybe_enable_create
+
+      @validated.push new FON.ValidatingTextInput
+        control: @max_port
+        controller: @
+        validator: (text) ->
+          if !text || text == ""
+            ok: false,
+            msg: "You must specify a valid port number"
+          else if isNaN(text)
+            ok: false,
+            msg: "You must specify a valid port number"
+          else
+            ok: true,
+            msg: ""
+        cb: @maybe_enable_create
+
+      @validated.push new FON.ValidatingTextInput
+        control: @min_port
+        controller: @
+        validator: (text) ->
+          if !text || text == ""
+            ok: false,
+            msg: "You must specify a valid port number"
+          else if isNaN(text)
+            ok: false,
+            msg: "You must specify a valid port number"
+          else
+            ok: true,
+            msg: ""
+
+
+      $(@el).bind "DOMNodeInsertedIntoDocument", =>
+        @maybe_enable_create(@)
 
       @local_resolver.change (event) =>
         @manualip_div.toggleClass "hide", @local_resolver.val() != "manualip"

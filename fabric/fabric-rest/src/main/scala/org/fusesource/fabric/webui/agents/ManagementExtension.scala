@@ -33,7 +33,7 @@ trait ManagementExtension {
 }
 
 trait ManagementExtensionFactory {
-  def create(a: Container): Option[ManagementExtension]
+  def create(a: Container, jmx_username: String, jmx_password:String ): Option[ManagementExtension]
 }
 
 object ManagementExtensionFactory {
@@ -46,5 +46,5 @@ object ManagementExtensionFactory {
     MonitorAgentResource
   )
 
-  def extensions(a: Container): Seq[ManagementExtension] = factories.flatMap(_.create(a))
+  def extensions(a: Container, jmx_username:String, jmx_password:String): Seq[ManagementExtension] = factories.flatMap(_.create(a, jmx_username, jmx_password))
 }

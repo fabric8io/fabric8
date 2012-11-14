@@ -77,7 +77,6 @@
 
         <module>fabric-ldap</module>
 
-        <module>fmc-jaas</module>
         <module>fmc-branding</module>
         <module>fmc-webui</module>
         <module>fmc-webui-branding-example</module>

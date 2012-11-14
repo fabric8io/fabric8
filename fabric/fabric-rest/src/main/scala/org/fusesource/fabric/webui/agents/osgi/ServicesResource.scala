@@ -19,9 +19,9 @@ import javax.ws.rs.{Path, PathParam}
 import org.fusesource.fabric.api.Container
 import org.fusesource.fabric.webui.BaseResource
 
-class ServicesResource(val agent: Container) extends BaseResource {
+class ServicesResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource {
 
-  private def services = agent.getServices(agent_template(agent))
+  private def services = agent.getServices(agent_template(agent, jmx_username, jmx_password))
 
   override def get: Array[ServiceResource] = services.map(new ServiceResource(_))
 
