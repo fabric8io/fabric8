@@ -49,7 +49,7 @@
         </jaas:module>
     </jaas:config>
 
-    <!-- The Backing Engine Factory Service for the PropertiesLoginModule -->
+    <!-- The Backing Engine Factory Service for the ZookeeperLoginModule -->
     <service interface="org.apache.karaf.jaas.modules.BackingEngineFactory">
         <bean class="org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory"/>
     </service>

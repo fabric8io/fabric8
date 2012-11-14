@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Arguments for creating a new container via JClouds
  */
-public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> {
+public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> implements CreateRemoteContainerOptions {
     private static final long serialVersionUID = 4489740280396972109L;
 
     private String osFamily;
@@ -46,6 +46,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private Integer servicePort = 0;
     private String publicKeyFile;
     private transient Object computeService;
+    private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
@@ -183,6 +184,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public CreateJCloudsContainerOptions publicKeyFile(final String publicKeyFile) {
         this.publicKeyFile = publicKeyFile;
+        return this;
+    }
+
+    public CreateJCloudsContainerOptions createEnsembleOptions(final CreateEnsembleOptions createEnsembleOptions) {
+        this.createEnsembleOptions = createEnsembleOptions;
         return this;
     }
 
@@ -346,5 +352,13 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
      */
     public void setComputeService(Object computeService) {
         this.computeService = computeService;
+    }
+
+    public CreateEnsembleOptions getCreateEnsembleOptions() {
+        return createEnsembleOptions;
+    }
+
+    public void setCreateEnsembleOptions(CreateEnsembleOptions createEnsembleOptions) {
+        this.createEnsembleOptions = createEnsembleOptions;
     }
 }

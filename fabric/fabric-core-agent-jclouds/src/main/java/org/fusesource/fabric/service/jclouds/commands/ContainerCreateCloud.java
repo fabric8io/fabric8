@@ -81,6 +81,13 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
     private int maximumPort = PortUtils.MAX_PORT_NUMBER;
 
+    @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUser;
+    @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserPassword;
+    @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
+    private String newUserRole = "admin";
+
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
@@ -90,6 +97,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     protected Object doExecute() throws Exception {
         // validate input before creating containers
         preCreateContainer(name);
+
+        CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
 
         CreateContainerOptions args = CreateContainerOptionsBuilder.jclouds()
         .name(name)
@@ -117,7 +126,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
-        .creationStateListener(new PrintStreamCreationStateListener(System.out));
+        .creationStateListener(new PrintStreamCreationStateListener(System.out))
+        .createEnsembleOptions(ensembleOptions);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
         // display containers

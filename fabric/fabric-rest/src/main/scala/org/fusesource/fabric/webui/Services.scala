@@ -144,7 +144,7 @@ object Services {
   def realm = _realm
 
   case class AgentTemplateHolder(agent: Container) {
-    lazy val template = new ContainerTemplate(agent, true, principal.username, principal.password)
+    lazy val template = new ContainerTemplate(agent, principal.username, principal.password, true)
   }
 
   val jmx_template = new ConcurrentHashMap[String, AgentTemplateHolder]()

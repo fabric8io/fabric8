@@ -29,7 +29,7 @@ public class EnsembleList extends EnsembleCommandSupport {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         PrintStream out = System.out;
-        List<String> containers = service.getClusterContainers();
+        List<String> containers = service.getEnsembleContainers();
         if (containers != null) {
             out.println("[id]");
             for (String container : containers) {

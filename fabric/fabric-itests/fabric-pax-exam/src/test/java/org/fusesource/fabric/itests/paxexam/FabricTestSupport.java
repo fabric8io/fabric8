@@ -75,7 +75,7 @@ public class FabricTestSupport extends FuseTestSupport {
         assertNotNull(parentContainer);
 
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).jvmOpts("-Xms1024m -Xmx1024m");
+        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).jvmOpts("-Xms1024m -Xmx1024m").zookeeperPassword(fabricService.getZookeeperPassword());
         CreateContainerMetadata[] metadata = fabricService.createContainers(args);
         if (metadata.length > 0) {
             if (metadata[0].getFailure() != null) {

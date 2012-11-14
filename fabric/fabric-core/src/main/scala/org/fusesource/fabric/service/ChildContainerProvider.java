@@ -55,7 +55,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         final Set<CreateContainerChildMetadata> result = new LinkedHashSet<CreateContainerChildMetadata>();
         final String parentName = options.getParent();
         final Container parent = service.getContainer(parentName);
-        ContainerTemplate containerTemplate = service.getContainerTemplate(parent);
+        ContainerTemplate containerTemplate = service.getContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword());
 
         //Retrieve the credentials from the URI if available.
         if (options.getProviderURI() != null && options.getProviderURI().getUserInfo() != null) {
@@ -188,7 +188,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     }
 
     protected ContainerTemplate getContainerTemplate(Container container) {
-        return new ContainerTemplate(container, false, service.getUserName(), service.getPassword());
+        CreateContainerChildOptions options = (CreateContainerChildOptions) container.getMetadata().getCreateOptions();
+        return new ContainerTemplate(container, options.getJmxUser(), options.getJmxPassword(), false);
     }
 
     /**

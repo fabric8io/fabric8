@@ -19,9 +19,36 @@ package org.fusesource.fabric.api;
 
 public class CreateContainerChildOptions extends CreateContainerBasicOptions<CreateContainerChildOptions> {
 
+    private String jmxUser;
+    private String jmxPassword;
+
     public CreateContainerChildOptions() {
         this.providerType = "child";
     }
 
+    public CreateContainerChildOptions jmxUser(final String jmxUser) {
+        this.setJmxUser(jmxUser);
+        return this;
+    }
 
+    public CreateContainerChildOptions jmxPassword(final String jmxPassword) {
+        this.setJmxPassword(jmxPassword);
+        return this;
+    }
+
+    public String getJmxUser() {
+        return jmxUser;
+    }
+
+    public void setJmxUser(String jmxUser) {
+        this.jmxUser = jmxUser;
+    }
+
+    public String getJmxPassword() {
+        return jmxPassword;
+    }
+
+    public void setJmxPassword(String jmxPassword) {
+        this.jmxPassword = jmxPassword;
+    }
 }

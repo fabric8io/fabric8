@@ -42,6 +42,7 @@
             org.fusesource.fabric.commands*,
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.utils,
+            org.fusesource.fabric.utils.shell
         </fuse.osgi.private.pkg>
     </properties>
 

@@ -36,10 +36,15 @@ import org.osgi.jmx.framework.ServiceStateMBean;
 public class ContainerTemplate {
     private final Container container;
     private final JmxTemplateSupport jmxTemplate;
-    protected String login = "admin";
-    protected String password = "admin";
+    protected String login;
+    protected String password;
 
-    public ContainerTemplate(Container container, boolean cacheJmx) {
+    private ContainerTemplate(Container container, JmxTemplateSupport jmxTemplate) {
+        this.jmxTemplate = jmxTemplate;
+        this.container = container;
+    }
+
+    private ContainerTemplate(Container container, boolean cacheJmx) {
         this.container = container;
         if (cacheJmx) {
             this.jmxTemplate = new ContainerCachingJmxTemplate(this);
@@ -53,16 +58,12 @@ public class ContainerTemplate {
         }
     }
 
-    public ContainerTemplate(Container container, boolean cacheJmx, String login, String password) {
+    public ContainerTemplate(Container container, String login, String password, boolean cacheJmx) {
         this(container, cacheJmx);
         this.login = login;
         this.password = password;
     }
 
-    public ContainerTemplate(Container container, JmxTemplateSupport jmxTemplate) {
-        this.jmxTemplate = jmxTemplate;
-        this.container = container;
-    }
 
     public interface AdminServiceCallback<T> {
 

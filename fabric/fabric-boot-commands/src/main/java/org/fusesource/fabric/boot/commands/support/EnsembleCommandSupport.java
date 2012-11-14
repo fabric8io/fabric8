@@ -16,8 +16,10 @@
  */
 package org.fusesource.fabric.boot.commands.support;
 
+import java.io.IOException;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.ServiceReference;
 
@@ -39,6 +41,42 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
         if (sr == null) {
             throw new IllegalStateException("No Fabric available, please create one using fabric:create or fabric:join.");
         }
+    }
+
+    /**
+     * Prompts the user for username and/or password.
+     * @param user      The default username.
+     * @param password  The default password.
+     * @return          An String array with username at index 0 and password at index 1.
+     * @throws IOException
+     */
+    protected String[] promptForNewUser(String user, String password) throws IOException {
+        String[] response = new String[2];
+        // If the username was not configured via cli, then prompt the user for the values
+        if (user == null) {
+            user = ShellUtils.readLine(session, "New user name: ", false);
+        }
+        System.out.println();
+
+
+        if (password == null) {
+            String password1 = null;
+            String password2 = null;
+            while (password1 == null || !password1.equals(password2)) {
+                password1 = ShellUtils.readLine(session, "Password for "+user+": ", true);
+                System.out.println();
+                password2 = ShellUtils.readLine(session, "Verify password for "+user+":", true);
+                System.out.println();
+                if (password1 != null && password1.equals(password2)) {
+                    password = password1;
+                }  else {
+                    System.out.println("Passwords did not match. Please try again!");
+                }
+            }
+        }
+        response[0] = user;
+        response[1] = password;
+        return response;
     }
 
 }
