@@ -54,10 +54,9 @@
                             &#124;
                             <a href="<c:url value='/send.jsp'/>"
                                title="Send">Send</a>
-                        </div>
-                        <div id="site-quicklinks"><P>
+                            &#124;                               
                             <a href="http://fusesource.com/products/enterprise-activemq/"
-                               title="Get help and support using FuseMQ">Support</a></p>
+                               title="Get help and support using FuseMQ">Support</a>                               
                         </div>
                     </div>
 
