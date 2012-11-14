@@ -30,6 +30,7 @@
                 <artifactId>jetty-maven-plugin</artifactId>
                 <version>${jetty-version}</version>
                 <configuration>
+                    <webAppXml>src/test/resources/jetty.xml</webAppXml>
                     <connectors>
                         <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
                             <port>8080</port>
