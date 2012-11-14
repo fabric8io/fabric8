@@ -428,6 +428,8 @@ define [
 
 
   class ProfileAttributes extends FON.TemplateController
+    attr:
+      "style": "padding-top: 9px;"
     template: jade["profiles_page/detail_page/profile_attributes.jade"]
     template_data: -> @model.toJSON()
 
