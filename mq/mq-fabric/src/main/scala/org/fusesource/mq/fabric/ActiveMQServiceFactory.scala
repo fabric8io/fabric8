@@ -97,7 +97,7 @@ object ActiveMQServiceFactory {
           broker.addNetworkConnector(nc)
         }
       }
-      (ctx, broker)
+      (ctx, broker, resource)
     } finally {
       CONFIG_PROPERTIES.remove()
     }
@@ -200,9 +200,11 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     @volatile
     var start_thread:Thread = _
     @volatile
-    var server:(ResourceXmlApplicationContext, BrokerService) = _
+    var server:(ResourceXmlApplicationContext, BrokerService, Resource) = _
 
     var cfServiceRegistration:ServiceRegistration[_] = null
+
+    var last_modified:Long = -1
 
 
     def ensure_broker_name_is_set = {
@@ -280,7 +282,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     def start = {
       // Startup async so that we do not block the ZK event thread.
       def trystartup:Unit = {
-        start_thread = new Thread("Startup for ActiveMQ Broker: "+name) {
+        start_thread = new Thread("Startup for ActiveMQ Broker: " + name) {
 
           def configure_ports(service: BrokerService, properties: Properties) = {
             service.getTransportConnectors.foreach {
@@ -329,6 +331,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
                 trystartup
               } else {
                 start_thread = null
+                last_modified = server._3.lastModified()
               }
             }
           }
@@ -388,6 +391,32 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   ////////////////////////////////////////////////////////////////////////////
   val configurations = new HashMap[String, ClusteredConfiguration]
 
+  class ConfigThread extends Thread {
+
+    var running = true
+
+    override def run() {
+      while (running) {
+        configurations.values.foreach(c => {
+          if (c.server._3.lastModified() != c.last_modified) {
+            c.last_modified = c.server._3.lastModified()
+            info("updating " + c.properties)
+            updated(c.properties.get("service.pid").asInstanceOf[String], c.properties.asInstanceOf[Dictionary[java.lang.String, _]])
+          }
+        })
+        try {
+          Thread.sleep(5 * 1000)
+        } catch {
+          case e : InterruptedException => {}
+        }
+      }
+    }
+  }
+
+  val config_thread = new ConfigThread()
+  config_thread.setName("ActiveMQ Configuration Watcher")
+  config_thread.start()
+
   def updated(pid: String, properties: Dictionary[java.lang.String, _]): Unit = this.synchronized {
     try {
       deleted(pid)
@@ -402,6 +431,8 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
 
   def destroy: Unit = this.synchronized {
     configurations.keys.toArray.foreach(deleted(_))
+    config_thread.running = false
+    config_thread.interrupt()
   }
 
   def getName: String = {
