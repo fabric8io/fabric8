@@ -25,6 +25,8 @@ import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
@@ -60,8 +62,16 @@ public class MQDistroTest extends FuseTestSupport {
         // send message via webconsole, consume from jms openwire
         HttpClient client = new HttpClient();
 
+        // set credentials
+        client.getState().setCredentials(
+                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
+                new UsernamePasswordCredentials("fusemq", "fusemq")
+         );
+
         // need to first get the secret
         GetMethod get = new GetMethod(WEB_CONSOLE_URL + "send.jsp");
+        get.setDoAuthentication(true);
+
         // Give console some time to start
         for (int i=0; i<20; i++) {
             Thread.currentThread().sleep(1000);
@@ -80,6 +90,7 @@ public class MQDistroTest extends FuseTestSupport {
         final String content = "Hi for the " + Math.random() + "' time";
 
         PostMethod post = new PostMethod(WEB_CONSOLE_URL + "sendMessage.action");
+        post.setDoAuthentication(true);
         post.addParameter("secret", secret);
 
         post.addParameter("JMSText", content);
@@ -90,7 +101,7 @@ public class MQDistroTest extends FuseTestSupport {
         assertEquals("post succeeded, " + post, 302, client.executeMethod(post));
 
         // consume what we sent
-        ActiveMQConnection connection = (ActiveMQConnection) new ActiveMQConnectionFactory().createConnection();
+        ActiveMQConnection connection = (ActiveMQConnection) new ActiveMQConnectionFactory().createConnection("fusemq", "fusemq");
         connection.start();
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -104,7 +115,7 @@ public class MQDistroTest extends FuseTestSupport {
         // verify osgi registration of cf
         ConnectionFactory connectionFactory = getOsgiService(ConnectionFactory.class);
         assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
-        ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection();
+        ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection("fusemq", "fusemq");
         connectionFromOsgiFactory.start();
         try {
             assertEquals("same broker", connection.getBrokerName(), connectionFromOsgiFactory.getBrokerName());
@@ -129,6 +140,7 @@ public class MQDistroTest extends FuseTestSupport {
                         .karafVersion("2.2.2").name("Fabric MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                 mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 useOwnExamBundlesStartLevel(50),
+                editConfigurationFilePut("etc/users.properties", "fusemq", "fusemq,admin"),
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50")});
     }
 
