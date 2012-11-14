@@ -1029,6 +1029,10 @@ ul.type-select li {
   margin-bottom: 1em;
 }
 
+div.nav_buttons ul li div ul {
+    margin-top: -1px;
+}
+
 ul.controls {
   list-style: none;
   height: 18px;
@@ -1383,6 +1387,17 @@ https://github.com/ghinda/css-toggle-switch
     }
 }
 
+div.versions ul li div ul.controls li {
+    display: block;
+    padding: 0px;
+    margin: 0px;
+}
+
+div.versions ul li div ul li a.indicator {
+    padding-left: 0px;
+    margin-right: 25px;
+}
+
 /* TODO - rename these classes */
 
 .indicator span {
@@ -1392,10 +1407,15 @@ https://github.com/ghinda/css-toggle-switch
     border-radius: 4px;
     clear: both;
     position: absolute;
-    bottombottom: 0;
     left: 42%;
     margin-top: -5px;
 
+}
+
+a.indicator span {
+    position: relative;
+    margin-top: -12px;
+    margin-right: -7px;
 }
 
 span.red-dot\.png {

@@ -15,12 +15,14 @@
  permissions and limitations under the License.
 
 - ###
-td #{id}
+- if ensemble_server
+  td
+    strong #{id}
+- else
+  td #{id}
 td.indicator
   span(class="#{alive_indicator}" title="#{alive_status}")
-  - #img.indicator(src="img/#{alive_indicator}" title="#{alive_status}")
 td.indicator
   span#provision(class="#{provision_indicator}" title="#{provision_status}")
-  - #img(src="img/#{provision_indicator}" title="#{provision_status}")
 td.center
   #{version}

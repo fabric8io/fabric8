@@ -15,17 +15,20 @@
  permissions and limitations under the License.
 
 - ###
+.block.left
+  ul.controls
+    li(style="margin-left: -10px;")
+      - if _default
+        a.indicator.null(href="#")
+          span(class="green-dot.png" title="Default Version")
+      - else
+        a.indicator.default(href="#")
+          span(class="gray-dot.png" title="Set As Default")
+
 strong #{id}
 
 .block.right
   ul.controls
-    li
-      - if _default
-        a.null(href="#")
-          img(src="img/green-dot.png" title="Default Version")
-      - else
-        a.default(href="#")
-          img(src="img/gray-dot.png" title="Set As Default")
     li
       - if agents.length > 0
           img(class="valigner")
