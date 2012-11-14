@@ -443,7 +443,7 @@ table tbody tr.selected:first-child td {
 }
 #header {
     background-image: url("../img/header.png");
-    padding: 20px 20px 6px 20px;
+    padding: 20px 20px 8px 20px;
     border-bottom: 1px solid #000000;
     box-shadow: 0 3px 0 0 #4E9FDD;
     position: relative;
@@ -880,19 +880,13 @@ span.error {
 }
 
 .tabs li.active a {
-	color: black;
 	border: 1px solid #ddd;
-	border-bottom: 1px solid #4E9FDD;
 	cursor: default;
-
-  -webkit-border-radius: 4px 4px 0 0;
-  -moz-border-radius: 4px 4px 0 0;
-  border-radius: 4px 4px 0 0;
-
-  background-color: #4E9FDD;
-
+    -webkit-border-radius: 4px 4px 0 0;
+    -moz-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+    background-color: #4E9FDD;
     color: white;
-
     position: relative;
     bottom: 10%;
     height: 110%;
@@ -901,20 +895,13 @@ span.error {
 
 
 .tabs li.active a:hover {
-	color: black;
-
-  -webkit-border-radius: 4px 4px 0 0;
-  -moz-border-radius: 4px 4px 0 0;
-  border-radius: 4px 4px 0 0;
-
-  background-color: #4E9FDD;
-
+    -webkit-border-radius: 4px 4px 0 0;
+    -moz-border-radius: 4px 4px 0 0;
+    border-radius: 4px 4px 0 0;
+    background-color: #4E9FDD;
     color: white;
-
     border: 1px solid #ddd;
-	border-bottom: 1px solid #4E9FDD;
 	cursor: default;
-
 }
 
 .tabs li a {
@@ -925,7 +912,6 @@ span.error {
 	cursor: pointer;
 	display: inline-block;
 	background-color: #e6e6e6;
-
 	color: black;
 	font-size: 13px;
 	line-height: normal;
@@ -961,6 +947,7 @@ span.error {
 	margin-left: 4px;
 	margin-right: 4px;
 	min-width: 400px;
+    vertical-align: top;
 }
 
 input, textarea, select {
@@ -1417,6 +1404,8 @@ a.indicator span {
     margin-top: -12px;
     margin-right: -7px;
 }
+
+:root a.indicator span { margin-top: 4px \0; }
 
 span.red-dot\.png {
     background-color: rgb(226,0,0);
