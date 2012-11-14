@@ -95,7 +95,7 @@
         <fmc-port>8107</fmc-port>
 
         <fabric.version>${project.version}</fabric.version>
-        <perfectus-build>025</perfectus-build>
+        <perfectus-build>028</perfectus-build>
         <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
         <jmdns-version>3.4.1</jmdns-version>
         <antlr-version>3.3</antlr-version>
