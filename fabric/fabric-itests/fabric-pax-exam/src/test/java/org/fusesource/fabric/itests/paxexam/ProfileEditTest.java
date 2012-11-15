@@ -40,6 +40,7 @@ public class ProfileEditTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
         System.err.println(executeCommand("fabric:create -n"));
+        waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key=value default"));
 
         //Check that my.pid has been added to the default profile        
@@ -108,6 +109,7 @@ public class ProfileEditTest extends FabricTestSupport {
         assertNotNull(fabricService);
         System.err.println(executeCommands("config:edit my.pid","config:propset key1 value1","config:propset key2 value2", "config:update"));        
         System.err.println(executeCommand("fabric:create -n"));
+        waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid --import-pid default"));
 
         Thread.sleep(DEFAULT_WAIT);

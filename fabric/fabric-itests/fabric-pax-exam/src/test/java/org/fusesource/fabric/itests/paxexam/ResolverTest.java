@@ -134,7 +134,7 @@ public class ResolverTest extends FabricTestSupport {
             Assert.assertEquals("manualip", getFabricService().getCurrentContainer().getResolver());
 
             //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
-            getOsgiService(BlueprintContainer.class, "(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+            waitForFabricCommands();
             System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
             Assert.assertEquals("localip", ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.CONTAINER_RESOLVER.getPath("child1")));
 

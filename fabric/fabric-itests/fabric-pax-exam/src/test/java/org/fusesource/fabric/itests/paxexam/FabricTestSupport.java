@@ -44,6 +44,8 @@ import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+import org.osgi.service.blueprint.container.BlueprintContainer;
+
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -75,7 +77,7 @@ public class FabricTestSupport extends FuseTestSupport {
         assertNotNull(parentContainer);
 
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).jvmOpts("-Xms1024m -Xmx1024m").zookeeperPassword(fabricService.getZookeeperPassword());
+        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).jvmOpts("-Xms1024m -Xmx1024m").zookeeperPassword(fabricService.getZookeeperPassword()).jmxUser("admin").jmxPassword("admin");
         CreateContainerMetadata[] metadata = fabricService.createContainers(args);
         if (metadata.length > 0) {
             if (metadata[0].getFailure() != null) {
@@ -208,6 +210,9 @@ public class FabricTestSupport extends FuseTestSupport {
         return fabricService;
     }
 
+    protected void waitForFabricCommands() {
+        getOsgiService(BlueprintContainer.class,"(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+    }
 
 
     /**
@@ -233,6 +238,7 @@ public class FabricTestSupport extends FuseTestSupport {
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                     useOwnExamBundlesStartLevel(50),
                     editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                    editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                     mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing","pax-exam-karaf")),
                     logLevel(LogLevelOption.LogLevel.ERROR),
                     keepRuntimeFolder()

@@ -36,7 +36,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-edit --i org.apache.karaf.shell default"));
         System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 default"));
         Thread.sleep(DEFAULT_TIMEOUT);
-        System.err.println(executeCommand("fabric:container-connet child1 config:proplist --pid org.apache.karaf.shell"));
+        System.err.println(executeCommand("fabric:container-connect child1 config:proplist --pid org.apache.karaf.shell"));
         String sshUrl = child1.getSshUrl();
         Assert.assertTrue(sshUrl.endsWith("8105"));
     }
