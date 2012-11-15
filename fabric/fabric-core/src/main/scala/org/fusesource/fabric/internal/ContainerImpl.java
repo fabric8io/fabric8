@@ -36,6 +36,7 @@ import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.utils.Base64Encoder;
+import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
@@ -596,13 +597,23 @@ public class ContainerImpl implements Container {
             }
             return metadata;
         } catch (Exception e) {
-            logger.warn("Error while retrieving services. This exception will be ignored.", e);
+            logger.warn("Error while retrieving metadata. This exception will be ignored.", e);
             return null;
         }
     }
 
     public void setMetadata(CreateContainerMetadata<?> metadata) {
         this.metadata = metadata;
+        try {
+            //We need to check if zookeeper is available.
+            if (service.getZooKeeper().isConnected()) {
+                byte[] metadataBytes = ObjectUtils.toBytes(metadata);
+                byte[] encoded = Base64Encoder.encode(metadataBytes);
+                ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_METADATA.getPath(id), new String(encoded));
+            }
+        } catch (Exception e) {
+            logger.warn("Error while storing metadata. This exception will be ignored.", e);
+        }
     }
 
     /**

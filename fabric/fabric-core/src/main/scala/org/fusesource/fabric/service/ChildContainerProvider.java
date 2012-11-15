@@ -151,7 +151,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     @Override
     public void start(final Container container) {
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+        getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.startInstance(container.getId(), null);
                 return null;
@@ -161,7 +161,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     @Override
     public void stop(final Container container) {
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+        getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 adminService.stopInstance(container.getId());
                 return null;
@@ -171,7 +171,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     @Override
     public void destroy(final Container container) {
-        getContainerTemplate(container.getParent()).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
+        getContainerTemplateForChild(container).execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 try {
                     adminService.stopInstance(container.getId());
@@ -187,9 +187,14 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         });
     }
 
-    protected ContainerTemplate getContainerTemplate(Container container) {
+    /**
+     * Returns the {@link ContainerTemplate} of the parent of the specified child {@link Container}.
+     * @param container
+     * @return
+     */
+    protected ContainerTemplate getContainerTemplateForChild(Container container) {
         CreateContainerChildOptions options = (CreateContainerChildOptions) container.getMetadata().getCreateOptions();
-        return new ContainerTemplate(container, options.getJmxUser(), options.getJmxPassword(), false);
+        return new ContainerTemplate(container.getParent(), options.getJmxUser(), options.getJmxPassword(), false);
     }
 
     /**
