@@ -60,7 +60,7 @@
                         </div>
                     </div>
 
-                    <table border="0">
+                    <table border="0" width="100%">
                         <tbody>
                             <tr>
                                 <td valign="top" width="100%" style="overflow:hidden;">
