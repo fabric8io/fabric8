@@ -292,7 +292,7 @@
                     </execution>
                    </executions>
                </plugin>
-            <plugin>
+                <plugin>
                  <groupId>org.fusesource.mvnplugins</groupId>
                  <artifactId>maven-notices-plugin</artifactId>
                  <version>1.26</version>
@@ -379,17 +379,23 @@
                                    <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/fusemq"/>
                                    <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/fusemq"/>
                                    <echo message="Updating etc/system.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties"
-                                           append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="target/classes/etc/system-mq.properties" />
                                    </concat>
                                    <echo file="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
                                    <echo message="Updating etc/system.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties"
-                                           append="true" eol="unix">
+                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="target/classes/etc/system-mq.properties" />
                                    </concat>
                                    <echo file="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
+                                   <echo message="Updating etc/config.properties in unix assembly" />
+                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/config.properties" append="true" eol="unix">
+                                       <fileset file="target/classes/etc/config-mq.properties" />
+                                   </concat>
+                                   <echo message="Updating etc/config.properties in windows assembly" />
+                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/config.properties" append="true" eol="unix">
+                                       <fileset file="target/classes/etc/config-mq.properties" />
+                                   </concat>
                                </target>
                            </configuration>
                        </execution>

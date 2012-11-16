@@ -250,15 +250,6 @@
             <fileset file="src/main/append-resources/etc/config.properties" />
           </concat>
 
-          <echo message="Updating etc/custom.properties in unix assembly" />
-          <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/custom.properties" append="true" eol="unix">
-            <fileset file="src/main/append-resources/etc/custom.properties" />
-          </concat>
-          <echo message="Updating etc/custom.properties in windows assembly" />
-          <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/custom.properties" append="true" eol="dos">
-            <fileset file="src/main/append-resources/etc/custom.properties" />
-          </concat>
-
           <echo message="Updating etc/system.properties in unix assembly" />
           <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties" append="true" eol="unix">
            <fileset file="src/main/append-resources/etc/system.properties" />
