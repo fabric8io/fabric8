@@ -1,18 +1,5 @@
 == Fuse Management Console ${project.version} ==
 
-===================================================
-                   IMPORTANT!
-===================================================
-Before using the Fuse Management Console you must edit:
-
-etc/fmc-users.properties
-
-to create a user account.
-
-Otherwise you will be unable to log into the management
-console.
-===================================================
-
 To start the Fuse Management Console (FMC) run the following
 command in a terminal:
 
