@@ -138,7 +138,7 @@
         <guava.osgi.version.clean>13.0.0</guava.osgi.version.clean>
         <hadoop-version>1.0.3</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
-        <hawtdispatch-version>1.9</hawtdispatch-version>
+        <hawtdispatch-version>1.12</hawtdispatch-version>
         <jackson-version>1.9.10</jackson-version>
         <jasypt-version>1.9.0</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
