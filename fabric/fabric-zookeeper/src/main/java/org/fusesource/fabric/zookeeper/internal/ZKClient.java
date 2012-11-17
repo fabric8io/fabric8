@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.zookeeper.internal;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.zookeeper.Watcher;
@@ -43,7 +44,7 @@ public class ZKClient extends AbstractZKClient {
     }
 
     @Override
-    protected void doStart() throws InvalidSyntaxException, ConfigurationException {
+    protected void doStart() throws InvalidSyntaxException, ConfigurationException, UnsupportedEncodingException {
         connect();
     }
 

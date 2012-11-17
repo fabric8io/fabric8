@@ -80,7 +80,7 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
         this.password = password;
     }
 
-    protected abstract void doStart() throws InvalidSyntaxException, ConfigurationException;
+    protected abstract void doStart() throws InvalidSyntaxException, ConfigurationException, UnsupportedEncodingException;
 
     @Override
     public void close() {
@@ -188,12 +188,12 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
         }
     }
 
-    public void connect() {
+    public void connect() throws UnsupportedEncodingException {
         synchronized (_lock) {
             changeState(State.CONNECTING);
             _zk = _factory.createZooKeeper(this);
             if (password != null) {
-                _zk.addAuthInfo("digest", ("fabric:" + password).getBytes());
+                _zk.addAuthInfo("digest", ("fabric:" + password).getBytes("UTF-8"));
             }
         }
     }
