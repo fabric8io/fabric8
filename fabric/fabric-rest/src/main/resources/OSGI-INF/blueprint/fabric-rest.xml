@@ -36,7 +36,7 @@
       <cm:property name="managed" value="false"/>
       <cm:property name="tempDirectoryPath" value=""/>
       <cm:property name="patchDirectoryName" value="patches"/>
-      <cm:property name="realm" value="fmc"/>
+      <cm:property name="realm" value="karaf"/>
     </cm:default-properties>
   </cm:property-placeholder>
 
