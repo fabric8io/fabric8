@@ -23,12 +23,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -61,11 +56,13 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
      */
     private static final String Ix4 = "    ";
 
+    private final MavenRepositoryURL cache;
     private final MavenRepositoryURL system;
     private final MavenConfiguration configuration;
 
-    public MavenDownloadTask(String url, MavenRepositoryURL system, MavenConfiguration configuration, ExecutorService executor) {
+    public MavenDownloadTask(String url, MavenRepositoryURL cache, MavenRepositoryURL system, MavenConfiguration configuration, ExecutorService executor) {
         super(url, executor);
+        this.cache = cache;
         this.system = system;
         this.configuration = configuration;
     }
@@ -74,9 +71,8 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
         Parser parser = new Parser(url.substring("mvn:".length()));
         Set<DownloadableArtifact> downloadables;
         if (!parser.getVersion().contains("SNAPSHOT")) {
-            downloadables = doCollectPossibleDownloads(parser, Collections.singletonList(system));
-            if (!downloadables.isEmpty()) {
-                DownloadableArtifact artifact = downloadables.iterator().next();
+            downloadables = doCollectPossibleDownloads(parser, Arrays.asList(cache, system, configuration.getLocalRepository()));
+            for (DownloadableArtifact artifact : downloadables) {
                 URL url = artifact.getArtifactURL();
                 File file = new File(url.getFile());
                 if (file.exists()) {
@@ -95,7 +91,7 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             LOG.trace("Downloading [" + artifact + "]");
             try {
                 configuration.enableProxy(artifact.getArtifactURL());
-                String repository = system.getFile().getAbsolutePath();
+                String repository = cache.getFile().getAbsolutePath();
                 if (!repository.endsWith(Parser.FILE_SEPARATOR)) {
                     repository = repository + Parser.FILE_SEPARATOR;
                 }
@@ -139,9 +135,10 @@ public class MavenDownloadTask extends AbstractDownloadTask implements Runnable 
             throws MalformedURLException {
         final List<MavenRepositoryURL> repositories = new ArrayList<MavenRepositoryURL>();
         repositories.addAll(configuration.getRepositories());
+        repositories.add(configuration.getLocalRepository());
         repositories.add(system);
-        repositories.add(configuration.getLocalRepository());        
-        // if the url contains a prefered repository add that repository as the first repository to be searched
+        repositories.add(cache);
+        // if the url contains a preferred repository add that repository as the first repository to be searched
         if (parser.getRepositoryURL() != null) {
             repositories.add(
                     repositories.size() == 0 ? 0 : 1,

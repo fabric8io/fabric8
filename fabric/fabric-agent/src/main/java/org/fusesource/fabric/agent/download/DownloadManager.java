@@ -36,6 +36,8 @@ public class DownloadManager {
      */
     private final MavenConfiguration configuration;
 
+    private final MavenRepositoryURL cache;
+
     private final MavenRepositoryURL system;
 
     public DownloadManager(MavenConfiguration configuration) throws MalformedURLException {
@@ -45,8 +47,8 @@ public class DownloadManager {
     public DownloadManager(MavenConfiguration configuration, ExecutorService executor) throws MalformedURLException {
         this.configuration = configuration;
         this.executor = executor;
-        String systemRepo = "file://" + System.getProperty("karaf.data") + "/maven/agent" + "@snapshots";
-        system = new MavenRepositoryURL(systemRepo);
+        this.cache = new MavenRepositoryURL("file://" + System.getProperty("karaf.data") + "/maven/agent" + "@snapshots");
+        this.system = new MavenRepositoryURL("file://" + System.getProperty("karaf.home") + "/system" + "@snapshots");
     }
 
     public void shutdown() {
@@ -71,7 +73,7 @@ public class DownloadManager {
             mvnUrl = mvnUrl.substring(mvnUrl.indexOf(':') + 1);
         }
         if (mvnUrl.startsWith("mvn:")) {
-            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, system, configuration, executor);
+            MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
             executor.submit(task);
             if (!mvnUrl.equals(url)) {
                 final DummyDownloadTask download = new DummyDownloadTask(url, executor);

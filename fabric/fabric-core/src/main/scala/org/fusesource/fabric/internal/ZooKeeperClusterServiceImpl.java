@@ -253,6 +253,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             bundleFabricConfigAdmin.start();
             bundleFabricJaas.start();
             bundleFabricCommands.start();
+            bundleFabricMavenProxy.start();
 
             //Check if the agent is configured to auto start.
             if (!System.getProperties().containsKey(AGENT_AUTOSTART) || Boolean.parseBoolean(System.getProperty(AGENT_AUTOSTART))) {
@@ -260,7 +261,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                         "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
                 bundleFabricAgent.start();
             }
-            bundleFabricMavenProxy.start();
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper server configuration", e);
         }
