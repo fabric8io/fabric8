@@ -110,7 +110,6 @@ define [
       @model.unbind()
 
     toggle_class: ->
-      console.error("hi!")
       @provision.toggleClass("yellow-dot.png")
       @provision.toggleClass("pending.gif")
 
