@@ -19,6 +19,6 @@ define [
 ], (app) ->
 
   class ComputeProvider extends FON.Model
-    urlRoot: "compute_providers"
+    urlRoot: "rest/compute_providers"
 
   ComputeProvider

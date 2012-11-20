@@ -15,12 +15,12 @@
 ###
 
 define [
-  "frameworks",
-], ->
+  "models/app",
+], (app) ->
 
   FON.Model.extend
     id: null
     roles: []
     password: null
-    urlRoot: "users"
+    urlRoot: "rest/users"
     roles: FON.nested_collection("roles")

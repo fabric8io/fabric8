@@ -183,10 +183,10 @@ define [
   app.router.route "/containers/details/:container/osgi/bundles/:id", "osgi", (container, id)->
     app.page new FON.LoadingPage
     model = new FON.Model
-    model.url = "agents/#{container}/extensions/osgi/bundles/#{id}"
+    model.url = "rest/agents/#{container}/extensions/osgi/bundles/#{id}"
 
     services = new FON.Collection
-    services.url = "agents/#{container}/extensions/osgi/services"
+    services.url = "rest/agents/#{container}/extensions/osgi/services"
 
     model.fetch
       success: (model, r) ->
@@ -200,7 +200,7 @@ define [
   app.router.route "/containers/details/:container/osgi/bundles", "osgi", (container)->
     app.page new FON.LoadingPage
     model = new FON.Collection
-    model.url = "agents/#{container}/extensions/osgi/bundles"
+    model.url = "rest/agents/#{container}/extensions/osgi/bundles"
     model.fetch
       success: (model, r) ->
         app.page new OsgiController

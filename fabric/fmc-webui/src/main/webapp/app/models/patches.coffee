@@ -19,7 +19,7 @@ define [
 ], (Patch) ->
 
   class Patches extends FON.Collection
-    url: "patches"
+    url: "rest/patches"
     model: Patch
 
   Patches

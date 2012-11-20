@@ -20,11 +20,11 @@ define [
       
   class Agents extends FON.Collection
     model: Agent
-    url: "agents"
+    url: "rest/agents"
 
     migrate_containers: (options) ->
       options = _.extend({
-        url: "rest/#{@url}/migrate"
+        url: "#{@url}/migrate"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

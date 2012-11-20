@@ -20,7 +20,7 @@ define [
 
   class ComputeProviders extends FON.Collection
     model: ComputeProvider
-    url: "compute_providers"
+    url: "rest/compute_providers"
     comparator: (model) ->
       model.get "name"
 

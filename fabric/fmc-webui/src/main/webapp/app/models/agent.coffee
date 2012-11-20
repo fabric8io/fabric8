@@ -20,7 +20,7 @@ define [
 
   class Agent extends FON.Model
 
-    urlRoot: "agents"
+    urlRoot: "rest/agents"
         
     profiles: FON.nested_collection("profiles")
     children: FON.nested_collection("children", Agent)
@@ -54,14 +54,14 @@ define [
 
     start: (options)-> 
       options = _.extend({
-        url: "rest/#{@url()}/start"
+        url: "#{@url()}/start"
         type: "POST"
       }, options) 
       $.ajax(options)
       
     stop: (options)-> 
       options = _.extend({
-        url: "rest/#{@url()}/stop"
+        url: "#{@url()}/stop"
         type: "POST"
       }, options) 
       $.ajax(options)

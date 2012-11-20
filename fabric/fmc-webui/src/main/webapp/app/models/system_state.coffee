@@ -19,11 +19,11 @@ define [
 ], ->
 
   class SystemState extends FON.Model
-    url: "system/status"
+    url: "rest/system/status"
 
     create_ensemble: (options) ->
       opts = 
-        url: "rest/#{@url}/create_ensemble"
+        url: "#{@url}/create_ensemble"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -33,7 +33,7 @@ define [
 
     join_ensemble: (options) ->
       opts =
-        url: "rest/#{@url}/join_ensemble"
+        url: "#{@url}/join_ensemble"
         timeout: 30000
         type: "POST"
         data: JSON.stringify(options)

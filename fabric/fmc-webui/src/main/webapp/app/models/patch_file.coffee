@@ -15,8 +15,8 @@
 ###
 
 define [
-  "frameworks"
-], ->
+  "models/app"
+], (app) ->
   
   class PatchFile extends FON.Model
 

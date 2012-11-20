@@ -97,7 +97,7 @@ define [
             on_close: -> window.location.reload()
 
       app.page new FON.LoadingPage
-      @model.url = "/upgrades"
+      @model.url = "rest/upgrades"
       @model.apply_upgrades data, options
       false
 
@@ -116,7 +116,7 @@ define [
       @version_select.change (event) =>
         @version = $(event.currentTarget).val()
         model = new Upgrades
-        model.url = "/upgrades/versions/#{@version}"
+        model.url = "rest/upgrades/versions/#{@version}"
         app.page new FON.LoadingPage
         model.fetch
           success: (model, resp) =>
@@ -146,7 +146,7 @@ define [
       success: (m, r) ->
         default_version = versions.default_version().id
         model = new Upgrades
-        model.url = "/upgrades/versions/#{default_version}"
+        model.url = "rest/upgrades/versions/#{default_version}"
         model.fetch
           success: (model, resp) ->
             app.page new UpgradePage

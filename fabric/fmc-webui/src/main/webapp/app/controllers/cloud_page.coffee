@@ -294,7 +294,7 @@ define [
 
     on_render: ->
       @nodes = new Nodes
-      @nodes.url = "compute_services/#{@model.id}/nodes"
+      @nodes.url = "rest/compute_services/#{@model.id}/nodes"
       @nodes.fetch
         success: (model, resp) =>
           instances = new FON.CollectionController

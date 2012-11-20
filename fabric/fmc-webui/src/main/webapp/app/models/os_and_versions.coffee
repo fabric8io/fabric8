@@ -16,9 +16,9 @@
 
 define [
   "frameworks",
-], -> 
+], ->
 
   class OSAndVersions extends FON.Model
-    url: "system/os_and_versions_map"
+    url: "rest/system/os_and_versions_map"
 
   OSAndVersions

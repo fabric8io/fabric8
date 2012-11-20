@@ -20,4 +20,4 @@ define [
 
   FON.Collection.extend
     model: User
-    url: "users"
+    url: "rest/users"

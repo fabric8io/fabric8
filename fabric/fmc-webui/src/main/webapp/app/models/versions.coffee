@@ -20,7 +20,7 @@ define [
 
   class Versions extends FON.Collection
     model: Version
-    url: "versions"
+    url: "rest/versions"
 
     default_version: ->
       for version in @models
@@ -30,7 +30,7 @@ define [
 
     create_version: (options) ->
       options = _.extend({
-        url: "rest/#{@url}"
+        url: "#{@url}"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -40,7 +40,7 @@ define [
 
     delete_versions: (options) ->
       options = _.extend({
-        url: "rest/#{@url}/delete"
+        url: "#{@url}/delete"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -50,7 +50,7 @@ define [
 
     change_default: (options) ->
       options = _.extend({
-        url: "rest/#{@url}/set_default"
+        url: "#{@url}/set_default"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

@@ -50,7 +50,7 @@ define [
       @form.submit =>
 
           $.ajax
-            url: "rest/system/login"
+            url: "/rest/system/login"
             dataType: "json"
             type: "POST"
             data:
@@ -89,7 +89,7 @@ define [
 
   app.router.route "/signout", "signout", ->
     $.ajax
-      url: "rest/system/logout.json"
+      url: "/rest/system/logout.json"
       dataType: "json"
       success: (data) ->
         app.menu []

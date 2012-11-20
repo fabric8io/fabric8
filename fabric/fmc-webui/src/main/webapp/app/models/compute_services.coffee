@@ -20,13 +20,13 @@ define [
 
   class ComputeServices extends FON.Collection
     model: ComputeService
-    url: "compute_services"
+    url: "rest/compute_services"
     comparator: (model) ->
       model.get "id"
 
     create_compute_service: (options) ->
       options = _.extend({
-        url: "rest/#{@url}"
+        url: "#{@url}"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

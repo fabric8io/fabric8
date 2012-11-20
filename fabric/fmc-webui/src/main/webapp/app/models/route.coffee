@@ -21,14 +21,14 @@ define [
   class Route extends FON.Model
     start: (options)-> 
       options = _.extend({
-        url: "rest/#{@url()}/start"
+        url: "#{@url()}/start"
         type: "POST"
       }, options) 
       $.ajax(options)
       
     stop: (options)-> 
       options = _.extend({
-        url: "rest/#{@url()}/stop"
+        url: "#{@url()}/stop"
         type: "POST"
       }, options) 
       $.ajax(options)

@@ -15,8 +15,7 @@
 ###
 
 define [
-  "models/entry",
-  "models/agents",
+  "models/entry"
 ], (Entry, Agent) ->
 
   class Profile extends FON.Model
@@ -36,7 +35,7 @@ define [
 
     set_parents: (options) ->
       options = _.extend({
-        url: "rest/#{@url}/parents"
+        url: "#{@url}/parents"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -46,7 +45,7 @@ define [
 
     set_attribute: (options) ->
       options = _.extend({
-      url: "rest/#{@url}/set_attribute"
+      url: "#{@url}/set_attribute"
       type: "POST"
       data: JSON.stringify(options)
       contentType: "application/json"

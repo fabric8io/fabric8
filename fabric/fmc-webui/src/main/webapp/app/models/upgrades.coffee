@@ -15,15 +15,15 @@
 ###
 
 define [
-  "frameworks"
-], ->
+  "models/app"
+], (app) ->
 
   class Upgrades extends FON.Model
-    url: "upgrades"
+    url: "rest/upgrades"
 
     apply_upgrades: (data, options) ->
       options = _.extend({
-        url: "rest/#{@url}"
+        url: "#{@url}"
         type: "POST"
         data: JSON.stringify data
         contentType: "application/json"

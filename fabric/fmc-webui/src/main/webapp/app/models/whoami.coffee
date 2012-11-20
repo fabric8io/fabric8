@@ -18,4 +18,4 @@ define [
   "frameworks"
 ], ->
   FON.Model.extend
-       url: "system/whoami"
+       url: "rest/system/whoami"

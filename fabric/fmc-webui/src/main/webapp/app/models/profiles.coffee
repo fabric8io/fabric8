@@ -20,4 +20,4 @@ define [
 
   class Profiles extends FON.Collection
     model: Profile
-    url: "profiles"
+    url: "rest/profiles"

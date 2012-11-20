@@ -20,7 +20,7 @@ define [
 ], (Profiles, Profile)->
 
   class Version extends FON.Model
-    urlRoot: "versions"
+    urlRoot: "rest/versions"
     id: null
     derived_from: null
     default: null
@@ -36,7 +36,7 @@ define [
 
     create_profile: (options) ->
       options = _.extend({
-        url: "rest/#{@url()}/profiles"
+        url: "#{@url()}/profiles"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"
@@ -46,7 +46,7 @@ define [
 
     delete_profiles: (options) ->
       options = _.extend({
-        url: "rest/#{@url()}/delete_profiles"
+        url: "#{@url()}/delete_profiles"
         type: "POST"
         data: JSON.stringify(options)
         contentType: "application/json"

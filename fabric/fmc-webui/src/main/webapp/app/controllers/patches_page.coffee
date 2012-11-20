@@ -131,8 +131,9 @@ define [
             elements:
               ".delete": "delete"
             on_render: (controller) ->
-              controller.delete.click (event) -> FON.confirm_delete(model.id, "patch", -> model.destroy()).render()
-              false
+              controller.delete.click (event) ->
+                FON.confirm_delete(model.id, "patch", -> model.destroy()).render()
+                false
 
       file_listing.render()
 

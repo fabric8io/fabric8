@@ -19,12 +19,12 @@ define [
 ], (PatchFile) ->
   
   class PatchFiles extends FON.Collection
-    url: "patches/files"
+    url: "rest/patches/files"
     model: PatchFile
 
     apply_patches: (data, options) ->
       options = _.extend({
-        url: "rest/#{@url}/go"
+        url: "#{@url}/go"
         type: "POST"
         data: JSON.stringify data
         contentType: "application/json"
