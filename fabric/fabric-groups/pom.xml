@@ -33,6 +33,12 @@
   <name>${project.artifactId}</name>
   <description>Fuse Fabric :: Cluster Groups API</description>
 
+  <properties>
+    <fuse.osgi.export>
+      org.fusesource.fabric.groups*;version=${project.version},
+    </fuse.osgi.export>
+  </properties>
+
   <dependencies>
     <dependency>
         <groupId>org.slf4j</groupId>
