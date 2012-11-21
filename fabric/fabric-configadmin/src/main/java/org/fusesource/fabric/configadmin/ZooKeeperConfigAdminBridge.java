@@ -197,7 +197,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                             return key;
                         }
                     } else {
-                        String value = key;
+                        String value = "";
                         BundleContext context = getBundleContext();
                         if (context != null) {
                             value = context.getProperty(key);
@@ -207,7 +207,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                         }
                         return value;
                     }
-                    return key;
+                    return "";
                 }
             });
         }

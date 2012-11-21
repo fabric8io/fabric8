@@ -34,6 +34,7 @@ public class ZKClientFactoryBean implements FactoryBean<IZKClient>, DisposableBe
     private static final transient Log LOG = LogFactory.getLog(ZKClientFactoryBean.class);
 
     private String connectString = "localhost:2181";
+    private String password;
     private String timeoutText = "30s";
     private Watcher watcher;
     private Timespan timeout;
@@ -84,12 +85,21 @@ public class ZKClientFactoryBean implements FactoryBean<IZKClient>, DisposableBe
         this.connectTimeout = connectTimeout;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     // FactoryBean interface
     //-------------------------------------------------------------------------
     public IZKClient getObject() throws Exception {
         LOG.debug("Connecting to ZooKeeper on " + connectString);
 
         zkClient = new ZKClient(connectString, getTimeout(), watcher);
+        zkClient.setPassword(password);
         zkClient.start();
         try {
             zkClient.waitForConnected(connectTimeout);

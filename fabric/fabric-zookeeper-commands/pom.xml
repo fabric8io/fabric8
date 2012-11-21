@@ -36,7 +36,8 @@
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.commands.support,
-            org.fusesource.fabric.boot.commands.support
+            org.fusesource.fabric.boot.commands.support,
+            org.fusesource.fabric.utils.shell
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.import>
             org.linkedin.zookeeper.client.IZKClient

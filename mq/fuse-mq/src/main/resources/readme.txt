@@ -3,15 +3,27 @@ Fuse MQ Enterprise
 
 Configuration
 -------------
-The default broker is defined in .${fileSeparator}etc${fileSeparator}org.fusesource.mq.fabric.server-default.cfg
-The xml configuration is .${fileSeparator}etc${fileSeparator}activemq.xml
+The default broker is defined in: 
+ .${fileSeparator}etc${fileSeparator}org.fusesource.mq.fabric.server-default.cfg
+The xml configuration is:
+ .${fileSeparator}etc${fileSeparator}activemq.xml
 
 Security
 --------
-Before starting Fuse MQ, you need to set at least one valid user in .${fileSeparator}etc${fileSeparator}users.properties
-You must also make sure that appropriate properties in .${fileSeparator}etc${fileSeparator}system.properties have valid values
+Before starting Fuse MQ, you need to provide at least one valid user in 
+ .${fileSeparator}etc${fileSeparator}users.properties
+which defines the users in the default karaf jaas security realm.
 
-These properies include:
+The simplest approach is to uncomment the default user 'fusemq' which has the admin privilege.
+
+Typically you will define your own users and passwords with appropriate privileges.
+
+The webconsole uses jmx and jms broker apis.
+You will need to update the approprtiate properties in
+ .${fileSeparator}etc${fileSeparator}system.properties
+to reflect the users you define in the default jaas realm.
+
+The relevant properies include:
 * activemq.jmx.user, activemq.jmx.password
 * webconsole.jmx.user, webconsole.jmx.password
 * webconsole.jms.user, webconsole.jms.password
