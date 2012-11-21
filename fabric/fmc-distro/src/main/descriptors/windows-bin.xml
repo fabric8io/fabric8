@@ -37,7 +37,6 @@
                 <exclude>lib/*-version.jar</exclude>
                 <exclude>fabric_dependencies.txt</exclude>
                 <exclude>fabric_notices.txt</exclude>
-                <exclude>fabric_license.txt</exclude>
                 <exclude>LICENSE</exclude>
                 <exclude>NOTICE</exclude>                
                 <exclude>README</exclude>
@@ -123,13 +122,6 @@
             <outputDirectory>/bin/</outputDirectory>
             <destName>fmc-client.bat</destName>
             <fileMode>0755</fileMode>
-            <lineEnding>windows</lineEnding>
-        </file>
-
-        <file>
-            <source>${basedir}/target/classes/fmc_license.txt</source>
-            <outputDirectory>.</outputDirectory>
-            <fileMode>0666</fileMode>
             <lineEnding>windows</lineEnding>
         </file>
 

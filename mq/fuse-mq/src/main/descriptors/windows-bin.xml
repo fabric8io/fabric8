@@ -38,7 +38,6 @@
                 <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>lib/*-version.jar</exclude>
-                <exclude>fabric_license.txt</exclude>
                 <exclude>fabric_notices.txt</exclude>
                 <exclude>fabric_dependencies.txt</exclude>
                 <exclude>LICENSE</exclude>
@@ -78,15 +77,6 @@
             <outputDirectory>system</outputDirectory>
         </fileSet>
 
-        <fileSet>
-            <directory>target/classes</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>mq_license.txt</include>
-            </includes>
-            <lineEnding>dos</lineEnding>
-            <fileMode>0644</fileMode>
-        </fileSet>
         <fileSet>
             <directory>target/classes</directory>
             <outputDirectory>/</outputDirectory>

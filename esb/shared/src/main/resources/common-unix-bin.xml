@@ -30,7 +30,6 @@
               <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
               <exclude>etc/users.properties</exclude>
               <exclude>system/**</exclude>
-              <exclude>fabric_license.txt</exclude>
               <exclude>fabric_notices.txt</exclude>
               <exclude>fabric_dependencies.txt</exclude>
               <exclude>readme.txt</exclude>
@@ -63,15 +62,6 @@
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>RELEASE*</include>
-            </includes>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0644</fileMode>
-        </fileSet>
-        <fileSet>
-            <directory>target/shared</directory>
-            <outputDirectory>/</outputDirectory>
-            <includes>
-                <include>esb_license.txt</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
@@ -132,13 +122,6 @@
             <lineEnding>unix</lineEnding>
         </file>
         -->
-        <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/fabric_license.txt</source>
-            <outputDirectory>/licenses/</outputDirectory>
-            <destName>fabric_license.txt</destName>
-            <fileMode>0644</fileMode>
-            <lineEnding>unix</lineEnding>
-        </file>
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>

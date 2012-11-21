@@ -83,7 +83,7 @@
             <directory>target/classes</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
-                <include>fabric_license.txt</include>
+                <include>license.txt</include>
             </includes>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>

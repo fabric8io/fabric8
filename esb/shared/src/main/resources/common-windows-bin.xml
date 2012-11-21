@@ -31,7 +31,6 @@
              <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
              <exclude>etc/users.properties</exclude>
              <exclude>system/**</exclude>
-             <exclude>fabric_license.txt</exclude>
              <exclude>fabric_notices.txt</exclude>
              <exclude>fabric_dependencies.txt</exclude>
              <exclude>LICENSE</exclude>
@@ -53,16 +52,7 @@
           <lineEnding>dos</lineEnding>
           <fileMode>0644</fileMode>
       </fileSet>
-       <fileSet>
-           <directory>target/shared</directory>
-           <outputDirectory>/</outputDirectory>
-           <includes>
-               <include>esb_license.txt</include>
-           </includes>
-           <lineEnding>dos</lineEnding>
-           <fileMode>0644</fileMode>
-       </fileSet>
-        <fileSet>
+      <fileSet>
             <directory>target/shared</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
