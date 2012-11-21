@@ -160,7 +160,7 @@ public class FabricServiceImpl implements FabricService {
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Throwable e) {
-                logger.warn("Failed to find parent " + name + ". This exception will be ignored.", e);
+                logger.debug("Failed to find parent " + name + ". This exception will be ignored.", e);
             }
         }
         return "";
