@@ -70,7 +70,7 @@
                                 <feature>activemq-spring</feature>
                                 <feature>mq-fabric</feature>
                                 <feature>camel</feature>
-                                <feature>camel-activemq</feature>
+                                <feature>activemq-camel</feature>
                                 <feature>camel-nmr</feature>
                                 <feature>camel-cxf</feature>
                                 <feature>camel-blueprint</feature>

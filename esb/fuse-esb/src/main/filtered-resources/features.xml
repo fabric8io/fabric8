@@ -48,11 +48,6 @@
         <bundle dependency="true">mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.saaj-api-1.3/${servicemix.specs.version}</bundle>
         <bundle>mvn:org.apache.servicemix.camel/org.apache.servicemix.camel.component/${servicemix.features.version}</bundle>
     </feature>
-    <feature name="camel-activemq" version="${servicemix.features.version}" resolver="(obr)" start-level='50'>
-        <feature version="${activemq.version}">activemq</feature>
-        <feature version="${camel.version}">camel-jms</feature>
-        <bundle>mvn:org.apache.activemq/activemq-camel/${activemq.version}</bundle>
-    </feature>
 
     <!--
       -

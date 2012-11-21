@@ -166,7 +166,7 @@
                                 <feature>activemq-blueprint</feature>
                                 <feature>activemq-spring</feature>
                                 <feature>camel</feature>
-                                <feature>camel-activemq</feature>
+                                <feature>activemq-camel</feature>
                                 <feature>camel-cxf</feature>
                                 <feature>camel-blueprint</feature>
                                 <feature>war</feature>

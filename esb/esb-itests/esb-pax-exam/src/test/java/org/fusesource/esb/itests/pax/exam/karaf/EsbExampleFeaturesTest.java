@@ -88,12 +88,6 @@ public class EsbExampleFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    public void testCamelActivemq() throws Exception {
-        installAndCheckFeature("camel-activemq");
-        unInstallAndCheckFeature("camel-activemq");
-    }
-
-    @Test
     public void testCxfWsAddressing() throws Exception {
         installAndCheckFeature("examples-cxf-ws-addressing");
         unInstallAndCheckFeature("examples-cxf-ws-addressing");

@@ -84,8 +84,8 @@ public class EsbFeaturesTest extends EsbTestSupport {
 	@Ignore // JIRA xxxx
     @Test
     public void testCamelActivemq() throws Exception {
-        installAndCheckFeature("camel-activemq");
-        unInstallAndCheckFeature("camel-activemq");
+        installAndCheckFeature("activmq-camel");
+        unInstallAndCheckFeature("activemq-camel");
     }
 
     @Test
