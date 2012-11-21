@@ -48,18 +48,6 @@
                 <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
-        <command name="fabric/ensemble-create">
-            <action class="org.fusesource.fabric.boot.commands.EnsembleCreate">
-                <property name="service" ref="zooKeeperClusterService"/>
-            </action>
-            <completers>
-                <ref component-id="containerCompleter"/>
-                <null/>
-            </completers>
-            <optional-completers>
-                <entry key="--resolver" value-ref="resolverCompleter"/>
-            </optional-completers>
-        </command>
         <command name="fabric/join">
             <action class="org.fusesource.fabric.boot.commands.Join">
                 <property name="zooKeeper" ref="zooKeeper"/>
