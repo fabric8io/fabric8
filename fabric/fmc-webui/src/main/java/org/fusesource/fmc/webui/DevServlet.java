@@ -73,6 +73,11 @@ public class DevServlet extends HttpServlet {
             LOG.debug("Serving resource: " + requested);
             in = classLoader.getResourceAsStream(requested);
         }
+        if (in == null) {
+            LOG.debug("Resource " + requested + " does not exist");
+            resp.sendError(HttpServletResponse.SC_NOT_FOUND);
+            return;
+        }
 
 
         type = getServletContext().getMimeType(requested);
