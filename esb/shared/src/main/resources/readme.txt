@@ -5,7 +5,7 @@ Security
 --------
 Before starting Fuse ESB Enterprise ${project.version}, you need to set at least one valid 
 user in ./etc/users.properties. You must also make sure that appropriate properties in 
-./etc/system.properties have valid values. These properies include:
+./etc/system.properties have valid values. These properties include:
 
 * activemq.jmx.user, activemq.jmx.password
 * webconsole.jmx.user, webconsole.jmx.password
