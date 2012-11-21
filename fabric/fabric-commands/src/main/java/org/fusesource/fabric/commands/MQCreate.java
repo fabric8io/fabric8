@@ -27,8 +27,10 @@ import org.fusesource.fabric.api.MQService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.service.MQServiceImpl;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,11 +57,20 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--version", description = "The version id in the registry")
     protected String version = ZkDefs.DEFAULT_VERSION;
 
-    @Option(name = "--create-container", multiValued = false, required = false, description = "Comma separated list of containers to create with mq profile")
+    @Option(name = "--create-container", multiValued = false, required = false, description = "Comma separated list of child containers to create with mq profile")
     protected String create;
 
     @Option(name = "--assign-container", multiValued = false, required = false, description = "Assign this mq profile to the following containers")
     protected String assign;
+
+    @Option(name = "--jmx-user", multiValued = false, required = false, description = "The jmx user name of the parent container.")
+    protected String jmxUser;
+
+    @Option(name = "--jmx-password", multiValued = false, required = false, description = "The jmx password of the parent container.")
+    protected String jmxPassword;
+
+    @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
+    protected String jvmOpts;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -111,6 +122,8 @@ public class MQCreate extends FabricCommand {
 
         // create new containers
         if (create != null) {
+            promptForJmxCredentialsIfNeeded();
+
             String[] createContainers = create.split(",");
             for (String url : createContainers) {
 
@@ -127,15 +140,24 @@ public class MQCreate extends FabricCommand {
                     url = "child://" + parent;
                 }
 
+                if (!type.equals("child")) {
+                    throw new Exception("mq-create command can only create child containers. " +
+                            "For any other kind, create your container first and then use --assign");
+                }
 
-                CreateContainerOptions args = CreateContainerOptionsBuilder.type(type)
+
+                CreateContainerOptions args = CreateContainerOptionsBuilder.child()
                         .name(name)
                         .parent(parent)
                         .number(1)
                         .ensembleServer(false)
                         .providerUri(url)
                         .proxyUri(fabricService.getMavenRepoURI())
-                        .zookeeperUrl(fabricService.getZookeeperUrl());
+                        .zookeeperUrl(fabricService.getZookeeperUrl())
+                        .zookeeperPassword(fabricService.getZookeeperPassword())
+                        .jvmOpts(jvmOpts)
+                        .jmxUser(jmxUser)
+                        .jmxPassword(jmxPassword);
 
 
                 CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
@@ -154,5 +176,19 @@ public class MQCreate extends FabricCommand {
         }
 
       return null;
+    }
+
+    private void promptForJmxCredentialsIfNeeded() throws IOException {
+        // If the username was not configured via cli, then prompt the user for the values
+        if (jmxUser == null) {
+            log.debug("Prompting user for jmx login");
+            jmxUser = ShellUtils.readLine(session, "Jmx Login for " + fabricService.getCurrentContainerName() + ": ", false);
+            System.out.println();
+        }
+
+        if (jmxPassword == null) {
+            jmxPassword = ShellUtils.readLine(session, "Jmx Password for " + fabricService.getCurrentContainerName() + ": ", true);
+            System.out.println();
+        }
     }
 }
