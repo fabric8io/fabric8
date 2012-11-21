@@ -52,17 +52,6 @@
                 <property name="fabricService" ref="fabricService"/>
             </action>
         </command>
-        <command name="fabric/container-create">
-            <action class="org.fusesource.fabric.commands.ContainerCreate">
-                <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
-            </action>
-            <optional-completers>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--parent" value-ref="rootContainerCompleter"/>
-                <entry key="--resolver" value-ref="resolverCompleter"/>
-            </optional-completers>
-        </command>
 
         <command name="fabric/container-create-child">
             <action class="org.fusesource.fabric.commands.ContainerCreateChild">
