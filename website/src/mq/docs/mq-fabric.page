@@ -29,7 +29,7 @@ The simplest option is to use the pre-canned **mq** profile. You can see the dis
 
 To create a new **mq** broker instance called **broker1**, use the command:
 
-     FuseFabric:karaf@root>container-create --parent root --profile mq broker1
+     FuseFabric:karaf@root>container-create-child --profile mq root broker1
      The following containers have been created successfully:
  	    broker1
 
@@ -44,7 +44,7 @@ To create a new broker instance called **broker1** with **mq-create**, use the c
     MQ profile broker1 ready
     Successfully created container broker1
 
-Just like the basic **container-create** command, **mq-create** will create a container called **broker1** and run a broker on it.
+Just like the basic **container-create-child** command, **mq-create** will create a container called **broker1** and run a broker on it.
 There are some differences:
 * The new **broker1** container has its parent automatically assigned to the current container
 * The new broker has its own new **broker1** profile which is based on the **mq-base** template
@@ -55,7 +55,7 @@ It is possible to further modify the **broker1** profile to adjust the configura
 
 The **mq-create** command can start brokers on existing containers. Let's take a look at the following example
 
-    FuseFabric:karaf@root> container-create --parent root --profile karaf broker1
+    FuseFabric:karaf@root> container-create-child --profile karaf root broker1
     The following containers have been created successfully:
 	    broker1
 
@@ -79,7 +79,7 @@ All the client needs to do then is to use connection url like
 where default in this case is the group name we want use. The connection factory will then find available brokers in the group and connect the client to the one of them.
 You can test the brokers started with the previously described methods by creating a container with the **example-mq** profile
 
-    FuseFabric:karaf@root> container-create --parent root --profile example-mq example
+    FuseFabric:karaf@root> container-create-child --profile example-mq root example
 
 After the example container is successfully provisioned
 
@@ -87,7 +87,7 @@ After the example container is successfully provisioned
 
 you can connect to it and check its logs to verify the flow of messages, like
 
-    FuseFabric:karaf@root> container-connect example
+    FuseFabric:karaf@root> container-connect -u <user> example
     FuseFabric:karaf@root> log:display
 
 Here's a short clip that demonstrates how to start a broker and run a demo in Fabric
