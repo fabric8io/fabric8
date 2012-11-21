@@ -398,7 +398,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     override def run() {
       while (running) {
         configurations.values.foreach(c => {
-          if (c.server._3.lastModified() != c.last_modified) {
+          if (c.last_modified != -1 && c.server._3.lastModified() != c.last_modified) {
             c.last_modified = c.server._3.lastModified()
             info("updating " + c.properties)
             updated(c.properties.get("service.pid").asInstanceOf[String], c.properties.asInstanceOf[Dictionary[java.lang.String, _]])
