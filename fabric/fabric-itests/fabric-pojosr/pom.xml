@@ -131,7 +131,6 @@
         <dependency>
             <groupId>org.apache.aries.proxy</groupId>
             <artifactId>org.apache.aries.proxy</artifactId>
-            <version>0.3</version>
             <scope>test</scope>
         </dependency>
 

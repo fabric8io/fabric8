@@ -106,6 +106,7 @@ public class ZooKeeperTest {
         Configuration cfgClient = ca.getConfiguration("org.fusesource.fabric.zookeeper");
         props = new Hashtable<String, Object>();
         props.put("zookeeper.url", "localhost:2181");
+        props.put("zookeeper.password", "mypass");
         cfgClient.setBundleLocation(null);
         cfgClient.update(props);
 
