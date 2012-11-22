@@ -25,6 +25,7 @@ import javax.management.remote.JMXServiceURL;
 
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.insight.log.service.LogQueryCallback;
 import org.osgi.jmx.framework.BundleStateMBean;
@@ -166,6 +167,8 @@ public class ContainerTemplate {
                     getEnvironmentCredentials());
         } catch (IOException e) {
             throw new FabricException(e);
+        } catch (SecurityException ex) {
+            throw new FabricAuthenticationException(ex);
         }
         return connector;
     }
