@@ -60,17 +60,9 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
 
     @Override
     public void onEvents(Collection<NodeEvent<String>> nodeEvents) {
-        try {
-            repositories.clear();
-            listRepositories();
-            allfeatures.clear();
-            listFeatures();
-            installed.clear();
-            listInstalledFeatures();
-        } catch (Exception e) {
-            LOGGER.error("Error while updating FeaturesService information from Fabric Registry.", e);
-        }
-
+        repositories.clear();
+        allfeatures.clear();
+        installed.clear();
     }
 
     @Override
