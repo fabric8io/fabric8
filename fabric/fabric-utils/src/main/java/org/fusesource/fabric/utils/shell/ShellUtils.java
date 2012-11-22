@@ -9,6 +9,14 @@ public class ShellUtils {
         //Utility Class
     }
 
+    /**
+     * Displays the message and reads the input.
+     * @param session   The {@link CommandSession} to use.
+     * @param msg       The message to display.
+     * @param hidden    Flag to hide the user input.
+     * @return
+     * @throws IOException
+     */
     public static String readLine(CommandSession session, String msg, boolean hidden) throws IOException {
         StringBuffer sb = new StringBuffer();
         System.out.print(msg);
