@@ -19,11 +19,11 @@ The simplest approach is to uncomment the default user 'fusemq' which has the ad
 Typically you will define your own users and passwords with appropriate privileges.
 
 The webconsole uses jmx and jms broker apis.
-You will need to update the approprtiate properties in
+You will need to update the appropriate properties in
  .${fileSeparator}etc${fileSeparator}system.properties
 to reflect the users you define in the default jaas realm.
 
-The relevant properies include:
+The relevant properties include:
 * activemq.jmx.user, activemq.jmx.password
 * webconsole.jmx.user, webconsole.jmx.password
 * webconsole.jms.user, webconsole.jms.password
@@ -38,7 +38,7 @@ To start Fuse MQ Enterprise in the background, type:
 Note: Be sure to use the appropriate username and password in the following examples
 To display the log using the remote console, type:
 
-    ${clientCommand} -u fusemq - p fusemq log:display
+    ${clientCommand} -u fusemq -p fusemq log:display
 
 To display the current broker statistics using the remote console, type:
     
