@@ -55,9 +55,8 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
         // If the username was not configured via cli, then prompt the user for the values
         if (user == null) {
             user = ShellUtils.readLine(session, "New user name: ", false);
+            System.out.println();
         }
-        System.out.println();
-
 
         if (password == null) {
             String password1 = null;
