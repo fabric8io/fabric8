@@ -567,6 +567,8 @@ public class MavenResolverImpl implements MavenResolver {
                     snapshot = true;
                 } else if (postfix.equals("noreleases")) {
                     // TODO
+                } else if (postfix.equals("id")) {
+                    //DO NOTHING
                 } else {
                     LOGGER.warn("Unknown postfix: @" + postfix + " on repository URL: " + text);
                     break;
