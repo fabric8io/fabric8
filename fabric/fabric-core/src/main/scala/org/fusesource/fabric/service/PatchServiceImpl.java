@@ -136,11 +136,11 @@ public class PatchServiceImpl implements PatchService {
                     "org.apache.servicemix.nmr:apache-servicemix-nmr," +
             "org.fusesource:fuse-project|" +
                     "org.fusesource.esb:fuse-esb|" +
-                    "org.fusesource.fabric.fabric-examples:fabric-activemq-demo|" +
-                    "org.fusesource.fabric.fabric-examples:fabric-camel-cluster|" +
-                    "org.fusesource.fabric.fabric-examples:fabric-camel-demo|" +
-                    "org.fusesource.fabric.fabric-examples:fabric-camel-dosgi|" +
-                    "org.fusesource.fabric.fabric-examples:fabric-cxf-demo-features|" +
+                    "org.fusesource.examples:fabric-activemq-demo|" +
+                    "org.fusesource.examples:fabric-camel-cluster|" +
+                    "org.fusesource.examples:fabric-camel-demo|" +
+                    "org.fusesource.examples:fabric-camel-dosgi|" +
+                    "org.fusesource.examples:fabric-cxf-demo-features|" +
                     "org.fusesource.fabric:fuse-fabric";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PatchServiceImpl.class);

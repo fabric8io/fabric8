@@ -57,12 +57,12 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
 
         executeCommand("fabric:profile-create --parents dosgi dosgi-provider");
-        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-provider");
+        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-provider");
         executeCommand("fabric:profile-edit --features fabric-example-dosgi dosgi-provider");
 
 
         executeCommand("fabric:profile-create --parents dosgi dosgi-camel");
-        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.fabric-examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-camel");
+        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/"+System.getProperty("fabric.version")+"/xml/features dosgi-camel");
         executeCommand("fabric:profile-edit --features fabric-example-camel-dosgi dosgi-camel");
 
         createAndAssertChildContainer("dosgi-provider", "root", "dosgi-provider");

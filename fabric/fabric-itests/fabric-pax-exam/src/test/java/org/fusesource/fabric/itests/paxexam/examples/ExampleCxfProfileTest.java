@@ -51,7 +51,7 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
         System.err.println(executeCommand("features:install fabric-cxf"));
         String projectVersion = System.getProperty("fabricitest.version");
         // install bundle of CXF demo client
-        System.err.println(executeCommand("osgi:install -s mvn:org.fusesource.fabric.fabric-examples/fabric-cxf-demo-client/" + projectVersion));
+        System.err.println(executeCommand("osgi:install -s mvn:org.fusesource.examples/fabric-cxf-demo-client/" + projectVersion));
         // calling the client here
         Client client = new Client();
         String result1 = client.getProxy().sayHello();
