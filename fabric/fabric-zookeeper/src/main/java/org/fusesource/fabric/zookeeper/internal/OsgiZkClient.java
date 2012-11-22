@@ -102,11 +102,15 @@ public class OsgiZkClient extends AbstractZKClient implements ManagedService {
     }
 
     public void close() {
-        if (managedServiceRegistration != null) {
-            managedServiceRegistration.unregister();
+        ServiceRegistration srMs = managedServiceRegistration;
+        ServiceRegistration srZk = zkClientRegistration;
+        managedServiceRegistration = null;
+        zkClientRegistration = null;
+        if (srMs != null) {
+            srMs.unregister();
         }
-        if (zkClientRegistration != null) {
-            zkClientRegistration.unregister();
+        if (srZk != null) {
+            srZk.unregister();
         }
         super.close();
     }
