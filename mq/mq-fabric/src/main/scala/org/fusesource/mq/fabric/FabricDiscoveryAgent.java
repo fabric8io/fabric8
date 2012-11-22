@@ -38,10 +38,15 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.util.clock.Timespan;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FabricDiscoveryAgent implements DiscoveryAgent {
+public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCustomizer {
     
     private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryAgent.class);
 
@@ -67,12 +72,29 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private String id;
     private String agent;
 
+    BundleContext context;
+    ServiceTracker tracker;
+
     List<String> services = new ArrayList<String>();
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
     }
-    
+
+    @Override
+    public Object addingService(ServiceReference serviceReference) {
+        zkClient = (IZKClient) context.getService(serviceReference);
+        return zkClient;
+    }
+
+    @Override
+    public void modifiedService(ServiceReference serviceReference, Object o) {
+    }
+
+    @Override
+    public void removedService(ServiceReference serviceReference, Object o) {
+    }
+
     static class ActiveMQNode implements NodeState {
         @JsonProperty
         String id;
@@ -97,6 +119,12 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     ClusteredSingleton<ActiveMQNode> singleton = new ClusteredSingleton<ActiveMQNode>(ActiveMQNode.class);
 
     public FabricDiscoveryAgent() {
+        if (FrameworkUtil.getBundle(getClass()) != null) {
+            context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+            tracker = new ServiceTracker(context, IZKClient.class.getName(), this);
+            tracker.open();
+        }
+
         singleton.add(new ChangeListener(){
             @Override
             public void changed() {
@@ -218,6 +246,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
                 LOG.info("Using local ZKClient");
                 managedZkClient = true;
                 ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
+                client.setPassword(System.getProperty("zookeeper.password", "admin"));
                 client.start();
                 client.waitForConnected();
                 zkClient = client;
@@ -249,6 +278,10 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
                 }
                 zkClient = null;
             }
+        }
+        if (tracker != null) {
+            LOG.info("closing tracker");
+            tracker.close();
         }
     }
 
