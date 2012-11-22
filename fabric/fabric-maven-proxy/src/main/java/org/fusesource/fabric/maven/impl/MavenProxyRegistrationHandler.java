@@ -35,6 +35,7 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 
 import org.osgi.util.tracker.ServiceTracker;
@@ -48,17 +49,17 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
     private String port;
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
     private IZKClient zookeeper = null;
+    private boolean connected = false;
     private String name = System.getProperty("karaf.name");
 
+    private String realm;
+    private String role;
+
     private HttpService httpService;
-    private SecureHttpContext secureHttpContext;
     private MavenDownloadProxyServlet mavenDownloadProxyServlet;
     private MavenUploadProxyServlet mavenUploadProxyServlet;
 
     private ConfigurationAdmin configurationAdmin;
-
-    private BundleContext bundleContext;
-    private ServiceTracker httpServiceTracker;
 
     public MavenProxyRegistrationHandler() {
         registeredProxies.put(MavenProxy.DOWNLOAD_TYPE, new HashSet<String>());
@@ -67,14 +68,6 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
 
     public void init() {
-       httpServiceTracker = new ServiceTracker(bundleContext, HttpService.class.getName(), null){
-           public Object addingService(ServiceReference reference) {
-               HttpService service = (HttpService) super.addingService(reference);
-               bindHttpService(service);
-               return service;
-           }
-       };
-       httpServiceTracker.open();
     }
 
     public void destroy() {
@@ -88,9 +81,6 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         } catch (Exception ex) {
             LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
         }
-        if (httpServiceTracker != null) {
-            httpServiceTracker.close();
-        }
     }
 
     public void bindHttpService(HttpService httpService) {
@@ -100,17 +90,44 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         if (httpService != null && mavenDownloadProxyServlet != null && mavenUploadProxyServlet != null) {
 
             try {
-                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, null);
-                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secureHttpContext);
+                HttpContext base = httpService.createDefaultHttpContext();
+                HttpContext secure = new SecureHttpContext(base, realm, role);
+                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, base);
+                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secure);
             } catch (Throwable t) {
                 LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
             }
+
+            register(MavenProxy.DOWNLOAD_TYPE);
+            register(MavenProxy.UPLOAD_TYPE);
         }
+    }
+
+    public void unbindHttpService(HttpService httpService) {
+        unregister(MavenProxy.DOWNLOAD_TYPE);
+        unregister(MavenProxy.UPLOAD_TYPE);
+        this.httpService = null;
+    }
+
+    public void bindZooKeeper(IZKClient zookeeper) {
+        this.zookeeper = zookeeper;
+        if (zookeeper != null) {
+            zookeeper.registerListener(this);
+        }
+    }
+
+    public void unbindZooKeeper(IZKClient zookeeper) {
+        if (zookeeper != null) {
+            zookeeper.removeListener(this);
+        }
+        this.connected = false;
+        this.zookeeper = null;
     }
 
 
     @Override
     public void onConnected() {
+        connected = true;
         register(MavenProxy.DOWNLOAD_TYPE);
         register(MavenProxy.UPLOAD_TYPE);
     }
@@ -118,17 +135,16 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
     @Override
     public void onDisconnected() {
-        unregister(MavenProxy.DOWNLOAD_TYPE);
-        unregister(MavenProxy.UPLOAD_TYPE);
+        connected = false;
     }
 
     public void register(String type) {
         unregister(type);
-        String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
-        String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
-        String path = parentPath + "/p_";
         try {
-            if (zookeeper.isConnected()) {
+            if (connected && httpService != null) {
+                String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
+                String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
+                String path = parentPath + "/p_";
                 if (zookeeper.exists(parentPath) == null) {
                     zookeeper.createWithParents(parentPath, CreateMode.PERSISTENT);
                 }
@@ -145,8 +161,8 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         Set<String> proxyNodes = registeredProxies.get(type);
         if (proxyNodes != null) {
             try {
-                for (String entry : registeredProxies.get(type)) {
-                    if (zookeeper.isConnected()) {
+                if (connected) {
+                    for (String entry : registeredProxies.get(type)) {
                         if (zookeeper.exists(entry) != null) {
                             zookeeper.deleteWithChildren(entry);
                         }
@@ -195,14 +211,6 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         return port;
     }
 
-    public IZKClient getZookeeper() {
-        return zookeeper;
-    }
-
-    public void setZookeeper(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
-    }
-
     public String getPort() {
         return port;
     }
@@ -223,14 +231,6 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         this.mavenUploadProxyServlet = mavenUploadProxyServlet;
     }
 
-    public SecureHttpContext getSecureHttpContext() {
-        return secureHttpContext;
-    }
-
-    public void setSecureHttpContext(SecureHttpContext secureHttpContext) {
-        this.secureHttpContext = secureHttpContext;
-    }
-
     public ConfigurationAdmin getConfigurationAdmin() {
         return configurationAdmin;
     }
@@ -239,11 +239,19 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         this.configurationAdmin = configurationAdmin;
     }
 
-    public BundleContext getBundleContext() {
-        return bundleContext;
+    public String getRealm() {
+        return realm;
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+    public void setRealm(String realm) {
+        this.realm = realm;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

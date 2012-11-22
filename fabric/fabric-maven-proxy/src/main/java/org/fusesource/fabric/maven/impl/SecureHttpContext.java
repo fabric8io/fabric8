@@ -45,39 +45,28 @@ public class SecureHttpContext implements HttpContext {
     private static final String HEADER_AUTHORIZATION = "Authorization";
     private static final String AUTHENTICATION_SCHEME_BASIC = "Basic";
 
-    private String realm;
-    private String role;
-    private HttpContext base;
-    private final HttpService httpService;
+    private final String realm;
+    private final String role;
+    private final HttpContext base;
 
     /**
      * Constructor
-     * @param httpService
      */
-    public SecureHttpContext(HttpService httpService) {
-        this.httpService = httpService;
+    public SecureHttpContext(HttpContext base, String realm, String role) {
+        this.base = base;
+        this.realm = realm;
+        this.role = role;
 
-    }
-
-    private synchronized HttpContext getHttpContext() {
-        if (base == null) {
-            try {
-                base = httpService.createDefaultHttpContext();
-            } catch (Exception ex) {
-                //noop
-            }
-        }
-        return base;
     }
 
     @Override
     public URL getResource(String name) {
-        return getHttpContext().getResource(name);
+        return base.getResource(name);
     }
 
     @Override
     public String getMimeType(String name) {
-        return getHttpContext().getMimeType(name);
+        return base.getMimeType(name);
     }
 
     public boolean handleSecurity(HttpServletRequest request, HttpServletResponse response) {
@@ -202,15 +191,8 @@ public class SecureHttpContext implements HttpContext {
         return realm;
     }
 
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-
     public String getRole() {
         return role;
     }
 
-    public void setRole(String role) {
-        this.role = role;
-    }
 }
