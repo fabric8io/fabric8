@@ -41,6 +41,7 @@ public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
 
     @Override
     protected Object doCreate(Dictionary properties) throws Exception {
+        LOGGER.info("Creating zookeeper server with properties: {}", properties);
         Properties props = new Properties();
         for (Enumeration ek = properties.keys(); ek.hasMoreElements();) {
             Object key = ek.nextElement();
@@ -131,6 +132,7 @@ public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
 
     @Override
     protected void doDestroy(Object obj) throws Exception {
+        LOGGER.info("Destroying zookeeper server");
         ((Destroyable) obj).destroy();
     }
 

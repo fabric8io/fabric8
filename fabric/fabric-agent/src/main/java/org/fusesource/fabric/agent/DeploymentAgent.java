@@ -226,6 +226,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     public void updated(final Dictionary props) throws ConfigurationException {
+        LOGGER.info("DeploymentAgent updated with {}", props);
         if (executor.isShutdown() || props == null) {
             return;
         }

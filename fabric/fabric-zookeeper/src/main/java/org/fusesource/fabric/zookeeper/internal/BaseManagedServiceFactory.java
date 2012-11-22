@@ -17,7 +17,9 @@
 package org.fusesource.fabric.zookeeper.internal;
 
 import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,6 +66,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
 
     @Override
     public void updated(final String pid, final Dictionary properties) throws ConfigurationException {
+        LOGGER.info("Configuration {} updated: {}", pid, properties);
         if (destroyed.get()) {
             return;
         }
@@ -82,6 +85,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
 
     @Override
     public void deleted(final String pid) {
+        LOGGER.info("Configuration {} delete", pid);
         if (destroyed.get()) {
             return;
         }
