@@ -59,6 +59,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private int maximumPort = PortUtils.MAX_PORT_NUMBER;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
+    @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
+    private boolean generateZookeeperPassword = false;
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUser;
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
@@ -66,10 +68,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserRole = "admin";
 
-
-
     @Argument(required = false, multiValued = true, description = "List of containers. Empty list assumes current container only.")
     private List<String> containers;
+
+    private static final String ROLE_DELIMITER = ",";
 
     @Override
     protected Object doExecute() throws Exception {
@@ -115,9 +117,18 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             String[]credentials = promptForNewUser(newUser, newUserPassword);
             newUser = credentials[0];
             newUserPassword = credentials[1];
+        } else if (newUser == null || newUserPassword == null) {
+            newUser = userProps.keySet().iterator().next();
+            newUserPassword = userProps.get(newUser);
+            if (newUserPassword.contains(ROLE_DELIMITER)) {
+                newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
+            }
         }
 
-        CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ","+ newUserRole);
+        if (zookeeperPassword == null && !generateZookeeperPassword) {
+            zookeeperPassword = newUserPassword;
+        }
+        CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ROLE_DELIMITER+ newUserRole);
         options.getUsers().putAll(userProps);
 
         if (containers != null && !containers.isEmpty()) {
