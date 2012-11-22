@@ -55,6 +55,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+import static org.fusesource.fabric.utils.BundleUtils.findAndStopBundle;
+import static org.fusesource.fabric.utils.BundleUtils.findOrInstallBundle;
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
 
@@ -132,6 +134,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             }
 
             // Install or stop the fabric-configadmin bridge
+            Bundle bundleFabricAgent = findAndStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent");
             Bundle bundleFabricConfigAdmin = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
                     "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
             Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-zookeeper",
@@ -257,7 +260,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             //Check if the agent is configured to auto start.
             if (!System.getProperties().containsKey(AGENT_AUTOSTART) || Boolean.parseBoolean(System.getProperty(AGENT_AUTOSTART))) {
-                Bundle bundleFabricAgent = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent  ",
+                bundleFabricAgent = findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent  ",
                         "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
                 bundleFabricAgent.start();
             }

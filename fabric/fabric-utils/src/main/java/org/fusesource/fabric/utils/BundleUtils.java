@@ -28,13 +28,7 @@ public class BundleUtils {
     }
 
     public static Bundle installOrStopBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
-        Bundle bundle = null;
-        for (Bundle b : bundleContext.getBundles()) {
-            if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
-                bundle = b;
-                break;
-            }
-        }
+        Bundle bundle = findBundle(bundleContext, bsn);
         if (bundle == null) {
             bundle = bundleContext.installBundle(url);
         }
@@ -51,6 +45,14 @@ public class BundleUtils {
             }
         }
         return null;
+    }
+
+    public static Bundle findAndStopBundle(BundleContext bundleContext, String bsn) throws BundleException {
+        Bundle bundle = findBundle(bundleContext, bsn);
+        if (bundle != null && bundle.getState() == Bundle.ACTIVE) {
+            bundle.stop();
+        }
+        return bundle;
     }
 
     public static Bundle findOrInstallBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
