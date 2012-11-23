@@ -53,6 +53,9 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
     protected String[] promptForNewUser(String user, String password) throws IOException {
         String[] response = new String[2];
         // If the username was not configured via cli, then prompt the user for the values
+        if (user == null || password == null) {
+            System.out.println("No user found in etc/users.properties or specified as an option. Please specify one ...");
+        }
         if (user == null) {
             user = ShellUtils.readLine(session, "New user name: ", false);
             System.out.println();

@@ -68,8 +68,8 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         createAndAssertChildContainer("dosgi-provider", "root", "dosgi-provider");
         createAndAssertChildContainer("dosgi-camel", "root", "dosgi-camel");
 
-        String response = executeCommand("fabric:container-connect dosgi-camel log:display | grep \"Message from distributed service to\"");
-        System.err.println(executeCommand("fabric:container-connect dosgi-camel camel:route-info fabric-client"));
+        String response = executeCommand("fabric:container-connect -u admin -p admin dosgi-camel log:display | grep \"Message from distributed service to\"");
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin dosgi-camel camel:route-info fabric-client"));
         assertNotNull(response);
         System.err.println(response);
         String[] lines = response.split("\n");

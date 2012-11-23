@@ -128,6 +128,7 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         for (int i = 1; i < infos.length; i++) {
             principals.add(new RolePrincipal(infos[i]));
         }
+        subject.getPrivateCredentials().add(new String(tmpPassword));
 
         if (debug) {
             LOG.debug("Successfully logged in {}", user);

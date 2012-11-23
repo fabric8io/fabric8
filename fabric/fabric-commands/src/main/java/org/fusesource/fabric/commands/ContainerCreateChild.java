@@ -20,9 +20,10 @@ import java.io.IOException;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 
@@ -31,9 +32,9 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
 
     @Option(name = "--jmx-user", multiValued = false, required = false, description = "The jmx user name of the parent container.")
-    protected String jmxUser;
+    protected String username;
     @Option(name = "--jmx-password", multiValued = false, required = false, description = "The jmx password of the parent container.")
-    protected String jmxPassword;
+    protected String password;
 
     @Argument(index = 0, required = true, description = "Parent containers ID")
     protected String parent;
@@ -44,13 +45,16 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        CreateContainerMetadata[] metadatas = null;
         // validate input before creating containers
         preCreateContainer(name);
-        promptForJmxCredentialsIfNeeded();
+
+        String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
+        String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
 
         // okay create child container
         String url = "child://" + parent;
-        CreateContainerOptions options = CreateContainerOptionsBuilder.child()
+        CreateContainerChildOptions options = CreateContainerOptionsBuilder.child()
                 .name(name)
                 .parent(parent)
                 .providerUri(url)
@@ -63,7 +67,18 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .jmxUser(jmxUser)
                 .jmxPassword(jmxPassword);
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
+        try {
+            metadatas = fabricService.createContainers(options);
+            ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
+        } catch (FabricAuthenticationException ex) {
+            //If authentication fails, prompts for credentilas and try again.
+            promptForJmxCredentialsIfNeeded();
+            options.setJmxUser(username);
+            options.setJmxPassword(password);
+            metadatas = fabricService.createContainers(options);
+            ShellUtils.storeFabricCredentials(session, username, password);
+        }
+
         // display containers
         displayContainers(metadatas);
         // and set its profiles and versions after creation
@@ -85,14 +100,14 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
     private void promptForJmxCredentialsIfNeeded() throws IOException {
         // If the username was not configured via cli, then prompt the user for the values
-        if (jmxUser == null) {
+        if (username == null) {
             log.debug("Prompting user for jmx login");
-            jmxUser = ShellUtils.readLine(session, "Jmx Login for " + parent + ": ", false);
+            username = ShellUtils.readLine(session, "Jmx Login for " + parent + ": ", false);
             System.out.println();
         }
 
-        if (jmxPassword == null) {
-            jmxPassword = ShellUtils.readLine(session, "Jmx Password for " + parent + ": ", true);
+        if (password == null) {
+            password = ShellUtils.readLine(session, "Jmx Password for " + parent + ": ", true);
             System.out.println();
         }
     }

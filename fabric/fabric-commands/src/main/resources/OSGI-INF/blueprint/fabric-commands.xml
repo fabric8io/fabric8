@@ -15,6 +15,7 @@
   limitations under the License.
   -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:bp="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
@@ -110,6 +111,9 @@
             <action class="org.fusesource.fabric.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="sshClientId">
+                    <bp:idref component-id="sshClient"/>
+                </property>
             </action>
             <completers>
                 <ref component-id="containerCompleter"/>
@@ -501,4 +505,15 @@
     </bean>
 
     <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
+
+    <!-- Container Connect -->
+    <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory" />
+    <reference-list id="agents" interface="org.apache.sshd.agent.SshAgent" availability="optional" activation="eager">
+        <reference-listener ref="agentFactory" bind-method="registerAgent" unbind-method="unregisterAgent" />
+    </reference-list>
+
+    <bean id="sshClient" class="org.apache.sshd.SshClient" factory-method="setUpDefaultClient" scope="prototype">
+        <property name="agentFactory" ref="agentFactory" />
+    </bean>
+
 </blueprint>

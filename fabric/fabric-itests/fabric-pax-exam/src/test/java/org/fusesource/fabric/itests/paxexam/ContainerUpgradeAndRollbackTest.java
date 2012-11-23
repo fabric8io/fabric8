@@ -37,7 +37,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);
-        String bundles = executeCommand("container-connect camel1 osgi:list -s | grep camel-hazelcast");
+        String bundles = executeCommand("container-connect -u admin -p admin camel1 osgi:list -s | grep camel-hazelcast");
         System.out.println(executeCommand("fabric:container-list"));
         assertNotNull(bundles);
         System.out.println(bundles);
@@ -45,7 +45,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
         waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
-        bundles = executeCommand("container-connect camel1 osgi:list -s | grep camel-hazelcast");
+        bundles = executeCommand("container-connect -u admin -p admin camel1 osgi:list -s | grep camel-hazelcast");
         assertNotNull(bundles);
         System.out.println(bundles);
         assertTrue("Expected no camel-hazelcast installed.", bundles.isEmpty());

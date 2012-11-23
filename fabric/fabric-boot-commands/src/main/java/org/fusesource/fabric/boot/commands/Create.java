@@ -24,6 +24,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.File;
@@ -125,15 +126,29 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             }
         }
 
+        StringBuilder sb = new StringBuilder();
+        ShellUtils.storeFabricCredentials(session, newUser, newUserPassword);
         if (zookeeperPassword == null && !generateZookeeperPassword) {
+            sb.append("Zookeeper password not specified or generated.\n");
+            sb.append("You can use the --zookeeper-password option to specify one.\n");
+            sb.append("Or you can use the --generate-zookeeper-password to have fabric generate one for you.\n");
+            sb.append("Reusing users ").append(newUser).append(" password:");
             zookeeperPassword = newUserPassword;
+        }   else if (generateZookeeperPassword) {
+            sb.append("Generated zookeeper password:");
+        }  else {
+            sb.append("Using specified zookeeper password:");
         }
+
         CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ROLE_DELIMITER+ newUserRole);
         options.getUsers().putAll(userProps);
 
         if (containers != null && !containers.isEmpty()) {
             service.createCluster(containers, options);
         }
+        sb.append(options.getZookeeperPassword()).append("\n");
+        sb.append("You can retrieve the zookeeper password at any time using the fabric:ensemble-password command.");
+        System.out.println(sb.toString());
         return null;
     }
 
