@@ -52,6 +52,10 @@
             <kahaDB directory="${data}/kahadb"/>
         </persistenceAdapter>
 
+        <plugins>
+            <jaasAuthenticationPlugin configuration="karaf" />
+        </plugins>
+
         <systemUsage>
             <systemUsage>
                 <memoryUsage>

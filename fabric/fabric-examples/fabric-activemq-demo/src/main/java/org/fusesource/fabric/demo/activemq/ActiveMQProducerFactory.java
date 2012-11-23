@@ -44,7 +44,7 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
             if (brokerUrl == null) {
                 brokerUrl = "discover:(fabric:default)";
             }
-            producerService = new ActiveMQService(brokerUrl);
+            producerService = new ActiveMQService((String)properties.get("username"), (String)properties.get("password"), brokerUrl);
             producerService.setMaxAttempts(10);
             producerService.start();
             String destination = (String) properties.get("destination");
