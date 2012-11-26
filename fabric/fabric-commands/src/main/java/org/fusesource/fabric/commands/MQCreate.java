@@ -20,9 +20,11 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
+import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.MQService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
@@ -64,10 +66,10 @@ public class MQCreate extends FabricCommand {
     protected String assign;
 
     @Option(name = "--jmx-user", multiValued = false, required = false, description = "The jmx user name of the parent container.")
-    protected String jmxUser;
+    protected String username;
 
     @Option(name = "--jmx-password", multiValued = false, required = false, description = "The jmx password of the parent container.")
-    protected String jmxPassword;
+    protected String password;
 
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
@@ -122,7 +124,7 @@ public class MQCreate extends FabricCommand {
 
         // create new containers
         if (create != null) {
-            promptForJmxCredentialsIfNeeded();
+            CreateContainerMetadata[] metadatas;
 
             String[] createContainers = create.split(",");
             for (String url : createContainers) {
@@ -145,8 +147,10 @@ public class MQCreate extends FabricCommand {
                             "For any other kind, create your container first and then use --assign");
                 }
 
+                String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
+                String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
 
-                CreateContainerOptions args = CreateContainerOptionsBuilder.child()
+                CreateContainerChildOptions args = CreateContainerOptionsBuilder.child()
                         .name(name)
                         .parent(parent)
                         .number(1)
@@ -159,8 +163,17 @@ public class MQCreate extends FabricCommand {
                         .jmxUser(jmxUser)
                         .jmxPassword(jmxPassword);
 
-
-                CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+                try {
+                    metadatas = fabricService.createContainers(args);
+                    ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
+                } catch (FabricAuthenticationException fae) {
+                    //If authentication fails, prompts for credentilas and try again.
+                    promptForJmxCredentialsIfNeeded();
+                    args.setJmxUser(username);
+                    args.setJmxPassword(password);
+                    metadatas = fabricService.createContainers(args);
+                    ShellUtils.storeFabricCredentials(session, username, password);
+                }
 
                 for (CreateContainerMetadata metadata : metadatas) {
                     if (metadata.isSuccess()) {
@@ -180,14 +193,14 @@ public class MQCreate extends FabricCommand {
 
     private void promptForJmxCredentialsIfNeeded() throws IOException {
         // If the username was not configured via cli, then prompt the user for the values
-        if (jmxUser == null) {
+        if (username == null) {
             log.debug("Prompting user for jmx login");
-            jmxUser = ShellUtils.readLine(session, "Jmx Login for " + fabricService.getCurrentContainerName() + ": ", false);
+            username = ShellUtils.readLine(session, "Jmx Login for " + fabricService.getCurrentContainerName() + ": ", false);
             System.out.println();
         }
 
-        if (jmxPassword == null) {
-            jmxPassword = ShellUtils.readLine(session, "Jmx Password for " + fabricService.getCurrentContainerName() + ": ", true);
+        if (password == null) {
+            password = ShellUtils.readLine(session, "Jmx Password for " + fabricService.getCurrentContainerName() + ": ", true);
             System.out.println();
         }
     }
