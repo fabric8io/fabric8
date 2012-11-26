@@ -115,12 +115,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
         Properties userProps = new Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
         if (userProps.isEmpty()) {
-            String[]credentials = promptForNewUser(newUser, newUserPassword);
+            String[] credentials = promptForNewUser(newUser, newUserPassword);
             newUser = credentials[0];
             newUserPassword = credentials[1];
         } else if (newUser == null || newUserPassword == null) {
-            newUser = userProps.keySet().iterator().next();
-            newUserPassword = userProps.get(newUser);
+            newUser = (String) userProps.keySet().iterator().next();
+            newUserPassword = (String) userProps.get(newUser);
             if (newUserPassword.contains(ROLE_DELIMITER)) {
                 newUserPassword = newUserPassword.substring(0, newUserPassword.indexOf(ROLE_DELIMITER));
             }
