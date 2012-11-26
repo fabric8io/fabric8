@@ -68,7 +68,12 @@ public class PatchImpl implements Patch {
 
     @Override
     public Result install() {
-        return service.install(this, false);
+        return install(false, true);
+    }
+
+    @Override
+    public Result install(boolean force, boolean synchronous) {
+        return service.install(this, force, synchronous);
     }
 
     @Override

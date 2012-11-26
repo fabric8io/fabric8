@@ -34,6 +34,8 @@ public interface Patch {
     
     Result install();
 
+    Result install(boolean force, boolean synchronous);
+
     void rollback(boolean force);
 
 }

@@ -271,6 +271,7 @@ public class ServiceImpl implements Service {
                 props.put(UPDATES + "." + Integer.toString(i) + "." + NEW_LOCATION, update.getNewLocation());
                 props.put(UPDATES + "." + Integer.toString(i) + "." + OLD_VERSION, update.getPreviousVersion());
                 props.put(UPDATES + "." + Integer.toString(i) + "." + OLD_LOCATION, update.getPreviousLocation());
+                i++;
             }
             props.store(fos, "Installation results for patch " + result.getPatch().getId());
         } finally {
@@ -329,7 +330,11 @@ public class ServiceImpl implements Service {
     }
 
     Result install(Patch patch, boolean simulate) {
-        Map<String, Result> results = install(Collections.singleton(patch), simulate, true);
+        return install(patch, simulate, true);
+    }
+
+    Result install(Patch patch, boolean simulate, boolean synchronous) {
+        Map<String, Result> results = install(Collections.singleton(patch), simulate, synchronous);
         return results.get(patch.getId());
     }
 

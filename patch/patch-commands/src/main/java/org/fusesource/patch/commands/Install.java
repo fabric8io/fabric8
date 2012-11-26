@@ -18,6 +18,7 @@ package org.fusesource.patch.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.patch.Patch;
 import org.fusesource.patch.PatchException;
 import org.fusesource.patch.Result;
@@ -29,6 +30,12 @@ public class Install extends PatchCommandSupport {
     @Argument(name = "PATCH", description = "name of the patch to install")
     String patchId;
 
+    @Option(name = "--force", description = "Force the installation of the patch")
+    boolean force;
+
+    @Option(name = "--synchronous", description = "Synchronous installation (use with caution)")
+    boolean synchronous;
+
     @Override
     protected void doExecute(Service service) throws Exception {
         Patch patch = service.getPatch(patchId);
@@ -38,7 +45,7 @@ public class Install extends PatchCommandSupport {
         if (patch.isInstalled()) {
             throw new PatchException("Patch '" + patchId + "' is already installed");
         }
-        Result result = patch.install();
+        Result result = patch.install(force, synchronous);
         display(result);
     }
 
