@@ -12,6 +12,7 @@ All of the code included with the examples are thoroughly documented by comments
 * `cbr` - demonstrates how to create a content-based router
 * `eip` - demonstrates how to link several Enterprise Integration Patterns to solve an integration problem
 * `errors` - demonstrates how to handle exceptions in a route
+* 'jms' - demonstrates how to create a content-based router using a JMS based router
 
 ## Services Examples
 * `rest` - demonstrates how to build a RESTful Web service using JAX-RS

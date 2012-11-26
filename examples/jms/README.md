@@ -1,4 +1,4 @@
-# JMS Backed Router
+# JMS Based Router
 
 ## Overview
 This example demonstrates how to connect to the local ActiveMQ broker and use JMS messaging between two Camel routes.
@@ -29,7 +29,7 @@ Before building and running this example you need:
 ## Building the Example
 To build the example:
 
-1. Verify etc/users.properties contains the following 'admin' user configured:
+1. Verify etc/users.properties from the Fuse ESB installation contains the following 'admin' user configured:
 
 admin=admin,admin
 
