@@ -17,7 +17,7 @@ In studying this example you will learn:
 Before building and running this example you need:
 
 * Maven 3.0.3 or higher
-* JDK 1.6
+* JDK 1.6 or 1.7
 * Fuse ESB Enterprise 7
 
 ## Files in the Example
@@ -40,7 +40,7 @@ To run the example:
 
 1. Start Fuse ESB Enterprise 7 by running bin/fuseesb (on Linux) or bin\fuseesb.bat (on Windows).
 2. In the Fuse ESB console, enter the following command:
-        `osgi:install -s fab:mvn:org.fusesource.examples/errors/${project.version}`
+        osgi:install -s fab:mvn:org.fusesource.examples/errors/${project.version}
 3. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your Fuse ESB installation.
 4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/errors/input` directory.
 5. Wait a few moment and you will find the files in directories under `work/errors`:

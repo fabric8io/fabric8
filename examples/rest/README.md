@@ -15,7 +15,7 @@ In studying this example you will learn:
 Before building and running this example you need:
 
 * Maven 3.0.3 or higher
-* JDK 1.6
+* JDK 1.6 or 1.7
 * Fuse ESB Enterprise 7
 
 ## Files in the Example
