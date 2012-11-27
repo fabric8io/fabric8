@@ -43,8 +43,8 @@ To run the example:
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
 2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/secure-soap/${project.version}
-3. Verify etc/users.properties from the Fuse ESB installation contains the following 'smx' user configured:
-   smx=smx
+3. Verify etc/users.properties from the Fuse ESB installation contains the following 'admin' user configured:
+   admin=admin
 
 There are several ways you can interact with the running Web services:
 * browse the Web service metadata

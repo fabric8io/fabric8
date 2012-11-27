@@ -41,7 +41,7 @@ public final class Client {
         HttpClient httpClient = new HttpClient();
         httpClient.getState().setCredentials(
                   AuthScope.ANY,
-                  new UsernamePasswordCredentials("smx", "smx")
+                  new UsernamePasswordCredentials("admin", "admin")
         );
         // Use basic authentication
         AuthScheme scheme = new BasicScheme();

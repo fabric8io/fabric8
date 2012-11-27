@@ -57,10 +57,10 @@ public class CustomSecurityInterceptor extends AbstractPhaseInterceptor<Message>
         outProps.put("passwordType", "PasswordText");
 
         /*
-         * The username ('smx') is provided as a literal, the corresponding password will be determined by the client
+         * The username ('admin') is provided as a literal, the corresponding password will be determined by the client
          * password callback object.
          */
-        outProps.put("user", "smx");
+        outProps.put("user", "admin");
         outProps.put("passwordCallbackClass", ClientPasswordCallback.class.getName());
 
         /*

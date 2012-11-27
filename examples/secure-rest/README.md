@@ -40,8 +40,8 @@ To run the example:
 1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
 2. In the Fuse ESB console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/secure-rest/${project.version}
-3. Verify etc/users.properties from the Fuse ESB installation contains the following 'smx' user configured:
-smx=smx
+3. Verify etc/users.properties from the Fuse ESB installation contains the following 'admin' user configured:
+admin=admin
 
 There are several ways you can interact with the running RESTful Web services:
 * browse the Web service metadata
@@ -102,19 +102,19 @@ You can use a command-line utility, such as cURL or wget, to perform the HTTP re
     
     * Create a customer
  
-            curl --basic -u smx:smx -X POST -T src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
+            curl --basic -u admin:admin -X POST -T src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
   
     * Retrieve the customer instance with id 123
     
-            curl --basic -u smx:smx http://localhost:8181/cxf/securecrm/customerservice/customers/123
+            curl --basic -u admin:admin http://localhost:8181/cxf/securecrm/customerservice/customers/123
 
     * Update the customer instance with id 123
   
-            curl --basic -u smx:smx -X PUT -T src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
+            curl --basic -u admin:admin -X PUT -T src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
 
     * Delete the customer instance with id 123
   
-             curl --basic -u smx:smx -X DELETE http://localhost:8181/cxf/securecrm/customerservice/customers/123
+             curl --basic -u admin:admin -X DELETE http://localhost:8181/cxf/securecrm/customerservice/customers/123
 
 ## Additional configuration options
 
