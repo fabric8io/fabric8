@@ -12,6 +12,7 @@ public class ShellUtils {
 
     private static final String FABRIC_USER = "FABRIC_USER";
     private static final String FABRIC_USER_PASSWORD = "FABRIC_USER_PASSWORD";
+    private static final String FABRIC_ZOOKEEPER_PASSWORD = "FABRIC_ZOOKEEPER_PASSWORD";
 
     private ShellUtils() {
         //Utility Class
@@ -26,6 +27,16 @@ public class ShellUtils {
     public static void storeFabricCredentials(CommandSession session, String username, String password) {
         session.put(FABRIC_USER, username);
         session.put(FABRIC_USER_PASSWORD, password);
+    }
+
+    /**
+     * Stores zookeeper password to the {@link CommandSession}.
+     * This is mostly usable when creating a remote ensemble that is going to be joined right after its creation.
+     * @param session
+     * @param zookeeperPassword
+     */
+    public static void storeZookeeperPassword(CommandSession session, String zookeeperPassword) {
+         session.put(FABRIC_ZOOKEEPER_PASSWORD, zookeeperPassword);
     }
 
     /**
@@ -64,6 +75,17 @@ public class ShellUtils {
         return null;
     }
 
+    /**
+     * Returns the fabric zookeeper password stored in the {@link CommandSession}.
+     * @param session
+     * @return
+     */
+    public static String retrieveFabricZookeeperPassword(CommandSession session) {
+        if (session != null && session.get(FABRIC_USER_PASSWORD) != null) {
+            return (String) session.get(FABRIC_USER_PASSWORD);
+        }
+        return null;
+    }
 
     /**
      * Displays the message and reads the input.

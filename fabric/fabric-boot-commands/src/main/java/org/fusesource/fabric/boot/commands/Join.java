@@ -28,6 +28,7 @@ import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -91,6 +92,8 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
         if (manualIp != null) {
             System.setProperty(ZkDefs.MANUAL_IP, manualIp);
         }
+
+        zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {

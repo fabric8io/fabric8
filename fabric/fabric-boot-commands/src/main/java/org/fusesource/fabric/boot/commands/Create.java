@@ -153,6 +153,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         if (containers != null && !containers.isEmpty()) {
             service.createCluster(containers, options);
         }
+        ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
         sb.append(options.getZookeeperPassword()).append("\n");
         sb.append("You can retrieve the zookeeper password at any time using the fabric:ensemble-password command.");
         System.out.println(sb.toString());

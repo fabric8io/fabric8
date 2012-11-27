@@ -28,6 +28,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {
@@ -94,6 +95,10 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .createEnsembleOptions(ensembleOptions);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
+
+        if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
+            ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());
+        }
         // display containers
         displayContainers(metadatas);
         // and set its profiles and versions after creation

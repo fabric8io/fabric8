@@ -26,6 +26,7 @@ import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.shell.ShellUtils;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
@@ -130,6 +131,11 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .createEnsembleOptions(ensembleOptions);
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+
+
+        if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
+            ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());
+        }
         // display containers
         displayContainers(metadatas);
         // and set its profiles and versions after creation
