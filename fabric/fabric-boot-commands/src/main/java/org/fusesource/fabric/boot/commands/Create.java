@@ -329,5 +329,11 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         this.manualIp = manualIp;
     }
 
+    public boolean isGenerateZookeeperPassword() {
+        return generateZookeeperPassword;
+    }
 
+    public void setGenerateZookeeperPassword(boolean generateZookeeperPassword) {
+        this.generateZookeeperPassword = generateZookeeperPassword;
+    }
 }

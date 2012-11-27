@@ -231,6 +231,7 @@ class SystemResource extends BaseResource {
         val create = Services.get_service(classOf[Create])
         create.setClean(true)
         create.setProfile(Services.profile_name)
+        create.setGenerateZookeeperPassword(true)
         create.setZookeeperPassword(options.zk_password)
         create.setNewUser(options.username)
         create.setNewUserPassword(options.password)

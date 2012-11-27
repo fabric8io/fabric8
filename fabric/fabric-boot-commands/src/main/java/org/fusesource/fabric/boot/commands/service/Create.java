@@ -76,4 +76,8 @@ public interface Create {
     String getNewUserRole();
 
     void setNewUserRole(String newUserRole);
+
+    public boolean isGenerateZookeeperPassword();
+
+    public void setGenerateZookeeperPassword(boolean generateZookeeperPassword);
 }
