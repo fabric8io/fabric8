@@ -113,6 +113,9 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
+        newUser = newUser != null ? newUser : ShellUtils.retrieveFabricUser(session);
+        newUserPassword = newUserPassword != null ? newUserPassword : ShellUtils.retrieveFabricUserPassword(session);
+
         Properties userProps = new Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
         if (userProps.isEmpty()) {
             String[] credentials = promptForNewUser(newUser, newUserPassword);
