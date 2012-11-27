@@ -334,6 +334,8 @@
                                     <fileset file="target/shared/system-smx.properties" />
                                 </concat>
                                 <echo file="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=${project.artifactId}</echo>
+                                <replace file="target/dependencies/unix/fuse-fabric-${project.version}/etc/config.properties" token="Fuse Fabric" value="Fuse ESB"/>
+                                <replace file="target/dependencies/win/fuse-fabric-${project.version}/etc/config.properties" token="Fuse Fabric" value="Fuse ESB"/>
                             </target>
                         </configuration>
                     </execution>
