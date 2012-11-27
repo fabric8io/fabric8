@@ -116,15 +116,15 @@ public class ContainerProviderUtils {
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
         String globalResolver = options.getResolver() != null  ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
-        lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + options.getResolver());
+        lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + globalResolver);
         appendFile(sb, "etc/system.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
         //Apply port range
         replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=" + PortUtils.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort()));
         replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=" + PortUtils.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort()));
         replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=" + PortUtils.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort()));
-        appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMaximumPort()));
-        appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMinimumPort()));
+        appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMinimumPort()));
+        appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMaximumPort()));
 
         appendFile(sb, "etc/system.properties", Arrays.asList("\n"));
 
