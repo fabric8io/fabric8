@@ -253,7 +253,10 @@ class AgentResource(val agent: Container, val request:HttpServletRequest) extend
 
   @POST
   @Path("destroy")
-  def destroy: Unit = agent.destroy
+  def destroy: Unit = {
+    agent.stop
+    agent.destroy
+  }
 
 }
 
