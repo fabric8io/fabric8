@@ -34,6 +34,7 @@
   <description>FuseSource :: Tooling JClouds All</description>
 
   <properties>
+    <fuse.osgi.activator>org.jclouds.osgi.Activator</fuse.osgi.activator>
     <fuse.osgi.export>
       javax.inject*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
       com.google.gson*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
@@ -120,7 +121,31 @@
 
   <build>
     <plugins>
-
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>2.0</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/services/org.jclouds.apis.ApiMetadata</resource>
+                            </transformer>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                <resource>META-INF/services/org.jclouds.providers.ProviderMetadata</resource>
+                            </transformer>
+                        </transformers>
+                        <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                        <createDependencyReducedPom>true</createDependencyReducedPom>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
     </plugins>
   </build>
 
