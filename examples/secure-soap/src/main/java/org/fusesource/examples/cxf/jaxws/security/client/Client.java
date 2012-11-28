@@ -66,7 +66,7 @@ public class Client{
          * Calling sayHi() on on the client object will actually perform an HTTP SOAP request instead behind the scenes
          * and returns the resulting response.
          */
-        String ret = client.sayHi("ffang");
+        String ret = client.sayHi("World");
         System.out.println(ret);
     }
 
