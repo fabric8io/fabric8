@@ -29,7 +29,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class CreateChildAgentTest extends FabricTestSupport {
+public class CreateChildContainerTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {

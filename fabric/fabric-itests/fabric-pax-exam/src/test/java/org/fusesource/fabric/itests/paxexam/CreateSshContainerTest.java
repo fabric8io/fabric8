@@ -40,7 +40,7 @@ import static junit.framework.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class CreateSshAgentTest extends FabricTestSupport {
+public class CreateSshContainerTest extends FabricTestSupport {
 
     private String host;
     private String port;
