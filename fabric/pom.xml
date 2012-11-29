@@ -91,6 +91,7 @@
         
         <module>openshift</module>
         <module>fmc-distro</module>
+        <module>fabric-jolokia</module>
 
 
     </modules>
