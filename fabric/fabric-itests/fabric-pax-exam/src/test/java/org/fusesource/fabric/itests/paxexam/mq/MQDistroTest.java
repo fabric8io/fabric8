@@ -141,6 +141,8 @@ public class MQDistroTest extends FuseTestSupport {
                 mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 useOwnExamBundlesStartLevel(50),
                 editConfigurationFilePut("etc/users.properties", "fusemq", "fusemq,admin"),
+                editConfigurationFilePut("etc/system.properties", "activemq.jmx.user", "fusemq"),
+                editConfigurationFilePut("etc/system.properties", "activemq.jmx.password", "fusemq"),
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50")});
     }
 
