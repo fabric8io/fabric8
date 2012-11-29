@@ -130,6 +130,7 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
                 System.out.println("Connected");
 
                 boolean authed = false;
+                /**
                 if (agentSocket != null) {
                     sshSession.authAgent(username);
                     int ret = sshSession.waitFor(ClientSession.WAIT_AUTH | ClientSession.CLOSED | ClientSession.AUTHED, 0);
@@ -138,7 +139,8 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
                     } else {
                         authed = true;
                     }
-                }
+                }*/
+
                 if (!authed) {
                     log.debug("Prompting user for password");
                     String pwd  = password != null ? password : ShellUtils.readLine(session, "Password: ", true);
