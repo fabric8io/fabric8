@@ -51,7 +51,7 @@ class Authenticator(@Context servletContext: ServletContext) {
     }
   }
 
-  private val _auth_backing_engine: BackingEngine = {
+  def auth_backing_engine:BackingEngine = {
     if (_bundle_context == null) {
       null
     } else {
@@ -76,8 +76,6 @@ class Authenticator(@Context servletContext: ServletContext) {
       engine
     }
   }
-
-  def auth_backing_engine = _auth_backing_engine
 
   class LoginCallbackHandler(username: String, password: String) extends CallbackHandler {
 
