@@ -8,25 +8,36 @@ The default broker is defined in:
 The xml configuration is:
  .${fileSeparator}etc${fileSeparator}activemq.xml
 
-Security
---------
-Before starting Fuse MQ, you need to provide at least one valid user in 
- .${fileSeparator}etc${fileSeparator}users.properties
-which defines the users in the default karaf jaas security realm.
+Security Prerequisites
+----------------------
+By default, no users are defined for the container. You can run the container in the
+foreground in this case, but you will not be able to access the container remotely and you will
+not be able to run it in the background.
 
-The simplest approach is to uncomment the default user 'admin' which has the admin privilege.
+To enable remote access to the container, you must create at least one user in
+the .${fileSeparator}etc{fileSeparator}users.properties file.
+It is recommended that you create at least one user with the admin role by adding
+a line with the following syntax:
 
-Typically you will define your own users and passwords with appropriate privileges.
+<Username>=<Password>,admin
 
-The webconsole uses jmx and jms broker apis.
-You will need to update the appropriate properties in
- .${fileSeparator}etc${fileSeparator}system.properties
-to reflect the users you define in the default jaas realm.
+The admin role grants full administration privileges to the user.
 
-The relevant properties include:
-* activemq.jmx.user, activemq.jmx.password
-* webconsole.jmx.user, webconsole.jmx.password
-* webconsole.jms.user, webconsole.jms.password
+To make the ActiveMQ shell command line tools accessible, add the following lines to the
+.${fileSeparator}etc${fileSeparator}system.properties file, using the credentials of one of the users from the
+users.properties file:
+
+activemq.jmx.user=<Username>
+activemq.jmx.password=<Password>
+
+To make the ActiveMQ Web console accessible, add the following lines to the
+.${fileSeparator}etc${fileSeparator}system.properties file, using the credentials of one of the users from the
+users.properties file:
+
+webconsole.jmx.user=<Username>
+webconsole.jmx.password=<Password>
+webconsole.jms.user=<Username>
+webconsole.jms.password=<Password>
 
 
 Quick Start
@@ -35,19 +46,19 @@ To start Fuse MQ Enterprise in the background, type:
 
     ${startCommand}
 
-Note: Be sure to use the appropriate username and password in the following examples
+Note: Be sure to use the appropriate username and password in the following examples.
 To display the log using the remote console, type:
 
-    ${clientCommand} -u admin -p admin log:display
+    ${clientCommand} -u <Username> -p <Password> log:display
 
 To display the current broker statistics using the remote console, type:
     
-    ${clientCommand} -u admin -p admin activemq:bstat
+    ${clientCommand} -u <Username> -p <Password> activemq:bstat
 
 To validate the installation with a simple JMS producer and consumer, type:
 
-    java -jar lib${fileSeparator}mq-client.jar producer --user admin --password admin
-    java -jar lib${fileSeparator}mq-client.jar consumer --user admin --password admin
+    java -jar lib${fileSeparator}mq-client.jar producer --user <Username> --password <Password>
+    java -jar lib${fileSeparator}mq-client.jar consumer --user <Username> --password <Password>
 
 View the webconsole at http://localhost:8181/activemqweb
 
