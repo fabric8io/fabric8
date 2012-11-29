@@ -82,6 +82,7 @@
         <module>fmc-webui-branding-example</module>
 
         <module>fabric-features-service</module>
+        <module>fabric-jolokia</module>
 
         <module>fuse-fabric</module>
 
@@ -91,7 +92,6 @@
         
         <module>openshift</module>
         <module>fmc-distro</module>
-        <module>fabric-jolokia</module>
 
 
     </modules>
