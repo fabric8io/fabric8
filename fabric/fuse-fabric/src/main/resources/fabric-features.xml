@@ -500,7 +500,7 @@
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
         <feature version="${karaf-version}">http</feature>
-        <bundle>mvn:org.jolokia/jolokia-osgi/${jolokia-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>
     </feature>
 
 </features>
