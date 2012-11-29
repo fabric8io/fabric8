@@ -135,17 +135,6 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         if (session != null) {
             ShellUtils.storeFabricCredentials(session, newUser, newUserPassword);
         }
-        if (zookeeperPassword == null && !generateZookeeperPassword) {
-            sb.append("Zookeeper password not specified or generated.\n");
-            sb.append("You can use the --zookeeper-password option to specify one.\n");
-            sb.append("Or you can use the --generate-zookeeper-password to have fabric generate one for you.\n");
-            sb.append("Reusing users ").append(newUser).append(" password:");
-            zookeeperPassword = newUserPassword;
-        }   else if (generateZookeeperPassword) {
-            sb.append("Generated zookeeper password:");
-        }  else {
-            sb.append("Using specified zookeeper password:");
-        }
 
         CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ROLE_DELIMITER+ newUserRole);
         options.getUsers().putAll(userProps);
@@ -154,8 +143,15 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             service.createCluster(containers, options);
         }
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
-        sb.append(options.getZookeeperPassword()).append("\n");
-        sb.append("You can retrieve the zookeeper password at any time using the fabric:ensemble-password command.");
+        if (zookeeperPassword == null && !generateZookeeperPassword) {
+            sb.append("Zookeeper password: (reusing users ").append(newUser).append(" password:").append(newUserPassword).append(")\n");
+            sb.append("(You can use the --zookeeper-password / --generate-zookeeper-password option to specify one.)\n");
+            zookeeperPassword = newUserPassword;
+        }   else if (generateZookeeperPassword) {
+            sb.append("Generated zookeeper password:").append(options.getZookeeperPassword());
+        }  else {
+            sb.append("Using specified zookeeper password:").append(options.getZookeeperPassword());
+        }
         System.out.println(sb.toString());
         return null;
     }
