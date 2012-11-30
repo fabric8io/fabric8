@@ -136,17 +136,21 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             ShellUtils.storeFabricCredentials(session, newUser, newUserPassword);
         }
 
+        if (zookeeperPassword == null && !generateZookeeperPassword) {
+            zookeeperPassword = newUserPassword;
+        }
+
         CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ROLE_DELIMITER+ newUserRole);
         options.getUsers().putAll(userProps);
 
         if (containers != null && !containers.isEmpty()) {
             service.createCluster(containers, options);
         }
+
         ShellUtils.storeZookeeperPassword(session, options.getZookeeperPassword());
         if (zookeeperPassword == null && !generateZookeeperPassword) {
-            sb.append("Zookeeper password: (reusing users ").append(newUser).append(" password:").append(newUserPassword).append(")\n");
+            sb.append("Zookeeper password: (reusing users ").append(newUser).append(" password:").append(options.getZookeeperPassword()).append(")\n");
             sb.append("(You can use the --zookeeper-password / --generate-zookeeper-password option to specify one.)\n");
-            zookeeperPassword = newUserPassword;
         }   else if (generateZookeeperPassword) {
             sb.append("Generated zookeeper password:").append(options.getZookeeperPassword());
         }  else {
