@@ -30,8 +30,8 @@ import org.jclouds.karaf.core.ComputeProviderOrApiRegistry;
 import org.jclouds.karaf.core.Constants;
 import org.jclouds.providers.ProviderMetadata;
 
-@Command(name = "cloud-provider-list", scope = "fabric", description = "Lists the cloud providers registered with the fabric.")
-public class CloudProviderList extends FabricCommand {
+@Command(name = "cloud-service-list", scope = "fabric", description = "Lists the cloud providers registered with the fabric.")
+public class CloudServiceList extends FabricCommand {
 
     public static final String PROVIDERFORMAT = "%-24s %-12s %-24s %-24s";
 

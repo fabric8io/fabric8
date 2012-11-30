@@ -26,8 +26,8 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.karaf.core.Constants;
 import org.osgi.service.cm.Configuration;
 
-@Command(name = "cloud-provider-remove", scope = "fabric", description = "Removes a cloud provider from the fabric's registry.")
-public class CloudProviderRemove extends FabricCommand {
+@Command(name = "cloud-service-remove", scope = "fabric", description = "Removes a cloud provider from the fabric's registry.")
+public class CloudServiceRemove extends FabricCommand {
     private static final String PID_FILTER = "(service.pid=%s*)";
 
     @Argument(index = 0, name = "name", required = true, description = "JClouds context name.")

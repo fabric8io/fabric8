@@ -48,7 +48,7 @@ import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricRackspaceAgentTest extends FabricTestSupport {
+public class FabricRackspaceContainerTest extends FabricTestSupport {
 
     private String identity;
     private String credential;
@@ -104,7 +104,7 @@ public class FabricRackspaceAgentTest extends FabricTestSupport {
 
         System.err.println(executeCommand("features:install jclouds-cloudserver-us fabric-jclouds jclouds-commands"));
 
-        executeCommand("fabric:cloud-provider-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
+        executeCommand("fabric:cloud-service-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
 
         ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
 

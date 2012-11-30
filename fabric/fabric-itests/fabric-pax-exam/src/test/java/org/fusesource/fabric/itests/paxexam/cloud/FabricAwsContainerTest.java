@@ -47,7 +47,7 @@ import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class FabricAwsAgentTest extends FabricTestSupport {
+public class FabricAwsContainerTest extends FabricTestSupport {
 
     private String identity;
     private String credential;
@@ -103,19 +103,20 @@ public class FabricAwsAgentTest extends FabricTestSupport {
 
         System.err.println(executeCommand("features:install jclouds-aws-ec2 fabric-jclouds jclouds-commands"));
 
-        String fabricVersion = System.getProperty("fabric.version");
+        /*String fabricVersion = System.getProperty("fabric.version");
         if (fabricVersion != null && fabricVersion.contains("SNAPSHOT")) {
             System.err.println("Switching to snapshot repository");
             executeCommands("config:propset --pid org.fusesource.fabric.service defaultRepo http://repo.fusesource.com/nexus/content/groups/public-snapshots/");
-        }
+        }*/
 
         //Filtering out regions because there is a temporary connectivity issue with us-west-2.
-        executeCommand("fabric:cloud-provider-add --provider aws-ec2 --identity "+identity+" --credential "+credential);
+        executeCommand("fabric:cloud-service-add --provider aws-ec2 --identity "+identity+" --credential "+credential);
         ComputeService computeService = getOsgiService(ComputeService.class, 3 * DEFAULT_TIMEOUT);
 
         //The compute service needs some time to properly initialize.
         //Thread.sleep(3 * DEFAULT_TIMEOUT);
-        System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider aws-ec2 --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));
+        System.err.println(executeCommand("fabric:cloud-service-list"));
+        System.err.println(executeCommand(String.format("fabric:container-create-cloud --name aws-ec2 --locationId %s --imageId %s --group %s --ensemble-server ensemble1", location, image, group), 10 * 60000L, false));
         String publicIp = getNodePublicIp(computeService);
         assertNotNull(publicIp);
         Thread.sleep(DEFAULT_TIMEOUT);

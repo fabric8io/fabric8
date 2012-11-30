@@ -74,8 +74,8 @@
                 <entry key="--os-family" value-ref="osFamilyCompleter"/>
             </optional-completers>
         </command>
-        <command name="fabric/cloud-provider-add">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderAdd">
+        <command name="fabric/cloud-service-add">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceAdd">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
@@ -85,8 +85,8 @@
                 <entry key="--api" value-ref="availableComputeApiCompleter"/>
             </optional-completers>
         </command>
-        <command name="fabric/cloud-provider-remove">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderRemove">
+        <command name="fabric/cloud-service-remove">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceRemove">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
@@ -96,8 +96,8 @@
                 <null/>
             </completers>
         </command>
-        <command name="fabric/cloud-provider-list">
-            <action class="org.fusesource.fabric.service.jclouds.commands.CloudProviderList">
+        <command name="fabric/cloud-service-list">
+            <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
                 <property name="computeProviderOrApiRegistry" ref="computeProviderOrApiRegistry"/>

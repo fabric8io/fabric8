@@ -58,15 +58,16 @@ public class CloudFirewallEdit extends FabricCommand {
     @Option( name = "--target-container", required = false, description = "The target container name.")
     private String targetContainerName;
 
-    @Option(name = "--provider", required = false, description = "The cloud provider name.")
-    private String providerName;
+    @Option(name = "--name", required = false, description = "The service context name. Used to distinct between multiple service of the same provider/api.")
+    private String contextName;
+
 
     private FirewallManagerFactory firewallManagerFactory;
     private List<ComputeService> computeServices;
 
     private boolean validateArguments() {
-        if (Strings.isNullOrEmpty(providerName) && (Strings.isNullOrEmpty(targetContainerName) || !getZooKeeper().isConnected())) {
-            System.out.println("You need to either specify a valid cloud provider and a node id or a valid target fabric container name.");
+        if (Strings.isNullOrEmpty(contextName) && (Strings.isNullOrEmpty(targetContainerName) || !getZooKeeper().isConnected())) {
+            System.out.println("You need to either specify a valid cloud service and a node id or a valid target fabric container name.");
             System.out.println("To use the target container name option you need to be connected to fabric.");
             return false;
         }
@@ -110,13 +111,13 @@ public class CloudFirewallEdit extends FabricCommand {
             CreateJCloudsContainerMetadata metadata = getContainerCloudMetadata(targetContainerName);
             if (metadata != null) {
             CreateJCloudsContainerOptions options = metadata.getCreateOptions();
-                providerName = options.getProviderName();
+                contextName = options.getContextName();
             }
         }
 
-        if (!Strings.isNullOrEmpty(providerName)) {
+        if (!Strings.isNullOrEmpty(contextName)) {
             for (ComputeService computeService : computeServices) {
-                if (computeService.getContext().unwrap().getId().equals(providerName)) {
+                if (computeService.getContext().unwrap().getName().equals(contextName)) {
                     return computeService;
                 }
             }
