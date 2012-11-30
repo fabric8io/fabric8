@@ -113,7 +113,7 @@
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/admin</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>fmc-admin</destName>
+            <destName>admin</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>

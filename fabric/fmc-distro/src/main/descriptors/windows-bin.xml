@@ -106,7 +106,7 @@
         <file>
             <source>${basedir}/target/dependencies/win/fuse-fabric-${fabric.version}/bin/admin.bat</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>fmc-admin.bat</destName>
+            <destName>admin.bat</destName>
             <fileMode>0755</fileMode>
             <lineEnding>windows</lineEnding>
         </file>
