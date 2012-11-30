@@ -113,7 +113,23 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createLocalServer(int port) {
-        createLocalServer(port, CreateEnsembleOptions.build());
+        String newUser = null;
+        String newUserPassword = null;
+        org.apache.felix.utils.properties.Properties userProps = null;
+
+        try {
+            userProps = new org.apache.felix.utils.properties.Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+        } catch (IOException e) {
+            LOGGER.warn("Failed to load users from etc/users.proprties. No users will be imported.", e);
+        }
+
+        if (userProps != null && !userProps.isEmpty()) {
+            newUser = (String) userProps.keySet().iterator().next();
+            newUserPassword = (String) userProps.get(newUser);
+            createLocalServer(port, CreateEnsembleOptions.build().user(newUser, newUserPassword));
+        } else {
+            createLocalServer(port, CreateEnsembleOptions.build());
+        }
     }
 
     public void createLocalServer(int port, CreateEnsembleOptions options) {
