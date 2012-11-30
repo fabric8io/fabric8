@@ -268,6 +268,16 @@
           <fileset file="src/main/append-resources/etc/org.apache.karaf.management.cfg" />
         </concat>
 
+           <echo message="Updating etc/org.apache.karaf.shell.cfg in unix assembly" />
+           <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/org.apache.karaf.shell.cfg" append="true" eol="unix">
+             <fileset file="src/main/append-resources/etc/org.apache.karaf.shell.cfg" />
+           </concat>
+           <echo message="Updating etc/org.apache.karaf.shell.cfg in windows assembly" />
+           <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/org.apache.karaf.shell.cfg" append="true" eol="dos">
+             <fileset file="src/main/append-resources/etc/org.apache.karaf.shell.cfg" />
+           </concat>
+
+
         <echo message="Fixing start/stop scripts in windows assembly" />
         <replace file="target/dependencies/win/fuse-fabric-${fabric.version}/bin/start.bat" token="fusefabric.bat" value="fmc.bat" />
         <replace file="target/dependencies/win/fuse-fabric-${fabric.version}/bin/stop.bat" token="fusefabric.bat" value="fmc.bat" />
