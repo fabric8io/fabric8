@@ -240,7 +240,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         Set<Integer> rmiPorts = new LinkedHashSet<Integer>();
         String jmxUrl = container.getJmxUrl();
         String address = container.getIp();
-        if (address != null) {
+        // maybe container didn't register yet, but ports should be already added, so it's OK
+        if (jmxUrl != null && address != null) {
             Pattern pattern = Pattern.compile(address + ":\\d{1,5}");
             Matcher mather = pattern.matcher(jmxUrl);
             while (mather.find()) {
