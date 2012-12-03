@@ -15,7 +15,7 @@ foreground in this case, but you will not be able to access the container remote
 not be able to run it in the background.
 
 To enable remote access to the container, you must create at least one user in
-the .${fileSeparator}etc{fileSeparator}users.properties file.
+the .${fileSeparator}etc${fileSeparator}users.properties file.
 It is recommended that you create at least one user with the admin role by adding
 a line with the following syntax:
 
