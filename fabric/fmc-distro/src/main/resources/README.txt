@@ -35,9 +35,6 @@ http://localhost:${fmc-port}
 Follow the guide on the welcome page to either create a new
 Fabric Ensemble Server or join an existing Fabric Ensemble.
 
-Then log in using the username and password you've configured
-in etc/fmc-users.properties
-
 For more information about Fuse Management Console please
 visit:
 
