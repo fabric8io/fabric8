@@ -94,7 +94,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
 
     @Override
     public void addRepository(URI uri, boolean b) throws Exception {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --repositories %s target-profile instead. See fabric:profile-edit for more information.", uri.toString()));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --repositories %s target-profile instead. See fabric:profile-edit --help for more information.", uri.toString()));
     }
 
     @Override
@@ -104,7 +104,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
 
     @Override
     public void removeRepository(URI uri, boolean b) throws Exception {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --repositories %s target-profile instead. See fabric:profile-edit for more information.", uri.toString()));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --repositories %s target-profile instead. See fabric:profile-edit --help for more information.", uri.toString()));
     }
 
     @Override
@@ -152,7 +152,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
 
     @Override
     public void installFeature(String s, EnumSet<Option> options) throws Exception {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, pleas use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit for more information.", s));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit --help for more information.", s));
     }
 
     @Override
@@ -166,12 +166,12 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
         if (s2 != null && s2.equals("0.0.0")) {
             featureName = s + "/" + s2;
         }
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, pleas use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit for more information.", featureName));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit --help for more information.", featureName));
     }
 
     @Override
     public void installFeature(Feature feature, EnumSet<Option> options) throws Exception {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, pleas use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit for more information.", feature.getName()));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit --help for more information.", feature.getName()));
     }
 
     @Override
@@ -180,12 +180,12 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
         for (Feature feature : features) {
             sb.append("--feature ").append(feature.getName());
         }
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, pleas use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit for more information.", sb.toString()));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit --help for more information.", sb.toString()));
     }
 
     @Override
     public void uninstallFeature(String s) throws Exception {
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, pleas use fabric:profile-edit --delete --features %s target-profile instead. See fabric:profile-edit for more information.", s));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --delete --features %s target-profile instead. See fabric:profile-edit --help for more information.", s));
     }
 
     @Override
@@ -194,7 +194,7 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
         if (s2 != null && s2.equals("0.0.0")) {
             featureName = s + "/" + s2;
         }
-        throw new UnsupportedOperationException(String.format("The container is managed by fabric, pleas use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit for more information.", featureName));
+        throw new UnsupportedOperationException(String.format("The container is managed by fabric, please use fabric:profile-edit --features %s target-profile instead. See fabric:profile-edit --help for more information.", featureName));
     }
 
     @Override
