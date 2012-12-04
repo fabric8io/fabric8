@@ -52,7 +52,6 @@
             !org.xmlpull.*,
             !junit.*,
             org.osgi.service.event;resolution:=optional,
-            org.fusesource.common.util;version="[7.1,8)",
             *
         </fuse.osgi.import.pkg>
         <fuse.osgi.export>
