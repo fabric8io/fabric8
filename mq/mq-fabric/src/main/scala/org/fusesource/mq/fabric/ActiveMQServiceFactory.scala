@@ -322,8 +322,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
             } catch {
               case e:Throwable =>
                 info("Broker %s failed to start.  Will try again in 10 seconds", name)
-                info("Exception: " + e)
-                e.printStackTrace()
+                LOG.info("Exception on start: " + e, e)
                 Thread.sleep(1000*10);
                 start_failure = e
             } finally {
@@ -352,17 +351,17 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               osgiUnregister(s._2)
             }
           } catch {
-            case e:Throwable => e.printStackTrace()
+            case e:Throwable => LOG.debug("Exception on stop: " + e,  e)
           }
           try {
             s._1.close()
           } catch {
-            case e:Throwable => e.printStackTrace()
+            case e:Throwable => LOG.debug("Exception on close: " + e,  e)
           }
           try {
             if ( pool_enabled ) discoveryAgent.stop()
           } catch {
-            case e:Throwable => e.printStackTrace()
+            case e:Throwable => LOG.debug("Exception on stop: " + e,  e)
           }
           server = null
         }
