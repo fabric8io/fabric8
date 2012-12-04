@@ -194,12 +194,10 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
         if (username == null) {
             log.debug("Prompting user for ssh login");
             username = ShellUtils.readLine(session, "SSH Login for " + container + ": ", false);
-            System.out.println();
         }
 
         if (password == null) {
             password = ShellUtils.readLine(session, "SSH Password for " + username + "@" + container + ": ", true);
-            System.out.println();
         }
     }
 

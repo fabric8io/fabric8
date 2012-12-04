@@ -196,12 +196,10 @@ public class MQCreate extends FabricCommand {
         if (username == null) {
             log.debug("Prompting user for jmx login");
             username = ShellUtils.readLine(session, "Jmx Login for " + fabricService.getCurrentContainerName() + ": ", false);
-            System.out.println();
         }
 
         if (password == null) {
             password = ShellUtils.readLine(session, "Jmx Password for " + fabricService.getCurrentContainerName() + ": ", true);
-            System.out.println();
         }
     }
 }

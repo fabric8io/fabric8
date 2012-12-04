@@ -5,8 +5,10 @@ import java.security.AccessController;
 import java.util.Set;
 import javax.security.auth.Subject;
 import jline.Terminal;
+import jline.console.ConsoleReader;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.fusesource.jansi.Ansi;
 
 public class ShellUtils {
 
@@ -96,25 +98,17 @@ public class ShellUtils {
      * @throws IOException
      */
     public static String readLine(CommandSession session, String msg, boolean hidden) throws IOException {
-        StringBuffer sb = new StringBuffer();
-        System.out.print(msg);
-        System.out.flush();
-        for (; ; ) {
-            int c = session.getKeyboard().read();
-            if (c < 0) {
-                return null;
+        Object obj = session.get(".jline.reader");
+        if (obj instanceof ConsoleReader) {
+            ConsoleReader reader = (ConsoleReader) obj;
+            if (hidden) {
+                return reader.readLine(msg,ConsoleReader.NULL_MASK);
+            } else {
+                return reader.readLine(msg);
             }
-
-            if (!hidden) {
-                System.out.print((char) c);
-                System.out.flush();
-            }
-            if (c == '\r' || c == '\n') {
-                break;
-            }
-            sb.append((char) c);
         }
-        return sb.toString();
+
+        return null;
     }
 
     /**

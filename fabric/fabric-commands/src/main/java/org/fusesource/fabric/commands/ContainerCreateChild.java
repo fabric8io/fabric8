@@ -103,12 +103,10 @@ public class ContainerCreateChild extends ContainerCreateSupport {
         if (username == null) {
             log.debug("Prompting user for jmx login");
             username = ShellUtils.readLine(session, "Jmx Login for " + parent + ": ", false);
-            System.out.println();
         }
 
         if (password == null) {
             password = ShellUtils.readLine(session, "Jmx Password for " + parent + ": ", true);
-            System.out.println();
         }
     }
 }

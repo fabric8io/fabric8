@@ -56,9 +56,8 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
         if (user == null || password == null) {
             System.out.println("No user found in etc/users.properties or specified as an option. Please specify one ...");
         }
-        if (user == null) {
+        while (user == null || user.isEmpty()) {
             user = ShellUtils.readLine(session, "New user name: ", false);
-            System.out.println();
         }
 
         if (password == null) {
@@ -66,9 +65,7 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
             String password2 = null;
             while (password1 == null || !password1.equals(password2)) {
                 password1 = ShellUtils.readLine(session, "Password for "+user+": ", true);
-                System.out.println();
                 password2 = ShellUtils.readLine(session, "Verify password for "+user+":", true);
-                System.out.println();
                 if (password1 != null && password1.equals(password2)) {
                     password = password1;
                 }  else {
