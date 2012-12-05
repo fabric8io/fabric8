@@ -59,9 +59,15 @@ class Authenticator(@Context servletContext: ServletContext) {
       var engine: BackingEngine = null
       var used_realm: JaasRealm = null
       services.map(service => {
-        val realm = _bundle_context.getService(service)
-        if (realm.asInstanceOf[JaasRealm].getName == domain) {
-          used_realm = realm.asInstanceOf[JaasRealm]
+        val realm = _bundle_context.getService(service).asInstanceOf[JaasRealm]
+        if (realm.getName == domain) {
+          if (used_realm != null) {
+            if (realm.getRank() > used_realm.getRank()) {
+              used_realm = realm
+            }
+          } else {
+            used_realm = realm
+          }
         }
       })
       if (used_realm != null) {
