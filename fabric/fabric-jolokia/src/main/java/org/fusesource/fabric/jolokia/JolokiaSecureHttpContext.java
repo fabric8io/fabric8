@@ -17,29 +17,26 @@
 
 package org.fusesource.fabric.jolokia;
 
-import java.io.IOException;
-import java.net.URL;
-import java.security.GeneralSecurityException;
-import java.security.Principal;
-import java.util.Dictionary;
-import javax.security.auth.Subject;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.login.AccountException;
-import javax.security.auth.login.FailedLoginException;
-import javax.security.auth.login.LoginContext;
-import javax.security.auth.login.LoginException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.security.auth.Subject;
+import javax.security.auth.callback.*;
+import javax.security.auth.login.AccountException;
+import javax.security.auth.login.FailedLoginException;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URL;
+import java.security.GeneralSecurityException;
+import java.security.Principal;
+import java.util.Dictionary;
 
 public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
 
@@ -195,7 +192,7 @@ public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
     }
 
     @Override
-    public void updated(Dictionary<String, ?> props) throws ConfigurationException {
+    public void updated(Dictionary props) throws ConfigurationException {
         if (props != null) {
             realm = props.get(REALM) != null ? (String) props.get(REALM) : realm;
             role = props.get(ROLE) != null ? (String) props.get(ROLE) : role;
