@@ -188,6 +188,31 @@
                             <resources>
                                 <resource>
                                     <directory>target/dependencies/unix/fuse-fabric-${project.version}/system</directory>
+                                    <includes>
+                                        <!-- otherwise features-maven-plugin throws an NPE -->
+                                        <include>**/*features*.xml</include>
+
+                                        <!-- top-level packages from base Apache Karaf distro -->
+                                        <include>org/apache/karaf/**</include>
+                                        <include>org/apache/aries/**</include>
+                                        <include>org/apache/felix/**</include>
+                                        <include>org/apache/mina/**</include>
+                                        <include>org/apache/servicemix/**</include>
+                                        <include>org/apache/sshd/**</include>
+                                        <include>org/ops4j/pax/logging/**</include>
+                                        <include>org/ops4j/pax/url/**</include>
+
+                                        <!-- artifacts listed in fuse-fabric distro startup.properties -->
+                                        <include>org/fusesource/insight/insight-log/**</include>
+                                        <include>com/weiglewilczek/scala-lang-osgi/scala-library/**</include>
+                                        <include>org/codehaus/jackson/jackson-core-asl/**</include>
+                                        <include>org/fusesource/fabric/fabric-boot-commands/**</include>
+                                        <include>org/codehaus/jackson/jackson-mapper-asl/**</include>
+                                        <include>org/fusesource/fabric/fabric-zookeeper/**</include>
+                                        <include>commons-codec/commons-codec/**</include>
+                                        <include>org/fusesource/fabric/fabric-linkedin-zookeeper/**</include>
+                                        <include>org/fusesource/fabric/fabric-core/**</include>
+                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>

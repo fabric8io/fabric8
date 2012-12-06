@@ -66,6 +66,7 @@
                               <feature>xml-specs-api</feature>
                               <feature>fabric-commands</feature>
                               <feature>fabric-bundle</feature>
+                              <feature>fabric-maven-proxy</feature>
                               <feature>cxf</feature>
                               <feature>camel-core</feature>
                               <feature>camel-spring</feature>
