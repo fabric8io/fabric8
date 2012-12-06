@@ -93,21 +93,6 @@
 
         <!-- these are copied to the lib folder -->
         <dependency>
-            <groupId>org.apache.xerces</groupId>
-            <artifactId>xercesImpl</artifactId>
-            <version>${xerces.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>xalan</artifactId>
-            <version>${xalan.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>xalan</groupId>
-            <artifactId>serializer</artifactId>
-            <version>${xalan.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.activator</artifactId>
             <version>${servicemix-specs-version}</version>
