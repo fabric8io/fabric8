@@ -51,7 +51,7 @@
         <geronimo-jms.version>1.1.1</geronimo-jms.version>
         <geronimo-jpa.version>1.1</geronimo-jpa.version>
         <geronimo-saaj.version>1.0.0</geronimo-saaj.version>
-        <geronimo-servlet.version>1.1.2</geronimo-servlet.version>
+        <geronimo-servlet.version>1.2</geronimo-servlet.version>
         <geronimo-ws-metadata.version>1.1.3</geronimo-ws-metadata.version>
 
         <!-- ServiceMix Bundles -->
@@ -64,7 +64,7 @@
         <bcel.bundle.version>5.2_3</bcel.bundle.version>
         <commons-beanutils.bundle.version>1.8.2_1</commons-beanutils.bundle.version>
         <commons-collections.bundle.version>3.2.1_1</commons-collections.bundle.version>
-        <commons-httpclient.bundle.version>3.1_6</commons-httpclient.bundle.version>
+        <commons-httpclient.bundle.version>3.1_7</commons-httpclient.bundle.version>
         <commons-net.bundle.version>2.2</commons-net.bundle.version>
         <commons-pool.bundle.version>1.5.4_2</commons-pool.bundle.version>
         <commons-vfs.bundle.version>1.0_5</commons-vfs.bundle.version>
@@ -98,7 +98,7 @@
         <xerces.bundle.version>2.9.1_4</xerces.bundle.version>
         <xmlbeans.bundle.version>2.5.0_2</xmlbeans.bundle.version>
         <xmlresolver.bundle.version>1.2_3</xmlresolver.bundle.version>
-        <xmlsec.bundle.version>1.4.5_1</xmlsec.bundle.version>
+        <xmlsec.bundle.version>1.5.2</xmlsec.bundle.version>
 
         <!-- ServiceMix legal shared resources -->
         <servicemix.legal.version>1.0</servicemix.legal.version>
@@ -145,7 +145,7 @@
         <hibernate.annotations.springsource.version>3.4.0.GA</hibernate.annotations.springsource.version>
         <hibernate.ejb.springsource.version>3.4.0.GA</hibernate.ejb.springsource.version>
         <hibernate.springsource.version>3.3.2.GA</hibernate.springsource.version>
-        <xmlschema.version>2.0</xmlschema.version>
+        <xmlschema.version>2.0.3</xmlschema.version>
     </properties>
 
     <build>

@@ -122,7 +122,7 @@
         <bundle dependency="true">mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-httpclient/${commons-httpclient.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.ws.xmlschema/xmlschema-core/${xmlschema.version}</bundle>
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.xmlsec/${xmlsec.bundle.version}</bundle>
+        <bundle dependency="true">mvn:org.apache.santuario/xmlsec/${xmlsec.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.ws.security/wss4j/${wss4j.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-http/${servicemix.components.version}</bundle>
     </feature>
