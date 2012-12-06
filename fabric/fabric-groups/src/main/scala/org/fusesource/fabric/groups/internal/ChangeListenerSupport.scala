@@ -17,8 +17,13 @@
 package org.fusesource.fabric.groups.internal
 
 import org.fusesource.fabric.groups.ChangeListener
+import org.slf4j.{Logger, LoggerFactory}
 import java.util.concurrent.TimeUnit
 
+
+object ChangeListenerSupport {
+    val LOG: Logger = LoggerFactory.getLogger(classOf[ChangeListenerSupport])
+}
 /**
  * <p>
  * </p>
@@ -81,7 +86,7 @@ trait ChangeListenerSupport {
       val end = System.nanoTime()
       val elapsed = TimeUnit.NANOSECONDS.toMillis(end-start)
       if( elapsed > 100 ) {
-        println("WARN: listeners are taking too long to process the events")
+        ChangeListenerSupport.LOG.warn("listeners are taking too long to process the events")
       }
     }
   }
