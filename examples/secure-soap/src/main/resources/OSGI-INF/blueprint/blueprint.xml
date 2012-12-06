@@ -44,7 +44,7 @@
             this will ensure that the credentials are being authenticated in the JAAS realm defined there ('karaf')
         -->
         <jaxws:inInterceptors>
-
+            
             <bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
                  <property name="properties">
                      <map>
@@ -55,6 +55,10 @@
              </bean>          
             <ref component-id="authenticationInterceptor"/>
         </jaxws:inInterceptors>
+        <jaxws:outInterceptors>
+            <bean class="org.fusesource.examples.cxf.jaxws.security.EnableCORSInterceptor"/>
+        </jaxws:outInterceptors>
+ 
         <!--
           TODO: Add a description about the purpose of this extra property
         -->
