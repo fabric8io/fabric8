@@ -86,11 +86,11 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
             throw new IllegalArgumentException("Container " + container + " has an invalid SSH URL '" + sshUrl + "'");
         }
 
-        String sshUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
-        String sshPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
+        username = username != null && !username.isEmpty() ? username : ShellUtils.retrieveFabricUser(session);
+        password = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
 
         try {
-            executSshCommand(session, sshUser, sshPassword, ssh[0], ssh[1], cmdStr);
+            executSshCommand(session, username, password, ssh[0], ssh[1], cmdStr);
         } catch (FabricAuthenticationException ex) {
             promptForSshCredentialsIfNeeded();
             executSshCommand(session, username, password, ssh[0], ssh[1], cmdStr);
@@ -142,6 +142,9 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
                 }*/
 
                 if (!authed) {
+                    if (username == null) {
+                        throw new FabricAuthenticationException("No username specified.");
+                    }
                     log.debug("Prompting user for password");
                     String pwd  = password != null ? password : ShellUtils.readLine(session, "Password: ", true);
                     sshSession.authPassword(username, pwd);
@@ -191,7 +194,7 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
      */
     private void promptForSshCredentialsIfNeeded() throws IOException {
         // If the username was not configured via cli, then prompt the user for the values
-        if (username == null) {
+        if (username == null || username.isEmpty()) {
             log.debug("Prompting user for ssh login");
             username = ShellUtils.readLine(session, "SSH Login for " + container + ": ", false);
         }
