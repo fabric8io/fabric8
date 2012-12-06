@@ -79,7 +79,7 @@ After you deployed this example, you will see the `HelloWorldSecurity` service a
         </soap:Envelope>
 
 **Note:** If you use Safari, right click the window and select **Show Source**.
-**Note:** If you get `Status: 0` in the right-hand panel instead, your browser no longer supports a cross-domain HTTP request from JavaScript
+**Note:** The EnableCORSInterceptor specified for the jaxws:endpoint is only for the CORS http header check of modern browser when use client.html to do the test.
       You can use the Java client instead to test your web service (see below).
 
 
