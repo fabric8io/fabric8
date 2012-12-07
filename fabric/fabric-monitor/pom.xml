@@ -31,6 +31,13 @@
   <name>${project.artifactId}</name>
   <description>Fuse Fabric :: Monitor</description>
 
+  <properties>
+    <fuse.osgi.private.pkg>
+      org.apache.felix.utils.properties,
+      org.apache.felix.utils.version,
+    </fuse.osgi.private.pkg>
+  </properties>
+
   <dependencies>
 
     <dependency>
@@ -54,6 +61,10 @@
     <dependency>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-core</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.utils</artifactId>
     </dependency>
     <dependency>
         <groupId>org.fusesource.insight</groupId>
