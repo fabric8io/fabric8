@@ -134,8 +134,8 @@
         <felix-configadmin-version>1.4.0.fuse-71-${perfectus-build}</felix-configadmin-version>
         <felix-eventadmin-version>1.3.0.fuse-71-${perfectus-build}</felix-eventadmin-version>
         <felix-fileinstall-version>3.3.11.fuse-71-${perfectus-build}</felix-fileinstall-version>
-        <guava-version>13.0</guava-version>
-        <guava.osgi.version.clean>13.0.0</guava.osgi.version.clean>
+        <guava-version>13.0.1</guava-version>
+        <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.0.3</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.12</hawtdispatch-version>
