@@ -159,11 +159,11 @@
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.antlr-runtime/${antlr-runtime.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.quartz/${quartz.bundle.version}</bundle>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.protobuf-java/${protobuf.bundle.version}</bundle>
-        <bundle dependency="true">mvn:org.drools/knowledge-api/${drools.version}</bundle>
-        <bundle dependency="true">mvn:org.drools/knowledge-internal-api/${drools.version}</bundle>
-        <bundle dependency="true">mvn:org.drools/drools-core/${drools.version}</bundle>
-        <bundle dependency="true">mvn:org.drools/drools-compiler/${drools.version}</bundle>
-        <bundle dependency="true">mvn:org.mvel/mvel2/${mvel.version}</bundle>
+        <bundle dependency="true">mvn:org.drools/knowledge-api/${drools-version}</bundle>
+        <bundle dependency="true">mvn:org.drools/knowledge-internal-api/${drools-version}</bundle>
+        <bundle dependency="true">mvn:org.drools/drools-core/${drools-version}</bundle>
+        <bundle dependency="true">mvn:org.drools/drools-compiler/${drools-version}</bundle>
+        <bundle dependency="true">mvn:org.mvel/mvel2/${mvel.bundle.version}</bundle>
         <bundle>mvn:org.apache.servicemix/servicemix-drools/${servicemix.components.version}</bundle>
     </feature>
     <feature name="servicemix-cxf-se" version="${servicemix.components.version}" resolver="(obr)" start-level='50'>

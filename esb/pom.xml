@@ -69,7 +69,6 @@
         <commons-pool.bundle.version>1.5.4_2</commons-pool.bundle.version>
         <commons-vfs.bundle.version>1.0_5</commons-vfs.bundle.version>
         <dom4j.bundle.version>1.6.1_2</dom4j.bundle.version>
-        <drools.bundle.version>5.5.0.Final</drools.bundle.version>
         <fastinfoset.bundle.version>1.2.7_3</fastinfoset.bundle.version>
         <jaxb.api.version>2.2</jaxb.api.version>
         <jaxb-impl.bundle.version>2.2.1.1_1</jaxb-impl.bundle.version>
@@ -118,7 +117,6 @@
         <bouncycastle.version>140</bouncycastle.version>
         <commons-jexl.version>2.0.1</commons-jexl.version>
         <commons-logging.version>1.1.1</commons-logging.version>
-        <drools-version>5.1.1</drools-version>
         <groovy.version>1.8.6</groovy.version>
         <javax.mail.version>1.4.5</javax.mail.version>
         <jaxp-ri.version>1.4.4</jaxp-ri.version>
