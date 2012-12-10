@@ -108,7 +108,7 @@
     </feature>
 
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-linkedin-zookeeper/${project.version}</bundle>
@@ -239,7 +239,7 @@
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/1.7_3</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-jaas/${project.version}</bundle>
     </feature>
 

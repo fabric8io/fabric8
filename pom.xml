@@ -156,6 +156,7 @@
         <jna-version>3.3.0</jna-version>
         <jna-bundle-version>1.1</jna-bundle-version>
         <jsch-smx-version>0.1.44_2</jsch-smx-version>
+        <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
         <junit-version>4.10</junit-version>
         <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
