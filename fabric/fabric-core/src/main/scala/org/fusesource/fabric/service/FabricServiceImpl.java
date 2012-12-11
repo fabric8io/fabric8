@@ -17,6 +17,7 @@
 package org.fusesource.fabric.service;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -72,10 +73,26 @@ public class FabricServiceImpl implements FabricService {
     private String profile = ZkDefs.DEFAULT_PROFILE;
     private ObjectName mbeanName;
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
+    private MBeanServer mbeanServer;
+    private HealthCheck healthCheck;
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, ContainerProvider>();
         providers.put("child", new ChildContainerProvider(this));
+    }
+
+    public void init() {
+        MBeanServer server = getMbeanServer();
+        if (server != null) {
+            healthCheck = new HealthCheck(this);
+            healthCheck.registerMBeanServer(server);
+        }
+    }
+
+    public void destroy() {
+        if (healthCheck != null && mbeanServer != null) {
+            healthCheck.unregisterMBeanServer(mbeanServer);
+        }
     }
 
     public IZKClient getZooKeeper() {
@@ -84,6 +101,18 @@ public class FabricServiceImpl implements FabricService {
 
     public void setZooKeeper(IZKClient zooKeeper) {
         this.zooKeeper = zooKeeper;
+    }
+
+    public MBeanServer getMbeanServer() {
+        if (mbeanServer == null) {
+            // default to platform mbean server
+            mbeanServer = ManagementFactory.getPlatformMBeanServer();
+        }
+        return mbeanServer;
+    }
+
+    public void setMbeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = mbeanServer;
     }
 
     public String getDefaultRepo() {
