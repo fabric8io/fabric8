@@ -47,6 +47,8 @@ public class HealthCheck implements HealthCheckMBean {
 
     public ObjectName getObjectName() throws MalformedObjectNameException {
         if (objectName == null) {
+            // TODO to avoid mbean clashes if ever a JVM had multiple FabricService instances, we may
+            // want to add a parameter of the fabric ID here...
             objectName = new ObjectName("org.fusesource.fabric:type=Health");
         }
         return objectName;
