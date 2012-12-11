@@ -59,9 +59,7 @@ public class HealthCheck implements HealthCheckMBean {
     public void registerMBeanServer(MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
-            System.out.println("============== registering " + name);
             ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
-            LOG.info("Registered " + name);
         } catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);
         }
@@ -71,9 +69,7 @@ public class HealthCheck implements HealthCheckMBean {
         if (mbeanServer != null) {
             try {
                 ObjectName name = getObjectName();
-                System.out.println("============== unregistering " + name);
                 mbeanServer.unregisterMBean(name);
-                LOG.info("Unegistered " + name);
             } catch (Exception e) {
                 LOG.warn("An error occured during mbean server registration: " + e, e);
             }
