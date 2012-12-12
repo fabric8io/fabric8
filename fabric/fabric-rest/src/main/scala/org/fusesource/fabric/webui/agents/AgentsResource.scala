@@ -103,6 +103,20 @@ class AgentsResource extends BaseResource {
 
       val value: CreateJCloudsContainerOptions = mapper.convertValue(options, classOf[CreateJCloudsContainerOptions])
       require(value.getProviderName != null, "provider name must be set")
+
+      val name = value.getProviderName
+
+      try {
+        val Array(provider_name, context_name) = name.split(" - ")
+        value.setProviderName(provider_name)
+        value.setContextName(context_name)
+
+      } catch {
+        case me:MatchError =>
+          throw new RuntimeException("Unexpected provider name format, should be \"provder_name\" - \"context_name\"")
+
+      }
+
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       fabric_service.createContainers(value)
