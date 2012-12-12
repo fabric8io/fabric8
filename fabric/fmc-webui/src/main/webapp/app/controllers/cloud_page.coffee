@@ -198,8 +198,16 @@ define [
               app.flash
                 kind: "info"
                 title: "Success: "
-                message: "Registered new cloud provider"
-                hide_after: 2000
+                message: "Registered new cloud provider, please wait while it initializes..."
+                hide_after: 5000
+                on_close: =>
+                  @compute_services.fetch
+                    success: (compute_services, resp) =>
+                      @compute_providers.fetch
+                        success: (compute_providers, resp) =>
+                          app.page new CloudPage
+                            compute_services: compute_services
+                            compute_providers: compute_providers
 
             error: (model, response, options) =>
               app.flash
@@ -207,14 +215,7 @@ define [
                 title: "Error creating cloud service"
                 message: "Unable to create cloud service, error message was #{response.responseText}"
 
-          app.page new CloudPage
-            compute_services: @compute_services
-            compute_providers: @compute_providers
-
-          app.flash
-            kind: "info"
-            title: "Working: "
-            message: "Registering new cloud provider or API..."
+          app.page new FON.LoadingPage
 
       @right_buttons.html @buttons.render().el
 
