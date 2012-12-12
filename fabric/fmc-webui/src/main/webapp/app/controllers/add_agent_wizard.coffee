@@ -42,9 +42,10 @@ define [
     maybe_enable_next: (self) ->
       valid = true
       keep_checking = true
-      for control in self.validated_controls
-        if !control.validate() && valid
-          valid = false
+      if self.validated_controls
+        for control in self.validated_controls
+          if !control.validate() && valid
+            valid = false
 
       if valid
         if self.next
