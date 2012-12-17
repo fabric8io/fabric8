@@ -20,7 +20,7 @@
     <parent>
         <artifactId>bundles</artifactId>
         <groupId>org.fusesource.fabric.virt</groupId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.1.0.fuse-046</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
