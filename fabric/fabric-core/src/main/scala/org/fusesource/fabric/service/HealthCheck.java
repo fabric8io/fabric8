@@ -92,19 +92,19 @@ public class HealthCheck implements HealthCheckMBean {
             double healthPercent = profile.getHealth(instances);
 
             String level = "INFO";
-            String message = "" + id + " has healthPercent " + percentInstance.format(healthPercent);
+            String message = "Profile " + id + " has health " + percentInstance.format(healthPercent);
             if (minimum != null) {
                 if (instances <= 0) {
                     level = "ERROR";
-                    message = "" + id + " has no instances running! Should have at least " + minimum;
+                    message = "Profile " + id + " has no instances running! Should have at least " + minimum;
                 } else if (instances < minimum) {
                     level = "WARNING";
-                    message = "" + id + " needs more instances runing. Should have at least " + minimum + " but currently has only " + instances;
+                    message = "Profile " + id + " needs more instances running. Should have at least " + minimum + " but currently has only " + instances;
                 }
             }
             if (maximum != null && level.equals("INFO") && instances > maximum) {
                 level = "WARNING";
-                message = "" + id + " has too many instances running. Should have at most " + maximum + " but currently has only " + instances;
+                message = "Profile " + id + " has too many instances running. Should have at most " + maximum + " but currently has only " + instances;
             }
             answer.add(new HealthStatus("org.fusesource.fabric.profileHealth", id, level, message, instances, minimum, maximum, healthPercent));
         }
