@@ -60,7 +60,8 @@ public class ObrResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(ObrResolver.class);
 
     private RepositoryAdmin repositoryAdmin;
-
+    private boolean resolveOptionalImports;
+    
     public ObrResolver() {
     }
 
@@ -76,6 +77,20 @@ public class ObrResolver {
         this.repositoryAdmin = repositoryAdmin;
     }
 
+    public boolean isResolveOptionalImports() {
+        return resolveOptionalImports;
+    }
+
+    /**
+     * When set to <code>true</code>, the OBR resolver will try to resolve optional imports as well.
+     * Defaults to <code>false</code>
+     *
+     * @param resolveOptionalImports
+     */
+    public void setResolveOptionalImports(boolean resolveOptionalImports) {
+        this.resolveOptionalImports = resolveOptionalImports;
+    }
+    
     public List<Resource> resolve(Set<Feature> features,
                                   Set<String> bundles,
                                   Map<String, FabBundleInfo> fabs,
@@ -182,7 +197,7 @@ public class ObrResolver {
             resolver.add(req);
         }
 
-        if (!resolver.resolve(org.apache.felix.bundlerepository.Resolver.NO_OPTIONAL_RESOURCES)) {
+        if (!doResolve(resolver)) {
             StringWriter w = new StringWriter();
             PrintWriter out = new PrintWriter(w);
             Reason[] failedReqs = resolver.getUnsatisfiedRequirements();
@@ -202,9 +217,20 @@ public class ObrResolver {
 
         Collections.addAll(deploy, resolver.getAddedResources());
         Collections.addAll(deploy, resolver.getRequiredResources());
+        if (resolveOptionalImports) {
+            Collections.addAll(deploy, resolver.getOptionalResources());
+        }
         return deploy;
     }
 
+    private boolean doResolve(org.apache.felix.bundlerepository.Resolver resolver) {
+        if (resolveOptionalImports) {
+            return resolver.resolve();
+        } else {
+            return resolver.resolve(org.apache.felix.bundlerepository.Resolver.NO_OPTIONAL_RESOURCES);
+        }
+    }
+    
     private int compareFuseVersions(org.osgi.framework.Version v1, org.osgi.framework.Version v2) {
         int c = v1.getMajor() - v2.getMajor();
         if (c != 0) {

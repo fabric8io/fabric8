@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.agent;
 
+import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
 
@@ -25,16 +26,22 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.packageadmin.PackageAdmin;
 import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.LoggerFactory;
 
 public class Activator implements BundleActivator {
 
     public static final String AGENT_PID = "org.fusesource.fabric.agent";
-
+    private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
+    private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Activator.class);
+    
     private DeploymentAgent agent;
     private ServiceTracker packageAdmin;
     private ServiceTracker startLevel;
@@ -45,7 +52,12 @@ public class Activator implements BundleActivator {
     public void start(BundleContext context) throws Exception {
         agent = new DeploymentAgent();
         agent.setBundleContext(context);
-        agent.setObrResolver(new ObrResolver(new RepositoryAdminImpl(context, new Logger(context))));
+        ObrResolver obr = new ObrResolver(new RepositoryAdminImpl(context, new Logger(context)));
+        Dictionary config = getConfig(context);
+        if (config != null) {
+            obr.setResolveOptionalImports(getResolveOptionalImports(config));
+        }
+        agent.setObrResolver(obr);
         agent.setPackageAdmin(getPackageAdmin(context));
         agent.setStartLevel(getStartLevel(context));
         agent.setZkClient(getZkClient(context));
@@ -53,8 +65,33 @@ public class Activator implements BundleActivator {
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(Constants.SERVICE_PID, AGENT_PID);
         registration = context.registerService(ManagedService.class.getName(), agent, props);
+    }  
+    
+    private boolean getResolveOptionalImports(Dictionary config) {
+        try {
+            return Boolean.parseBoolean((String) config.get(OBR_RESOLVE_OPTIONAL_IMPORTS));
+        } catch (Exception e) {
+            LOGGER.warn("Error reading " + OBR_RESOLVE_OPTIONAL_IMPORTS, e);            
+        }
+        return false;
     }
-
+    
+    private Dictionary getConfig(BundleContext bundleContext) {
+        try {
+            ServiceReference configAdminServiceReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+            if (configAdminServiceReference != null) {
+                ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminServiceReference);
+                if (configAdmin != null) {
+                    Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + AGENT_PID + ")");
+                    return (configuration != null && configuration.length > 0) ? configuration[0].getProperties() : null;
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Unable to retrieve agent configuration", e);            
+        }
+        return null;
+    }
+    
     private ServiceTracker getZkClient(BundleContext context) {
         zkClient = new ServiceTracker(context, IZKClient.class.getName(), null);
         zkClient.open();
