@@ -71,10 +71,10 @@ public class FabricServiceImpl implements FabricService {
     private Map<String, ContainerProvider> providers;
     private ConfigurationAdmin configurationAdmin;
     private String profile = ZkDefs.DEFAULT_PROFILE;
-    private ObjectName mbeanName;
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
     private MBeanServer mbeanServer;
-    private HealthCheck healthCheck;
+    private HealthCheck healthCheck = new HealthCheck(this);
+    private FabricManager managerMBean = new FabricManager(this);
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, ContainerProvider>();
@@ -84,14 +84,19 @@ public class FabricServiceImpl implements FabricService {
     public void init() {
         MBeanServer server = getMbeanServer();
         if (server != null) {
-            healthCheck = new HealthCheck(this);
             healthCheck.registerMBeanServer(server);
+            managerMBean.registerMBeanServer(server);
         }
     }
 
     public void destroy() {
-        if (healthCheck != null && mbeanServer != null) {
-            healthCheck.unregisterMBeanServer(mbeanServer);
+        if (mbeanServer != null) {
+            if (managerMBean != null) {
+                managerMBean.unregisterMBeanServer(mbeanServer);
+            }
+            if (healthCheck != null) {
+                healthCheck.unregisterMBeanServer(mbeanServer);
+            }
         }
     }
 
@@ -115,6 +120,22 @@ public class FabricServiceImpl implements FabricService {
         this.mbeanServer = mbeanServer;
     }
 
+    public HealthCheck getHealthCheck() {
+        return healthCheck;
+    }
+
+    public void setHealthCheck(HealthCheck healthCheck) {
+        this.healthCheck = healthCheck;
+    }
+
+    public FabricManager getManagerMBean() {
+        return managerMBean;
+    }
+
+    public void setManagerMBean(FabricManager managerMBean) {
+        this.managerMBean = managerMBean;
+    }
+
     public String getDefaultRepo() {
         return defaultRepo;
     }
@@ -133,17 +154,6 @@ public class FabricServiceImpl implements FabricService {
     public String getCurrentContainerName() {
         // TODO is there any other way to find this?
         return System.getProperty("karaf.name");
-    }
-
-    public ObjectName getMbeanName() throws MalformedObjectNameException {
-        if (mbeanName == null) {
-            mbeanName = new ObjectName("org.fusesource.fabric:type=FabricService");
-        }
-        return mbeanName;
-    }
-
-    public void setMbeanName(ObjectName mbeanName) {
-        this.mbeanName = mbeanName;
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {
@@ -411,26 +421,6 @@ public class FabricServiceImpl implements FabricService {
         String scheme = (String) properties.get(ContainerProvider.PROTOCOL);
         unregisterProvider(scheme);
     }
-
-    public void registerMBeanServer(MBeanServer mbeanServer) {
-        try {
-            ObjectName name = getMbeanName();
-            ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
-        } catch (Exception e) {
-            logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
-        }
-    }
-
-    public void unregisterMBeanServer(MBeanServer mbeanServer) {
-        if (mbeanServer != null) {
-            try {
-                mbeanServer.unregisterMBean(getMbeanName());
-            } catch (Exception e) {
-                logger.warn("An error occurred during mbean server un-registration. This exception will be ignored.", e);
-            }
-        }
-    }
-
 
     public String getZookeeperUrl() {
         return getZookeeperInfo("zookeeper.url");
