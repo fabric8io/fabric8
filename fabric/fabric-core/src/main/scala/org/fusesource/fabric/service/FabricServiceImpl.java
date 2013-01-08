@@ -27,9 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -44,6 +41,7 @@ import org.fusesource.fabric.api.FabricStatus;
 import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
@@ -430,7 +428,7 @@ public class FabricServiceImpl implements FabricService {
         return getZookeeperInfo("zookeeper.password");
     }
 
-    protected String getZookeeperInfo(String name) {
+    public String getZookeeperInfo(String name) {
         String zooKeeperUrl = null;
         //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
         //Also this is required for the integration with the IDE.
@@ -600,8 +598,14 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public void deleteProfile(Profile profile) {
+        String profileID = profile.getId();
+        String versionId = profile.getVersion();
+        deleteProfile(versionId, profileID);
+    }
+
+    public void deleteProfile(String versionId, String profileId) {
         try {
-            zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(profile.getVersion(), profile.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(versionId, profileId));
         } catch (Exception e) {
             throw new FabricException(e);
         }

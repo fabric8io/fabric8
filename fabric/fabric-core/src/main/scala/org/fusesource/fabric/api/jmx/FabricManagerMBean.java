@@ -14,22 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.FabricStatus;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
-import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -40,13 +36,13 @@ import java.util.Map;
 public interface FabricManagerMBean {
     CreateContainerMetadata[] createContainers(CreateContainerOptions options);
 
-    Profile createProfile(String version, String name);
+    ProfileDTO createProfile(String version, String name);
 
     Version createVersion(Version parent, String toVersion);
 
     Version createVersion(String version);
 
-    void deleteProfile(Profile profile);
+    void deleteProfile(String versionId, String profileId);
 
     void deleteVersion(String version);
 
@@ -56,7 +52,9 @@ public interface FabricManagerMBean {
 
     Container[] containers();
 
+/*
     ContainerTemplate getContainerTemplate(Container container, String jmxUser, String jmxPassword);
+*/
 
     Container currentContainer();
 
@@ -74,16 +72,20 @@ public interface FabricManagerMBean {
 
     String getMavenRepoURI();
 
-    Profile getProfile(String version, String name);
+    ProfileDTO getProfile(String versionId, String profileId);
 
-    Profile[] getProfiles(String version);
+    List<String> getProfileIds(String versionId);
 
+    List<ProfileDTO> getProfiles(String versionId);
+
+/*
     ContainerProvider getProvider(Container container);
 
     ContainerProvider getProvider(String scheme);
 
     Map<String, ContainerProvider> providers();
 
+*/
     FabricRequirements requirements();
 
     Version getVersion(String name);
@@ -113,4 +115,5 @@ public interface FabricManagerMBean {
     void unregisterProvider(ContainerProvider provider, Map<String, Object> properties);
 
     void unregisterProvider(String scheme);
+
 }

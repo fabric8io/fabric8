@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
@@ -23,9 +23,10 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricStatus;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Profiles;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.osgi.service.cm.ConfigurationAdmin;
+import org.fusesource.fabric.service.ContainerTemplate;
+import org.fusesource.fabric.service.FabricServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -97,8 +99,8 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public Profile createProfile(String version, String name) {
-        return getFabricService().createProfile(version, name);
+    public ProfileDTO createProfile(String version, String name) {
+        return ProfileDTO.newInstance(getFabricService().createProfile(version, name));
     }
 
     @Override
@@ -112,8 +114,8 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public void deleteProfile(Profile profile) {
-        getFabricService().deleteProfile(profile);
+    public void deleteProfile(String versionId, String profileId) {
+        getFabricService().deleteProfile(versionId, profileId);
     }
 
     @Override
@@ -136,11 +138,13 @@ public class FabricManager implements FabricManagerMBean {
         return getFabricService().getContainers();
     }
 
+/*
     @Override
     public ContainerTemplate getContainerTemplate(Container container, String jmxUser, String jmxPassword) {
         return getFabricService().getContainerTemplate(container, jmxUser, jmxPassword);
     }
 
+*/
 
     @Override
     public Container currentContainer() {
@@ -199,16 +203,22 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public Profile getProfile(String version, String name) {
-        return getFabricService().getProfile(version, name);
+    public ProfileDTO getProfile(String version, String name) {
+        return ProfileDTO.newInstance(getFabricService().getProfile(version, name));
     }
 
 
     @Override
-    public Profile[] getProfiles(String version) {
-        return getFabricService().getProfiles(version);
+    public List<ProfileDTO> getProfiles(String version) {
+        return ProfileDTO.newInstances(getFabricService().getProfiles(version));
     }
 
+    @Override
+    public List<String> getProfileIds(String version) {
+        return Profiles.getProfileIds(getFabricService().getProfiles(version));
+    }
+
+/*
     @Override
     public ContainerProvider getProvider(Container container) {
         return getFabricService().getProvider(container);
@@ -223,6 +233,7 @@ public class FabricManager implements FabricManagerMBean {
     public Map<String, ContainerProvider> providers() {
         return getFabricService().getProviders();
     }
+*/
 
 
     @Override
