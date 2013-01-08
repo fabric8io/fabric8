@@ -496,8 +496,12 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public void setDefaultVersion(Version version) {
+        setDefaultVersion(version.getName());
+    }
+
+    public void setDefaultVersion(String versionId) {
         try {
-            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version.getName());
+            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), versionId);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -514,8 +518,12 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public Version createVersion(Version parent, String toVersion) {
+        return createVersion(parent.getName(), toVersion);
+    }
+
+    public Version createVersion(String parentVersionId, String toVersion) {
         try {
-            ZooKeeperUtils.copy(zooKeeper, ZkPath.CONFIG_VERSION.getPath(parent.getName()), ZkPath.CONFIG_VERSION.getPath(toVersion));
+            ZooKeeperUtils.copy(zooKeeper, ZkPath.CONFIG_VERSION.getPath(parentVersionId), ZkPath.CONFIG_VERSION.getPath(toVersion));
             return new VersionImpl(toVersion, this);
         } catch (Exception e) {
             throw new FabricException(e);
@@ -575,7 +583,6 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public Profile getProfile(String version, String name) {
         try {
-
             String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name);
             if (zooKeeper.exists(path) == null) {
                 return null;
@@ -598,9 +605,7 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public void deleteProfile(Profile profile) {
-        String profileID = profile.getId();
-        String versionId = profile.getVersion();
-        deleteProfile(versionId, profileID);
+        deleteProfile(profile.getVersion(), profile.getId());
     }
 
     public void deleteProfile(String versionId, String profileId) {

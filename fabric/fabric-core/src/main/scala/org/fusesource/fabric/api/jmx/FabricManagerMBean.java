@@ -38,9 +38,8 @@ public interface FabricManagerMBean {
 
     ProfileDTO createProfile(String version, String name);
 
-    Version createVersion(Version parent, String toVersion);
-
-    Version createVersion(String version);
+    VersionDTO createVersion(String version);
+    VersionDTO createVersion(String parentVersionId, String toVersion);
 
     void deleteProfile(String versionId, String profileId);
 
@@ -64,7 +63,7 @@ public interface FabricManagerMBean {
 
     String getDefaultRepo();
 
-    Version defaultVersion();
+    VersionDTO defaultVersion();
 
     FabricStatus fabricStatus();
 
@@ -88,9 +87,9 @@ public interface FabricManagerMBean {
 */
     FabricRequirements requirements();
 
-    Version getVersion(String name);
+    VersionDTO getVersion(String name);
 
-    Version[] versions();
+    List<VersionDTO> versions();
 
     String getZookeeperInfo(String name);
 
@@ -104,7 +103,7 @@ public interface FabricManagerMBean {
 
     void setDefaultRepo(String defaultRepo);
 
-    void setDefaultVersion(Version version);
+    void setDefaultVersion(String versionId);
 
     void requirements(FabricRequirements requirements) throws IOException;
 

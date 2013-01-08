@@ -104,13 +104,13 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public Version createVersion(Version parent, String toVersion) {
-        return getFabricService().createVersion(parent, toVersion);
+    public VersionDTO createVersion(String parentVersionId, String toVersion) {
+        return VersionDTO.newInstance(getFabricService().createVersion(parentVersionId, toVersion));
     }
 
     @Override
-    public Version createVersion(String version) {
-        return getFabricService().createVersion(version);
+    public VersionDTO createVersion(String version) {
+        return VersionDTO.newInstance(getFabricService().createVersion(version));
     }
 
     @Override
@@ -170,8 +170,8 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public Version defaultVersion() {
-        return getFabricService().getDefaultVersion();
+    public VersionDTO defaultVersion() {
+        return VersionDTO.newInstance(getFabricService().getDefaultVersion());
     }
 
 
@@ -242,13 +242,13 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public Version getVersion(String name) {
-        return getFabricService().getVersion(name);
+    public VersionDTO getVersion(String name) {
+        return VersionDTO.newInstance(getFabricService().getVersion(name));
     }
 
     @Override
-    public Version[] versions() {
-        return getFabricService().getVersions();
+    public List<VersionDTO> versions() {
+        return VersionDTO.newInstances(getFabricService().getVersions());
     }
 
 /*
@@ -296,8 +296,8 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public void setDefaultVersion(Version version) {
-        getFabricService().setDefaultVersion(version);
+    public void setDefaultVersion(String versionId) {
+        getFabricService().setDefaultVersion(versionId);
     }
 
 
