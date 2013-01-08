@@ -98,17 +98,13 @@ public interface FabricManagerMBean {
 
     void registerProvider(String scheme, ContainerProvider provider);
 
-    void setConfigurationAdmin(ConfigurationAdmin configurationAdmin);
-
     void setDefaultJvmOptions(String jvmOptions);
 
     void setDefaultRepo(String defaultRepo);
 
     void setDefaultVersion(Version version);
 
-    void setRequirements(FabricRequirements requirements) throws IOException;
-
-    void setZooKeeper(IZKClient zooKeeper);
+    void requirements(FabricRequirements requirements) throws IOException;
 
     void startContainer(Container container);
 

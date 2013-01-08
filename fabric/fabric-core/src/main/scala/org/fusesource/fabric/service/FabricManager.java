@@ -272,11 +272,6 @@ public class FabricManager implements FabricManagerMBean {
         getFabricService().registerProvider(scheme, provider);
     }
 
-    @Override
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        getFabricService().setConfigurationAdmin(configurationAdmin);
-    }
-
 
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
@@ -296,13 +291,8 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public void setRequirements(FabricRequirements requirements) throws IOException {
+    public void requirements(FabricRequirements requirements) throws IOException {
         getFabricService().setRequirements(requirements);
-    }
-
-    @Override
-    public void setZooKeeper(IZKClient zooKeeper) {
-        getFabricService().setZooKeeper(zooKeeper);
     }
 
     @Override
