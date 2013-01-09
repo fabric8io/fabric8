@@ -22,10 +22,7 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricStatus;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Profiles;
-import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.service.ContainerTemplate;
+import org.fusesource.fabric.api.Ids;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,18 +121,18 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public void destroyContainer(Container container) {
-        getFabricService().destroyContainer(container);
+    public void destroyContainer(String containerId) {
+        getFabricService().destroyContainer(containerId);
     }
 
     @Override
-    public Container getContainer(String name) {
-        return getFabricService().getContainer(name);
+    public ContainerDTO getContainer(String name) {
+        return ContainerDTO.newInstance(getFabricService().getContainer(name));
     }
 
     @Override
-    public Container[] containers() {
-        return getFabricService().getContainers();
+    public List<ContainerDTO> containers() {
+        return ContainerDTO.newInstances(getFabricService().getContainers());
     }
 
 /*
@@ -147,8 +144,8 @@ public class FabricManager implements FabricManagerMBean {
 */
 
     @Override
-    public Container currentContainer() {
-        return getFabricService().getCurrentContainer();
+    public ContainerDTO currentContainer() {
+        return ContainerDTO.newInstance(getFabricService().getCurrentContainer());
     }
 
 
@@ -215,7 +212,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public List<String> getProfileIds(String version) {
-        return Profiles.getProfileIds(getFabricService().getProfiles(version));
+        return Ids.getIds(getFabricService().getProfiles(version));
     }
 
 /*
@@ -307,13 +304,13 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public void startContainer(Container container) {
-        getFabricService().startContainer(container);
+    public void startContainer(String containerId) {
+        getFabricService().startContainer(containerId);
     }
 
     @Override
-    public void stopContainer(Container container) {
-        getFabricService().stopContainer(container);
+    public void stopContainer(String containerId) {
+        getFabricService().stopContainer(containerId);
     }
 
     @Override

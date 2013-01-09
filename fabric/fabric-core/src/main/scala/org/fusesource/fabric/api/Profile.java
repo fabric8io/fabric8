@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-public interface Profile extends Comparable<Profile> {
+public interface Profile extends Comparable<Profile>, HasId {
 
     /**
      * The attribute key for the list of parents
@@ -56,7 +56,6 @@ public interface Profile extends Comparable<Profile> {
      */
     final String DELETED = "#deleted#";
 
-    String getId();
     String getVersion();
 
     /**

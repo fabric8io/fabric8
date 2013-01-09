@@ -23,7 +23,7 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
 
-public interface Container {
+public interface Container extends HasId {
 
     String getType();
 

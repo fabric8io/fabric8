@@ -16,13 +16,11 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricStatus;
-import org.fusesource.fabric.api.Version;
 
 import java.io.IOException;
 import java.util.List;
@@ -45,17 +43,17 @@ public interface FabricManagerMBean {
 
     void deleteVersion(String version);
 
-    void destroyContainer(Container container);
+    void destroyContainer(String containerId);
 
-    Container getContainer(String name);
+    ContainerDTO getContainer(String name);
 
-    Container[] containers();
+    List<ContainerDTO> containers();
 
 /*
-    ContainerTemplate getContainerTemplate(Container container, String jmxUser, String jmxPassword);
+    ContainerTemplate getContainerTemplate(String containerId, String jmxUser, String jmxPassword);
 */
 
-    Container currentContainer();
+    ContainerDTO currentContainer();
 
     String getCurrentContainerName();
 
@@ -78,7 +76,7 @@ public interface FabricManagerMBean {
     List<ProfileDTO> getProfiles(String versionId);
 
 /*
-    ContainerProvider getProvider(Container container);
+    ContainerProvider getProvider(String containerId);
 
     ContainerProvider getProvider(String scheme);
 
@@ -107,9 +105,9 @@ public interface FabricManagerMBean {
 
     void requirements(FabricRequirements requirements) throws IOException;
 
-    void startContainer(Container container);
+    void startContainer(String containerId);
 
-    void stopContainer(Container container);
+    void stopContainer(String containerId);
 
     void unregisterProvider(ContainerProvider provider, Map<String, Object> properties);
 

@@ -16,8 +16,9 @@
  */
 package org.fusesource.fabric.api.jmx;
 
+import org.fusesource.fabric.api.HasId;
+import org.fusesource.fabric.api.Ids;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Profiles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +27,7 @@ import java.util.Properties;
 /**
  * A DTO for returning profiles from JSON MBeans
  */
-public class ProfileDTO {
+public class ProfileDTO implements HasId {
     private String id;
     private Properties attributes;
     private List<String> bundles;
@@ -71,7 +72,7 @@ public class ProfileDTO {
         this.features = profile.getFeatures();
         this.overrides = profile.getOverrides();
         this.repositories = profile.getRepositories();
-        this.parentIds = Profiles.getProfileIds(profile.getParents());
+        this.parentIds = Ids.getIds(profile.getParents());
     }
 
     public String toString() {

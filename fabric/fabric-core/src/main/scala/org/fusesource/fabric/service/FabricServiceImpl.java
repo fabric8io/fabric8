@@ -221,11 +221,25 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
+    public void startContainer(String containerId) {
+        Container container = getContainer(containerId);
+        if (container != null) {
+            startContainer(container);
+        }
+    }
+
     public void startContainer(final Container container) {
         logger.info("Starting container {}", container.getId());
         ContainerProvider provider = getProvider(container);
         if (!container.isAlive()) {
             provider.start(container);
+        }
+    }
+
+    public void stopContainer(String containerId) {
+        Container container = getContainer(containerId);
+        if (container != null) {
+            stopContainer(container);
         }
     }
 
@@ -237,18 +251,27 @@ public class FabricServiceImpl implements FabricService {
         }
     }
 
+
+    public void destroyContainer(String containerId) {
+        Container container = getContainer(containerId);
+        if (container != null) {
+            destroyContainer(container);
+        }
+    }
+
     public void destroyContainer(Container container) {
-        logger.info("Destroying container {}", container.getId());
+        String containerId = container.getId();
+        logger.info("Destroying container {}", containerId);
         ContainerProvider provider = getProvider(container);
         try {
             provider.destroy(container);
         } catch (Exception e) {
         }
         try {
-            zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(container.getId()));
-            zooKeeper.deleteWithChildren(ZkPath.CONTAINER.getPath(container.getId()));
-            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(container.getId()));
-            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_PROVISION.getPath(container.getId()));
+            zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER.getPath(containerId));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_PROVISION.getPath(containerId));
         } catch (Exception e) {
         }
     }

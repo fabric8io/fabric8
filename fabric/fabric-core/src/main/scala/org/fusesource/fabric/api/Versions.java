@@ -20,19 +20,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Helper methods for working with profiles
+ * Helper methods for working with HasId instances
  */
-public class Profiles {
-    public static List<String> getProfileIds(Profile[] profiles) {
+
+// TODO we could replace this class with Ids if we refactor Version to implement HasId
+public class Versions {
+    public static List<String> getIds(Version[] versions) {
         List<String> answer = new ArrayList<String>();
-        if (profiles != null) {
-            for (Profile profile : profiles) {
-                String id = profile.getId();
+        if (versions != null) {
+            for (Version version : versions) {
+                String id = version.getName();
                 if (id != null) {
                     answer.add(id);
                 }
             }
         }
         return answer;
+    }
+
+    public static String getId(Version version) {
+        return version != null ? version.getName() : null;
     }
 }

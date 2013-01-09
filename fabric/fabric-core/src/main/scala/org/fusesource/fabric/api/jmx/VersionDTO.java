@@ -16,7 +16,8 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.fusesource.fabric.api.Profiles;
+import org.fusesource.fabric.api.HasId;
+import org.fusesource.fabric.api.Ids;
 import org.fusesource.fabric.api.Version;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ import java.util.Properties;
 /**
  * A DTO for returning versions from JSON MBeans
  */
-public class VersionDTO {
+public class VersionDTO implements HasId {
     private String id;
     private Properties attributes;
     private List<String> profileIds;
@@ -61,7 +62,7 @@ public class VersionDTO {
     public VersionDTO(Version version) {
         this.id = version.getName();
         this.attributes = version.getAttributes();
-        this.profileIds = Profiles.getProfileIds(version.getProfiles());
+        this.profileIds = Ids.getIds(version.getProfiles());
     }
 
     public String toString() {
