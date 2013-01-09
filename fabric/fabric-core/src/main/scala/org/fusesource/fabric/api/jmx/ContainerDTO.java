@@ -43,7 +43,6 @@ public class ContainerDTO implements HasId {
     private String parentId;
     private List<String> profileIds;
     private String provisionException;
-    private List<String> provisionList;
     private String provisionResult;
     private String provisionStatus;
     private String publicHostname;
@@ -96,7 +95,6 @@ public class ContainerDTO implements HasId {
         this.parentId = Ids.getId(container.getParent());
         this.profileIds = Ids.getIds(container.getProfiles());
         this.provisionException = container.getProvisionException();
-        this.provisionList = container.getProvisionList();
         this.provisionResult = container.getProvisionResult();
         this.provisionStatus = container.getProvisionStatus();
         this.publicHostname = container.getPublicHostname();
@@ -237,14 +235,6 @@ public class ContainerDTO implements HasId {
 
     public void setProvisionException(String provisionException) {
         this.provisionException = provisionException;
-    }
-
-    public List<String> getProvisionList() {
-        return provisionList;
-    }
-
-    public void setProvisionList(List<String> provisionList) {
-        this.provisionList = provisionList;
     }
 
     public String getProvisionResult() {

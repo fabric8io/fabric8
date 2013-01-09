@@ -33,6 +33,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -128,6 +129,15 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public ContainerDTO getContainer(String name) {
         return ContainerDTO.newInstance(getFabricService().getContainer(name));
+    }
+
+    @Override
+    public List<String> getContainerProvisionList(String name) {
+        Container container = getFabricService().getContainer(name);
+        if (container != null) {
+            return new ArrayList<String>();
+        }
+        return container.getProvisionList();
     }
 
     @Override
