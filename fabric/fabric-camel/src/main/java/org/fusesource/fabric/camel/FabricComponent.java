@@ -20,6 +20,7 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.util.URISupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.groups.Group;
