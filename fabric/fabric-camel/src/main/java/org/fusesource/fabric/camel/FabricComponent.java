@@ -103,6 +103,10 @@ public class FabricComponent extends ZKComponentSupport {
             String fabricPath = getFabricPath(name);
             // need to replace the "0.0.0.0" with the host and port
             String childUri = replaceAnyIpAddress(remaining.substring(idx + 1));
+            // we need to apply the params here
+            if (params != null && params.size() > 0) {
+                childUri = childUri + "?" + URISupport.createQueryString(params);
+            }
             Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
             return new FabricPublisherEndpoint(uri, this, group, childUri);
 
