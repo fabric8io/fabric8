@@ -16,18 +16,19 @@
  */
 package org.fusesource.fabric.camel;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.Map;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.ServiceHelper;
+import org.apache.camel.util.URISupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Map;
 
 /**
  * The FABRIC camel component for providing endpoint discovery, clustering and load balancing.
@@ -103,6 +104,10 @@ public class FabricComponent extends ZKComponentSupport {
             String fabricPath = getFabricPath(name);
             // need to replace the "0.0.0.0" with the host and port
             String childUri = replaceAnyIpAddress(remaining.substring(idx + 1));
+            // we need to apply the params here
+            if (params != null && params.size() > 0) {
+                childUri = childUri + "?" + URISupport.createQueryString(params);
+            }
             Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
             return new FabricPublisherEndpoint(uri, this, group, childUri);
 

@@ -16,10 +16,8 @@
  */
 package org.fusesource.fabric.camel;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
+import junit.framework.Assert;
+import org.apache.camel.*;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
@@ -28,6 +26,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+
+import java.util.List;
 
 @ContextConfiguration
 public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
@@ -57,6 +57,12 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
 
     @Test
     public void  testEndpoint() throws Exception {
+        // check the endpoint configuration
+        List<Route> registeredRoutes = camelContext.getRoutes();
+        Assert.assertEquals("number of routes", 1, registeredRoutes.size());
+        MasterEndpoint endpoint = (MasterEndpoint) registeredRoutes.get(0).getEndpoint();
+        Assert.assertEquals("wrong endpoint uri", "seda:bar?size=10", endpoint.getChild());
+
         System.out.println("===== starting test of Master endpoint!");
 
         String expectedBody = "<matched/>";

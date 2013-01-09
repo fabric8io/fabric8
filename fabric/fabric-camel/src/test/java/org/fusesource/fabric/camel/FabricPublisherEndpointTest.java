@@ -16,18 +16,9 @@
  */
 package org.fusesource.fabric.camel;
 
-import java.util.List;
-
 import junit.framework.Assert;
-
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Produce;
-import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Route;
-import org.apache.camel.ShutdownRoute;
-import org.apache.camel.ShutdownRunningTask;
-import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
@@ -36,6 +27,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
+
+import java.util.List;
 
 @ContextConfiguration
 public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTests {
@@ -64,14 +57,17 @@ public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTest
     	SpringRouteBuilder route = new SpringRouteBuilder() {
     		@Override
              public void configure() throws Exception {   
-                from("fabric:cheese:seda:bar?size=10").routeId(ROUTE_NAME).to("log:mylog"); 
+                from("fabric:cheese:seda:bar?size=10").routeId(ROUTE_NAME).to("log:mylog");
              }
-         };
+        };
 
-         camelContext.addRoutes(route);
-         List<Route> registeredRoutes = camelContext.getRoutes();
-         Assert.assertEquals("number of routes",1, registeredRoutes.size());
-         Assert.assertEquals("route name", ROUTE_NAME,registeredRoutes.get(0).getId()); 
+        camelContext.addRoutes(route);
+        List<Route> registeredRoutes = camelContext.getRoutes();
+        Assert.assertEquals("number of routes",1, registeredRoutes.size());
+        Assert.assertEquals("route name", ROUTE_NAME,registeredRoutes.get(0).getId());
+        // make sure the parameters are passed to the child endpoint
+        FabricPublisherEndpoint endpoint = (FabricPublisherEndpoint) registeredRoutes.get(0).getEndpoint();
+        Assert.assertEquals("wrong endpoint uri", "seda:bar?size=10", endpoint.getChild());
 
     }
 }

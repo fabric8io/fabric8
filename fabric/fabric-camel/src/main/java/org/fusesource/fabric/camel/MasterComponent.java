@@ -16,12 +16,13 @@
  */
 package org.fusesource.fabric.camel;
 
-import java.util.Map;
-
 import org.apache.camel.Endpoint;
 import org.apache.camel.util.ObjectHelper;
+import org.apache.camel.util.URISupport;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+
+import java.util.Map;
 
 /**
  * The MASTER camel component ensures that only a single endpoint in a cluster is active at any
@@ -53,6 +54,10 @@ public class MasterComponent extends ZKComponentSupport {
         String name = remaining.substring(0, idx);
         String fabricPath = getFabricPath(name);
         String childUri = remaining.substring(idx + 1);
+        // we need to apply the params here
+        if (params != null && params.size() > 0) {
+            childUri = childUri + "?" + URISupport.createQueryString(params);
+        }
 
         Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
         return new MasterEndpoint(uri, this, name, group, childUri);
