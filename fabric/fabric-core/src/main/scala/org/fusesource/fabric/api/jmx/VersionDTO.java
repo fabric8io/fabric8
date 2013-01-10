@@ -30,7 +30,6 @@ import java.util.Properties;
 public class VersionDTO implements HasId {
     private String id;
     private Properties attributes;
-    private List<String> profileIds;
 
     /**
      * Factory method which handles nulls gracefully
@@ -62,7 +61,6 @@ public class VersionDTO implements HasId {
     public VersionDTO(Version version) {
         this.id = version.getName();
         this.attributes = version.getAttributes();
-        this.profileIds = Ids.getIds(version.getProfiles());
     }
 
     public String toString() {
@@ -98,13 +96,5 @@ public class VersionDTO implements HasId {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public List<String> getProfileIds() {
-        return profileIds;
-    }
-
-    public void setProfileIds(List<String> profileIds) {
-        this.profileIds = profileIds;
     }
 }
