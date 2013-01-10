@@ -30,6 +30,7 @@ import java.util.Properties;
 public class VersionDTO implements HasId {
     private String id;
     private Properties attributes;
+    private boolean defaultVersion;
 
     /**
      * Factory method which handles nulls gracefully
@@ -96,5 +97,13 @@ public class VersionDTO implements HasId {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public boolean isDefaultVersion() {
+        return defaultVersion;
+    }
+
+    public void setDefaultVersion(boolean defaultVersion) {
+        this.defaultVersion = defaultVersion;
     }
 }
