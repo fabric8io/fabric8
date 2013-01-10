@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api.jmx;
 
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.HasId;
 import org.fusesource.fabric.api.Ids;
 import org.fusesource.fabric.api.Profile;
@@ -36,6 +37,7 @@ public class ProfileDTO implements HasId {
     private List<String> overrides;
     private List<String> repositories;
     private List<String> parentIds;
+    private int containerCount;
 
     /**
      * Factory method which handles nulls gracefully
@@ -73,6 +75,10 @@ public class ProfileDTO implements HasId {
         this.overrides = profile.getOverrides();
         this.repositories = profile.getRepositories();
         this.parentIds = Ids.getIds(profile.getParents());
+        Container[] containers = profile.getAssociatedContainers();
+        if (containers != null) {
+            this.containerCount = containers.length;
+        }
     }
 
     public String toString() {
@@ -156,5 +162,13 @@ public class ProfileDTO implements HasId {
 
     public void setRepositories(List<String> repositories) {
         this.repositories = repositories;
+    }
+
+    public int getContainerCount() {
+        return containerCount;
+    }
+
+    public void setContainerCount(int containerCount) {
+        this.containerCount = containerCount;
     }
 }
