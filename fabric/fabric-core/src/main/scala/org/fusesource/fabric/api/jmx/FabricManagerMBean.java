@@ -51,6 +51,10 @@ public interface FabricManagerMBean {
 
     List<ContainerDTO> containers();
 
+    List<String> containerIdsForProfile(String versionId, String profileId);
+
+    List<ContainerDTO> containersForProfile(String versionId, String profileId);
+
 /*
     ContainerTemplate getContainerTemplate(String containerId, String jmxUser, String jmxPassword);
 */

@@ -23,6 +23,8 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricStatus;
 import org.fusesource.fabric.api.Ids;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,6 +147,25 @@ public class FabricManager implements FabricManagerMBean {
         return ContainerDTO.newInstances(getFabricService().getContainers());
     }
 
+    @Override
+    public List<String> containerIdsForProfile(String versionId, String profileId) {
+        Profile profile = getFabricService().getProfile(versionId, profileId);
+        if (profile != null) {
+            return new ArrayList<String>();
+        }
+        return Ids.getIds(profile.getAssociatedContainers());
+    }
+
+    @Override
+    public List<ContainerDTO> containersForProfile(String versionId, String profileId) {
+        Profile profile = getFabricService().getProfile(versionId, profileId);
+        if (profile != null) {
+            return new ArrayList<ContainerDTO>();
+        }
+        return ContainerDTO.newInstances(profile.getAssociatedContainers());
+    }
+
+
 /*
     @Override
     public ContainerTemplate getContainerTemplate(Container container, String jmxUser, String jmxPassword) {
@@ -255,7 +276,19 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public List<VersionDTO> versions() {
-        return VersionDTO.newInstances(getFabricService().getVersions());
+        String defaultVersionId = null;
+        Version defaultVersion = getFabricService().getDefaultVersion();
+        if (defaultVersion != null) {
+            defaultVersionId = defaultVersion.getName();
+        }
+        List<VersionDTO> answer = VersionDTO.newInstances(getFabricService().getVersions());
+        for (VersionDTO versionDTO : answer) {
+            if (defaultVersionId == null || defaultVersionId.equals(versionDTO.getId())) {
+                versionDTO.setDefaultVersion(true);
+                break;
+            }
+        }
+        return answer;
     }
 
 /*

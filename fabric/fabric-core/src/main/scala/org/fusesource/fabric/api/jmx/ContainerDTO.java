@@ -23,13 +23,18 @@ import org.fusesource.fabric.api.Versions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
 
 /**
  * A DTO for returning containers from JSON MBeans
  */
 public class ContainerDTO implements HasId {
     private String id;
+    private boolean alive;
+    private boolean managed;
+    private boolean ensembleServer;
+    private boolean provisioningComplete;
+    private boolean root;
+    private boolean provisioningPending;
     private String ip;
     private List<String> jmxDomains;
     private List<String> childrenIds;
@@ -83,6 +88,12 @@ public class ContainerDTO implements HasId {
     public ContainerDTO(Container container) {
         this.id = container.getId();
         this.ip = container.getIp();
+        this.alive = container.isAlive();
+        this.managed = container.isManaged();
+        this.ensembleServer = container.isEnsembleServer();
+        this.root = container.isRoot();
+        this.provisioningComplete = container.isProvisioningComplete();
+        this.provisioningPending = container.isProvisioningPending();
         this.jmxDomains = container.getJmxDomains();
         this.childrenIds = Ids.getIds(container.getChildren());
         this.jmxUrl = container.getJmxUrl();
@@ -299,5 +310,53 @@ public class ContainerDTO implements HasId {
 
     public void setVersionId(String versionId) {
         this.versionId = versionId;
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public boolean isEnsembleServer() {
+        return ensembleServer;
+    }
+
+    public void setEnsembleServer(boolean ensembleServer) {
+        this.ensembleServer = ensembleServer;
+    }
+
+    public boolean isManaged() {
+        return managed;
+    }
+
+    public void setManaged(boolean managed) {
+        this.managed = managed;
+    }
+
+    public boolean isProvisioningComplete() {
+        return provisioningComplete;
+    }
+
+    public void setProvisioningComplete(boolean provisioningComplete) {
+        this.provisioningComplete = provisioningComplete;
+    }
+
+    public boolean isProvisioningPending() {
+        return provisioningPending;
+    }
+
+    public void setProvisioningPending(boolean provisioningPending) {
+        this.provisioningPending = provisioningPending;
+    }
+
+    public boolean isRoot() {
+        return root;
+    }
+
+    public void setRoot(boolean root) {
+        this.root = root;
     }
 }
