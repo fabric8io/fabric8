@@ -94,6 +94,8 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);
+        System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
+        System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
         if (!containerName.equals(oldName)) {
             if (force || permissionToRenameContainer()) {
@@ -104,9 +106,6 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
                 System.setProperty("karaf.name", containerName);
                 System.setProperty("zookeeper.url", zookeeperUrl);
-
-                System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
-                System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
@@ -119,7 +118,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                     installBundles();
                 }
                 org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-                Hashtable<String,Object> properties = new Hashtable<String,Object>();
+                Hashtable<String, Object> properties = new Hashtable<String, Object>();
                 properties.put("zookeeper.url", zookeeperUrl);
                 properties.put("zookeeper.password", zookeeperPassword);
                 config.setBundleLocation(null);
@@ -140,7 +139,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                 return null;
             }
             org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-            Hashtable<String,Object> properties = new Hashtable<String,Object>();
+            Hashtable<String, Object> properties = new Hashtable<String, Object>();
             properties.put("zookeeper.url", zookeeperUrl);
             properties.put("zookeeper.password", zookeeperPassword);
             config.setBundleLocation(null);
