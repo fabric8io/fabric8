@@ -23,6 +23,7 @@ import org.fusesource.fabric.api.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -38,6 +39,11 @@ public class ProfileDTO implements HasId {
     private List<String> repositories;
     private List<String> parentIds;
     private int containerCount;
+    private boolean abstractProfile;
+    private boolean hidden;
+    private boolean locked;
+    private boolean overlay;
+    private int fileConfigurationCount;
 
     /**
      * Factory method which handles nulls gracefully
@@ -75,6 +81,14 @@ public class ProfileDTO implements HasId {
         this.overrides = profile.getOverrides();
         this.repositories = profile.getRepositories();
         this.parentIds = Ids.getIds(profile.getParents());
+        this.abstractProfile = profile.isAbstract();
+        this.hidden = profile.isHidden();
+        this.locked = profile.isLocked();
+        this.overlay = profile.isOverlay();
+        Map<String,byte[]> fileConfigurations = profile.getFileConfigurations();
+        if (fileConfigurations != null) {
+            this.fileConfigurationCount = fileConfigurations.size();
+        }
         Container[] containers = profile.getAssociatedContainers();
         if (containers != null) {
             this.containerCount = containers.length;
@@ -170,5 +184,45 @@ public class ProfileDTO implements HasId {
 
     public void setContainerCount(int containerCount) {
         this.containerCount = containerCount;
+    }
+
+    public boolean isAbstractProfile() {
+        return abstractProfile;
+    }
+
+    public void setAbstractProfile(boolean abstractProfile) {
+        this.abstractProfile = abstractProfile;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isOverlay() {
+        return overlay;
+    }
+
+    public void setOverlay(boolean overlay) {
+        this.overlay = overlay;
+    }
+
+    public int getFileConfigurationCount() {
+        return fileConfigurationCount;
+    }
+
+    public void setFileConfigurationCount(int fileConfigurationCount) {
+        this.fileConfigurationCount = fileConfigurationCount;
     }
 }
