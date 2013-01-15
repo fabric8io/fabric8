@@ -503,4 +503,8 @@
         <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>
     </feature>
 
+    <feature name="hawtio" version="${project.version}" resolver="(obr)">
+        <feature version="${karaf-version}">war</feature>
+        <bundle>mvn:io.hawt/hawtio-web/${hawtio-version}/war</bundle>
+    </feature>
 </features>
