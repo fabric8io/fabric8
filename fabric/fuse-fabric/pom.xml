@@ -151,7 +151,15 @@
                <version>${jolokia-version}</version>
            </dependency>
 
-        <!-- these are copied to the lib folder -->
+           <!-- for hawtio -->
+           <dependency>
+             <groupId>io.hawt</groupId>
+             <artifactId>hawtio-web</artifactId>
+             <version>${hawtio-version}</version>
+             <type>war</type>
+           </dependency>
+
+         <!-- these are copied to the lib folder -->
         <dependency>
             <groupId>org.apache.xerces</groupId>
             <artifactId>xercesImpl</artifactId>
@@ -280,6 +288,7 @@
                                    <feature>insight-log-elasticsearch</feature>
                                    <feature>process-manager</feature>
                                    <feature>jolokia</feature>
+                                   <feature>hawtio</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>
