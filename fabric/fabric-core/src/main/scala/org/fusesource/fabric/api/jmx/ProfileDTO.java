@@ -38,6 +38,7 @@ public class ProfileDTO implements HasId {
     private List<String> overrides;
     private List<String> repositories;
     private List<String> parentIds;
+    private Map<String, Map<String, String>> configurations;
     private int containerCount;
     private boolean abstractProfile;
     private boolean hidden;
@@ -85,6 +86,7 @@ public class ProfileDTO implements HasId {
         this.hidden = profile.isHidden();
         this.locked = profile.isLocked();
         this.overlay = profile.isOverlay();
+        this.configurations = profile.getConfigurations();
         Map<String,byte[]> fileConfigurations = profile.getFileConfigurations();
         if (fileConfigurations != null) {
             this.fileConfigurationCount = fileConfigurations.size();
@@ -216,6 +218,14 @@ public class ProfileDTO implements HasId {
 
     public void setOverlay(boolean overlay) {
         this.overlay = overlay;
+    }
+
+    public Map<String, Map<String, String>> getConfigurations() {
+        return this.configurations;
+    }
+
+    public void setConfigurations(Map<String, Map<String, String>> configurations) {
+        this.configurations = configurations;
     }
 
     public int getFileConfigurationCount() {
