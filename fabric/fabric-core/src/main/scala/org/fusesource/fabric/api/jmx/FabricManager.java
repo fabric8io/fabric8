@@ -100,7 +100,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public ProfileDTO createProfile(String version, String name) {
-        return ProfileDTO.newInstance(getFabricService().createProfile(version, name));
+        return ProfileDTO.newInstance(getFabricService(), getFabricService().createProfile(version, name));
     }
 
     @Override
@@ -232,13 +232,13 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public ProfileDTO getProfile(String version, String name) {
-        return ProfileDTO.newInstance(getFabricService().getProfile(version, name));
+        return ProfileDTO.newInstance(getFabricService(), getFabricService().getProfile(version, name));
     }
 
 
     @Override
     public List<ProfileDTO> getProfiles(String version) {
-        return ProfileDTO.newInstances(getFabricService().getProfiles(version));
+        return ProfileDTO.newInstances(getFabricService(), getFabricService().getProfiles(version));
     }
 
     @Override

@@ -16,10 +16,7 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.HasId;
-import org.fusesource.fabric.api.Ids;
-import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,30 +35,31 @@ public class ProfileDTO implements HasId {
     private List<String> overrides;
     private List<String> repositories;
     private List<String> parentIds;
-    private Map<String, Map<String, String>> configurations;
+    private List<String> childIds;
+    private List<String> containers;
+    private Map<String, byte[]> configurations;
     private int containerCount;
     private boolean abstractProfile;
     private boolean hidden;
     private boolean locked;
     private boolean overlay;
-    private int fileConfigurationCount;
 
     /**
      * Factory method which handles nulls gracefully
      */
-    public static ProfileDTO newInstance(Profile profile) {
+    public static ProfileDTO newInstance(FabricService service, Profile profile) {
         if (profile != null) {
-            return new ProfileDTO(profile);
+            return new ProfileDTO(service, profile);
         } else {
             return null;
         }
     }
 
-    public static List<ProfileDTO> newInstances(Profile... profiles) {
+    public static List<ProfileDTO> newInstances(FabricService service, Profile... profiles) {
         List<ProfileDTO> answer = new ArrayList<ProfileDTO>();
         if (profiles != null) {
             for (Profile profile : profiles) {
-                ProfileDTO dto = newInstance(profile);
+                ProfileDTO dto = newInstance(service, profile);
                 if (dto != null) {
                     answer.add(dto);
                 }
@@ -73,7 +71,7 @@ public class ProfileDTO implements HasId {
     public ProfileDTO() {
     }
 
-    public ProfileDTO(Profile profile) {
+    public ProfileDTO(FabricService service, Profile profile) {
         this.id = profile.getId();
         this.attributes = profile.getAttributes();
         this.bundles = profile.getBundles();
@@ -86,14 +84,26 @@ public class ProfileDTO implements HasId {
         this.hidden = profile.isHidden();
         this.locked = profile.isLocked();
         this.overlay = profile.isOverlay();
-        this.configurations = profile.getConfigurations();
-        Map<String,byte[]> fileConfigurations = profile.getFileConfigurations();
-        if (fileConfigurations != null) {
-            this.fileConfigurationCount = fileConfigurations.size();
+        this.configurations = profile.getFileConfigurations();
+
+        this.childIds = new ArrayList<String>();
+
+        for(Profile p : service.getVersion(profile.getVersion()).getProfiles()) {
+            for (Profile parent : p.getParents()) {
+                if (parent.getId().equals(getId())) {
+                    childIds.add(p.getId());
+                    break;
+                }
+            }
         }
-        Container[] containers = profile.getAssociatedContainers();
-        if (containers != null) {
-            this.containerCount = containers.length;
+
+        this.containers = new ArrayList<String>();
+        this.containerCount = 0;
+
+        for (Container c : profile.getAssociatedContainers()) {
+            containerCount++;
+            containers.add(c.getId());
+
         }
     }
 
@@ -220,19 +230,27 @@ public class ProfileDTO implements HasId {
         this.overlay = overlay;
     }
 
-    public Map<String, Map<String, String>> getConfigurations() {
+    public Map<String, byte[]> getConfigurations() {
         return this.configurations;
     }
 
-    public void setConfigurations(Map<String, Map<String, String>> configurations) {
+    public void setConfigurations(Map<String, byte[]> configurations) {
         this.configurations = configurations;
     }
 
-    public int getFileConfigurationCount() {
-        return fileConfigurationCount;
+    public List<String> getChildIds() {
+        return childIds;
     }
 
-    public void setFileConfigurationCount(int fileConfigurationCount) {
-        this.fileConfigurationCount = fileConfigurationCount;
+    public void setChildIds(List<String> childIds) {
+        this.childIds = childIds;
+    }
+
+    public List<String> getContainers() {
+        return containers;
+    }
+
+    public void setContainers(List<String> containers) {
+        this.containers = containers;
     }
 }
