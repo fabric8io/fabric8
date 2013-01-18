@@ -47,6 +47,10 @@ public interface FabricManagerMBean {
 
     ContainerDTO getContainer(String name);
 
+    void addProfilesToContainer(String container, List<String> profiles);
+
+    void removeProfilesFromContainer(String container, List<String> profiles);
+
     List<String> getContainerProvisionList(String name);
 
     List<ContainerDTO> containers();
