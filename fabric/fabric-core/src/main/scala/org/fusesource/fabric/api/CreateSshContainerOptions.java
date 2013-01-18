@@ -21,7 +21,7 @@ import java.io.File;
 /**
  * Arguments for creating a new container via SSH
  */
-public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> implements CreateRemoteContainerOptions {
+public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> implements CreateRemoteContainerOptions<CreateSshContainerOptions> {
 
     private static final long serialVersionUID = -1171578973712670970L;
 
@@ -34,12 +34,12 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private String password;
     private String host;
     private Integer port = DEFAULT_SSH_PORT;
-    private String path = "/usr/local/fusesource/container";
     private Integer sshRetries = DEFAULT_SSH_RETRIES;
     private Integer retryDelay = 1;
     private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
     private String passPhrase;
     private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
+    private String path = "~/containers/";
 
     public CreateSshContainerOptions() {
         this.providerType = "ssh";

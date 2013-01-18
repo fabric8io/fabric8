@@ -82,7 +82,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .password(password)
         .privateKeyFile(privateKeyFile != null ? privateKeyFile : CreateSshContainerOptions.DEFAULT_PRIVATE_KEY_FILE)
         .passPhrase(passPhrase)
-        .path(path)
         .port(port)
         .sshRetries(sshRetries)
         .minimumPort(minimumPort)
@@ -93,6 +92,11 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
         .createEnsembleOptions(ensembleOptions);
+
+
+        if (path != null && !path.isEmpty()) {
+            options.setPath(path);
+        }
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
 

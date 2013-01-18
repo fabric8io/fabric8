@@ -16,8 +16,11 @@
  */
 package org.fusesource.fabric.api;
 
-public interface CreateRemoteContainerOptions extends CreateContainerOptions {
+public interface CreateRemoteContainerOptions<T extends CreateRemoteContainerOptions> extends CreateContainerOptions {
 
+    T path(String path);
+    public void setPath(String path);
+    public String getPath();
     public CreateEnsembleOptions getCreateEnsembleOptions();
     public void setCreateEnsembleOptions(CreateEnsembleOptions createEnsembleOptions);
 }

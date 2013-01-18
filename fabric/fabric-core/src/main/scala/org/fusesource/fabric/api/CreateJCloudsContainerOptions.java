@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Arguments for creating a new container via JClouds
  */
-public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> implements CreateRemoteContainerOptions {
+public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<CreateJCloudsContainerOptions> implements CreateRemoteContainerOptions<CreateJCloudsContainerOptions> {
     private static final long serialVersionUID = 4489740280396972109L;
 
     private String osFamily;
@@ -47,6 +47,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String publicKeyFile;
     private transient Object computeService;
     private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
+    private String path  = "~/containers/";
 
     public CreateJCloudsContainerOptions() {
         this.providerType = "jclouds";
@@ -190,6 +191,21 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     public CreateJCloudsContainerOptions createEnsembleOptions(final CreateEnsembleOptions createEnsembleOptions) {
         this.createEnsembleOptions = createEnsembleOptions;
         return this;
+    }
+
+    @Override
+    public CreateJCloudsContainerOptions path(String path) {
+        this.path = path;
+        return this;
+    }
+
+    @Override
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     public String getImageId() {

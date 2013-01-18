@@ -99,8 +99,8 @@ public class ContainerProviderUtils {
         sb.append(KARAF_CHECK).append("\n");
         sb.append(REPLACE_IN_FILE).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
-        sb.append("run mkdir -p ~/containers/ ").append("\n");
-        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run mkdir -p ").append(options.getPath()).append("\n");
+        sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         //We need admin access to be able to install curl & java.
@@ -208,13 +208,13 @@ public class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildStartScript(CreateContainerOptions options) throws MalformedURLException {
+    public static String buildStartScript(CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
-        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         if (options instanceof CreateJCloudsContainerOptions) {
@@ -235,11 +235,11 @@ public class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildStopScript(CreateContainerOptions options) throws MalformedURLException {
+    public static String buildStopScript(CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
-        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("run bin/stop").append("\n");
@@ -253,10 +253,10 @@ public class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildUninstallScript(CreateContainerOptions options) throws MalformedURLException {
+    public static String buildUninstallScript(CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append(RUN_FUNCTION).append("\n");
-        sb.append("run cd ~/containers/ ").append("\n");
+        sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run rm -rf ").append(options.getName()).append("\n");
         return sb.toString();
     }

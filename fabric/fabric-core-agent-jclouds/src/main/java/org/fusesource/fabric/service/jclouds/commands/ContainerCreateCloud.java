@@ -37,6 +37,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     static final String ENSEMBLE_SERVER_DISPLAY_FORMAT = "%22s %-30s %-16s %-30s %-30s ";
     static final String[] ENSEMBLE_SERVER_OUTPUT_HEADERS = {"[id]", "[container]", "[registry password]", "[public addresses]", "[status]"};
 
+    @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
+    private String path;
     @Option(name = "--name", required = true, description = "The context name. Used to distinct between multiple services of the same provider/api.")
     protected String contextName;
     @Option(name = "--provider", required = false, description = "The cloud provider name")
@@ -101,7 +103,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
 
         CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.jclouds()
+        CreateJCloudsContainerOptions args = CreateContainerOptionsBuilder.jclouds()
         .name(name)
         .resolver(resolver)
         .ensembleServer(isEnsembleServer)
@@ -130,8 +132,11 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
         .createEnsembleOptions(ensembleOptions);
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        if (path != null && !path.isEmpty()) {
+            args.setPath(path);
+        }
 
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
 
         if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
             ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());
