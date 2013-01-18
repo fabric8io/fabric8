@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
@@ -46,6 +47,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ContainerImpl implements Container {
+
+    private static final String ENSEMBLE_PROFILE_PATTERN = "fabric-ensemble-[0-9]*-[0-9]*";
 
     /**
      * Logger.
@@ -222,21 +225,25 @@ public class ContainerImpl implements Container {
         try {
             String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
             String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
+            List<String> existingProfiles = Arrays.asList(service.getZooKeeper().getStringData(node).split(" "));
+
             String str = "";
             if (profiles != null) {
-                for (Profile parent : profiles) {
-                    if (!version.equals(parent.getVersion())) {
-                        throw new IllegalArgumentException("Version mismatch setting profile " + parent + " with version "
-                                + parent.getVersion() + " expected version " + version);
-                    }
-                    if (parent.isAbstract()) {
-                        throw new IllegalArgumentException("The profile " + parent + " is abstract and can not "
+                for (Profile profile : profiles) {
+                    if (!version.equals(profile.getVersion())) {
+                        throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
+                                + profile.getVersion() + " expected version " + version);
+                    } else if (profile.isAbstract()) {
+                        throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
                                 + "be associated to containers");
+                    } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !existingProfiles.contains(profile.getId())) {
+                        throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
                     }
+
                     if (!str.isEmpty()) {
                         str += " ";
                     }
-                    str += parent.getId();
+                    str += profile.getId();
                 }
             }
             if (str.trim().isEmpty()) {
