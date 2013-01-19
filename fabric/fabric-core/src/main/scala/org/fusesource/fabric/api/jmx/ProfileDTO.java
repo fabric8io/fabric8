@@ -37,7 +37,7 @@ public class ProfileDTO implements HasId {
     private List<String> parentIds;
     private List<String> childIds;
     private List<String> containers;
-    private Map<String, byte[]> configurations;
+    private List<String> configurations;
     private int containerCount;
     private boolean abstractProfile;
     private boolean hidden;
@@ -84,7 +84,8 @@ public class ProfileDTO implements HasId {
         this.hidden = profile.isHidden();
         this.locked = profile.isLocked();
         this.overlay = profile.isOverlay();
-        this.configurations = profile.getFileConfigurations();
+        this.configurations = new ArrayList<String>();
+        this.configurations.addAll(profile.getFileConfigurations().keySet());
 
         this.childIds = new ArrayList<String>();
 
@@ -230,11 +231,11 @@ public class ProfileDTO implements HasId {
         this.overlay = overlay;
     }
 
-    public Map<String, byte[]> getConfigurations() {
+    public List<String> getConfigurations() {
         return this.configurations;
     }
 
-    public void setConfigurations(Map<String, byte[]> configurations) {
+    public void setConfigurations(List<String> configurations) {
         this.configurations = configurations;
     }
 
