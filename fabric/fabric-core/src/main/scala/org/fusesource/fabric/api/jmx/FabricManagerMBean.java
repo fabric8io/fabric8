@@ -84,6 +84,12 @@ public interface FabricManagerMBean {
     List<String> getProfileIds(String versionId);
 
     List<ProfileDTO> getProfiles(String versionId);
+    
+    void deleteConfigurationFile(String versionId, String profileId, String fileName);
+    
+    byte[] getConfigurationFile(String versionId, String profileId, String fileName);
+    
+    void setConfigurationFile(String versionId, String profileId, String fileName, byte[] data);
 
 /*
     ContainerProvider getProvider(String containerId);

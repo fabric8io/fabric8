@@ -284,6 +284,28 @@ public class FabricManager implements FabricManagerMBean {
     public List<String> getProfileIds(String version) {
         return Ids.getIds(getFabricService().getProfiles(version));
     }
+    
+    @Override
+    public byte[] getConfigurationFile(String versionId, String profileId, String fileName) {
+        return getFabricService().getVersion(versionId).getProfile(profileId).getFileConfigurations().get(fileName);        
+    }
+    
+    @Override
+    public void deleteConfigurationFile(String versionId, String profileId, String fileName) {
+        Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
+        Map<String, byte[]> configs = profile.getFileConfigurations();
+        configs.remove(fileName);
+        profile.setFileConfigurations(configs);        
+    }
+
+    @Override
+    public void setConfigurationFile(String versionId, String profileId, String fileName, byte[] data) {
+        Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
+        Map<String, byte[]> configs = profile.getFileConfigurations();
+        configs.put(fileName, data);
+        profile.setFileConfigurations(configs);        
+    }
+
 
 /*
     @Override
