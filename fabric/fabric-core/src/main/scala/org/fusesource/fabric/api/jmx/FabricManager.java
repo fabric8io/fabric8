@@ -185,6 +185,15 @@ public class FabricManager implements FabricManagerMBean {
     public List<ContainerDTO> containers() {
         return ContainerDTO.newInstances(getFabricService().getContainers());
     }
+    
+    @Override
+    public String[] containerIds() {
+      List<String> answer = new ArrayList<String>();
+      for (Container container : getFabricService().getContainers()) {
+        answer.add(container.getId());
+      }
+      return answer.toArray(new String[answer.size()]);
+    }
 
     @Override
     public List<String> containerIdsForProfile(String versionId, String profileId) {

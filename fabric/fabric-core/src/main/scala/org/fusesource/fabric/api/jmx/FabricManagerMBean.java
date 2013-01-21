@@ -54,6 +54,8 @@ public interface FabricManagerMBean {
     List<String> getContainerProvisionList(String name);
 
     List<ContainerDTO> containers();
+    
+    String[] containerIds();
 
     List<String> containerIdsForProfile(String versionId, String profileId);
 
