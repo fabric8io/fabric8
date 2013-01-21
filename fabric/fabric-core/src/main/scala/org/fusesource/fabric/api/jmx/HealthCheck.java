@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.FabricStatus;
@@ -49,7 +49,7 @@ public class HealthCheck implements HealthCheckMBean {
         if (objectName == null) {
             // TODO to avoid mbean clashes if ever a JVM had multiple FabricService instances, we may
             // want to add a parameter of the fabric ID here...
-            objectName = new ObjectName("org.fusesource.fabric:type=Health");
+            objectName = new ObjectName("org.fusesource.fabric:service=Health");
         }
         return objectName;
     }

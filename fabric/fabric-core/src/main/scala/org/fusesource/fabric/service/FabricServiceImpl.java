@@ -42,6 +42,7 @@ import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.jmx.FabricManager;
+import org.fusesource.fabric.api.jmx.HealthCheck;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
