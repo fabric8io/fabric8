@@ -120,7 +120,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         try {
             userProps = new org.apache.felix.utils.properties.Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
         } catch (IOException e) {
-            LOGGER.warn("Failed to load users from etc/users.proprties. No users will be imported.", e);
+            LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
         if (userProps != null && !userProps.isEmpty()) {
