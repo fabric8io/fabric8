@@ -36,7 +36,6 @@
   <properties>
     <fuse.osgi.activator>org.jclouds.osgi.Activator</fuse.osgi.activator>
     <fuse.osgi.export>
-      javax.inject*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
       com.google.gson*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
       com.google.common*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
       com.google.inject*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
@@ -60,6 +59,7 @@
       !org.xml.*,
       !org.w3c.dom*,
       !javax.xml*,
+      !javax.inject*,
       !junit*,
       !org.aopalliance*,
       !org.jclouds.javax.annotation,
