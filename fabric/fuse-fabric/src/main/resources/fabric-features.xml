@@ -42,6 +42,7 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
+        <bundle>mvn:org.jledit/core/${jledit.version}</bundle>
 
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries.blueprint.version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries.blueprint.version}</bundle>

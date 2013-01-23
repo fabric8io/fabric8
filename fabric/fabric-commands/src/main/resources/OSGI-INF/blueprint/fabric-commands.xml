@@ -303,6 +303,7 @@
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
+                <property name="editorFactory" ref="editorFactory"/>
             </action>
             <completers>
                 <ref component-id="profileCompleter"/>
@@ -515,5 +516,7 @@
     <bean id="sshClient" class="org.apache.sshd.SshClient" factory-method="setUpDefaultClient" scope="prototype">
         <property name="agentFactory" ref="agentFactory" />
     </bean>
+
+    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
 
 </blueprint>

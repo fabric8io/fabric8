@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.commands;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -23,7 +26,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+import jline.Terminal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -31,6 +36,10 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.jledit.ConsoleEditor;
+import org.jledit.EditorFactory;
+import org.jledit.utils.Files;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +51,7 @@ import org.slf4j.LoggerFactory;
 public class ProfileEdit extends FabricCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEdit.class);
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     static final String FEATURE_PREFIX = "feature.";
     static final String REPOSITORY_PREFIX = "repository.";
@@ -102,6 +112,8 @@ public class ProfileEdit extends FabricCommand {
     @Argument(index = 1, name = "version", description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
     private String versionName = ZkDefs.DEFAULT_VERSION;
 
+    private EditorFactory editorFactory;
+
 
     @Override
     protected Object doExecute() throws Exception {
@@ -121,6 +133,7 @@ public class ProfileEdit extends FabricCommand {
 
     private void editProfile(Profile profile) throws Exception {
         String pid = AGENT_PID;
+        boolean editInLine = false;
 
         Map<String, Map<String, String>> config = profile.getConfigurations();
         Map<String, String> pidConfig = config.get(pid);
@@ -130,30 +143,35 @@ public class ProfileEdit extends FabricCommand {
         }
 
         if (featuresList != null && !featuresList.isEmpty()) {
+            editInLine = true;
             String[] features = featuresList.split(DELIMETER);
             for (String feature : features) {
                 updateConfig(pidConfig, FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
             }
         }
         if (repositoryUriList != null && !repositoryUriList.isEmpty()) {
+            editInLine = true;
             String[] repositoryURIs = repositoryUriList.split(DELIMETER);
             for (String repopsitoryURI : repositoryURIs) {
                 updateConfig(pidConfig, REPOSITORY_PREFIX + repopsitoryURI.replace('/', '_'), repopsitoryURI, set, delete);
             }
         }
         if (bundlesList != null && !bundlesList.isEmpty()) {
+            editInLine = true;
             String[] bundles = bundlesList.split(DELIMETER);
             for (String bundlesLocation : bundles) {
                 updateConfig(pidConfig, BUNDLE_PREFIX + bundlesLocation.replace('/', '_'), bundlesLocation, set, delete);
             }
         }
         if (fabsList != null && !fabsList.isEmpty()) {
+            editInLine = true;
             String[] fabs = fabsList.split(DELIMETER);
             for (String fabsLocation : fabs) {
                 updateConfig(pidConfig, FAB_PREFIX + fabsLocation.replace('/', '_'), fabsLocation, set, delete);
             }
         }
         if (overridesList != null && !overridesList.isEmpty()) {
+            editInLine = true;
             String[] overrides = overridesList.split(DELIMETER);
             for (String overridesLocation : overrides) {
                 updateConfig(pidConfig, OVERRIDE_PREFIX + overridesLocation.replace('/', '_'), overridesLocation, set, delete);
@@ -161,12 +179,12 @@ public class ProfileEdit extends FabricCommand {
         }
 
         if (configAdminProperties != null && configAdminProperties.length > 0) {
-
+            editInLine = true;
             for (String configAdminProperty : configAdminProperties) {
                 String currentPid = null;
                 Map<String, String> existingConfig = null;
 
-                if (configAdminProperty != null ) {
+                if (configAdminProperty != null) {
                     String keyValue = "";
                     if (configAdminProperty.contains(PID_KEY_SEPARATOR)) {
                         currentPid = configAdminProperty.substring(0, configAdminProperty.indexOf(PID_KEY_SEPARATOR));
@@ -174,18 +192,18 @@ public class ProfileEdit extends FabricCommand {
                     } else {
                         currentPid = configAdminProperty;
                     }
-                    
+
                     existingConfig = config.get(currentPid);
                     if (existingConfig == null) {
                         existingConfig = new HashMap<String, String>();
                     }
-                    
+
                     //We only support import when a single pid is spcecified
                     if (configAdminProperties.length == 1 && importPid) {
                         importPidFromLocalConfigAdmin(currentPid, existingConfig);
                     }
-                    
-                    
+
+
                     Map<String, String> configMap = extractConfigs(keyValue);
                     for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                         String key = configEntries.getKey();
@@ -194,11 +212,12 @@ public class ProfileEdit extends FabricCommand {
                     }
 
                     config.put(currentPid, existingConfig);
-                } 
+                }
             }
         }
 
-        if (systemProperties != null && systemProperties.length > 0) { 
+        if (systemProperties != null && systemProperties.length > 0) {
+            editInLine = true;
             for (String systemProperty : systemProperties) {
                 Map<String, String> configMap = extractConfigs(systemProperty);
                 for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
@@ -210,6 +229,7 @@ public class ProfileEdit extends FabricCommand {
         }
 
         if (configProperties != null && configProperties.length > 0) {
+            editInLine = true;
             for (String configProperty : configProperties) {
                 Map<String, String> configMap = extractConfigs(configProperty);
                 for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
@@ -217,11 +237,32 @@ public class ProfileEdit extends FabricCommand {
                     String value = configEntries.getValue();
                     updatedDelimitedList(pidConfig, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
                 }
-            }            
+            }
         }
 
-        config.put(pid, pidConfig);
-        profile.setConfigurations(config);
+        if (editInLine) {
+            config.put(pid, pidConfig);
+            profile.setConfigurations(config);
+        } else {
+            openInEditor(profile);
+        }
+    }
+
+    private void openInEditor(Profile profile) throws Exception {
+        String id = profile.getId();
+        String version = profile.getVersion();
+        String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/org.fusesource.fabric.agent.properties";
+        String data = getZooKeeper().getStringData(path);
+        File tmpFile = createTemporaryFile();
+        Files.writeToFile(tmpFile, data, UTF_8);
+        //Call the editor
+        ConsoleEditor editor = editorFactory.create(getTerminal());
+        editor.setTitle("Profile");
+        editor.open(tmpFile, id + " " + version);
+        editor.setOpenEnabled(false);
+        editor.start();
+        data = Files.toString(tmpFile, UTF_8);
+        getZooKeeper().setData(path, data);
     }
 
 
@@ -297,7 +338,38 @@ public class ProfileEdit extends FabricCommand {
             String key = configs.substring(0, configs.indexOf("="));
             String value = configs.substring(configs.indexOf("=") + 1);
             configMap.put(key, value);
-        } 
+        }
         return configMap;
+    }
+
+    private File createTemporaryFile() throws IOException {
+        File f = new File(System.getProperty("karaf.data") + "/editor/" + UUID.randomUUID());
+        if (!f.exists() && !f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
+            throw new IOException("Can't create file:" + f.getAbsolutePath());
+        }
+        return f;
+    }
+
+    /**
+     * Gets the {@link jline.Terminal} from the current session.
+     *
+     * @return
+     * @throws Exception
+     */
+    private Terminal getTerminal() throws Exception {
+        Object terminalObject = session.get(".jline.terminal");
+        if (terminalObject instanceof Terminal) {
+            return (Terminal) terminalObject;
+
+        }
+        throw new IllegalStateException("Could not get Terminal from CommandSession.");
+    }
+
+    public EditorFactory getEditorFactory() {
+        return editorFactory;
+    }
+
+    public void setEditorFactory(EditorFactory editorFactory) {
+        this.editorFactory = editorFactory;
     }
 }

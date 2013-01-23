@@ -35,6 +35,7 @@
           org.fusesource.fabric.zookeeper.commands
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
+            org.jledit.utils,
             org.fusesource.fabric.commands.support,
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.utils.shell
@@ -60,6 +61,12 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-linkedin-zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jledit</groupId>
+            <artifactId>core</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

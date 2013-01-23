@@ -66,10 +66,22 @@
                 <null/>
             </completers>
         </command>
+        <command name="zk/edit">
+            <action class="org.fusesource.fabric.zookeeper.commands.Edit">
+                <property name="zooKeeper" ref="zkClient"/>
+                <property name="editorFactory" ref="editorFactory"/>
+            </action>
+            <completers>
+                <ref component-id="znodeCompleter"/>
+                <null/>
+            </completers>
+        </command>
     </command-bundle>
 
     <bean id="znodeCompleter" class="org.fusesource.fabric.commands.support.ZNodeCompleter">
         <property name="zooKeeper" ref="zkClient"/>
     </bean>
+
+    <reference id="editorFactory" interface="org.jledit.EditorFactory"/>
 
 </blueprint>

@@ -152,6 +152,7 @@
         <jetty6-version>6.1.26_4</jetty6-version>
         <jetty-plugin-version>7.6.7.v20120910</jetty-plugin-version>
         <jetty-version>7.6.7.v20120910</jetty-version>
+        <jledit.version>0.1.2</jledit.version>
         <jolokia-version>1.0.6</jolokia-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-version>3.3.0</jna-version>
@@ -1058,6 +1059,11 @@
                 <groupId>org.apache.karaf</groupId>
                 <artifactId>org.apache.karaf.util</artifactId>
                 <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jledit</groupId>
+                <artifactId>core</artifactId>
+                <version>${jledit.version}</version>
             </dependency>
 
             <!-- OSGi Scala distro -->
