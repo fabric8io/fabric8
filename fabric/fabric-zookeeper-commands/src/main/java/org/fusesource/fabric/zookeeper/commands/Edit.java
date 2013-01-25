@@ -19,15 +19,14 @@ package org.fusesource.fabric.zookeeper.commands;
 import jline.Terminal;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.ZooDefs;
+import org.fusesource.fabric.commands.support.ZookeeperContentManager;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
-import org.jledit.utils.Files;
 import org.linkedin.zookeeper.client.IZKClient;
 
-import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.UUID;
 
 @Command(name = "edit", scope = "zk", description = "Edits a znode's data", detailedDescription = "classpath:edit.txt")
 public class Edit extends ZooKeeperCommandSupport {
@@ -41,25 +40,16 @@ public class Edit extends ZooKeeperCommandSupport {
 
     @Override
     protected void doExecute(IZKClient zk) throws Exception {
-        String data = zk.getStringData(path);
-        File tmpFile = createTemporaryFile();
-        Files.writeToFile(tmpFile, data, UTF_8);
+        if (zk.exists(path) == null) {
+            zk.createWithParents(path,"", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
+        }
         //Call the editor
         ConsoleEditor editor = editorFactory.create(getTerminal());
         editor.setTitle("Znode");
-        editor.open(tmpFile, path);
+        editor.setContentManager(new ZookeeperContentManager(zk));
+        editor.open(path);
         editor.setOpenEnabled(false);
         editor.start();
-        data = Files.toString(tmpFile, UTF_8);
-        zk.setData(path, data);
-    }
-
-    private File createTemporaryFile() throws IOException {
-        File f = new File(System.getProperty("karaf.data") + "/editor/" + UUID.randomUUID());
-        if (!f.exists() && !f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
-            throw new IOException("Can't create file:" + f.getAbsolutePath());
-        }
-        return f;
     }
 
     /**

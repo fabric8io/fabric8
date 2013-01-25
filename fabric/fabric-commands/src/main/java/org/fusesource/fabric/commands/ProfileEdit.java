@@ -16,8 +16,7 @@
  */
 package org.fusesource.fabric.commands;
 
-import java.io.File;
-import java.io.IOException;
+
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Dictionary;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import jline.Terminal;
 import org.apache.felix.gogo.commands.Argument;
@@ -35,11 +33,11 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import org.fusesource.fabric.commands.support.ZookeeperContentManager;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
-import org.jledit.utils.Files;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -252,17 +250,13 @@ public class ProfileEdit extends FabricCommand {
         String id = profile.getId();
         String version = profile.getVersion();
         String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/org.fusesource.fabric.agent.properties";
-        String data = getZooKeeper().getStringData(path);
-        File tmpFile = createTemporaryFile();
-        Files.writeToFile(tmpFile, data, UTF_8);
         //Call the editor
         ConsoleEditor editor = editorFactory.create(getTerminal());
         editor.setTitle("Profile");
-        editor.open(tmpFile, id + " " + version);
         editor.setOpenEnabled(false);
+        editor.setContentManager(new ZookeeperContentManager(getZooKeeper()));
+        editor.open(path, id + " " + version);
         editor.start();
-        data = Files.toString(tmpFile, UTF_8);
-        getZooKeeper().setData(path, data);
     }
 
 
@@ -340,14 +334,6 @@ public class ProfileEdit extends FabricCommand {
             configMap.put(key, value);
         }
         return configMap;
-    }
-
-    private File createTemporaryFile() throws IOException {
-        File f = new File(System.getProperty("karaf.data") + "/editor/" + UUID.randomUUID());
-        if (!f.exists() && !f.getParentFile().exists() && !f.getParentFile().mkdirs()) {
-            throw new IOException("Can't create file:" + f.getAbsolutePath());
-        }
-        return f;
     }
 
     /**
