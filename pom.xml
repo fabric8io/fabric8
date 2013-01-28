@@ -653,6 +653,22 @@
             <url>http://oss.sonatype.org/content/repositories/releases</url>
             <layout>default</layout>
         </repository>
+
+        <!-- for hawtio -->
+        <repository>
+          <id>oss-sonatype-staging</id>
+          <name>Sonatype Staging Repository</name>
+          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>false</enabled></snapshots>
+        </repository>
+        <repository>
+          <id>oss-sonatype-snapshots</id>
+          <name>OSS Sonatype Nexus Snapshots</name>
+          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+          <releases><enabled>false</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
     </repositories>
 
     <pluginRepositories>
