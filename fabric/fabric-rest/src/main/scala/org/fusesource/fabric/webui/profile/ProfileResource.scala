@@ -80,21 +80,11 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
 
     zip.putArchiveEntry(root)
 
-    val agent_properties = Option(configs.get("org.fusesource.fabric.agent.properties")) match {
-      case Some(agent_properties_bytes) =>
-        val agent_properties = new Properties()
-        agent_properties.load(new ByteArrayInputStream(agent_properties_bytes))
-        agent_properties
-      case None =>
-        new Properties()
-    }
+    val attributes = self.getAttributes();
 
-    val parents = self.getParents.map(_.getId).mkString(" ")
-    agent_properties.put("parents", parents)
     val out = new ByteArrayOutputStream
-    agent_properties.store(out, "Exported on " + new Date)
-    configs.put("org.fusesource.fabric.agent.properties", out.toByteArray)
-
+    attributes.store(out, "Exported on " + new Date)
+    configs.put("attributes.properties", out.toByteArray)
 
     configs.foreach {
       case (key: String, data: Array[Byte]) =>

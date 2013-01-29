@@ -68,6 +68,15 @@ object VersionResource {
       case None =>
     }
 
+    val attributes:Properties = Option(configs.remove("attributes.properties")) match {
+      case Some(attributes_bytes) =>
+        val rc = new Properties
+        rc.load(new ByteArrayInputStream(attributes_bytes));
+        rc
+      case None =>
+        new Properties
+    }
+
     val profile = Option[Profile](self.getProfile(name)) match {
       case Some(p) =>
         Services.LOG.info("Overwriting existing profile {}", name)
@@ -78,7 +87,16 @@ object VersionResource {
     }
 
     profile.setFileConfigurations(configs)
-    profile.setParents(parents.split(" ").map(self.getProfile(_)))
+    Option[String](parents)  match {
+      case Some(parents) =>
+        profile.setParents(parents.split(" ").map(self.getProfile(_)))
+      case None =>
+    }
+
+    import collection.JavaConversions._
+    attributes.stringPropertyNames.foreach( (name) => {
+      profile.setAttribute(name, attributes.get(name).asInstanceOf[String]);
+    })
   }
 
 
