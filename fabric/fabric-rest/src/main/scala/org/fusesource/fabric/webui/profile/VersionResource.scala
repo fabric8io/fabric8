@@ -202,9 +202,10 @@ class VersionResource(val self: Version) extends BaseResource with HasID with Ex
         Services.LOG.debug("Found entry {}", prop_name)
         Services.LOG.debug("Entry is (supposedly) {} bytes", x.getSize)
 
-        val buffer = new Array[Byte](x.getSize.toInt)
+        IOUtils.copy(zip.getInputStream(x), baos);
 
-        zip.getInputStream(x).read(buffer)
+        val buffer = baos.toByteArray();
+
         Services.LOG.debug("Read {} bytes", buffer.length)
 
         configs.put(prop_name, buffer)
