@@ -128,7 +128,7 @@
         <scriptengines.version>1.1</scriptengines.version>
         <spring.version>3.0.7.RELEASE</spring.version>
         <spring.osgi.version>1.2.1</spring.osgi.version>
-        <wss4j.version>1.6.7</wss4j.version>
+        <wss4j.version>1.6.9</wss4j.version>
         <neethi.version>3.0.0</neethi.version>
         <xfire.version>1.0.1</xfire.version>
         <xbean.version>3.12</xbean.version>
