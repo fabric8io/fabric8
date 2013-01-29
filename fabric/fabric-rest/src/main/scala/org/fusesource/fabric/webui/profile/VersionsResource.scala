@@ -67,8 +67,9 @@ class VersionsResource extends BaseResource {
   @Path("import")
   @Consumes(Array("multipart/form-data"))
   @Produces(Array("text/html"))
-  def import_version(@FormDataParam("import-file") file: InputStream,
-                     @FormDataParam("import-file") file_detail: FormDataContentDisposition): String = {
+  def import_version( @FormDataParam("target-name") target_name: String,
+                      @FormDataParam("import-file") file: InputStream,
+                      @FormDataParam("import-file") file_detail: FormDataContentDisposition): String = {
 
     val filename = file_detail.getFileName
     if (!filename.endsWith(".zip")) {
@@ -123,9 +124,34 @@ class VersionsResource extends BaseResource {
     zip.close
     tmp.delete
 
-    val version = BaseUpgradeResource.create_version
+    val version = if (target_name.equals("")) {
+      val rc = BaseUpgradeResource.create_version
+      Services.LOG.info("Creating new version {}", rc.getName());
+      rc
+    } else {
+      try {
+        Option(fabric_service.getVersion(target_name)) match {
+          case Some(rc) =>
+            Services.LOG.info("Overwriting existing version {}", rc.getName());
+            rc
+          case None =>
+            Services.LOG.info("Creating new emtpy version {}", target_name);
+            fabric_service.createVersion(target_name);
+        }
+      } catch {
+        case _ =>
+          Services.LOG.info("Creating new emtpy version {}", target_name);
+          fabric_service.createVersion(target_name);
+      }
+    }
 
-    profiles.keySet.foreach(version.createProfile(_))
+    profiles.keySet.foreach( (p) =>
+      try {
+        version.createProfile(p)
+      } catch {
+        case _ =>
+          // ignore
+      })
 
     profiles.asScala.foreach {
       case (profile: String, data: util.HashMap[String, Array[Byte]]) => {

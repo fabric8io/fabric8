@@ -204,10 +204,6 @@ define [
       body.html controller.render().el
 
 
-  class ImportBody extends FON.TemplateController
-    template: jade["profiles_page/import_profile.jade"]
-
-
   class ImportProfileDialog extends FON.Dialog
     accept: -> "Import"
     header: -> "Import Profile"
@@ -229,7 +225,9 @@ define [
             message: data.responseText
 
     on_display: (body, options) ->
-      controller = new ImportBody
+      controller = new FON.TemplateController
+        template: jade["profiles_page/import_profile.jade"]
+
       body.html controller.render().el
 
     do_remove: ->
@@ -241,9 +239,10 @@ define [
       @dialog.unbind "hidden"
 
 
-  class ImportVersionDialog extends ImportProfileDialog
-
+  class ImportVersionDialog extends FON.Dialog
+    accept: -> "Import"
     header: -> "Import Version"
+    form_enctype: -> "multipart/form-data"
     form_action: -> "rest/versions/import"
 
     on_accept: (body, options) ->
@@ -260,6 +259,19 @@ define [
             title: "Error importing version: "
             message: data.responseText
 
+    on_display: (body, options) ->
+      controller = new FON.TemplateController
+        template: jade["profiles_page/import_version.jade"]
+
+      body.html controller.render().el
+
+    do_remove: ->
+      if @submitted
+        super
+
+    on_render: ->
+      super
+      @dialog.unbind "hidden"
 
   class ProfileRow extends FON.TemplateController
     tagName: "li"
