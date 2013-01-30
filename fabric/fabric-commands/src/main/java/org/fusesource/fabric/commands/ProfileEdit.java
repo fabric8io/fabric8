@@ -89,6 +89,9 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "-i", aliases = {"--import-pid"}, description = "Imports the pids that are edited, from local OSGi config admin", required = false, multiValued = false)
     private boolean importPid = false;
 
+    @Option(name = "--resource", description = "Selects a resource under the profile to edit. This option should only be used alone.", required = false, multiValued = false)
+    private String resource;
+
     @Option(name = "--set", description = "Set or create values (selected by default).")
     private boolean set = true;
 
@@ -177,7 +180,6 @@ public class ProfileEdit extends FabricCommand {
         }
 
         if (configAdminProperties != null && configAdminProperties.length > 0) {
-            editInLine = true;
             for (String configAdminProperty : configAdminProperties) {
                 String currentPid = null;
                 Map<String, String> existingConfig = null;
@@ -187,6 +189,7 @@ public class ProfileEdit extends FabricCommand {
                     if (configAdminProperty.contains(PID_KEY_SEPARATOR)) {
                         currentPid = configAdminProperty.substring(0, configAdminProperty.indexOf(PID_KEY_SEPARATOR));
                         keyValue = configAdminProperty.substring(configAdminProperty.indexOf(PID_KEY_SEPARATOR) + 1);
+                        editInLine = true;
                     } else {
                         currentPid = configAdminProperty;
                     }
@@ -198,6 +201,7 @@ public class ProfileEdit extends FabricCommand {
 
                     //We only support import when a single pid is spcecified
                     if (configAdminProperties.length == 1 && importPid) {
+                        editInLine = true;
                         importPidFromLocalConfigAdmin(currentPid, existingConfig);
                     }
 
@@ -242,14 +246,20 @@ public class ProfileEdit extends FabricCommand {
             config.put(pid, pidConfig);
             profile.setConfigurations(config);
         } else {
-            openInEditor(profile);
+            resource = resource != null ? resource : "org.fusesource.fabric.agent.properties";
+            //If a single pid has been selected, but not a key value has been specified or import has been selected,
+            //then open the resource in the editor.
+            if (configAdminProperties != null && configAdminProperties.length == 1) {
+                resource = configAdminProperties[0] + ".properties";
+            }
+            openInEditor(profile, resource);
         }
     }
 
-    private void openInEditor(Profile profile) throws Exception {
+    private void openInEditor(Profile profile, String resource) throws Exception {
         String id = profile.getId();
         String version = profile.getVersion();
-        String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/org.fusesource.fabric.agent.properties";
+        String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/" + resource;
         //Call the editor
         ConsoleEditor editor = editorFactory.create(getTerminal());
         editor.setTitle("Profile");
