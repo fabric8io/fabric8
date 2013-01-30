@@ -51,7 +51,6 @@
                                 <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix.nmr.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
@@ -67,11 +66,9 @@
                               <feature>fabric-commands</feature>
                               <feature>fabric-bundle</feature>
                               <feature>fabric-maven-proxy</feature>
-                              <feature>cxf</feature>
                               <feature>camel-core</feature>
                               <feature>camel-spring</feature>
                               <feature>camel-blueprint</feature>
-                              <feature>camel-cxf</feature>
                               <feature>camel-jms</feature>
                               <feature>camel-jaxb</feature>
                               <feature>camel-jdbc</feature>
