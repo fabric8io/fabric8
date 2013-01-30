@@ -71,6 +71,7 @@
 
         <bundle>mvn:org.fusesource.fabric/fabric-features-service/${project.version}</bundle>
         <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.command/${karaf-version}</bundle>
+        <bundle>mvn:org.apache.karaf.features/org.apache.karaf.features.management/${karaf-version}</bundle>
 
         <!-- TODO: Either decouple diagonstic common from org.apache.karaf.features or provide a dummy FeatureServiceImpl.
              Till then we need to comment this out.-->
