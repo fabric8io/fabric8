@@ -48,7 +48,9 @@ public class ShellUtils {
      */
     public static String retrieveFabricUser(CommandSession session) {
         Subject subject = Subject.getSubject(AccessController.getContext());
-        if (!subject.getPrivateCredentials(String.class).isEmpty() && subject.getPrincipals(UserPrincipal.class) != null && !subject.getPrincipals(UserPrincipal.class).isEmpty()) {
+        if (subject != null &&
+                subject.getPrivateCredentials(String.class) != null && !subject.getPrivateCredentials(String.class).isEmpty() &&
+                subject.getPrincipals(UserPrincipal.class) != null && !subject.getPrincipals(UserPrincipal.class).isEmpty()) {
             Set<UserPrincipal> userPrincipals = subject.getPrincipals(UserPrincipal.class);
             UserPrincipal userPrincipal = userPrincipals.iterator().next();
             return userPrincipal.getName();
@@ -68,7 +70,9 @@ public class ShellUtils {
      */
     public static String retrieveFabricUserPassword(CommandSession session) {
         Subject subject = Subject.getSubject(AccessController.getContext());
-        if (!subject.getPrivateCredentials(String.class).isEmpty() && !subject.getPrincipals(UserPrincipal.class).isEmpty()) {
+        if (subject != null &&
+                subject.getPrivateCredentials(String.class) != null && !subject.getPrivateCredentials(String.class).isEmpty() &&
+                subject.getPrincipals(UserPrincipal.class) != null && !subject.getPrincipals(UserPrincipal.class).isEmpty()) {
             return subject.getPrivateCredentials(String.class).iterator().next();
         }
         if (session != null && session.get(FABRIC_USER_PASSWORD) != null) {
