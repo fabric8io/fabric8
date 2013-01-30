@@ -83,9 +83,25 @@ public class InterpolationHelper {
      * @param properties the property set to perform substitution on
      */
     public static void performSubstitution(Map<String, String> properties, SubstitutionCallback callback) {
+        performSubstitution(properties, callback, false);
+    }
+
+    /**
+     * Perform substitution on a property set
+     *
+     * @param properties the property set to perform substitution on
+     * @param callback the callback to use for resolving properties
+     * @param keepPlaceHolderOnNull A flag that indicates that the original placeholder should be kept if resolution fails.
+     */
+    public static void performSubstitution(Map<String, String> properties, SubstitutionCallback callback, boolean keepPlaceHolderOnNull) {
         for (String name : properties.keySet()) {
             String value = properties.get(name);
-            properties.put(name, substVars(value, name, null, properties, callback));
+            String substValue = substVars(value, name, null, properties, callback);
+            if (substValue != null) {
+                properties.put(name, substValue);
+            } else if (!keepPlaceHolderOnNull) {
+                properties.put(name, "");
+            }
         }
     }
 
@@ -178,7 +194,10 @@ public class InterpolationHelper {
                     substValue = callback.getValue(variable);
                 }
                 if (substValue == null) {
-                    substValue = System.getProperty(variable, "");
+                    substValue = System.getProperty(variable);
+                }
+                if (substValue == null) {
+                    return null;
                 }
             }
         }

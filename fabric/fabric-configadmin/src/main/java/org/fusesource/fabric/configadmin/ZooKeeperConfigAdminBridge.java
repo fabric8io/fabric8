@@ -197,19 +197,21 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                             return key;
                         }
                     } else {
-                        String value = "";
+                        //We want to return null if place holder is not resolved and let the InterpolationHelper decide.
+                        String value = null;
                         BundleContext context = getBundleContext();
                         if (context != null) {
                             value = context.getProperty(key);
                         }
                         if (value == null) {
-                            value = System.getProperty(key, "");
+                            value = System.getProperty(key);
                         }
                         return value;
                     }
-                    return "";
+                    //We want to return null if place holder is not resolved and let the InterpolationHelper decide.
+                    return null;
                 }
-            });
+            }, true);
         }
         return configs;
     }
