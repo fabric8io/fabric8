@@ -114,6 +114,11 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.utils</artifactId>
     </dependency>
+    <dependency>
+        <groupId>org.jledit</groupId>
+        <artifactId>jledit</artifactId>
+        <version>${jledit.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
