@@ -105,6 +105,13 @@ public class ServiceImplTest {
         replay(sysBundleContext, sysBundle, bundleContext, bundle);
 
         ServiceImpl service = new ServiceImpl(bundleContext);
+        
+        try {
+            service.download(new URL("file:" + storage + "/temp/f00.zip"));
+            fail("Should have thrown exception on non existant patch file.");
+        } catch (Exception e) {        	
+        }        
+        
         Iterable<Patch> patches = service.download(patch132.toURI().toURL());
         assertNotNull(patches);
         Iterator<Patch> it = patches.iterator();
