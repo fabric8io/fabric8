@@ -92,6 +92,8 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
         try {
             executSshCommand(session, username, password, ssh[0], ssh[1], cmdStr);
         } catch (FabricAuthenticationException ex) {
+            username = null;
+            password = null;
             promptForSshCredentialsIfNeeded();
             executSshCommand(session, username, password, ssh[0], ssh[1], cmdStr);
         }

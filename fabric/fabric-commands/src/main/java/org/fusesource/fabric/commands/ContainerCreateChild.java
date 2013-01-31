@@ -72,6 +72,8 @@ public class ContainerCreateChild extends ContainerCreateSupport {
             ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         } catch (FabricAuthenticationException ex) {
             //If authentication fails, prompts for credentilas and try again.
+            username = null;
+            password = null;
             promptForJmxCredentialsIfNeeded();
             options.setJmxUser(username);
             options.setJmxPassword(password);
