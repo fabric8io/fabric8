@@ -83,7 +83,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(" ").append(ENSEMBLE_SERVER_CONTAINER);
                 }
 
-                if (options.getJvmOpts() == null && !options.getJvmOpts().isEmpty()) {
+                if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
                     jvmOptsBuilder.append(" ").append(options.getJvmOpts());
                 }
 
