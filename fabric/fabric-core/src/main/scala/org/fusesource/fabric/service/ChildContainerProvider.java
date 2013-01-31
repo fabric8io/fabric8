@@ -20,6 +20,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -71,23 +72,21 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 StringBuilder jvmOptsBuilder = new StringBuilder();
 
-                if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-                    jvmOptsBuilder.append(options.getJvmOpts()).append(" ");
-                }
-
                 jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote")
                         .append(options.getZookeeperUrl() != null ? " -Dzookeeper.url=\"" + options.getZookeeperUrl() + "\"" : "")
                         .append(options.getZookeeperPassword() != null ? " -Dzookeeper.password=\"" + options.getZookeeperPassword() + "\"" : "");
 
                 if (options.getJvmOpts() == null || !options.getJvmOpts().contains("-Xmx")) {
                     jvmOptsBuilder.append(" -Xmx512m");
-                } else if (options.getJvmOpts() != null) {
-                    jvmOptsBuilder.append(" ").append(options.getJvmOpts());
                 }
-
                 if (options.isEnsembleServer()) {
                     jvmOptsBuilder.append(" ").append(ENSEMBLE_SERVER_CONTAINER);
                 }
+
+                if (options.getJvmOpts() == null && !options.getJvmOpts().isEmpty()) {
+                    jvmOptsBuilder.append(" ").append(options.getJvmOpts());
+                }
+
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
                 String originalName = new String(options.getName());
@@ -189,6 +188,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     /**
      * Returns the {@link ContainerTemplate} of the parent of the specified child {@link Container}.
+     *
      * @param container
      * @return
      */
@@ -254,6 +254,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
     /**
      * Links child container resolver and addresses to its parents resolver and addresses.
+     *
      * @param zooKeeper
      * @param parent
      * @param name
@@ -274,6 +275,6 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         }
 
         zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}", CreateMode.PERSISTENT);
-        zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), "${zk:"+name+"/resolver}", CreateMode.PERSISTENT);
+        zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}", CreateMode.PERSISTENT);
     }
 }
