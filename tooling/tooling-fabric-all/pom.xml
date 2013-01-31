@@ -119,6 +119,11 @@
         <artifactId>jledit</artifactId>
         <version>${jledit.version}</version>
     </dependency>
+    <dependency>
+        <groupId>org.jledit</groupId>
+        <artifactId>core</artifactId>
+        <version>${jledit.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
