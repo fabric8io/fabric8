@@ -29,11 +29,37 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         FabricService fabricService = getOsgiService(FabricService.class);
 
         System.out.println(executeCommand("fabric:create -n"));
-
-        addStagingRepoToDefaultProfile();
-
         createAndAssertChildContainer("camel1", "root", "camel");
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
+        System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
+        System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
+        waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);
+        String bundles = executeCommand("container-connect -u admin -p admin camel1 osgi:list -s | grep camel-hazelcast");
+        System.out.println(executeCommand("fabric:container-list"));
+        assertNotNull(bundles);
+        System.out.println(bundles);
+        assertFalse("Expected camel-hazelcast installed.", bundles.isEmpty());
+        System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
+        waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);
+        System.out.println(executeCommand("fabric:container-list"));
+        bundles = executeCommand("container-connect -u admin -p admin camel1 osgi:list -s | grep camel-hazelcast");
+        assertNotNull(bundles);
+        System.out.println(bundles);
+        assertTrue("Expected no camel-hazelcast installed.", bundles.isEmpty());
+    }
+
+    /**
+     * The purpose of this test is that everything works ok, even if the container is created after the version.
+     * This is a test for the issue: http://fusesource.com/issues/browse/FABRIC-363
+     * @throws Exception
+     */
+    @Test
+    public void testContainerAfterVersionUpgrade() throws Exception {
+        FabricService fabricService = getOsgiService(FabricService.class);
+
+        System.out.println(executeCommand("fabric:create -n"));
+        System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
+        createAndAssertChildContainer("camel1", "root", "camel");
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         waitForProvisionSuccess(fabricService.getContainer("camel1"), PROVISION_TIMEOUT);

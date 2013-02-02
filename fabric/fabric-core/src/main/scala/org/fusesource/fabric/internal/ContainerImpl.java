@@ -184,6 +184,7 @@ public class ContainerImpl implements Container {
         try {
             Version curretVersion = getVersion();
 
+            Profile[] profiles = getProfiles();
             if (requiresUpgrade(version) && isManaged()) {
                 if (version.compareTo(curretVersion) > 0) {
                     ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "upgrading");
@@ -191,6 +192,17 @@ public class ContainerImpl implements Container {
                     ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "downgrading");
                 }
             }
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < profiles.length; i++) {
+                if (i > 0) {
+                    sb.append(" ");
+                }
+                sb.append(profiles[i].getId());
+            }
+
+            //Transfer profiles to the new version.
+            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), id), sb.toString() );
             ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
         } catch (Exception e) {
             throw new RuntimeException(e);
