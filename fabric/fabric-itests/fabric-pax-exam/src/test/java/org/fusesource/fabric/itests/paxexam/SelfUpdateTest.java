@@ -45,7 +45,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 public class SelfUpdateTest extends FabricTestSupport {
 
     private static final String FABRIC_FEATURE_REPO_URL = "mvn:org.fusesource.fabric/fuse-fabric/%s/xml/features";
-    private static final String OLD_VERSION = "7.0.0.fuse-061";
+    private static final String OLD_VERSION = "7.1.0.fuse-047";
 
     @After
     public void tearDown() throws InterruptedException {

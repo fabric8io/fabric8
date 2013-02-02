@@ -33,6 +33,7 @@ import org.junit.Test;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*;
 
 /**
  * Tests various Fabric Features.
@@ -69,7 +70,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         targetProfile.setFeatures(testFeatures);
         //Test the modified profile.
         containerSetProfile(containerName, profileName);
-        String bundles = executeCommand("container-connect " + containerName + " osgi:list -s -t 0 | grep " + expectedSymbolicName);
+        String bundles = executeCommand("container-connect -u admin -p admin " + containerName + " osgi:list -s -t 0 | grep " + expectedSymbolicName);
         Assert.assertNotNull(bundles);
         Assert.assertTrue(bundles.contains(expectedSymbolicName));
         System.out.println(bundles);
@@ -111,7 +112,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005",true),
+                debugConfiguration("5005",false),
                 copySystemProperty("feature")
         };
     }
