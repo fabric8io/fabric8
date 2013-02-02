@@ -16,11 +16,14 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.HasId;
+import org.fusesource.fabric.api.Ids;
+import org.fusesource.fabric.api.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**

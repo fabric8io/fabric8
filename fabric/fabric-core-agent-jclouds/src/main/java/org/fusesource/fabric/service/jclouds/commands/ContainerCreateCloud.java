@@ -25,7 +25,7 @@ import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
@@ -79,10 +79,10 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private URI proxyUri;
 
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
-    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+    private int minimumPort = Ports.MIN_PORT_NUMBER;
 
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
-    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+    private int maximumPort = Ports.MAX_PORT_NUMBER;
 
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUser;

@@ -48,6 +48,7 @@
             com.google.common.collect,
             com.google.common.base,
             org.fusesource.fabric.maven.impl,
+            org.fusesource.fabric.utils,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
             org.apache.felix.webconsole,
@@ -68,6 +69,12 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-linkedin-zookeeper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
             <version>${project.version}</version>
         </dependency>
 

@@ -47,8 +47,7 @@ public class VersionImpl implements Version {
     public Properties getAttributes() {
         try {
             String node = ZkPath.CONFIG_VERSION.getPath(name);
-            Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), node);
-            return props;
+            return ZooKeeperUtils.getProperties(service.getZooKeeper(), node);
         } catch (Exception e) {
             throw new FabricException(e);
         }

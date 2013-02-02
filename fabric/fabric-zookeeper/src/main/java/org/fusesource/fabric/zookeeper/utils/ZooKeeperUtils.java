@@ -36,7 +36,11 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.ZKData;
 
-public class ZooKeeperUtils {
+public final class ZooKeeperUtils {
+
+    private ZooKeeperUtils() {
+        //Utility Class
+    }
 
     public static void copy(IZKClient source, IZKClient dest, String path) throws InterruptedException, KeeperException {
         for (String child : source.getChildren(path)) {
@@ -85,6 +89,7 @@ public class ZooKeeperUtils {
                 parts = new ArrayList<String>(Arrays.asList(data.split(" ")));
             }
             boolean changed = false;
+            StringBuilder sb = new StringBuilder();
             for (Iterator<String> it = parts.iterator(); it.hasNext();) {
                 String v = it.next();
                 if (v.matches(value)) {
@@ -93,14 +98,14 @@ public class ZooKeeperUtils {
                 }
             }
             if (changed) {
-                data = "";
+                sb.delete(0, sb.length());
                 for (String part : parts) {
                     if (data.length() > 0) {
-                        data += " ";
+                        sb.append(" ");
                     }
-                    data += part;
+                    sb.append(part);
                 }
-                zooKeeper.setData(path, data);
+                zooKeeper.setData(path, sb.toString());
             }
         }
     }
@@ -168,7 +173,7 @@ public class ZooKeeperUtils {
     }
 
     public static String getSubstitutedPath(final IZKClient zooKeeper, String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
-        String normaledPath = path != null && path.contains("#") ? path.substring(0,path.lastIndexOf("#")) : path;
+        String normaledPath = path != null && path.contains("#") ? path.substring(0,path.lastIndexOf('#')) : path;
         if (normaledPath != null && zooKeeper.exists(normaledPath) != null) {
             byte[] data = ZkPath.loadURL(zooKeeper, path);
             if (data != null && data.length > 0) {

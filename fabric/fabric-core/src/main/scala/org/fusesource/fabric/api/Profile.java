@@ -25,27 +25,27 @@ public interface Profile extends Comparable<Profile>, HasId {
     /**
      * The attribute key for the list of parents
      */
-    final String PARENTS = "parents";
+    String PARENTS = "parents";
 
     /**
      * The attribute key for the description of the profile
      */
-    final String DESCRIPTION = "description";
+    String DESCRIPTION = "description";
 
     /**
      * The attribute key for the locked flag
      */
-    final String LOCKED = "locked";
+    String LOCKED = "locked";
 
     /**
      * The attribute key for the abstract flag
      */
-    final String ABSTRACT = "abstract";
+    String ABSTRACT = "abstract";
 
     /**
      * The attribute key for the hidden flag
      */
-    final String HIDDEN = "hidden";
+    String HIDDEN = "hidden";
 
     /**
      * Key indicating a deletion.
@@ -54,7 +54,7 @@ public interface Profile extends Comparable<Profile>, HasId {
      * is flagged has been deleted from its parent when computing the
      * overlay.
      */
-    final String DELETED = "#deleted#";
+    String DELETED = "#deleted#";
 
     String getVersion();
 

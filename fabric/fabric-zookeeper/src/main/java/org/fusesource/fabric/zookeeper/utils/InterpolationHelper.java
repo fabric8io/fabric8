@@ -44,7 +44,7 @@ public class InterpolationHelper {
      */
     public interface SubstitutionCallback {
 
-        public String getValue(String key);
+        String getValue(String key);
 
     }
 
@@ -94,8 +94,9 @@ public class InterpolationHelper {
      * @param keepPlaceHolderOnNull A flag that indicates that the original placeholder should be kept if resolution fails.
      */
     public static void performSubstitution(Map<String, String> properties, SubstitutionCallback callback, boolean keepPlaceHolderOnNull) {
-        for (String name : properties.keySet()) {
-            String value = properties.get(name);
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String name = entry.getKey();
+            String value = entry.getValue();
             String substValue = substVars(value, name, null, properties, callback);
             if (substValue != null) {
                 properties.put(name, substValue);

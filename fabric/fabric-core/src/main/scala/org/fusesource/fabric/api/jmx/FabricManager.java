@@ -67,7 +67,7 @@ public class FabricManager implements FabricManagerMBean {
     public void registerMBeanServer(MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
-            ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
+            mbeanServer.registerMBean(this, name);
         } catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);
         }
@@ -139,7 +139,7 @@ public class FabricManager implements FabricManagerMBean {
         if (container != null) {
             return new ArrayList<String>();
         }
-        return container.getProvisionList();
+        throw new IllegalStateException(String.format("Container %s not found.",name));
     }
 
     private Profile[] getProfiles(Version version, List<String> names) {
@@ -201,7 +201,7 @@ public class FabricManager implements FabricManagerMBean {
         if (profile != null) {
             return new ArrayList<String>();
         }
-        return Ids.getIds(profile.getAssociatedContainers());
+        throw new IllegalStateException(String.format("Profile %s not found.", profileId));
     }
 
     @Override
@@ -210,7 +210,7 @@ public class FabricManager implements FabricManagerMBean {
         if (profile != null) {
             return new ArrayList<ContainerDTO>();
         }
-        return ContainerDTO.newInstances(profile.getAssociatedContainers());
+        throw new IllegalStateException(String.format("Profile %s not found.", profileId));
     }
 
 

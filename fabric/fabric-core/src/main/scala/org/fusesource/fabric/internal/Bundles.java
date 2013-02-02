@@ -23,19 +23,24 @@ import org.slf4j.LoggerFactory;
 
 /**
  */
-public class Bundles {
-    private static final transient Logger logger = LoggerFactory.getLogger(Bundles.class);
+public final class Bundles {
+
+    private Bundles() {
+        //Utility Class
+    }
+
+    private static final transient Logger LOGGER = LoggerFactory.getLogger(Bundles.class);
     
     public static void startBundle(BundleContext context, String containsName) {
         Bundle[] bundles = context.getBundles();
         for (Bundle bundle : bundles) {
             String name = bundle.getSymbolicName();
             if (name.contains(containsName)) {
-                logger.debug("About to start bundle: " + name);
+                LOGGER.debug("About to start bundle: " + name);
                 try {
                     bundle.start();
                 } catch (Exception e) {
-                    logger.warn("Failed to start bundle: " + name + " due " + e.getMessage() + ". This exception will be ignored.", e);
+                    LOGGER.warn("Failed to start bundle: " + name + " due " + e.getMessage() + ". This exception will be ignored.", e);
                 }
             }
         }
@@ -46,11 +51,11 @@ public class Bundles {
         for (Bundle bundle : bundles) {
             String name = bundle.getSymbolicName();
             if (name.contains(containsName)) {
-                logger.debug("About to stop bundle: " + name);
+                LOGGER.debug("About to stop bundle: " + name);
                 try {
                     bundle.stop();
                 } catch (Exception e) {
-                    logger.warn("Failed to stop bundle: " + name + " due " + e.getMessage() + ". This exception will be ignored.", e);
+                    LOGGER.warn("Failed to stop bundle: " + name + " due " + e.getMessage() + ". This exception will be ignored.", e);
                 }
             }
         }

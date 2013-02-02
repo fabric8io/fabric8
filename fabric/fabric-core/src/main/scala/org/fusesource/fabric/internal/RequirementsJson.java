@@ -30,10 +30,14 @@ import java.io.StringWriter;
 /**
  * Helper methods for marshalling to and from JSON
  */
-public class RequirementsJson {
+public final class RequirementsJson {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(RequirementsJson.class);
     private static ObjectMapper mapper = new ObjectMapper();
 
+    private RequirementsJson() {
+        //Utility Class
+    }
     static {
         mapper.getSerializationConfig().withSerializationInclusion(JsonSerialize.Inclusion.NON_EMPTY);
     }
@@ -65,10 +69,10 @@ public class RequirementsJson {
         if (json == null) {
             return null;
         }
-        json = json.trim();
-        if (json.length() == 0 || json.equals("{}")) {
+        String trimmedJson = json.trim();
+        if (trimmedJson.length() == 0 || trimmedJson.equals("{}")) {
             return null;
         }
-        return mapper.reader(FabricRequirements.class).readValue(json);
+        return mapper.reader(FabricRequirements.class).readValue(trimmedJson);
     }
 }

@@ -16,16 +16,6 @@
  */
 package org.fusesource.fabric.internal;
 
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -45,6 +35,15 @@ import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+import java.io.ByteArrayInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 public class ContainerImpl implements Container {
 
@@ -227,7 +226,7 @@ public class ContainerImpl implements Container {
             String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
             List<String> existingProfiles = Arrays.asList(service.getZooKeeper().getStringData(node).split(" "));
 
-            String str = "";
+            StringBuilder sb = new StringBuilder();
             if (profiles != null) {
                 for (Profile profile : profiles) {
                     if (!version.equals(profile.getVersion())) {
@@ -240,12 +239,13 @@ public class ContainerImpl implements Container {
                         throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
                     }
 
-                    if (!str.isEmpty()) {
-                        str += " ";
+                    if (sb.length() > 0) {
+                        sb.append(" ");
                     }
-                    str += profile.getId();
+                    sb.append(profile.getId());
                 }
             }
+            String str = sb.toString();
             if (str.trim().isEmpty()) {
                 str = "default";
             }

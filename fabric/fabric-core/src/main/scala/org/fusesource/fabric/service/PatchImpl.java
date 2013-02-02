@@ -68,9 +68,13 @@ public class PatchImpl implements Patch, Comparable<PatchImpl> {
     @Override
     public int compareTo(PatchImpl o) {
         int c = this.groupId.compareTo(o.groupId);
-        if (c != 0) return c;
+        if (c != 0) {
+            return c;
+        }
         c = this.artifactId.compareTo(o.artifactId);
-        if (c != 0) return c;
+        if (c != 0) {
+            return c;
+        }
         org.osgi.framework.Version v1 = VersionTable.getVersion(this.version);
         org.osgi.framework.Version v2 = VersionTable.getVersion(o.version);
         return PatchServiceImpl.compareFuseVersions(v1, v2);

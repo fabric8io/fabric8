@@ -25,28 +25,28 @@ import java.util.Properties;
  */
 public interface CreateContainerOptions extends Serializable {
 
-    public String getName();
-    public void setName(String name);
+    String getName();
+    void setName(String name);
 
-    public String getParent();
-    public void setParent(String parent);
+    String getParent();
+    void setParent(String parent);
 
-    public String getProviderType();
-    public void setProviderType(String providerType);
+    String getProviderType();
+    void setProviderType(String providerType);
 
-    public URI getProviderURI();
-    public void setProviderURI(URI providerURI);
+    URI getProviderURI();
+    void setProviderURI(URI providerURI);
 
-    public boolean isEnsembleServer();
-    public void setEnsembleServer(boolean setEnsembleServer);
+    boolean isEnsembleServer();
+    void setEnsembleServer(boolean setEnsembleServer);
 
-    public String getResolver();
-    public void setResolver(String resolver);
+    String getResolver();
+    void setResolver(String resolver);
 
-    public Map<String,Properties> getSystemProperties();
+    Map<String,Properties> getSystemProperties();
 
-    public String getPreferredAddress();
-    public void setPreferredAddress(String preferredAddress);
+    String getPreferredAddress();
+    void setPreferredAddress(String preferredAddress);
 
     int getMinimumPort();
     void setMinimumPort(int port);
@@ -54,28 +54,28 @@ public interface CreateContainerOptions extends Serializable {
     int getMaximumPort();
     void setMaximumPort(int port);
 
-    public Integer getNumber();
-    public void setNumber(Integer number);
+    Integer getNumber();
+    void setNumber(Integer number);
 
-    public URI getProxyUri();
-    public void setProxyUri(URI proxyUri);
+    URI getProxyUri();
+    void setProxyUri(URI proxyUri);
 
-    public String getZookeeperUrl();
-    public void setZookeeperUrl(String zookeeperUrl);
+    String getZookeeperUrl();
+    void setZookeeperUrl(String zookeeperUrl);
 
-    public String getZookeeperPassword();
-    public void setZookeeperPassword(String zookeeperPassword);
+    String getZookeeperPassword();
+    void setZookeeperPassword(String zookeeperPassword);
 
-    public String getJvmOpts();
-    public void setJvmOpts(String jvmOpts);
+    String getJvmOpts();
+    void setJvmOpts(String jvmOpts);
 
 
-    public boolean isAdminAccess();
-    public void setAdminAccess(boolean adminAccess);
+    boolean isAdminAccess();
+    void setAdminAccess(boolean adminAccess);
 
-    public void setCreationStateListener(CreationStateListener listener);
-    public CreationStateListener getCreationStateListener();
+    void setCreationStateListener(CreationStateListener listener);
+    CreationStateListener getCreationStateListener();
 
-    public Map<String, ? extends CreateContainerMetadata> getMetadataMap();
+    Map<String, ? extends CreateContainerMetadata> getMetadataMap();
 
 }

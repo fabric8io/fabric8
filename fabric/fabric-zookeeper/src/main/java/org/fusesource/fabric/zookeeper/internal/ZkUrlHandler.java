@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 public class ZkUrlHandler extends AbstractURLStreamHandlerService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ZkUrlHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZkUrlHandler.class);
 
     private static final String SYNTAX = "zk: zk-node-path";
 
@@ -95,7 +95,7 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
             try {
               return new ByteArrayInputStream(ZkPath.loadURL(zooKeeper, url.toString()));
             } catch (Exception e) {
-                logger.error("Error opening zookeeper url", e);
+                LOGGER.error("Error opening zookeeper url", e);
                 throw (IOException) new IOException("Error opening zookeeper url").initCause(e);
             }
         }

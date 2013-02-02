@@ -19,9 +19,11 @@ package org.fusesource.fabric.itests.paxexam;
 
 import java.util.Dictionary;
 import javax.inject.Inject;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -64,15 +66,15 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
         Dictionary<String, Object> dictionary = configuration.getProperties();
-        assertNotNull("Expected a generated zookeeper password",dictionary.get("zookeeper.password"));
+        assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                new VMOption("-D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true"),
-                new VMOption("-D"+ZooKeeperClusterService.AGENT_AUTOSTART +"=false"),
+                new VMOption("-D" + SystemProperties.ENSEMBLE_AUTOSTART + "=true"),
+                new VMOption("-D" + SystemProperties.AGENT_AUTOSTART + "=false"),
         };
     }
 }

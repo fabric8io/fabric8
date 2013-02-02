@@ -26,7 +26,6 @@ import javax.management.remote.JMXConnector;
  * A Caching implementation of JmxTemplate which caches a connector for a given Container
  */
 public class ContainerCachingJmxTemplate extends JmxTemplate {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerCachingJmxTemplate.class);
 
     private final ContainerTemplate containerTemplate;
 

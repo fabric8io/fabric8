@@ -20,12 +20,12 @@ import java.util.Map;
 
 public interface MQService {
 
-    public static final String MQ_PROFILE_BASE = "mq-base";
+    static final String MQ_PROFILE_BASE = "mq-base";
 
-    public static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
+    static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
     
-    public Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
+    Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
     
-    public String getConfig(String version, String config);
+    String getConfig(String version, String config);
     
 }

@@ -16,15 +16,19 @@
  */
 package org.fusesource.fabric.itests.paxexam;
 
+import java.io.File;
 import java.util.Dictionary;
 import javax.inject.Inject;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -37,6 +41,12 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.ops4j.pax.exam.CoreOptions.maven;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -50,7 +60,7 @@ public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricCluster() throws Exception {
-        executeCommand("fabric:ensemble-create -n --clean root");
+        executeCommand("fabric:create -n --clean root");
         //Wait for zookeeper service to become available.
         Container[] containers = fabricService.getContainers();
 
@@ -69,7 +79,7 @@ public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricClusterWithPassword() throws Exception {
-        executeCommand("fabric:ensemble-create -n --clean --zookeeper-password testpassword root");
+        executeCommand("fabric:create -n --clean --zookeeper-password testpassword root");
 
         //Wait for zookeeper service to become available.
         Container[] containers = fabricService.getContainers();
@@ -91,7 +101,7 @@ public class ContainerStartupTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                new VMOption("-D"+ ZooKeeperClusterService.ZOOKEEPER_PASSWORD +"=systempassword"),
+                new VMOption("-D"+ SystemProperties.ZOOKEEPER_PASSWORD +"=systempassword"),
         };
     }
 }

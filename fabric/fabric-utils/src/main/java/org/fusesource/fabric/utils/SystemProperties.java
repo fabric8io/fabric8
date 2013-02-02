@@ -14,27 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.utils;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
 
-import java.util.List;
+public final class SystemProperties {
 
-public interface ZooKeeperClusterService {
+    public static final String AGENT_AUTOSTART = "agent.auto.start";
+    public static final String ENSEMBLE_AUTOSTART = "ensemble.auto.start";
+    public static final String PROFILES_AUTOIMPORT_PATH = "profiles.auto.import.path";
+    public static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
+    public static final String PROFILE = "profile";
 
-    List<String> getEnsembleContainers();
+    public static final String KARAF_NAME = "karaf.name";
 
-    String getZooKeeperUrl();
 
-    void createCluster(List<String> containers);
+    private SystemProperties() {
+        //Utility Class
+    }
 
-    void createCluster(List<String> containers, CreateEnsembleOptions options);
-
-    void addToCluster(List<String> containers);
-
-    void removeFromCluster(List<String> containers);
-
-    void clean();
-
-    IZKClient getZooKeeper();
 }

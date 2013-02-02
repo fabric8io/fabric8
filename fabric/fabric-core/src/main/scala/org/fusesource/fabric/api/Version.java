@@ -23,12 +23,12 @@ public interface Version extends Comparable<Version> {
     /**
      * The attribute key for the description of the version
      */
-    final String DESCRIPTION = "description";
+    String DESCRIPTION = "description";
 
     /**
      * The attribute key for the locked flag
      */
-    final String LOCKED = "locked";
+    String LOCKED = "locked";
 
     /**
      * Returns the name of the version

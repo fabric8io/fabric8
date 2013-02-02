@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.zookeeper.utils;
 
+import org.fusesource.fabric.utils.Closeables;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -23,13 +25,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class RegexSupport {
+public final class RegexSupport {
 
     public static final String PROFILE_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*";
     public static final String METADATA_REGEX = "/fabric/import/fabric/registry/containers/config/[\\w\\.\\-]*/metadata";
     public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/org.fusesource.fabric.agent.properties";
     public static final String PROFILE_ATTRIBUTES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/attributes.properties";
     public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
+
+    private RegexSupport() {
+        //Utility Class
+    }
 
     public static String[] merge(File ignore, String[] regex) throws Exception {
         ArrayList<String> list = new ArrayList<String>();
@@ -38,8 +44,9 @@ public class RegexSupport {
                 list.add(r);
             }
         }
+        BufferedReader reader = null;
         try {
-            BufferedReader reader = new BufferedReader(new FileReader(ignore));
+            reader = new BufferedReader(new FileReader(ignore));
             String s = reader.readLine();
             while (s != null) {
                 list.add(s);
@@ -47,6 +54,8 @@ public class RegexSupport {
             }
         } catch (Exception e) {
             throw new RuntimeException("Error reading from " + ignore + " : " + e);
+        } finally {
+            Closeables.closeQuitely(reader);
         }
 
         String rc[] = new String[list.size()];

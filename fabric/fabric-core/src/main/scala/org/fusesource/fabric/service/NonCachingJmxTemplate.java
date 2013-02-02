@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class NonCachingJmxTemplate extends JmxTemplateSupport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(NonCachingJmxTemplate.class);
-
     public <T> T execute(JmxConnectorCallback<T> callback) {
         JMXConnector connector = createConnector();
         if (connector == null) {

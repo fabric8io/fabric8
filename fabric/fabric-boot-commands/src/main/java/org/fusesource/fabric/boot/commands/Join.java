@@ -27,7 +27,8 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -57,10 +58,10 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     private String profile = "fabric";
 
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
-    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+    private int minimumPort = Ports.MIN_PORT_NUMBER;
 
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
-    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+    private int maximumPort = Ports.MAX_PORT_NUMBER;
 
     @Argument(required = true, index = 0, multiValued = false, description = "Zookeeper URL")
     private String zookeeperUrl;
@@ -80,7 +81,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
     @Override
     protected Object doExecute() throws Exception {
-        String oldName = System.getProperty("karaf.name");
+        String oldName = System.getProperty(SystemProperties.KARAF_NAME);
         if (containerName == null) {
             containerName = oldName;
         }
@@ -104,12 +105,12 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                     return null;
                 }
 
-                System.setProperty("karaf.name", containerName);
+                System.setProperty(SystemProperties.KARAF_NAME, containerName);
                 System.setProperty("zookeeper.url", zookeeperUrl);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
-                props.put("karaf.name", containerName);
+                props.put(SystemProperties.KARAF_NAME, containerName);
                 props.put("zookeeper.url", zookeeperUrl);
                 props.put("zookeeper.password", zookeeperPassword);
                 props.save();

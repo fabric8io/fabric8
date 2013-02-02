@@ -17,30 +17,27 @@
 
 package org.fusesource.fabric.maven.impl;
 
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.maven.MavenProxy;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.LifecycleListener;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
 import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
-
-import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 public class MavenProxyRegistrationHandler implements LifecycleListener, ConfigurationListener {
 
@@ -50,7 +47,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
     private IZKClient zookeeper = null;
     private boolean connected = false;
-    private String name = System.getProperty("karaf.name");
+    private String name = System.getProperty(SystemProperties.KARAF_NAME);
 
     private String realm;
     private String role;

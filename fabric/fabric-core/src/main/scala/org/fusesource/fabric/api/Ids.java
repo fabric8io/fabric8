@@ -22,7 +22,12 @@ import java.util.List;
 /**
  * Helper methods for working with HasId instances
  */
-public class Ids {
+public final class Ids {
+
+    private Ids() {
+        //Utility Class
+    }
+
     public static List<String> getIds(HasId[] hasIds) {
         List<String> answer = new ArrayList<String>();
         if (hasIds != null) {

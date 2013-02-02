@@ -16,22 +16,20 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Dictionary;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFactory {
 

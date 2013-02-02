@@ -108,8 +108,7 @@ public class VersionSequence implements Comparable<VersionSequence> {
                 }
             }
         }
-        int answer = n1.length - n2.length;
-        return answer;
+        return n1.length - n2.length;
     }
 
     public String getName() {

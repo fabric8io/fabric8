@@ -29,6 +29,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
@@ -110,7 +111,7 @@ public class ContainerAwareProfileCompleter implements Completer {
      * @return
      */
     private String getContainer(CommandSession commandSession, int index) {
-        String containerName = System.getProperty("karaf.name");
+        String containerName = System.getProperty(SystemProperties.KARAF_NAME);
         ArgumentCompleter.ArgumentList list = (ArgumentCompleter.ArgumentList) commandSession.get(ArgumentCompleter.ARGUMENTS_LIST);
         if (list != null && list.getArguments() != null && list.getArguments().length > 0) {
             List<String> arguments = Arrays.asList(list.getArguments());

@@ -17,7 +17,11 @@
 
 package org.fusesource.fabric.api;
 
-public class CreateContainerOptionsBuilder {
+public final class CreateContainerOptionsBuilder {
+
+    private CreateContainerOptionsBuilder() {
+        //Utility Class
+    }
 
     public static CreateJCloudsContainerOptions jclouds() {
         return new CreateJCloudsContainerOptions();

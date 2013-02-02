@@ -27,7 +27,7 @@ import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
@@ -44,9 +44,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     @Option(name = "--port", description = "The IP port number for the SSH connection.")
     private Integer port;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
-    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+    private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
-    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+    private int maximumPort = Ports.MAX_PORT_NUMBER;
     @Option(name = "--ssh-retries", description = "Number of retries to connect on SSH")
     private Integer sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")

@@ -39,7 +39,8 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.HostUtils;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -59,18 +60,17 @@ import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.utils.BundleUtils.findAndStopBundle;
 import static org.fusesource.fabric.utils.BundleUtils.findOrInstallBundle;
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
-import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
+import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
-    private static final String FRAMEWORK_VERSION = "mvn:org.apache.felix/org.apache.felix.framework/" + FabricConstants.FRAMEWORK_VERSION;
 
     private BundleContext bundleContext;
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
     private String version = ZkDefs.DEFAULT_VERSION;
-    private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART));
+    private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
 
     public void init() {
         if (ensembleAutoStart) {
@@ -110,7 +110,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createLocalServer() {
-        createLocalServer(2181);
+        createLocalServer(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT);
     }
 
     public void createLocalServer(int port) {
@@ -124,28 +124,36 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
 
+        String zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD);
+
+        CreateEnsembleOptions createOpts = CreateEnsembleOptions.build();
+
         if (userProps != null && !userProps.isEmpty()) {
             newUser = (String) userProps.keySet().iterator().next();
             newUserPassword = (String) userProps.get(newUser);
-            createLocalServer(port, CreateEnsembleOptions.build().user(newUser, newUserPassword));
-        } else {
-            createLocalServer(port, CreateEnsembleOptions.build());
+            createOpts.user(newUser, newUserPassword);
         }
+
+        if (zookeeperPassword != null && !zookeeperPassword.isEmpty()) {
+            createOpts.zookeeperPassword(zookeeperPassword);
+        }
+
+        createLocalServer(port, createOpts);
     }
 
     public void createLocalServer(int port, CreateEnsembleOptions options) {
         try {
             IZKClient client;
             Hashtable<String, Object> properties;
-            String karafName = System.getProperty("karaf.name");
+            String karafName = System.getProperty(SystemProperties.KARAF_NAME);
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
 
             if (options.getZookeeperPassword() != null ) {
                 //do nothing
-            } else if (System.getProperties().containsKey(ZOOKEEPER_PASSWORD)) {
-                options.setZookeeperPassword(System.getProperty(ZOOKEEPER_PASSWORD));
+            } else if (System.getProperties().containsKey(SystemProperties.ZOOKEEPER_PASSWORD)) {
+                options.setZookeeperPassword(System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD));
             } else {
                 options.setZookeeperPassword(ZooKeeperUtils.generatePassword());
             }
@@ -166,7 +174,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             // Create configuration
             String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(mappedPort);
 
-            String autoImportFrom = System.getProperty(PROFILES_AUTOIMPORT_PATH);
+            String autoImportFrom = System.getProperty(SystemProperties.PROFILES_AUTOIMPORT_PATH);
 
             Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
             properties = new Hashtable<String, Object>();
@@ -244,7 +252,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ZooKeeperUtils.set(client, fabricProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
             ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
-            String assignedProfile = System.getProperty(PROFILE);
+            String assignedProfile = System.getProperty(SystemProperties.PROFILE);
             if (assignedProfile != null && !assignedProfile.isEmpty() && !"fabric".equals(assignedProfile)) {
                 ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "fabric fabric-ensemble-0000-1 " + assignedProfile);
             } else {
@@ -262,10 +270,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
             // Reset the autostart flag
             if (ensembleAutoStart) {
-                System.setProperty(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                System.setProperty(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
-                props.put(ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                props.put(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
                 props.save();
             }
 
@@ -276,7 +284,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             bundleFabricMavenProxy.start();
 
             //Check if the agent is configured to auto start.
-            if (!System.getProperties().containsKey(AGENT_AUTOSTART) || Boolean.parseBoolean(System.getProperty(AGENT_AUTOSTART))) {
+            if (!System.getProperties().containsKey(SystemProperties.AGENT_AUTOSTART) || Boolean.parseBoolean(System.getProperty(SystemProperties.AGENT_AUTOSTART))) {
                 bundleFabricAgent = findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent  ",
                         "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
                 bundleFabricAgent.start();
@@ -385,8 +393,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         try {
             if (options.getZookeeperPassword() != null ) {
                 //do nothing
-            } else if (System.getProperties().containsKey(ZOOKEEPER_PASSWORD)) {
-                options.setZookeeperPassword(System.getProperty(ZOOKEEPER_PASSWORD));
+            } else if (System.getProperties().containsKey(SystemProperties.ZOOKEEPER_PASSWORD)) {
+                options.setZookeeperPassword(System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD));
             } else {
                 options.setZookeeperPassword(ZooKeeperUtils.generatePassword());
             }
@@ -397,7 +405,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
             if (zooKeeperUrl == null) {
-                if (containers.size() != 1 || !containers.get(0).equals(System.getProperty("karaf.name"))) {
+                if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {
                     throw new FabricException("The first zookeeper cluster must be configured on this container only.");
                 }
                 createLocalServer(2181, options);
@@ -455,8 +463,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             for (String container : containers) {
                 String ip = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_IP.getPath(container));
 
-                String minimumPort = String.valueOf(PortUtils.MIN_PORT_NUMBER);
-                String maximumPort = String.valueOf(PortUtils.MAX_PORT_NUMBER);
+                String minimumPort = String.valueOf(Ports.MIN_PORT_NUMBER);
+                String maximumPort = String.valueOf(Ports.MAX_PORT_NUMBER);
 
                 if (zooKeeper.exists(ZkPath.CONTAINER_PORT_MIN.getPath(container)) != null) {
                     minimumPort = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_PORT_MIN.getPath(container));
@@ -471,10 +479,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 Properties pidNodeProperties = new Properties();
 
                 ZooKeeperUtils.set(zooKeeper, profNode, "parents=fabric-ensemble-" + newClusterId + "\nhidden=true");
-                String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(2181, minimumPort, maximumPort)));
+                String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort)));
                 if (containers.size() > 1) {
-                    String port2 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(2888, minimumPort, maximumPort)));
-                    String port3 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(3888, minimumPort, maximumPort)));
+                    String port2 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_PEER_PORT, minimumPort, maximumPort)));
+                    String port3 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_ELECTION_PORT, minimumPort, maximumPort)));
                     profileNodeProperties.put("server." + Integer.toString(index), "${zk:" + container + "/ip}:" + port2 + ":" + port3);
                     pidNodeProperties.put("server.id", Integer.toString(index));
                 }
@@ -540,19 +548,19 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    static public String toString(Properties source) throws IOException {
+    public static String toString(Properties source) throws IOException {
         StringWriter writer = new StringWriter();
         source.store(writer, null);
         return writer.toString();
     }
 
-    static public Properties toProperties(String source) throws IOException {
+    public static Properties toProperties(String source) throws IOException {
         Properties rc = new Properties();
         rc.load(new StringReader(source));
         return rc;
     }
 
-    static public Properties getProperties(IZKClient client, String file, Properties defaultValue) throws InterruptedException, KeeperException, IOException {
+    public static Properties getProperties(IZKClient client, String file, Properties defaultValue) throws InterruptedException, KeeperException, IOException {
         try {
             String v = ZooKeeperUtils.get(client, file);
             if (v != null) {
@@ -565,7 +573,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    static public void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
+    public static void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));
@@ -640,8 +648,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
         StringBuilder sb = new StringBuilder();
 
-        for (String user : users.keySet()) {
-            Matcher m = p.matcher(users.get(user));
+        for (Map.Entry<String, String> entry : users.entrySet()) {
+            String user = entry.getKey();
+            Matcher m = p.matcher(entry.getValue());
             if (m.matches() && m.groupCount() >= 2) {
                 String password = m.group(1).trim();
                 if (!password.startsWith(encryptionSupport.getEncryptionPrefix()) || !password.endsWith(encryptionSupport.getEncryptionSuffix())) {

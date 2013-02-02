@@ -20,6 +20,7 @@ package org.fusesource.fabric.boot.commands.support;
 import java.util.List;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
+import org.fusesource.fabric.utils.SystemProperties;
 
 public class CurrentContainerCompleter implements Completer {
 
@@ -28,7 +29,7 @@ public class CurrentContainerCompleter implements Completer {
     @Override
     public int complete(String s, int i, List<String> strings) {
         delegate.getStrings().clear();
-        delegate.getStrings().add(System.getProperty("karaf.name"));
+        delegate.getStrings().add(System.getProperty(SystemProperties.KARAF_NAME));
         return delegate.complete(s,i,strings);
     }
 }

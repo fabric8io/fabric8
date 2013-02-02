@@ -17,7 +17,6 @@
 package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.HasId;
-import org.fusesource.fabric.api.Ids;
 import org.fusesource.fabric.api.Version;
 
 import java.util.ArrayList;

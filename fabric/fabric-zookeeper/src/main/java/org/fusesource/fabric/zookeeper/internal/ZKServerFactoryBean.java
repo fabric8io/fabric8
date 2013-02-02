@@ -18,6 +18,7 @@ package org.fusesource.fabric.zookeeper.internal;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -54,11 +55,11 @@ public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
         if (serverId != null) {
             props.remove("server.id");
             File myId = new File(props.getProperty("dataDir"), "myid");
-            if (myId.exists()) {
-                myId.delete();
+            if (myId.exists() && !myId.delete()) {
+                throw new IOException("Failed to delete " + myId);
             }
-            if (myId.getParentFile() != null)  {
-                myId.getParentFile().mkdirs();
+            if (myId.getParentFile() == null || (!myId.getParentFile().exists() && !myId.getParentFile().mkdirs()))  {
+                throw new IOException("Failed to create " + myId.getParent());
             }
             FileOutputStream fos = new FileOutputStream(myId);
             try {
@@ -98,7 +99,7 @@ public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
                 quorumPeer.start();
                 LOGGER.debug("Started quorum peer \"%s\"", quorumPeer.getMyid());
             } catch (Exception e) {
-                LOGGER.warn(String.format("Failed to start quorum peer \"%s\", reason : ", quorumPeer.getMyid(), e));
+                LOGGER.warn(String.format("Failed to start quorum peer \"%s\", reason : %s ", quorumPeer.getMyid(), e.getMessage()));
                 quorumPeer.shutdown();
                 throw e;
             }
@@ -147,8 +148,8 @@ public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
         }
     }
 
-    static interface Destroyable {
-        public void destroy() throws Exception;
+    interface Destroyable {
+        void destroy() throws Exception;
     }
 
     static class SimpleServer implements Destroyable, ServerStats.Provider {

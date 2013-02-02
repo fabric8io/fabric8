@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api;
 
+import org.fusesource.fabric.utils.SystemProperties;
+
 import java.util.Set;
 
 /**
@@ -23,9 +25,9 @@ import java.util.Set;
  */
 public interface ContainerProvider<O extends CreateContainerOptions, M extends CreateContainerMetadata> {
 
-    static final String DEBUG_CONTAINER =" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005";
-    static final String ENSEMBLE_SERVER_CONTAINER =" -D"+ZooKeeperClusterService.ENSEMBLE_AUTOSTART +"=true";
-    static final String PROTOCOL = "fabric.container.protocol";
+    String DEBUG_CONTAINER =" -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005";
+    String ENSEMBLE_SERVER_CONTAINER = " -D" + SystemProperties.ENSEMBLE_AUTOSTART + "=true";
+    String PROTOCOL = "fabric.container.protocol";
 
     /**
      * Creates a container using a set of arguments

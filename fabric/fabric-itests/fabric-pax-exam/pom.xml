@@ -57,6 +57,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
 
         <!-- Jclouds Dependencies -->

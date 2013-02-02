@@ -29,20 +29,21 @@ import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerChildMetadata;
 import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.internal.FabricConstants;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 
-import static org.fusesource.fabric.utils.PortUtils.mapPortToRange;
+import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 
 
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
+
 
     final FabricServiceImpl service;
     Set<Integer> usedPorts = new LinkedHashSet<Integer>();
@@ -89,7 +90,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
-                String originalName = new String(options.getName());
+                String originalName = options.getName();
                 usedPorts.addAll(getContainerUsedPorts(parent));
 
                 for (int i = 1; i <= options.getNumber(); i++) {
@@ -113,19 +114,19 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                     //This is not enough as it will not work if children has been created and then deleted.
                     //The admin service should be responsible for allocating ports
-                    int sshPort = mapPortToRange(8101 + i, minimumPort, maximumPort);
+                    int sshPort = mapPortToRange(Ports.DEFAULT_SSH_PORT + i, minimumPort, maximumPort);
                     while (usedPorts.contains(sshPort)) {
                         sshPort++;
                     }
                     usedPorts.add(sshPort);
 
 
-                    int rmiServerPort = mapPortToRange(44444 + i, minimumPort, maximumPort);
+                    int rmiServerPort = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + i, minimumPort, maximumPort);
                     while (usedPorts.contains(rmiServerPort)) {
                         rmiServerPort++;
                     }
                     usedPorts.add(rmiServerPort);
-                    int rmiRegistryPort = mapPortToRange(1099 + i, minimumPort, maximumPort);
+                    int rmiRegistryPort = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + i, minimumPort, maximumPort);
                     while (usedPorts.contains(rmiRegistryPort)) {
                         rmiRegistryPort++;
                     }
@@ -225,7 +226,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         String sshUrl = container.getSshUrl();
         int sshPort = 0;
         if (sshUrl != null) {
-            sshPort = PortUtils.extractPort(sshUrl);
+            sshPort = Ports.extractPort(sshUrl);
         }
         return sshPort;
     }
@@ -246,7 +247,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
             Matcher mather = pattern.matcher(jmxUrl);
             while (mather.find()) {
                 String socketAddress = mather.group();
-                rmiPorts.add(PortUtils.extractPort(socketAddress));
+                rmiPorts.add(Ports.extractPort(socketAddress));
             }
         }
         return rmiPorts;

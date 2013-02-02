@@ -21,7 +21,11 @@ import org.fusesource.fabric.api.Container;
 /**
  * Helper methods for creating an AgentTemplate or JmxTemplate from an Agent
  */
-public class Containers {
+public final class Containers {
+
+    private Containers() {
+        //Utility Class
+    }
 
     public static JmxTemplateSupport newJmxTemplate(Container container, String username, String password) {
         return newContainerTemplate(container, username, password).getJmxTemplate();

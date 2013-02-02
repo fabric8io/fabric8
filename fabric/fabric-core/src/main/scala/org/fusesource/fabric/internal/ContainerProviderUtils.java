@@ -17,6 +17,17 @@
 
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
+import org.fusesource.fabric.api.CreateRemoteContainerOptions;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.Base64Encoder;
+import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.utils.SystemProperties;
+import org.fusesource.fabric.zookeeper.ZkDefs;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,23 +40,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
-import org.fusesource.fabric.api.CreateRemoteContainerOptions;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.utils.Base64Encoder;
-import org.fusesource.fabric.utils.HostUtils;
-import org.fusesource.fabric.utils.ObjectUtils;
-import org.fusesource.fabric.utils.PortUtils;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class ContainerProviderUtils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ContainerProviderUtils.class);
-
+public final class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";
     public static final String RESOLVER_OVERRIDE = "RESOLVER OVERRIDE:";
 
@@ -115,14 +110,14 @@ public class ContainerProviderUtils {
         extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
-        String globalResolver = options.getResolver() != null  ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
+        String globalResolver = options.getResolver() != null ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
         lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + globalResolver);
         appendFile(sb, "etc/system.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
         //Apply port range
-        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=" + PortUtils.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort()));
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=" + PortUtils.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort()));
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=" + PortUtils.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort()));
+        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=" + Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort()));
+        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=" + Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort()));
+        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=" + Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort()));
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMinimumPort()));
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMaximumPort()));
 
@@ -131,8 +126,9 @@ public class ContainerProviderUtils {
         //Read all system properties
         for (Map.Entry<String, Properties> entry : options.getSystemProperties().entrySet()) {
             Properties sysprops = entry.getValue();
-            for (Object type : sysprops.keySet()) {
-                Object value = sysprops.get(type);
+            for (Map.Entry syspropEntry : sysprops.entrySet()) {
+                Object type = syspropEntry.getKey();
+                Object value = syspropEntry.getValue();
                 appendFile(sb, "etc/system.properties", Arrays.asList(type + "=" + value));
             }
         }
@@ -144,9 +140,9 @@ public class ContainerProviderUtils {
 
         if (options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
-            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.ENSEMBLE_AUTOSTART + "=true"));
-            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
-            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.ENSEMBLE_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.AGENT_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
             if (options.getCreateEnsembleOptions() != null && options.getCreateEnsembleOptions().getUsers() != null) {
                 for (Map.Entry<String, String> entry : options.getCreateEnsembleOptions().getUsers().entrySet()) {
                     appendFile(sb, "etc/users.properties", Arrays.asList(entry.getKey() + "=" + entry.getValue()));
@@ -155,7 +151,7 @@ public class ContainerProviderUtils {
         } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
-            appendFile(sb, "etc/system.properties", Arrays.asList(ZooKeeperClusterService.AGENT_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.AGENT_AUTOSTART + "=true"));
             appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,");
         }
 
@@ -175,7 +171,7 @@ public class ContainerProviderUtils {
         }
         if (options instanceof CreateJCloudsContainerOptions) {
 
-            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
+            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
         }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
             sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
@@ -184,22 +180,6 @@ public class ContainerProviderUtils {
         sb.append("karaf_check `pwd`").append("\n");
         return sb.toString();
     }
-
-    private static String generatePassword() {
-        StringBuilder password = new StringBuilder();
-        for (int i = 0; i < 16; i++) {
-            long l = Math.round(Math.floor(Math.random() * (26 * 2 + 10)));
-            if (l < 10) {
-                password.append((char) ('0' + l));
-            } else if (l < 36) {
-                password.append((char) ('A' + l - 10));
-            } else {
-                password.append((char) ('a' + l - 36));
-            }
-        }
-        return password.toString();
-    }
-
 
     /**
      * Creates a shell script for starting an existing remote container.
@@ -218,7 +198,7 @@ public class ContainerProviderUtils {
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         if (options instanceof CreateJCloudsContainerOptions) {
-            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions)options).getProviderName()).append("\n");
+            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
         }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
             sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
@@ -276,19 +256,16 @@ public class ContainerProviderUtils {
     }
 
     private static void appendFile(StringBuilder sb, String path, Iterable<String> lines) {
-        final String MARKER = "END_OF_FILE";
-        sb.append("cat >> ").append(path).append(" <<'").append(MARKER).append("'\n");
+        final String marker = "END_OF_FILE";
+        sb.append("cat >> ").append(path).append(" <<'").append(marker).append("'\n");
         for (String line : lines) {
             sb.append(line).append("\n");
         }
-        sb.append(MARKER).append("\n");
+        sb.append(marker).append("\n");
     }
 
     private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) throws URISyntaxException {
-
         String file = artifactId + "-" + version + ".tar.gz";
-        String directory = groupId.replaceAll("\\.", "/") + "/" + artifactId + "/" + version + "/";
-
         //TODO: There may be cases where this is not good enough
         if (proxy != null) {
             String baseProxyURL = (!proxy.toString().endsWith("/")) ? proxy.toString() + "/" : proxy.toString();
@@ -328,8 +305,9 @@ public class ContainerProviderUtils {
         } catch (Throwable e) {
         } finally {
             try {
-                if (reader != null)
+                if (reader != null) {
                     reader.close();
+                }
             } catch (Throwable e) {
             }
             try {
@@ -371,7 +349,7 @@ public class ContainerProviderUtils {
         return error;
     }
 
-    public static String parseResolverOverride(String output)  {
+    public static String parseResolverOverride(String output) {
         String resolver = null;
         if (output != null) {
             String[] lines = output.split("\n");

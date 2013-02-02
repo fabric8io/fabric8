@@ -16,12 +16,11 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.List;
-import java.util.Map;
-
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
+
+import java.util.List;
 
 public interface Container extends HasId {
 

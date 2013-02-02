@@ -244,7 +244,6 @@ public class FabricTestSupport extends FuseTestSupport {
                     keepRuntimeFolder()
                 };
     }
-
     public Object getMBean(Container container, ObjectName mbeanName, Class clazz) throws Exception {
         JMXServiceURL url = new JMXServiceURL(container.getJmxUrl());
         Map env = new HashMap();

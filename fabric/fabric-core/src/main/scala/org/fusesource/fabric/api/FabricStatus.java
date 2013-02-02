@@ -48,7 +48,9 @@ public class FabricStatus {
                     String key = profile.getId();
                     ProfileStatus status = profileStatusMap.get(key);
                     if (status == null) {
-                        status = createStatus(key, null);
+                        ProfileRequirements profileRequirement = new ProfileRequirements(key);
+                        requirements.addOrUpdateProfileRequirements(profileRequirement);
+                        status = createStatus(key, profileRequirement);
                         profileStatusMap.put(key, status);
                     }
                     status.incrementCount();
@@ -70,10 +72,6 @@ public class FabricStatus {
     }
 
     protected ProfileStatus createStatus(String profileId, ProfileRequirements profileRequirement) {
-        if (profileRequirement == null) {
-            profileRequirement = new ProfileRequirements(profileId);
-            requirements.addOrUpdateProfileRequirements(profileRequirement);
-        }
         return new ProfileStatus(profileId, profileRequirement);
     }
 

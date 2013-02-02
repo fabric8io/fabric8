@@ -17,12 +17,15 @@
 
 package org.fusesource.fabric.internal;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Properties;
 
-public class FabricConstants {
+public final class FabricConstants {
+
+    private FabricConstants() {
+        //Utility Class
+    }
 
     public static final String FABRIC_VERSION;
     public static final String FRAMEWORK_VERSION;

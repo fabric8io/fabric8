@@ -268,7 +268,7 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
     @Override
     public void registerListener(LifecycleListener listener) {
         if (listener == null) {
-            throw new NullPointerException("listener is null");
+            throw new IllegalStateException("listener is null");
         }
         if (!_listeners.contains(listener)) {
             _listeners.add(listener);
@@ -283,7 +283,7 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
     @Override
     public void removeListener(LifecycleListener listener) {
         if (listener == null) {
-            throw new NullPointerException("listener is null");
+            throw new IllegalStateException("listener is null");
         }
         _listeners.remove(listener);
     }

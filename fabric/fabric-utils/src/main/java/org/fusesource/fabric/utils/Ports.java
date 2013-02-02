@@ -25,14 +25,22 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class PortUtils {
+public class Ports {
+
+    public static final int DEFAULT_SSH_PORT = 8101;
+    public static final int DEFAULT_ZOOKEEPER_SERVER_PORT = 2181;
+    public static final int DEFAULT_ZOOKEEPER_PEER_PORT = 2888;
+    public static final int DEFAULT_ZOOKEEPER_ELECTION_PORT = 3888;
+    public static final int DEFAULT_RMI_SERVER_PORT = 44444;
+    public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
+
 
     public static final int MIN_PORT_NUMBER = 0;
     public static final int MAX_PORT_NUMBER = 65535;
     public static final String PORT_PATTERN = ":[\\d]*$";
 
 
-    private PortUtils() {
+    private Ports() {
         //Utility Class
     }
 

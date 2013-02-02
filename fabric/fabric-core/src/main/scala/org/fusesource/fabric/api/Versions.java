@@ -24,7 +24,12 @@ import java.util.List;
  */
 
 // TODO we could replace this class with Ids if we refactor Version to implement HasId
-public class Versions {
+public final class Versions {
+
+    private Versions() {
+        //Utility Class
+    }
+
     public static List<String> getIds(Version[] versions) {
         List<String> answer = new ArrayList<String>();
         if (versions != null) {

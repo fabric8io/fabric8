@@ -23,7 +23,8 @@ import org.apache.felix.utils.properties.Properties;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
@@ -55,9 +56,9 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
     private String profile = null;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
-    private int minimumPort = PortUtils.MIN_PORT_NUMBER;
+    private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
-    private int maximumPort = PortUtils.MAX_PORT_NUMBER;
+    private int maximumPort = Ports.MAX_PORT_NUMBER;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")
     private String zookeeperPassword;
     @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
@@ -77,7 +78,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Override
     protected Object doExecute() throws Exception {
         if (containers == null || containers.isEmpty()) {
-            containers = Arrays.asList(System.getProperty("karaf.name"));
+            containers = Arrays.asList(System.getProperty(SystemProperties.KARAF_NAME));
         }
 
         if (clean) {
@@ -85,7 +86,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         }
 
         if (!noImport && importDir != null) {
-            System.setProperty(ZooKeeperClusterService.PROFILES_AUTOIMPORT_PATH, importDir);
+            System.setProperty(SystemProperties.PROFILES_AUTOIMPORT_PATH, importDir);
         }
 
         if (globalResolver != null) {
@@ -101,13 +102,13 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         }
 
         if (profile != null) {
-            System.setProperty(ZooKeeperClusterService.PROFILE, profile);
+            System.setProperty(SystemProperties.PROFILE, profile);
         }
 
         if (nonManaged) {
-            System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "false");
+            System.setProperty(SystemProperties.AGENT_AUTOSTART, "false");
         } else {
-            System.setProperty(ZooKeeperClusterService.AGENT_AUTOSTART, "true");
+            System.setProperty(SystemProperties.AGENT_AUTOSTART, "true");
         }
 
         System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
@@ -134,6 +135,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         // session is unset when this is called from FMC
         if (session != null) {
             ShellUtils.storeFabricCredentials(session, newUser, newUserPassword);
+        }
+
+        if (zookeeperPassword == null) {
+            zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD);
         }
 
         if (zookeeperPassword == null && !generateZookeeperPassword) {

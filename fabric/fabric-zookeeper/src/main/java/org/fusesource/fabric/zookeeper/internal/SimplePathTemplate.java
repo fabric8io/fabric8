@@ -16,7 +16,11 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -27,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public class SimplePathTemplate {
 
-    private static Pattern PATTERN = Pattern.compile("\\{([^/]+?)\\}");
+    private static final Pattern PATTERN = Pattern.compile("\\{([^/]+?)\\}");
     private List<String> parameters = new ArrayList<String>();
     private String path;
 
@@ -82,18 +86,20 @@ public class SimplePathTemplate {
 
         String localPath = path;
 
-        for (String key : params.keySet()) {
+        for (Map.Entry<String, String> entry : params.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
             if (!parameters.contains(key)) {
                 throw new IllegalArgumentException("Unknown parameter " + key);
             }
-            localPath = replace(localPath, key, params.get(key));
+            localPath = replace(localPath, key, value);
         }
         return localPath;
     }
 
     private String replace(String text, String key, String value) {
         if (value == null) {
-            throw new NullPointerException("Parameter " + key + " is null.");
+            throw new IllegalStateException("Parameter " + key + " is null.");
         }
         return text.replace("{" + key + "}", value);
     }

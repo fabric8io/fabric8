@@ -37,7 +37,7 @@ import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 public class ProfileImpl implements Profile {
 
-    public final static String AGENT_PID = "org.fusesource.fabric.agent";
+    public static final String AGENT_PID = "org.fusesource.fabric.agent";
 
     private final String id;
     private final String version;
@@ -235,18 +235,18 @@ public class ProfileImpl implements Profile {
             throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
         }
         try {
-            String str = "";
+            StringBuilder sb = new StringBuilder();
             for (Profile parent : parents) {
                 if (!version.equals(parent.getVersion())) {
                     throw new IllegalArgumentException("Version mismatch setting parent profile " + parent + " with version "
                             + parent.getVersion() + " expected version " + version);
                 }
-                if (!str.isEmpty()) {
-                    str += " ";
+                if (sb.length() > 0) {
+                    sb.append(" ");
                 }
-                str += parent.getId();
+                sb.append(parent.getId());
             }
-            setAttribute(PARENTS, str);
+            setAttribute(PARENTS, sb.toString());
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -325,9 +325,10 @@ public class ProfileImpl implements Profile {
             Map<String, byte[]> oldCfgs = getFileConfigurations();
             // Store new configs
             String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            for (String pid : configurations.keySet()) {
+            for (Map.Entry<String, byte[]> entry : configurations.entrySet()) {
+                String pid = entry.getKey();
                 oldCfgs.remove(pid);
-                byte[] newCfg = configurations.get(pid);
+                byte[] newCfg = entry.getValue();
                 String configPath =  path + "/" + pid;
                 if (zooKeeper.exists(configPath) != null && zooKeeper.getChildren(configPath).size() > 0) {
                     List<String> kids = zooKeeper.getChildren(configPath);
@@ -338,13 +339,13 @@ public class ProfileImpl implements Profile {
                         if (line.startsWith("#") || line.length() == 0) {
                             continue;
                         }
-                        String name_value[] = line.split("=", 2);
-                        if (name_value.length < 2) {
+                        String nameValue[] = line.split("=", 2);
+                        if (nameValue.length < 2) {
                             continue;
                         }
-                        String newPath = configPath + "/" + name_value[0].trim();
-                        ZooKeeperUtils.set(zooKeeper, newPath, name_value[1].trim());
-                        saved.add(name_value[0].trim());
+                        String newPath = configPath + "/" + nameValue[0].trim();
+                        ZooKeeperUtils.set(zooKeeper, newPath, nameValue[1].trim());
+                        saved.add(nameValue[0].trim());
                     }
                     for ( String kid : kids ) {
                         if (!saved.contains(kid)) {
@@ -398,19 +399,19 @@ public class ProfileImpl implements Profile {
         return toMap(toProperties(data));
     }
 
-    static public byte[] toBytes(Properties source) throws IOException {
+    public static byte[] toBytes(Properties source) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         source.store(baos, null);
         return baos.toByteArray();
     }
 
-    static public Properties toProperties(byte[] source) throws IOException {
+    public static Properties toProperties(byte[] source) throws IOException {
         Properties rc = new Properties();
         rc.load(new ByteArrayInputStream(source));
         return rc;
     }
 
-    static public Map<String, String> toMap(Properties source) {
+    public static Map<String, String> toMap(Properties source) {
         Map<String, String> rc = new HashMap<String, String>();
         for (Map.Entry<Object, Object> entry: source.entrySet()){
             rc.put((String) entry.getKey(), (String) entry.getValue());
@@ -418,7 +419,7 @@ public class ProfileImpl implements Profile {
         return rc;
     }
 
-    static public Properties toProperties(Map<String, String> source) {
+    public static Properties toProperties(Map<String, String> source) {
         Properties rc = new Properties();
         for (Map.Entry<String, String> entry: source.entrySet()){
             rc.put(entry.getKey(), entry.getValue());
@@ -426,7 +427,7 @@ public class ProfileImpl implements Profile {
         return rc;
     }
 
-    static public String stripSuffix(String value, String suffix) throws IOException {
+    public static String stripSuffix(String value, String suffix) throws IOException {
         if(value.endsWith(suffix)) {
             return value.substring(0, value.length() -suffix.length());
         } else {
@@ -444,9 +445,10 @@ public class ProfileImpl implements Profile {
             Map<String, Map<String, String>> oldCfgs = getConfigurations();
             // Store new configs
             String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            for (String pid : configurations.keySet()) {
+            for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+                String pid = entry.getKey();
                 oldCfgs.remove(pid);
-                byte[] data = toBytes(toProperties(configurations.get(pid)));
+                byte[] data = toBytes(toProperties(entry.getValue()));
                 String p =  path + "/" + pid + ".properties";
                 ZooKeeperUtils.set(zooKeeper, p, data);
             }

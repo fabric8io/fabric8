@@ -21,7 +21,11 @@ import java.util.List;
 /**
  * Some helper classes for objects comparing and equality
  */
-public class Objects {
+public final class Objects {
+
+    private Objects() {
+        //Utility Class
+    }
 
     private static final int SEED = 23;
 

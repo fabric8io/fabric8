@@ -61,7 +61,7 @@ public class HealthCheck implements HealthCheckMBean {
     public void registerMBeanServer(MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
-            ObjectInstance objectInstance = mbeanServer.registerMBean(this, name);
+            mbeanServer.registerMBean(this, name);
         } catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);
         }

@@ -32,6 +32,7 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.zookeeper.CreateMode;
+import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.zookeeper.IZKClient;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
@@ -60,8 +61,9 @@ public class ZookeeperImportUtils {
 
         List<String> paths = new ArrayList<String>();
 
-        for (String key : settings.keySet()) {
-            String data = settings.get(key);
+        for (Map.Entry<String, String> entry : settings.entrySet()) {
+            String key = entry.getKey();
+            String data = entry.getValue();
             key = target + key;
             paths.add(key);
             if (!matches(include, key, true) || matches(exclude, key, false)) {
@@ -87,28 +89,32 @@ public class ZookeeperImportUtils {
     public static void importFromPropertiesFile(IZKClient zooKeeper, String source, String target, String includeRegex[], String excludeRegex[], boolean dryRun) throws Exception {
         List<Pattern> includes = getPatterns(includeRegex);
         List<Pattern> excludes = getPatterns(excludeRegex);
-        InputStream in = new BufferedInputStream(new URL(source).openStream());
-        List<String> paths = new ArrayList<String>();
-        Properties props = new Properties();
-        props.load(in);
-        for (Enumeration names = props.propertyNames(); names.hasMoreElements(); ) {
-            String name = (String) names.nextElement();
-            String value = props.getProperty(name);
-            if (value != null && value.isEmpty()) {
-                value = null;
+        InputStream in = null;
+        try {
+            new BufferedInputStream(new URL(source).openStream());
+            Properties props = new Properties();
+            props.load(in);
+            for (Enumeration names = props.propertyNames(); names.hasMoreElements(); ) {
+                String name = (String) names.nextElement();
+                String value = props.getProperty(name);
+                if (value != null && value.isEmpty()) {
+                    value = null;
+                }
+                if (!name.startsWith("/")) {
+                    name = "/" + name;
+                }
+                name = target + name;
+                if (!matches(includes, name, true) || matches(excludes, name, false)) {
+                    continue;
+                }
+                if (!dryRun) {
+                    zooKeeper.createOrSetWithParents(name, value, CreateMode.PERSISTENT);
+                } else {
+                    System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
+                }
             }
-            if (!name.startsWith("/")) {
-                name = "/" + name;
-            }
-            name = target + name;
-            if (!matches(includes, name, true) || matches(excludes, name, false)) {
-                continue;
-            }
-            if (!dryRun) {
-                zooKeeper.createOrSetWithParents(name, value, CreateMode.PERSISTENT);
-            } else {
-                System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
-            }
+        } finally {
+            Closeables.closeQuitely(in);
         }
     }
 
@@ -136,15 +142,15 @@ public class ZookeeperImportUtils {
             }
 
             if (matches(attributes, "/" + p, false)) {
-                settings.put(p.substring(0, p.lastIndexOf("/")), new String(contents));
+                settings.put(p.substring(0, p.lastIndexOf('/')), new String(contents));
             } else if (matches(containerProperties, "/" + p, false)) {
                 settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX, ""));
                 Properties props = new Properties();
                 props.load(new StringReader(new String(contents)));
-                if (settings.get(p.substring(0, p.lastIndexOf("/"))) == null) {
+                if (settings.get(p.substring(0, p.lastIndexOf('/'))) == null) {
                     String parents = (String) props.get("parents");
                     if (parents != null && !parents.isEmpty()) {
-                        settings.put(p.substring(0, p.lastIndexOf("/")), "parents=" + parents);
+                        settings.put(p.substring(0, p.lastIndexOf('/')), "parents=" + parents);
                     }
                 }
             } else if (!matches(profile, "/" + p, false)) {

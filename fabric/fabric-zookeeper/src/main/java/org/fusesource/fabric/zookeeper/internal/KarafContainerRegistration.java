@@ -36,6 +36,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -58,9 +59,11 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     public static final String IP_REGEX = "([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}";
     public static final String HOST_REGEX = "[a-zA-Z][a-zA-Z0-9\\-\\.]*[a-zA-Z]";
-    public static final String IP_OR_HOST_REGEX = "(("+IP_REGEX+")|("+HOST_REGEX+")|0.0.0.0)";
-    public static final String RMI_HOST_REGEX= "://" + IP_OR_HOST_REGEX;
+    public static final String IP_OR_HOST_REGEX = "((" + IP_REGEX + ")|(" + HOST_REGEX + ")|0.0.0.0)";
+    public static final String RMI_HOST_REGEX = "://" + IP_OR_HOST_REGEX;
 
+    private static final String MANAGEMENT_PID = "org.apache.karaf.management";
+    private static final String SHELL_PID = "org.apache.karaf.shell";
 
 
     private ConfigurationAdmin configurationAdmin;
@@ -69,8 +72,6 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
     private volatile MBeanServer mbeanServer;
 
-
-    private ReentrantLock lock = new ReentrantLock();
 
     public IZKClient getZooKeeper() {
         return zooKeeper;
@@ -88,12 +89,11 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         this.bundleContext = bundleContext;
     }
 
-    public void onConnected() {
-        String name = System.getProperty("karaf.name");
+    public synchronized void onConnected() {
+        String name = System.getProperty(SystemProperties.KARAF_NAME);
         logger.trace("onConnected");
+        String nodeAlive = CONTAINER_ALIVE.getPath(name);
         try {
-            lock.tryLock(10, TimeUnit.SECONDS);
-            String nodeAlive = CONTAINER_ALIVE.getPath(name);
             Stat stat = zooKeeper.exists(nodeAlive);
             if (stat != null) {
                 if (stat.getEphemeralOwner() != zooKeeper.getSessionId()) {
@@ -130,10 +130,8 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
                 String address = System.getProperty(resolver);
-                if (address != null && !address.isEmpty()) {
-                    if (zooKeeper.exists(CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
-                        zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), address, CreateMode.PERSISTENT);
-                    }
+                if (address != null && !address.isEmpty() && zooKeeper.exists(CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
+                    zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), address, CreateMode.PERSISTENT);
                 }
             }
 
@@ -165,17 +163,15 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             registerDomains();
         } catch (Exception e) {
             logger.warn("Error updating Fabric Container information. This exception will be ignored.", e);
-        } finally {
-            lock.unlock();
         }
     }
 
     private String getJmxUrl() throws IOException {
-        String name = System.getProperty("karaf.name");
-        Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.management");
+        String name = System.getProperty(SystemProperties.KARAF_NAME);
+        Configuration config = configurationAdmin.getConfiguration(MANAGEMENT_PID);
         if (config.getProperties() != null) {
             String jmx = (String) config.getProperties().get("serviceUrl");
-            jmx = replaceJmxHost(jmx, "\\${zk:"+name+"/ip}");
+            jmx = replaceJmxHost(jmx, "\\${zk:" + name + "/ip}");
             return jmx;
         } else {
             return null;
@@ -183,8 +179,8 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     private String getSshUrl() throws IOException {
-        String name = System.getProperty("karaf.name");
-        Configuration config = configurationAdmin.getConfiguration("org.apache.karaf.shell");
+        String name = System.getProperty(SystemProperties.KARAF_NAME);
+        Configuration config = configurationAdmin.getConfiguration(SHELL_PID);
         if (config != null && config.getProperties() != null) {
             String port = (String) config.getProperties().get("sshPort");
             return "${zk:" + name + "/ip}:" + port;
@@ -255,17 +251,6 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         return String.format(pointer, container, policy);
     }
 
-
-    private static String getExternalAddresses(String host, String port) throws UnknownHostException, SocketException {
-        InetAddress ip = InetAddress.getByName(host);
-        if (ip.isAnyLocalAddress()) {
-            return HostUtils.getLocalHostName() + ":" + port;
-        } else if (!ip.isLoopbackAddress()) {
-            return ip.getHostName() + ":" + port;
-        }
-        return null;
-    }
-
     public void destroy() {
         logger.trace("destroy");
         try {
@@ -282,10 +267,9 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         // noop
     }
 
-    public void registerMBeanServer(ServiceReference ref) {
+    public synchronized void registerMBeanServer(ServiceReference ref) {
         try {
-            lock.lock();
-            String name = System.getProperty("karaf.name");
+            String name = System.getProperty(SystemProperties.KARAF_NAME);
             mbeanServer = (MBeanServer) bundleContext.getService(ref);
             if (mbeanServer != null) {
                 mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
@@ -293,21 +277,16 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             }
         } catch (Exception e) {
             logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
-        } finally {
-            lock.unlock();
         }
     }
 
-    public void unregisterMBeanServer(ServiceReference ref) {
+    public synchronized void unregisterMBeanServer(ServiceReference ref) {
         if (mbeanServer != null) {
             try {
-                lock.lock();
                 mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
                 unregisterDomains();
             } catch (Exception e) {
                 logger.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
-            } finally {
-                lock.unlock();
             }
         }
         mbeanServer = null;
@@ -316,7 +295,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     protected void registerDomains() throws InterruptedException, KeeperException {
         if (isConnected() && mbeanServer != null) {
-            String name = System.getProperty("karaf.name");
+            String name = System.getProperty(SystemProperties.KARAF_NAME);
             domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
                 zooKeeper.createOrSetWithParents(CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null, CreateMode.PERSISTENT);
@@ -326,7 +305,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     protected void unregisterDomains() throws InterruptedException, KeeperException {
         if (isConnected()) {
-            String name = System.getProperty("karaf.name");
+            String name = System.getProperty(SystemProperties.KARAF_NAME);
             String domainsPath = CONTAINER_DOMAINS.getPath(name);
             if (zooKeeper.exists(domainsPath) != null) {
                 for (String child : zooKeeper.getChildren(domainsPath)) {
@@ -337,7 +316,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     @Override
-    public void handleNotification(Notification notif, Object o) {
+    public synchronized void handleNotification(Notification notif, Object o) {
         logger.trace("handleNotification[{}]", notif);
 
         // we may get notifications when zookeeper client is not really connected
@@ -347,7 +326,6 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             String domain = notification.getMBeanName().getDomain();
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
             try {
-                lock.lock();
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     if (domains.add(domain) && zooKeeper.exists(path) == null) {
                         zooKeeper.createOrSetWithParents(path, "", CreateMode.PERSISTENT);
@@ -365,14 +343,13 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 //                handleNotification(notif, o);
             } catch (Exception e) {
                 logger.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
-            } finally {
-                lock.unlock();
             }
         }
     }
 
     /**
      * Replaces hostname/ip occurances inside the jmx url, with the specified hostname
+     *
      * @param jmxUrl
      * @param hostName
      * @return
@@ -381,7 +358,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         if (jmxUrl == null) {
             return null;
         }
-        return jmxUrl.replaceAll(RMI_HOST_REGEX,  "://" + hostName);
+        return jmxUrl.replaceAll(RMI_HOST_REGEX, "://" + hostName);
     }
 
 
@@ -399,14 +376,14 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     public void configurationEvent(ConfigurationEvent event) {
         try {
             if (zooKeeper.isConnected()) {
-                String name = System.getProperty("karaf.name");
-                if (event.getPid().equals("org.apache.karaf.shell") && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                String name = System.getProperty(SystemProperties.KARAF_NAME);
+                if (event.getPid().equals(SHELL_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     String sshUrl = getSshUrl();
                     if (sshUrl != null) {
                         zooKeeper.createOrSetWithParents(CONTAINER_SSH.getPath(name), getSshUrl(), CreateMode.PERSISTENT);
                     }
                 }
-                if (event.getPid().equals("org.apache.karaf.management") && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     String jmxUrl = getJmxUrl();
                     if (jmxUrl != null) {
                         zooKeeper.createOrSetWithParents(CONTAINER_JMX.getPath(name), getJmxUrl(), CreateMode.PERSISTENT);

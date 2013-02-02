@@ -30,7 +30,6 @@ import static org.fusesource.fabric.internal.ProfileImpl.*;
 public class ProfileOverlayImpl implements Profile {
 
     private final ProfileImpl self;
-    private Map<String, Map<String, String>> rc;
 
     public ProfileOverlayImpl(ProfileImpl self) {
         this.self = self;
@@ -160,7 +159,7 @@ public class ProfileOverlayImpl implements Profile {
         return self.compareTo(profile);
     }
 
-    static private class SupplementControl {
+    private static class SupplementControl {
         byte [] data;
         Properties props;
     }

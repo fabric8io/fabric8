@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.fusesource.fabric.utils.PortUtils;
+import org.fusesource.fabric.utils.Ports;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
 
@@ -34,8 +34,8 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String preferredAddress;
     //The default value is null, so that we know if the user explicitly specified a resolver.
     protected String resolver = null;
-    protected Integer minimumPort = PortUtils.MIN_PORT_NUMBER;
-    protected Integer maximumPort = PortUtils.MAX_PORT_NUMBER;
+    protected Integer minimumPort = Ports.MIN_PORT_NUMBER;
+    protected Integer maximumPort = Ports.MAX_PORT_NUMBER;
     protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
     protected Integer number = 1;
     protected URI proxyUri;

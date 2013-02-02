@@ -49,6 +49,7 @@ import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -61,10 +62,11 @@ import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService {
-    public static String requirementsJsonPath = "/fabric/configs/org.fusesource.fabric.requirements.json";
-    public static String jvmOptionsPath = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
-    private static final Logger logger = LoggerFactory.getLogger(FabricServiceImpl.class);
+    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
+    public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
     private IZKClient zooKeeper;
     private Map<String, ContainerProvider> providers;
@@ -152,7 +154,7 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public String getCurrentContainerName() {
         // TODO is there any other way to find this?
-        return System.getProperty("karaf.name");
+        return System.getProperty(SystemProperties.KARAF_NAME);
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {
@@ -198,7 +200,7 @@ public class FabricServiceImpl implements FabricService {
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Throwable e) {
-                logger.debug("Failed to find parent " + name + ". This exception will be ignored.", e);
+                LOGGER.debug("Failed to find parent " + name + ". This exception will be ignored.", e);
             }
         }
         return "";
@@ -230,7 +232,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void startContainer(final Container container) {
-        logger.info("Starting container {}", container.getId());
+        LOGGER.info("Starting container {}", container.getId());
         ContainerProvider provider = getProvider(container);
         if (!container.isAlive()) {
             provider.start(container);
@@ -245,7 +247,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void stopContainer(final Container container) {
-        logger.info("Stopping container {}", container.getId());
+        LOGGER.info("Stopping container {}", container.getId());
         ContainerProvider provider = getProvider(container);
         if (container.isAlive()) {
             provider.stop(container);
@@ -262,7 +264,7 @@ public class FabricServiceImpl implements FabricService {
 
     public void destroyContainer(Container container) {
         String containerId = container.getId();
-        logger.info("Destroying container {}", containerId);
+        LOGGER.info("Destroying container {}", containerId);
         ContainerProvider provider = getProvider(container);
         try {
             provider.destroy(container);
@@ -359,9 +361,9 @@ public class FabricServiceImpl implements FabricService {
                     }
                     metadata.setContainer(new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this));
                     ((ContainerImpl) metadata.getContainer()).setMetadata(metadata);
-                    logger.info("The container " + metadata.getContainerName() + " has been successfully created");
+                    LOGGER.info("The container " + metadata.getContainerName() + " has been successfully created");
                 } else {
-                    logger.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
+                    LOGGER.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
                 }
             }
             return metadatas.toArray(new CreateContainerMetadata[metadatas.size()]);
@@ -652,7 +654,7 @@ public class FabricServiceImpl implements FabricService {
         try {
             requirements.removeEmptyRequirements();
             String json = RequirementsJson.toJSON(requirements);
-            zooKeeper.createOrSetWithParents(requirementsJsonPath, json, CreateMode.PERSISTENT);
+            zooKeeper.createOrSetWithParents(REQUIREMENTS_JSON_PATH, json, CreateMode.PERSISTENT);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -662,8 +664,8 @@ public class FabricServiceImpl implements FabricService {
     public FabricRequirements getRequirements() {
         try {
             FabricRequirements answer = null;
-            if (zooKeeper.exists(requirementsJsonPath) != null) {
-                String json = zooKeeper.getStringData(requirementsJsonPath);
+            if (zooKeeper.exists(REQUIREMENTS_JSON_PATH) != null) {
+                String json = zooKeeper.getStringData(REQUIREMENTS_JSON_PATH);
                 answer = RequirementsJson.fromJSON(json);
             }
             if (answer == null) {
@@ -688,8 +690,8 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public String getDefaultJvmOptions() {
         try {
-            if (zooKeeper.isConnected() && zooKeeper.exists(jvmOptionsPath) != null) {
-                return zooKeeper.getStringData(jvmOptionsPath);
+            if (zooKeeper.isConnected() && zooKeeper.exists(JVM_OPTIONS_PATH) != null) {
+                return zooKeeper.getStringData(JVM_OPTIONS_PATH);
             } else {
                 return "";
             }
@@ -701,10 +703,8 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
         try {
-            if (jvmOptions == null) {
-                jvmOptions = "";
-            }
-            zooKeeper.createOrSetWithParents(jvmOptionsPath, jvmOptions, CreateMode.PERSISTENT);
+            String opts = jvmOptions != null ? jvmOptions : "";
+            zooKeeper.createOrSetWithParents(JVM_OPTIONS_PATH, opts, CreateMode.PERSISTENT);
         } catch (Exception e) {
             throw new FabricException(e);
         }

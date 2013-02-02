@@ -81,6 +81,7 @@ import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -261,7 +262,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 zk = (IZKClient) zkClient.getService();
             }
             if (zk != null) {
-                String name = System.getProperty("karaf.name");
+                String name = System.getProperty(SystemProperties.KARAF_NAME);
                 String e;
                 if (result == null) {
                     e = null;

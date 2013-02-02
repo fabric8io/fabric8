@@ -527,8 +527,9 @@ public class PatchServiceImpl implements PatchService {
         }
         if (!otherArtifacts.isEmpty()) {
             Map<String, Set<String>> upgrades = doGetPossibleUpgrades(otherArtifacts);
-            for (String artifact : upgrades.keySet()) {
-                for (String version : upgrades.get(artifact)) {
+            for (Map.Entry<String, Set<String>> entry : upgrades.entrySet()) {
+                String artifact = entry.getKey();
+                for (String version : entry.getValue()) {
                     Patch patch = new PatchImpl(artifact + ":" + version, "|" + artifact.replace(':', '|') + "|" + version,
                                                 Collections.singleton(artifact), Collections.<Issue>emptyList());
                     possiblePatches.add(patch);
