@@ -92,6 +92,11 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
             System.out.println("Upgraded container " + container.getId() + " from version " + oldVersion + " to " + version);
         }
 
+        if (all) {
+            fabricService.setDefaultVersion(version);
+            System.out.println("Changed default version to " + version);
+        }
+
         return null;
     }
 

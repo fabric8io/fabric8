@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.KeeperException;
@@ -69,7 +70,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private BundleContext bundleContext;
     private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
-    private String version = ZkDefs.DEFAULT_VERSION;
     private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
 
     public void init() {
@@ -145,12 +145,13 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         try {
             IZKClient client;
             Hashtable<String, Object> properties;
+            String version = ZkDefs.DEFAULT_VERSION;
             String karafName = System.getProperty(SystemProperties.KARAF_NAME);
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
 
-            if (options.getZookeeperPassword() != null ) {
+            if (options.getZookeeperPassword() != null) {
                 //do nothing
             } else if (System.getProperties().containsKey(SystemProperties.ZOOKEEPER_PASSWORD)) {
                 options.setZookeeperPassword(System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD));
@@ -225,6 +226,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + karafName + "/ip}:" + Integer.toString(mappedPort));
             setConfigProperty(client, defaultProfile + "/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", options.getZookeeperPassword());
 
+            ZooKeeperUtils.set(client, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
             ZooKeeperUtils.set(client, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000"), "abstract=true\nhidden=true");
 
             String profileNode = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric-ensemble-0000") + "/org.fusesource.fabric.zookeeper.server-0000.properties";
@@ -356,6 +358,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public List<String> getEnsembleContainers() {
         try {
+            String version = zooKeeper.getStringData(ZkPath.CONFIG_DEFAULT_VERSION.getPath());
             Configuration[] configs = configurationAdmin.listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
             if (configs == null || configs.length == 0) {
                 return Collections.emptyList();
@@ -391,7 +394,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     public void createCluster(List<String> containers, CreateEnsembleOptions options) {
         try {
-            if (options.getZookeeperPassword() != null ) {
+            if (options.getZookeeperPassword() != null) {
                 //do nothing
             } else if (System.getProperties().containsKey(SystemProperties.ZOOKEEPER_PASSWORD)) {
                 options.setZookeeperPassword(System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD));
@@ -412,13 +415,15 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 return;
             }
 
-            String url = ZooKeeperUtils.getSubstitutedPath(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties#zookeeper.url");
-            if (!url.equals(zooKeeperUrl)) {
-                throw new IllegalStateException("The zookeeper configuration is not properly backed in the zookeeper tree.");
-            }
+            String version = zooKeeper.getStringData(ZkPath.CONFIG_DEFAULT_VERSION.getPath());
+
             for (String container : containers) {
                 if (zooKeeper.exists(ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
                     throw new FabricException("The container " + container + " is not alive");
+                }
+                String containerVersion = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(container));
+                if (!version.equals(containerVersion)) {
+                    throw new FabricException("The container " + container + " is not using the default-version:" + version);
                 }
             }
 
@@ -628,6 +633,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
     /**
      * Adds users to the Zookeeper registry.
+     *
      * @param zookeeper
      * @param users
      * @throws KeeperException
