@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
@@ -37,7 +38,7 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
-public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements FeaturesService, NodeEventsListener<String>, LifecycleListener {
+public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsListener<String>, LifecycleListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
@@ -262,6 +263,32 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
         return installed.contains(feature);
     }
 
+    @Override
+    public Feature getFeature(String name) throws Exception {
+        Feature[] features = listFeatures();
+        for (Feature feature : features) {
+            if (name.equals(feature.getName())) {
+                return feature;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public Feature getFeature(String name, String version) throws Exception {
+        Feature[] features = listFeatures();
+        for (Feature feature : features) {
+            if (name.equals(feature.getName()) && version.equals(feature.getVersion())) {
+                return feature;
+            }
+        }
+        return null;
+    }
+
+
+    protected Map<String, Map<String, Feature>> getFeatures() throws Exception {
+        return getFeatures(listRepositories());
+    }
 
     protected Map<String, Map<String, Feature>> getFeatures(Repository[] repositories) throws Exception {
         Map<String, Map<String, Feature>> features = new HashMap<String, Map<String, Feature>>();
@@ -378,7 +405,6 @@ public class FabricFeaturesServiceImpl extends FeaturesServiceImpl implements Fe
             addFeatures(search(dependency.getName(), dependency.getVersion(), repositories), features);
         }
     }
-
 
 
     public FabricService getFabricService() {
