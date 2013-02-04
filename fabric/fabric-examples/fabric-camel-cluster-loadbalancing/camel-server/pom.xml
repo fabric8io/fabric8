@@ -35,7 +35,6 @@
 
     <properties>
         <osgi-import-pkg>
-            org.fusesource.fabric.zookeeper.spring,
             org.linkedin.zookeeper.client,
             *
          </osgi-import-pkg>

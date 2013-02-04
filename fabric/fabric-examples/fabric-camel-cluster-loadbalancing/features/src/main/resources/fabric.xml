@@ -15,13 +15,15 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<features>
+<features name="fabric-camel-cluster-${project.version}"
+          xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
 
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
 
     <feature name="fusesource-fabric-camel">
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-spring/${pom.version}</bundle>
         <feature>fabric-camel</feature>
+        <feature>camel-blueprint</feature>
     </feature>
 
     <feature name="camel-client" version="${pom.version}">
@@ -31,6 +33,7 @@
 
     <feature name="camel-server" version="${pom.version}">
         <feature>fusesource-fabric-camel</feature>
+        <feature>camel-jetty</feature>
         <bundle>mvn:org.fusesource.examples.fabric-camel-cluster/camel-server/${pom.version}</bundle>
     </feature>
 </features>
