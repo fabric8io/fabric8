@@ -72,18 +72,14 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         if (profiles == null) {
             return "";
         }
-        int iMax = profiles.length - 1;
-        if (iMax == -1) {
-            return "";
-        }
-        StringBuilder b = new StringBuilder();
-        for (int i = 0; ; i++) {
-            b.append(profiles[i].getId());
-            if (i == iMax) {
-                return b.toString();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < profiles.length; i++) {
+            if (i != 0) {
+                sb.append(", ");
             }
-            b.append(", ");
+            sb.append(profiles[i].getId());
         }
+        return sb.toString();
     }
 
     protected Profile[] getProfiles(String version, List<String> names) {
@@ -111,7 +107,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }
-    
+
     protected Profile getProfile(Version ver, String name) {
         Profile p = ver.getProfile(name);
         if (p == null) {
@@ -122,6 +118,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
 
     /**
      * Checks if container is part of the ensemble.
+     *
      * @param containerName
      * @return
      */
@@ -156,7 +153,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         }
         throw new IllegalArgumentException("Container " + name + " does not exist.");
     }
-    
+
     protected boolean doesContainerExist(String name) {
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {

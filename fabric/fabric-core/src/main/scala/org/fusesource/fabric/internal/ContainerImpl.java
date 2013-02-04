@@ -92,7 +92,7 @@ public class ContainerImpl implements Container {
         try {
             String version = getVersion().getName();
             String clusterId = service.getZooKeeper().getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble");
-            String containers = service.getZooKeeper().getStringData( "/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + clusterId );
+            String containers = service.getZooKeeper().getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + clusterId);
             for (String name : containers.split(",")) {
                 if (id.equals(name)) {
                     return true;
@@ -202,8 +202,8 @@ public class ContainerImpl implements Container {
             }
 
             //Transfer profiles to the new version.
-            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), id), sb.toString() );
-            ZooKeeperUtils.set( service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName() );
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), id), sb.toString());
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -220,7 +220,9 @@ public class ContainerImpl implements Container {
             List<Profile> profiles = new ArrayList<Profile>();
             if (!str.trim().isEmpty()) {
                 for (String p : str.split(" +")) {
-                    profiles.add(new ProfileImpl(p, version, service));
+                    if (!p.isEmpty()) {
+                        profiles.add(new ProfileImpl(p, version, service));
+                    }
                 }
             }
             if (profiles.isEmpty()) {
@@ -312,7 +314,7 @@ public class ContainerImpl implements Container {
     @Override
     public void setResolver(String resolver) {
         try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id), "${zk:"+id+"/"+resolver+"}");
+            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id), "${zk:" + id + "/" + resolver + "}");
             ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id), resolver);
         } catch (Exception e) {
             throw new FabricException(e);
@@ -339,7 +341,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_IP.getPath(id)) == null) {
                 return null;
             } else {
-                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(),ZkPath.CONTAINER_LOCAL_IP.getPath(id));
+                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_IP.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -361,7 +363,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id)) == null) {
                 return null;
             } else {
-                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
+                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -383,7 +385,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_IP.getPath(id)) == null) {
                 return null;
             } else {
-                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
+                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -405,7 +407,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id)) == null) {
                 return null;
             } else {
-                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
+                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -427,7 +429,7 @@ public class ContainerImpl implements Container {
             if (service.getZooKeeper().exists(ZkPath.CONTAINER_MANUAL_IP.getPath(id)) == null) {
                 return null;
             } else {
-                return  ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id));
+                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id));
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -567,7 +569,7 @@ public class ContainerImpl implements Container {
         if (!hasAliveChildren()) {
             service.destroyContainer(this);
         } else {
-            throw new IllegalStateException("Container "+ id + " has one or more child containers alive and cannot be destroyed.");
+            throw new IllegalStateException("Container " + id + " has one or more child containers alive and cannot be destroyed.");
         }
     }
 
@@ -603,7 +605,7 @@ public class ContainerImpl implements Container {
 
     @Override
     public CreateContainerMetadata<?> getMetadata() {
-        try {                                        
+        try {
             if (metadata == null) {
                 if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
                     //The metadata are stored encoded so that they are import/export friendly.
@@ -637,6 +639,7 @@ public class ContainerImpl implements Container {
 
     /**
      * Checks if container requires upgrade/rollback operation.
+     *
      * @param version
      * @return
      */
@@ -660,6 +663,7 @@ public class ContainerImpl implements Container {
 
     /**
      * Checks if Container is root and has alive children.
+     *
      * @return
      */
     public boolean hasAliveChildren() {
@@ -696,7 +700,7 @@ public class ContainerImpl implements Container {
                 ']';
     }
 
-    public  boolean isAliveAndOK() {
+    public boolean isAliveAndOK() {
         String status = getProvisionStatus();
         return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
     }
