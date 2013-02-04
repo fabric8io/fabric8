@@ -140,7 +140,7 @@ define [
           app.flash
             kind: "error"
             title: "Server Error : "
-            message: "Fuse container creation failed due to #{response.statusText} : \u201c#{response.responseText}\u201d"
+            message: "Container creation failed due to #{response.statusText} : \u201c#{response.responseText}\u201d"
 
       @model.create arguments, options
       @container.do_return()
@@ -332,7 +332,7 @@ define [
           app.flash
             kind: "error"
             title: "Server Error : "
-            message: "Fuse container creation failed due to #{textStatus.statusText} : \u201c#{textStatus.responseText}\u201d"
+            message: "Container creation failed due to #{textStatus.statusText} : \u201c#{textStatus.responseText}\u201d"
 
       @model.create arguments, options
       @container.do_return()
@@ -651,7 +651,7 @@ define [
           app.flash
             kind: "error"
             title: "Server Error : "
-            message: "Fuse container creation failed due to : \u201c#{textStatus.responseText}\u201d"
+            message: "Container creation failed due to : \u201c#{textStatus.responseText}\u201d"
 
       @model.create arguments, options
       @container.do_return()
@@ -931,7 +931,7 @@ define [
   class AddAgentWizard extends FON.TemplateController
     template: jade["common/wizard.jade"]
     template_data: ->
-      header: "Create Fuse Container"
+      header: "Create Container"
     elements:
       ".body": "body"
       "a.next": "next"
