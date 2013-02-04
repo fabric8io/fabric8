@@ -26,7 +26,7 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     private O createOptions;
     private transient Throwable failure;
     private transient Container container;
-    private final Map<String,String> containerConfguration = new HashMap<String, String>();
+    private final Map<String,String> containerConfiguration = new HashMap<String, String>();
 
     public boolean isSuccess() {
         return failure == null;
@@ -65,8 +65,8 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     }
 
     @Override
-    public Map<String, String> getContainerConfguration() {
-        return containerConfguration;
+    public Map<String, String> getContainerConfiguration() {
+        return containerConfiguration;
     }
 
     @Override

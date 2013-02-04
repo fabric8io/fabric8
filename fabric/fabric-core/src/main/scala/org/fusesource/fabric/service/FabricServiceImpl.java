@@ -335,7 +335,7 @@ public class FabricServiceImpl implements FabricService {
                         //We encode the metadata so that they are more friendly to import/export.
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
 
-                        Map<String,String> configuration = metadata.getContainerConfguration();
+                        Map<String,String> configuration = metadata.getContainerConfiguration();
                         for (Map.Entry<String, String> entry : configuration.entrySet()) {
                             String key = entry.getKey();
                             String value = entry.getValue();

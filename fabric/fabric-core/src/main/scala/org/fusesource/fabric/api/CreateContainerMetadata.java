@@ -31,7 +31,7 @@ public interface CreateContainerMetadata<O extends CreateContainerOptions> exten
 
     String getContainerName();
 
-    Map<String, String> getContainerConfguration();
+    Map<String, String> getContainerConfiguration();
 
     O getCreateOptions();
 
