@@ -27,6 +27,9 @@ import org.linkedin.util.clock.Timespan;
  */
 public abstract class ZKComponentSupport extends DefaultComponent {
     private static final transient Log LOG = LogFactory.getLog(MasterComponent.class);
+    private static final String ZOOKEEPER_URL = "zookeeper.url";
+    private static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
+
     private IZKClient zkClient;
     private boolean shouldCloseZkClient = false;
     private long maximumConnectionTimeout = 10 * 1000L;
@@ -70,9 +73,13 @@ public abstract class ZKComponentSupport extends DefaultComponent {
             }
         }
         if (zkClient == null) {
-            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+            String connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
+            String password = System.getProperty(ZOOKEEPER_PASSWORD);
             LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
             ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
+            if (password != null && !password.isEmpty()) {
+                client.setPassword(password);
+            }
             LOG.debug("Starting IZKClient " + zkClient);
             client.start();
             zkClient = client;
@@ -89,5 +96,4 @@ public abstract class ZKComponentSupport extends DefaultComponent {
             zkClient.close();
         }
     }
-
 }
