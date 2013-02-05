@@ -16,10 +16,6 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
     @Before
     public void setUp() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-
-        addStagingRepoToDefaultProfile();
-
-
         createAndAssertChildContainer("camel1", "root", "camel");
         prepareFeaturesForTesting("camel1", "camel-blueprint", "camel", "camel-blueprint");
         prepareFeaturesForTesting("camel1", "camel-jms", "camel", "camel-jms");
@@ -90,13 +86,10 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
         prepareFeaturesForTesting("camel1", "camel-restlet", "camel", "camel-restlet");
         prepareFeaturesForTesting("camel1", "camel-rmi", "camel", "camel-rmi");
         prepareFeaturesForTesting("camel1", "camel-routebox", "camel", "camel-routebox");
-        prepareFeaturesForTesting("camel1", "camel-ruby", "camel", "camel-ruby");
+        prepareFeaturesForTesting("camel1", "camel-ruby", "camel", "org.jruby.jruby");
         prepareFeaturesForTesting("camel1", "camel-rss", "camel", "camel-rss");
         prepareFeaturesForTesting("camel1", "camel-saxon", "camel", "camel-saxon");
         prepareFeaturesForTesting("camel1", "camel-scala", "camel", "camel-scala");
-        prepareFeaturesForTesting("camel1", "camel-script-jruby", "camel", "camel-script-jruby");
-        prepareFeaturesForTesting("camel1", "camel-script-javascript", "camel", "camel-script-javascript");
-        prepareFeaturesForTesting("camel1", "camel-script-groovy", "camel", "camel-script-groovy");
         prepareFeaturesForTesting("camel1", "camel-script", "camel", "camel-script");
         prepareFeaturesForTesting("camel1", "camel-sip", "camel", "camel-sip");
         prepareFeaturesForTesting("camel1", "camel-shiro", "camel", "camel-shiro");
@@ -111,7 +104,7 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
         prepareFeaturesForTesting("camel1", "camel-sql", "camel", "camel-sql");
         prepareFeaturesForTesting("camel1", "camel-stax", "camel", "camel-stax");
         prepareFeaturesForTesting("camel1", "camel-stream", "camel", "camel-stream");
-        prepareFeaturesForTesting("camel1", "camel-string-template", "camel", "camel-string-template");
+        prepareFeaturesForTesting("camel1", "camel-string-template", "camel", "org.apache.servicemix.bundles.stringtemplate");
         prepareFeaturesForTesting("camel1", "camel-syslog", "camel", "camel-syslog");
         prepareFeaturesForTesting("camel1", "camel-tagsoup", "camel", "camel-tagsoup");
         prepareFeaturesForTesting("camel1", "camel-velocity", "camel", "camel-velocity");
@@ -120,12 +113,15 @@ public class CamelProfileLongTest extends FabricFeaturesTest {
         prepareFeaturesForTesting("camel1", "camel-xmpp", "camel", "camel-xmpp");
         prepareFeaturesForTesting("camel1", "camel-xstream", "camel", "camel-xstream");
         prepareFeaturesForTesting("camel1", "camel-zookeeper", "camel", "camel-zookeeper");
+
+        //prepareFeaturesForTesting("camel1", "camel-script camel-script-jruby", "camel", "camel-script-jruby");
+        //prepareFeaturesForTesting("camel1", "camel-script camel-script-javascript", "camel", "camel-script-javascript");
+        //prepareFeaturesForTesting("camel1", "camel-script camel-script-groovy", "camel", "camel-script-groovy");
+
     }
+
     @After
     public void tearDown() throws InterruptedException {
         destroyChildContainer("camel1");
     }
-
-
-
 }

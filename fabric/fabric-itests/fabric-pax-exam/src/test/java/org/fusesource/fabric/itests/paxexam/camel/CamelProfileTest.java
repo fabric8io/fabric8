@@ -21,7 +21,6 @@ public class CamelProfileTest extends FabricFeaturesTest {
         destroyChildContainer("camel1");
     }
 
-    @Ignore //JIRA ESB-1687
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));

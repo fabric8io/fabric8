@@ -54,8 +54,8 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport extends FuseTestSupport {
 
-    static final String GROUP_ID = "org.fusesource.fabric";
-    static final String ARTIFACT_ID = "fuse-fabric";
+    public static final String GROUP_ID = "org.fusesource.fabric";
+    public static final String ARTIFACT_ID = "fuse-fabric";
 
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";
@@ -103,9 +103,13 @@ public class FabricTestSupport extends FuseTestSupport {
             assertNotNull(fabricService);
 
             Thread.sleep(DEFAULT_WAIT);
-            Container container = fabricService.getContainer(name);
-            //container.destroy();
-            new ChildContainerProvider((FabricServiceImpl) fabricService).destroy(container);
+            //We want to check if container exists before we actually delete them.
+            //We need this because getContainer will create a container object if container doesn't exists.
+            if (zooKeeper.exists(ZkPath.CONTAINER.getPath(name)) != null) {
+                Container container = fabricService.getContainer(name);
+                //We want to go through container destroy method so that cleanup methods are properly invoked.
+                container.destroy();
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
