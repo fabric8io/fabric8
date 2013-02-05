@@ -17,6 +17,9 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import junit.framework.Assert;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,25 +30,46 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
+
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class CreateChildContainerTest extends FabricTestSupport {
 
-    @After
-    public void tearDown() throws InterruptedException {
-       destroyChildContainer("child1");
-    }
-
     @Test
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create -n"));
+         try {
          createAndAssertChildContainer("child1", "root", "default");
+         } finally {
+             destroyChildContainer("child1");
+         }
+    }
+
+    /**
+     * This is a test for: http://fusesource.com/issues/browse/FABRIC-370
+     * @throws Exception
+     */
+    @Test
+    public void testContainerDelete() throws Exception {
+        System.err.println(executeCommand("fabric:create -n"));
+        createAndAssertChildContainer("child1", "root", "default");
+        System.err.println(executeCommand("fabric:version-create"));
+        destroyChildContainer("child1");
+        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+        Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", "child1")));
+        Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", "child1")));
+        Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER.getPath("child1")));
+        Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_DOMAINS.getPath("child1")));
+        Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_PROVISION.getPath("child1")));
+
     }
 
     @Configuration
     public Option[] config() {
         return new Option[] {
-                new DefaultCompositeOption(fabricDistributionConfiguration())
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                debugConfiguration("5005",false)
         };
     }
 }

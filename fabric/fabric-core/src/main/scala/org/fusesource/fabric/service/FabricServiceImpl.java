@@ -271,6 +271,10 @@ public class FabricServiceImpl implements FabricService {
         } catch (Exception e) {
         }
         try {
+            //Wipe all config entries that are related to the container for all versions.
+            for (Version version : getVersions()) {
+                zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), containerId));
+            }
             zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(containerId));
             zooKeeper.deleteWithChildren(ZkPath.CONTAINER.getPath(containerId));
             zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
@@ -278,7 +282,7 @@ public class FabricServiceImpl implements FabricService {
         } catch (Exception e) {
         }
     }
-    
+
     protected ContainerProvider getProvider(Container container) {
         CreateContainerMetadata metadata = container.getMetadata();
         String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
@@ -322,7 +326,7 @@ public class FabricServiceImpl implements FabricService {
             }
 
             Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
-            Set<? extends CreateContainerMetadata>  metadatas = provider.create(options);
+            Set<? extends CreateContainerMetadata> metadatas = provider.create(options);
 
             for (CreateContainerMetadata metadata : metadatas) {
                 if (metadata.isSuccess()) {
@@ -335,21 +339,19 @@ public class FabricServiceImpl implements FabricService {
                         //We encode the metadata so that they are more friendly to import/export.
                         ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
 
-                        Map<String,String> configuration = metadata.getContainerConfiguration();
+                        Map<String, String> configuration = metadata.getContainerConfiguration();
                         for (Map.Entry<String, String> entry : configuration.entrySet()) {
                             String key = entry.getKey();
                             String value = entry.getValue();
-                            ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(),key),value);
+                            ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key), value);
                         }
 
                         //If no resolver specified but a resolver is already present in the registry, use the registry value
                         if (options.getResolver() == null && zooKeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())) != null) {
-                             options.setResolver(zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())));
-                        }
-                        else if (options.getResolver() != null) {
+                            options.setResolver(zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())));
+                        } else if (options.getResolver() != null) {
                             //use the resolver specified in the options and do nothing.
-                        }
-                        else if (zooKeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+                        } else if (zooKeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
                             //If there is a globlal resolver specified use it.
                             options.setResolver(zooKeeper.getStringData(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)));
                         } else {
@@ -393,8 +395,8 @@ public class FabricServiceImpl implements FabricService {
                 }
 
                 String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
-                if(mavenRepo != null && !mavenRepo.endsWith("/")) {
-                    mavenRepo+="/";
+                if (mavenRepo != null && !mavenRepo.endsWith("/")) {
+                    mavenRepo += "/";
                 }
                 uri = new URI(mavenRepo);
             }
@@ -415,8 +417,8 @@ public class FabricServiceImpl implements FabricService {
                 }
 
                 String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
-                if(mavenRepo != null && !mavenRepo.endsWith("/")) {
-                    mavenRepo+="/";
+                if (mavenRepo != null && !mavenRepo.endsWith("/")) {
+                    mavenRepo += "/";
                 }
                 uri = new URI(mavenRepo);
             }
