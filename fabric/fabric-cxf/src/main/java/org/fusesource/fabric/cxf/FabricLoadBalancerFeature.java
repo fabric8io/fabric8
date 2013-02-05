@@ -33,6 +33,9 @@ import org.linkedin.util.clock.Timespan;
 
 public class FabricLoadBalancerFeature extends AbstractFeature implements BusLifeCycleListener {
     private static final transient Log LOG = LogFactory.getLog(FabricLoadBalancerFeature.class);
+    private static final String ZOOKEEPER_URL = "zookeeper.url";
+    private static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
+
     private volatile IZKClient zkClient;
     private String zkRoot = "/fabric/cxf/endpoints/";
     private String fabricPath;
@@ -106,9 +109,13 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
 
     public synchronized IZKClient getZkClient() throws Exception {
         if (zkClient == null) {
-            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+            String connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
+            String password = System.getProperty(ZOOKEEPER_PASSWORD);
+            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
             ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
-            LOG.debug("IZKClient not be found in registry, creating new with connection " + connectString);
+            if (password != null && !password.isEmpty()) {
+                client.setPassword(password);
+            }
             zkClient = client;
             setShouldCloseZkClient(true);
         }
