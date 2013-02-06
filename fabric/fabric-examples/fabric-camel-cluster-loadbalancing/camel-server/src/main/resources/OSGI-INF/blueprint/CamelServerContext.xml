@@ -23,7 +23,7 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <!-- osgi blueprint property placeholder -->
-    <cm:property-placeholder id="placeholder" persistent-id="foo.fabricCamel">
+    <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.examples.camel.loadbalancing.server">
         <cm:default-properties>
             <cm:property name="portNumber" value="8181"/>
         </cm:default-properties>
@@ -36,6 +36,10 @@
     </bean>
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
+        <!-- using Camel properties component and refer to the blueprint property placeholder by its id -->
+        <propertyPlaceholder id="properties" location="blueprint:placeholder"
+                             prefixToken="{{" suffixToken="}}"/>
+
         <route id="fabric-server">
             <from uri="fabric-camel:local:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
             <log message="Request received : ${body}"/>

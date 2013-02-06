@@ -16,12 +16,27 @@
  */
 package org.fusesource.fabric.camel;
 
+import org.apache.camel.AsyncCallback;
+import org.apache.camel.Exchange;
+import org.apache.camel.Processor;
 import org.apache.camel.processor.loadbalancer.LoadBalancer;
 import org.apache.camel.processor.loadbalancer.RandomLoadBalancer;
+
+import java.util.List;
 
 public class DefaultLoadBalancerFactory implements LoadBalancerFactory {
 
     public LoadBalancer createLoadBalancer() {
-        return new RandomLoadBalancer();
+        return new RandomLoadBalancer() {
+            @Override
+            public boolean process(Exchange exchange, AsyncCallback callback) {
+                List<Processor> list = getProcessors();
+                if (!list.isEmpty()) {
+                    return super.process(exchange, callback);
+                } else {
+                    throw new IllegalStateException("No processors found.");
+                }
+            }
+        };
     }
 }

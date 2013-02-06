@@ -35,12 +35,14 @@
 
     <properties>
         <osgi-import-pkg>
-            org.fusesource.fabric.zookeeper.spring,
+            <!-- We are importing jetty component package to make sure that the route will only start afet jetty is installed -->
+            org.apache.camel.component.jetty,
             org.linkedin.zookeeper.client,
             *
          </osgi-import-pkg>
          <osgi-export-pkg />
          <osgi-private-pkg>
          </osgi-private-pkg>
+         <osgi-import-srv>org.apache.camel.spi.ComponentResolver;availability:=optional;filter="(component=jetty)</osgi-import-srv>
     </properties>
 </project>

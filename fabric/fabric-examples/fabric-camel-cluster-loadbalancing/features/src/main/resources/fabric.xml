@@ -20,20 +20,19 @@
 
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
 
-    <feature name="fusesource-fabric-camel">
-        <bundle>mvn:org.fusesource.fabric/fabric-zookeeper-spring/${pom.version}</bundle>
+    <feature name="fusesource-fabric-camel" version="${project.version}">
         <feature>fabric-camel</feature>
         <feature>camel-blueprint</feature>
-    </feature>
-
-    <feature name="camel-client" version="${pom.version}">
-        <feature>fusesource-fabric-camel</feature>
-        <bundle>mvn:${pom.groupId}/camel-client/${pom.version}</bundle>
-    </feature>
-
-    <feature name="camel-server" version="${pom.version}">
-        <feature>fusesource-fabric-camel</feature>
         <feature>camel-jetty</feature>
-        <bundle>mvn:org.fusesource.examples.fabric-camel-cluster/camel-server/${pom.version}</bundle>
+    </feature>
+
+    <feature name="camel-client" version="${project.version}">
+        <feature>fusesource-fabric-camel</feature>
+        <bundle>mvn:${project.groupId}/camel-client/${project.version}</bundle>
+    </feature>
+
+    <feature name="camel-server" version="${project.version}">
+        <feature>fusesource-fabric-camel</feature>
+        <bundle>mvn:${project.groupId}/camel-server/${project.version}</bundle>
     </feature>
 </features>

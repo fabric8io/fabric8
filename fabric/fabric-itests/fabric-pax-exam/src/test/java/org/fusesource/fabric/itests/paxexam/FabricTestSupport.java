@@ -63,12 +63,15 @@ public class FabricTestSupport extends FuseTestSupport {
     /**
      * Creates a child {@ling Agent} witht the given name.
      *
-     *
-     * @param name The name of the child {@ling Agent}.
+     * @param name   The name of the child {@ling Agent}.
      * @param parent
      * @return
      */
     protected Container createChildContainer(String name, String parent, String profileName) throws Exception {
+        return createChildContainer(name, parent, profileName, null);
+    }
+
+    protected Container createChildContainer(String name, String parent, String profileName, String jvmOpts) throws Exception {
         FabricService fabricService = getFabricService();
 
         Thread.sleep(DEFAULT_WAIT);
@@ -76,16 +79,21 @@ public class FabricTestSupport extends FuseTestSupport {
         Container parentContainer = fabricService.getContainer(parent);
         assertNotNull(parentContainer);
 
+        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).zookeeperPassword(fabricService.getZookeeperPassword()).jmxUser("admin").jmxPassword("admin");
+        if (jvmOpts != null) {
+            args.setJvmOpts(jvmOpts);
+        } else {
+            args.setJvmOpts("-Xms1024m -Xmx1024m");
+        }
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).jvmOpts("-Xms1024m -Xmx1024m").zookeeperPassword(fabricService.getZookeeperPassword()).jmxUser("admin").jmxPassword("admin");
         CreateContainerMetadata[] metadata = fabricService.createContainers(args);
         if (metadata.length > 0) {
             if (metadata[0].getFailure() != null) {
-                throw new Exception("Error creating child container:"+name, metadata[0].getFailure());
+                throw new Exception("Error creating child container:" + name, metadata[0].getFailure());
             }
-            Container container =  metadata[0].getContainer();
+            Container container = metadata[0].getContainer();
             Version version = fabricService.getDefaultVersion();
-            Profile profile  = fabricService.getProfile(version.getName(),profileName);
+            Profile profile = fabricService.getProfile(version.getName(), profileName);
             assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[]{profile});
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
@@ -118,6 +126,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
     /**
      * Waits for a container to successfully provision.
+     *
      * @param container
      * @param timeout
      * @throws Exception
@@ -129,25 +138,30 @@ public class FabricTestSupport extends FuseTestSupport {
                 throw new Exception(container.getProvisionException());
             }
             Thread.sleep(2000L);
-            System.err.println("Alive:"+container.isAlive()+" Status:"+ container.getProvisionStatus()+" SSH URL:" + container.getSshUrl());
+            System.err.println("Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
         }
-        if (!container.isAlive() || !container.getProvisionStatus().equals("success") ||  container.getSshUrl() == null) {
-            throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds. Alive:"+ container.isAlive()+" Status:"+container.getProvisionStatus()+" Ssh URL:"+container.getSshUrl());
+        if (!container.isAlive() || !container.getProvisionStatus().equals("success") || container.getSshUrl() == null) {
+            throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds. Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Ssh URL:" + container.getSshUrl());
         }
     }
 
 
     /**
      * Creates a child container, waits for succesfull provisioning and asserts, its asigned the right profile.
+     *
      * @param name
      * @param parent
      * @param profile
      * @throws Exception
      */
     public Container createAndAssertChildContainer(String name, String parent, String profile) throws Exception {
+       return createAndAssertChildContainer(name, parent, profile, null);
+    }
+
+    public Container createAndAssertChildContainer(String name, String parent, String profile, String jvmOpts) throws Exception {
         FabricService fabricService = getFabricService();
 
-        Container child1 = createChildContainer(name, parent, profile);
+        Container child1 = createChildContainer(name, parent, profile, jvmOpts);
         Container result = fabricService.getContainer(name);
         assertEquals("Containers should have the same id", child1.getId(), result.getId());
         return result;
@@ -155,12 +169,13 @@ public class FabricTestSupport extends FuseTestSupport {
 
     /**
      * Cleans a containers profile by switching to default profile and reseting the profile.
+     *
      * @param containerName
      * @param profileName
      * @throws Exception
      */
     public boolean containerSetProfile(String containerName, String profileName) throws Exception {
-        System.out.println("Switching profile: "+profileName+" on container:"+containerName);
+        System.out.println("Switching profile: " + profileName + " on container:" + containerName);
         FabricService fabricService = getFabricService();
 
         IZKClient zookeeper = getOsgiService(IZKClient.class);
@@ -168,7 +183,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
         Container container = fabricService.getContainer(containerName);
         Version version = container.getVersion();
-        Profile[] profiles = new Profile[]{fabricService.getProfile(version.getName(),profileName)};
+        Profile[] profiles = new Profile[]{fabricService.getProfile(version.getName(), profileName)};
         Profile[] currentProfiles = container.getProfiles();
 
         Arrays.sort(profiles);
@@ -207,7 +222,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 "http://repo.fusesource.com/nexus/content/groups/ea" +
                 " default");
     }
-    
+
     public FabricService getFabricService() {
         FabricService fabricService = getOsgiService(FabricService.class);
         assertNotNull(fabricService);
@@ -215,7 +230,7 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     protected void waitForFabricCommands() {
-        getOsgiService(BlueprintContainer.class,"(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+        getOsgiService(BlueprintContainer.class, "(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
     }
 
 
@@ -236,18 +251,19 @@ public class FabricTestSupport extends FuseTestSupport {
      * @return
      */
     protected Option[] fabricDistributionConfiguration() {
-        return new Option[] {
-                    karafDistributionConfiguration().frameworkUrl(
-                            maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
+        return new Option[]{
+                karafDistributionConfiguration().frameworkUrl(
+                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                    useOwnExamBundlesStartLevel(50),
-                    editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                    editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
-                    mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing","pax-exam-karaf")),
-                    logLevel(LogLevelOption.LogLevel.ERROR),
-                    keepRuntimeFolder()
-                };
+                useOwnExamBundlesStartLevel(50),
+                editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
+                mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
+                logLevel(LogLevelOption.LogLevel.ERROR),
+                keepRuntimeFolder()
+        };
     }
+
     public Object getMBean(Container container, ObjectName mbeanName, Class clazz) throws Exception {
         JMXServiceURL url = new JMXServiceURL(container.getJmxUrl());
         Map env = new HashMap();

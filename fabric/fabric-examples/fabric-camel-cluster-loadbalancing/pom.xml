@@ -38,10 +38,12 @@
 
     <properties>
         <build-helper-maven-plugin.version>1.5</build-helper-maven-plugin.version>
-        <felix-plugin.version>2.1.0</felix-plugin.version>
+        <felix-plugin.version>2.3.7</felix-plugin.version>
 
         <osgi-import-pkg>*</osgi-import-pkg>
         <osgi-export-pkg />
+        <osgi-import-srv/>
+        <osgi-export-srv/>
         <osgi-private-pkg />
         <osgi-dynamic-pkg />
         <require-bundle />
@@ -82,18 +84,12 @@
 				<configuration>
 					<instructions>
 						<Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-						<Import-Package>
-                            ${osgi-import-pkg}
-					    </Import-Package>
-						<Export-Package>
-                            ${osgi-export-pkg}
-					    </Export-Package>
-						<Private-Package>
-                            ${osgi-private-pkg}
-						</Private-Package>
-                        <DynamicImport-Package>
-                            ${osgi-dynamic-pkg}
-						</DynamicImport-Package>
+						<Import-Package>${osgi-import-pkg}</Import-Package>
+						<Export-Package>${osgi-export-pkg}</Export-Package>
+						<Private-Package>${osgi-private-pkg}</Private-Package>
+                        <DynamicImport-Package>${osgi-dynamic-pkg}</DynamicImport-Package>
+                        <Import-Service>${osgi-import-srv}</Import-Service>
+                        <Export-Service>${osgi-export-srv}</Export-Service>
                         <_failok>true</_failok>
                         <Include-Resource>src/main/resources</Include-Resource>
                         <Require-Bundle>${require-bundle}</Require-Bundle>

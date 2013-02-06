@@ -31,6 +31,10 @@ import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.Group;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Creates an endpoint which uses FABRIC to map a logical name to physical endpoint names
@@ -43,6 +47,7 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
 
     private LoadBalancerFactory loadBalancerFactory;
     private LoadBalancer loadBalancer;
+    private final Map<String, Processor> processors = new HashMap<String, Processor>();
 
 
     public FabricLocatorEndpoint(String uri, FabricComponent component, Group group) {
@@ -75,19 +80,42 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
         if (loadBalancer == null) {
             loadBalancer = createLoadBalancer();
         }
-        group.add(new ChangeListener(){
-            public void changed() {
-                // TODO - should we be clearing all the members here???
-                for (byte[] uri : group.members().values()) {
+        group.add(new ChangeListener() {
+            public synchronized void changed() {
+                //Find what has been removed.
+                Set<String> removed = new LinkedHashSet<String>();
+
+                for (Map.Entry<String, Processor> entry : processors.entrySet()) {
+                    String key = entry.getKey();
+                    if (!group.members().containsKey(key)) {
+                        removed.add(key);
+                    }
+                }
+
+                //Add existing processors
+                for (Map.Entry<String,byte[]> entry : group.members().entrySet()) {
                     try {
-                        loadBalancer.addProcessor(getProcessor(new String(uri, "UTF-8")));
+                        String key = entry.getKey();
+                        if (!processors.containsKey(key)) {
+                            Processor p = getProcessor(new String(entry.getValue(), "UTF-8"));
+                            processors.put(key, p);
+                            loadBalancer.addProcessor(p);
+                        }
                     } catch (UnsupportedEncodingException ignore) {
                     }
                 }
+
+                //Update the list by removing old and adding new.
+                for (String key : removed) {
+                    Processor p = processors.remove(key);
+                    loadBalancer.removeProcessor(p);
+                }
             }
+
             public void connected() {
                 changed();
             }
+
             public void disconnected() {
                 changed();
             }
