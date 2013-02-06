@@ -61,17 +61,7 @@ public class ProfileImpl implements Profile {
     public Properties getAttributes() {
         try {
             String node = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
-            Properties props = ZooKeeperUtils.getProperties(service.getZooKeeper(), node);
-            // For compatibility, check if we have instead the list of parents
-            if (props.size() == 1) {
-                String key = props.stringPropertyNames().iterator().next();
-                if (!key.equals(PARENTS)) {
-                    String val = props.getProperty(key);
-                    props.remove(key);
-                    props.setProperty(PARENTS, val.isEmpty() ? key : key + " " + val);
-                }
-            }
-            return props;
+            return ZooKeeperUtils.getProperties(service.getZooKeeper(), node);
         } catch (Exception e) {
             throw new FabricException(e);
         }
