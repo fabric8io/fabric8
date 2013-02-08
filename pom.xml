@@ -658,7 +658,7 @@
         <repository>
           <id>oss-sonatype-staging</id>
           <name>Sonatype Staging Repository</name>
-          <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+          <url>https://oss.sonatype.org/content/groups/staging</url>
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
