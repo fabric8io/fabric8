@@ -23,7 +23,7 @@
         <groupId>org.jboss.fuse</groupId>
         <artifactId>jboss-fuse</artifactId>
         <version>99-master-SNAPSHOT</version>
-        <relativePath>../fuse-esb/pom.xml</relativePath>
+        <relativePath>../jboss-fuse/pom.xml</relativePath>
     </parent>
 
     <artifactId>jboss-fuse-minimal</artifactId>

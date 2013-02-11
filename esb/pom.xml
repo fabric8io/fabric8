@@ -184,10 +184,10 @@
     <modules>
         <module>shared</module>
         <module>esb-branding</module>
-        <module>fuse-esb</module>
-        <module>fuse-esb-minimal</module>
-        <module>fuse-esb-medium</module>
-        <module>fuse-esb-full</module>
+        <module>jboss-fuse</module>
+        <module>jboss-fuse-minimal</module>
+        <module>jboss-fuse-medium</module>
+        <module>jboss-fuse-full</module>
         <module>esb-itests</module>
     </modules>
 
