@@ -86,6 +86,14 @@
                 <entry key="--version" value-ref="versionCompleter"/>
             </optional-completers>
         </command>
+			<command name="fabric/container-info">
+				<action class="org.fusesource.fabric.commands.ContainerInfo">
+					<property name="fabricService" ref="fabricService"/>
+				</action>
+				<completers>
+					<ref component-id="containerCompleter"/>
+				</completers>
+			</command>
         <command name="fabric/container-resolver-list">
             <action class="org.fusesource.fabric.commands.ContainerResolverList">
                 <property name="fabricService" ref="fabricService"/>
