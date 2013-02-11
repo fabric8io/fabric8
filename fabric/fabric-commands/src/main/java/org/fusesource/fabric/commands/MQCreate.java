@@ -56,6 +56,12 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--networks", description = "Broker networks")
     protected String networks;
 
+    @Option(name = "--networks-username", description = "Broker networks UserName")
+    protected String networksUserName;
+
+    @Option(name = "--networks-password", description = "Broker networks Password")
+    protected String networksPassword;
+
     @Option(name = "--version", description = "The version id in the registry")
     protected String version = ZkDefs.DEFAULT_VERSION;
 
@@ -97,6 +103,14 @@ public class MQCreate extends FabricCommand {
 
         if (networks != null) {
             configuration.put("network", networks);
+        }
+
+        if (networksUserName != null) {
+            configuration.put("network.userName", networksUserName);
+        }
+
+        if (networksPassword != null) {
+            configuration.put("network.password", networksPassword);
         }
 
         Profile profile = service.createMQProfile(version, name, configuration);
@@ -167,7 +181,7 @@ public class MQCreate extends FabricCommand {
                     metadatas = fabricService.createContainers(args);
                     ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
                 } catch (FabricAuthenticationException fae) {
-                    //If authentication fails, prompts for credentilas and try again.
+                    //If authentication fails, prompts for credentials and try again.
                     promptForJmxCredentialsIfNeeded();
                     args.setJmxUser(username);
                     args.setJmxPassword(password);
