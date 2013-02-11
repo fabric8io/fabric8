@@ -30,8 +30,8 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.u
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class EsbTestSupport extends FuseTestSupport {
-    static final String GROUP_ID = "org.fusesource.esb";
-    static final String ARTIFACT_ID = "fuse-esb-minimal";
+    static final String GROUP_ID = "org.jboss.fuse";
+    static final String ARTIFACT_ID = "jboss-fuse-minimal";
 
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";
@@ -56,7 +56,7 @@ public class EsbTestSupport extends FuseTestSupport {
         return new DefaultCompositeOption(
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
                         maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
-                        .karafVersion(getKarafVersion()).name("Fuse ESB Distro").unpackDirectory(new File("target/paxexam/unpack/")),
+                        .karafVersion(getKarafVersion()).name("JBoss Fuse Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                         useOwnExamBundlesStartLevel(50),
                       editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                       mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf"))
