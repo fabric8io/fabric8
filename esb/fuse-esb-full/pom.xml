@@ -19,16 +19,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.esb</groupId>
-        <artifactId>fuse-esb</artifactId>
+        <groupId>org.jboss.fuse</groupId>
+        <artifactId>jboss-fuse</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
-    <artifactId>fuse-esb-full</artifactId>
+    <artifactId>jboss-fuse-full</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>Fuse ESB :: Assembly (Full)</description>
+    <description>JBoss Fuse :: Assembly (Full)</description>
 
     <build>
         <plugins>
@@ -51,7 +51,7 @@
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
@@ -79,9 +79,9 @@
                                 <artifactItem>
                                     <groupId>org.fusesource.fabric</groupId>
                                     <artifactId>fuse-fabric</artifactId>
-                                    <version>${project.version}</version>
+                                    <version>${fabric-version}</version>
                                     <type>tar.gz</type>
-                                    <outputDirectory>target/features-repo/org/fusesource/fabric/fuse-fabric/${project.version}</outputDirectory>
+                                    <outputDirectory>target/features-repo/org/fusesource/fabric/fuse-fabric/${fabric-version}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>
                                     <groupId>org.apache.camel</groupId>

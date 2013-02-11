@@ -19,7 +19,7 @@
     <fileSets>
         <!-- Cherry-pick files from the expanded Karaf distribution -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${fabric-version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
               <exclude>**/demos/**</exclude>
@@ -43,7 +43,7 @@
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${fabric-version}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
               <include>bin/*</include>
@@ -106,9 +106,9 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric-version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>fuseesb</destName>
+            <destName>fuse</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
@@ -124,14 +124,14 @@
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>
-            <destName>esb_notices.txt</destName>
+            <destName>notices.txt</destName>
             <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <file>
             <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
             <outputDirectory>/</outputDirectory>
-            <destName>esb_dependencies.txt</destName>
+            <destName>dependencies.txt</destName>
             <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>

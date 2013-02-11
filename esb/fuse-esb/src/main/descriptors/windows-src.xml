@@ -53,7 +53,7 @@
                 <include>**/*.jnilib</include>
                 <include>**/*.cert</include>
                 <include>**/*.jks</include>
-                <include>fuse-esb/src/main/release/bin/*/wrapper</include>
+                <include>jboss-fuse/src/main/release/bin/*/wrapper</include>
             </includes>
             <excludes>
                 <exclude>**/eclipse-classes/**</exclude>
@@ -83,7 +83,7 @@
                 <exclude>**/*.bin</exclude>
                 <exclude>**/*.jnilib</exclude>
                 <exclude>**/*.cert</exclude>
-                <exclude>fuse-esb/src/main/release/bin/*/wrapper</exclude>
+                <exclude>jboss-fuse/src/main/release/bin/*/wrapper</exclude>
 
                 <exclude>**/target/**</exclude>
                 <exclude>**/build/**</exclude>

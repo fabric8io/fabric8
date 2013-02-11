@@ -19,17 +19,17 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.fusesource.esb</groupId>
+        <groupId>org.jboss.fuse</groupId>
         <artifactId>esb-project</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.fusesource.esb.karaf.branding</artifactId>
+    <artifactId>org.jboss.fuse.karaf.branding</artifactId>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
-    <description>Fuse ESB :: Branding Support</description>
+    <description>JBoss Fuse :: Branding Support</description>
 
     <build>
         <resources>

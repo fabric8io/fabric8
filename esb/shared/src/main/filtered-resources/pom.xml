@@ -19,11 +19,11 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.examples</groupId>
+    <groupId>org.jboss.fuse</groupId>
     <artifactId>project</artifactId>
     <version>${project.version}</version>
     <packaging>pom</packaging>
-    <description>Fuse ESB :: Examples</description>
+    <description>JBoss Fuse :: Examples</description>
 
     <modules>
         <module>cbr</module>

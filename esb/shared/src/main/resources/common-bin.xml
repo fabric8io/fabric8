@@ -29,7 +29,7 @@
             <outputFileNameMapping>esb-version.jar</outputFileNameMapping>
             <fileMode>0644</fileMode>
             <includes>
-                <include>org.fusesource.esb:org.fusesource.esb.karaf.branding</include>
+                <include>org.jboss.fuse:org.jboss.fuse.karaf.branding</include>
             </includes>
             <useTransitiveDependencies>false</useTransitiveDependencies>
         </dependencySet>

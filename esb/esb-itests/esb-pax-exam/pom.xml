@@ -23,13 +23,13 @@
 
     <parent>
         <artifactId>esb-itests</artifactId>
-        <groupId>org.fusesource.esb</groupId>
+        <groupId>org.jboss.fuse</groupId>
         <version>99-master-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.fusesource.esb.itests</groupId>
+    <groupId>org.jboss.fuse.itests</groupId>
     <artifactId>esb-pax-exam</artifactId>
-    <description>Fuse ESB :: Integration Tests :: Pax Exam Karaf</description>
+    <description>JBoss Fuse :: Integration Tests :: Pax Exam Karaf</description>
 
     <dependencies>
         <dependency>
@@ -47,12 +47,12 @@
         <dependency>
             <groupId>org.fusesource.tooling.testing</groupId>
             <artifactId>pax-exam-karaf</artifactId>
-            <version>${project.version}</version>
+            <version>${fabric-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.esb</groupId>
-            <artifactId>fuse-esb-minimal</artifactId>
+            <groupId>org.jboss.fuse</groupId>
+            <artifactId>jboss-fuse-minimal</artifactId>
             <version>${project.version}</version>
             <type>tar.gz</type>
         </dependency>

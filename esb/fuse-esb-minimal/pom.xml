@@ -20,16 +20,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.esb</groupId>
-        <artifactId>fuse-esb</artifactId>
+        <groupId>org.jboss.fuse</groupId>
+        <artifactId>jboss-fuse</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>../fuse-esb/pom.xml</relativePath>
     </parent>
 
-    <artifactId>fuse-esb-minimal</artifactId>
+    <artifactId>jboss-fuse-minimal</artifactId>
     <packaging>pom</packaging>
     <name>${project.artifactId}</name>
-    <description>Fuse ESB :: Assembly (Minimal)</description>
+    <description>JBoss Fuse :: Assembly (Minimal)</description>
 
     <build>
         <plugins>
@@ -51,7 +51,7 @@
                                 <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix.nmr.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.fusesource.esb/fuse-esb/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
                                 <!-- FuseSource only : Fabric -->
                                 <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>

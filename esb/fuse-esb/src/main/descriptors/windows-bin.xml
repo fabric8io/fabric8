@@ -16,7 +16,7 @@
   limitations under the License.
   -->
 <assembly>
-    <id>fuse-esb</id>
+    <id>fuse</id>
 
     <formats>
         <format>zip</format>

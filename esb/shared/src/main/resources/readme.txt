@@ -1,4 +1,4 @@
-Fuse ESB Enterprise
+JBoss Fuse
 -------------------
 
 Security Prerequisites
@@ -31,8 +31,8 @@ webconsole.jms.password=<Password>
 
 Quick Start
 -----------
-To start Fuse ESB Enterprise ${project.version}, run 'bin/fuseesb' on 
-Linux/Unix or 'bin\fuseesb.bat' on Windows.
+To start JBoss Fuse ${project.version}, run 'bin/fuse' on 
+Linux/Unix or 'bin\fuse.bat' on Windows.
 
 Examples
 -------------

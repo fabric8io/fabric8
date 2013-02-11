@@ -25,12 +25,12 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>org.fusesource.esb</groupId>
+    <groupId>org.jboss.fuse</groupId>
     <artifactId>esb-project</artifactId>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
-    <description>Fuse ESB :: Project</description>
+    <description>JBoss Fuse :: Project</description>
 
     <!-- TODO: Need to align the versions placeholder with fuse-project and clear this mess a bit -->
     <properties>

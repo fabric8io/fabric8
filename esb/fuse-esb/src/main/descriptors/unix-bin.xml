@@ -16,7 +16,7 @@
   limitations under the License.
   -->
 <assembly>
-    <id>fuse-esb</id>
+    <id>fuse</id>
 
     <formats>
         <format>jar</format>        <!-- SMX4-775: Added JAR assembly for *nix systems without GNU TAR  -->

@@ -19,7 +19,7 @@
     <fileSets>
       <!-- Cherry-pick files from the expanded Karaf distribution -->
       <fileSet>
-          <directory>target/dependencies/win/fuse-fabric-${project.version}</directory>
+          <directory>target/dependencies/win/fuse-fabric-${fabric-version}</directory>
           <outputDirectory>/</outputDirectory>
           <excludes>
              <exclude>**/demos/**</exclude>
@@ -87,9 +87,9 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <source>${basedir}/target/dependencies/win/fuse-fabric-${fabric-version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>fuseesb.bat</destName>
+            <destName>fuse.bat</destName>
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
@@ -105,14 +105,14 @@
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>
-            <destName>esb_notices.txt</destName>
+            <destName>notices.txt</destName>
             <fileMode>0644</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
         <file>
             <source>${basedir}/target/target/maven-shared-archive-resources/META-INF/DEPENDENCIES</source>
             <outputDirectory>/</outputDirectory>
-            <destName>esb_dependencies.txt</destName>
+            <destName>dependencies.txt</destName>
             <fileMode>0644</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
