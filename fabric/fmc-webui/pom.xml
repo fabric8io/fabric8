@@ -26,7 +26,7 @@
   <groupId>org.fusesource.fmc</groupId>
   <artifactId>fmc-webui</artifactId>
   <name>${project.artifactId}</name>
-  <description>FMC :: Console Frontend</description>
+  <description>MC :: Console Frontend</description>
   <packaging>war</packaging>
 
   <properties>
@@ -99,7 +99,7 @@
             <Bundle-ClassPath>fmc-webui-branding.jar,.,WEB-INF/classes</Bundle-ClassPath>
             <Bundle-Name>${project.description}</Bundle-Name>
             <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
-            <Implementation-Title>FMC Frontend</Implementation-Title>
+            <Implementation-Title>MC Frontend</Implementation-Title>
             <Implementation-Version>${project.version}</Implementation-Version>
           </instructions>
         </configuration>

@@ -277,9 +277,9 @@ define [
               else
                 f.configs = f.config
 
-            offset = $(event.srcElement).offset()
-            offset.top = offset.top - 250
-            offset.left = offset.left - 500 - event.srcElement.width
+            offset = $(event.currentTarget).offset()
+            offset.top = offset.top - 250 - Math.floor(event.currentTarget.offsetHeight / 2) + 3
+            offset.left = offset.left - 500 - event.currentTarget.offsetWidth
 
             @show_detail FON.template
               template: jade["profiles_page/detail_page/feature_details.jade"]

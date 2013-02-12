@@ -1386,15 +1386,16 @@ div.versions ul li div ul li a.indicator {
 }
 
 /* TODO - rename these classes */
+li .indicator span {
+  margin-left: 5px;
+}
 
 .indicator span {
-    display: block;
+    display: inline-block;
     width: 8px;
     height: 8px;
     border-radius: 4px;
     clear: both;
-    position: absolute;
-    left: 42%;
     margin-top: -5px;
 
 }

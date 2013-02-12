@@ -19,7 +19,7 @@
          version="2.5">
 
 
-  <display-name>Fuse Console UI</display-name>
+  <display-name>Management Console UI</display-name>
 
   <servlet>
     <servlet-name>dev-servlet</servlet-name>

@@ -1,18 +1,18 @@
-______ ___  ___ _____  
-|  ___||  \/  |/  __ \ 
-| |_   | .  . || /  \/ 
-|  _|  | |\/| || |     
-| |    | |  | || \__/\ 
-\_|    \_|  |_/ \____/ 
-______________________
+___  ___ _____
+|  \/  |/  __ \
+| .  . || /  \/
+| |\/| || |
+| |  | || \__/\
+\_|  |_/ \____/
+_______________
 
-This is the Fabric Management Console WAR project, this readme is pretty much for copy/pasting commands.
+This is the Management Console WAR project, this readme is pretty much for copy/pasting commands.
 
 To watch changes to coffeescript and jade files do:
 
 * mvn brew:compile -Dbrew.watch=true
 
-in the fabric-webui directory. If you make changes to the backend stuff (any of the scala, etc) you can rebuild using:
+in the fmc-webui directory. If you make changes to the backend stuff (any of the scala, etc) you can rebuild using:
 
 * mvn compile war:exploded bundle:manifest
 

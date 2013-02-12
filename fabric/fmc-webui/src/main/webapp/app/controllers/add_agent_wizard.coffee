@@ -775,7 +775,7 @@ define [
 
       for profile in all_profiles
         profile = profile.trim()
-        li = _.template("<li><label><input type=\"checkbox\" name=\"#{profile}\" value=\"#{profile}\"></input><span>#{profile}</span></label></li>")
+        li = _.template("<li><div class=\"clearfix\" style=\"margin: 0px;\"><label><input type=\"checkbox\" name=\"#{profile}\" value=\"#{profile}\"></input><span>#{profile}</span></label></div></li>")
 
         if profile_names
           for p in profile_names

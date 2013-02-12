@@ -40,7 +40,7 @@ define [
       available = _.difference available, abstract_profiles
       available = _.difference available, hidden_profiles
       for profile in available
-        @profiles_list.append("<li><label><input value=\"#{profile}\" type=\"checkbox\"><span> #{profile}</span></label></li>")
+        @profiles_list.append("<li><div class=\"clearfix\" style=\"margin: 0px\"><label><input value=\"#{profile}\" type=\"checkbox\"><span> #{profile}</span></label></div></li>")
 
 
   class AddProfileDialog extends FON.Dialog
