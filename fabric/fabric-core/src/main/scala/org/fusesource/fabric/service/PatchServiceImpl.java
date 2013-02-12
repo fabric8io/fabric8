@@ -135,7 +135,7 @@ public class PatchServiceImpl implements PatchService {
             "org.apache.servicemix.nmr:nmr-parent|" +
                     "org.apache.servicemix.nmr:apache-servicemix-nmr," +
             "org.fusesource:fuse-project|" +
-                    "org.fusesource.esb:fuse-esb|" +
+                    "org.jboss.fuse:jboss-fuse|" +
                     "org.fusesource.examples:fabric-activemq-demo|" +
                     "org.fusesource.examples:fabric-camel-cluster|" +
                     "org.fusesource.examples:fabric-camel-demo|" +

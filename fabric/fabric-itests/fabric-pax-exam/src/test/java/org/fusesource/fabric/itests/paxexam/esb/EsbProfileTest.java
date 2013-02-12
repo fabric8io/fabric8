@@ -24,7 +24,7 @@ public class EsbProfileTest extends FabricTestSupport {
     public void testLocalChildCreation() throws Exception {
          System.err.println(executeCommand("fabric:create -n"));
          addStagingRepoToDefaultProfile();
-         createAndAssertChildContainer("esb1", "root", "fuse-esb-medium");
+         createAndAssertChildContainer("esb1", "root", "jboss-fuse-medium");
     }
 
     @Configuration
