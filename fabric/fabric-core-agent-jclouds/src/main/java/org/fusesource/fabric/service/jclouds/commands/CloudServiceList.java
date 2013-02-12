@@ -19,93 +19,101 @@ package org.fusesource.fabric.service.jclouds.commands;
 
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import com.google.common.base.Function;
+import com.google.common.collect.Iterables;
+import com.google.common.reflect.TypeToken;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.apis.ApiMetadata;
+import org.jclouds.apis.Apis;
 import org.jclouds.compute.ComputeService;
-import org.jclouds.karaf.core.ComputeProviderOrApiRegistry;
-import org.jclouds.karaf.core.Constants;
+import org.jclouds.compute.ComputeServiceContext;
+import org.jclouds.javax.annotation.Nullable;
 import org.jclouds.providers.ProviderMetadata;
+import org.jclouds.providers.Providers;
 
 @Command(name = "cloud-service-list", scope = "fabric", description = "Lists the cloud providers registered with the fabric.")
 public class CloudServiceList extends FabricCommand {
 
-    public static final String PROVIDERFORMAT = "%-24s %-12s %-24s %-24s";
+	public static final String PROVIDERFORMAT = "%-24s %-12s %-24s %-24s";
+	private List<ComputeService> computeServices;
 
-    private ComputeProviderOrApiRegistry computeProviderOrApiRegistry;
-    private List<ComputeService> computeServices;
+	@Override
+	protected Object doExecute() throws Exception {
+		Iterable<ProviderMetadata> providers = Providers.viewableAs(TypeToken.of(ComputeServiceContext.class));
+		Iterable<ApiMetadata> apis = Apis.viewableAs(TypeToken.of(ComputeServiceContext.class));
 
-    @Override
-    protected Object doExecute() throws Exception {
-        Map<String, ProviderMetadata> providers = computeProviderOrApiRegistry.getInstalledProviders();
-        Map<String, ApiMetadata> apis = computeProviderOrApiRegistry.getInstalledApis();
+		Iterable<String> providerIds =  Iterables.transform(providers, new Function<ProviderMetadata, String>() {
+			@Override
+			public String apply(@Nullable ProviderMetadata input) {
+				return input.getId();
+			}
+		});
 
-        boolean providerOrApiFound = false;
-
-        if (apis != null && !apis.isEmpty()) {
-            providerOrApiFound = true;
-            System.out.println("Compute APIs:");
-            System.out.println("-------------");
-            printComputeProvidersOrApis(apis.keySet(), computeServices, "", System.out);
-        }
-
-        if (providers != null && !providers.isEmpty()) {
-            providerOrApiFound = true;
-            System.out.println("Compute Providers:");
-            System.out.println("-------------");
-            printComputeProvidersOrApis(providers.keySet(), computeServices, "", System.out);
-        }
-
-        if (!providerOrApiFound)  {
-            System.out.println("No providers or apis have been found.");
-        }
-        return null;
-    }
-
-    protected void printComputeProvidersOrApis(Set<String> providersOrApis, List<ComputeService> computeServices, String indent, PrintStream out) {
-        out.println(String.format(PROVIDERFORMAT, "[id]", "[type]", "[local services]","[fabric services]"));
-        for (String providerOrApi : providersOrApis) {
-            boolean registered = false;
-            StringBuffer localServices = new StringBuffer();
-            StringBuffer fabricServices = new StringBuffer();
-
-            localServices.append("[ ");
-            fabricServices.append("[ ");
+		Iterable<String> apiIds =  Iterables.transform(apis, new Function<ApiMetadata, String>() {
+			@Override
+			public String apply(@Nullable ApiMetadata input) {
+				return input.getId();
+			}
+		});
 
 
-            for (ComputeService computeService : computeServices) {
-                if (computeService.getContext().unwrap().getId().equals(providerOrApi)) {
-                    String name = (String) computeService.getContext().unwrap().getName();
-                    if (getZooKeeper() != null && getZooKeeper().isConnected()) {
-                         fabricServices.append(name).append(" ");
-                    } else {
-                        localServices.append(name).append(" ");
-                    }
+		boolean providerOrApiFound = false;
 
-                }
-            }
-            localServices.append("]");
-            fabricServices.append("]");
-            out.println(String.format(PROVIDERFORMAT, providerOrApi, "compute", localServices.toString(), fabricServices.toString()));
-        }
-    }
+		if (apiIds != null) {
+			providerOrApiFound = true;
+			System.out.println("Compute APIs:");
+			System.out.println("-------------");
+			printComputeProvidersOrApis(apiIds, computeServices, "", System.out);
+		}
 
-    public ComputeProviderOrApiRegistry getComputeProviderOrApiRegistry() {
-        return computeProviderOrApiRegistry;
-    }
+		if (providers != null) {
+			providerOrApiFound = true;
+			System.out.println("Compute Providers:");
+			System.out.println("-------------");
+			printComputeProvidersOrApis(providerIds, computeServices, "", System.out);
+		}
 
-    public void setComputeProviderOrApiRegistry(ComputeProviderOrApiRegistry computeProviderOrApiRegistry) {
-        this.computeProviderOrApiRegistry = computeProviderOrApiRegistry;
-    }
+		if (!providerOrApiFound) {
+			System.out.println("No providers or apis have been found.");
+		}
+		return null;
+	}
 
-    public List<ComputeService> getComputeServices() {
-        return computeServices;
-    }
+	protected void printComputeProvidersOrApis(Iterable<String> providersOrApis, List<ComputeService> computeServices, String indent, PrintStream out) {
+		out.println(String.format(PROVIDERFORMAT, "[id]", "[type]", "[local services]", "[fabric services]"));
+		for (String providerOrApi : providersOrApis) {
+			boolean registered = false;
+			StringBuffer localServices = new StringBuffer();
+			StringBuffer fabricServices = new StringBuffer();
 
-    public void setComputeServices(List<ComputeService> computeServices) {
-        this.computeServices = computeServices;
-    }
+			localServices.append("[ ");
+			fabricServices.append("[ ");
+
+
+			for (ComputeService computeService : computeServices) {
+				if (computeService.getContext().unwrap().getId().equals(providerOrApi)) {
+					String name = (String) computeService.getContext().unwrap().getName();
+					if (getZooKeeper() != null && getZooKeeper().isConnected()) {
+						fabricServices.append(name).append(" ");
+					} else {
+						localServices.append(name).append(" ");
+					}
+
+				}
+			}
+			localServices.append("]");
+			fabricServices.append("]");
+			out.println(String.format(PROVIDERFORMAT, providerOrApi, "compute", localServices.toString(), fabricServices.toString()));
+		}
+	}
+
+	public List<ComputeService> getComputeServices() {
+		return computeServices;
+	}
+
+	public void setComputeServices(List<ComputeService> computeServices) {
+		this.computeServices = computeServices;
+	}
 }

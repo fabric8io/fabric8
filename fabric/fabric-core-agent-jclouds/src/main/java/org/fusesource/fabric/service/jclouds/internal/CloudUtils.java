@@ -19,6 +19,7 @@ package org.fusesource.fabric.service.jclouds.internal;
 
 import java.io.IOException;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -102,7 +103,15 @@ public class CloudUtils {
                             if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
                                 ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
-                            for (Map.Entry<String, String> entry : props.entrySet()) {
+							Enumeration keys = dictionary.keys();
+							while (keys.hasMoreElements()) {
+								Object key = keys.nextElement();
+								Object value = dictionary.get(key);
+								if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
+									ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
+								}
+							}
+							for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
                                 if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
@@ -158,6 +167,16 @@ public class CloudUtils {
                             if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
                                 ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
+
+							Enumeration keys = dictionary.keys();
+							while (keys.hasMoreElements()) {
+								Object key = keys.nextElement();
+								Object value = dictionary.get(key);
+								if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
+									ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
+								}
+							}
+
                             for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();

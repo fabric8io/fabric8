@@ -53,8 +53,6 @@
         <reference-listener ref="jcloudsContainerProvider" bind-method="bind" unbind-method="unbind"/>
     </reference-list>
 
-    <reference id="computeProviderOrApiRegistry" interface="org.jclouds.karaf.core.ComputeProviderOrApiRegistry" availability="optional"/>
-
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/container-create-cloud">
             <action class="org.fusesource.fabric.service.jclouds.commands.ContainerCreateCloud">
@@ -100,7 +98,6 @@
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="zooKeeper" ref="zooKeeper"/>
-                <property name="computeProviderOrApiRegistry" ref="computeProviderOrApiRegistry"/>
                 <property name="computeServices" ref="computeServices"/>
             </action>
         </command>
