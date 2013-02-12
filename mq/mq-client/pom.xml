@@ -33,7 +33,7 @@
     <dependencies>
       <dependency>
         <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-core</artifactId>
+        <artifactId>activemq-all</artifactId>
         <version>${activemq-version}</version>
         <exclusions>
             <exclusion>

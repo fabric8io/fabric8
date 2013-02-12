@@ -1412,7 +1412,7 @@
       <id>snapshots</id>
       <properties>
         <perfectus-build>SNAPSHOT</perfectus-build>
-        <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
+        <activemq-version>5.8.0.fuse-72-${perfectus-build}</activemq-version>
         <aries.blueprint.version>1.0.1.fuse-71-${perfectus-build}</aries.blueprint.version>
         <aries.jmx.version>1.0.1.fuse-71-${perfectus-build}</aries.jmx.version>
         <aries.transaction.version>1.0.1.fuse-71-${perfectus-build}</aries.transaction.version>
@@ -1438,7 +1438,7 @@
       <id>perfectus</id>
       <properties>
         <perfectus-run>04</perfectus-run>
-        <activemq-version>5.6.1.fuse-71-${perfectus-build}</activemq-version>
+        <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
         <cxf-version>2.6.0.fuse-71-${perfectus-build}</cxf-version>
         <camel-version>2.10.0.fuse-71-${perfectus-build}</camel-version>
         <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>

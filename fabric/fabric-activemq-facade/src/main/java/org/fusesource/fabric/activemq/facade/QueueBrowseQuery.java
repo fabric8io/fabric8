@@ -21,13 +21,11 @@ import javax.jms.Queue;
 import javax.jms.QueueBrowser;
 import javax.jms.Session;
 
-import org.springframework.beans.factory.DisposableBean;
-
 /**
  * 
  * 
  */
-public class QueueBrowseQuery extends DestinationFacade implements DisposableBean {
+public class QueueBrowseQuery extends DestinationFacade {
     private SessionPool sessionPool;
     private String selector;
     private Session session;

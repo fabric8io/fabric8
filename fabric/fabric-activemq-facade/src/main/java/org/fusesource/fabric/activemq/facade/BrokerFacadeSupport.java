@@ -17,7 +17,6 @@
 package org.fusesource.fabric.activemq.facade;
 
 import org.apache.activemq.broker.jmx.*;
-import org.springframework.util.StringUtils;
 
 import javax.management.ObjectName;
 import javax.management.QueryExp;
@@ -136,7 +135,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
         Set<ObjectName> queryResult = queryNames(query, null);
         Collection<String> result = new ArrayList<String>(queryResult.size());
         for (ObjectName on : queryResult) {
-            String name = StringUtils.replace(on.getKeyProperty("Connection"), "_", ":");
+            String name = on.getKeyProperty("Connection").replace('_', ':');
             result.add(name);
         }
         return result;
@@ -144,7 +143,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
 
     @SuppressWarnings("unchecked")
     public ConnectionViewFacade getConnection(String connectionName) throws Exception {
-        connectionName = StringUtils.replace(connectionName, ":", "_");
+        connectionName = connectionName.replace(':', '_');
         String brokerName = getBrokerName();
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Connection,*,Connection=" + connectionName);
@@ -195,7 +194,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<SubscriptionViewFacade> getQueueConsumers(String queueName) throws Exception {
         String brokerName = getBrokerName();
-        queueName = StringUtils.replace(queueName, "\"", "_");
+        queueName = queueName.replace('\"', '_');
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Subscription,destinationType=Queue,destinationName=" + queueName + ",*");
         Set<ObjectName> queryResult = queryNames(query, null);
@@ -205,7 +204,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @Override
     public Collection<SubscriptionViewFacade> getTopicConsumers(String topicName) throws Exception {
         String brokerName = getBrokerName();
-        topicName = StringUtils.replace(topicName, "\"", "_");
+        topicName = topicName.replace('\"', '_');
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Subscription,persistentMode=Non-Durable,destinationType=Topic,destinationName=" + topicName + ",*");
         Set<ObjectName> queryResult = queryNames(query, null);
@@ -215,7 +214,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @Override
     public Collection<DurableSubscriptionViewFacade> getTopicDurableConsumers(String topicName) throws Exception {
         String brokerName = getBrokerName();
-        topicName = StringUtils.replace(topicName, "\"", "_");
+        topicName = topicName.replace('\"', '_');
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Subscription,persistentMode=Durable,destinationType=Topic,destinationName=" + topicName + ",*");
         Set<ObjectName> queryResult = queryNames(query, null);
@@ -226,7 +225,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<ProducerViewFacade> getQueueProducers(String queueName) throws Exception {
         String brokerName = getBrokerName();
-        queueName = StringUtils.replace(queueName, "\"", "_");
+        queueName = queueName.replace('\"', '_');
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Producer,destinationType=Queue,destinationName=" + queueName + ",*");
         Set<ObjectName> queryResult = queryNames(query, null);
@@ -250,7 +249,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<ProducerViewFacade> getTopicProducers(String topicName) throws Exception {
         String brokerName = getBrokerName();
-        topicName = StringUtils.replace(topicName, "\"", "_");
+        topicName = topicName.replace('\"', '_');
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Producer,destinationType=Topic,destinationName=" + topicName + ",*");
         Set<ObjectName> queryResult = queryNames(query, null);
@@ -272,7 +271,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
 
     @SuppressWarnings("unchecked")
     public Collection<SubscriptionViewFacade> getConsumersOnConnection(String connectionName) throws Exception {
-        connectionName = StringUtils.replace(connectionName, ":", "_");
+        connectionName = connectionName.replace(':', '_');
         String brokerName = getBrokerName();
         ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
                 + ",Type=Subscription,clientId=" + connectionName + ",*");
