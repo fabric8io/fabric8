@@ -58,7 +58,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     private transient Logger logger = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
     public static final String IP_REGEX = "([1-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(\\.([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}";
-    public static final String HOST_REGEX = "[a-zA-Z][a-zA-Z0-9\\-\\.]*[a-zA-Z]";
+    public static final String HOST_REGEX = "[a-zA-Z][a-zA-Z0-9\\-\\._]*[a-zA-Z]";
     public static final String IP_OR_HOST_REGEX = "((" + IP_REGEX + ")|(" + HOST_REGEX + ")|0.0.0.0)";
     public static final String RMI_HOST_REGEX = "://" + IP_OR_HOST_REGEX;
 
