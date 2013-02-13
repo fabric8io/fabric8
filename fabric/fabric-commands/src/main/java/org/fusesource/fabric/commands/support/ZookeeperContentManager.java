@@ -2,8 +2,9 @@ package org.fusesource.fabric.commands.support;
 
 
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jledit.ContentManager;
-import org.linkedin.zookeeper.client.IZKClient;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -46,7 +47,7 @@ public class ZookeeperContentManager implements ContentManager {
     @Override
     public boolean save(String content, String location) {
         try {
-            zookeeper.setData(location, content);
+            ZooKeeperUtils.set(zookeeper,location, content);
         } catch (Exception e) {
             return false;
         }
