@@ -27,6 +27,7 @@
 
   <groupId>org.fusesource.mq</groupId>
   <artifactId>mq-project</artifactId>
+  <version>99-master-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Fuse MQ :: Project</name>
   <description>Fuse MQ :: Project</description>

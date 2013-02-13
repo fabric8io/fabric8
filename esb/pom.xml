@@ -27,6 +27,7 @@
 
     <groupId>org.jboss.fuse</groupId>
     <artifactId>esb-project</artifactId>
+    <version>99-master-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
