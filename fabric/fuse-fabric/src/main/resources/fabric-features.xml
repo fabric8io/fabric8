@@ -202,9 +202,7 @@
 
     <feature name="mq-fabric" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
-        <feature version="${activemq-version}">activemq</feature>
-        <feature version="${activemq-version}">activemq-spring</feature>
-        <feature version="${activemq-version}">activemq-blueprint</feature>
+        <feature version="${activemq-version}">activemq-broker</feature>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.fusesource.mq/mq-fabric/${project.version}</bundle>
     </feature>
@@ -273,7 +271,7 @@
         <bundle>mvn:org.springframework/spring-jms/${spring-version}</bundle>
         <bundle>mvn:org.apache.commons/commons-lang3/3.0.1</bundle>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-pool/${commons-pool-version}</bundle>
-        <feature version="${activemq-version}">activemq</feature>
+        <feature version="${activemq-version}">activemq-broker</feature>
         <bundle>mvn:org.fusesource.fabric.bridge/fabric-bridge/${project.version}</bundle>
     </feature>
 

@@ -172,7 +172,7 @@
                                    <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    <feature>mq-fabric</feature>
-                                   <feature>activemq-spring</feature>
+                                   <feature>activemq-broker</feature>
                                    <!-- needs sp3, feature>activemq-camel</feature -->
                                    <feature>war</feature>
                                    <feature>mq-web-console</feature>

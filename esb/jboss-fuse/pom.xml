@@ -145,9 +145,7 @@
                                 <feature>saaj</feature>
                                 <feature>obr</feature>
                                 <feature>config</feature>
-                                <feature>activemq</feature>
-                                <feature>activemq-blueprint</feature>
-                                <feature>activemq-spring</feature>
+                                <feature>activemq-broker</feature>
                                 <feature>camel</feature>
                                 <feature>activemq-camel</feature>
                                 <feature>camel-cxf</feature>
