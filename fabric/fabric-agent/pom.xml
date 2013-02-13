@@ -77,6 +77,7 @@
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
             org.fusesource.fabric.agent.utils,
+					  org.fusesource.fabric.agent.sort,
             org.apache.felix.bundlerepository*,
             org.apache.felix.bundleplugin*,
             org.apache.karaf.features.*,
