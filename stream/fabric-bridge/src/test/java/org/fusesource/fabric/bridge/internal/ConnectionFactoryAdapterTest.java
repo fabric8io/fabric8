@@ -20,7 +20,7 @@ import javax.jms.ConnectionFactory;
 
 import junit.framework.Assert;
 import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
-import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
+import org.fusesource.fabric.utils.Base64Encoder;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class ConnectionFactoryAdapterTest extends Assert {
 	@Test
 	public void testMarshalConnectionFactory() throws Exception {
 		byte[] bytes = adapter.marshal(connectionFactory);
-		String str = new String(Base64.encodeBase64(bytes));
+		String str = new String(Base64Encoder.encode(bytes));
 		LOG.info("Marshaled ConnectionFactory bytes base64 encoded" + System.getProperty("line.separator") + str);
 		assertNotNull("Null marshaled bytes", bytes);
 		assertFalse("Empty marshaled bytes", bytes.length == 0);

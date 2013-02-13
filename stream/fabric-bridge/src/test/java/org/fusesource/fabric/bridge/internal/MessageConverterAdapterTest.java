@@ -18,7 +18,7 @@ package org.fusesource.fabric.bridge.internal;
 
 import org.fusesource.fabric.bridge.MessageConverter;
 import org.fusesource.fabric.bridge.spring.TestMessageConverter;
-import org.jasypt.contrib.org.apache.commons.codec_1_3.binary.Base64;
+import org.fusesource.fabric.utils.Base64Encoder;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class MessageConverterAdapterTest extends AbstractConnectorTestSupport {
     @Test
 	public void testMarshalMessageConverter() throws Exception {
 		byte[] bytes = adapter.marshal(new TestMessageConverter());
-        String str = new String(Base64.encodeBase64(bytes));
+        String str = new String(Base64Encoder.encode(bytes));
         LOG.info("Marshaled ConnectionFactory bytes base64 encoded" + System.getProperty("line.separator") + str);
 		assertNotNull("Null marshaled bytes", bytes);
 		assertFalse("Empty marshaled bytes", bytes.length == 0);

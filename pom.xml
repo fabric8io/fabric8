@@ -1336,6 +1336,12 @@
 	          <version>6.1.26</version>
 	      </dependency>
 
+          <dependency>
+             <groupId>org.apache.activemq</groupId>
+             <artifactId>activemq-broker</artifactId>
+             <version>${activemq-version}</version>
+          </dependency>
+
         </dependencies>
     </dependencyManagement>
 
@@ -1438,11 +1444,11 @@
     <profile>
       <id>perfectus</id>
       <properties>
-        <perfectus-run>04</perfectus-run>
-        <activemq-version>5.7.0.fuse-71-${perfectus-build}</activemq-version>
-        <cxf-version>2.6.0.fuse-71-${perfectus-build}</cxf-version>
-        <camel-version>2.10.0.fuse-71-${perfectus-build}</camel-version>
-        <karaf-version>2.3.0.fuse-71-${perfectus-build}</karaf-version>
+        <perfectus-postfix>.redhat-60003</perfectus-postfix>
+        <activemq-version>5.8.0${perfectus-postfix}</activemq-version>
+        <cxf-version>2.6.0${perfectus-postfix}</cxf-version>
+        <camel-version>2.10.0${perfectus-postfix}</camel-version>
+        <karaf-version>2.3.0${perfectus-postfix}</karaf-version>
       </properties>
 
       <repositories>

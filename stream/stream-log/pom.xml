@@ -31,10 +31,6 @@
   <name>${project.artifactId}</name>
   <description>An executable jar that streams log data received via stdin to ActiveMQ. (powered by Camel)</description>
 
-  <properties>
-    <activemq-version>5.6.0</activemq-version>
-  </properties>
-
   <dependencies>
     <dependency>
       <groupId>org.apache.camel</groupId>
