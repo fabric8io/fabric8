@@ -186,8 +186,8 @@ define [
 
       password = body.find("#password_input").val()
       repeat_password = body.find("#repeat_password_input").val()
-      if (password.length < 6)
-        @show_error("Password must be at least 6 characters long")
+      if (password.length < 5)
+        @show_error("Password must be at least 5 characters long")
         return
       if (password != repeat_password)
         @show_error("Passwords don't match")
@@ -259,8 +259,8 @@ define [
     on_accept: (body, options) ->
       password = body.find("#password_input").val()
       repeat_password = body.find("#repeat_password_input").val()
-      if (password.length < 6)
-        @show_error("Password must be at least 6 characters long")
+      if (password.length < 5)
+        @show_error("Password must be at least 5 characters long")
         return
       if (password != repeat_password)
         @show_error("Passwords don't match")
@@ -272,7 +272,7 @@ define [
           @do_hide()
           app.flash
             title: "Password successfully changed."
-          $("#flash_container").delay(5000).hide(1000)
+            hide_after: 2000
         , error: =>
             @do_hide()
             app.flash
