@@ -21,7 +21,7 @@ import java.net.URL;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 @Command(name = "set", scope = "zk", description = "Set a znode's data", detailedDescription = "classpath:set.txt")
 public class Set extends ZooKeeperCommandSupport {

@@ -18,7 +18,7 @@ package org.fusesource.fabric.zookeeper.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 @Command(name = "get", scope = "zk", description = "Get a znode's data", detailedDescription = "classpath:get.txt")
 public class Get extends ZooKeeperCommandSupport {

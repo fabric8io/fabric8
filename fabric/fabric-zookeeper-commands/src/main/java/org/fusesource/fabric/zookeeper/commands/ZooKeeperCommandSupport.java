@@ -26,7 +26,8 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
+
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 

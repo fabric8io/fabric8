@@ -26,7 +26,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 @Command(name = "create", scope = "zk", description = "Create a znode", detailedDescription = "classpath:create.txt")
 public class Create extends ZooKeeperCommandSupport {

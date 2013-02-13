@@ -41,7 +41,7 @@
             org.fusesource.fabric.utils.shell
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.import>
-            org.linkedin.zookeeper.client.IZKClient
+            org.fusesource.fabric.zookeeper.IZKClient
         </fuse.osgi.services.import>
     </properties>
 

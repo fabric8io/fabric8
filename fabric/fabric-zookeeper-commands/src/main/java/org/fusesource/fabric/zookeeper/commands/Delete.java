@@ -19,7 +19,7 @@ package org.fusesource.fabric.zookeeper.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 @Command(name = "delete", scope = "zk", description = "Delete the specified znode", detailedDescription = "classpath:delete.txt")
 public class Delete extends ZooKeeperCommandSupport {

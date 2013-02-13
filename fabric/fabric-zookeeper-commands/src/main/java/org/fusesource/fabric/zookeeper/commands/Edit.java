@@ -24,7 +24,7 @@ import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.commands.support.ZookeeperContentManager;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
-import org.linkedin.zookeeper.client.IZKClient;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
 import java.nio.charset.Charset;
 
