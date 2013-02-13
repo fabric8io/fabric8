@@ -71,6 +71,7 @@ import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.mvn.PropertyStore;
+import org.fusesource.fabric.agent.sort.RequirementSort;
 import org.fusesource.fabric.agent.utils.ChecksumUtils;
 import org.fusesource.fabric.agent.utils.MultiException;
 import org.fusesource.fabric.fab.MavenResolver;
@@ -742,7 +743,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         // make sure those important bundles are started first and minimize the problem.
         List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
-        for (Resource resource : allResources) {
+        for (Resource resource : RequirementSort.sort(allResources)) {
             Bundle bundle = resToBnd.get(resource);
             String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
             if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
