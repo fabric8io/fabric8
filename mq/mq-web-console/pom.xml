@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>mq-project</artifactId>
-        <groupId>org.fusesource.mq</groupId>
+        <groupId>org.jboss.amq</groupId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
@@ -12,6 +12,8 @@
     <packaging>war</packaging>
 
     <artifactId>mq-web-console</artifactId>
+    <name>JBoss A-MQ Web Console</name>
+    <description>JBoss A-MQ :: Web Console</description>
 
     <dependencies>
         <dependency>
@@ -98,8 +100,8 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
                                         <Bundle-Name>mq-web-console</Bundle-Name>
-                                        <Bundle-Description>Web Console for FuseMQ</Bundle-Description>
-                                        <Bundle-SymbolicName>org.fusesource.mq.mq-web-console</Bundle-SymbolicName>
+                                        <Bundle-Description>Web Console for JBoss A-MQ</Bundle-Description>
+                                        <Bundle-SymbolicName>org.jboss.amq.mq-web-console</Bundle-SymbolicName>
                                     </manifestEntries>
                                 </transformer>
                             </transformers>

@@ -19,18 +19,18 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.mq</groupId>
+    <groupId>org.jboss.amq</groupId>
     <artifactId>mq-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 
-  <groupId>org.fusesource.mq</groupId>
+  <groupId>org.jboss.amq</groupId>
   <artifactId>mq-fabric</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse MQ :: Fabric</description>
+  <name>JBoss A-MQ Fabric</name>
+  <description>JBoss A-MQ Fabric</description>
 
   <dependencies>
 

@@ -25,11 +25,11 @@
     <relativePath>..</relativePath>
   </parent>
 
-  <groupId>org.fusesource.mq</groupId>
+  <groupId>org.jboss.amq</groupId>
   <artifactId>mq-project</artifactId>
   <packaging>pom</packaging>
-  <name>Fuse MQ :: Project</name>
-  <description>Fuse MQ :: Project</description>
+  <name>JBoss A-MQ :: Project</name>
+  <description>JBoss A-MQ :: Project</description>
 
   <properties>
     <fuse.osgi.export>org.fusesource.mq.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
@@ -40,7 +40,7 @@
     <module>mq-client</module>
     <module>mq-branding</module>
     <module>mq-web-console</module>
-    <module>fuse-mq</module>
+    <module>jboss-a-mq</module>
   </modules>
 
 </project>

@@ -18,17 +18,17 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <groupId>org.fusesource.mq</groupId>
+        <groupId>org.jboss.amq</groupId>
         <artifactId>mq-project</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>org.fusesource.mq.karaf.branding</artifactId>
+    <artifactId>org.jboss.amq.karaf.branding</artifactId>
     <packaging>bundle</packaging>
-    <name>Fuse MQ :: Karaf :: Branding Support</name>
-    <description>Fuse MQ Karaf Branding</description>
+    <name>JBoss A-MQ Karaf Branding</name>
+    <description>JBoss A-MQ Karaf Branding</description>
 
     <build>
         <resources>

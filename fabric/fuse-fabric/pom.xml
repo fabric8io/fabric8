@@ -101,7 +101,7 @@
                <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.mq</groupId>
+               <groupId>org.jboss.amq</groupId>
                <artifactId>mq-fabric</artifactId>
            </dependency>
            <dependency>

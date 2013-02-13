@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.fusesource.mq</groupId>
+        <groupId>org.jboss.amq</groupId>
         <artifactId>mq-project</artifactId>
         <version>99-master-SNAPSHOT</version>
         <relativePath>..</relativePath>
@@ -27,14 +27,13 @@
 
     <artifactId>mq-client</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse MQ :: Client</description>
+    <name>JBoss A-MQ Client</name>
+    <description>JBoss A-MQ :: Client</description>
 
     <dependencies>
       <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-client</artifactId>
-        <version>${activemq-version}</version>
         <exclusions>
             <exclusion>
                 <groupId>org.apache.activemq</groupId>
@@ -97,7 +96,7 @@
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                         <manifest>
-                            <mainClass>org.fusesource.mq.Main</mainClass>
+                            <mainClass>org.jboss.amq.Main</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>../system/</classpathPrefix>
                             <classpathLayoutType>repository</classpathLayoutType>

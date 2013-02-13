@@ -204,12 +204,12 @@
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${activemq-version}">activemq-broker</feature>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.mq/mq-fabric/${project.version}</bundle>
+        <bundle>mvn:org.jboss.amq/mq-fabric/${project.version}</bundle>
     </feature>
 
     <feature name="mq-web-console" version="${project.version}" resolver="(obr)">
         <feature version="[2,3)">war</feature>
-        <bundle>mvn:org.fusesource.mq/mq-web-console/${project.version}/war</bundle>
+        <bundle>mvn:org.jboss.amq/mq-web-console/${project.version}/war</bundle>
     </feature>
 
     <feature name="fabric-groups" version="${project.version}" resolver="(obr)">

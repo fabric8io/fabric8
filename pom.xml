@@ -883,12 +883,12 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.mq</groupId>
+                <groupId>org.jboss.amq</groupId>
                 <artifactId>mq-fabric</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.fusesource.mq</groupId>
+                <groupId>org.jboss.amq</groupId>
                 <artifactId>mq-client</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -1339,6 +1339,11 @@
           <dependency>
              <groupId>org.apache.activemq</groupId>
              <artifactId>activemq-broker</artifactId>
+             <version>${activemq-version}</version>
+          </dependency>
+          <dependency>
+             <groupId>org.apache.activemq</groupId>
+             <artifactId>activemq-client</artifactId>
              <version>${activemq-version}</version>
           </dependency>
 

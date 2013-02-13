@@ -18,7 +18,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>org.fusesource.mq</groupId>
+    <groupId>org.jboss.amq</groupId>
     <artifactId>mq-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
@@ -27,7 +27,7 @@
   <artifactId>mq-monitor</artifactId>
   <packaging>jar</packaging>
   <name>${project.artifactId}</name>
-  <description>Fuse MQ :: Monitor</description>
+  <description>JBoss A-MQ :: Monitor</description>
   <properties>
     </properties>
   <build>
@@ -38,7 +38,7 @@
         <configuration>
           <archive>
             <manifest>
-              <mainClass>org.fusesource.mq.monitor.Main</mainClass>
+              <mainClass>org.jboss.amq.monitor.Main</mainClass>
             </manifest>
           </archive>
         </configuration>

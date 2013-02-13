@@ -44,8 +44,8 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.mq</groupId>
-            <artifactId>fuse-mq</artifactId>
+            <groupId>org.jboss.amq</groupId>
+            <artifactId>jboss-a-mq</artifactId>
             <version>${project.version}</version>
             <type>tar.gz</type>
         </dependency>
