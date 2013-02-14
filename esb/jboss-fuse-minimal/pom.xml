@@ -69,14 +69,10 @@
                               <feature>camel-core</feature>
                               <feature>camel-spring</feature>
                               <feature>camel-blueprint</feature>
-                              <feature>camel-jms</feature>
                               <feature>camel-jaxb</feature>
-                              <feature>camel-jdbc</feature>
                               <feature>camel-jetty</feature>
-                              <feature>camel-jmx</feature>
-                              <feature>camel-mail</feature>
-                              <feature>camel-paxlogging</feature>
-                              <feature>camel-rmi</feature>
+                              <feature>camel-jdbc</feature>
+                              <feature>camel-jms</feature>
                               <feature>patch</feature>
                               <feature>patch-client</feature>
                             </features>
