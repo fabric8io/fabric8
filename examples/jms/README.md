@@ -11,7 +11,7 @@ In studying this example you will learn:
 
 * how to connect to the local ActiveMQ broker
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy a Fuse Application Bundle (FAB) in Fuse ESB
+* how to build and deploy a Fuse Application Bundle (FAB) in JBoss Fuse
 * how to use the CBR enterprise integration pattern
 
 ## Prerequisites
@@ -19,7 +19,7 @@ Before building and running this example you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
-* Fuse ESB Enterprise 7 (medium or full distribution)
+* JBoss Fuse 6 (medium or full distribution)
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
@@ -29,7 +29,7 @@ Before building and running this example you need:
 ## Building the Example
 To build the example:
 
-1. Verify etc/users.properties from the Fuse ESB installation contains the following 'admin' user configured:
+1. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 
 admin=admin,admin
 
@@ -42,10 +42,10 @@ to use the user defined in etc/users.properties.
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
-2. In the Fuse ESB console, enter the following command:
+1. Start JBoss Fuse 6 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
+2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/jms/${project.version}
-3. As soon as the Camel route has been started, you will see a directory `work/jms/input` in your Fuse ESB installation.
+3. As soon as the Camel route has been started, you will see a directory `work/jms/input` in your JBoss Fuse installation.
 4. Copy the files you find in this example's `src/test/data` directory to the newly created `work/jms/input` directory.
 5. Wait a few moments and you will find the same files organized by country under the `work/jms/output` directory.
 ** `order1.xml` in `work/jms/output/others`
@@ -60,4 +60,4 @@ To run the example:
 For more information see:
 
 * http://www.enterpriseintegrationpatterns.com/ContentBasedRouter.html for more information about the CBR EIP
-* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using JBoss Fuse

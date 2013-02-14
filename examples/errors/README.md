@@ -9,7 +9,7 @@ This example show you how to add a default error handler to your Camel context f
 In studying this example you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy a Fuse Application Bundle (FAB) in Fuse ESB
+* how to build and deploy a Fuse Application Bundle (FAB) in JBoss Fuse
 * how to define a default error handler to your Camel context
 * how to define exception-specific error handling routines
 
@@ -18,7 +18,7 @@ Before building and running this example you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
-* Fuse ESB Enterprise 7
+* JBoss Fuse 6
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
@@ -38,10 +38,10 @@ To build the example:
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running bin/fuseesb (on Linux) or bin\fuseesb.bat (on Windows).
-2. In the Fuse ESB console, enter the following command:
+1. Start JBoss Fuse 6 by running bin/fuseesb (on Linux) or bin\fuseesb.bat (on Windows).
+2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/errors/${project.version}
-3. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your Fuse ESB installation.
+3. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your JBoss Fuse installation.
 4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/errors/input` directory.
 5. Wait a few moment and you will find the files in directories under `work/errors`:
 ** `order4.xml` will always end up in the `work/errors/validation` directory
@@ -59,4 +59,4 @@ To run the example:
 For more information see:
 
 * http://www.enterpriseintegrationpatterns.com/DeadLetterChannel.html for the Dead Letter Channel EIP
-* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using JBoss Fuse

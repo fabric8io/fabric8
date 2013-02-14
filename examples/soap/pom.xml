@@ -33,7 +33,7 @@
 
     <artifactId>soap</artifactId>
     <packaging>jar</packaging>
-    <name>Fuse ESB :: Examples :: SOAP </name>
+    <name>JBoss Fuse :: Examples :: SOAP </name>
     <description>SOAP example using JAXWS</description>
 
     <dependencies>

@@ -33,8 +33,8 @@
 
     <artifactId>secure-rest</artifactId>
     <packaging>jar</packaging>
-    <name>Fuse ESB :: Examples :: Secure Restful Web Services </name>
-    <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with Fuse ESB</description>
+    <name>JBoss Fuse :: Examples :: Secure Restful Web Services </name>
+    <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with JBoss Fuse</description>
 
     <dependencies>
         <!--

@@ -33,7 +33,7 @@
 
     <artifactId>secure-soap</artifactId>
     <packaging>jar</packaging>
-    <name>Fuse ESB :: Examples :: Secure SOAP </name>
+    <name>JBoss Fuse :: Examples :: Secure SOAP </name>
     <description>Secure SOAP example using JAXWS with WS-Security</description>
 
     <dependencies>

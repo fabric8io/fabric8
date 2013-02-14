@@ -17,7 +17,7 @@ Finally, we want to filter out the orders that container more than 100 animals a
 In studying this example you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy a Fuse Application Bundle (FAB) in Fuse ESB
+* how to build and deploy a Fuse Application Bundle (FAB) in JBoss Fuse
 * how to combine multiple Enterprise Integration Patterns to create an integration solution
 * how to use the Wiretap EIP to copy messages as they pass through a route
 * how to use the Splitter EIP to split large messages into smaller ones
@@ -31,7 +31,7 @@ Before building and running this example you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
-* Fuse ESB Enterprise 7
+* JBoss Fuse 6
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
@@ -49,10 +49,10 @@ To build the example:
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
-2. In the Fuse ESB console, enter the following command:
+1. Start JBoss Fuse 6 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
+2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/eip/${project.version}
-3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your Fuse ESB installation.
+3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your JBoss Fuse installation.
 4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory.
 5. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
 ** `2012_0003.xml` and `2012_0005.xml` in `work/eip/output/AMER`
@@ -72,4 +72,4 @@ For more information see:
 * http://fusesource.com/docs/esbent/7.0/camel_eip/_IDU_WireTap.html for the Wire Tap EIP
 * http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-MsgFilter.html for the Message Filter EIP
 * http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-Splitter.html for the Splitter EIP
-* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using JBoss Fuse

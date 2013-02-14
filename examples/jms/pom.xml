@@ -32,7 +32,7 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>jms</artifactId>
     <packaging>jar</packaging>
-    <name>Fuse ESB :: Examples :: JMS</name>
+    <name>JBoss Fuse :: Examples :: JMS</name>
     <description>JMS Example</description>
 
     <properties>
@@ -42,7 +42,7 @@
     <dependencies>
         <!--
           For this example, we will be using the OSGi Blueprint XML syntax for Apache Camel.
-          The camel-blueprint bundle is installed in Fuse ESB Enterprise by default,
+          The camel-blueprint bundle is installed in JBoss Fuse by default,
           so we are setting the dependency's scope to 'provided'.
         -->
         <dependency>

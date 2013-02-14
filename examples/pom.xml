@@ -35,7 +35,7 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>project</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse ESB :: Examples</name>
+    <name>JBoss Fuse :: Examples</name>
 
     <modules>
         <module>cbr</module>

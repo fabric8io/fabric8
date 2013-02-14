@@ -16,7 +16,7 @@ Before building and running this example you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
-* Fuse ESB Enterprise 7
+* JBoss Fuse 6
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
@@ -37,10 +37,10 @@ To build the example:
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
-2. In the Fuse ESB console, enter the following command:
+1. Start JBoss Fuse 6 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
+2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/secure-rest/${project.version}
-3. Verify etc/users.properties from the Fuse ESB installation contains the following 'admin' user configured:
+3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 admin=admin
 4. edit etc/jetty.xml and comment out
     <Call name="addBean">
@@ -142,7 +142,7 @@ You can define additional users in the JAAS realm in two ways:
 
              myuser = mysecretpassword
 
- 2. Using the `jaas:` commands in the Fuse ESB Enterprise console:
+ 2. Using the `jaas:` commands in the JBoss Fuse console:
 
              jaas:manage --realm karaf
              jaas:useradd myuser mysecretpassword
@@ -167,4 +167,4 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 ## More information
 For more information see:
 
-* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using JBoss Fuse

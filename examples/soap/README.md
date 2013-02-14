@@ -17,7 +17,7 @@ Before building and running this example you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
-* Fuse ESB Enterprise 7
+* JBoss Fuse 6
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
@@ -37,8 +37,8 @@ To build the example:
 ## Running the Example
 To run the example:
 
-1. Start Fuse ESB Enterprise 7 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
-2. In the Fuse ESB console, enter the following command:
+1. Start JBoss Fuse 6 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows)
+2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/soap/${project.version}
 
 There are several ways you can interact with the running web services: you can browse the web service metadata,
@@ -59,7 +59,7 @@ to the WSDL file for the web service:
 
 You can also use "cxf:list-endpoints" to check the state of all CXF web services like this 
 
-    FuseESB:karaf@root> cxf:list-endpoints
+    JBossFuse:karaf@root> cxf:list-endpoints
     
     Name                      State      Address                                                      BusID                                   
     [HelloWorldImplPort     ] [Started ] [http://localhost:8181/cxf/HelloWorld                   ] [org.fusesource.examples.soap-cxf2040055609]
@@ -117,7 +117,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 
         org.apache.cxf.servlet.context=/custom
    
-   In this way, Fuse ESB will load the cfg when the CXF Servlet is reloaded, you can restart the CXF bundle to load the change.
+   In this way, JBoss Fuse will load the cfg when the CXF Servlet is reloaded, you can restart the CXF bundle to load the change.
 
 2. Use shell config commands, for example:
 
@@ -125,10 +125,10 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
         config:propset org.apache.cxf.servlet.context /custom
         config:update
 
-    Fuse ESB will create org.apache.cxf.osgi.cfg file in the /etc directory and and set the entry as we did in the first way after the commands are run, you need to restart the CXF bundle to load the change.
+    JBoss Fuse will create org.apache.cxf.osgi.cfg file in the /etc directory and and set the entry as we did in the first way after the commands are run, you need to restart the CXF bundle to load the change.
 
 
 ## More information
 For more information see:
 
-* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using Fuse ESB Enterprise
+* http://fusesource.com/documentation/fuse-esb-enterprise-documentation for more information about using JBoss Fuse
