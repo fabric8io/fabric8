@@ -14,7 +14,7 @@ Folks could use some external git repo somewhere - but this introduces complexit
 
 So its much nicer to have a master git repo inside the fabric so its using the same fabric security as the maven repo, JMX, ssh, web apps etc.
 
-We then elect a leader, register it in ZK so all containers know where the master is. We then need to edit the ~/.git/config with the new URL if the master changes.
+We then elect a leader, register it in ZK so all containers know where the master is. We then need to edit the ${karaf.home}/data/fabricConfig/.git/config with the new URL if the master changes.
 
 Also since every container has a copy of the git repo, we have a HA configuration repo.
 
