@@ -325,6 +325,17 @@
                 <entry key="-p" value-ref="delimitedConfigWithKeysCompleter"/>
             </optional-completers>
         </command>
+			  <command name="fabric/profile-refresh">
+				  <action class="org.fusesource.fabric.commands.ProfileRefresh">
+					  <property name="fabricService" ref="fabricService"/>
+					  <property name="zooKeeper" ref="zooKeeper"/>
+				  </action>
+				  <completers>
+					  <ref component-id="profileCompleter"/>
+				  	<ref component-id="versionCompleter"/>
+				  	<null/>
+				  </completers>
+			  </command>
         <command name="fabric/profile-change-parents">
             <action class="org.fusesource.fabric.commands.ProfileChangeParents">
                 <property name="fabricService" ref="fabricService"/>
