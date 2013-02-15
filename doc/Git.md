@@ -41,6 +41,13 @@ Reasons for ditching ZK for configuration are
 
 Either way folks can update git in any way - via Fabric tools directly or via IDEs or git tooling directly (e.g. merging branches with gerrit). So whether we keep config in git or not, we should have a git master push notification which then updates ZK. Containers can always not use ZK if they wish and stick with git for configuration
 
+## Recommended Approach
+
+* containers have a local git clone
+* config changes write to git first then push to the master git repo
+* have master git repo elected/configured in the fabric
+* the master git repo has a push hook that then updates ZK (we can configure a filter to decide how much/little of git goes into ZK)
+* failure to the master fails over via ZK to a new master
 
 ## Other ideas once a profile is a directory in git
 
