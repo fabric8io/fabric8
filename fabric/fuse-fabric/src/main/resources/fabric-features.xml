@@ -200,11 +200,11 @@
         <bundle>mvn:org.fusesource.fabric/fabric-cxf/${project.version}</bundle>
     </feature>
 
-    <feature name="mq-fabric" version="${project.version}" resolver="(obr)">
+    <feature name="mq-fabric" version="${fuse.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${activemq-version}">activemq-broker</feature>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
-        <bundle>mvn:org.jboss.amq/mq-fabric/${project.version}</bundle>
+        <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
     </feature>
 
     <feature name="mq-web-console" version="${project.version}" resolver="(obr)">
