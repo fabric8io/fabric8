@@ -68,7 +68,7 @@
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.10,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
-            org.apache.felix.service.command.*;version="[0.10,1)",
+            org.apache.felix.service.command.*;version="[0.10,1)"
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
@@ -1424,7 +1424,7 @@
       <id>snapshots</id>
       <properties>
         <perfectus-build>SNAPSHOT</perfectus-build>
-        <activemq-version>5.8.0.fuse-72-${perfectus-build}</activemq-version>
+        <activemq-version>5.8.0.redhat-60-${perfectus-build}</activemq-version>
         <aries.blueprint.version>1.0.1.fuse-72-${perfectus-build}</aries.blueprint.version>
         <aries.jmx.version>1.0.1.fuse-72-${perfectus-build}</aries.jmx.version>
         <aries.transaction.version>1.0.1.fuse-72-${perfectus-build}</aries.transaction.version>
