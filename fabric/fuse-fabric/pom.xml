@@ -103,6 +103,7 @@
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-fabric</artifactId>
+               <version>${fuse.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.insight</groupId>
