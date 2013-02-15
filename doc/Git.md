@@ -34,8 +34,10 @@ When git changes we need to notify the FabricAgent (as we do now with pure ZK)
 
 Reasons for ditching ZK for configuration are
 
-* folks can update git in any way - via Fabric tools directly or via IDEs or git tooling directly (e.g. merging branches with gerrit).
 * ZK is sensitive to size which limits what we can put in a profile's directory.
+* ZK isn't awesome on dodgy WANs with occasional downtime. Git is great for this as we can pull from time to time in this cases
+
+Either way folks can update git in any way - via Fabric tools directly or via IDEs or git tooling directly (e.g. merging branches with gerrit). So whether we keep config in git or not, we should have a git master push notification which then updates ZK. Containers can always not use ZK if they wish and stick with git for configuration
 
 
 ## Other ideas once a profile is a directory in git
