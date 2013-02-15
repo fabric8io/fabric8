@@ -2,6 +2,8 @@
 
 The basic idea is to use git to store all configuration changes to Fabric so that we get an audit log, versioning, history, delta & easy revert. Plus we can then branch between development, testing, UAT and production.
 
+More detail in [issue FABRIC-346](http://fusesource.com/issues/browse/FABRIC-346).
+
 ## Approach
 
 * each agent has a local clone of the git repo for configuration
@@ -72,3 +74,5 @@ where overlay.json could use the existing [container specific json files for sta
 ```
 
 See [how to use a JSON kind for controlling containers](http://fuse.fusesource.org/fabric/docs/process-manager.html#Managing_processes_like_Tomcat__Jetty__HQ_Agent)
+
+Another approach would be to use [RHQ Ant tasks](http://fusesource.com/issues/browse/FABRIC-347) and write Ant scripts as receipes to do the same kinda thing.
