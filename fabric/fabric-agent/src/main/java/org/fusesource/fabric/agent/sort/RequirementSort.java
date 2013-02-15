@@ -16,7 +16,7 @@ public class RequirementSort  {
 	 * @param resources
 	 * @return
 	 */
-	public static Collection<Resource> sort(Collection<Resource> resources) {
+	public Collection<Resource> sort(Collection<Resource> resources) {
 		Set<Resource> sorted = new LinkedHashSet<Resource>();
 		Set<Resource> visited = new LinkedHashSet<Resource>();
 		for (Resource r : resources) {
@@ -26,7 +26,7 @@ public class RequirementSort  {
 	}
 
 
-	private static void visit(Resource resource, Collection<Resource> resources, Set<Resource> visited, Set<Resource> sorted) {
+	private void visit(Resource resource, Collection<Resource> resources, Set<Resource> visited, Set<Resource> sorted) {
 		if (visited.contains(resource)) {
 			return;
 		}
@@ -43,7 +43,7 @@ public class RequirementSort  {
 	 * @param allResources
 	 * @return
 	 */
-	private static Set<Resource> collectDependencies(Resource resource, Collection<Resource> allResources) {
+	private Set<Resource> collectDependencies(Resource resource, Collection<Resource> allResources) {
 		Set<Resource> result = new LinkedHashSet<Resource>();
 		Requirement[] requirements = resource.getRequirements();
 		for (Requirement requirement : requirements) {

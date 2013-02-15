@@ -128,6 +128,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private DownloadManager manager;
     private ExecutorServiceFinder executorServiceFinder;
 
+	private final RequirementSort requirementSort = new RequirementSort();
+
     private Properties checksums;
 
     public DeploymentAgent() throws MalformedURLException {
@@ -743,7 +745,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         // make sure those important bundles are started first and minimize the problem.
         List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
-        for (Resource resource : RequirementSort.sort(allResources)) {
+        for (Resource resource : requirementSort.sort(allResources)) {
             Bundle bundle = resToBnd.get(resource);
             String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
             if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
