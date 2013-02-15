@@ -49,3 +49,26 @@ e.g. we could allow any distro of Tomcat, Jetty, Karaf, JBoss, whatever to be in
 So the profile could just focus on starting/stopping a sub process & using the files in git as a versioned overlay mechanism for updating configuration in the container.
 
 Then there's no need for deep fabric integration into all containers. Folks could easily install local containers from some tarball; overwrite on a per profile basis files as required & do deployments using files in git (or using URLS / maven coordinates).
+
+e.g. imagine this profile directory tree in git. We're using real files here rather than URLs / maven coordinates for simplicity
+
+```
+myProfile
+  overlay/
+    etc/something.cfg
+    deploy/
+      myapp.jar
+      anotherthing.jar
+  overlay.json
+```
+
+where overlay.json could use the existing [container specific json files for starting and stopping stuff](https://github.com/fusesource/fuse/tree/master/process/process-manager/src/main/resources)
+
+```
+{
+  "containerUrl": "mvn:org.apache.openejb/apache-tomee/1.5.0/tar.gz/plus",
+  "controller": "tomcat"
+}
+```
+
+See [how to use a JSON kind for controlling containers](http://fuse.fusesource.org/fabric/docs/process-manager.html#Managing_processes_like_Tomcat__Jetty__HQ_Agent)
