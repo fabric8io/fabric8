@@ -68,7 +68,8 @@
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.10,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
-            org.apache.felix.service.command.*;version="[0.10,1)"
+            org.apache.felix.service.command.*;version="[0.10,1)",
+            scala*;version="[2.9,2.10]";resolution:="optional"
         </fuse.osgi.import.defaults>
         <fuse.osgi.import.before.defaults />
         <fuse.osgi.import.additional />
@@ -1440,8 +1441,8 @@
         <karaf-version>2.3.0.fuse-72-${perfectus-build}</karaf-version>
         <servicemix.components.version>2012.01.0.fuse-72-${perfectus-build}</servicemix.components.version>
         <servicemix.features.version>4.5.0-fuse-${perfectus-build}</servicemix.features.version>
-        <servicemix.nmr.version>1.6.0.fuse-72-${perfectus-build}</servicemix.nmr.version>
-        <servicemix.specs.version>2.0.0.fuse-72-${perfectus-build}</servicemix.specs.version>
+        <servicemix-nmr-version>1.6.0.fuse-72-${perfectus-build}</servicemix-nmr-version>
+        <servicemix-specs-version>2.0.0.fuse-72-${perfectus-build}</servicemix-specs-version>
         <servicemix.utils.version>1.5.1.fuse-72-${perfectus-build}</servicemix.utils.version>
       </properties>
     </profile>
