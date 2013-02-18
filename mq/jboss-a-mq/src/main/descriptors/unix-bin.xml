@@ -113,7 +113,7 @@
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>fusemq</destName>
+            <destName>amq</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
