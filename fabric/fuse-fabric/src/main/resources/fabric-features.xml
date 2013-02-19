@@ -210,6 +210,7 @@
 
     <feature name="mq-web-console" version="${project.version}" resolver="(obr)">
         <feature version="[2,3)">war</feature>
+        <feature>eventadmin</feature>
         <bundle>mvn:org.jboss.amq/mq-web-console/${project.version}/war</bundle>
     </feature>
 
