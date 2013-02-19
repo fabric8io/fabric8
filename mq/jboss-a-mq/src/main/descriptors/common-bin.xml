@@ -22,7 +22,7 @@
       <outputFileNameMapping>mq-version.jar</outputFileNameMapping>
       <fileMode>0644</fileMode>
       <includes>
-          <include>org.fusesource.mq:org.fusesource.mq.karaf.branding</include>
+          <include>org.jboss.amq:org.jboss.amq.karaf.branding</include>
       </includes>
       <useTransitiveDependencies>false</useTransitiveDependencies>
   </dependencySet>
@@ -31,7 +31,7 @@
        <outputFileNameMapping>mq-client.jar</outputFileNameMapping>
         <fileMode>0644</fileMode>
         <includes>
-          <include>org.fusesource.mq:mq-client</include>
+          <include>org.jboss.amq:mq-client</include>
         </includes>
         <useTransitiveDependencies>false</useTransitiveDependencies>
     </dependencySet>
