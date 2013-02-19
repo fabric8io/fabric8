@@ -100,7 +100,7 @@
         <file>
             <source>${basedir}/target/dependencies/win/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>amq.bat</destName>
+            <destName>a-mq.bat</destName>
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
         </file>
