@@ -33,53 +33,8 @@
     <dependencies>
       <dependency>
         <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-client</artifactId>
-        <exclusions>
-            <exclusion>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>kahadb</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.apache.activemq</groupId>
-                <artifactId>activeio-core</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.apache.activemq.protobuf</groupId>
-                <artifactId>activemq-protobuf</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.jasypt</groupId>
-                <artifactId>jasypt</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-expression</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-asm</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>commons-logging</groupId>
-                <artifactId>commons-logging</artifactId>
-            </exclusion>
-            <exclusion>
-                <groupId>commons-net</groupId>
-                <artifactId>commons-net</artifactId>
-            </exclusion>
-        </exclusions>
+        <artifactId>activemq-osgi</artifactId>
+        <version>${activemq.version}</version>
       </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
@@ -96,7 +51,7 @@
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                         <manifest>
-                            <mainClass>org.jboss.amq.Main</mainClass>
+                            <mainClass>org.fusesource.mq.Main</mainClass>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>../system/</classpathPrefix>
                             <classpathLayoutType>repository</classpathLayoutType>
