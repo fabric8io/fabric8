@@ -31,7 +31,7 @@ activemq.jmx.user=<Username>
 activemq.jmx.password=<Password>
 
 To make the ActiveMQ Web console accessible, add the following lines to the
-.${fileSeparator}etc${fileSeparator}system.properties file, using the credentials of one of the users from the
+.${fileSeparator}etc${fileSeparator}org.apache.activemq.webconsole.cfg file, using the credentials of one of the users from the
 users.properties file:
 
 webconsole.jmx.user=<Username>
