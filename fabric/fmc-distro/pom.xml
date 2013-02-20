@@ -403,7 +403,7 @@
               <listDependencies>true</listDependencies>
               <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
               <repositories>
-                ${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/lib,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system
+                ${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system
               </repositories>
               <defaultParent>org.fusesource.fabric:fabric-project:${project.version}</defaultParent>
             </configuration>
