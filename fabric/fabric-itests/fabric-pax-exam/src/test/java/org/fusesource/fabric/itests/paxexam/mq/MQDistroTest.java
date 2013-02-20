@@ -52,8 +52,8 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class MQDistroTest extends FuseTestSupport {
 
-    static final String MQ_GROUP_ID = "org.fusesource.mq";
-    static final String MQ_ARTIFACT_ID = "fuse-mq";
+    static final String MQ_GROUP_ID = "org.jboss.amq";
+    static final String MQ_ARTIFACT_ID = "jboss-a-mq";
     static final String WEB_CONSOLE_URL = "http://localhost:8181/activemqweb/";
 
     @Test
