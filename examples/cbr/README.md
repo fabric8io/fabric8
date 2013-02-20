@@ -35,7 +35,7 @@ To build the example:
 ## Running the Example
 To run the example:
 
-1. Start JBoss Fuse 6 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
+1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/cbr/${project.version}
 3. As soon as the Camel route has been started, you will see a directory `work/cbr/input` in your JBoss Fuse installation.

@@ -40,7 +40,7 @@ To build the example:
 ## Running the Example
 To run the example:
 
-1. Start JBoss Fuse 6 by running `bin/fuseesb` (on Linux) or `bin\fuseesb.bat` (on Windows).
+1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.fusesource.examples/secure-soap/${project.version}
 3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
