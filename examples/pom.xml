@@ -34,6 +34,7 @@
 
     <groupId>org.fusesource.examples</groupId>
     <artifactId>project</artifactId>
+    <version>7.2.0.redhat-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>JBoss Fuse :: Examples</name>
 
