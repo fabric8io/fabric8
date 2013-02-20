@@ -60,7 +60,7 @@
         </jaxws:outInterceptors>
  
         <!--
-          TODO: Add a description about the purpose of this extra property
+          Disable the WSS4JInInterceptor validation check fo the password callback, as we don't provide it here.
         -->
         <jaxws:properties>
             <entry key="ws-security.validate.token" value="false"/>

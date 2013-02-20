@@ -36,7 +36,7 @@ import javax.ws.rs.core.Response;
  *
  * For example, with 'http://localhost:8181/cxf' as the default CXF servlet path and '/crm' as the JAX-RS server path,
  * this class will be hosted in 'http://localhost:8181/cxf/crm/customerservice'.  An @Path("/customers") annotation on
- * one of the methods would result in 'http://localhost:8181/cxf/customerservice/customers'.
+ * one of the methods would result in 'http://localhost:8181/cxf/crm/customerservice/customers'.
  */
 @Path("/customerservice/")
 public class CustomerService {
