@@ -60,6 +60,7 @@
       !org.w3c.dom*,
       !javax.xml*,
       !javax.inject*,
+      !javax.ws.rs*,
       !junit*,
       !org.aopalliance*,
       !org.jclouds.javax.annotation,
