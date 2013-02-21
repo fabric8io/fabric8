@@ -18,12 +18,20 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
 
 @Command(name = "ensemble-add", scope = "fabric", description = "Extend the current fabric ensemble by converting the specified containers into ensemble servers", detailedDescription = "classpath:ensembleAdd.txt")
 public class EnsembleAdd extends EnsembleCommandSupport {
+
+	@Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
+	private boolean generateZookeeperPassword = false;
+
+	@Option(name = "--new-zookeeper-password", multiValued = false, description = "The ensemble new password to use (defaults to the old one)")
+	private String zookeeperPassword;
 
     @Argument(required = true, multiValued = true, description = "List of containers to be added")
     private List<String> containers;
@@ -39,8 +47,16 @@ public class EnsembleAdd extends EnsembleCommandSupport {
             }
             builder.append(" to the ensemble. This may take a while.");
             System.out.println(builder.toString());
-            service.addToCluster(containers);
-        }
+			if (generateZookeeperPassword) {
+				CreateEnsembleOptions options = CreateEnsembleOptions.build();
+				service.addToCluster(containers, options);
+			} else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
+				service.addToCluster(containers);
+			} else {
+				CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword);
+				service.addToCluster(containers, options);
+			}
+		}
         return null;
     }
 

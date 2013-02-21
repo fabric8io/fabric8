@@ -47,6 +47,7 @@
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
+			  <property name="fabricService" ref="fabricService"/>
     </bean>
 
     <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />

@@ -38,6 +38,7 @@ import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
@@ -68,8 +69,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
 
     private BundleContext bundleContext;
-    private ConfigurationAdmin configurationAdmin;
+	private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
+	private FabricService fabricService;
     private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
 
     public void init() {
@@ -99,6 +101,14 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }
+
+	public FabricService getFabricService() {
+		return fabricService;
+	}
+
+	public void setFabricService(FabricService fabricService) {
+		this.fabricService = fabricService;
+	}
 
     @Override
     public IZKClient getZooKeeper() {
@@ -612,26 +622,50 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void addToCluster(List<String> containers) {
-        try {
-            List<String> current = getEnsembleContainers();
-            current.addAll(containers);
-            createCluster(current);
-        } catch (Exception e) {
-            throw new FabricException("Unable to add containers to fabric ensemble: " + e.getMessage(), e);
-        }
+		CreateEnsembleOptions options = CreateEnsembleOptions.build();
+		options.setZookeeperPassword(fabricService.getZookeeperPassword());
+		addToCluster(containers, options);
     }
 
-    public void removeFromCluster(List<String> containers) {
-        try {
-            List<String> current = getEnsembleContainers();
-            current.removeAll(containers);
-            createCluster(current);
-        } catch (Exception e) {
-            throw new FabricException("Unable to remove containers to fabric ensemble: " + e.getMessage(), e);
-        }
+	/**
+	 * Adds the containers to the cluster.
+	 *
+	 * @param containers
+	 */
+	@Override
+	public void addToCluster(List<String> containers, CreateEnsembleOptions options) {
+		try {
+			List<String> current = getEnsembleContainers();
+			current.addAll(containers);
+			createCluster(current , options);
+		} catch (Exception e) {
+			throw new FabricException("Unable to add containers to fabric ensemble: " + e.getMessage(), e);
+		}
+	}
+
+	public void removeFromCluster(List<String> containers) {
+		CreateEnsembleOptions options = CreateEnsembleOptions.build();
+		options.setZookeeperPassword(fabricService.getZookeeperPassword());
+		removeFromCluster(containers, options);
     }
 
-    /**
+	/**
+	 * Removes the containers from the cluster.
+	 *
+	 * @param containers
+	 */
+	@Override
+	public void removeFromCluster(List<String> containers, CreateEnsembleOptions options) {
+		try {
+			List<String> current = getEnsembleContainers();
+			current.removeAll(containers);
+			createCluster(current, options);
+		} catch (Exception e) {
+			throw new FabricException("Unable to remove containers to fabric ensemble: " + e.getMessage(), e);
+		}
+	}
+
+	/**
      * Adds users to the Zookeeper registry.
      *
      * @param zookeeper

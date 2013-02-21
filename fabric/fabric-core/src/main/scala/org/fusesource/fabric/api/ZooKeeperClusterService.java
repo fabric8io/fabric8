@@ -22,17 +22,54 @@ import java.util.List;
 
 public interface ZooKeeperClusterService {
 
+	/**
+	 * Returns the {@List} of containers that participate in the ensemble.
+	 * @return
+	 */
     List<String> getEnsembleContainers();
 
+	/**
+	 * Reutrns the Zookeeper URL.
+	 * @return
+	 */
     String getZooKeeperUrl();
 
+	/**
+	 * Creates a cluster, with the specified containers as servers.
+	 * @param containers
+	 */
     void createCluster(List<String> containers);
 
+	/**
+	 * Creates a Zookeeper cluster, with the specified containers as servers.
+	 * @param containers	The list of containers.
+	 * @param options		The ensemble options.
+	 */
     void createCluster(List<String> containers, CreateEnsembleOptions options);
 
+	/**
+	 * Adds the containers to the cluster.
+	 * @param containers
+	 */
     void addToCluster(List<String> containers);
 
+	/**
+	 * Adds the containers to the cluster.
+	 * @param containers
+	 */
+	void addToCluster(List<String> containers, CreateEnsembleOptions options);
+
+	/**
+	 * Removes the containers from the cluster.
+	 * @param containers
+	 */
     void removeFromCluster(List<String> containers);
+
+	/**
+	 * Removes the containers from the cluster.
+	 * @param containers
+	 */
+	void removeFromCluster(List<String> containers, CreateEnsembleOptions options);
 
     void clean();
 

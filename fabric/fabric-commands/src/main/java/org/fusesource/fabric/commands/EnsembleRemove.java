@@ -20,18 +20,42 @@ import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 @Command(name = "ensemble-remove", scope = "fabric", description = "Re-create the current ensemble, excluding the specified containers from the ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemove extends EnsembleCommandSupport {
 
-    @Argument(required = true, multiValued = true, description = "List of containers to be removed. Must be an even number of containers.")
+	@Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
+	private boolean generateZookeeperPassword = false;
+
+	@Option(name = "--new-zookeeper-password", multiValued = false, description = "The ensemble new password to use (defaults to the old one)")
+	private String zookeeperPassword;
+
+	@Argument(required = true, multiValued = true, description = "List of containers to be removed. Must be an even number of containers.")
     private List<String> containers;
 
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        service.removeFromCluster(containers);
+		StringBuilder builder = new StringBuilder();
+		builder.append("Removing containers:");
+		for (String container : containers) {
+			builder.append(" ").append(container);
+		}
+		builder.append(" from the ensemble. This may take a while.");
+		System.out.println(builder.toString());
+
+		if (generateZookeeperPassword) {
+			CreateEnsembleOptions options = CreateEnsembleOptions.build();
+			service.removeFromCluster(containers, options);
+		} else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
+			service.removeFromCluster(containers);
+		} else {
+			CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword);
+			service.removeFromCluster(containers, options);
+		}
         return null;
     }
 
