@@ -105,12 +105,17 @@ public class ShellUtils {
         Object obj = session.get(".jline.reader");
         if (obj instanceof ConsoleReader) {
             ConsoleReader reader = (ConsoleReader) obj;
-            if (hidden) {
-                return reader.readLine(msg,ConsoleReader.NULL_MASK);
-            } else {
-                return reader.readLine(msg);
-            }
-        }
+			try {
+				reader.setHistoryEnabled(false);
+				if (hidden) {
+					return reader.readLine(msg, ConsoleReader.NULL_MASK);
+				} else {
+					return reader.readLine(msg);
+				}
+			} finally {
+				reader.setHistoryEnabled(true);
+			}
+		}
 
         return null;
     }
