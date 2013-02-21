@@ -63,6 +63,8 @@ sort_info: 10
 
     :&markdown
       This creates initial Fabric registry (running a local ZooKeeper server) and importing all the default profiles.
+
+      You may be prompted for creating a new user. This user will be used for ssh, jmx and http access to your containers. See more at [fabric sercurity](fabric-security.html)
       
       The initial profile data all comes from the [fabric/import](https://github.com/fusesource/fuse/tree/master/fabric/fuse-fabric/src/main/resources/distro/fabric/import) directory.
 

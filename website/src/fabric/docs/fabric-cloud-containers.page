@@ -40,7 +40,7 @@ The easiest approach is just to host the registry in the cloud & configure the f
 ### Preparation
 
 Before you can make use of this feature you will need to obtain a valid *identity* and *credential* for your cloud provider. That is not necessarily the username and password you obtain upon registration with the provider. This is usually refers to the credentials that you get for using the service from an external api.
-For example for Amazon EC2 these can be found at the [security credentails page](https://aws-portal.amazon.com/gp/aws/securityCredentials).
+For example for Amazon EC2 these can be found at the [security credentials page](https://aws-portal.amazon.com/gp/aws/securityCredentials).
 
 The next step is to make sure that the container you will be using will have all the required features installed. The core feature requirement is *fabric-jclouds* which will give you access to the cloud container provider.
 Then you need to install the feature for your corresponding cloud provider.
@@ -67,15 +67,15 @@ For those two cloud providers Fabric also provides profiles that will install al
 
 Once you have installed all the required feature, you need to register the cloud provider to fabric. The registration process acutally will store the provider credentials to the registry so that they can be used from any Fabric container.
 
-The registration can be done with the use of fabric:cloud-provider-add.
+The registration can be done with the use of fabric:cloud-service-add.
 
 To register the Amazon EC2 provider:
 
-        fabric:cloud-provider-add aws-ec2 myidentity mycredential
+        fabric:cloud-service-add aws-ec2 myidentity mycredential
 
 To register the Rackspace provider
 
-        fabric:cloud-provider-add cloudservers-us myidentity mycredential
+        fabric:cloud-service-add cloudservers-us myidentity mycredential
 
 
 ### Creating containers in the cloud
@@ -127,12 +127,12 @@ Regardless of the way that you specify the image *(directly or indirectly)* the 
 
 * **Linux images**
 * **RedHat or Debian packaging style**
-* **No Java installation or Java 1.6** If there is no java installed, fabric will do so for you, however it will not work if an incompatible java version is already installed.
+* **No Java installation or Java 1.6+** If there is no java installed, fabric will do so for you, however it will not work if an incompatible java version is already installed.
 
 You can also create an image of your own and use that instead. However, that may require different configuration preparation.
 For Amazon EC2 you will need to specify the owner id of the private image, when registering the provider:
 
-        fabric:cloud-provider-add --owner myownerid cloudservers-us myidentity mycredential
+        fabric:cloud-service-add --owner myownerid cloudservers-us myidentity mycredential
 
 ### Locations & Hardware
 

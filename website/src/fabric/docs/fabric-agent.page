@@ -76,7 +76,7 @@ It is important to clarify that during the process the container is kept alive, 
 * **Changing the OSGi framework**
 * **Changing the framework configuration**
 
-So, in most cases the container will be kept alive, since those exceptions are extremly rare. Even when the container will need a restart, that will be done automatically by the *deployment agent* and after the restart the container will reconnect to the cluster without any manual intervention.
+So, in most cases the container will be kept alive, since those exceptions are extremely rare. Even when the container will need a restart, that will be done automatically by the *deployment agent* and after the restart the container will reconnect to the cluster without any manual intervention.
 
 
 ### Monitoring the deployment / provisioning status
@@ -93,10 +93,25 @@ The user is able at any time to see that status using the [fabric:container-list
         billing-broker                 1.0       true    billing                        success
             admin-console              1.0       true    web, admin-console             success
 
-To have a real time view of the provisioning status, you can make use of the **shell:watch-command**, as described bellow
+To have a real time view of the provisioning status, you can make use of the **shell:watch**, as described bellow
 
-        shell:watch-command fabric:container-list
+        shell:watch fabric:container-list
 
 Here is a small clip that demonstrates the use of the [fabric:container-list](commands/fabric-container-list.html) while the containers are changing profiles and the deployment againsts starts provisioning.
 
 <object width="853" height="480"><param name="movie" value="http://www.youtube.com/v/uhZE3aSDYcM?version=3&amp;hl=en_US&amp;rel=0"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/uhZE3aSDYcM?version=3&amp;hl=en_US&amp;rel=0" type="application/x-shockwave-flash" width="853" height="480" allowscriptaccess="always" allowfullscreen="true"></embed></object>
+
+### Resolution and Startup Ordering
+
+In order to successfully determine what needs to be installed and what needs to be removed, the fabric-agent will use the OBR resolver. The resolver will make sure that all requirements are meet.
+The requirements are usually package requirements but can also be service requirements. The resolver will use the bundle headers to identify both:
+
+* If a bundle specifies in its headers an Import-Package requirement, an other bundle with the corresponding Export-Package is required
+* If a bundle specifies in its headers an Import-Service requirement, an other bundle with the corresponding Export-Service is required
+
+The last point is really important, because blueprint users the have mandatory references of services in their blueprint descriptor, will automatically have the Import-Service headers in their bundle (assuming the use of maven-bundle-plugin).
+If the bundle that exports that service doesn't explicitly specify it in its headers, then resolution will fail. Either the exporter bundle will have to add an Export-Service directive or the importer bundle will have to remove the Import-Service directive.
+
+When the resolution is successful the fabric-agent will start the bundles. Even though you should try to avoid having requirements in the startup order of your bundles, the fabric-agent will attempt to start the bundles based on their expressed requirements and capabilities.
+This will not solve all issues, especially in cases where asynchronous service registration is involved. The best way to deal with this kind of issues is to use OSGi services.
+

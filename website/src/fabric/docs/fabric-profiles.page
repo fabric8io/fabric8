@@ -57,28 +57,32 @@ The command will display all the profiles and also display their parents and the
 
 
         [id]                                     [# containers] [parents]
+        activemq-client                          0              default
         aws-ec2                                  0              cloud
         camel                                    0              karaf
+        camel-jms                                0              camel, activemq-client
         cloud                                    0              karaf
         cloudservers-uk                          0              cloud
         cloudservers-us                          0              cloud
         cxf                                      0              karaf
         default                                  0
         dosgi                                    0              karaf
-        esb                                      0              mq, nmr, camel
         example-camel                            0              karaf
         example-cxf                              0              cxf
         example-mq                               0              example-mq-base
         example-mq-base                          0              karaf
         example-mq-cluster                       0              example-mq-base
         fabric                                   1              karaf
-        fabric-ensemble-0000                     0
-        fabric-ensemble-0000-1                   1              fabric-ensemble-0000
+        fmc                                      0              default
         hadoop                                   0              karaf
         hadoop-datanode                          0              hadoop
         hadoop-namenode                          0              hadoop
+        hawtio                                   0              default
         insight                                  0              default
         insight-hdfs                             0              insight
+        jboss-fuse-full                          0              jboss-fuse-medium
+        jboss-fuse-medium                        0              jboss-fuse-minimal, mq
+        jboss-fuse-minimal                       0              karaf, camel
         karaf                                    0              default
         mq                                       0              mq-base
         mq-base                                  0              karaf
@@ -159,6 +163,32 @@ Now the [fabric:profile-edit](commands/fabric-profile-edit.html) command for the
 
                  Agent Properties :
                  	  org.ops4j.pax.url.mvn.repositories = http://repositorymanager.mylocalnetwork.net
+
+## Profile Editor
+
+The profile edit command is quite flexible, however in some cases, you would really prefer a more traditional way of editing. Mainly becasue:
+
+* You want to perform many changes at once
+* It feels more natural
+
+This is why fabric provides a profile editor embedded to your shell. You can use it, like:
+
+      fabric:profile-edit default (with no options)
+
+![Opening the profile inside the editor](/images/fabric/profile-edit.png)
+
+The editor supports the basic editor functionality like undo, redo, forward/backward search, highlighting etc. What you are actually editing is the content of the org.fusesource.fabric.agent pid.
+But you can use it to also edit any other pid or resource in your profile. For example to edit the org.fusesource.fabric.maven pid of the fabric profile, you can simply:
+
+      fabric:profile-edit --pid org.fusesource.fabric.maven fabric
+
+![Editing a pid](/images/fabric/profile-edit-pid.png)
+
+A pretty similar approach applies to any resouce under the profile. For example, to edit the broker.xml of the mq-base profile:
+
+      fabric:profile-edit --resource broker.xml mq-base
+
+![Editing a pid](/images/fabric/profile-edit-resource.png)
 
 
 ## Profile versions

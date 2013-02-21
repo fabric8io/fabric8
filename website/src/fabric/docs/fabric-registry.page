@@ -23,12 +23,6 @@ There are currently two ways of initializing the fabric registry:
 
       fabric:create
 
-or
-
-      fabric:ensemble-create
-
-The main difference between these two approaches is that the first one will also import the default profiles in to the configuration registry.
-
 ## Registry structure
 
 The structure of the registry is a tree like structure similar to a filesystem. Each node of the tree *(will be called znode)* can hold both data and have children.
