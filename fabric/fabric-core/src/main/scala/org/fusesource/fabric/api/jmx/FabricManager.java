@@ -67,8 +67,10 @@ public class FabricManager implements FabricManagerMBean {
     public void registerMBeanServer(MBeanServer mbeanServer) {
         try {
             ObjectName name = getObjectName();
-            mbeanServer.registerMBean(this, name);
-        } catch (Exception e) {
+			if (!mbeanServer.isRegistered(name)) {
+				mbeanServer.registerMBean(this, name);
+			}
+		} catch (Exception e) {
             LOG.warn("An error occured during mbean server registration: " + e, e);
         }
     }
@@ -77,8 +79,10 @@ public class FabricManager implements FabricManagerMBean {
         if (mbeanServer != null) {
             try {
                 ObjectName name = getObjectName();
-                mbeanServer.unregisterMBean(name);
-            } catch (Exception e) {
+				if (mbeanServer.isRegistered(name)) {
+					mbeanServer.unregisterMBean(name);
+				}
+			} catch (Exception e) {
                 LOG.warn("An error occured during mbean server registration: " + e, e);
             }
         }

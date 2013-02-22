@@ -18,17 +18,10 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.service">
-        <cm:default-properties>
-            <cm:property name="defaultRepo" value="http://repo.fusesource.com/nexus/content/groups/public"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" />
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+    <reference id="mbeanServer" interface="javax.management.MBeanServer"/>
 
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
-
-    <reference id="mbeanServer" interface="javax.management.MBeanServer" availability="optional"/>
 
     <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl" init-method="init" destroy-method="destroy">
         <cm:managed-properties persistent-id="org.fusesource.fabric.service" update-strategy="container-managed"/>
