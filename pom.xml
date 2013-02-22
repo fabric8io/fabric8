@@ -58,9 +58,9 @@
 
         <!-- OSGi bundles properties -->
         <fuse.osgi.bundle.name>${project.description}</fuse.osgi.bundle.name>
-        <fuse.osgi.import.fabric.version>version="[$(version;==;${fabric.osgi.version}),$(version;=+;${fabric.osgi.version}))"
+        <fuse.osgi.import.fabric.version>version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
         </fuse.osgi.import.fabric.version>
-        <fuse.osgi.import.strict.version>version="[$(version;===;${fabric.osgi.version}),$(version;==+;${fabric.osgi.version}))"
+        <fuse.osgi.import.strict.version>version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
         </fuse.osgi.import.strict.version>
         <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
         <fuse.osgi.import.defaults>
@@ -83,7 +83,7 @@
         <fuse.osgi.activator />
         <fuse.osgi.failok>false</fuse.osgi.failok>
         <fuse.osgi.private.pkg>!*</fuse.osgi.private.pkg>
-        <fuse.osgi.export>org.fusesource.fabric.*;version=${fabric.osgi.version};-noimport:=true</fuse.osgi.export>
+        <fuse.osgi.export>org.fusesource.fabric.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
         <fuse.osgi.split.pkg>-split-package:=first</fuse.osgi.split.pkg>
         <fuse.osgi.import>${fuse.osgi.import.pkg}</fuse.osgi.import>
         <fuse.osgi.dynamic />
@@ -499,7 +499,7 @@
                         </goals>
                         <configuration>
                             <versions>
-                                <fabric.osgi.version>${fabric.version}</fabric.osgi.version>
+                                <fuse.osgi.version>${fabric.version}</fuse.osgi.version>
                             </versions>
                         </configuration>
                     </execution>
