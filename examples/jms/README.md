@@ -44,7 +44,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/jms/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/jms/${project.version}
 3. As soon as the Camel route has been started, you will see a directory `work/jms/input` in your JBoss Fuse installation.
 4. Copy the files you find in this example's `src/test/data` directory to the newly created `work/jms/input` directory.
 5. Wait a few moments and you will find the same files organized by country under the `work/jms/output` directory.

@@ -20,12 +20,12 @@ Before building and running this example you need:
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
-* `src/main/java/org/fusesource/examples/cxf/jaxrs/security/Customer.java` - a Java class defining the JAXB representation of the Customer element processed by the example
-* `src/main/java/org/fusesource/examples/cxf/jaxrs/security/CustomerService.java` - a Java class implementing the service that handles customer requests using JAXRS
-* `src/main/java/org/fusesource/examples/cxf/jaxrs/security/Order.java` - a Java class defining the JAXB representation of the Order element processed by the example. It also defines a JAXRS sub-resource that processes orders.
-* `src/main/java/org/fusesource/examples/cxf/jaxrs/security/Prooduct.java` - a Java class defining the JAXB representation of the Product element used in the orders
-* `src/main/java/org/fusesource/examples/cxf/jaxrs/security/client/Client.java` - a Java class implementing an HTTP client that can be used to test the service
-* `src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/*.xml` - data files used by the client to test the service
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/security/Customer.java` - a Java class defining the JAXB representation of the Customer element processed by the example
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/security/CustomerService.java` - a Java class implementing the service that handles customer requests using JAXRS
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/security/Order.java` - a Java class defining the JAXB representation of the Order element processed by the example. It also defines a JAXRS sub-resource that processes orders.
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/security/Prooduct.java` - a Java class defining the JAXB representation of the Product element used in the orders
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/security/client/Client.java` - a Java class implementing an HTTP client that can be used to test the service
+* `src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/security/client/*.xml` - data files used by the client to test the service
 * `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
@@ -39,7 +39,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/secure-rest/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/secure-rest/${project.version}
 3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 admin=admin
 4. edit etc/jetty.xml and comment out
@@ -111,14 +111,14 @@ The client makes a sequence of RESTful invocations and displays the results.
 
 ### To run a command-line utility:
 
-You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client`, so we will use those for testing our services.
+You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/security/client`, so we will use those for testing our services.
 
 1. Open a command prompt and change directory to `<esb_home>/examples/cxf-jaxrs-security`.
 2. Run the following curl commands (curl commands may not be available on all platforms):
     
     * Create a customer
  
-            curl --basic -u admin:admin -X POST -T src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
+            curl --basic -u admin:admin -X POST -T src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/security/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
   
     * Retrieve the customer instance with id 123
     
@@ -126,7 +126,7 @@ You can use a command-line utility, such as cURL or wget, to perform the HTTP re
 
     * Update the customer instance with id 123
   
-            curl --basic -u admin:admin -X PUT -T src/main/resources/org/fusesource/examples/cxf/jaxrs/security/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
+            curl --basic -u admin:admin -X PUT -T src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/security/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/securecrm/customerservice/customers
 
     * Delete the customer instance with id 123
   

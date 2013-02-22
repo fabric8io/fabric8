@@ -46,6 +46,6 @@
       We are using the OSGi Blueprint XML syntax to define a bean that we referred to in our JAX-RS server setup.
       This bean carries a set of JAX-RS annotations that allow its methods to be mapped to incoming requests.
     -->
-    <bean id="customerSvc" class="org.fusesource.examples.cxf.jaxrs.CustomerService"/>
+    <bean id="customerSvc" class="org.jboss.fuse.examples.cxf.jaxrs.CustomerService"/>
 
 </blueprint>

@@ -23,11 +23,11 @@ Before building and running this example you need:
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
 * `client.html` - a Web client that can be used to test the Web service from your browser
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorld.java` - a Java interface that defines the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/HelloWorldImpl.java` - a Java class that implements the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/Client.java` - a Java class implementing a client that connects to the Web service using an HTTP URL
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/ClientPasswordCallback.java` - a Java class implementing authentication callback by checking the identifier and password
-* `src/main/java/org/fusesource/examples/cxf/jaxws/security/client/CustomSecurityInterceptor.java` - a Java class which set the security properties for the client 
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/HelloWorld.java` - a Java interface that defines the Web service
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/HelloWorldImpl.java` - a Java class that implements the Web service
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/client/Client.java` - a Java class implementing a client that connects to the Web service using an HTTP URL
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/client/ClientPasswordCallback.java` - a Java class implementing authentication callback by checking the identifier and password
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/client/CustomSecurityInterceptor.java` - a Java class which set the security properties for the client 
 * `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
@@ -42,7 +42,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/secure-soap/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/secure-soap/${project.version}
 3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
    admin=admin
 
@@ -96,7 +96,7 @@ configured the exec-java-plugin in Maven to allow us to run the Java client code
 The client uses a client proxy for the Web service to invoke the remote method - in reality, a SOAP message will be sent to the server and the response SOAP message will be received and handled.  You will see this output from the remote method:
 
         Apr 4, 2012 7:48:13 AM org.apache.cxf.service.factory.ReflectionServiceFactoryBean buildServiceFromClass
-        INFO: Creating Service {http://security.jaxws.cxf.examples.fusesource.org/}HelloWorldService from class org.fusesource.examples.cxf.jaxws.security.HelloWorld
+        INFO: Creating Service {http://security.jaxws.cxf.examples.fusesource.org/}HelloWorldService from class org.jboss.fuse.examples.cxf.jaxws.security.HelloWorld
         Hello ffang
 
 

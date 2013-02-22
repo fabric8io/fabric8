@@ -22,9 +22,9 @@ Before building and running this example you need:
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
 * `client.html` - a Web client that can be used to test the Web service from your browser
-* `src/main/java/org/fusesource/examples/cxf/jaxws/HelloWorld.java` - a Java interface that defines the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/HelloWorldImpl.java` - a Java class that implements the Web service
-* `src/main/java/org/fusesource/examples/cxf/jaxws/client/Client.java` - a Java class implementing a client that uses `JaxWsProxyFactoryBean` to call the Web service
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/HelloWorld.java` - a Java interface that defines the Web service
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/HelloWorldImpl.java` - a Java class that implements the Web service
+* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/client/Client.java` - a Java class implementing a client that uses `JaxWsProxyFactoryBean` to call the Web service
 * `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
@@ -39,7 +39,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows)
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/soap/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/soap/${project.version}
 
 There are several ways you can interact with the running web services: you can browse the web service metadata,
 but you can also invoke the web services in a few different ways.
@@ -62,7 +62,7 @@ You can also use "cxf:list-endpoints" to check the state of all CXF web services
     JBossFuse:karaf@root> cxf:list-endpoints
     
     Name                      State      Address                                                      BusID                                   
-    [HelloWorldImplPort     ] [Started ] [http://localhost:8181/cxf/HelloWorld                   ] [org.fusesource.examples.soap-cxf2040055609]
+    [HelloWorldImplPort     ] [Started ] [http://localhost:8181/cxf/HelloWorld                   ] [org.jboss.fuse.examples.soap-cxf2040055609]
     
 
 ### To run a Web client:

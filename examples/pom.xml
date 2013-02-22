@@ -32,9 +32,9 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <groupId>org.fusesource.examples</groupId>
+    <groupId>org.jboss.fuse.examples</groupId>
     <artifactId>project</artifactId>
-    <version>7.2.0.redhat-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>JBoss Fuse :: Examples</name>
 

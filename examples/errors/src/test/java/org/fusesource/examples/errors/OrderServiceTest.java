@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.fusesource.examples.errors;
+package org.jboss.fuse.examples.errors;
 
 import org.junit.Test;
 

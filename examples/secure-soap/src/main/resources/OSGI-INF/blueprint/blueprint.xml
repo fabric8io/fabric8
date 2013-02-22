@@ -35,7 +35,7 @@
       with the default configuration in place, this endpoint will be available at 'http://localhost:8181/cxf/HelloWorld'.
     -->
     <jaxws:endpoint id="helloWorld"
-        implementor="org.fusesource.examples.cxf.jaxws.security.HelloWorldImpl"
+        implementor="org.jboss.fuse.examples.cxf.jaxws.security.HelloWorldImpl"
         address="/HelloWorldSecurity">
         <!--
           We will be adding two interceptors to the inbound interceptor chain:
@@ -56,7 +56,7 @@
             <ref component-id="authenticationInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:outInterceptors>
-            <bean class="org.fusesource.examples.cxf.jaxws.security.EnableCORSInterceptor"/>
+            <bean class="org.jboss.fuse.examples.cxf.jaxws.security.EnableCORSInterceptor"/>
         </jaxws:outInterceptors>
  
         <!--

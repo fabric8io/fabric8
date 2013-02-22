@@ -33,7 +33,7 @@
       We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to validate
       the order date. It has a method that intermittently throws runtime exceptions.
     -->
-    <bean id="myOrderService" class="org.fusesource.examples.errors.OrderService" />
+    <bean id="myOrderService" class="org.jboss.fuse.examples.errors.OrderService" />
 
     <!--
       Here, we define the dead-letter channel configuration we want to use.  We want to retry delivering a failed exchange
@@ -73,7 +73,7 @@
           We don't specify a redelivery policy and mark the exception handled to ensure processing will not be retried for this exception.
         -->
         <onException>
-            <exception>org.fusesource.examples.errors.OrderValidationException</exception>
+            <exception>org.jboss.fuse.examples.errors.OrderValidationException</exception>
             <handled>
                 <constant>true</constant>
             </handled>
