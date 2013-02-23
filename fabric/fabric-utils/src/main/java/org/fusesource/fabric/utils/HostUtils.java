@@ -18,8 +18,6 @@
 package org.fusesource.fabric.utils;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.util.Enumeration;
@@ -146,27 +144,33 @@ public class HostUtils {
         return chooseAddress(preffered).getHostAddress();
     }
 
-    public static String getGeoLocation() throws IOException {
+    /**
+     * Get the geographical location (latitude,longitude)
+     * @return  String containing the geolocation - or an empty string on failure
+     */
+    public static String getGeoLocation() {
         final String VAR = "Geobytes";
         final String LATITUDE = "Latitude";
         final String LONGITUDE = "Longitude";
         String result = "";
 
-        String urlStr =  "http://gd.geobytes.com/gd?after=-1&variables="+VAR;
-        urlStr +=","  + VAR+LATITUDE + "," + VAR+LONGITUDE;
-
-
-        URL url = new URL(urlStr);
-        URLConnection urlConnection = url.openConnection();
-        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-        String inputLine;
-        String temp = "";
-        while ((inputLine = in.readLine()) != null) {
-            temp += inputLine;
+        try {
+            String urlStr =  "http://gd.geobytes.com/gd?after=-1&variables="+VAR;
+            urlStr +=","  + VAR+LATITUDE + "," + VAR+LONGITUDE;
+            URL url = new URL(urlStr);
+            URLConnection urlConnection = url.openConnection();
+            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+            String inputLine;
+            String temp = "";
+            while ((inputLine = in.readLine()) != null) {
+                temp += inputLine;
+            }
+            String latitude = getVariable(temp,VAR+LATITUDE);
+            String longitude = getVariable(temp,VAR+LONGITUDE);
+            result = latitude + ","+ longitude;
+        }catch(Exception e) {
+            //this is going to fail if using this offline
         }
-        String latitude = getVariable(temp,VAR+LATITUDE);
-        String longitude = getVariable(temp,VAR+LONGITUDE);
-        result = latitude + ","+ longitude;
         return result;
     }
 
