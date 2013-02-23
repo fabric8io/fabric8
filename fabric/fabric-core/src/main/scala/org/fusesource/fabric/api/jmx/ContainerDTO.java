@@ -56,6 +56,7 @@ public class ContainerDTO implements HasId {
     private String sshUrl;
     private String type;
     private String versionId;
+    private String geoLocation;
 
 
     /**
@@ -114,7 +115,7 @@ public class ContainerDTO implements HasId {
         this.sshUrl = container.getSshUrl();
         this.type = container.getType();
         this.versionId = Versions.getId(container.getVersion());
-
+        this.geoLocation = container.getGeoLocation();
     }
 
     public String toString() {
@@ -358,5 +359,13 @@ public class ContainerDTO implements HasId {
 
     public void setRoot(boolean root) {
         this.root = root;
+    }
+
+    public String getGeoLocation() {
+        return geoLocation;
+    }
+
+    public void setGeoLocation(String geoLocation) {
+        this.geoLocation = geoLocation;
     }
 }
