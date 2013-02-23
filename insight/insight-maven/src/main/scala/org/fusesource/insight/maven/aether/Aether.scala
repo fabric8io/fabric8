@@ -21,6 +21,8 @@ import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 import collection.mutable.ListBuffer
 import org.sonatype.aether.resolution.ArtifactResolutionException
 import org.apache.maven.model.Model
+import java.net.URL
+import org.codehaus.plexus.util.IOUtil
 
 
 object Authentications {
@@ -257,6 +259,23 @@ class Aether(localRepoDir: String = userRepository, remoteRepos: List[Repository
     val result2 = resolve(groupId, artifactId, version2, extension, classifier)
     CompareResult(result1, result2)
   }
+
+  def getArtifactSource(groupId: String, artifactId: String, versionId: String, filePath: String): String = {
+    val result = resolve(groupId, artifactId, versionId, "jar", "sources")
+    val files = result.resolvedFiles
+    println("got files " + files + " and result " + result)
+    if (!files.isEmpty) {
+      val file = files.head
+      if (file.exists()) {
+        // TODO if the path is empty return the contents as a blob of json/markup?
+        val tidyFile = if (filePath.startsWith("/")) filePath else "/" + filePath;
+        val url = new URL("jar:" + file.toURI.toURL + "!" + tidyFile)
+        return IOUtil.toString(url.openStream())
+      }
+    }
+    return ""
+  }
+
 
   def displayTree(node: DependencyNode, indent: String, sb: StringBuffer) {
     sb.append(indent + node.getDependency()).append("\n")
