@@ -125,7 +125,11 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName(), CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp(), CreateMode.PERSISTENT);
             zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name), CreateMode.PERSISTENT);
-            zooKeeper.createOrSetWithParents(CONTAINER_GEOLOCATION.getPath(name), HostUtils.getGeoLocation(),CreateMode.PERSISTENT);
+            //only set the geolocation if it doesn't exist
+            byte[] data = zooKeeper.getData(CONTAINER_GEOLOCATION.getPath(name));
+            if (data==null || data.length==0) {
+                zooKeeper.createOrSetWithParents(CONTAINER_GEOLOCATION.getPath(name), HostUtils.getGeoLocation(),CreateMode.PERSISTENT);
+            }
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
