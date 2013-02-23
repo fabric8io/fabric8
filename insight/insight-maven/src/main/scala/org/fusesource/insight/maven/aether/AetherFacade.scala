@@ -23,7 +23,7 @@ trait AetherFacadeMXBean {
   def getArtifactSource(groupId: String, artifactId: String, versionId: String, filePath: String): String
 }
 
-class AetherFacade() {
+class AetherFacade() extends AetherFacadeMXBean {
   var aether: Aether = new Aether()
   var objectName: ObjectName = null
   var mBeanServer: MBeanServer = null

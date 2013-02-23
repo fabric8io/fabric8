@@ -8,6 +8,7 @@ class ArtifactSourceTest extends TestSupport {
     println("About to create the facade")
     try {
       val facade = new AetherFacade()
+      facade.init()
 
       println("facade created")
       val groupId = "org.apache.camel"
@@ -18,6 +19,8 @@ class ArtifactSourceTest extends TestSupport {
       println("Found content: " + content)
       val expectedContent = "CamelContext"
       assertEquals("content should contain '" + expectedContent + "'", content.indexOf(expectedContent) > 0)
+
+      facade.destroy()
     }
     catch {
       case e => println("Caught: " + e)
