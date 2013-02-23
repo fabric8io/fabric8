@@ -74,6 +74,7 @@ public enum ZkPath {
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
     CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
     CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata"),
+    CONTAINER_GEOLOCATION          ("/fabric/registry/containers/config/{container}/geoloc"),
     CLOUD_CONFIG                   ("/fabric/registry/cloud/config"),
     CLOUD_SERVICE                  ("/fabric/registry/cloud/config/{service}"),
     CLOUD_SERVICE_PROVIDER         ("/fabric/registry/cloud/config/{service}/provider"),
