@@ -17,10 +17,11 @@
 
 package org.fusesource.fabric.utils;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.*;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -143,5 +144,40 @@ public class HostUtils {
     public static String getLocalIp() throws UnknownHostException {
         String preffered = System.getProperty(PREFERED_ADDRESS_PROPERTY_NAME);
         return chooseAddress(preffered).getHostAddress();
+    }
+
+    public static String getGeoLocation() throws IOException {
+        final String VAR = "Geobytes";
+        final String LATITUDE = "Latitude";
+        final String LONGITUDE = "Longitude";
+        String result = "";
+
+        String urlStr =  "http://gd.geobytes.com/gd?after=-1&variables="+VAR;
+        urlStr +=","  + VAR+LATITUDE + "," + VAR+LONGITUDE;
+
+
+        URL url = new URL(urlStr);
+        URLConnection urlConnection = url.openConnection();
+        BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
+        String inputLine;
+        String temp = "";
+        while ((inputLine = in.readLine()) != null) {
+            temp += inputLine;
+        }
+        String latitude = getVariable(temp,VAR+LATITUDE);
+        String longitude = getVariable(temp,VAR+LONGITUDE);
+        result = latitude + ","+ longitude;
+        return result;
+    }
+
+    private static String getVariable(String str,String var){
+        String result="";
+        int index = str.indexOf(var);
+        if (index >= 0) {
+            index = str.indexOf("\"",index);
+            int lastIndex = str.indexOf("\"",index+1);
+            result = str.substring(index+1,lastIndex);
+        }
+        return result;
     }
 }
