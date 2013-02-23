@@ -291,6 +291,28 @@ public class ContainerImpl implements Container {
         }
     }
 
+    public String getGeoLocation() {
+        try {
+            String path = ZkPath.CONTAINER_GEOLOCATION.getPath(id);
+            if (service.getZooKeeper().exists(path) != null) {
+                return service.getZooKeeper().getStringData(path);
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    public void setGeoLocation(String location) {
+        try {
+            String path = ZkPath.CONTAINER_GEOLOCATION.getPath(id);
+            ZooKeeperUtils.set(service.getZooKeeper(), path, location);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
     /**
      * Returns the resolver of the {@link org.fusesource.fabric.api.Container}.
      * The resolver identifies which of the {@link org.fusesource.fabric.api.Container} address should be used for address resolution.

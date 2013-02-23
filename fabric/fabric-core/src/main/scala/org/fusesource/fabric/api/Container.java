@@ -50,6 +50,9 @@ public interface Container extends HasId {
     String getLocation();
     void setLocation(String location);
 
+    String getGeoLocation();
+    void setGeoLocation(String geoLocation);
+
     /**
      * Returns the resolver of the {@link Container}.
      * The resolver identifies which of the {@link Container} address should be used for address resolution.
