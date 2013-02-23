@@ -22,11 +22,11 @@ Before building and running this example you need:
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
-* `src/main/java/org/fusesource/examples/errors/OrderService.java` - a Java class used to validate the orders being processed by the route. It generates exceptions when an order is placed on a Sunday and also at random intervals.
-* `src/main/java/org/fusesource/examples/errors/OrderValidationException.java` - a Java class defining the exception thrown when an order is invalid
+* `src/main/java/org.jboss.fuse.examples/errors/OrderService.java` - a Java class used to validate the orders being processed by the route. It generates exceptions when an order is placed on a Sunday and also at random intervals.
+* `src/main/java/org.jboss.fuse.examples/errors/OrderValidationException.java` - a Java class defining the exception thrown when an order is invalid
 * `src/main/resources/OSGI-INF/blueprint/errors.xml` - the OSGI Blueprint file that defines the route
 * `test/data/*.xml` - data files that can be used to test the example
-* `src/test/java/org/fusesource/examples/errors/OrderServiceTest.java` - a JUnit test class
+* `src/test/java/org.jboss.fuse.examples/errors/OrderServiceTest.java` - a JUnit test class
 * `src/test/resources/log4j.properties` - configuration for formatting the test output
 
 ## Building the Example
@@ -40,7 +40,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/errors/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/errors/${project.version}
 3. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your JBoss Fuse installation.
 4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/errors/input` directory.
 5. Wait a few moment and you will find the files in directories under `work/errors`:

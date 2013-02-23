@@ -24,12 +24,12 @@
       for organisational purposes so feel free to remove/replace this.
     -->
     <parent>
-        <groupId>org.fusesource.examples</groupId>
+        <groupId>org.jboss.fuse.examples</groupId>
         <artifactId>project</artifactId>
         <version>99-master-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.fusesource.examples</groupId>
+    <groupId>org.jboss.fuse.examples</groupId>
     <artifactId>jms</artifactId>
     <packaging>jar</packaging>
     <name>JBoss Fuse :: Examples :: JMS</name>

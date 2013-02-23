@@ -26,7 +26,7 @@
         for organisational purposes so feel free to remove/replace this.
     -->
     <parent>
-        <groupId>org.fusesource.examples</groupId>
+        <groupId>org.jboss.fuse.examples</groupId>
         <artifactId>project</artifactId>
         <version>99-master-SNAPSHOT</version>
     </parent>
@@ -54,7 +54,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>${exec-maven-plugin-version}</version>
                 <configuration>
-                    <mainClass>org.fusesource.examples.cxf.jaxws.security.client.Client</mainClass>
+                    <mainClass>org.jboss.fuse.examples.cxf.jaxws.security.client.Client</mainClass>
                     <includePluginDependencies>false</includePluginDependencies>
                 </configuration>
             </plugin>

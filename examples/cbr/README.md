@@ -37,7 +37,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/cbr/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/cbr/${project.version}
 3. As soon as the Camel route has been started, you will see a directory `work/cbr/input` in your JBoss Fuse installation.
 4. Copy the files you find in this example's `src/test/data` directory to the newly created `work/cbr/input` directory.
 5. Wait a few moment and you will find the same files organized by country under the `work/cbr/output` directory.

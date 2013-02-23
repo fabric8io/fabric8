@@ -19,7 +19,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.jboss.fuse</groupId>
+    <groupId>org.jboss.fuse.examples</groupId>
     <artifactId>project</artifactId>
     <version>${project.version}</version>
     <packaging>pom</packaging>

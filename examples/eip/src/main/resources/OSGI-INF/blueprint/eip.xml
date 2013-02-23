@@ -31,9 +31,9 @@
 
     <!--
       We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to determine
-      the geographical region. The code for this bean can be found in src/main/java/org/fusesource/examples/eip/RegionSupport.java
+      the geographical region. The code for this bean can be found in src/main/java/org.jboss.fuse.examples/eip/RegionSupport.java
     -->
-    <bean id="MyRegionSupport" class="org.fusesource.examples.eip.RegionSupport" />
+    <bean id="MyRegionSupport" class="org.jboss.fuse.examples.eip.RegionSupport" />
 
     <!--
       The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. We can also define 

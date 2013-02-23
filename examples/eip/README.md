@@ -35,7 +35,7 @@ Before building and running this example you need:
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
-* `src/main/java/org/fusesource/examples/eip/RegionSupport.java` - a Java class used to determine the region code used by the recipient list
+* `src/main/java/org.jboss.fuse.examples/eip/RegionSupport.java` - a Java class used to determine the region code used by the recipient list
 * `src/main/resources/OSGI-INF/blueprint/eip.xml` - the OSGI Blueprint file that defines the routes
 * `test/data/orders.xml` - the data file that can be used to test the route
 * `test/java/RegionSupportTest.java` - a JUnit test class for `RegionSupport`
@@ -51,7 +51,7 @@ To run the example:
 
 1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
 2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.fusesource.examples/eip/${project.version}
+        osgi:install -s fab:mvn:org.jboss.fuse.examples/eip/${project.version}
 3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your JBoss Fuse installation.
 4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory.
 5. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':

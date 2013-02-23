@@ -1,4 +1,4 @@
-Fuse MQ Enterprise
+JBoss A-MQ Enterprise
 ------------------
 
 Configuration

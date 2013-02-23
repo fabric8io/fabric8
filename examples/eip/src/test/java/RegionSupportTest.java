@@ -16,10 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import org.fusesource.examples.eip.RegionSupport;
+import org.jboss.fuse.examples.eip.RegionSupport;
 import org.junit.Test;
 
-import static org.fusesource.examples.eip.RegionSupport.*;
+import static org.jboss.fuse.examples.eip.RegionSupport.*;
 import static org.junit.Assert.assertEquals;
 
 /**
