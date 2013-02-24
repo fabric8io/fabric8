@@ -206,14 +206,11 @@ public class Logs {
 
     private static String getMavenCoordinates(PaxLoggingEvent event) {
         Map props = event.getProperties();
-        String bundleIdStr = null;
-        if (props != null) {
-            bundleIdStr = (String) props.get("bundle.id");
-        }
-        if (bundleIdStr == null) {
+        Object id = (props != null) ? props.get("bundle.id") : null;
+        if (id == null) {
             return null;
         }
-        return getMavenCoordinates(bundleIdStr);
+        return getMavenCoordinates(id.toString());
     }
 
     private static String getMavenCoordinates(String bundleIdStr) {
