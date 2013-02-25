@@ -29,4 +29,6 @@ import java.io.IOException;
  */
 public interface LogQueryMBean extends LogQuerySupportMBean {
 
+    public String getSource(String groupId, String artifactId, String version, String filePath) throws IOException;
+
 }

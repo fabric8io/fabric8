@@ -32,6 +32,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.net.URL;
 
 /**
  * An implementation of {@link LogQueryMBean} using the embedded pax appender used by karaf
@@ -143,4 +149,29 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean {
     public void setAppender(VmLogAppender appender) {
         this.appender = appender;
     }
+
+    @Override
+    public String getSource(String groupId, String artifactId, String version, String filePath) throws IOException {
+        URL url = new URL("jar:mvn:" + groupId + "/" + artifactId + "/" + version + "/jar/sources!" + filePath);
+        return loadString(url);
+    }
+
+    private static String loadString(URL url) throws IOException {
+        InputStream is = url.openStream();
+        try {
+            InputStreamReader reader = new InputStreamReader(is);
+            StringWriter writer = new StringWriter();
+            final char[] buffer = new char[4096];
+            int n;
+            while ( -1 != ( n = reader.read( buffer ) ) )
+            {
+                writer.write( buffer, 0, n );
+            }
+            writer.flush();
+            return writer.toString();
+        } finally {
+            is.close();
+        }
+    }
+
 }
