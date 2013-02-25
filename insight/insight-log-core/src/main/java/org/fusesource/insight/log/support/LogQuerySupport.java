@@ -34,6 +34,7 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.StringTokenizer;
 
 /**
  * Base class for any {@link org.fusesource.insight.log.service.LogQueryMBean} implementation
@@ -56,6 +57,9 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
 
     private static String loadString(URL url) throws IOException {
         InputStream is = url.openStream();
+        if (is == null) {
+            return null;
+        }
         try {
             InputStreamReader reader = new InputStreamReader(is);
             StringWriter writer = new StringWriter();
@@ -193,8 +197,58 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         return mapper.reader(LogFilter.class).readValue(json);
     }
 
-    public String getSource(String groupId, String artifactId, String version, String filePath) throws IOException {
-        URL url = new URL("jar:mvn:" + groupId + "/" + artifactId + "/" + version + "/jar/sources!" + filePath);
+    public String getSource(String mavenCoords, String className, String filePath) throws IOException {
+        // the fileName could be just a name and extension so we may have to use the className to make a fully qualified package
+        String classNamePath = null;
+        if (!isEmpty(className)) {
+            classNamePath = className.replace('.', '/') + ".java";
+        }
+        if (isEmpty(filePath)) {
+            filePath = classNamePath;
+        } else {
+            // we may have package in the className but not in the file name
+            if (filePath.lastIndexOf('/') <= 0 && classNamePath != null) {
+                int idx = classNamePath.lastIndexOf('/');
+                if (idx > 0) {
+                    filePath = classNamePath.substring(0, idx) + ensureStartsWithSlash(filePath);
+                }
+            }
+        }
+        filePath = ensureStartsWithSlash(filePath);
+
+        String coords = mavenCoords.replace(':', '/');
+        String[] array = coords.split("\\s+");
+        if (array == null || array.length < 2) {
+            return loadCoords(filePath, coords);
+        } else {
+            // lets enumerate all values if space separated
+            for (String coord : array) {
+                try {
+                    return loadCoords(filePath, coord);
+                } catch (IOException e) {
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("" + e);
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    private String loadCoords(String filePath, String coords) throws IOException {
+        URL url = new URL("jar:mvn:" + coords + "/jar/sources!" + filePath);
         return loadString(url);
+    }
+
+    public static String ensureStartsWithSlash(String path) {
+        if (path != null && !path.startsWith("/")) {
+            return "/" + path;
+        } else {
+            return path;
+        }
+    }
+
+    public static boolean isEmpty(String filePath) {
+        return filePath == null || filePath.trim().length() == 0;
     }
 }
