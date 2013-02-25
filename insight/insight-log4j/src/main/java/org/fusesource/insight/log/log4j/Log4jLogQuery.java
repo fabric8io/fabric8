@@ -31,6 +31,7 @@ import org.fusesource.insight.log.LogResults;
 import org.fusesource.insight.log.support.LogQuerySupport;
 import org.fusesource.insight.log.support.LruList;
 import org.fusesource.insight.log.support.Predicate;
+import org.ops4j.pax.url.mvn.Handler;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +58,9 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
 
     @PostConstruct
     public void start() {
+        registerMavenURLHandler();
         super.start();
+
         ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
         AppenderAttachable appenderAttachable = null;
         if (loggerFactory instanceof AppenderAttachable) {
@@ -83,6 +86,21 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
             appenderAttachable.addAppender(appender);
         } else {
             LOG.error("No ILoggerFactory found so cannot attach appender!");
+        }
+    }
+
+    public static void registerMavenURLHandler() {
+        final String packageName = Handler.class.getPackage().getName();
+        final String pkg = packageName.substring(0, packageName.lastIndexOf('.'));
+        final String protocolPathProp = "java.protocol.handler.pkgs";
+
+        String uriHandlers = System.getProperty(protocolPathProp, "");
+        if (uriHandlers.indexOf(pkg) == -1) {
+            if (uriHandlers.length() != 0) {
+                uriHandlers += "|";
+            }
+            uriHandlers += pkg;
+            System.setProperty(protocolPathProp, uriHandlers);
         }
     }
 
