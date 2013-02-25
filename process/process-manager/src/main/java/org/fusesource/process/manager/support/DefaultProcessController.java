@@ -225,8 +225,8 @@ public class DefaultProcessController implements ProcessController
     protected int runCommandLine(String command) throws IOException, InterruptedException, CommandFailedException {
         if (command != null) {
             // TODO warning this doesn't handle quoted strings as a single argument
-            String[] commandArgs = command.split("\\s+");
-            return config.runCommand(executor, baseDir, commandArgs);
+            List<String> commandArgs = ExecParseUtils.splitToWhiteSpaceSeparatedTokens(command);
+            return config.runCommand(executor, baseDir, commandArgs.toArray(new String[commandArgs.size()]));
         } else {
             return 0;
         }
