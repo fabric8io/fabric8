@@ -289,7 +289,6 @@
                                    <feature>insight-log-elasticsearch</feature>
                                    <feature>process-manager</feature>
                                    <feature>jolokia</feature>
-                                   <feature>hawtio</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>
