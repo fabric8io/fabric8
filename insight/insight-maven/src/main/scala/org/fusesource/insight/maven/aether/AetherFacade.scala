@@ -19,8 +19,6 @@ trait AetherFacadeMXBean {
    */
   def compare(groupId: String, artifactId: String, version1: String, version2: String, extension: String, classifier: String): CompareResult
 */
-
-  def getArtifactSource(groupId: String, artifactId: String, versionId: String, filePath: String): String
 }
 
 class AetherFacade() extends AetherFacadeMXBean {
@@ -50,8 +48,4 @@ class AetherFacade() extends AetherFacadeMXBean {
 
   def compare(groupId: String, artifactId: String, version1: String, version2: String, extension: String, classifier: String): CompareResult
   = aether.compare(groupId, artifactId, version1, version2, extension, classifier)
-
-  def getArtifactSource(groupId: String, artifactId: String, versionId: String, filePath: String): String
-  = aether.getArtifactSource(groupId, artifactId, versionId, filePath)
-
 }
