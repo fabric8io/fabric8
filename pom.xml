@@ -97,7 +97,7 @@
 
         <fabric.version>${project.version}</fabric.version>
         <fuse.version>${project.version}</fuse.version>
-        <perfectus-build>006</perfectus-build>
+        <perfectus-build>008</perfectus-build>
         <activemq-version>5.8.0.redhat-60${perfectus-build}</activemq-version>
         <jmdns-version>3.4.1</jmdns-version>
         <antlr-version>3.3</antlr-version>
