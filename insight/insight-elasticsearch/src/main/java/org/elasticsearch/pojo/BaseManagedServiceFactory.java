@@ -113,6 +113,16 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
     protected abstract String[] getExposedClasses(T t);
 
     private void internalUpdate(String pid, Dictionary properties) {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            doInternalUpdate(pid, properties);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }
+    }
+
+    private void doInternalUpdate(String pid, Dictionary properties) {
         Pair<T, ServiceRegistration> pair = services.get(pid);
         if (pair != null) {
             try {
@@ -150,6 +160,16 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
     }
 
     private void internalDelete(String pid) {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            doInternalDelete(pid);
+        } finally {
+            Thread.currentThread().setContextClassLoader(tccl);
+        }
+    }
+
+    private void doInternalDelete(String pid) {
         Pair<T, ServiceRegistration> pair = services.remove(pid);
         if (pair != null) {
             try {
