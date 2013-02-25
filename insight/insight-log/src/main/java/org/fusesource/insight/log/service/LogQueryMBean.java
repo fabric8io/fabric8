@@ -28,7 +28,4 @@ import java.io.IOException;
  * An MBean for querying log events which has a serialized API and a simple JSON API to avoid serialization issues
  */
 public interface LogQueryMBean extends LogQuerySupportMBean {
-
-    public String getSource(String groupId, String artifactId, String version, String filePath) throws IOException;
-
 }
