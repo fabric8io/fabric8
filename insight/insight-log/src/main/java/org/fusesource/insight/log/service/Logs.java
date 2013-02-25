@@ -19,6 +19,7 @@ package org.fusesource.insight.log.service;
 
 import org.fusesource.insight.log.LogEvent;
 import org.fusesource.insight.log.LogFilter;
+import org.fusesource.insight.log.support.MavenCoordinates;
 import org.fusesource.insight.log.support.Predicate;
 import org.fusesource.insight.log.support.Strings;
 import org.ops4j.pax.logging.spi.PaxLevel;
@@ -27,7 +28,6 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
-import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +35,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -229,26 +228,11 @@ public class Logs {
         String maven = MAVEN_COORDINATES.get(id);
         if (maven == null) {
             try {
-                StringBuilder buf = new StringBuilder();
                 Enumeration<URL> e = m_bundle.findEntries("META-INF/maven/", "pom.properties", true);
+                StringBuilder buf = new StringBuilder();
                 while (e != null && e.hasMoreElements()) {
                     URL url = e.nextElement();
-                    Properties props = new Properties();
-                    InputStream is = url.openStream();
-                    try {
-                        props.load(is);
-                        String groupId = props.getProperty("groupId");
-                        String artifactId = props.getProperty("artifactId");
-                        String version = props.getProperty("version");
-                        if (groupId != null && artifactId != null & version != null) {
-                            if (buf.length() > 0) {
-                                buf.append(" ");
-                            }
-                            buf.append(groupId).append(":").append(artifactId).append(":").append(version);
-                        }
-                    } finally {
-                        is.close();
-                    }
+                    MavenCoordinates.appendMavenCoordinateFromPomProperties(url.openStream(), buf);
                 }
                 maven = buf.toString();
             } catch (Throwable t) {
@@ -259,4 +243,5 @@ public class Logs {
         }
         return maven;
     }
+
 }

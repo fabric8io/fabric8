@@ -55,6 +55,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
 
     private int size = 1000;
     private LruList<LoggingEvent> events;
+    private boolean addMavenCoordinates = true;
 
     @PostConstruct
     public void start() {
@@ -72,6 +73,9 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         if (appenderAttachable != null) {
             Appender appender = new AppenderSkeleton() {
                 protected void append(LoggingEvent loggingEvent) {
+                    if (addMavenCoordinates) {
+                        appendMavenCoordinates(loggingEvent);
+                    }
                     getEvents().add(loggingEvent);
                 }
 
@@ -123,87 +127,87 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
     }
 
     private Predicate<LogEvent> createPredicate(LogFilter filter) {
-    if (filter == null) {
-                return null;
-            }
-            final List<Predicate<LogEvent>> predicates = new ArrayList<Predicate<LogEvent>>();
-    
-            final Set<String> levels = filter.getLevelsSet();
-            if (levels.size() > 0) {
-                predicates.add(new Predicate<LogEvent>() {
-                    @Override
-                    public boolean matches(LogEvent event) {
-                        String level = event.getLevel();
-                        return level != null && levels.contains(level.toString());
-                    }
-                });
-            }
-            final Long before = filter.getBeforeTimestamp();
-            if (before != null) {
-                final Date date = new Date(before);
-                predicates.add(new Predicate<LogEvent>() {
-                    @Override
-                    public boolean matches(LogEvent event) {
-                        Date time = event.getTimestamp();
-                        return time != null && time.before(date);
-                    }
-                });
-            }
-            final Long after = filter.getAfterTimestamp();
-            if (after != null) {
-                final Date date = new Date(after);
-                predicates.add(new Predicate<LogEvent>() {
-                    @Override
-                    public boolean matches(LogEvent event) {
-                        Date time = event.getTimestamp();
-                        return time != null && time.after(date);
-                    }
-                });
-            }
-    
-            final String matchesText = filter.getMatchesText();
-            if (matchesText != null && matchesText.length() > 0) {
-                predicates.add(new Predicate<LogEvent>() {
-                    @Override
-                    public boolean matches(LogEvent event) {
-                        if (contains(matchesText, event.getClassName(), event.getMessage(), event.getLogger(), event.getThread())) {
-                            return true;
-                        }
-                        String[] throwableStrRep = event.getException();
-                        if (throwableStrRep != null && contains(matchesText, throwableStrRep)) {
-                            return true;
-                        }
-                        Map properties = event.getProperties();
-                        if (properties != null && contains(matchesText, properties.toString())) {
-                            return true;
-                        }
-                        return false;
-                    }
-                });
-            }
-    
-            if (predicates.size() == 0) {
-                return null;
-            } else if (predicates.size() == 1) {
-                return predicates.get(0);
-            } else {
-                return new Predicate<LogEvent>() {
-                    @Override
-                    public String toString() {
-                        return "AndPredicate" + predicates;
-                    }
-    
-                    @Override
-                    public boolean matches(LogEvent event) {
-                        for (Predicate<LogEvent> predicate : predicates) {
-                            if (!predicate.matches(event)) {
-                                return false;
-                            }
-                        }
+        if (filter == null) {
+            return null;
+        }
+        final List<Predicate<LogEvent>> predicates = new ArrayList<Predicate<LogEvent>>();
+
+        final Set<String> levels = filter.getLevelsSet();
+        if (levels.size() > 0) {
+            predicates.add(new Predicate<LogEvent>() {
+                @Override
+                public boolean matches(LogEvent event) {
+                    String level = event.getLevel();
+                    return level != null && levels.contains(level.toString());
+                }
+            });
+        }
+        final Long before = filter.getBeforeTimestamp();
+        if (before != null) {
+            final Date date = new Date(before);
+            predicates.add(new Predicate<LogEvent>() {
+                @Override
+                public boolean matches(LogEvent event) {
+                    Date time = event.getTimestamp();
+                    return time != null && time.before(date);
+                }
+            });
+        }
+        final Long after = filter.getAfterTimestamp();
+        if (after != null) {
+            final Date date = new Date(after);
+            predicates.add(new Predicate<LogEvent>() {
+                @Override
+                public boolean matches(LogEvent event) {
+                    Date time = event.getTimestamp();
+                    return time != null && time.after(date);
+                }
+            });
+        }
+
+        final String matchesText = filter.getMatchesText();
+        if (matchesText != null && matchesText.length() > 0) {
+            predicates.add(new Predicate<LogEvent>() {
+                @Override
+                public boolean matches(LogEvent event) {
+                    if (contains(matchesText, event.getClassName(), event.getMessage(), event.getLogger(), event.getThread())) {
                         return true;
                     }
-                };
-            }
+                    String[] throwableStrRep = event.getException();
+                    if (throwableStrRep != null && contains(matchesText, throwableStrRep)) {
+                        return true;
+                    }
+                    Map properties = event.getProperties();
+                    if (properties != null && contains(matchesText, properties.toString())) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        }
+
+        if (predicates.size() == 0) {
+            return null;
+        } else if (predicates.size() == 1) {
+            return predicates.get(0);
+        } else {
+            return new Predicate<LogEvent>() {
+                @Override
+                public String toString() {
+                    return "AndPredicate" + predicates;
+                }
+
+                @Override
+                public boolean matches(LogEvent event) {
+                    for (Predicate<LogEvent> predicate : predicates) {
+                        if (!predicate.matches(event)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
+            };
+        }
     }
 
     protected LogResults filterLogResults(Predicate<LogEvent> predicate, int maxCount) {
@@ -285,6 +289,19 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         return null;
     }
 
+
+    protected void appendMavenCoordinates(LoggingEvent loggingEvent) {
+        LocationInfo information = loggingEvent.getLocationInformation();
+        if (information != null) {
+            String coordinates = MavenCoordHelper.getMavenCoordinates(information.getClassName());
+            if (coordinates != null) {
+                loggingEvent.setProperty("maven.coordinates", coordinates);
+            }
+        }
+
+    }
+
+
     // Properties
     //-------------------------------------------------------------------------
     public LruList<LoggingEvent> getEvents() {
@@ -305,4 +322,13 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
     public void setSize(int size) {
         this.size = size;
     }
+
+    public boolean isAddMavenCoordinates() {
+        return addMavenCoordinates;
+    }
+
+    public void setAddMavenCoordinates(boolean addMavenCoordinates) {
+        this.addMavenCoordinates = addMavenCoordinates;
+    }
+
 }
