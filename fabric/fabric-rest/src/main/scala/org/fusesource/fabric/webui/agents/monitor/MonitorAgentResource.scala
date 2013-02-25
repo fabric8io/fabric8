@@ -33,7 +33,7 @@ import org.fusesource.fabric.webui.BaseResource
  */
 object MonitorAgentResource extends ManagementExtensionFactory {
   def create(a: Container, jmx_username: String, jmx_password: String) = {
-    if (a.getJmxDomains.contains("org.fusesource.fabric")) {
+    if (a.isAlive && a.getJmxDomains.contains("org.fusesource.fabric")) {
       Some(new MonitorAgentResource(a, jmx_username, jmx_password))
     } else {
       None
