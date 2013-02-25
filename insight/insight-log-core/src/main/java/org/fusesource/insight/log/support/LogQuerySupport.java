@@ -34,7 +34,6 @@ import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.StringTokenizer;
 
 /**
  * Base class for any {@link org.fusesource.insight.log.service.LogQueryMBean} implementation
@@ -200,10 +199,10 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
     public String getSource(String mavenCoords, String className, String filePath) throws IOException {
         // the fileName could be just a name and extension so we may have to use the className to make a fully qualified package
         String classNamePath = null;
-        if (!isEmpty(className)) {
+        if (!Strings.isEmpty(className)) {
             classNamePath = className.replace('.', '/') + ".java";
         }
-        if (isEmpty(filePath)) {
+        if (Strings.isEmpty(filePath)) {
             filePath = classNamePath;
         } else {
             // we may have package in the className but not in the file name
@@ -248,7 +247,4 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         }
     }
 
-    public static boolean isEmpty(String filePath) {
-        return filePath == null || filePath.trim().length() == 0;
-    }
 }

@@ -27,4 +27,8 @@ public class Strings {
         }
         return false;
     }
+
+    public static boolean isEmpty(String filePath) {
+        return filePath == null || filePath.trim().length() == 0;
+    }
 }
