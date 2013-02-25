@@ -27,9 +27,12 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 /**
@@ -48,6 +51,24 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
             hostName = InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
             LOG.warn("Failed to get host name: " + e, e);
+        }
+    }
+
+    private static String loadString(URL url) throws IOException {
+        InputStream is = url.openStream();
+        try {
+            InputStreamReader reader = new InputStreamReader(is);
+            StringWriter writer = new StringWriter();
+            final char[] buffer = new char[4096];
+            int n;
+            while ( -1 != ( n = reader.read( buffer ) ) )
+            {
+                writer.write( buffer, 0, n );
+            }
+            writer.flush();
+            return writer.toString();
+        } finally {
+            is.close();
         }
     }
 
@@ -172,4 +193,8 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         return mapper.reader(LogFilter.class).readValue(json);
     }
 
+    public String getSource(String groupId, String artifactId, String version, String filePath) throws IOException {
+        URL url = new URL("jar:mvn:" + groupId + "/" + artifactId + "/" + version + "/jar/sources!" + filePath);
+        return loadString(url);
+    }
 }

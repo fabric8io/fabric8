@@ -59,6 +59,12 @@ public interface LogQuerySupportMBean {
     public LogResults queryLogResults(LogFilter filter);
 
 
+    /**
+     * Returns the source file for the given maven coordinates so that we can link log messages
+     * to source code
+     */
+    public String getSource(String groupId, String artifactId, String version, String filePath) throws IOException;
+
 
     // JSON API
 
@@ -81,5 +87,4 @@ public interface LogQuerySupportMBean {
      * Allows a JSON filter to be specified then returns the log results as a serialised object
      */
     public LogResults jsonQueryLogResults(String jsonFilter) throws IOException;
-
 }
