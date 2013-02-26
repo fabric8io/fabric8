@@ -41,5 +41,5 @@ Examples with instructions are in the 'examples' directory.
 Documentation
 -------------
 You can find documentation online at:
-http://fusesource.com/documentation/fuse-esb-enterprise-documentation
+http://www.redhat.com/products/jbossenterprisemiddleware/fuse
 
