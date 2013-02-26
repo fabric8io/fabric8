@@ -12,7 +12,7 @@ function maven_download {
   export ARTIFACT_BASE_URL=`echo $REPO$GROUP_ID_PATH/$ARTIFACT_ID/$VERSION/`
 
   if [[ "$VERSION" == *SNAPSHOT* ]];  then
-    export ARTIFACT_URL=`curl --silent $ARTIFACT_BASE_URL | grep href | grep tar.gz\" | sed 's/^.*<a href="//' | sed 's/".*$//'  | tail -1`
+    export ARTIFACT_URL=`curl --silent $ARTIFACT_BASE_URL | grep href | grep zip\" | sed 's/^.*<a href="//' | sed 's/".*$//'  | tail -1`
   else
     export ARTIFACT_URL=`echo $REPO$GROUP_ID_PATH/$ARTIFACT_ID/$VERSION/$ARTIFACT_ID-$VERSION.$TYPE`
   fi

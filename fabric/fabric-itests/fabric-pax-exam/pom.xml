@@ -40,14 +40,14 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fuse-fabric</artifactId>
             <version>${project.version}</version>
-            <type>tar.gz</type>
+            <type>zip</type>
         </dependency>
 
         <dependency>
             <groupId>org.jboss.amq</groupId>
             <artifactId>jboss-a-mq</artifactId>
             <version>${project.version}</version>
-            <type>tar.gz</type>
+            <type>zip</type>
         </dependency>
 
         <!-- Internal Dependencies -->
