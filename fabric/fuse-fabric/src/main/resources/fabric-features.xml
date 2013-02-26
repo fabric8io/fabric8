@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) FuseSource, Inc.
-  http://fusesource.com
+  Copyright (C) Red Hat, Inc.
+  http://redhat.com
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -287,8 +287,8 @@
     <feature name="insight-graph" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.graph">
             #
-            # Copyright (C) FuseSource, Inc.
-            # http://fusesource.com
+            # Copyright (C) Red Hat, Inc.
+            # http://redhat.com
             #
             # Licensed under the Apache License, Version 2.0 (the "License");
             # you may not use this file except in compliance with the License.
@@ -333,8 +333,8 @@
     <feature name="insight-elasticsearch" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.elasticsearch-default">
             #
-            # Copyright (C) FuseSource, Inc.
-            # http://fusesource.com
+            # Copyright (C) Red Hat, Inc.
+            # http://redhat.com
             #
             # Licensed under the Apache License, Version 2.0 (the "License");
             # you may not use this file except in compliance with the License.
@@ -365,8 +365,8 @@
     <feature name="insight-log-elasticsearch" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.log.elasticsearch">
             #
-            # Copyright (C) FuseSource, Inc.
-            # http://fusesource.com
+            # Copyright (C) Red Hat, Inc.
+            # http://redhat.com
             #
             # Licensed under the Apache License, Version 2.0 (the "License");
             # you may not use this file except in compliance with the License.
@@ -394,8 +394,8 @@
     <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.fabric.hadoop">
             #
-            # Copyright (C) FuseSource, Inc.
-            # http://fusesource.com
+            # Copyright (C) Red Hat, Inc.
+            # http://redhat.com
             #
             # Licensed under the Apache License, Version 2.0 (the "License");
             # you may not use this file except in compliance with the License.
