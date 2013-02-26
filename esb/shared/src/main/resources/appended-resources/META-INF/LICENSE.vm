@@ -1,6 +1,5 @@
 #
-# Copyright (C) FuseSource, Inc.
-# http://fusesource.com
+# Copyright (C) Red Hat, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,12 +16,12 @@
 
 ========================================================================
 
-Fuse ESB includes a number of components and libraries with 
+JBoss Fuse includes a number of components and libraries with 
 separate copyright notices and license terms. Your use of those 
 components are subject to the terms and conditions of the following 
 licenses.
 
-#set ( $licenseTxt = "Copyright (C) 2010-2011, FuseSource Corp.  All rights reserved." )
+#set ( $licenseTxt = "Copyright (C) 2013, Red Hat, Inc.  All rights reserved." )
 #foreach ( $project in $projects )
 #foreach ( $license in $project.licenses)
 #if ( ! ($licenseTxt == $license.name) ) 
