@@ -35,6 +35,7 @@
     </fuse.osgi.export>
     <fuse.osgi.import.before.defaults>
         org.apache.log4j*;resolution:=optional,
+        org.elasticsearch*;resolution:=optional,
         !name.pachler.nio.file*,
         !org.jrobin.core*,
         !org.apache.commons.cli*,
@@ -84,6 +85,12 @@
     <dependency>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-linkedin-zookeeper</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.fusesource.insight</groupId>
+        <artifactId>insight-elasticsearch</artifactId>
+        <version>${project.version}</version>
         <scope>provided</scope>
     </dependency>
 
