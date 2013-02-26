@@ -47,10 +47,8 @@
         !javax.mail*,
     </fuse.osgi.import.before.defaults>
     <fuse.osgi.private.pkg>
-      com.googlecode.jmxtrans*,
-      org.apache.log4j*
+      com.googlecode.jmxtrans*;-split-package:=merge-first,
     </fuse.osgi.private.pkg>
-    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=true;artifactId=*jmxtrans|log4j</fuse.osgi.embed.dependency>
   </properties>
 
   <dependencies>
