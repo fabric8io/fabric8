@@ -29,8 +29,8 @@
   <artifactId>mq-project</artifactId>
   <version>99-master-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <name>JBoss A-MQ :: Project</name>
-  <description>JBoss A-MQ :: Project</description>
+  <name>JBoss A-MQ Project</name>
+  <description>JBoss A-MQ Project</description>
 
   <properties>
     <fuse.osgi.export>org.fusesource.mq.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>

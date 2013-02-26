@@ -4,7 +4,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <title>${requestContext.brokerQuery.brokerAdmin.brokerName} : <decorator:title default="FuseMQ Console" /></title>
+    <title>${requestContext.brokerQuery.brokerAdmin.brokerName} : <decorator:title default="JBoss A-MQ Console" /></title>
     <style type="text/css" media="screen">
         @import url('${pageContext.request.contextPath}/styles/sorttable.css');
         @import url('${pageContext.request.contextPath}/styles/type-settings.css');
@@ -27,8 +27,10 @@
     <div id="outer">
       <div id="middle">
         <div id="header" class="topbar">
-            <div id="logo">
-                <img src="images/logo.gif" alt="Fuse MQ Enterprise">
+            <div id="asf_logo">
+              <div id="logo">
+                <img src="images/logo.gif" alt="JBoss A-MQ">
+               </div>
             </div>
             <div id="topbar_nav_container">
             </div>
@@ -57,8 +59,8 @@
                                title="Send">Send</a>
                         </div>
                         <div id="site-quicklinks"><P>
-                            <a href="http://fusesource.com/products/enterprise-activemq/"
-                               title="Get help and support using FuseMQ">Support</a></p>
+                            <a href="http://www.redhat.com/products/jbossenterprisemiddleware/amq/"
+                               title="Get help and support using JBoss A-MQ">Support</a></p>
                         </div>
                     </div>
 
@@ -103,7 +105,7 @@
                                                 <H3>Useful Links</H3>
 
                                                 <ul class="alternate">
-                                                    <li><a href="http://fusesource.com/documentation/fuse-mq-enterprise-documentation/"
+                                                    <li><a href="http://www.redhat.com/products/jbossenterprisemiddleware/amq/"
                                                            title="The most popular and powerful open source Message Broker">Documentation</a></li>
                                                     </li>
                                                 </ul>
@@ -119,7 +121,7 @@
         </div>
     </div>
         <div id="footer">
-            &copy; 2012 FuseSource Corp. All rights reserved.
+            &copy; 2013 RedHat. All rights reserved.
         </div>
         <div id="dialog_container">
         </div>

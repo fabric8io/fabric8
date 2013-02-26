@@ -185,9 +185,9 @@
     </error-page>
 
     <security-constraint>
-        <display-name>FuseMQ</display-name>
+        <display-name>JBoss A-MQ</display-name>
         <web-resource-collection>
-            <web-resource-name>FuseMQ</web-resource-name>
+            <web-resource-name>JBoss A-MQ</web-resource-name>
             <url-pattern>/*</url-pattern>
         </web-resource-collection>
         <auth-constraint>

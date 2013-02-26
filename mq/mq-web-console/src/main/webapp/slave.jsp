@@ -3,7 +3,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
-    <title>${requestContext.brokerQuery.brokerAdmin.brokerName} : FuseMQ Console/></title>
+    <title>${requestContext.brokerQuery.brokerAdmin.brokerName} : JBoss A-MQ Console/></title>
     <style type="text/css" media="screen">
         @import url('${pageContext.request.contextPath}/styles/sorttable.css');
         @import url('${pageContext.request.contextPath}/styles/type-settings.css');
@@ -25,8 +25,10 @@
     <div id="outer">
       <div id="middle">
         <div id="header" class="topbar">
-            <div id="logo">
-                <img src="images/logo.gif" alt="Fuse MQ Enterprise">
+            <div id="asf_logo">
+                <div id="logo">
+                    <img src="images/logo.gif" alt="JBoss A-MQ">
+                </div>
             </div>
             <div id="topbar_nav_container">
             </div>
@@ -55,8 +57,8 @@
                                title="Send">Send</a>
                         </div>
                         <div id="site-quicklinks"><P>
-                            <a href="http://fusesource.com/products/enterprise-activemq/"
-                               title="Get help and support using FuseMQ">Support</a></p>
+                            <a href="http://www.redhat.com/products/jbossenterprisemiddleware/amq/"
+                               title="Get help and support using JBoss A-MQ">Support</a></p>
                         </div>
                     </div>
 

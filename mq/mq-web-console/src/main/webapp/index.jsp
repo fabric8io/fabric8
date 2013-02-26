@@ -16,18 +16,18 @@
 --%>
 <html>
 <head>
-<title>Fuse MQ Console</title>
+<title>JBoss A-MQ Console</title>
 </head>
 <body>
 
 <h2>Welcome!</h2>
 
 <p>
-Welcome to the Fuse MQ Console of <b>${requestContext.brokerQuery.brokerName}</b> (${requestContext.brokerQuery.brokerAdmin.brokerId})
+Welcome to the JBoss A-MQ Console of <b>${requestContext.brokerQuery.brokerName}</b> (${requestContext.brokerQuery.brokerAdmin.brokerId})
 </p>
 
 <p>
-You can find more information about Fuse MQ on the <a href="http://fusesource.com/products/fuse-mq-enterprise">Fuse MQ Site</a>
+You can find more information about JBoss A-MQ on the <a href="http://www.redhat.com/products/jbossenterprisemiddleware/amq/">JBoss A-MQ Site</a>
 </p>
 
 <h2>Broker</h2>
