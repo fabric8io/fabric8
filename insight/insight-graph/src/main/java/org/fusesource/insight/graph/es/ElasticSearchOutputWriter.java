@@ -126,8 +126,7 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                         quote(result.getTypeName(), writer);
                         writer.append(", \"key\" : ");
                         quote(values.getKey(), writer);
-                        writer.append(", \"value\" : ");
-                        quote(values.getValue().toString(), writer);
+                        writer.append(", \"value\" : " + values.getValue().toString());
                         writer.append(" }");
                         IndexRequest request = new IndexRequest()
                                 .index(index)
