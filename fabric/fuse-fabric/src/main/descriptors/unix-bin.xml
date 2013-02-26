@@ -39,6 +39,8 @@
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>karaf-manual*</exclude>
             </excludes>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
@@ -89,6 +91,8 @@
         <fileSet>
             <directory>${basedir}/target/features-repo</directory>
             <outputDirectory>system</outputDirectory>
+            <fileMode>0644</fileMode>
+            <lineEnding>unix</lineEnding>
         </fileSet>
 
         <fileSet>

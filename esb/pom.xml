@@ -110,7 +110,6 @@
         <!-- Maven Plugins -->
         <jbi-maven-plugin.version>4.5</jbi-maven-plugin.version>
         <maven-antrun-plugin.version>1.6</maven-antrun-plugin.version>
-        <maven-assembly-plugin.version>2.2.1</maven-assembly-plugin.version>
         <maven-bundle-plugin.version>2.1.0</maven-bundle-plugin.version>
 
         <!-- Other Dependencies -->
