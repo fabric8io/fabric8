@@ -280,10 +280,10 @@
 
     <modules>
         <module>common-util</module>
+        <module>insight</module>
         <module>tooling</module>
         <module>fabric</module>
         <module>fab</module>
-        <module>insight</module>
         <module>patch</module>
         <module>process</module>
         <module>bai</module>
