@@ -1,7 +1,7 @@
 @echo off
 rem    
-rem    Copyright (C) FuseSource, Inc.
-rem    http://fusesource.com
+rem    Copyright (C) Red Hat, Inc.
+rem    http://redhat.com
 rem    
 rem    Licensed under the Apache License, Version 2.0 (the "License");
 rem    you may not use this file except in compliance with the License.
