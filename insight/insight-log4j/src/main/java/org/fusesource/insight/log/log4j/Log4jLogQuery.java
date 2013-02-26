@@ -31,18 +31,25 @@ import org.fusesource.insight.log.LogResults;
 import org.fusesource.insight.log.support.LogQuerySupport;
 import org.fusesource.insight.log.support.LruList;
 import org.fusesource.insight.log.support.Predicate;
-import org.ops4j.pax.url.mvn.Handler;
+import org.ops4j.pax.url.maven.commons.MavenConfigurationImpl;
+import org.ops4j.pax.url.maven.commons.MavenSettingsImpl;
+import org.ops4j.pax.url.mvn.ServiceConstants;
+import org.ops4j.pax.url.mvn.internal.AetherBasedResolver;
+import org.ops4j.util.property.PropertiesPropertyResolver;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import static org.fusesource.insight.log.support.Strings.contains;
@@ -56,10 +63,12 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
     private int size = 1000;
     private LruList<LoggingEvent> events;
     private boolean addMavenCoordinates = true;
+    private AetherBasedResolver resolver;
+    private Properties properties = new Properties();
+    private MavenConfigurationImpl config;
 
     @PostConstruct
     public void start() {
-        registerMavenURLHandler();
         super.start();
 
         ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
@@ -90,21 +99,6 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
             appenderAttachable.addAppender(appender);
         } else {
             LOG.error("No ILoggerFactory found so cannot attach appender!");
-        }
-    }
-
-    public static void registerMavenURLHandler() {
-        final String packageName = Handler.class.getPackage().getName();
-        final String pkg = packageName.substring(0, packageName.lastIndexOf('.'));
-        final String protocolPathProp = "java.protocol.handler.pkgs";
-
-        String uriHandlers = System.getProperty(protocolPathProp, "");
-        if (uriHandlers.indexOf(pkg) == -1) {
-            if (uriHandlers.length() != 0) {
-                uriHandlers += "|";
-            }
-            uriHandlers += pkg;
-            System.setProperty(protocolPathProp, uriHandlers);
         }
     }
 
@@ -298,9 +292,51 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
                 loggingEvent.setProperty("maven.coordinates", coordinates);
             }
         }
-
     }
 
+    protected String loadCoords(String coords, String filePath) throws IOException {
+        String[] split = coords.split("/");
+        if (split != null && split.length > 2) {
+            String groupId = split[0];
+            String artifactId = split[1];
+            String version = split[2];
+            if (resolver == null) {
+                Properties defaultProperties = getDefaultProperties();
+                Properties systemProperties = System.getProperties();
+                if (config == null) {
+                    Properties combined = new Properties();
+                    combined.putAll(defaultProperties);
+                    combined.putAll(systemProperties);
+                    if (properties != null) {
+                        combined.putAll(properties);
+                    }
+                    config = new MavenConfigurationImpl(new PropertiesPropertyResolver(combined), ServiceConstants.PID);
+                    config.setSettings( new MavenSettingsImpl( config.getSettingsFileUrl(), config.useFallbackRepositories() ) );
+                }
+                resolver = new AetherBasedResolver(config);
+            }
+            File file = resolver.resolveFile(groupId, artifactId, "sources", "jar", version);
+            if (file.exists() && file.isFile()) {
+                String fileUri = file.toURI().toString();
+                URL url = new URL("jar:" + fileUri + "!" + filePath);
+                return loadString(url);
+            }
+        }
+        return null;
+    }
+
+    protected Properties getDefaultProperties() {
+        Properties defaultProperties = new Properties();
+        defaultProperties.setProperty("org.ops4j.pax.url.mvn.repositories",
+                "http://repo1.maven.org/maven2@id=maven.central.repo, " +
+                "http://repo.fusesource.com/nexus/content/repositories/releases@id=fusesource.release.repo, " +
+                "http://repo.fusesource.com/nexus/content/groups/ea@id=fusesource.ea.repo, " +
+                "http://svn.apache.org/repos/asf/servicemix/m2-repo@id=servicemix.repo, " +
+                "http://repository.springsource.com/maven/bundles/release@id=springsource.release.repo, " +
+                "http://repository.springsource.com/maven/bundles/external@id=springsource.external.repo, " +
+                "http://scala-tools.org/repo-releases@id=scala.repo");
+        return defaultProperties;
+    }
 
     // Properties
     //-------------------------------------------------------------------------
@@ -331,4 +367,27 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         this.addMavenCoordinates = addMavenCoordinates;
     }
 
+    public Properties getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    public MavenConfigurationImpl getConfig() {
+        return config;
+    }
+
+    public void setConfig(MavenConfigurationImpl config) {
+        this.config = config;
+    }
+
+    public AetherBasedResolver getResolver() {
+        return resolver;
+    }
+
+    public void setResolver(AetherBasedResolver resolver) {
+        this.resolver = resolver;
+    }
 }

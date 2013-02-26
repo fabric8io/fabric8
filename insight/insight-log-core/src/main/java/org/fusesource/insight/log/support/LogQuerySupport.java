@@ -54,7 +54,7 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         }
     }
 
-    private static String loadString(URL url) throws IOException {
+    protected static String loadString(URL url) throws IOException {
         InputStream is = url.openStream();
         if (is == null) {
             return null;
@@ -218,12 +218,12 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         String coords = mavenCoords.replace(':', '/');
         String[] array = coords.split("\\s+");
         if (array == null || array.length < 2) {
-            return loadCoords(filePath, coords);
+            return loadCoords(coords, filePath);
         } else {
             // lets enumerate all values if space separated
             for (String coord : array) {
                 try {
-                    return loadCoords(filePath, coord);
+                    return loadCoords(coord, filePath);
                 } catch (IOException e) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("" + e);
@@ -234,7 +234,7 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         }
     }
 
-    private String loadCoords(String filePath, String coords) throws IOException {
+    protected String loadCoords(String coords, String filePath) throws IOException {
         URL url = new URL("jar:mvn:" + coords + "/jar/sources!" + filePath);
         return loadString(url);
     }

@@ -30,6 +30,10 @@
   <description>Fuse Insight :: Logging Log4j</description>
   <packaging>jar</packaging>
 
+  <properties>
+    <pax.url.version>1.5.2</pax.url.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.fusesource.insight</groupId>
@@ -46,9 +50,10 @@
       <artifactId>slf4j-log4j12</artifactId>
       <version>${slf4j-version}</version>
     </dependency>
+
     <dependency>
       <groupId>org.ops4j.pax.url</groupId>
-      <artifactId>pax-url-mvn</artifactId>
+      <artifactId>pax-url-aether</artifactId>
       <version>${pax.url.version}</version>
     </dependency>
 
