@@ -387,7 +387,6 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-notices-plugin</artifactId>
-        <version>1.26</version>
         <executions>
           <execution>
             <id>merge-notices-in-repository</id>
@@ -405,7 +404,7 @@
               <repositories>
                 ${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system
               </repositories>
-              <defaultParent>org.fusesource.fabric:fabric-project:${project.version}</defaultParent>
+              <defaultParent>org.fusesource.fabric:fabric-project:${project.version}:../..</defaultParent>
             </configuration>
           </execution>
         </executions>

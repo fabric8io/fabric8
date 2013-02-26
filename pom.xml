@@ -523,6 +523,11 @@
               <artifactId>depends-maven-plugin</artifactId>
               <version>${depends-maven-plugin.version}</version>
           </plugin>
+          <plugin>
+              <groupId>org.fusesource.mvnplugins</groupId>
+              <artifactId>maven-notices-plugin</artifactId>
+              <version>1.29</version>
+          </plugin>
         </plugins>
     </build>
 
