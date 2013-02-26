@@ -477,6 +477,7 @@
     </feature>
 
     <feature name="fabric-webui" version="${project.version}" resolver="(obr)">
+        <feature>war</feature>
         <feature>fabric-rest</feature>
         <bundle>mvn:org.fusesource.fmc/fmc-webui/${project.version}/war</bundle>
     </feature>
