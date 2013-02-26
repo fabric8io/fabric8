@@ -97,7 +97,7 @@
 
         <fabric.version>${project.version}</fabric.version>
         <fuse.version>${project.version}</fuse.version>
-        <perfectus-build>008</perfectus-build>
+        <perfectus-build>009</perfectus-build>
         <activemq-version>5.8.0.redhat-60${perfectus-build}</activemq-version>
         <jmdns-version>3.4.1</jmdns-version>
         <antlr-version>3.3</antlr-version>
@@ -559,7 +559,7 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-        <repository>
+<!--        <repository>
             <id>fusesource-nexus-staging</id>
             <name>FuseSource Release Proxy</name>
             <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
@@ -569,7 +569,7 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </repository>
+        </repository> -->
         <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Repository Group</name>
@@ -726,6 +726,7 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
+<!--
         <pluginRepository>
             <id>fusesource-nexus-staging</id>
             <name>FuseSource Release Proxy</name>
@@ -736,7 +737,7 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </pluginRepository>
+        </pluginRepository> -->
     </pluginRepositories>
 
 

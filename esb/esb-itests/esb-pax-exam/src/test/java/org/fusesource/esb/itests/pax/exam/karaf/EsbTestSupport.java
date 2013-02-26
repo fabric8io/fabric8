@@ -55,7 +55,7 @@ public class EsbTestSupport extends FuseTestSupport {
     protected Option esbDistributionConfiguration() {
         return new DefaultCompositeOption(
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("tar.gz"))
+                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
                         .karafVersion(getKarafVersion()).name("JBoss Fuse Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                         useOwnExamBundlesStartLevel(50),
                       editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),

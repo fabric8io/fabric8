@@ -85,7 +85,7 @@ public class SelfUpdateTest extends FabricTestSupport {
     protected Option[] oldFabricDistributionConfiguration() {
         return new Option[] {
                 karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).version(OLD_VERSION).type("tar.gz"))
+                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).version(OLD_VERSION).type("zip"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                 useOwnExamBundlesStartLevel(50),
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),

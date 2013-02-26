@@ -19,7 +19,7 @@
     <id>unix-bin</id>
 
     <formats>
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
 
     <fileSets>
@@ -50,6 +50,17 @@
             </includes>
             <excludes>
                 <exclude>bin/create</exclude>
+            </excludes>
+            <fileMode>0755</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>target/dependencies/win/apache-karaf-${karaf-version}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>bin/*</include>
+            </includes>
+            <excludes>
+                <exclude>bin/create.bat</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -106,6 +117,14 @@
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
+        <file>
+            <source>${basedir}/target/dependencies/win/apache-karaf-${karaf-version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fusefabric.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
+        </file>
+
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>
             <outputDirectory>/</outputDirectory>

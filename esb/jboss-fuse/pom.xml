@@ -49,12 +49,6 @@
             <version>${fabric-version}</version>
             <type>zip</type>
         </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fuse-fabric</artifactId>
-            <version>${fabric-version}</version>
-            <type>tar.gz</type>
-        </dependency>
 
         <!-- branding -->
         <dependency>
@@ -251,26 +245,8 @@
                                     <groupId>org.fusesource.fabric</groupId>
                                     <artifactId>fuse-fabric</artifactId>
                                     <version>${fabric-version}</version>
-                                    <type>tar.gz</type>
-                                    <outputDirectory>target/dependencies/unix</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>unpack-win</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.fusesource.fabric</groupId>
-                                    <artifactId>fuse-fabric</artifactId>
-                                    <version>${fabric-version}</version>
                                     <type>zip</type>
-                                    <outputDirectory>target/dependencies/win</outputDirectory>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
@@ -320,15 +296,9 @@
                                         append="true" eol="unix">
                                     <fileset file="target/shared/startup-obr.properties" />
                                 </concat>
-                                <echo message="Updating etc/startup.properties in windows assembly"/>
-                                <concat destfile="target/dependencies/win/fuse-fabric-${fabric-version}/etc/startup.properties"
-                                        append="true" eol="dos">
-                                    <fileset file="target/shared/startup-obr.properties" />
-                                </concat>
-                                <echo message="Fixing start/stop scripts in windows assembly" />
-                                <replace file="target/dependencies/win/fuse-fabric-${fabric-version}/bin/start.bat" token="fusefabric.bat" value="fuse.bat"/>
-                                <replace file="target/dependencies/win/fuse-fabric-${fabric-version}/bin/stop.bat" token="fusefabric.bat" value="fuse.bat"/>
-                                <echo message="Fixing start/stop scripts in unix assembly" />
+                                <echo message="Fixing start/stop scripts in assembly" />
+                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/start.bat" token="fusefabric.bat" value="fuse.bat"/>
+                                <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/stop.bat" token="fusefabric.bat" value="fuse.bat"/>
                                 <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/start" token="bin/fusefabric" value="bin/fuse"/>
                                 <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/bin/stop" token="bin/fusefabric" value="bin/fuse"/>
                                 <echo message="Updating etc/system.properties in unix assembly" />
@@ -337,14 +307,7 @@
                                     <fileset file="target/shared/system-smx.properties" />
                                 </concat>
                                 <echo file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/system.properties" append="true">profile=${project.artifactId}</echo>
-                                <echo message="Updating etc/system.properties in windows assembly" />
-                                <concat destfile="target/dependencies/win/fuse-fabric-${fabric-version}/etc/system.properties"
-                                        append="true" eol="unix">
-                                    <fileset file="target/shared/system-smx.properties" />
-                                </concat>
-                                <echo file="target/dependencies/win/fuse-fabric-${fabric-version}/etc/system.properties" append="true">profile=${project.artifactId}</echo>
                                 <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/config.properties" token="Fuse Fabric" value="JBoss Fuse"/>
-                                <replace file="target/dependencies/win/fuse-fabric-${fabric-version}/etc/config.properties" token="Fuse Fabric" value="JBoss Fuse"/>
                             </target>
                         </configuration>
                     </execution>
@@ -389,21 +352,6 @@
                                 <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
                             </descriptors>
                             <finalName>${project.artifactId}-${project.version}</finalName>
-                            <tarLongFileMode>gnu</tarLongFileMode>
-                            <appendAssemblyId>false</appendAssemblyId>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>windows-bin</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
-                            </descriptors>
-                            <finalName>${project.artifactId}-${project.version}</finalName>
                             <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
                     </execution>
@@ -430,19 +378,6 @@
                                 <configuration>
                                     <descriptors>
                                         <descriptor>src/main/descriptors/unix-src.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                                <inherited>false</inherited>
-                            </execution>
-                            <execution>
-                                <id>windows-src</id>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>attached</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/descriptors/windows-src.xml</descriptor>
                                     </descriptors>
                                 </configuration>
                                 <inherited>false</inherited>

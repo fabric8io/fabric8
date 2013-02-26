@@ -80,7 +80,7 @@
                                     <groupId>org.fusesource.fabric</groupId>
                                     <artifactId>fuse-fabric</artifactId>
                                     <version>${fabric-version}</version>
-                                    <type>tar.gz</type>
+                                    <type>zip</type>
                                     <outputDirectory>target/features-repo/org/fusesource/fabric/fuse-fabric/${fabric-version}</outputDirectory>
                                 </artifactItem>
                                 <artifactItem>

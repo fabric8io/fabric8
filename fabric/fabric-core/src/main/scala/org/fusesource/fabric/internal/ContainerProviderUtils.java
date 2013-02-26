@@ -107,7 +107,7 @@ public final class ContainerProviderUtils {
             sb.append("install_curl").append("\n");
         }
         sb.append("validate_requirements").append("\n");
-        extractTargzIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
+        extractZipIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         List<String> lines = new ArrayList<String>();
         String globalResolver = options.getResolver() != null ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
@@ -264,8 +264,8 @@ public final class ContainerProviderUtils {
         sb.append(marker).append("\n");
     }
 
-    private static void extractTargzIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) throws URISyntaxException {
-        String file = artifactId + "-" + version + ".tar.gz";
+    private static void extractZipIntoDirectory(StringBuilder sb, URI proxy, String groupId, String artifactId, String version) throws URISyntaxException {
+        String file = artifactId + "-" + version + ".zip";
         //TODO: There may be cases where this is not good enough
         if (proxy != null) {
             String baseProxyURL = (!proxy.toString().endsWith("/")) ? proxy.toString() + "/" : proxy.toString();
@@ -275,7 +275,7 @@ public final class ContainerProviderUtils {
                     .append(groupId).append(" ")
                     .append(artifactId).append(" ")
                     .append(version).append(" ")
-                    .append("tar.gz").append("\n");
+                    .append("zip").append("\n");
         }
 
         for (String fallbackRepo : FALLBACK_REPOS) {
@@ -283,10 +283,10 @@ public final class ContainerProviderUtils {
                     .append(groupId).append(" ")
                     .append(artifactId).append(" ")
                     .append(version).append(" ")
-                    .append("tar.gz").append(" ; fi \n");
+                    .append("zip").append(" ; fi \n");
         }
         sb.append("exit_if_not_exists ").append(file).append("\n");
-        sb.append("run tar -xpzf ").append(file).append("\n");
+        sb.append("run unzip ").append(file).append("\n");
     }
 
     private static String loadFunction(String function) {

@@ -69,7 +69,7 @@ public class MavenProxyServletSupportTest {
         Assert.assertEquals("org.fusesource.fabric:fuse-fabric:jar:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST.jar"));
 
         //Try extensions with a dot
-        Assert.assertEquals("org.fusesource.fabric:fuse-fabric:tar.gz:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST.tar.gz"));
+        Assert.assertEquals("org.fusesource.fabric:fuse-fabric:zip:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST.zip"));
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MavenProxyServletSupportTest {
         Assert.assertEquals("org.fusesource.fabric:fuse-fabric:xml:features:7-1-x-fuse-01",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/7-1-x-fuse-01/fuse-fabric-7-1-x-fuse-01-features.xml"));
 
         //Try extensions with a dot
-        Assert.assertEquals("org.fusesource.fabric:fuse-fabric:tar.gz:distro:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST-distro.tar.gz"));
+        Assert.assertEquals("org.fusesource.fabric:fuse-fabric:zip:distro:LATEST",servlet.convertToMavenUrl("org/fusesource/fabric/fuse-fabric/LATEST/fuse-fabric-LATEST-distro.zip"));
     }
 
 }

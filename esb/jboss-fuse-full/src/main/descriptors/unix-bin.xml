@@ -19,8 +19,7 @@
     <id>fuse</id>
 
     <formats>
-        <format>jar</format>        <!-- SMX4-775: Added JAR assembly for *nix systems without GNU TAR  -->
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
 
     <baseDirectory>jboss-fuse-${version}</baseDirectory>

@@ -54,7 +54,7 @@
             <groupId>org.jboss.fuse</groupId>
             <artifactId>jboss-fuse-minimal</artifactId>
             <version>${project.version}</version>
-            <type>tar.gz</type>
+            <type>zip</type>
         </dependency>
 
 

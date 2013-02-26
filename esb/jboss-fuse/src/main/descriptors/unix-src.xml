@@ -18,8 +18,7 @@
 <assembly>
     <id>src</id>
     <formats>
-        <format>jar</format>
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
     <fileSets>
         <!-- Copy license and other files from root -->

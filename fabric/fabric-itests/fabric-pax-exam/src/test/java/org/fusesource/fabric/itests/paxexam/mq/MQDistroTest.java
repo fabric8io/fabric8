@@ -136,7 +136,7 @@ public class MQDistroTest extends FuseTestSupport {
     protected Option mqDistributionConfiguration() {
         return new DefaultCompositeOption(
                 new Option[]{karafDistributionConfiguration().frameworkUrl(
-                maven().groupId(MQ_GROUP_ID).artifactId(MQ_ARTIFACT_ID).versionAsInProject().type("tar.gz"))
+                maven().groupId(MQ_GROUP_ID).artifactId(MQ_ARTIFACT_ID).versionAsInProject().type("zip"))
                         .karafVersion("2.2.2").name("Fabric MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                 mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 useOwnExamBundlesStartLevel(50),

@@ -19,7 +19,7 @@
     <id>unix-bin</id>
 
     <formats>
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
 
     <fileSets>
@@ -60,10 +60,10 @@
                 <include>bin/*</include>
             </includes>
             <excludes>
-                <exclude>bin/create</exclude>
-                <exclude>bin/fusefabric</exclude>
-                <exclude>bin/shell</exclude>
-                <exclude>bin/setenv</exclude>
+                <exclude>bin/create*</exclude>
+                <exclude>bin/fusefabric*</exclude>
+                <exclude>bin/shell*</exclude>
+                <exclude>bin/setenv*</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -72,9 +72,6 @@
             <directory>target/classes/bin</directory>
             <outputDirectory>/bin/</outputDirectory>
             <lineEnding>unix</lineEnding>
-            <excludes>
-                <exclude>*.bat</exclude>
-            </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
 
@@ -116,6 +113,13 @@
             <destName>a-mq</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>a-mq.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
         </file>
         <file>
             <source>${basedir}/target/META-INF/NOTICE</source>

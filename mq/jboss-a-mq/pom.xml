@@ -62,12 +62,6 @@
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
                <version>${project.version}</version>
-               <type>tar.gz</type>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fuse-fabric</artifactId>
-               <version>${project.version}</version>
                <type>zip</type>
            </dependency>
 
@@ -228,25 +222,8 @@
                                    <artifactItem>
                                        <groupId>org.fusesource.fabric</groupId>
                                        <artifactId>fuse-fabric</artifactId>
-                                       <type>tar.gz</type>
-                                       <outputDirectory>target/dependencies/unix</outputDirectory>
-                                   </artifactItem>
-                               </artifactItems>
-                           </configuration>
-                       </execution>
-                       <execution>
-                           <id>unpack-win</id>
-                           <phase>generate-resources</phase>
-                           <goals>
-                               <goal>unpack</goal>
-                           </goals>
-                           <configuration>
-                               <artifactItems>
-                                   <artifactItem>
-                                       <groupId>org.fusesource.fabric</groupId>
-                                       <artifactId>fuse-fabric</artifactId>
                                        <type>zip</type>
-                                       <outputDirectory>target/dependencies/win</outputDirectory>
+                                       <outputDirectory>target/dependencies/unix</outputDirectory>
                                    </artifactItem>
                                </artifactItems>
                            </configuration>
@@ -320,27 +297,9 @@
                                    <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
                                </descriptors>
                                <finalName>${project.artifactId}-${project.version}</finalName>
-                               <tarLongFileMode>gnu</tarLongFileMode>
                                <appendAssemblyId>false</appendAssemblyId>
                                <filters>
                                    <filter>${project.basedir}/src/main/descriptors/unix.properties</filter>
-                               </filters>
-                           </configuration>
-                       </execution>
-                       <execution>
-                           <id>windows-bin</id>
-                           <phase>package</phase>
-                           <goals>
-                               <goal>single</goal>
-                           </goals>
-                           <configuration>
-                               <descriptors>
-                                   <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
-                               </descriptors>
-                               <finalName>${project.artifactId}-${project.version}</finalName>
-                               <appendAssemblyId>false</appendAssemblyId>
-                               <filters>
-                                   <filter>${project.basedir}/src/main/descriptors/windows.properties</filter>
                                </filters>
                            </configuration>
                        </execution>
@@ -360,8 +319,8 @@
                            <configuration>
                                <target name="update-properties">
                                    <echo message="Fixing start/stop scripts in windows assembly" />
-                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="a-mq.bat"/>
-                                   <replace file="target/dependencies/win/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="a-mq.bat"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="a-mq.bat"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="a-mq.bat"/>
                                    <echo message="Fixing start/stop scripts in unix assembly" />
                                    <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/a-mq"/>
                                    <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/a-mq"/>
@@ -371,16 +330,8 @@
                                    </concat>
                                    <echo file="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
                                    <echo message="Updating etc/system.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
-                                       <fileset file="src/main/resources/etc/system-mq.properties" />
-                                   </concat>
-                                   <echo file="target/dependencies/win/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
                                    <echo message="Updating etc/config.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/config.properties" append="true" eol="unix">
-                                       <fileset file="src/main/resources/etc/config-mq.properties" />
-                                   </concat>
-                                   <echo message="Updating etc/config.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/fuse-fabric-${project.version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/config-mq.properties" />
                                    </concat>
                                </target>

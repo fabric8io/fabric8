@@ -49,8 +49,8 @@
               <include>bin/*</include>
             </includes>
             <excludes>
-              <exclude>bin/fusefabric</exclude>
-              <exclude>bin/shell</exclude>
+              <exclude>bin/fusefabric*</exclude>
+              <exclude>bin/shell*</exclude>
             </excludes>
             <fileMode>0755</fileMode>
         </fileSet>
@@ -111,6 +111,13 @@
             <destName>fuse</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric-version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fuse.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>dos</lineEnding>
         </file>
         <!--
         <file>

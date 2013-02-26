@@ -313,16 +313,8 @@
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/startup.properties" append="true" eol="unix">
                                        <fileset file="target/classes/etc/startup.properties"/>
                                    </concat>
-                                   <echo message="Updating etc/startup.properties in windows assembly"/>
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/startup.properties" append="true" eol="dos">
-                                       <fileset file="target/classes/etc/startup.properties"/>
-                                   </concat>
                                    <echo message="Updating etc/config.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/common/etc/config.properties" />
-                                   </concat>
-                                   <echo message="Updating etc/config.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/config.properties" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/common/etc/config.properties" />
                                    </concat>
 
@@ -330,26 +322,14 @@
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
                                    </concat>
-                                   <echo message="Updating etc/org.ops4j.pax.logging.cfg in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/org.ops4j.pax.logging.cfg" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/common/etc/org.ops4j.pax.logging.cfg" />
-                                   </concat>
 
                                    <echo message="Updating etc/system.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/append-resources/common/etc/system.properties" />
                                    </concat>
-                                   <echo message="Updating etc/system.properties in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/system.properties" append="true" eol="dos">
-                                       <fileset file="src/main/append-resources/common/etc/system.properties" />
-                                   </concat>
 
                                    <echo message="Updating etc/shell.init.script in unix assembly" />
                                    <concat destfile="target/dependencies/unix/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="unix">
-                                       <fileset file="src/main/append-resources/common/etc/shell.init.script" />
-                                   </concat>
-                                   <echo message="Updating etc/shell.init.script in windows assembly" />
-                                   <concat destfile="target/dependencies/win/apache-karaf-${karaf-version}/etc/shell.init.script" append="true" eol="dos">
                                        <fileset file="src/main/append-resources/common/etc/shell.init.script" />
                                    </concat>
 
@@ -404,21 +384,6 @@
                            <configuration>
                                <descriptors>
                                    <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
-                               </descriptors>
-                               <finalName>${project.artifactId}-${project.version}</finalName>
-                               <tarLongFileMode>gnu</tarLongFileMode>
-                               <appendAssemblyId>false</appendAssemblyId>
-                           </configuration>
-                       </execution>
-                       <execution>
-                           <id>windows-bin</id>
-                           <phase>package</phase>
-                           <goals>
-                               <goal>single</goal>
-                           </goals>
-                           <configuration>
-                               <descriptors>
-                                   <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
                                </descriptors>
                                <finalName>${project.artifactId}-${project.version}</finalName>
                                <appendAssemblyId>false</appendAssemblyId>
