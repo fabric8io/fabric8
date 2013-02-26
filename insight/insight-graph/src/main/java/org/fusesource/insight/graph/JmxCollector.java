@@ -192,7 +192,7 @@ public class JmxCollector {
             trigger = minuteTrigger;
         }
 
-        this.scheduler.scheduleJob(jd, trigger);
+        scheduler.scheduleJob(jd, trigger);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Scheduled job: " + jd.getName() + " for server: " + server);
         }
@@ -241,6 +241,9 @@ public class JmxCollector {
                 }
                 JmxUtils.mergeServerLists(this.masterServersList, servers);
             }
+        }
+        for (Profile p : profile.getParents()) {
+            loadProfile(container, p);
         }
     }
 
