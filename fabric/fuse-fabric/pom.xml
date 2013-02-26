@@ -386,6 +386,7 @@
                                    <descriptor>src/main/descriptors/unix-bin.xml</descriptor>
                                </descriptors>
                                <finalName>${project.artifactId}-${project.version}</finalName>
+                               <tarLongFileMode>gnu</tarLongFileMode>
                                <appendAssemblyId>false</appendAssemblyId>
                            </configuration>
                        </execution>
