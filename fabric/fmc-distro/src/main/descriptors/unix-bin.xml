@@ -19,7 +19,7 @@
     <id>unix-bin</id>
 
     <formats>
-        <format>tar.gz</format>
+        <format>zip</format>
     </formats>
 
     <fileSets>
@@ -144,6 +144,55 @@
             <destName>fmc-client</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/karaf.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>karaf.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/fusefabric.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fmc.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/start.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fmc-start.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/stop.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fmc-stop.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/admin.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>admin.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/shell.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fmc-shell.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
+        </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/client.bat</source>
+            <outputDirectory>/bin/</outputDirectory>
+            <destName>fmc-client.bat</destName>
+            <fileMode>0755</fileMode>
+            <lineEnding>windows</lineEnding>
         </file>
 
         <file>

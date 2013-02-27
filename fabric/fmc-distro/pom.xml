@@ -40,12 +40,6 @@
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fuse-fabric</artifactId>
       <version>${fabric.version}</version>
-      <type>tar.gz</type>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fuse-fabric</artifactId>
-      <version>${fabric.version}</version>
       <type>zip</type>
     </dependency>
 
@@ -248,20 +242,10 @@
                         append="true" eol="unix">
                   <fileset file="src/main/append-resources/etc/config.properties"/>
                 </concat>
-                <echo message="Updating etc/config.properties in windows assembly"/>
-                <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/config.properties"
-                        append="true" eol="dos">
-                  <fileset file="src/main/append-resources/etc/config.properties"/>
-                </concat>
 
                 <echo message="Updating etc/system.properties in unix assembly"/>
                 <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties"
                         append="true" eol="unix">
-                  <fileset file="src/main/append-resources/etc/system.properties"/>
-                </concat>
-                <echo message="Updating etc/system.properties in windows assembly"/>
-                <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/system.properties"
-                        append="true" eol="dos">
                   <fileset file="src/main/append-resources/etc/system.properties"/>
                 </concat>
 
@@ -270,28 +254,17 @@
                         append="true" eol="unix">
                   <fileset file="src/main/append-resources/etc/org.apache.karaf.management.cfg"/>
                 </concat>
-                <echo message="Updating etc/org.apache.karaf.management.cfg in windows assembly"/>
-                <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/org.apache.karaf.management.cfg"
-                        append="true" eol="dos">
-                  <fileset file="src/main/append-resources/etc/org.apache.karaf.management.cfg"/>
-                </concat>
 
                 <echo message="Updating etc/org.apache.karaf.shell.cfg in unix assembly"/>
                 <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/org.apache.karaf.shell.cfg"
                         append="true" eol="unix">
                   <fileset file="src/main/append-resources/etc/org.apache.karaf.shell.cfg"/>
                 </concat>
-                <echo message="Updating etc/org.apache.karaf.shell.cfg in windows assembly"/>
-                <concat destfile="target/dependencies/win/fuse-fabric-${fabric.version}/etc/org.apache.karaf.shell.cfg"
-                        append="true" eol="dos">
-                  <fileset file="src/main/append-resources/etc/org.apache.karaf.shell.cfg"/>
-                </concat>
-
 
                 <echo message="Fixing start/stop scripts in windows assembly"/>
-                <replace file="target/dependencies/win/fuse-fabric-${fabric.version}/bin/start.bat"
+                <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/start.bat"
                          token="fusefabric.bat" value="fmc.bat"/>
-                <replace file="target/dependencies/win/fuse-fabric-${fabric.version}/bin/stop.bat"
+                <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/stop.bat"
                          token="fusefabric.bat" value="fmc.bat"/>
 
                 <echo message="Fixing start/stop scripts in unix assembly"/>
@@ -308,7 +281,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>2.2.1</version>
+        <version>2.4</version>
         <executions>
           <execution>
             <id>unix-bin</id>
@@ -325,20 +298,6 @@
               <appendAssemblyId>false</appendAssemblyId>
             </configuration>
           </execution>
-          <execution>
-            <id>windows-bin</id>
-            <phase>package</phase>
-            <goals>
-              <goal>single</goal>
-            </goals>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/descriptors/windows-bin.xml</descriptor>
-              </descriptors>
-              <finalName>${assembly-name}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-            </configuration>
-          </execution>
         </executions>
       </plugin>
 
@@ -346,24 +305,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
         <executions>
-          <execution>
-            <id>unpack-unix</id>
-            <phase>generate-resources</phase>
-            <goals>
-              <goal>unpack</goal>
-            </goals>
-            <configuration>
-              <artifactItems>
-                <artifactItem>
-                  <groupId>org.fusesource.fabric</groupId>
-                  <artifactId>fuse-fabric</artifactId>
-                  <version>${fabric.version}</version>
-                  <type>tar.gz</type>
-                  <outputDirectory>target/dependencies/unix</outputDirectory>
-                </artifactItem>
-              </artifactItems>
-            </configuration>
-          </execution>
           <execution>
             <id>unpack-win</id>
             <phase>generate-resources</phase>
@@ -377,7 +318,7 @@
                   <artifactId>fuse-fabric</artifactId>
                   <version>${fabric.version}</version>
                   <type>zip</type>
-                  <outputDirectory>target/dependencies/win</outputDirectory>
+                  <outputDirectory>target/dependencies/unix</outputDirectory>
                 </artifactItem>
               </artifactItems>
             </configuration>
