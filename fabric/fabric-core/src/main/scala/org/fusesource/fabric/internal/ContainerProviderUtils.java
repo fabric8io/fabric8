@@ -61,10 +61,12 @@ public final class ContainerProviderUtils {
     private static final String KARAF_CHECK = loadFunction("karaf_check.sh");
     private static final String REPLACE_IN_FILE = loadFunction("replace_in_file.sh");
     private static final String CONFIGURE_HOSTNAMES = loadFunction("configure_hostname.sh");
+	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
+	public static final int DEFAULT_HTTP_PORT = 8181;
 
     private static final String[] FALLBACK_REPOS = {"http://repo.fusesource.com/nexus/content/groups/public/", "http://repo.fusesource.com/nexus/content/groups/ea/", "http://repo.fusesource.com/nexus/content/repositories/snapshots/"};
 
@@ -94,6 +96,7 @@ public final class ContainerProviderUtils {
         sb.append(KARAF_CHECK).append("\n");
         sb.append(REPLACE_IN_FILE).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
+		sb.append(FIND_FREE_PORT).append("\n");
         sb.append("run mkdir -p ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
@@ -115,9 +118,16 @@ public final class ContainerProviderUtils {
         appendFile(sb, "etc/system.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
         //Apply port range
-        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=" + Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort()));
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=" + Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort()));
-        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=" + Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort()));
+		sb.append("SSH_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
+		sb.append("RMI_REGISTRY_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
+		sb.append("RMI_SERVER_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_SERVER_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
+		sb.append("HTTP_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_HTTP_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
+
+        replaceLineInFile(sb, "etc/org.apache.karaf.shell.cfg", "sshPort=" + DEFAULT_SSH_PORT, "sshPort=$SSH_PORT" );
+        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiRegistryPort = " + DEFAULT_RMI_REGISTRY_PORT, "rmiRegistryPort=$RMI_REGISTRY_PORT");
+        replaceLineInFile(sb, "etc/org.apache.karaf.management.cfg", "rmiServerPort = " + DEFAULT_RMI_SERVER_PORT, "rmiServerPort=$RMI_SERVER_PORT");
+		replaceLineInFile(sb, "etc/org.ops4j.pax.web.cfg", String.valueOf(DEFAULT_HTTP_PORT), "$HTTP_PORT");
+		replaceLineInFile(sb, "etc/jetty.xml", String.valueOf(DEFAULT_HTTP_PORT), "$HTTP_PORT");
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MINIMUM_PORT + "=" + options.getMinimumPort()));
         appendFile(sb, "etc/system.properties", Arrays.asList(ZkDefs.MAXIMUM_PORT + "=" + options.getMaximumPort()));
 

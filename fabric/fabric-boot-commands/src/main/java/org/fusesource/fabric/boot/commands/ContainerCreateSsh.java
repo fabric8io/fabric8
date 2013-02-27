@@ -65,6 +65,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
 
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
+	@Argument(index = 1, required = false, description = "The number of containers that should be created")
+	protected int number = 1;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -76,7 +78,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .name(name)
         .resolver(resolver)
         .ensembleServer(isEnsembleServer)
-        .number(1)
+        .number(number)
         .host(host)
         .username(user)
         .password(password)
@@ -108,27 +110,5 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         // and set its profiles and versions after creation
         postCreateContainers(metadatas);
         return null;
-    }
-
-    @Override
-    protected void preCreateContainer(String name) {
-        super.preCreateContainer(name);
-
-        // Check if the specified host is local
-        try {
-            InetAddress[] localIps = InetAddress.getAllByName(InetAddress.getLocalHost().getCanonicalHostName());
-            for (InetAddress address : InetAddress.getAllByName(host)) {
-                if (address.isAnyLocalAddress() || address.isLoopbackAddress()) {
-                    throw new IllegalArgumentException("Container creation not permitted locally");
-                }
-                for (InetAddress local : localIps) {
-                    if (local.equals(address)) {
-                        throw new IllegalArgumentException("Container creation not permitted locally");
-                    }
-                }
-            }
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to find host address: " + host, e);
-        }
     }
 }
