@@ -79,7 +79,7 @@ public class KibanaServlet extends HttpServlet {
          */
         public static long fallbackInterval = TimeUnit.SECONDS.toMillis(900);
 
-        public static String[] defaultFields  = new String[] { "message" };
+        public static String[] defaultFields  = new String[] { "level", "message" };
 
         public static String filter = "";
 
@@ -217,6 +217,20 @@ public class KibanaServlet extends HttpServlet {
             resp.getWriter().write(result);
             return;
         }
+
+        // TODO: /api/id/:id/:index
+
+        // TODO: /stream
+
+        // TODO: /api/stream/:hash/?:from?
+
+        // TODO: /rss/:hash/?:count?
+
+        // TODO: /export/:hash/?:count?
+
+        // TODO: /turl/:id
+
+        // TODO: /turl/save/:hash
 
         LOGGER.debug("Unknown request {}", request);
         resp.sendError(404);
@@ -488,10 +502,6 @@ public class KibanaServlet extends HttpServlet {
                 os.close();
                 is = conn.getInputStream();
                 ObjectNode node = (ObjectNode) new ObjectMapper().readTree(is);
-//                System.err.println("POST");
-//                System.err.println("\turl: " + url);
-//                System.err.println("\tquery: " + query);
-//                System.err.println("\tresp: " + Json.serialize(node));
                 return node;
             } catch (IOException e) {
                 throw new RuntimeException(e);
