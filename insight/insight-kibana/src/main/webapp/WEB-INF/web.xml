@@ -7,7 +7,7 @@
 
     <servlet>
         <servlet-name>kibana</servlet-name>
-        <servlet-class>kibana.KibanaServlet</servlet-class>
+        <servlet-class>org.fusesource.insight.kibana.KibanaServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>

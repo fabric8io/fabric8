@@ -63,7 +63,7 @@
                         <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
                         <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
                         <Export-Package></Export-Package>
-                        <Private-Package>kibana*</Private-Package>
+                        <Private-Package>org.fusesource.insight.kibana*</Private-Package>
                         <Import-Package>*</Import-Package>
                         <Embed-Dependency></Embed-Dependency>
                         <Webapp-Context>${webapp.context}</Webapp-Context>
