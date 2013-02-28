@@ -23,6 +23,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -54,6 +56,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class KibanaServlet extends HttpServlet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(KibanaServlet.class);
 
     public static class Config {
 
@@ -135,8 +139,8 @@ public class KibanaServlet extends HttpServlet {
         search = Pattern.compile("/js/timezone\\.js");
         matcher = search.matcher(request);
         if (matcher.matches()) {
-            System.out.println("Timezone Javascript");
-            System.out.println("\trequest: " + request);
+            LOGGER.debug("Timezone Javascript");
+            LOGGER.debug("\trequest: {}", request);
 
             String str = "var tmp_offset = \"" +
                     ("user".equals(Config.timeZone) ? "user" : TimeZone.getTimeZone(Config.timeZone).getRawOffset() / 1000)  + "\"\n" +
@@ -160,8 +164,8 @@ public class KibanaServlet extends HttpServlet {
         search = Pattern.compile("/api/search/([^/?]+)(?:/([^/?]+))?");
         matcher = search.matcher(request);
         if (matcher.matches()) {
-            System.out.println("Search");
-            System.out.println("\trequest: " + request);
+            LOGGER.debug("Search");
+            LOGGER.debug("\trequest: {}", request);
 
             String hash = matcher.group(1);
             String segment = matcher.group(2);
@@ -174,8 +178,8 @@ public class KibanaServlet extends HttpServlet {
         search = Pattern.compile("/api/graph/([^/?]+)/([^/?]+)/([^/?]+)/([^/?]*)");
         matcher = search.matcher(request);
         if (matcher.matches()) {
-            System.out.println("Graph");
-            System.out.println("\trequest: " + request);
+            LOGGER.debug("Graph");
+            LOGGER.debug("\trequest: {}", request);
 
             String mode = matcher.group(1);
             String interval = matcher.group(2);
@@ -194,8 +198,8 @@ public class KibanaServlet extends HttpServlet {
             String mode = matcher.group(2);
             String hash = matcher.group(3);
 
-            System.out.println("Analyze " + mode);
-            System.out.println("\trequest: " + request);
+            LOGGER.debug("Analyze {}", mode);
+            LOGGER.debug("\trequest: {}", request);
 
             String result;
             if ("score".equals(mode)) {
@@ -214,8 +218,7 @@ public class KibanaServlet extends HttpServlet {
             return;
         }
 
-        System.out.println("Unknown request");
-        System.out.println("\trequest: " + request);
+        LOGGER.debug("Unknown request {}", request);
         resp.sendError(404);
     }
 
@@ -224,7 +227,7 @@ public class KibanaServlet extends HttpServlet {
         int show  = Config.analyzeShow;
         ClientRequest req = new ClientRequest(hash);
 
-        System.out.println("\tclient: " + req);
+        LOGGER.debug("\tclient: {}", req);
 
         Query queryEnd = new SortedQuery(req.getSearch(), req.getFrom(), req.getTo(), 0, limit, Config.timestamp, "desc");
         List<String> indicesEnd = Kelastic.getIndices(req.getFrom(), req.getTo());
@@ -276,7 +279,6 @@ public class KibanaServlet extends HttpServlet {
         ((ObjectNode) resultEnd.get("hits")).put("hits", hits);
 
         String str = Json.serialize(resultEnd);
-        System.out.println(str);
         return str;
     }
 
@@ -285,8 +287,8 @@ public class KibanaServlet extends HttpServlet {
         ClientRequest req = new ClientRequest(hash);
         Query query = new TermsFacet(req.getSearch(), req.getFrom(), req.getTo(), field.split(","), limit);
 
-        System.out.println("\tclient: " + req);
-        System.out.println("\tquery: " + query);
+        LOGGER.debug("\tclient: {}", req);
+        LOGGER.debug("\tquery: {}", query);
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo(), Config.facetIndexLimit);
 
@@ -298,7 +300,6 @@ public class KibanaServlet extends HttpServlet {
 
 
         String str = Json.serialize(result);
-        System.out.println(str);
         return str;
     }
 
@@ -306,8 +307,8 @@ public class KibanaServlet extends HttpServlet {
         ClientRequest req = new ClientRequest(hash);
         Query query = new StatsFacet(req.getSearch(), req.getFrom(), req.getTo(), field);
 
-        System.out.println("\tclient: " + req);
-        System.out.println("\tquery: " + query);
+        LOGGER.debug("\tclient: {}", req);
+        LOGGER.debug("\tquery: {}", query);
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo(), Config.facetIndexLimit);
 
@@ -332,8 +333,8 @@ public class KibanaServlet extends HttpServlet {
         ClientRequest req = new ClientRequest(hash);
         Query query = new SortedQuery(req.getSearch(), req.getFrom(), req.getTo(), 0, limit);
 
-        System.out.println("\tclient: " + req);
-        System.out.println("\tquery: " + query);
+        LOGGER.debug("\tclient: {}", req);
+        LOGGER.debug("\tquery: {}", query);
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo());
 
@@ -359,10 +360,10 @@ public class KibanaServlet extends HttpServlet {
     }
 
     private String graph(String mode, String interval, String hash, String segment) throws IOException {
-        System.out.println("\tmode: " + mode);
-        System.out.println("\tinterval: " + interval);
-        System.out.println("\thash: " + hash);
-        System.out.println("\tsegment: " + segment);
+        LOGGER.debug("\tmode: {}", mode);
+        LOGGER.debug("\tinterval: {}", interval);
+        LOGGER.debug("\thash: {}", hash);
+        LOGGER.debug("\tsegment: {}", segment);
 
         // TODO: segment
         int seg = segment.isEmpty() ? 0 : Integer.parseInt(segment);
@@ -376,8 +377,8 @@ public class KibanaServlet extends HttpServlet {
             throw new IllegalArgumentException("unsupported mode " + mode);
         }
 
-        System.out.println("\tclient: " + req);
-        System.out.println("\tquery: " + query);
+        LOGGER.debug("\tclient: {}", req);
+        LOGGER.debug("\tquery: {}", query);
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo());
         ObjectNode result = new KelasticSegment(query, indices, seg).getResponse();
@@ -387,8 +388,8 @@ public class KibanaServlet extends HttpServlet {
     }
 
     private String search(String hash, String segment) throws IOException {
-        System.out.println("\thash: " + hash);
-        System.out.println("\tsegment: " + segment);
+        LOGGER.debug("\thash: {}", hash);
+        LOGGER.debug("\tsegment: {}", segment);
 
         // TODO: segment
         ClientRequest req = new ClientRequest(hash);
@@ -396,12 +397,12 @@ public class KibanaServlet extends HttpServlet {
                 ? new HighlightedQuery(req.getSearch(), req.getFrom(), req.getTo(), req.getOffset())
                 : new SortedQuery(req.getSearch(), req.getFrom(), req.getTo(), req.getOffset());
 
-        System.out.println("\tclient: " + req);
-        System.out.println("\tquery: " + query);
+        LOGGER.debug("\tclient: {}", req);
+        LOGGER.debug("\tquery: {}", query);
 
 
         Collection<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo());
-        System.out.println("\tindices: " + indices);
+        LOGGER.debug("\tindices: {}", indices);
 
         ObjectNode result = new KelasticMulti(query, indices).getResponse();
         ObjectNode time = ((ObjectNode) result.get("kibana")).putObject("time");
@@ -414,8 +415,6 @@ public class KibanaServlet extends HttpServlet {
         ((ObjectNode) result.get("kibana")).put("clickable_urls", Config.clickableUrls);
 
         String str = Json.serialize(result);
-
-//        System.out.println("Result: " + str);
         return str;
     }
 
