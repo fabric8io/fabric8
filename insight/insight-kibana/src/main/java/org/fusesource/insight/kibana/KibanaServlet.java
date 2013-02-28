@@ -26,9 +26,12 @@ import org.codehaus.jackson.node.ObjectNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +39,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -142,6 +146,10 @@ public class KibanaServlet extends HttpServlet {
             LOGGER.debug("Timezone Javascript");
             LOGGER.debug("\trequest: {}", request);
 
+            ArrayNode fields = Json.arrayNode();
+            for (String f : Config.defaultFields) {
+                fields.add(f);
+            }
             String str = "var tmp_offset = \"" +
                     ("user".equals(Config.timeZone) ? "user" : TimeZone.getTimeZone(Config.timeZone).getRawOffset() / 1000)  + "\"\n" +
                     "\n" +
@@ -154,10 +162,21 @@ public class KibanaServlet extends HttpServlet {
                     "\twindow.tOffset = parseFloat(tmp_offset) * 3600 * 1000;\n" +
                     "}\n" +
                     "\n" +
+                    "window.default_fields = " + fields.toString() + ";\n" +
                     "window.timestamp = \"" + Config.timestamp + "\";\n";
 
             resp.setHeader("Content-Type", "application/json");
             resp.getWriter().write(str);
+            return;
+        }
+
+        search = Pattern.compile("/stream");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            LOGGER.debug("Stream");
+            LOGGER.debug("\trequest: {}", request);
+
+            req.getRequestDispatcher("/stream.html").forward(req, resp);
             return;
         }
 
@@ -218,22 +237,127 @@ public class KibanaServlet extends HttpServlet {
             return;
         }
 
-        // TODO: /api/id/:id/:index
+        search = Pattern.compile("/api/id/([^/?]+)/([^/?]+)");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            String id = matcher.group(1);
+            String index = matcher.group(2);
 
-        // TODO: /stream
+            LOGGER.debug("Id");
+            LOGGER.debug("\trequest: {}", request);
 
-        // TODO: /api/stream/:hash/?:from?
+            ObjectNode result = Kelastic.kelastic(new IDQuery(id), index);
+            resp.getWriter().write(result.toString());
+            return;
+        }
 
-        // TODO: /rss/:hash/?:count?
+        search = Pattern.compile("/api/stream/([^/?]+)(?:/([^/?]+))?");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            String hash = matcher.group(1);
+            String from = matcher.group(2);
 
-        // TODO: /export/:hash/?:count?
+            LOGGER.debug("Stream");
+            LOGGER.debug("\trequest: {}", request);
 
-        // TODO: /turl/:id
+            ObjectNode result = stream(hash, from);
+            resp.getWriter().write(result.toString());
+            return;
+        }
 
-        // TODO: /turl/save/:hash
+        search = Pattern.compile("/rss/([^/?]+)/([^/?]+)");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            String hash = matcher.group(1);
+            String count = matcher.group(2);
+
+            LOGGER.debug("Rss");
+            LOGGER.debug("\trequest: {}", request);
+
+            // TODO: create rss
+            resp.sendError(404);
+            return;
+        }
+
+        search = Pattern.compile("/export/([^/?]+)/([^/?]+)");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            String hash = matcher.group(1);
+            String count = matcher.group(2);
+
+            LOGGER.debug("Export");
+            LOGGER.debug("\trequest: {}", request);
+
+            // TODO: implement
+            resp.sendError(404);
+            return;
+        }
+
+        search = Pattern.compile("/turl/([^/?]+)");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            String id = matcher.group(1);
+
+            LOGGER.debug("Turl id");
+            LOGGER.debug("\trequest: {}", request);
+
+            // TODO: implement
+            resp.sendError(404);
+            return;
+        }
+
+        search = Pattern.compile("/turl/save/([^/?]+)");
+        matcher = search.matcher(request);
+        if (matcher.matches()) {
+            String hash = matcher.group(1);
+
+            LOGGER.debug("Turl save");
+            LOGGER.debug("\trequest: {}", request);
+
+            // TODO: implement
+            resp.sendError(404);
+            return;
+        }
 
         LOGGER.debug("Unknown request {}", request);
         resp.sendError(404);
+    }
+
+    private ObjectNode stream(String hash, String from) throws IOException {
+        // This is delayed by 10 seconds to account for indexing time and a small time
+        // difference between us and the ES server.
+        int delay = 10;
+
+        // Calculate 'from'  and 'to' based on last event in stream.
+        long fromDate;
+        if (from == null) {
+            fromDate = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(10 + delay);
+        } else {
+            fromDate = parseDate(from);
+        }
+
+        // ES's range filter is inclusive. delay-1 should give us the correct window.
+        // Maybe?
+        long toDate = System.currentTimeMillis() - TimeUnit.SECONDS.toMillis(delay);
+
+        // Build and execute
+        ClientRequest reqc     = new ClientRequest(hash);
+        Query query   = new SortedQuery(reqc.getSearch(), fromDate, toDate, 0, 30);
+        List<String> indices = Kelastic.getIndices(fromDate, toDate);
+        return kelasticMulti(query, indices);
+    }
+
+    private void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+        try {
+            byte[] buffer = new byte[4096];
+            int l;
+            while ((l = inputStream.read(buffer)) >= 0) {
+                outputStream.write(buffer, 0, l);
+            }
+        } finally {
+            inputStream.close();
+            outputStream.close();
+        }
     }
 
     private String analyzeTrend(String field, String hash) throws IOException {
@@ -245,18 +369,18 @@ public class KibanaServlet extends HttpServlet {
 
         Query queryEnd = new SortedQuery(req.getSearch(), req.getFrom(), req.getTo(), 0, limit, Config.timestamp, "desc");
         List<String> indicesEnd = Kelastic.getIndices(req.getFrom(), req.getTo());
-        ObjectNode resultEnd = new KelasticMulti(queryEnd, indicesEnd).getResponse();
+        ObjectNode resultEnd = kelasticMulti(queryEnd, indicesEnd);
         if (resultEnd.get("hits").get("hits").size() < limit) {
             limit = resultEnd.get("hits").get("hits").size() / 2;
             queryEnd = new SortedQuery(req.getSearch(), req.getFrom(), req.getTo(), 0, limit, Config.timestamp, "desc");
-            resultEnd = new KelasticMulti(queryEnd, indicesEnd).getResponse();
+            resultEnd = kelasticMulti(queryEnd, indicesEnd);
         }
         Map<String, Integer> countEnd = KelasticResponse.countFields(resultEnd, field);
 
         Query queryBegin = new SortedQuery(req.getSearch(), req.getFrom(), req.getTo(), 0, limit, Config.timestamp, "asc");
         List<String> indicesBegin = Kelastic.getIndices(req.getFrom(), req.getTo());
         Collections.reverse(indicesBegin);
-        ObjectNode resultBegin = new KelasticMulti(queryBegin, indicesBegin).getResponse();
+        ObjectNode resultBegin = kelasticMulti(queryBegin, indicesBegin);
         Map<String, Integer> countBegin = KelasticResponse.countFields(resultBegin, field);
 
         ObjectNode time = ((ObjectNode) resultEnd.get("kibana")).putObject("time");
@@ -289,11 +413,10 @@ public class KibanaServlet extends HttpServlet {
             hits.add(n);
         }
 
-        ((ObjectNode) resultEnd.get("hits")).put("count", resultEnd.get("hits").get("hits").size());
-        ((ObjectNode) resultEnd.get("hits")).put("hits", hits);
+        resultEnd.with("hits").put("count", resultEnd.get("hits").get("hits").size());
+        resultEnd.with("hits").put("hits", hits);
 
-        String str = Json.serialize(resultEnd);
-        return str;
+        return Json.serialize(resultEnd);
     }
 
     private String analyzeTerms(String field, String hash) throws IOException {
@@ -306,15 +429,14 @@ public class KibanaServlet extends HttpServlet {
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo(), Config.facetIndexLimit);
 
-        ObjectNode result = new KelasticMultiFlat(query, indices).getResponse();
+        ObjectNode result = kelasticMultiFlat(query, indices);
 
         ObjectNode time = ((ObjectNode) result.get("kibana")).putObject("time");
         time.put("from", formatDate(new Date(req.getFrom())));
         time.put("to", formatDate(new Date(req.getTo())));
 
 
-        String str = Json.serialize(result);
-        return str;
+        return Json.serialize(result);
     }
 
     private String analyzeMean(String field, String hash) throws IOException {
@@ -328,8 +450,8 @@ public class KibanaServlet extends HttpServlet {
 
         String type = Kelastic.getFieldType(indices.get(0), field);
         if ("long".equals(type) || "integer".equals(type) || "double".equals(type) || "float".equals(type)) {
-            ObjectNode result = new KelasticMultiFlat(query, indices).getResponse();
-            ObjectNode time = ((ObjectNode) result.get("kibana")).putObject("time");
+            ObjectNode result = kelasticMultiFlat(query, indices);
+            ObjectNode time = result.with("kibana").putObject("time");
             time.put("from", formatDate(new Date(req.getFrom())));
             time.put("to", formatDate(new Date(req.getTo())));
             String str = Json.serialize(result);
@@ -352,9 +474,9 @@ public class KibanaServlet extends HttpServlet {
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo());
 
-        ObjectNode result = new KelasticMulti(query, indices).getResponse();
+        ObjectNode result = kelasticMulti(query, indices);
 
-        ObjectNode time = ((ObjectNode) result.get("kibana")).putObject("time");
+        ObjectNode time = result.with("kibana").putObject("time");
         time.put("from", formatDate(new Date(req.getFrom())));
         time.put("to", formatDate(new Date(req.getTo())));
 
@@ -366,11 +488,10 @@ public class KibanaServlet extends HttpServlet {
             n.put("count", entry.getValue().intValue());
             hits.add(n);
         }
-        ((ObjectNode) result.get("hits")).put("count", result.get("hits").get("hits").size());
-        ((ObjectNode) result.get("hits")).put("hits", hits);
+        result.with("hits").put("count", result.get("hits").get("hits").size());
+        result.with("hits").put("hits", hits);
 
-        String str = Json.serialize(result);
-        return str;
+        return Json.serialize(result);
     }
 
     private String graph(String mode, String interval, String hash, String segment) throws IOException {
@@ -395,10 +516,9 @@ public class KibanaServlet extends HttpServlet {
         LOGGER.debug("\tquery: {}", query);
 
         List<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo());
-        ObjectNode result = new KelasticSegment(query, indices, seg).getResponse();
+        ObjectNode result = kelasticSegment(query, indices, seg);
 
-        String str = Json.serialize(result);
-        return str;
+        return Json.serialize(result);
     }
 
     private String search(String hash, String segment) throws IOException {
@@ -418,18 +538,17 @@ public class KibanaServlet extends HttpServlet {
         Collection<String> indices = Kelastic.getIndices(req.getFrom(), req.getTo());
         LOGGER.debug("\tindices: {}", indices);
 
-        ObjectNode result = new KelasticMulti(query, indices).getResponse();
-        ObjectNode time = ((ObjectNode) result.get("kibana")).putObject("time");
+        ObjectNode result = kelasticMulti(query, indices);
+        ObjectNode time = result.with("kibana").putObject("time");
         time.put("from", formatDate(new Date(req.getFrom())));
         time.put("to", formatDate(new Date(req.getTo())));
-        ArrayNode fields = ((ObjectNode) result.get("kibana")).putArray("default_fields");
+        ArrayNode fields = result.with("kibana").putArray("default_fields");
         for (String s : Config.defaultFields) {
             fields.add(s);
         }
-        ((ObjectNode) result.get("kibana")).put("clickable_urls", Config.clickableUrls);
+        result.with("kibana").put("clickable_urls", Config.clickableUrls);
 
-        String str = Json.serialize(result);
-        return str;
+        return Json.serialize(result);
     }
 
     private static String formatDate(Date date) {
@@ -451,6 +570,10 @@ public class KibanaServlet extends HttpServlet {
 
         public static ObjectNode objectNode() {
             return JsonNodeFactory.instance.objectNode();
+        }
+
+        public static ArrayNode arrayNode() {
+            return JsonNodeFactory.instance.arrayNode();
         }
     }
 
@@ -501,8 +624,7 @@ public class KibanaServlet extends HttpServlet {
                 os.write(query.getBytes());
                 os.close();
                 is = conn.getInputStream();
-                ObjectNode node = (ObjectNode) new ObjectMapper().readTree(is);
-                return node;
+                return (ObjectNode) new ObjectMapper().readTree(is);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             } finally {
@@ -520,20 +642,10 @@ public class KibanaServlet extends HttpServlet {
 
     public static class Kelastic {
 
-        private String url;
-        private ObjectNode response;
-
-        public Kelastic(Query query, String index) {
-            url = "http://" + Config.elasticSearch + "/" + index + "/_search";
-            response =  run(url, query);
-            ((ObjectNode) response.get("kibana")).put("index", index);
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public ObjectNode getResponse() {
+        public static ObjectNode kelastic(Query query, String index) {
+            String url = "http://" + Config.elasticSearch + "/" + index + "/_search";
+            ObjectNode response =  run(url, query);
+            response.with("kibana").put("index", index);
             return response;
         }
 
@@ -607,9 +719,7 @@ public class KibanaServlet extends HttpServlet {
             ObjectNode node = ElasticSearch.getJson("/" + index + "/_mapping");
             JsonNode in = node.get(index);
             for  (JsonNode tn : in) {
-                JsonNode pn = tn != null ? tn.get("properties") : null;
-                JsonNode fn = pn != null ? pn.get(field) : null;
-                JsonNode n = fn != null ? fn.get("type") : null;
+                JsonNode n = tn.path("properties").path(field).get("type");
                 if (n != null) {
                     return n.asText();
                 }
@@ -628,7 +738,7 @@ public class KibanaServlet extends HttpServlet {
             Map<String, Integer> count = new HashMap<String, Integer>();
             for (String v : collectFieldValues(result, field)) {
                 Integer c = count.get(v);
-                c = (c != null ? c.intValue() : 0) + 1;
+                c = (c != null ? c : 0) + 1;
                 count.put(v, c);
             }
             return sortByValue(count, limit);
@@ -667,28 +777,22 @@ public class KibanaServlet extends HttpServlet {
         }
     }
 
-    public static class KelasticMulti {
-
-        private String url;
-        private ObjectNode response;
-
-        public KelasticMulti(Query query, Collection<String> indices) {
+    public static ObjectNode kelasticMulti(Query query, Collection<String> indices) {
             if (indices.isEmpty()) {
-                response = Kelastic.error("no index");
-                return;
+                return Kelastic.error("no index");
             }
 
             Iterator<String> indexIterator = indices.iterator();
 
             String index = indexIterator.next();
-            url = "/" + index + (Config.type.isEmpty() ? "" : "/" + Config.type) + "/_search";
-            response = Kelastic.run(url, query);
+            String url = "/" + index + (Config.type.isEmpty() ? "" : "/" + Config.type) + "/_search";
+            ObjectNode response = Kelastic.run(url, query);
 
 //            System.err.println("Query: " + Json.serialize(query.getQuery()));
 //            System.err.println("Response: " + Json.serialize(response));
 
             if (response.get("kibana").get("error") != null) {
-                return;
+                return response;
             }
 
             // Store the original values for reference
@@ -713,72 +817,45 @@ public class KibanaServlet extends HttpServlet {
                     ((ArrayNode) response.get("hits").get("hits")).addAll((ArrayNode) segment.get("hits").get("hits"));
 
                     // Add the total hits together
-                    ((ObjectNode) response.get("hits")).put("total", response.get("hits").get("total").asLong() + segment.get("hits").get("total").asLong());
+                    response.with("hits").put("total", response.get("hits").get("total").asLong() + segment.get("hits").get("total").asLong());
                 } else if (!segment.has("status") || segment.get("status").asInt() != 404) {
                     throw new RuntimeException("Bad response for query to: " + url + ", query: " + query + " response" +
                             " data: " + response);
                 }
 
             }
-            ArrayNode indexNode = ((ObjectNode) response.get("kibana")).putArray("index");
+            ArrayNode indexNode = response.with("kibana").putArray("index");
             for (String i : indices) {
                 indexNode.add(i);
             }
-        }
 
-        public String getUrl() {
-            return url;
-        }
-
-        public ObjectNode getResponse() {
-            return response;
-        }
+        return response;
 
     }
 
-    public static class KelasticSegment {
-
-        private String url;
-        private ObjectNode response;
-
-        public KelasticSegment(Query query, List<String> indices, int segment) {
+    public static ObjectNode kelasticSegment(Query query, List<String> indices, int segment) {
             if (indices.isEmpty()) {
-                response = Kelastic.error("no index");
-                return;
+                return Kelastic.error("no index");
             }
 
             String index = indices.get(segment);
-            url = "/" + index + (Config.type.isEmpty() ? "" : "/" + Config.type) + "/_search";
-            response = Kelastic.run(url, query);
+            String url = "/" + index + (Config.type.isEmpty() ? "" : "/" + Config.type) + "/_search";
+            ObjectNode response = Kelastic.run(url, query);
 
-            ArrayNode indexNode = ((ObjectNode) response.get("kibana")).putArray("index");
+            ArrayNode indexNode = response.with("kibana").putArray("index");
             for (String i : indices) {
                 indexNode.add(i);
             }
             if (segment < indices.size() - 1) {
-                ((ObjectNode) response.get("kibana")).put("next", segment + 1);
+                response.with("kibana").put("next", segment + 1);
             }
-        }
-
-        public String getUrl() {
-            return url;
-        }
-
-        public ObjectNode getResponse() {
             return response;
-        }
 
     }
 
-    public static class KelasticMultiFlat {
-
-        private String url;
-        private ObjectNode response;
-
-        public KelasticMultiFlat(Query query, List<String> indices) {
+    public static ObjectNode kelasticMultiFlat(Query query, List<String> indices) {
             if (indices.isEmpty()) {
-                response = Kelastic.error("no index");
-                return;
+                return Kelastic.error("no index");
             }
 
             StringBuilder sb = new StringBuilder();
@@ -789,18 +866,18 @@ public class KibanaServlet extends HttpServlet {
                 sb.append(index);
             }
             String index = sb.toString();
-            url = "/" + index + (Config.type.isEmpty() ? "" : "/" + Config.type) + "/_search";
-            response = Kelastic.run(url, query);
+            String url = "/" + index + (Config.type.isEmpty() ? "" : "/" + Config.type) + "/_search";
+            ObjectNode response = Kelastic.run(url, query);
 
-            ((ObjectNode) response.get("kibana")).put("index", index);
-        }
+            response.with("kibana").put("index", index);
+        return response;
+    }
 
-        public String getUrl() {
-            return url;
-        }
-
-        public ObjectNode getResponse() {
-            return response;
+    private static long parseDate(String date) {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ").parse(date).getTime();
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -893,10 +970,6 @@ public class KibanaServlet extends HttpServlet {
                     "}";
         }
 
-        private long parseDate(String date) {
-            throw new UnsupportedOperationException("not implemented");
-        }
-
         private String getField(JsonNode request, String name) {
             JsonNode n = request.get(name);
             return n != null ? n.asText() : null;
@@ -912,7 +985,7 @@ public class KibanaServlet extends HttpServlet {
 
         ObjectNode query;
 
-        public Query(String question, long from, long to) {
+        public Query(String question) {
             query = Json.objectNode();
             query.put("size", 0);
             ObjectNode filtered = query.putObject("query").putObject("filtered");
@@ -928,8 +1001,12 @@ public class KibanaServlet extends HttpServlet {
                 n.put("default_field", Config.primaryField);
                 n.put("query", question);
             }
+        }
+
+        public Query(String question, long from, long to) {
+            this(question);
             // Filter
-            ObjectNode timestampNode = filtered.putObject("filter").putObject("range").putObject(Config.timestamp);
+            ObjectNode timestampNode = query.with("query").with("filtered").putObject("filter").putObject("range").putObject(Config.timestamp);
             timestampNode.put("from", formatDate(new Date(from)));
             timestampNode.put("to", formatDate(new Date(to)));
         }
@@ -942,12 +1019,6 @@ public class KibanaServlet extends HttpServlet {
             return Json.serialize(query);
         }
     }
-
-    /*
-    public static class IDQuery extends Query {
-
-    }
-    */
 
     public static class SortedQuery extends Query {
 
@@ -1038,6 +1109,13 @@ public class KibanaServlet extends HttpServlet {
                 terms.put("field", fields[0]);
                 terms.put("size", limit);
             }
+        }
+    }
+
+    public static class IDQuery extends Query {
+        public IDQuery(String id) {
+            super("_id:\"" + id + "\"");
+            query.put("size", 1);
         }
     }
 

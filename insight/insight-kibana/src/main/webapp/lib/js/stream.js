@@ -33,7 +33,7 @@ function pageload(hash) {
     window.hashjson = JSON.parse(Base64.decode(hash));
 
     window.hashjson.fields = window.hashjson.fields.length > 0 ?
-      window.hashjson.fields : new Array('@message');
+      window.hashjson.fields : window.default_fields;
 
     $('#query h4').text(window.hashjson.search);
 
