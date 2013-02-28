@@ -43,7 +43,21 @@
                 <exclude>RELEASE-NOTES</exclude>
                 <exclude>readme.txt</exclude>
                 <exclude>karaf-manual*</exclude>
+                <exclude>lib/**</exclude>
+                <exclude>system/**</exclude>
             </excludes>
+        </fileSet>
+
+        <!-- Expanded Karaf Runtime -->
+        <fileSet>
+            <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
+            <outputDirectory>/</outputDirectory>
+            <includes>
+                <include>lib/**</include>
+                <include>system/**</include>
+            </includes>
+            <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
         </fileSet>
 
         <fileSet>
