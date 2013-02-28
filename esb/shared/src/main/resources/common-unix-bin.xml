@@ -39,6 +39,7 @@
               <exclude>karaf-manual*</exclude>
             </excludes>
             <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
         </fileSet>
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
@@ -90,6 +91,7 @@
             <outputDirectory>/licenses/</outputDirectory>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
+            <directoryMode>0775</directoryMode>
         </fileSet>
 
         <!-- Copy over filtered resources -->
