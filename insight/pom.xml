@@ -59,6 +59,7 @@
     <module>insight-graph</module>
     <module>insight-maven</module>
     <module>insight-maven-web</module>
+    <module>insight-kibana</module>
   </modules>
 
 </project>

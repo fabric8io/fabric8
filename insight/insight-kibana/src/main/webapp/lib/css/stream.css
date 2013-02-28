@@ -1,0 +1,76 @@
+html, body {
+margin: 0;
+padding: 0;
+overflow-y:hidden;
+}
+
+#tweets {
+  width: 100%;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+table#tweets {
+	padding: 0;
+}
+
+div#stream {
+  overflow-y:hidden;
+}
+
+#streamcontrol {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+#streamgraph {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#tweets tr {
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 2px;
+}
+
+#status {
+padding-top: 5px;
+}
+
+#counter h3 {
+	margin-top: 0px;
+  padding-right:10px;
+	color: #fff;
+	font-size: 32px;
+}
+
+#query h4 {
+	margin: 35px 0 10px 0;
+	color: #000;
+  font-size: 0.9em;
+}
+
+#tweets td {
+    border: 0;
+}
+
+.author {
+    font-weight: bold
+}
+.date {
+    font-size: 10px;
+}
+
+.new {
+    background-color: #eee;
+}
+
+a.jlink {
+  color: #aaa;
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html lang="en">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Kibana</title>
+  <script type="text/javascript" src="js/timezone.js"></script>
+  <script type="text/javascript" src="lib/js/lib/excanvas.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery.history.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery.flot.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery.flot.selection.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery.flot.pie.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery.flot.stack.min.js"></script>
+
+  <script type="text/javascript" src="lib/js/lib/jquery.smartresize.js"></script>
+  <script type="text/javascript" src="lib/js/lib/iso8601.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/safebase64.js"></script>
+  <script type="text/javascript" src="lib/js/lib/jquery-ui-1.8.16.custom.min.js"></script>
+  <script type="text/javascript" src="lib/js/lib/json2.js"></script>
+  <script type="text/javascript" src="lib/js/lib/date.js"></script>
+  <script type="text/javascript" src="lib/js/lib/bootstrap-datepicker.js"></script>
+
+
+  <script type="text/javascript" src="lib/js/shared.js"></script>
+  <script type="text/javascript" src="lib/js/ajax.js"></script>
+  <script type="text/javascript" src="lib/bootstrap/js/bootstrap.js"></script>
+
+  <link rel="stylesheet" href="lib/css/jquery-ui-1.8.16.custom.css">
+  <link rel="stylesheet" href="lib/css/jquery.ui.datepicker.css">
+  <link rel="stylesheet" href="lib/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="lib/css/style.css">
+  <link rel="stylesheet" href="lib/css/font-awesome.css">
+  
+
+  <style type="text/css">
+    body {
+    padding-top: 55px;
+    padding-bottom: 40px;
+    }
+  </style>
+  <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+</head>
+<body>
+
+  <div class="navbar navbar-fixed-top navbar-inverse">
+    <div class="navbar-inner">
+    <div class="container-fluid">
+      <form id='searchform' class="form-search form-horizontal" action="">
+        <table class=formatting><tr>
+        <td width='1%'><center><a href="index.html"><img src='images/logo.png'></a></center></td>
+        <td width='1%'>
+        <select name="time" id=timeinput class="span2">
+        <option value="900">Last 15m</option>
+        <option value="3600">Last 60m</option>
+        <option value="14400">Last 4h</option>
+        <option value="43200">Last 12h</option>
+        <option value="86400">Last 24h</option>
+        <option value="172800">Last 48h</option>
+        <option value="604800">Last 7d</option>
+        <option value="all">All Time</option>
+        <option value="custom">Custom</option>
+        </select>
+        </td>
+        <td width='85%'><input type="text" placeholder="Search" id=queryinput></td>
+        <td width='1%'><button class="btn btn-primary" type=submit>Search</button></td>
+        <td width='1%'><button class="btn btn-danger" type="reset" id=resetall>Reset</button></td>
+        <td><div id=meta></div></td>
+      </tr></table>
+      </form>
+    </div>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <div class=row-fluid>
+      <div class="span2" id=sidebar>
+        <div class="sidebar">
+          <div id=fields></div>
+          <div id=analyze></div>
+        </div>
+      </div>
+
+      <div class="content span10" id=main>
+        <div>
+          <span id=sbctl class="ui-icon ui-icon-triangle-1-w ui-state-default jlink"></span>
+          <span id=feedlinks></span>
+          <p id=graphheader></p>
+          <div id=graph_container>
+            <div id=graph>
+              <div class=hero-unit>
+                <h1><img src=images/kibana_banner.png></h1>
+                <br><br>
+                <p><strong>Welcome to Kibana.</strong> Give me a few moments, I'm fetching some interesting data to display. It might be a minute, there could be lots of data in here. Consider the thousands, millions or billions of events I might be looking through, to find just the right ones for you. It's nothing, really. You're welcome.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div id=legend></div>
+        </div>
+        <div id=logs class=zebra-stripped></div>
+      </div>
+    </div>
+  </div>
+
+  </body>
+</html>
