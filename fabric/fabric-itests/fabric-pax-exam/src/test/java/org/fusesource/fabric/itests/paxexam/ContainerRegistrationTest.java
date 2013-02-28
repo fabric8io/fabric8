@@ -45,12 +45,13 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     @Test
     public void testJmxPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        createAndAssertChildContainer("child1", "root", "default");
+		System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
+        createAndAssertChildContainer("child1", "root", "child-profile");
 
         FabricService fabricService = getOsgiService(FabricService.class);
         Container child1 = fabricService.getContainer("child1");
-        System.err.println(executeCommand("fabric:profile-edit --i org.apache.karaf.management default"));
-        System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-${karaf.name} default"));
+        System.err.println(executeCommand("fabric:profile-edit --i org.apache.karaf.management child-profile"));
+        System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-${karaf.name} child-profile"));
         Thread.sleep(DEFAULT_TIMEOUT);
         System.err.println(executeCommand("fabric:container-connet child1 config:proplist --pid org.apache.karaf.shell"));
         String jmxUrl = child1.getJmxUrl();
