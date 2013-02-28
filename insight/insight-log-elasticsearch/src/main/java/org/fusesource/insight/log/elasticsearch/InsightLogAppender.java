@@ -76,7 +76,7 @@ public class InsightLogAppender implements PaxAppender {
     }
 
     public void init() {
-
+        /*
         CreateIndexRequest request = new CreateIndexRequest(index);
         request = request.settings(
         "{"+
@@ -114,6 +114,7 @@ public class InsightLogAppender implements PaxAppender {
         request.mapping(type, options);
 
         sender.createIndexIfNeeded(request);
+        */
     }
 
     public void doAppend(final PaxLoggingEvent paxLoggingEvent) {
@@ -164,6 +165,9 @@ public class InsightLogAppender implements PaxAppender {
             }
             writer.append(" }");
             writer.append("\n}");
+
+            String index = this.index + "-"+ new SimpleDateFormat("yyyy.MM.dd").format(new Date(paxLoggingEvent.getTimeStamp()));
+
             IndexRequest request = new IndexRequest()
                     .index(index)
                     .type(type)

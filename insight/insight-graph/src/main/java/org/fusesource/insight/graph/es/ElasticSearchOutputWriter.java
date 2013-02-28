@@ -63,6 +63,7 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
 
         sender.setNode(node);
 
+        /*
         CreateIndexRequest request = new CreateIndexRequest(index);
 
         HashMap<String, Object> properties = new HashMap<String, Object>();
@@ -81,6 +82,7 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
         request.mapping(type, options);
 
         sender.createIndexIfNeeded(request);
+        */
 
         sender.init();
 
@@ -128,6 +130,9 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                         quote(values.getKey(), writer);
                         writer.append(", \"value\" : " + values.getValue().toString());
                         writer.append(" }");
+
+                        String index = this.index + "-" + new SimpleDateFormat("yyyy.MM.dd").format(new Date(result.getEpoch()));
+
                         IndexRequest request = new IndexRequest()
                                 .index(index)
                                 .type(type)

@@ -76,6 +76,7 @@ public class InsightEventHandler implements EventHandler {
     }
 
     public void init() {
+        /*
         CreateIndexRequest request = new CreateIndexRequest(index);
 
         HashMap<String, Object> not_analyzed = new HashMap<String, Object>();
@@ -90,6 +91,7 @@ public class InsightEventHandler implements EventHandler {
         request.mapping(type, options);
 
         sender.createIndexIfNeeded(request);
+        */
     }
 
     public void handleEvent(final Event event) {
@@ -102,6 +104,9 @@ public class InsightEventHandler implements EventHandler {
             quote(event.getTopic(), writer);
             writer.append(", \"properties\": { ");
             boolean first = true;
+
+            long timestamp = 0;
+
             for (String name : event.getPropertyNames()) {
                 if (first) {
                     first = false;
@@ -114,7 +119,8 @@ public class InsightEventHandler implements EventHandler {
                 if (value == null) {
                     writer.append("null");
                 } else if (EventConstants.TIMESTAMP.equals(name) && value instanceof Long) {
-                    quote(formatDate((Long) value), writer);
+                    timestamp = (Long) value;
+                    quote(formatDate(timestamp), writer);
                 } else if (value.getClass().isArray()) {
                     writer.append(" [ ");
                     boolean vfirst = true;
@@ -132,6 +138,12 @@ public class InsightEventHandler implements EventHandler {
                 }
             }
             writer.append(" } }");
+
+            if (timestamp == 0) {
+                timestamp = System.currentTimeMillis();
+            }
+            String index = this.index + "-"+ new SimpleDateFormat("yyyy.MM.dd").format(new Date(timestamp));
+
             IndexRequest request = new IndexRequest()
                     .index(index)
                     .type(type)

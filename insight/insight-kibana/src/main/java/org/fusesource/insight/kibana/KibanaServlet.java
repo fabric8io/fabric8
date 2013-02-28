@@ -75,7 +75,7 @@ public class KibanaServlet extends HttpServlet {
          */
         public static long fallbackInterval = TimeUnit.SECONDS.toMillis(900);
 
-        public static String[] defaultFields  = new String[] { "@message" };
+        public static String[] defaultFields  = new String[] { "message" };
 
         public static String filter = "";
 
@@ -83,7 +83,7 @@ public class KibanaServlet extends HttpServlet {
 
         public static String primaryField = "_all";
 
-        public static String highlightedField = "@message";
+        public static String highlightedField = "message";
 
         public static int perPage = 50;
 
@@ -97,7 +97,7 @@ public class KibanaServlet extends HttpServlet {
          * date formatting like '%Y.%m.%d'.  Will accept a comma separated
          * list of smart indexes.
          */
-        public static String smartIndexPattern = "'logstash-'yyyy.MM.dd";
+        public static String smartIndexPattern = "'insight-'yyyy.MM.dd";
 
         /**
          * Number of seconds between each index. 86400 = 1 day.
@@ -108,7 +108,7 @@ public class KibanaServlet extends HttpServlet {
 
         public static String defaultIndex = "_all";
 
-        public static String type = "";
+        public static String type = "log";
 
         public static boolean clickableUrls = true;
 
@@ -119,7 +119,7 @@ public class KibanaServlet extends HttpServlet {
         public static int analyzeShow = 25;
         public static int facetIndexLimit = 0;
 
-        public static String timestamp = "@timestamp";
+        public static String timestamp = "timestamp";
     }
 
     @Override
