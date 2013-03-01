@@ -75,8 +75,7 @@ You can also use "cxf:list-endpoints" to check the state of all CXF web services
          STATUS: 200
 
          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.
-            fusesource.org/"><return>Hello John Doe</return>
+           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.fuse.jboss.org/"><return>Hello John Doe</return>
            </ns2:sayHiResponse>
           </soap:Body>
         </soap:Envelope>
@@ -100,7 +99,7 @@ The client sends the contents of the request.xml sample SOAP request file to the
 
         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           <soap:Body>
-            <ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.fusesource.org/">
+            <ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.fuse.jboss.org/">
               <return>Hello John Doe</return>
             </ns2:sayHiResponse>
           </soap:Body>
