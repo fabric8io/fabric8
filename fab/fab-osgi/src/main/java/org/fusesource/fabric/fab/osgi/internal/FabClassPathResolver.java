@@ -255,7 +255,7 @@ public class FabClassPathResolver implements FabConfiguration {
 
     protected void processFabInstructions() {
         sharedFilterPatterns.addAll(
-                getListManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, ServiceConstants.DEFAULT_FAB_PROIVDED_DEPENDENCY));
+                getListManifestProperty(ServiceConstants.INSTR_FAB_PROVIDED_DEPENDENCY, ServiceConstants.DEFAULT_FAB_PROVIDED_DEPENDENCY));
         requireBundleFilterPatterns.addAll(getListManifestProperty(ServiceConstants.INSTR_FAB_DEPENDENCY_REQUIRE_BUNDLE));
         excludeDependencyFilterPatterns.addAll(
                 getListManifestProperty(ServiceConstants.INSTR_FAB_EXCLUDE_DEPENDENCY, ServiceConstants.DEFAULT_FAB_EXCLUDE_DEPENDENCY));
