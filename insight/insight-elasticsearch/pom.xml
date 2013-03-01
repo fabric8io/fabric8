@@ -34,7 +34,7 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.elasticsearch*;-noimport:=true;version=0.19.4;-split-package:=merge-first
+          org.elasticsearch*;-noimport:=true;version=0.20.5;-split-package:=merge-first
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           org.apache.lucene*,
@@ -72,7 +72,7 @@
       <dependency>
           <groupId>org.elasticsearch</groupId>
           <artifactId>elasticsearch</artifactId>
-          <version>0.19.4</version>
+          <version>0.20.5</version>
       </dependency>
       <dependency>
           <groupId>org.elasticsearch</groupId>

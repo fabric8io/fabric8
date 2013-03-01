@@ -43,6 +43,7 @@ import org.elasticsearch.cluster.metadata.MetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.cluster.node.DiscoveryNodeService;
 import org.elasticsearch.cluster.node.DiscoveryNodes;
+import org.elasticsearch.cluster.routing.allocation.AllocationService;
 import org.elasticsearch.common.Base64;
 import org.elasticsearch.common.UUID;
 import org.elasticsearch.common.component.AbstractLifecycleComponent;
@@ -92,6 +93,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     private DiscoveryNode localNode;
     private final CopyOnWriteArrayList<InitialStateDiscoveryListener> initialStateListeners = new CopyOnWriteArrayList<InitialStateDiscoveryListener>();
     @Nullable private NodeService nodeService;
+    private AllocationService allocationService;
     private volatile DiscoveryNodes latestDiscoNodes;
     private final PublishClusterStateAction publishClusterState;
     private volatile Group group;
@@ -182,6 +184,11 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     @Override
+    public void setAllocationService(AllocationService allocationService) {
+        this.allocationService = allocationService;
+    }
+
+    @Override
     public void publish(ClusterState clusterState) {
         if (!singleton.isMaster()) {
             throw new ElasticSearchIllegalStateException("Shouldn't publish state when not master");
@@ -251,7 +258,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                             .localNodeId(localNode.id())
                             .masterNodeId(singleton.master().get().node().id())
                             .put(singleton.master().get().node);
-                    for (ESNode node : JavaConversions$.MODULE$.asJavaCollection(singleton.slaves())) {
+                    for (ESNode node : JavaConversions$.MODULE$.<ESNode>asJavaCollection(singleton.slaves())) {
                         nodesBuilder.put(node.node());
                     }
                     latestDiscoNodes = nodesBuilder.build();

@@ -19,11 +19,11 @@
 
 package org.elasticsearch.node.internal;
 
-import java.util.concurrent.TimeUnit;
-
 import org.elasticsearch.ElasticSearchException;
 import org.elasticsearch.Version;
 import org.elasticsearch.action.ActionModule;
+import org.elasticsearch.bulk.udp.BulkUdpModule;
+import org.elasticsearch.bulk.udp.BulkUdpService;
 import org.elasticsearch.cache.NodeCache;
 import org.elasticsearch.cache.NodeCacheModule;
 import org.elasticsearch.client.Client;
@@ -32,11 +32,13 @@ import org.elasticsearch.cluster.ClusterModule;
 import org.elasticsearch.cluster.ClusterNameModule;
 import org.elasticsearch.cluster.ClusterService;
 import org.elasticsearch.cluster.routing.RoutingService;
+import org.elasticsearch.cluster.routing.allocation.AllocationService;
 import org.elasticsearch.common.CacheRecycler;
 import org.elasticsearch.common.StopWatch;
 import org.elasticsearch.common.collect.Tuple;
 import org.elasticsearch.common.component.Lifecycle;
 import org.elasticsearch.common.component.LifecycleComponent;
+import org.elasticsearch.common.compress.CompressorFactory;
 import org.elasticsearch.common.inject.Injector;
 import org.elasticsearch.common.inject.Injectors;
 import org.elasticsearch.common.inject.ModulesBuilder;
@@ -48,7 +50,8 @@ import org.elasticsearch.common.network.NetworkService;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.SettingsModule;
-import org.elasticsearch.common.thread.ThreadLocals;
+import org.elasticsearch.common.util.concurrent.ThreadLocals;
+import org.elasticsearch.discovery.Discovery;
 import org.elasticsearch.discovery.DiscoveryModule;
 import org.elasticsearch.discovery.DiscoveryService;
 import org.elasticsearch.env.Environment;
@@ -59,6 +62,7 @@ import org.elasticsearch.gateway.GatewayModule;
 import org.elasticsearch.gateway.GatewayService;
 import org.elasticsearch.http.HttpServer;
 import org.elasticsearch.http.HttpServerModule;
+import org.elasticsearch.index.search.shape.ShapeModule;
 import org.elasticsearch.indices.IndicesModule;
 import org.elasticsearch.indices.IndicesService;
 import org.elasticsearch.indices.cache.filter.IndicesFilterCache;
@@ -85,6 +89,9 @@ import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.threadpool.ThreadPoolModule;
 import org.elasticsearch.transport.TransportModule;
 import org.elasticsearch.transport.TransportService;
+
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -113,11 +120,21 @@ public final class InternalNode implements Node {
         ESLogger logger = Loggers.getLogger(Node.class, tuple.v1().get("name"));
         logger.info("{{}}[{}]: initializing ...", Version.CURRENT, JvmInfo.jvmInfo().pid());
 
+        if (logger.isDebugEnabled()) {
+            Environment env = tuple.v2();
+            logger.debug("using home [{}], config [{}], data [{}], logs [{}], work [{}], plugins [{}]",
+                    env.homeFile(), env.configFile(), Arrays.toString(env.dataFiles()), env.logsFile(),
+                    env.workFile(), env.pluginsFile());
+        }
+
         this.pluginsService = new PluginsService(tuple.v1(), tuple.v2());
         this.settings = pluginsService.updatedSettings();
         this.environment = tuple.v2();
 
+        CompressorFactory.configure(settings);
+
         NodeEnvironment nodeEnvironment = new NodeEnvironment(this.settings, this.environment);
+
         boolean success = false;
         try {
             ModulesBuilder modules = new ModulesBuilder();
@@ -146,6 +163,8 @@ public final class InternalNode implements Node {
             modules.add(new MonitorModule(settings));
             modules.add(new GatewayModule(settings));
             modules.add(new NodeClientModule());
+            modules.add(new BulkUdpModule());
+            modules.add(new ShapeModule());
 
             injector = modules.createInjector();
 
@@ -178,6 +197,9 @@ public final class InternalNode implements Node {
         ESLogger logger = Loggers.getLogger(Node.class, settings.get("name"));
         logger.info("{{}}[{}]: starting ...", Version.CURRENT, JvmInfo.jvmInfo().pid());
 
+        // hack around dependency injection problem (for now...)
+        injector.getInstance(Discovery.class).setAllocationService(injector.getInstance(AllocationService.class));
+
         for (Class<? extends LifecycleComponent> plugin : pluginsService.services()) {
             injector.getInstance(plugin).start();
         }
@@ -201,6 +223,7 @@ public final class InternalNode implements Node {
         if (settings.getAsBoolean("http.enabled", true)) {
             injector.getInstance(HttpServer.class).start();
         }
+        injector.getInstance(BulkUdpService.class).start();
         injector.getInstance(JmxService.class).connectAndRegister(discoService.nodeDescription(), injector.getInstance(NetworkService.class));
 
         logger.info("{{}}[{}]: started", Version.CURRENT, JvmInfo.jvmInfo().pid());
@@ -216,6 +239,7 @@ public final class InternalNode implements Node {
         ESLogger logger = Loggers.getLogger(Node.class, settings.get("name"));
         logger.info("{{}}[{}]: stopping ...", Version.CURRENT, JvmInfo.jvmInfo().pid());
 
+        injector.getInstance(BulkUdpService.class).stop();
         if (settings.getAsBoolean("http.enabled", true)) {
             injector.getInstance(HttpServer.class).stop();
         }
@@ -265,7 +289,9 @@ public final class InternalNode implements Node {
         logger.info("{{}}[{}]: closing ...", Version.CURRENT, JvmInfo.jvmInfo().pid());
 
         StopWatch stopWatch = new StopWatch("node_close");
-        stopWatch.start("http");
+        stopWatch.start("bulk.udp");
+        injector.getInstance(BulkUdpService.class).close();
+        stopWatch.stop().start("http");
         if (settings.getAsBoolean("http.enabled", true)) {
             injector.getInstance(HttpServer.class).close();
         }

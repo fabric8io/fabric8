@@ -1,5 +1,7 @@
 package org.elasticsearch.restjmx;
 
+import org.elasticsearch.common.bytes.BytesArray;
+import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.jmx.MBean;
 import org.elasticsearch.jmx.ManagedOperation;
@@ -99,23 +101,8 @@ public class RestJmxManagement {
         }
 
         @Override
-        public byte[] contentByteArray() {
-            return rawContent;
-        }
-
-        @Override
-        public int contentByteArrayOffset() {
-            return 0;
-        }
-
-        @Override
-        public int contentLength() {
-            return rawContent.length;
-        }
-
-        @Override
-        public String contentAsString() {
-            return content;
+        public BytesReference content() {
+            return new BytesArray(rawContent);
         }
 
         @Override
