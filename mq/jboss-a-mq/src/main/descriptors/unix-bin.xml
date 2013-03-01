@@ -32,9 +32,9 @@
                 <exclude>**/demos/**</exclude>
                 <exclude>bin/**</exclude>
                 <exclude>etc/users.properties</exclude>
+                <exclude>etc/org.ops4j.pax.web.cfg</exclude>
                 <exclude>etc/org.apache.karaf.features.cfg</exclude>
                 <exclude>etc/org.ops4j.pax.logging.cfg</exclude>
-                <exclude>lib/*-version.jar</exclude>
                 <exclude>fabric_notices.txt</exclude>
                 <exclude>fabric_dependencies.txt</exclude>
                 <exclude>LICENSE</exclude>
@@ -51,6 +51,9 @@
         <fileSet>
             <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
             <outputDirectory>/</outputDirectory>
+            <excludes>
+                <exclude>lib/*-version.jar</exclude>
+            </excludes>
             <includes>
                 <include>lib/**</include>
                 <include>system/**</include>
@@ -148,13 +151,6 @@
             <fileMode>0644</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
-        <!--
-        <file>
-            <source>${basedir}/target/dependencies/fabric-version.jar</source>
-            <outputDirectory>/lib/</outputDirectory>
-            <fileMode>0644</fileMode>
-        </file>
-        -->
         <file>
             <source>${basedir}/target/dependencies/unix/apache-activemq-${activemq.version}-bin.tar.gz</source>
             <outputDirectory>extras</outputDirectory>

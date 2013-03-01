@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>war</packaging>
 
+    <groupId>org.jboss.amq</groupId>
     <artifactId>mq-web-console</artifactId>
     <name>JBoss A-MQ Web Console</name>
     <description>JBoss A-MQ :: Web Console</description>

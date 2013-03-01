@@ -25,6 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.jboss.amq</groupId>
     <artifactId>org.jboss.amq.karaf.branding</artifactId>
     <packaging>bundle</packaging>
     <name>JBoss A-MQ Karaf Branding</name>

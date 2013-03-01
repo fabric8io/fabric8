@@ -25,6 +25,7 @@
         <relativePath>..</relativePath>
     </parent>
 
+    <groupId>org.jboss.amq</groupId>
     <artifactId>mq-client</artifactId>
     <packaging>jar</packaging>
     <name>JBoss A-MQ Client</name>
