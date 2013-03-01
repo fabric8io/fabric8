@@ -83,6 +83,12 @@ public interface ServiceConstants extends Constants {
     static final String INSTR_FAB_EXCLUDE_DEPENDENCY = "FAB-Exclude-Dependency";
 
     /**
+     * Default value for the {@link #INSTR_FAB_EXCLUDE_DEPENDENCY} header will exclude commons-logging, SLF4J and log4j
+     * so they get picked up from the container instead
+     */
+    static final String DEFAULT_FAB_EXCLUDE_DEPENDENCY = "commons-logging:* org.slf4j:* log4j:*";
+
+    /**
      * The space separated list of Import-Package entries to be excluded from the generated manifest via Bnd.
      * This is useful if you are importing a package which is part of the JDK such as JAXB which you want to avoid importing in OSGi
      *
