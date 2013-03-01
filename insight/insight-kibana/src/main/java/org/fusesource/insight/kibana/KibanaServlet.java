@@ -875,7 +875,7 @@ public class KibanaServlet extends HttpServlet {
 
     private static long parseDate(String date) {
         try {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZZ").parse(date).getTime();
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").parse(date).getTime();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
