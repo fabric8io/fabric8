@@ -31,16 +31,13 @@ import static org.fusesource.insight.log.elasticsearch.ElasticSender.quote;
 
 public class InsightLogAppender implements PaxAppender {
 
-    // Making an assumption here that we will log less than 1,000,000 events/sec,  next this JVM
-    // restarts, the next sequence number should be < any previously generated sequence numbers.
-    static final private AtomicLong SEQUENCE_COUNTER = new AtomicLong(System.currentTimeMillis()*1000);
-    
     private String name;
     private String index;
     private String type;
     private ElasticSender sender;
 
     private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
 
     public String getName() {
@@ -128,7 +125,6 @@ public class InsightLogAppender implements PaxAppender {
             StringBuilder writer = new StringBuilder();
             writer.append("{ \"host\" : ");
             quote(name, writer);
-            writer.append(",\n  \"seq\" : " + SEQUENCE_COUNTER.incrementAndGet());
             writer.append(",\n  \"timestamp\" : ");
             quote(formatDate(paxLoggingEvent.getTimeStamp()), writer);
             writer.append(",\n  \"level\" : ");
@@ -166,10 +162,8 @@ public class InsightLogAppender implements PaxAppender {
             writer.append(" }");
             writer.append("\n}");
 
-            String index = this.index + "-"+ new SimpleDateFormat("yyyy.MM.dd").format(new Date(paxLoggingEvent.getTimeStamp()));
-
             IndexRequest request = new IndexRequest()
-                    .index(index)
+                    .index(getIndex(paxLoggingEvent.getTimeStamp()))
                     .type(type)
                     .source(writer.toString())
                     .create(true);
@@ -177,6 +171,10 @@ public class InsightLogAppender implements PaxAppender {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String getIndex(long timestamp) {
+        return this.index + "-"+ indexFormat.format(new Date(timestamp));
     }
 
     private String formatDate(long timestamp) {

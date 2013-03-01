@@ -27,10 +27,6 @@ import static org.fusesource.insight.graph.es.ElasticSender.quote;
 
 public class ElasticSearchOutputWriter extends BaseOutputWriter implements OutputWriter, ServiceTrackerCustomizer<Node, Node> {
 
-    // Making an assumption here that we will log less than 1,000,000 events/sec,  next this JVM
-    // restarts, the next sequence number should be < any previously generated sequence numbers.
-    static final private AtomicLong SEQUENCE_COUNTER = new AtomicLong(System.currentTimeMillis()*1000);
-
     private BundleContext bundleContext;
     private ServiceTracker<Node, Node> tracker;
     private String index;
@@ -38,6 +34,7 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
     private ElasticSender sender;
 
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
     public ElasticSearchOutputWriter() {
         this.sender = new ElasticSender();
@@ -113,7 +110,6 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                         StringBuilder writer = new StringBuilder();
                         writer.append("{ \"host\": ");
                         quote(query.getServer().getAlias(), writer);
-                        writer.append(", \"seq\" : " + SEQUENCE_COUNTER.incrementAndGet());
                         writer.append(", \"timestamp\" : ");
                         quote(formatDate(result.getEpoch()), writer);
                         writer.append(", \"object\" : ");
@@ -128,13 +124,11 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                         quote(result.getTypeName(), writer);
                         writer.append(", \"key\" : ");
                         quote(values.getKey(), writer);
-                        writer.append(", \"value\" : " + values.getValue().toString());
+                        writer.append(", \"value\" : ").append(values.getValue().toString());
                         writer.append(" }");
 
-                        String index = this.index + "-" + new SimpleDateFormat("yyyy.MM.dd").format(new Date(result.getEpoch()));
-
                         IndexRequest request = new IndexRequest()
-                                .index(index)
+                                .index(getIndex(result.getEpoch()))
                                 .type(type)
                                 .source(writer.toString())
                                 .create(true);
@@ -143,6 +137,10 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                 }
             }
         }
+    }
+
+    private String getIndex(long timestamp) {
+        return this.index + "-"+ indexFormat.format(new Date(timestamp));
     }
 
     private String formatDate(long timestamp) {
