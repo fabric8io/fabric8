@@ -17,5 +17,10 @@
 package org.fusesource.fabric.cxf;
 
 public interface ServerAddressResolver {
+    /**
+     * We could get full qualified address which could be use for client to access
+     * @param address
+     * @return
+     */
     String getFullAddress(String address);
 }

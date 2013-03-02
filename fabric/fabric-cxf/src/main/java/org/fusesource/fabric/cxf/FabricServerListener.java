@@ -60,14 +60,7 @@ public class FabricServerListener implements ServerLifeCycleListener {
     }
 
     public String getFullAddress(String address) {
-        // Current CXF only supports these two schema
-        if (!(address.startsWith("http") || address.startsWith("jms"))) {
-            // we need to update the address with the prefixAddress as the Service is published from Servlet
-            if (addressResolver == null) {
-                LOG.warn("Cannot find a full address for the CXF service of " + address + " , due to lack of the configuration of ServerAddressResolver");
-                // TODO do we need to throw exception here
-                return address;
-            }
+        if (addressResolver != null) {
             return addressResolver.getFullAddress(address);
         } else {
             return address;

@@ -20,14 +20,19 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class ServerAddressResolverTest extends Assert {
+
     @Test
     public void testGetFullAddress() throws Exception {
         // Setup FabricServerListener
-        StaticAddressResolver resolver = new StaticAddressResolver();
+        PrefixAddressResolver resolver = new PrefixAddressResolver();
         resolver.setPrefixAddress("http://localhost:8081/cxf/service");
         FabricServerListener listener = new FabricServerListener(null, resolver);
         String address = listener.getFullAddress("/test1");
         assertEquals("Get a wrong address.", "http://localhost:8081/cxf/service/test1", address);
 
+        address = listener.getFullAddress("http://test1");
+        assertEquals("Get a wrong address.", "http://test1", address);
+
     }
+
 }

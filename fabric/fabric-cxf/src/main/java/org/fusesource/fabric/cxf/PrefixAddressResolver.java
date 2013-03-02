@@ -19,8 +19,8 @@ package org.fusesource.fabric.cxf;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-public class StaticAddressResolver implements ServerAddressResolver {
-    private static final transient Log LOG = LogFactory.getLog(StaticAddressResolver.class);
+public class PrefixAddressResolver implements ServerAddressResolver {
+    private static final transient Log LOG = LogFactory.getLog(PrefixAddressResolver.class);
     private String prefixAddress;
 
     public void setPrefixAddress(String prefixAddress) {
@@ -32,11 +32,12 @@ public class StaticAddressResolver implements ServerAddressResolver {
     }
     @Override
     public String getFullAddress(String address) {
-        // Current CXF only supports these two schema address type
-        if (!(address.startsWith("http") || address.startsWith("jms"))) {
-            // we need to update the address with the prefixAddress as the Service is published from Servlet
+        // Current CXF only supports these schemas
+        if (!(address.startsWith("http://") || address.startsWith("jms://")
+                || address.startsWith("camel://") || address.startsWith("nmr://"))) {
+            // we need to update the address with the prefixAddress as the Service is published with relative path
             if (prefixAddress == null || prefixAddress.trim().length() == 0) {
-                LOG.warn("Cannot find a full address for the CXF service of " + address + " , due to the configuration of prefixAddress");
+                LOG.warn("Set the full address for the CXF service to " + address + " , as the prefixAddress is empty.");
                 return address;
             }
             return prefixAddress + address;
