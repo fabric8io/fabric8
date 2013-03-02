@@ -22,8 +22,11 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ConduitSelector;
+import org.apache.cxf.endpoint.ConduitSelectorHolder;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
+import org.apache.cxf.interceptor.InterceptorProvider;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -58,6 +61,27 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
         // setup the BusLifeCycleListener
         BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
         manager.registerLifeCycleListener(this);
+    }
+
+    // this method will be used for JAXRS client
+    public void initialize(InterceptorProvider interceptorProvider, Bus bus) {
+        // try to find if the InterceptorProvider is a ConduitSelectorHolder
+        if (interceptorProvider instanceof ConduitSelectorHolder) {
+            ConduitSelectorHolder holder = (ConduitSelectorHolder) interceptorProvider;
+            // get the endpoint of the original ConduitSelector
+            ConduitSelector oldSelector = holder.getConduitSelector();
+            LoadBalanceTargetSelector selector = getDefaultLoadBalanceTargetSelector();
+            selector.setEndpoint(oldSelector.getEndpoint());
+            try {
+                selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
+                holder.setConduitSelector(selector);
+            } catch (Exception e) {
+                LOG.error("Cannot setup the LoadBalanceStrategy due to " + e);
+            }
+            // setup the BusLifeCycleListener
+            BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
+            manager.registerLifeCycleListener(this);
+        }
     }
 
     public void initialize(Bus bus) {
