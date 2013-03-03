@@ -141,35 +141,19 @@ public class MQCreate extends FabricCommand {
             CreateContainerMetadata[] metadatas;
 
             String[] createContainers = create.split(",");
-            for (String url : createContainers) {
+            for (String container : createContainers) {
 
                 String type = null;
                 String parent = fabricService.getCurrentContainerName();
-                String name = url;
-                if (url.contains("://")) {
-                    URI uri = new URI(url);
-                    type = uri.getScheme();
-                    parent = null;
-                    name = uri.getHost();
-                } else {
-                    type = "child";
-                    url = "child://" + parent;
-                }
-
-                if (!type.equals("child")) {
-                    throw new Exception("mq-create command can only create child containers. " +
-                            "For any other kind, create your container first and then use --assign");
-                }
 
                 String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
                 String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
 
                 CreateContainerChildOptions args = CreateContainerOptionsBuilder.child()
-                        .name(name)
+                        .name(container)
                         .parent(parent)
                         .number(1)
                         .ensembleServer(false)
-                        .providerUri(url)
                         .proxyUri(fabricService.getMavenRepoURI())
                         .zookeeperUrl(fabricService.getZookeeperUrl())
                         .zookeeperPassword(fabricService.getZookeeperPassword())

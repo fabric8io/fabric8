@@ -82,7 +82,6 @@ class AgentsResource extends BaseResource {
 
       val value: CreateContainerChildOptions = mapper.convertValue(options, classOf[CreateContainerChildOptions])
       require(value.getParent != null, "parent must be set")
-      value.setProviderURI(new URI("child://" + value.getParent))
       value.setResolver(null)
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())

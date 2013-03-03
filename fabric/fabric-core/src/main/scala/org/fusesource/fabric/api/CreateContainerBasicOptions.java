@@ -24,12 +24,11 @@ import java.util.Properties;
 
 import org.fusesource.fabric.utils.Ports;
 
-public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions {
+public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions{
 
     protected String name;
     protected String parent;
     protected String providerType;
-    protected URI providerURI;
     protected boolean ensembleServer;
     protected String preferredAddress;
     //The default value is null, so that we know if the user explicitly specified a resolver.
@@ -45,24 +44,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected boolean adminAccess = false;
     protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
     private transient CreationStateListener creationStateListener = new NullCreationStateListener();
-
-    /**
-     * Converts provider URI Query to a Map.
-     *
-     * @return
-     */
-    protected Map<String, String> getParameters() {
-        Map<String, String> map = new HashMap<String, String>();
-        if (providerURI != null && providerURI.getQuery() != null) {
-            String[] params = providerURI.getQuery().split("&");
-            for (String param : params) {
-                String name = param.split("=")[0];
-                String value = param.split("=")[1];
-                map.put(name, value);
-            }
-        }
-        return map;
-    }
 
     public T preferredAddress(final String preferredAddress) {
         this.setPreferredAddress(preferredAddress);
@@ -111,16 +92,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return (T) this;
     }
 
-    public T providerURI(final URI providerURI) {
-        this.providerURI = providerURI;
-        return (T) this;
-    }
-
-    public T providerUri(final String providerUri) throws URISyntaxException {
-        this.providerURI = new URI(providerUri);
-        return (T) this;
-    }
-
     public T zookeeperUrl(final String zookeeperUrl) {
         this.zookeeperUrl = zookeeperUrl;
         return (T) this;
@@ -158,7 +129,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     }
 
     public String getProviderType() {
-        return providerType != null ? providerType : (providerURI != null ? providerURI.getScheme() : null);
+        return providerType;
     }
 
     public void setProviderType(String providerType) {
@@ -181,14 +152,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.parent = parent;
     }
 
-    public URI getProviderURI() {
-        return providerURI;
-    }
-
-    public void setProviderURI(URI providerURI) {
-        this.providerURI = providerURI;
-    }
-
     public boolean isEnsembleServer() {
         return ensembleServer;
     }
@@ -206,7 +169,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     }
 
     public String getResolver() {
-        return getParameters().get("resolver") != null ? getParameters().get("resolver") : resolver;
+        return resolver;
     }
 
     public void setResolver(String resolver) {

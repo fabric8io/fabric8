@@ -42,13 +42,13 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     @Option(name = "--password", description = "Password for login. If the password is omitted, private key authentication is used instead.")
     private String password;
     @Option(name = "--port", description = "The IP port number for the SSH connection.")
-    private Integer port;
+    private int port = Ports.DEFAULT_SSH_PORT;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
     private int maximumPort = Ports.MAX_PORT_NUMBER;
     @Option(name = "--ssh-retries", description = "Number of retries to connect on SSH")
-    private Integer sshRetries;
+    private int sshRetries;
     @Option(name = "--proxy-uri", description = "Maven proxy URL to use")
     private URI proxyUri;
     @Option(name = "--private-key", description = "The path to the private key on the filesystem. Default is ~/.ssh/id_rsa on *NIX platforms or C:\\Documents and Settings\\<UserName>\\.ssh\\id_rsa on Windows.")

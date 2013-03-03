@@ -59,16 +59,6 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         final Container parent = service.getContainer(parentName);
         ContainerTemplate containerTemplate = service.getContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword());
 
-        //Retrieve the credentials from the URI if available.
-        if (options.getProviderURI() != null && options.getProviderURI().getUserInfo() != null) {
-            String ui = options.getProviderURI().getUserInfo();
-            String[] uip = ui != null ? ui.split(":") : null;
-            if (uip != null) {
-                containerTemplate.setLogin(uip[0]);
-                containerTemplate.setPassword(uip[1]);
-            }
-        }
-
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
                 StringBuilder jvmOptsBuilder = new StringBuilder();

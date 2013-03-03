@@ -59,11 +59,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             String host = options.getHost();
             String ip = InetAddress.getByName(host).getHostAddress();
             options.setPreferredAddress(ip);
-            if (options.getProviderURI()!= null && options.getProviderURI().getQuery() != null) {
-                verbose = options.getProviderURI().getQuery().contains("verbose");
-            }
             if (host == null) {
-                throw new IllegalArgumentException("host name must be specified in uri '" + options.getProviderURI() + "'");
+                throw new IllegalArgumentException("Host name not specified.");
             }
             int port = options.getPort();
             if (port == -1) {

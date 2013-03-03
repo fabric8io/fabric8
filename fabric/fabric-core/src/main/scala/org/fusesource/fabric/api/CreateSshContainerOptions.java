@@ -27,15 +27,15 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public static final String DEFAULT_PRIVATE_KEY_FILE = System.getProperty("user.home") + File.separatorChar + ".ssh" + File.separatorChar + "id_rsa";
 
-    static final Integer DEFAULT_SSH_RETRIES = 1;
-    static final Integer DEFAULT_SSH_PORT = 22;
+    static final int DEFAULT_SSH_RETRIES = 1;
+    static final int DEFAULT_SSH_PORT = 22;
 
     private String username;
     private String password;
     private String host;
-    private Integer port = DEFAULT_SSH_PORT;
-    private Integer sshRetries = DEFAULT_SSH_RETRIES;
-    private Integer retryDelay = 1;
+    private int port = DEFAULT_SSH_PORT;
+    private int sshRetries = DEFAULT_SSH_RETRIES;
+    private int retryDelay = 1;
     private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
     private String passPhrase;
     private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
@@ -66,7 +66,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return this;
     }
 
-    public CreateSshContainerOptions port(final Integer port) {
+    public CreateSshContainerOptions port(int port) {
         this.port = port;
         return this;
     }
@@ -76,12 +76,12 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return this;
     }
 
-    public CreateSshContainerOptions sshRetries(final Integer sshRetries) {
+    public CreateSshContainerOptions sshRetries(int sshRetries) {
         this.sshRetries = sshRetries;
         return this;
     }
 
-    public CreateSshContainerOptions retryDelay(final Integer retryDelay) {
+    public CreateSshContainerOptions retryDelay(int retryDelay) {
         this.retryDelay = retryDelay;
         return this;
     }
@@ -102,11 +102,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     }
 
     public String getUsername() {
-        try {
-            return username != null && !username.isEmpty() ? username : getProviderURI().getUserInfo().split(":")[0];
-        } catch (Exception ex) {
-            throw new IllegalStateException("Username should be part of the url or explicitly specified");
-        }
+       return username;
     }
 
     public void setUsername(String username) {
@@ -114,13 +110,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     }
 
     public String getPassword() {
-        if (password != null && !password.isEmpty()) {
-            return password;
-        } else if (getProviderURI() != null && getProviderURI().getUserInfo() != null && getProviderURI().getUserInfo().contains(":")) {
-            return getProviderURI().getUserInfo().split(":")[1];
-        } else {
-            return null;
-        }
+        return password;
     }
 
     public void setPassword(String password) {
@@ -128,27 +118,26 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     }
 
     public String getHost() {
-        return host != null && !host.isEmpty() ? host : getProviderURI().getHost();
+        return host;
     }
 
     public void setHost(String host) {
         this.host = host;
     }
 
-    public Integer getPort() {
-        return port != null && port != 0 ? port :
-                (getProviderURI() != null && getProviderURI().getPort() != 0  ? getProviderURI().getPort() : DEFAULT_SSH_PORT);
+    public int getPort() {
+        return port;
     }
 
-    public void setPort(Integer port) {
+    public void setPort(int port) {
         this.port = port;
     }
 
-    public Integer getSshRetries() {
-        return sshRetries != null ? sshRetries : DEFAULT_SSH_RETRIES;
+    public int getSshRetries() {
+        return sshRetries;
     }
 
-    public void setSshRetries(Integer sshRetries) {
+    public void setSshRetries(int sshRetries) {
         this.sshRetries = sshRetries;
     }
 
@@ -160,17 +149,17 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         this.path = path;
     }
 
-    public Integer getRetryDelay() {
+    public int getRetryDelay() {
         return retryDelay;
     }
 
-    public void setRetryDelay(Integer retryDelay) {
+    public void setRetryDelay(int retryDelay) {
         this.retryDelay = retryDelay;
     }
 
     public String getPrivateKeyFile() {
         //We check for a parameter first as the privateKeyFile has a default value assigned.
-        return getParameters().get("privateKeyFile") != null ? getParameters().get("privateKeyFile") : privateKeyFile;
+        return privateKeyFile;
     }
 
     public void setPrivateKeyFile(String privateKeyFile) {
@@ -192,4 +181,8 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     public void setCreateEnsembleOptions(CreateEnsembleOptions createEnsembleOptions) {
         this.createEnsembleOptions = createEnsembleOptions;
     }
+
+	public CreateSshContainerOptions clone() throws CloneNotSupportedException {
+		return (CreateSshContainerOptions) super.clone();
+	}
 }

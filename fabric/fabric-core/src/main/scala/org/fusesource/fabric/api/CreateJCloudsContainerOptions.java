@@ -43,7 +43,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private String owner;
     private final Map<String, String> serviceOptions = new HashMap<String, String>();
     private final Map<String, String> nodeOptions = new HashMap<String, String>();
-    private Integer servicePort = 0;
+    private int servicePort = 0;
     private String publicKeyFile;
     private transient Object computeService;
     private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
@@ -178,7 +178,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
 
-    public CreateJCloudsContainerOptions servicePort(final Integer servicePort) {
+    public CreateJCloudsContainerOptions servicePort(int servicePort) {
         this.servicePort = servicePort;
         return this;
     }
@@ -209,7 +209,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getImageId() {
-        return imageId != null ? imageId : getParameters().get("imageId");
+        return imageId;
     }
 
     public void setImageId(String imageId) {
@@ -217,7 +217,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getHardwareId() {
-        return hardwareId != null ? hardwareId : getParameters().get("hardwareId");
+        return hardwareId;
     }
 
     public void setHardwareId(String hardwareId) {
@@ -225,7 +225,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getLocationId() {
-        return locationId != null ? locationId : getParameters().get("locationId");
+        return locationId;
     }
 
     public void setLocationId(String locationId) {
@@ -233,7 +233,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getGroup() {
-        return group != null ? group : getParameters().get("group");
+        return group;
     }
 
     public void setGroup(String group) {
@@ -241,7 +241,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getUser() {
-        return user != null ? user : getParameters().get("user");
+        return user;
     }
 
     public void setUser(String user) {
@@ -249,7 +249,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getPassword() {
-        return password != null ? password : getParameters().get("password");
+        return password;
     }
 
     public void setPassword(String password) {
@@ -281,7 +281,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
     public String getEndpoint() {
-        return endpoint != null ? endpoint : getParameters().get("endpoint");
+        return endpoint;
     }
 
     public void setEndpoint(String endpoint) {
@@ -320,7 +320,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.owner = owner;
     }
 
-    public Integer getServicePort() {
+    public int getServicePort() {
         return servicePort;
     }
 
@@ -377,4 +377,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     public void setCreateEnsembleOptions(CreateEnsembleOptions createEnsembleOptions) {
         this.createEnsembleOptions = createEnsembleOptions;
     }
+
+	public CreateJCloudsContainerOptions clone() throws CloneNotSupportedException {
+		return (CreateJCloudsContainerOptions) super.clone();
+	}
 }

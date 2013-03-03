@@ -247,6 +247,10 @@ public final class ContainerProviderUtils {
         StringBuilder sb = new StringBuilder();
         sb.append(RUN_FUNCTION).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
+        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        sb.append("run bin/stop").append("\n");
+        sb.append("run cd  ../..").append("\n");
         sb.append("run rm -rf ").append(options.getName()).append("\n");
         return sb.toString();
     }

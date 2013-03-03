@@ -57,7 +57,6 @@ public class ContainerCreateChild extends ContainerCreateSupport {
         CreateContainerChildOptions options = CreateContainerOptionsBuilder.child()
                 .name(name)
                 .parent(parent)
-                .providerUri(url)
                 .resolver(resolver)
                 .ensembleServer(isEnsembleServer)
                 .number(number)

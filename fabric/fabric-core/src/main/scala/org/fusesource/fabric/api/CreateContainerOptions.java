@@ -23,7 +23,7 @@ import java.util.Properties;
 
 /**
  */
-public interface CreateContainerOptions extends Serializable {
+public interface CreateContainerOptions extends Serializable, Cloneable {
 
     String getName();
     void setName(String name);
@@ -33,9 +33,6 @@ public interface CreateContainerOptions extends Serializable {
 
     String getProviderType();
     void setProviderType(String providerType);
-
-    URI getProviderURI();
-    void setProviderURI(URI providerURI);
 
     boolean isEnsembleServer();
     void setEnsembleServer(boolean setEnsembleServer);

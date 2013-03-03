@@ -52,6 +52,7 @@ public class ContainerImplTest {
         String id = "test";
         String version = "1.0";
         expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
+        expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn("default").anyTimes();
         expect(izkClient.setData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id),"default")).andReturn(null).anyTimes();
         replay(izkClient);
 
