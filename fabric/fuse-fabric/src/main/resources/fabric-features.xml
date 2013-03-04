@@ -42,8 +42,6 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
-        <bundle>mvn:org.jledit/core/${jledit.version}</bundle>
-
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries.blueprint.version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries.blueprint.version}</bundle>
         <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/${aries.blueprint.version}</bundle>
@@ -433,7 +431,7 @@
         <bundle dependency='true'>mvn:commons-codec/commons-codec/1.6</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
         <bundle dependency='true'>wrap:mvn:commons-configuration/commons-configuration/1.8$Import-Package=*;resolution:=optional&amp;Export-Package=org.apache.commons.configuration*;version=1.8;-noimport:=true&amp;overwrite=merge</bundle>
-        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/0.1.44_2</bundle>
+        <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-servlet_2.5_spec/1.2</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-jsp_2.1_spec/1.0.1</bundle>
         <bundle dependency='true'>mvn:org.apache.geronimo.specs/geronimo-el_2.2_spec/1.0.3</bundle>

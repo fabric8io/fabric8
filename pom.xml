@@ -109,11 +109,11 @@
         TODO is this correct?
         <aries-util-version>1.0.0</aries-util-version>
 -->
-        <aries-util-version>1.0.0</aries-util-version>
-        <aries.util.version>1.0.0</aries.util.version>
+        <aries.util.version>1.0.1.redhat-${perfectus-build}</aries.util.version>
+        <aries-util-version>${aries.util.version}</aries-util-version>
         <aries.version>1.0.0</aries.version>
-        <aries.proxy.version>1.0.0</aries.proxy.version>
-        <aries-proxy-version>1.0.0</aries-proxy-version>
+        <aries.proxy.version>1.0.1.redhat-${perfectus-build}</aries.proxy.version>
+        <aries-proxy-version>${aries.proxy.version}</aries-proxy-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
         <brew-version>0.2.11</brew-version>
@@ -159,7 +159,7 @@
         <jms-1.1-version>1.1.1</jms-1.1-version>
         <jna-version>3.3.0</jna-version>
         <jna-bundle-version>1.1</jna-bundle-version>
-        <jsch-smx-version>0.1.44_2</jsch-smx-version>
+        <jsch-smx-version>0.1.48_1</jsch-smx-version>
         <jasypt-smx-version>1.9.0_1</jasypt-smx-version>
         <junit-version>4.10</junit-version>
         <karaf-version>2.3.0.redhat-60${perfectus-build}</karaf-version>
