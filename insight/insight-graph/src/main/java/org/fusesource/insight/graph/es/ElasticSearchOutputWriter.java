@@ -1,3 +1,20 @@
+/**
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.fusesource.insight.graph.es;
 
 import com.googlecode.jmxtrans.OutputWriter;
@@ -7,39 +24,30 @@ import com.googlecode.jmxtrans.util.BaseOutputWriter;
 import com.googlecode.jmxtrans.util.JmxUtils;
 import com.googlecode.jmxtrans.util.LifecycleException;
 import com.googlecode.jmxtrans.util.ValidationException;
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.node.Node;
+import org.fusesource.insight.elasticsearch.ElasticSender;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
-import static org.fusesource.insight.graph.es.ElasticSender.quote;
 
-public class ElasticSearchOutputWriter extends BaseOutputWriter implements OutputWriter, ServiceTrackerCustomizer<Node, Node> {
+public class ElasticSearchOutputWriter extends BaseOutputWriter implements OutputWriter {
 
     private BundleContext bundleContext;
-    private ServiceTracker<Node, Node> tracker;
+    private ServiceTracker<ElasticSender, ElasticSender> tracker;
     private String index;
     private String type;
-    private ElasticSender sender;
 
     private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
     private SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
     public ElasticSearchOutputWriter() {
-        this.sender = new ElasticSender();
         this.bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
-        this.tracker = new ServiceTracker<Node, Node>(bundleContext, Node.class, this);
+        this.tracker = new ServiceTracker<ElasticSender, ElasticSender>(bundleContext, ElasticSender.class, null);
     }
 
     @Override
@@ -52,48 +60,6 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
     @Override
     public void stop() throws LifecycleException {
         tracker.close();
-    }
-
-    @Override
-    public Node addingService(ServiceReference<Node> nodeServiceReference) {
-        Node node = bundleContext.getService(nodeServiceReference);
-
-        sender.setNode(node);
-
-        /*
-        CreateIndexRequest request = new CreateIndexRequest(index);
-
-        HashMap<String, Object> properties = new HashMap<String, Object>();
-
-        HashMap<String, Object> seq = new HashMap<String, Object>();
-        seq.put("type", "string");
-        seq.put("index", "not_analyzed");
-        properties.put("seq", seq);
-
-        HashMap<String, Object> value = new HashMap<String, Object>();
-        value.put("type", "double");
-        properties.put("value", value);
-
-        HashMap<String, Object> options = new HashMap<String, Object>();
-        options.put("properties", properties);
-        request.mapping(type, options);
-
-        sender.createIndexIfNeeded(request);
-        */
-
-        sender.init();
-
-        return node;
-    }
-
-    @Override
-    public void modifiedService(ServiceReference<Node> nodeServiceReference, Node node) {
-    }
-
-    @Override
-    public void removedService(ServiceReference<Node> nodeServiceReference, Node node) {
-        sender.destroy();
-        bundleContext.ungetService(nodeServiceReference);
     }
 
     @Override
@@ -132,7 +98,11 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                                 .type(type)
                                 .source(writer.toString())
                                 .create(true);
-                        sender.put(request);
+
+                        ElasticSender sender = tracker.getService();
+                        if (sender != null) {
+                            sender.push(request);
+                        }
                     }
                 }
             }
@@ -162,4 +132,67 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
         return value != null ? value.toString() : defaultVal;
     }
 
+    /**
+     * Produce a string in double quotes with backslash sequences in all the
+     * right places. A backslash will be inserted within </, producing <\/,
+     * allowing JSON text to be delivered in HTML. In JSON text, a string
+     * cannot contain a control character or an unescaped quote or backslash.
+     * @param string A String
+     * @return  A String correctly formatted for insertion in a JSON text.
+     */
+    public static void quote(String string, StringBuilder w) {
+        if (string == null || string.length() == 0) {
+            w.append("\"\"");
+            return;
+        }
+
+        char         b;
+        char         c = 0;
+        String       hhhh;
+        int          i;
+        int          len = string.length();
+
+        w.append('"');
+        for (i = 0; i < len; i += 1) {
+            b = c;
+            c = string.charAt(i);
+            switch (c) {
+                case '\\':
+                case '"':
+                    w.append('\\');
+                    w.append(c);
+                    break;
+                case '/':
+                    if (b == '<') {
+                        w.append('\\');
+                    }
+                    w.append(c);
+                    break;
+                case '\b':
+                    w.append("\\b");
+                    break;
+                case '\t':
+                    w.append("\\t");
+                    break;
+                case '\n':
+                    w.append("\\n");
+                    break;
+                case '\f':
+                    w.append("\\f");
+                    break;
+                case '\r':
+                    w.append("\\r");
+                    break;
+                default:
+                    if (c < ' ' || (c >= '\u0080' && c < '\u00a0') ||
+                            (c >= '\u2000' && c < '\u2100')) {
+                        hhhh = "000" + Integer.toHexString(c);
+                        w.append("\\u" + hhhh.substring(hhhh.length() - 4));
+                    } else {
+                        w.append(c);
+                    }
+            }
+        }
+        w.append('"');
+    }
 }

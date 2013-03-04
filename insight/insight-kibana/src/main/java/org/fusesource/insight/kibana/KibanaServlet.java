@@ -23,10 +23,15 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ArrayNode;
 import org.codehaus.jackson.node.JsonNodeFactory;
 import org.codehaus.jackson.node.ObjectNode;
+import org.fusesource.insight.elasticsearch.ElasticRest;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
@@ -63,15 +68,9 @@ public class KibanaServlet extends HttpServlet {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KibanaServlet.class);
 
-    public static class Config {
+    private static ServiceTracker<ElasticRest, ElasticRest> tracker;
 
-        /**
-         * Your elastic search server(s). This may be set as an array for round robin
-         * load balancing
-         *
-         * TODO: support array
-         */
-        public static String elasticSearch = "localhost:9200";
+    public static class Config {
 
         /**
          * Read/open timeouts for the connection to the ES backend
@@ -128,6 +127,18 @@ public class KibanaServlet extends HttpServlet {
         public static int facetIndexLimit = 0;
 
         public static String timestamp = "timestamp";
+    }
+
+    @Override
+    public void init() throws ServletException {
+        BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
+        this.tracker = new ServiceTracker<ElasticRest, ElasticRest>(context, ElasticRest.class, null);
+        this.tracker.open();
+    }
+
+    @Override
+    public void destroy() {
+        this.tracker.close();
     }
 
     @Override
@@ -580,6 +591,18 @@ public class KibanaServlet extends HttpServlet {
     public static class ElasticSearch {
 
         public static ObjectNode getJson(String request) {
+            try {
+                ElasticRest rest = tracker.getService();
+                if (rest != null) {
+                    String response = rest.get(request);
+                    return (ObjectNode) new ObjectMapper().readTree(response);
+                } else {
+                    throw new RuntimeException("ElasticSearch not available");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            /*
             InputStream is = null;
             try {
                 URL url = new URL("http://" + Config.elasticSearch + request);
@@ -603,9 +626,22 @@ public class KibanaServlet extends HttpServlet {
                     // Ignore
                 }
             }
+            */
         }
 
         public static ObjectNode postJson(String request, String query) {
+            try {
+                ElasticRest rest = tracker.getService();
+                if (rest != null) {
+                    String response = rest.post(request, query);
+                    return (ObjectNode) new ObjectMapper().readTree(response);
+                } else {
+                    throw new RuntimeException("ElasticSearch not available");
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            /*
             InputStream is = null;
             OutputStream os = null;
             try {
@@ -636,6 +672,7 @@ public class KibanaServlet extends HttpServlet {
                     // Ignore
                 }
             }
+            */
         }
 
     }
@@ -643,23 +680,19 @@ public class KibanaServlet extends HttpServlet {
     public static class Kelastic {
 
         public static ObjectNode kelastic(Query query, String index) {
-            String url = "http://" + Config.elasticSearch + "/" + index + "/_search";
-            ObjectNode response =  run(url, query);
+            ObjectNode response =  run("/" + index + "/_search", query);
             response.with("kibana").put("index", index);
             return response;
         }
 
         public static ObjectNode run(String url, Query query) {
-            url = "http://" + Config.elasticSearch + url;
-            String str = query.toString();
-            ObjectNode response = ElasticSearch.postJson(url, str);
+            ObjectNode response = ElasticSearch.postJson(url, query.toString());
             ObjectNode kibana = response.putObject("kibana");
             kibana.put("per_page", Config.perPage);
             // TODO: handle errors
             if (false) {
                 kibana.put("error", "Invalid query");
             }
-            kibana.put("cur_call", "curl -XGET " + url + "?pretty -d '" + str + "'");
             return response;
         }
 

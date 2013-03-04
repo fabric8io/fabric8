@@ -17,78 +17,42 @@
 
 package org.fusesource.insight.log.elasticsearch;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.fusesource.insight.elasticsearch.ElasticSender;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventConstants;
 import org.osgi.service.event.EventHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.fusesource.insight.log.elasticsearch.ElasticSender.quote;
+import static org.fusesource.insight.log.elasticsearch.InsightUtils.formatDate;
+import static org.fusesource.insight.log.elasticsearch.InsightUtils.getIndex;
+import static org.fusesource.insight.log.elasticsearch.InsightUtils.quote;
 
 public class InsightEventHandler implements EventHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InsightLogAppender.class);
 
     private String name;
     private String index;
     private String type;
     private ElasticSender sender;
 
-    private final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-    private SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
-
-    public String getName() {
-        return name;
-    }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getIndex() {
-        return index;
     }
 
     public void setIndex(String index) {
         this.index = index;
     }
 
-    public String getType() {
-        return type;
-    }
-
     public void setType(String type) {
         this.type = type;
     }
 
-    public ElasticSender getSender() {
-        return sender;
-    }
-
     public void setSender(ElasticSender sender) {
         this.sender = sender;
-    }
-
-    public void init() {
-        /*
-        CreateIndexRequest request = new CreateIndexRequest(index);
-
-        HashMap<String, Object> not_analyzed = new HashMap<String, Object>();
-        not_analyzed.put("type", "string");
-        not_analyzed.put("index", "not_analyzed");
-
-        HashMap<String, Object> properties = new HashMap<String, Object>();
-        properties.put("seq", not_analyzed);
-
-        HashMap<String, Object> options = new HashMap<String, Object>();
-        options.put("properties", properties);
-        request.mapping(type, options);
-
-        sender.createIndexIfNeeded(request);
-        */
     }
 
     public void handleEvent(final Event event) {
@@ -140,22 +104,15 @@ public class InsightEventHandler implements EventHandler {
             }
 
             IndexRequest request = new IndexRequest()
-                    .index(getIndex(timestamp))
+                    .index(getIndex(this.index, timestamp))
                     .type(type)
                     .source(writer.toString())
                     .create(true);
-            sender.put(request);
+
+            sender.push(request);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warn("Error appending log to elastic search", e);
         }
-    }
-
-    private String getIndex(long timestamp) {
-        return this.index + "-"+ indexFormat.format(new Date(timestamp));
-    }
-
-    private String formatDate(long timestamp) {
-        return simpleDateFormat.format(new Date(timestamp));
     }
 
 }

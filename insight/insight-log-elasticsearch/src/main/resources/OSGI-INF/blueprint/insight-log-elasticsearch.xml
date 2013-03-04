@@ -22,7 +22,7 @@
 
     <cm:property-placeholder persistent-id="org.fusesource.insight.log.elasticsearch" update-strategy="reload"/>
 
-    <bean id="appender" class="org.fusesource.insight.log.elasticsearch.InsightLogAppender" init-method="init">
+    <bean id="appender" class="org.fusesource.insight.log.elasticsearch.InsightLogAppender">
         <property name="name" value="$[karaf.name]" />
         <property name="index" value="${es.log.index}"/>
         <property name="type" value="${es.log.type}"/>
@@ -34,11 +34,11 @@
         </service-properties>
     </service>
 
-    <bean id="handler" class="org.fusesource.insight.log.elasticsearch.InsightEventHandler" init-method="init">
+    <bean id="handler" class="org.fusesource.insight.log.elasticsearch.InsightEventHandler">
         <property name="name" value="$[karaf.name]" />
         <property name="index" value="${es.evt.index}"/>
         <property name="type" value="${es.evt.type}"/>
-        <property name="sender" ref="sender"/>
+        <property name="sender" ref="sender" />
     </bean>
     <service ref="handler" interface="org.osgi.service.event.EventHandler">
         <service-properties>
@@ -46,10 +46,8 @@
         </service-properties>
     </service>
 
-    <bean id="sender" class="org.fusesource.insight.log.elasticsearch.ElasticSender" init-method="init" destroy-method="destroy">
-        <property name="node">
-            <reference interface="org.elasticsearch.node.Node" />
-        </property>
+    <bean id="sender" class="org.fusesource.insight.log.elasticsearch.SenderProxy" init-method="init" destroy-method="destroy">
+        <property name="context" ref="blueprintBundleContext" />
     </bean>
 
 </blueprint>

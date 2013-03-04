@@ -17,101 +17,41 @@
 
 package org.fusesource.insight.log.elasticsearch;
 
-import org.elasticsearch.action.admin.indices.create.CreateIndexRequest;
 import org.elasticsearch.action.index.IndexRequest;
+import org.fusesource.insight.elasticsearch.ElasticSender;
 import org.ops4j.pax.logging.spi.PaxAppender;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicLong;
-
-import static org.fusesource.insight.log.elasticsearch.ElasticSender.quote;
+import static org.fusesource.insight.log.elasticsearch.InsightUtils.formatDate;
+import static org.fusesource.insight.log.elasticsearch.InsightUtils.getIndex;
+import static org.fusesource.insight.log.elasticsearch.InsightUtils.quote;
 
 public class InsightLogAppender implements PaxAppender {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(InsightLogAppender.class);
 
     private String name;
     private String index;
     private String type;
     private ElasticSender sender;
 
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-    private SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
-
-
-    public String getName() {
-        return name;
-    }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getIndex() {
-        return index;
     }
 
     public void setIndex(String index) {
         this.index = index;
     }
 
-    public String getType() {
-        return type;
-    }
-
     public void setType(String type) {
         this.type = type;
     }
 
-    public ElasticSender getSender() {
-        return sender;
-    }
-
     public void setSender(ElasticSender sender) {
         this.sender = sender;
-    }
-
-    public void init() {
-        /*
-        CreateIndexRequest request = new CreateIndexRequest(index);
-        request = request.settings(
-        "{"+
-//            "\"number_of_shards\":10,"+
-//            "\"number_of_replicas\":1,"+
-            "\"analysis\":{"+
-                "\"analyzer\":{"+
-                    "\"lower\":{"+
-                        "\"type\":\"custom\","+
-                        "\"tokenizer\":\"keyword\","+
-                        "\"filter\":[\"lowercase\"]"+
-                    "}"+
-                "}"+
-            "}"+
-        "}"
-        );
-
-        HashMap<String, Object> not_analyzed = new HashMap<String, Object>();
-        not_analyzed.put("type", "string");
-        not_analyzed.put("index", "not_analyzed");
-
-        HashMap<String, Object> lower = new HashMap<String, Object>();
-        lower.put("type", "string");
-        lower.put("analyzer", "lower");
-
-        HashMap<String, Object> properties = new HashMap<String, Object>();
-        properties.put("host", lower);
-        properties.put("level", lower);
-        properties.put("thread", lower);
-        properties.put("seq", not_analyzed);
-        properties.put("logger", lower);
-
-        HashMap<String, Object> options = new HashMap<String, Object>();
-        options.put("properties", properties);
-        request.mapping(type, options);
-
-        sender.createIndexIfNeeded(request);
-        */
     }
 
     public void doAppend(final PaxLoggingEvent paxLoggingEvent) {
@@ -163,22 +103,15 @@ public class InsightLogAppender implements PaxAppender {
             writer.append("\n}");
 
             IndexRequest request = new IndexRequest()
-                    .index(getIndex(paxLoggingEvent.getTimeStamp()))
+                    .index(getIndex(this.index, paxLoggingEvent.getTimeStamp()))
                     .type(type)
                     .source(writer.toString())
                     .create(true);
-            sender.put(request);
+
+            sender.push(request);
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.warn("Error appending log to elastic search", e);
         }
-    }
-
-    private String getIndex(long timestamp) {
-        return this.index + "-"+ indexFormat.format(new Date(timestamp));
-    }
-
-    private String formatDate(long timestamp) {
-        return simpleDateFormat.format(new Date(timestamp));
     }
 
 }

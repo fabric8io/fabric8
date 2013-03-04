@@ -30,6 +30,17 @@
   <packaging>bundle</packaging>
 
   <properties>
+      <!--
+      <fuse.osgi.import>
+          org.fusesource.insight.elasticsearch*
+      </fuse.osgi.import>
+      -->
+      <fuse.osgi.export>
+          !*
+      </fuse.osgi.export>
+      <fuse.osgi.private.pkg>
+          org.fusesource.insight.log.elasticsearch
+      </fuse.osgi.private.pkg>
   </properties>
 
   <dependencies>
