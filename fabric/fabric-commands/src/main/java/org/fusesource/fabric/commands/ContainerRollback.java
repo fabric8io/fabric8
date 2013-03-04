@@ -91,6 +91,11 @@ public class ContainerRollback extends ContainerUpgradeSupport {
             System.out.println("Rolled back container " + container.getId() + " from version " + oldVersion + " to " + version);
         }
 
+		if (all) {
+			fabricService.setDefaultVersion(version);
+			System.out.println("Changed default version to " + version);
+		}
+
         return null;
     }
 
