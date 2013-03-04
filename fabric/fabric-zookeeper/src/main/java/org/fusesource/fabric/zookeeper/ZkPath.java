@@ -22,6 +22,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.JsonFactory;
@@ -38,16 +39,23 @@ public enum ZkPath {
 
 
     // config nodes
-    CONFIGS_CONTAINERS      ("/fabric/configs/containers/"),
-    CONFIG_CONTAINER        ("/fabric/configs/containers/{container}"),
-    CONFIG_DEFAULT_VERSION  ("/fabric/configs/default-version"),
-    CONFIG_VERSIONS         ("/fabric/configs/versions"),
-    CONFIG_VERSION          ("/fabric/configs/versions/{version}"),
-    CONFIG_VERSIONS_PROFILES("/fabric/configs/versions/{version}/profiles"),
-    CONFIG_VERSIONS_PROFILE ("/fabric/configs/versions/{version}/profiles/{profile}"),
-    CONFIG_VERSIONS_CONTAINER("/fabric/configs/versions/{version}/containers/{container}"),
+    CONFIGS_CONTAINERS             ("/fabric/configs/containers/"),
+    CONFIG_CONTAINER               ("/fabric/configs/containers/{container}"),
+    CONFIG_DEFAULT_VERSION         ("/fabric/configs/default-version"),
+    CONFIG_VERSIONS                ("/fabric/configs/versions"),
+    CONFIG_VERSION                 ("/fabric/configs/versions/{version}"),
+    CONFIG_VERSIONS_PROFILES       ("/fabric/configs/versions/{version}/profiles"),
+    CONFIG_VERSIONS_PROFILE        ("/fabric/configs/versions/{version}/profiles/{profile}"),
+    CONFIG_VERSIONS_CONTAINER      ("/fabric/configs/versions/{version}/containers/{container}"),
+	CONFIG_ENSEMBLES               ("/fabric/configs/ensemble"),
+	CONFIG_ENSEMBLE_URL            ("/fabric/configs/ensemble/url"),
+	CONFIG_ENSEMBLE_PASSWORD       ("/fabric/configs/ensemble/password"),
+	CONFIG_ENSEMBLE                ("/fabric/configs/ensemble/{id}"),
+	CONFIG_ENSEMBLE_GENERAL        ("/fabric/configs/ensemble/general"),
+	CONFIG_ENSEMBLE_PROFILES       ("/fabric/configs/ensemble/profiles"),
+	CONFIG_ENSEMBLE_PROFILE        ("/fabric/configs/ensemble/profiles/{profile}"),
 
-    MAVEN_PROXY("/fabric/registry/maven/proxy/{type}"),
+    MAVEN_PROXY                    ("/fabric/registry/maven/proxy/{type}"),
     // Agent nodes
     CONTAINERS                     ("/fabric/registry/containers/config"),
     CONTAINER                      ("/fabric/registry/containers/config/{container}"),
@@ -88,6 +96,8 @@ public enum ZkPath {
     CLOUD_NODE_IDENTITY            ("/fabric/registry/cloud/nodes/{id}/identity"),
     CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
     POLICIES                       ("/fabric/registry/policies/{policy}");
+
+	private static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
 
     /**
      * Path template.
@@ -172,6 +182,18 @@ public enum ZkPath {
         }
         return rc;
     }
+
+	/**
+	 * Returns the path of the profile.
+	 * @param version
+	 * @param id
+	 * @return
+	 */
+	public static String getProfilePath(String version, String id) {
+		if (ENSEMBLE_PROFILE_PATTERN.matcher(id).matches()) {
+			return ZkPath.CONFIG_ENSEMBLE_PROFILE.getPath(id);
+		} else return ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
+	}
 
     public static void createContainerPaths(IZKClient zooKeeper, String container, String version, String profiles) throws InterruptedException, KeeperException {
         boolean versionProvided = version != null;

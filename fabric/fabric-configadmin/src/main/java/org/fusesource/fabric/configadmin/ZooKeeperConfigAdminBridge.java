@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
@@ -71,6 +72,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     private String name;
     private String version;
     private String node;
+	private String ensemble;
     private String resolutionPolicy;
     private Map<String, ZooKeeperTreeTracker<String>> trees = new ConcurrentHashMap<String, ZooKeeperTreeTracker<String>>();
     private volatile boolean tracking = false;
@@ -106,6 +108,10 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     zooKeeper.createWithParents(node, CreateMode.PERSISTENT);
                 }
                 track(node);
+				ensemble = ZkPath.CONFIG_ENSEMBLES.getPath();
+				if (zooKeeper.exists(ensemble) == null) {
+					zooKeeper.createWithParents(ensemble, CreateMode.PERSISTENT);
+				}
                 resolutionPolicy = ZkPath.CONTAINER_RESOLVER.getPath(name);
                 track(resolutionPolicy);
             } finally {
@@ -144,8 +150,8 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             }
         }
 
-        return tree;
-    }
+		return tree;
+	}
 
     static public Properties toProperties(String source) throws IOException {
         Properties rc = new Properties();
@@ -227,7 +233,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
         String[] parents = getParents(root);
         for (String parent : parents) {
-            load(pid, ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), dict);
+            load(pid, ZkProfiles.getPath(version, parent), dict);
         }
         TrackedNode<String> cfg = tree != null ? tree.getTree().get(node + "/" + pid + ".properties") : null;
         if (cfg != null) {
@@ -283,7 +289,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         TrackedNode<String> root = tree != null ? tree.getTree().get(node) : null;
         String[] parents = getParents(root);
         for (String parent : parents) {
-            getPids(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, parent), pids);
+            getPids(ZkProfiles.getPath(version, parent), pids);
         }
         for (String pid : getChildren(tree, node)) {
             if (pid.endsWith(".properties")) {

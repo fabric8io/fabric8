@@ -60,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
+import static org.fusesource.fabric.zookeeper.ZkProfiles.getPath;
 
 public class FabricServiceImpl implements FabricService {
 
@@ -596,9 +597,9 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public Profile[] getProfiles(String version) {
         try {
-
+			List<Profile> profiles = new ArrayList<Profile>();
             List<String> names = zooKeeper.getChildren(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version));
-            List<Profile> profiles = new ArrayList<Profile>();
+			names.addAll(zooKeeper.getChildren(ZkPath.CONFIG_ENSEMBLE_PROFILES.getPath()));
             for (String name : names) {
                 profiles.add(new ProfileImpl(name, version, this));
             }
@@ -611,7 +612,7 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public Profile getProfile(String version, String name) {
         try {
-            String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, name);
+            String path = getPath(version, name);
             if (zooKeeper.exists(path) == null) {
                 return null;
             }
@@ -638,7 +639,7 @@ public class FabricServiceImpl implements FabricService {
 
     public void deleteProfile(String versionId, String profileId) {
         try {
-            zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(versionId, profileId));
+            zooKeeper.deleteWithChildren(getPath(versionId, profileId));
         } catch (Exception e) {
             throw new FabricException(e);
         }

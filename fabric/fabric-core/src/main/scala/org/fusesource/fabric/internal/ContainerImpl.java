@@ -680,7 +680,7 @@ public class ContainerImpl implements Container {
         for (int i = 0; i < oldProfiles.length; i++) {
             // get new profile
             Profile newProfile = version.getProfile(oldProfiles[i].getId());
-            if (!oldProfiles[i].configurationEquals(newProfile)) {
+            if (newProfile != null && !oldProfiles[i].configurationEquals(newProfile)) {
                 requiresUpgrade = true;
             }
         }
