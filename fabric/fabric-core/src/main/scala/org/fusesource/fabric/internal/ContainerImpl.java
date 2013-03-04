@@ -336,6 +336,10 @@ public class ContainerImpl implements Container {
     @Override
     public void setResolver(String resolver) {
         try {
+            List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
+            if (!validResolverList.contains(resolver)) {
+                throw new FabricException("Resolver " + resolver + " is not valid.");
+            }
             ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id), "${zk:" + id + "/" + resolver + "}");
             ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id), resolver);
         } catch (Exception e) {

@@ -17,12 +17,16 @@
 package org.fusesource.fabric.internal;
 
 
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.easymock.EasyMock;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +57,7 @@ public class ContainerImplTest {
         String version = "1.0";
         expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
         expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn("default").anyTimes();
-        expect(izkClient.setData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id),"default")).andReturn(null).anyTimes();
+        expect(izkClient.setData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id), "default")).andReturn(null).anyTimes();
         replay(izkClient);
 
         container.setProfiles(null);
@@ -107,5 +111,10 @@ public class ContainerImplTest {
         assertEquals(2, profiles.length);
         assertEquals("camel", profiles[0].getId());
         verify(izkClient);
+    }
+
+    @Test(expected = FabricException.class)
+    public void testInvalidResolver() throws KeeperException, InterruptedException {
+        container.setResolver("invalidreolver");
     }
 }
