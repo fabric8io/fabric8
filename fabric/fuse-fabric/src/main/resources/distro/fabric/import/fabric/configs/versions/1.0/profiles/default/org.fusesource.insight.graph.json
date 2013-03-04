@@ -5,6 +5,16 @@
       "obj" : "java.lang:type=Memory",
       "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
       "resultAlias" : "Memory"
+    },
+    {
+      "obj" : "java.lang:type=Threading",
+      "attr" : [ "ThreadCount" ],
+      "resultAlias" : "Threading"
+    },
+    {
+      "obj" : "java.lang:type=OperatingSystem",
+      "attr" : [ "ProcessCpuLoad", "SystemCpuLoad" ],
+      "resultAlias" : "OperatingSystem"
     } ]
   } ]
 }

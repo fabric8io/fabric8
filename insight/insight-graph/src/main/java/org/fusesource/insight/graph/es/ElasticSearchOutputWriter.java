@@ -124,7 +124,7 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                         quote(result.getTypeName(), writer);
                         writer.append(", \"key\" : ");
                         quote(values.getKey(), writer);
-                        writer.append(", \"value\" : ").append(values.getValue().toString());
+                        writer.append(", \"value\" : ").append(toString(values.getValue()));
                         writer.append(" }");
 
                         IndexRequest request = new IndexRequest()
@@ -137,6 +137,16 @@ public class ElasticSearchOutputWriter extends BaseOutputWriter implements Outpu
                 }
             }
         }
+    }
+
+    private String toString(Object value) {
+        double d;
+        if (value instanceof Number) {
+            d = ((Number) value).doubleValue();
+        } else {
+            d = Double.parseDouble(value.toString());
+        }
+        return Double.toString(d);
     }
 
     private String getIndex(long timestamp) {
