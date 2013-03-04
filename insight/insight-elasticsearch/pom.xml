@@ -34,15 +34,19 @@
           *;resolution:=optional
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
-          org.elasticsearch*;-noimport:=true;version=0.20.5;-split-package:=merge-first
+          org.elasticsearch*;-noimport:=true;version=0.20.5;-split-package:=merge-first,
+          org.fusesource.insight.elasticsearch;version=${project.version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           org.apache.lucene*,
           org.tartarus*,
-          org.ops4j.peaberry*
+          org.ops4j.peaberry*,
+          org.fusesource.insight.elasticsearch.impl
       </fuse.osgi.private.pkg>
       <fuse.osgi.services.export>
-          org.elasticsearch.node.Node
+          org.elasticsearch.node.Node,
+          org.fusesource.insight.elasticsearch.ElasticRest,
+          org.fusesource.insight.elasticsearch.ElasticSender
       </fuse.osgi.services.export>
   </properties>
 

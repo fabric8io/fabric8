@@ -25,9 +25,11 @@ import javax.security.auth.Subject;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
+import org.fusesource.insight.elasticsearch.ElasticRest;
+import org.fusesource.insight.elasticsearch.ElasticSender;
 import org.osgi.framework.BundleContext;
 
-public class NodeFactory extends BaseManagedServiceFactory<Node> {
+public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode> {
 
     private Map<String,String> settings;
 
@@ -37,18 +39,18 @@ public class NodeFactory extends BaseManagedServiceFactory<Node> {
     }
 
     @Override
-    protected Node doCreate(final Dictionary properties) {
+    protected ExtendedInternalNode doCreate(final Dictionary properties) {
         // If we want to use HDFS, we need to run under no user credentials so
         // that the default hdfs security mechanism will be used.
-        return Subject.doAs(null, new PrivilegedAction<Node>() {
+        return Subject.doAs(null, new PrivilegedAction<ExtendedInternalNode>() {
             @Override
-            public Node run() {
+            public ExtendedInternalNode run() {
                 return doCreateInternal(properties);
             }
         });
     }
 
-    protected Node doCreateInternal(Dictionary properties) {
+    protected ExtendedInternalNode doCreateInternal(Dictionary properties) {
         ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder();
         builder.put(settings);
         builder.classLoader(NodeFactory.class.getClassLoader());
@@ -60,7 +62,7 @@ public class NodeFactory extends BaseManagedServiceFactory<Node> {
                 builder.put(key, val);
             }
         }
-        Node node = new InternalNode(builder.build(), false);
+        ExtendedInternalNode node = new ExtendedInternalNode(new InternalNode(builder.build(), false));
         try {
             node.start();
             node.client().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
@@ -72,13 +74,13 @@ public class NodeFactory extends BaseManagedServiceFactory<Node> {
     }
 
     @Override
-    protected void doDestroy(Node node) {
+    protected void doDestroy(ExtendedInternalNode node) {
         node.close();
     }
 
     @Override
-    protected String[] getExposedClasses(Node node) {
-        return new String[] { Node.class.getName() };
+    protected String[] getExposedClasses(ExtendedInternalNode node) {
+        return new String[] { Node.class.getName(), ElasticRest.class.getName(), ElasticSender.class.getName() };
     }
 
 }
