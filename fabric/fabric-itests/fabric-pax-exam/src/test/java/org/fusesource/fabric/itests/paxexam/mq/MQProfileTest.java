@@ -145,6 +145,6 @@ public class MQProfileTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[] {new DefaultCompositeOption(fabricDistributionConfiguration()),
-               mavenBundle("org.apache.activemq", "activemq-all", MavenUtils.getArtifactVersion("org.apache.activemq", "activemq-core"))};
+               mavenBundle("org.apache.activemq", "activemq-osgi", MavenUtils.getArtifactVersion("org.apache.activemq", "activemq-broker"))};
     }
 }
