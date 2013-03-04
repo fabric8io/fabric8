@@ -1,7 +1,9 @@
 package org.fusesource.fabric.itests.paxexam.camel;
 
 
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.FabricFeaturesTest;
+import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -12,21 +14,24 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Set;
+
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class CamelProfileTest extends FabricFeaturesTest {
 
     @After
     public void tearDown() throws InterruptedException {
-        destroyChildContainer("camel1");
+        ContainerBuilder.destroy();
     }
 
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        createAndAssertChildContainer("camel1", "root", "default");
-        addStagingRepoToDefaultProfile();
-        assertProvisionedFeature("camel1", "camel-hazelcast", "camel", "camel-hazelcast");
+        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
+        for (Container container : containers) {
+            assertProvisionedFeature(container.getId(), "camel-hazelcast", "camel", "camel-hazelcast");
+        }
     }
 
     @Configuration

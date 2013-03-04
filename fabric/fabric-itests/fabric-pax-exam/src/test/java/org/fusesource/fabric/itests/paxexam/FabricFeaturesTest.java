@@ -56,7 +56,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      */
     public void assertProvisionedFeature(String containerName, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
         System.out.println("Testing profile:"+profileName+" on container:"+containerName+" by adding feature:"+featureNames);
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getFabricService();
         //We set container to default to clean the container up.
         containerSetProfile(containerName, "default");
         Container container = fabricService.getContainer(containerName);

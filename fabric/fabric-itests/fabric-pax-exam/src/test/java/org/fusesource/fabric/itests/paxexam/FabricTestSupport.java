@@ -17,17 +17,6 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import javax.management.JMX;
-import javax.management.MBeanServerConnection;
-import javax.management.ObjectName;
-import javax.management.remote.JMXConnector;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -35,22 +24,40 @@ import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.service.ChildContainerProvider;
-import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.SshContainerBuilder;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.Inject;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.osgi.service.blueprint.container.BlueprintContainer;
 
+import javax.management.JMX;
+import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 public class FabricTestSupport extends FuseTestSupport {
 
@@ -59,6 +66,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";
+
 
     /**
      * Creates a child {@ling Agent} witht the given name.
@@ -105,16 +113,11 @@ public class FabricTestSupport extends FuseTestSupport {
     protected void destroyChildContainer(String name) throws InterruptedException {
         try {
             //Wait for zookeeper service to become available.
-            IZKClient zooKeeper = getOsgiService(IZKClient.class);
-
-            FabricService fabricService = getOsgiService(FabricService.class);
-            assertNotNull(fabricService);
-
             Thread.sleep(DEFAULT_WAIT);
             //We want to check if container exists before we actually delete them.
             //We need this because getContainer will create a container object if container doesn't exists.
-            if (zooKeeper.exists(ZkPath.CONTAINER.getPath(name)) != null) {
-                Container container = fabricService.getContainer(name);
+            if (getZookeeper().exists(ZkPath.CONTAINER.getPath(name)) != null) {
+                Container container = getFabricService().getContainer(name);
                 //We want to go through container destroy method so that cleanup methods are properly invoked.
                 container.destroy();
             }
@@ -155,7 +158,7 @@ public class FabricTestSupport extends FuseTestSupport {
      * @throws Exception
      */
     public Container createAndAssertChildContainer(String name, String parent, String profile) throws Exception {
-       return createAndAssertChildContainer(name, parent, profile, null);
+        return createAndAssertChildContainer(name, parent, profile, null);
     }
 
     public Container createAndAssertChildContainer(String name, String parent, String profile, String jvmOpts) throws Exception {
@@ -178,9 +181,6 @@ public class FabricTestSupport extends FuseTestSupport {
         System.out.println("Switching profile: " + profileName + " on container:" + containerName);
         FabricService fabricService = getFabricService();
 
-        IZKClient zookeeper = getOsgiService(IZKClient.class);
-        assertNotNull(zookeeper);
-
         Container container = fabricService.getContainer(containerName);
         Version version = container.getVersion();
         Profile[] profiles = new Profile[]{fabricService.getProfile(version.getName(), profileName)};
@@ -202,7 +202,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
         if (!same) {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
-            ZooKeeperUtils.set(zookeeper, ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
+            ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
         }
@@ -224,9 +224,15 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     public FabricService getFabricService() {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = ServiceLocator.getOsgiService(FabricService.class);
         assertNotNull(fabricService);
         return fabricService;
+    }
+
+    public IZKClient getZookeeper() {
+        IZKClient zookeeper = ServiceLocator.getOsgiService(IZKClient.class);
+        assertNotNull(zookeeper);
+        return zookeeper;
     }
 
     protected void waitForFabricCommands() {
@@ -256,6 +262,13 @@ public class FabricTestSupport extends FuseTestSupport {
                         maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                 useOwnExamBundlesStartLevel(50),
+                envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY),
+                envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY),
+                envAsSystemProperty(SshContainerBuilder.SSH_HOSTS_PROPERTY),
+                envAsSystemProperty(SshContainerBuilder.SSH_USERS_PROPERTY),
+                envAsSystemProperty(SshContainerBuilder.SSH_PASSWORD_PROPERTY),
+                envAsSystemProperty(SshContainerBuilder.SSH_RESOLVER_PROPERTY),
+
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
@@ -273,5 +286,11 @@ public class FabricTestSupport extends FuseTestSupport {
         MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
         return JMX.newMBeanProxy(mbsc, mbeanName, clazz, true);
     }
+
+    private Option envAsSystemProperty(String name) {
+        String value = System.getenv(name);
+        return editConfigurationFilePut("etc/system.properties", name, value != null ? value : "");
+    }
+
 }
 

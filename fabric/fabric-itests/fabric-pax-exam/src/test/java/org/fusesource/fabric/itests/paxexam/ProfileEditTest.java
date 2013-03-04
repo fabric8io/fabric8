@@ -21,6 +21,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertNotNull;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,7 +38,7 @@ public class ProfileEditTest extends FabricTestSupport {
 
     @Test
     public void testManipulatePid() throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
         System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
@@ -105,7 +106,7 @@ public class ProfileEditTest extends FabricTestSupport {
     
     @Test
     public void testImportPid() throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
         System.err.println(executeCommands("config:edit my.pid","config:propset key1 value1","config:propset key2 value2", "config:update"));        
         System.err.println(executeCommand("fabric:create -n"));
@@ -126,8 +127,6 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertTrue(myPid.containsKey("key2"));
         Assert.assertEquals("value2", myPid.get("key2"));
     }
-    
-    
 
 
     @Configuration

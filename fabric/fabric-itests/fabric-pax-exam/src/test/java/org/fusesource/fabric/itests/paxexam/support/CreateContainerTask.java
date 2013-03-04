@@ -1,0 +1,53 @@
+/**
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.fusesource.fabric.itests.paxexam.support;
+
+import org.fusesource.fabric.api.*;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+
+public class CreateContainerTask implements Callable<Set<Container>> {
+
+    private final FabricService fabricService;
+    private final CreateContainerOptions createContainerOptions;
+
+
+    public CreateContainerTask(FabricService fabricService, CreateContainerOptions createContainerOptions) {
+        this.fabricService = fabricService;
+        this.createContainerOptions = createContainerOptions;
+    }
+
+    @Override
+    public Set<Container> call() throws Exception {
+        Set<Container> containers = new HashSet<Container>();
+        CreateContainerMetadata[] allMetadata = fabricService.createContainers(createContainerOptions);
+        if (allMetadata != null && allMetadata.length > 0) {
+            for (CreateContainerMetadata metadata : allMetadata) {
+                Container container = metadata.getContainer();
+                containers.add(container);
+                if (!metadata.isSuccess()) {
+                    throw new FabricException("Failed to create container:" + container.getId(), metadata.getFailure());
+                }
+            }
+        }
+
+        return containers;
+    }
+}

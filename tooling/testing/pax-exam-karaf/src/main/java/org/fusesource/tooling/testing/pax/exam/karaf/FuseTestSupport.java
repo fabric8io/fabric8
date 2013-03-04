@@ -17,19 +17,6 @@
 
 package org.fusesource.tooling.testing.pax.exam.karaf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import javax.inject.Inject;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.FeaturesService;
@@ -39,17 +26,20 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.TestProbeBuilder;
 import org.ops4j.pax.exam.junit.ProbeBuilder;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
-import org.ops4j.pax.exam.spi.intern.TestProbeBuilderImpl;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
-import org.osgi.framework.Filter;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
 
+import javax.inject.Inject;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 public class FuseTestSupport {
@@ -83,70 +73,6 @@ public class FuseTestSupport {
         throw new RuntimeException("Bundle " + symbolicName + " does not exist");
     }
 
-    /*
-    * Explode the dictionary into a ,-delimited list of key=value pairs
-    */
-    private static String explode(Dictionary dictionary) {
-        Enumeration keys = dictionary.keys();
-        StringBuffer result = new StringBuffer();
-        while (keys.hasMoreElements()) {
-            Object key = keys.nextElement();
-            result.append(String.format("%s=%s", key, dictionary.get(key)));
-            if (keys.hasMoreElements()) {
-                result.append(", ");
-            }
-        }
-        return result.toString();
-    }
-
-    protected <T> T getOsgiService(Class<T> type, long timeout) {
-        return getOsgiService(type, null, timeout);
-    }
-
-    protected <T> T getOsgiService(Class<T> type) {
-        return getOsgiService(type, null, DEFAULT_TIMEOUT);
-    }
-
-    protected <T> T getOsgiService(Class<T> type, String filter, long timeout) {
-        ServiceTracker tracker = null;
-        try {
-            String flt;
-            if (filter != null) {
-                if (filter.startsWith("(")) {
-                    flt = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")" + filter + ")";
-                } else {
-                    flt = "(&(" + Constants.OBJECTCLASS + "=" + type.getName() + ")(" + filter + "))";
-                }
-            } else {
-                flt = "(" + Constants.OBJECTCLASS + "=" + type.getName() + ")";
-            }
-            Filter osgiFilter = FrameworkUtil.createFilter(flt);
-            tracker = new ServiceTracker(bundleContext, osgiFilter, null);
-            tracker.open(true);
-            // Note that the tracker is not closed to keep the reference
-            // This is buggy, as the service reference may change i think
-            Object svc = type.cast(tracker.waitForService(timeout));
-            if (svc == null) {
-                Dictionary dic = bundleContext.getBundle().getHeaders();
-                System.err.println("Test bundle headers: " + explode(dic));
-
-                for (ServiceReference ref : asCollection(bundleContext.getAllServiceReferences(null, null))) {
-                    System.err.println("ServiceReference: " + ref);
-                }
-
-                for (ServiceReference ref : asCollection(bundleContext.getAllServiceReferences(null, flt))) {
-                    System.err.println("Filtered ServiceReference: " + ref);
-                }
-
-                throw new RuntimeException("Gave up waiting for service " + flt);
-            }
-            return type.cast(svc);
-        } catch (InvalidSyntaxException e) {
-            throw new IllegalArgumentException("Invalid filter", e);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Make available system properties that are configured for the test, to the test container.
@@ -157,13 +83,6 @@ public class FuseTestSupport {
      */
     public static Option copySystemProperty(String propertyName) {
         return editConfigurationFilePut("etc/system.properties", propertyName, System.getProperty(propertyName) != null ? System.getProperty(propertyName) : "");
-    }
-
-    /*
-     * Provides an iterable collection of references, even if the original array is null
-     */
-    private static Collection<ServiceReference> asCollection(ServiceReference[] references) {
-        return references != null ? Arrays.asList(references) : Collections.<ServiceReference>emptyList();
     }
 
     /**
@@ -269,6 +188,7 @@ public class FuseTestSupport {
                         try {
                             for(String command:commands) {
                              System.out.println(command);
+							 System.out.flush();
                              commandSession.execute(command);
                             }
                         } catch (Exception e) {

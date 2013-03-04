@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -106,7 +107,7 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
 
         executeCommand("fabric:cloud-service-add --provider cloudservers-us --identity "+identity+" --credential "+credential);
 
-        ComputeService computeService = getOsgiService(ComputeService.class, 3*DEFAULT_TIMEOUT);
+        ComputeService computeService = ServiceLocator.getOsgiService(ComputeService.class, null ,3 * DEFAULT_TIMEOUT);
 
         //The compute service needs some time to properly initialize.
         System.err.println(executeCommand(String.format("fabric:container-create-cloud --provider cloudservers-us --group %s --ensemble-server ensemble1", group), 10 * 60000L, false));

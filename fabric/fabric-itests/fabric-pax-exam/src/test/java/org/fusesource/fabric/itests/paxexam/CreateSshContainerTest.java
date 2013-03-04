@@ -32,6 +32,9 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
+
+import javax.inject.Inject;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -46,7 +49,6 @@ public class CreateSshContainerTest extends FabricTestSupport {
     private String port;
     private String username;
     private String password;
-
 
     /**
      * Returns true if all the requirements for running this test are meet.
@@ -79,33 +81,30 @@ public class CreateSshContainerTest extends FabricTestSupport {
     @Test
     public void testSshContainerProvider() throws Throwable {
         if (isReady()) {
-            FabricService fabricService = getOsgiService(FabricService.class);
-            assertNotNull(fabricService);
             System.err.println(executeCommand("fabric:create -n"));
 
             CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
                     .host(host)
                     .port(Integer.parseInt(port))
                     .username(username)
-                    .password(password)
-                    .providerUri("ssh://" + username + ":" + password + "@" + host + ":" + port);
-            CreateContainerMetadata[] metadata = fabricService.createContainers(options);
+                    .password(password);
+            CreateContainerMetadata[] metadata = getFabricService().createContainers(options);
             assertNotNull(metadata);
             assertEquals(1, metadata.length);
             if (metadata[0].getFailure() != null) {
                 throw metadata[0].getFailure();
             }
-            assertTrue("Expected succesful creation of remote ssh container",metadata[0].isSuccess());
-            assertNotNull("Expected succesful creation of remote ssh container",metadata[0].getContainer());
+            assertTrue("Expected successful creation of remote ssh container",metadata[0].isSuccess());
+            assertNotNull("Expected successful creation of remote ssh container",metadata[0].getContainer());
             waitForProvisionSuccess(metadata[0].getContainer(), 3 * PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
             System.out.println(executeCommand("fabric:container-resolver-list"));
-            Container ssh1 = fabricService.getContainer("ssh1");
+            Container ssh1 = getFabricService().getContainer("ssh1");
             assertTrue(ssh1.isAlive());
             createAndAssertChildContainer("ssh2", "ssh1", "default");
 
             //Stop & Start Remote Child
-            Container ssh2 = fabricService.getContainer("ssh2");
+            Container ssh2 = getFabricService().getContainer("ssh2");
             ssh2.stop();
             assertFalse(ssh2.isAlive());
             ssh2.start();

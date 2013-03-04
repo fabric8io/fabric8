@@ -18,6 +18,8 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import java.io.File;
+
+import com.google.inject.Inject;
 import org.fusesource.fabric.api.FabricService;
 import org.junit.After;
 import org.junit.Ignore;
@@ -56,7 +58,7 @@ public class SelfUpdateTest extends FabricTestSupport {
     public void testDefaultProfileUpgrade() throws Exception {
         String newVersion = System.getProperty("fabric.version");
 
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getFabricService();
         System.err.println(executeCommand("fabric:create"));
         addStagingRepoToDefaultProfile();
         createAndAssertChildContainer("child1", "root", "default");

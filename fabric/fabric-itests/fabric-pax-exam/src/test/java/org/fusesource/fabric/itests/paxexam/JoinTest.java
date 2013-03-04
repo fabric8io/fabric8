@@ -33,6 +33,7 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import javax.inject.Inject;
 import java.util.List;
 
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
@@ -48,12 +49,12 @@ public class JoinTest extends FabricTestSupport {
 
 	@Test
 	public void testJoin() throws Exception {
+        FabricService fabricService = getFabricService();
 		String version = System.getProperty("fabric.version");
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
 			System.err.println(executeCommand("fabric:create -n"));
-			FabricService fabricService = getOsgiService(FabricService.class);
 			Container child1 = fabricService.getContainer("child1");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
 			System.err.println(executeCommand("fabric:container-list"));
@@ -64,10 +65,13 @@ public class JoinTest extends FabricTestSupport {
 
 	/**
 	 * This is a test for FABRIC-353.
+	 *
 	 * @throws Exception
 	 */
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
+        FabricService fabricService = getFabricService();
+        IZKClient zookeeper = getZookeeper();
 		String version = System.getProperty("fabric.version");
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child2"));
@@ -75,13 +79,11 @@ public class JoinTest extends FabricTestSupport {
 			System.err.println(executeCommand("admin:start child1"));
 			System.err.println(executeCommand("admin:start child2"));
 			System.err.println(executeCommand("fabric:create -n"));
-			FabricService fabricService = getOsgiService(FabricService.class);
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
 			waitForProvisionSuccess(child2, PROVISION_TIMEOUT);
 			System.err.println(executeCommand("fabric:ensemble-add child1 child2"));
-			IZKClient zookeeper = getOsgiService(IZKClient.class);
 			Thread.sleep(5000);
 			zookeeper.waitForConnected();
 			System.err.println(executeCommand("fabric:container-list"));

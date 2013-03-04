@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.maven.profiles.ProfilesConversionUtils;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +44,7 @@ public class FabricCreateTest extends FabricTestSupport {
 
     @Test
     public void testImportedProfiles() throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
 
         System.err.println(executeCommand("fabric:create -n"));
@@ -61,7 +62,7 @@ public class FabricCreateTest extends FabricTestSupport {
 
     @Test
     public void testCreateWithProfileSelextion() throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
 
         System.err.println(executeCommand("fabric:create -n --profile camel"));

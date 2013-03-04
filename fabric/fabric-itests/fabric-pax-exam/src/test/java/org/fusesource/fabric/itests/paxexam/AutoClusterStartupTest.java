@@ -17,16 +17,12 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.util.Dictionary;
-import javax.inject.Inject;
-
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.SystemProperties;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -36,23 +32,21 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import javax.inject.Inject;
+import java.util.Dictionary;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
 
-    @Inject
-    protected IZKClient zooKeeper;
-
-    @Inject
-    protected FabricService fabricService;
-
     @Test
     public void testLocalFabricCluster() throws Exception {
+        FabricService fabricService = getFabricService();
         //Test autostartup.
         assertNotNull(fabricService);
         Thread.sleep(DEFAULT_WAIT);

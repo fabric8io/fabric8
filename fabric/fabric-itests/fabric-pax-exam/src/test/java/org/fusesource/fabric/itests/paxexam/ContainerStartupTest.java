@@ -16,19 +16,12 @@
  */
 package org.fusesource.fabric.itests.paxexam;
 
-import java.io.File;
-import java.util.Dictionary;
-import javax.inject.Inject;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -38,31 +31,23 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
+import javax.inject.Inject;
+import java.util.Dictionary;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
-import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class ContainerStartupTest extends FabricTestSupport {
 
-    @Inject
-    protected IZKClient zooKeeper;
-
-    @Inject
-    protected FabricService fabricService;
 
     @Test
     public void testLocalFabricCluster() throws Exception {
         executeCommand("fabric:create -n --clean root");
         //Wait for zookeeper service to become available.
-        Container[] containers = fabricService.getContainers();
+        Container[] containers = getFabricService().getContainers();
 
         assertNotNull(containers);
         assertEquals("Expected to find 1 container",1, containers.length);
@@ -82,7 +67,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         executeCommand("fabric:create -n --clean --zookeeper-password testpassword root");
 
         //Wait for zookeeper service to become available.
-        Container[] containers = fabricService.getContainers();
+        Container[] containers = getFabricService().getContainers();
 
         assertNotNull(containers);
         assertEquals("Expected to find 1 container",1, containers.length);

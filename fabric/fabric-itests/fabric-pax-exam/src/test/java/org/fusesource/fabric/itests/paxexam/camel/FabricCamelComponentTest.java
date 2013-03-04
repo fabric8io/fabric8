@@ -1,12 +1,11 @@
 package org.fusesource.fabric.itests.paxexam.camel;
 
 
+import com.google.inject.Inject;
 import junit.framework.Assert;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
 import org.junit.Test;
@@ -27,6 +26,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.e
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class FabricCamelComponentTest extends FabricTestSupport {
 
+
     @After
     public void tearDown() throws InterruptedException {
         destroyChildContainer("server2");
@@ -36,11 +36,8 @@ public class FabricCamelComponentTest extends FabricTestSupport {
 
     @Test
     public void testRegistryEntries() throws Exception {
-        FabricService fabricService = getOsgiService(FabricService.class);
-        assertNotNull(fabricService);
         System.err.println(executeCommand("fabric:create -n root"));
         //Wait for zookeeper service to become available.
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
         executeCommand("fabric:profile-create --parents camel fabric-camel");
         executeCommand("fabric:profile-create --parents fabric-camel fabric-camel-server");
         executeCommand("fabric:profile-create --parents fabric-camel-server fabric-camel-server-1");
@@ -58,8 +55,8 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         createAndAssertChildContainer("server2", "root", "fabric-camel-server-2", "-Xms512m -Xmx512m");
         createAndAssertChildContainer("client1", "root", "fabric-camel-client", "-Xms512m -Xmx512m -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005");
         //Check that the entries have been properly propagated.
-        Assert.assertNotNull(zooKeeper.exists("/fabric/registry/camel/endpoints/"));
-        Assert.assertEquals(1, zooKeeper.getChildren("/fabric/registry/camel/endpoints/").size());
+        Assert.assertNotNull(getZookeeper().exists("/fabric/registry/camel/endpoints/"));
+        Assert.assertEquals(1, getZookeeper().getChildren("/fabric/registry/camel/endpoints/").size());
         Thread.sleep(5000);
         System.err.println(executeCommand("fabric:container-connect -u admin -p admin client1 camel:route-list"));
         String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin client1 camel:route-info fabric-client | grep Failed")).getPlain().toString();

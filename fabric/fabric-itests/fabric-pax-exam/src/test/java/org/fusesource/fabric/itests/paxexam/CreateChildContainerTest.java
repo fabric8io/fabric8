@@ -20,7 +20,6 @@ package org.fusesource.fabric.itests.paxexam;
 import junit.framework.Assert;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -31,6 +30,7 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -62,7 +62,6 @@ public class CreateChildContainerTest extends FabricTestSupport {
         Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER.getPath("child1")));
         Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_DOMAINS.getPath("child1")));
         Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_PROVISION.getPath("child1")));
-
     }
 
     @Configuration
