@@ -9,12 +9,9 @@ Also we've an alternative back end using a straight Servlet rather than the ruby
 Start a Fuse Fabric distro. Then type
 
     fabric:create
+    fabric:container-add-profile root kibana
 
-    fabric:profile-edit --features war fabric
-    container-create-child --profile insight root insightOne
-    install -s mvn:org.fusesource.insight/insight-kibana/99-master-SNAPSHOT
-
-That will create a fabric, enable the WAR feature then create a child container running the **insight** profile. Finally we'll run the insight-kibana web app.
+That will create a fabric, and modify the root container to run the **insight** kibana profile.
 
 You should now be able to browse the web app at: http://localhost:8181/kibana/index.html
 
