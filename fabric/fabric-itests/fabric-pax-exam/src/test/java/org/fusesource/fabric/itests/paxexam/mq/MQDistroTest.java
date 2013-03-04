@@ -56,6 +56,7 @@ public class MQDistroTest extends FuseTestSupport {
     static final String MQ_GROUP_ID = "org.jboss.amq";
     static final String MQ_ARTIFACT_ID = "jboss-a-mq";
     static final String WEB_CONSOLE_URL = "http://localhost:8181/activemqweb/";
+    public static final String USER_NAME_ND_PASSWORD = "fusemq";
 
     @Test
     public void testMQ() throws Exception {
@@ -66,7 +67,7 @@ public class MQDistroTest extends FuseTestSupport {
         // set credentials
         client.getState().setCredentials(
                 new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
-                new UsernamePasswordCredentials("fusemq", "fusemq")
+                new UsernamePasswordCredentials(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD)
          );
 
         // need to first get the secret
@@ -102,7 +103,7 @@ public class MQDistroTest extends FuseTestSupport {
         assertEquals("post succeeded, " + post, 302, client.executeMethod(post));
 
         // consume what we sent
-        ActiveMQConnection connection = (ActiveMQConnection) new ActiveMQConnectionFactory().createConnection("fusemq", "fusemq");
+        ActiveMQConnection connection = (ActiveMQConnection) new ActiveMQConnectionFactory().createConnection(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD);
         connection.start();
         try {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -116,13 +117,27 @@ public class MQDistroTest extends FuseTestSupport {
         // verify osgi registration of cf
         ConnectionFactory connectionFactory = getOsgiService(ConnectionFactory.class);
         assertTrue(connectionFactory instanceof ActiveMQConnectionFactory);
-        ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection("fusemq", "fusemq");
+        ActiveMQConnection connectionFromOsgiFactory = (ActiveMQConnection) connectionFactory.createConnection(USER_NAME_ND_PASSWORD, USER_NAME_ND_PASSWORD);
         connectionFromOsgiFactory.start();
         try {
             assertEquals("same broker", connection.getBrokerName(), connectionFromOsgiFactory.getBrokerName());
         } finally {
             connectionFromOsgiFactory.close();
         }
+
+        // verify mq-client
+        Process process = Runtime.getRuntime().exec("java -jar lib" + File.separator + "mq-client.jar producer --count 1 --user " + USER_NAME_ND_PASSWORD + " --password " + USER_NAME_ND_PASSWORD,
+                null, // env
+                new File(System.getProperty("user.dir")));
+        process.waitFor();
+        assertEquals("producer worked, exit(0)?", 0, process.exitValue());
+
+        process = Runtime.getRuntime().exec("java -jar lib" + File.separator + "mq-client.jar consumer --count 1 --user " + USER_NAME_ND_PASSWORD + " --password " + USER_NAME_ND_PASSWORD,
+                null, // env
+                new File(System.getProperty("user.dir")));
+        process.waitFor();
+        assertEquals("consumer worked, exit(0)?", 0, process.exitValue());
+
     }
 
     @Configuration
