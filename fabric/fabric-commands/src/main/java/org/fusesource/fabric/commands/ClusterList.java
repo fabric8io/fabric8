@@ -77,30 +77,33 @@ public class ClusterList extends FabricCommand {
                     ObjectMapper mapper = new ObjectMapper();
                     Map<String, Object> map = mapper.readValue(data, HashMap.class);
 
+                    ClusterNode node = null;
+
                     Object id = value(map, "id", "container");
-                    Object agent = value(map, "agent");
-                    List services = (List) value(map, "services");
+                    if (id != null) {
+                        Object agent = value(map, "agent");
+                        List services = (List) value(map, "services");
 
-                    ClusterNode node = cluster.get(id);
-                    if (node == null) {
-                        node = new ClusterNode();
-                        cluster.put(id.toString(), node);
-                    }
+                        node = cluster.get(id);
+                        if (node == null) {
+                            node = new ClusterNode();
+                            cluster.put(id.toString(), node);
+                        }
 
-                    if (services != null) {
-                        if (!services.isEmpty()) {
-                            for (Object service : services) {
-                                node.services.add(ZooKeeperUtils.getSubstitutedData(getZooKeeper(), service.toString()));
+                        if (services != null) {
+                            if (!services.isEmpty()) {
+                                for (Object service : services) {
+                                    node.services.add(ZooKeeperUtils.getSubstitutedData(getZooKeeper(), service.toString()));
+                                }
+
+                                node.masters.add(agent);
+                            } else {
+                                node.slaves.add(agent);
                             }
-
-                            node.masters.add(agent);
                         } else {
                             node.slaves.add(agent);
                         }
-                    } else {
-                        node.slaves.add(agent);
                     }
-
                 }
             }
         }
