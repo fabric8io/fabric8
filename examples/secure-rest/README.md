@@ -75,6 +75,7 @@ A full listing of all CXF Web services is available at
 After you deployed this example, you will see the following endpoint address appear in the 'Available RESTful services' section:
 
     http://localhost:8181/cxf/securecrm
+**Note:**: Don't try to access this endpoint address from browser, as it's inaccessible by design
 
 Just below it, you'll find a link to the WADL describing all the root resources:
 
