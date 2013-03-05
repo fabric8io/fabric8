@@ -97,7 +97,7 @@
 
         <fabric.version>${project.version}</fabric.version>
         <fuse.version>${project.version}</fuse.version>
-        <perfectus-build>009</perfectus-build>
+        <perfectus-build>012</perfectus-build>
         <activemq-version>5.8.0.redhat-60${perfectus-build}</activemq-version>
         <jmdns-version>3.4.1</jmdns-version>
         <antlr-version>3.3</antlr-version>
@@ -109,10 +109,10 @@
         TODO is this correct?
         <aries-util-version>1.0.0</aries-util-version>
 -->
-        <aries.util.version>1.0.1.redhat-${perfectus-build}</aries.util.version>
+        <aries.util.version>1.0.1.redhat-60${perfectus-build}</aries.util.version>
         <aries-util-version>${aries.util.version}</aries-util-version>
         <aries.version>1.0.0</aries.version>
-        <aries.proxy.version>1.0.1.redhat-${perfectus-build}</aries.proxy.version>
+        <aries.proxy.version>1.0.1.redhat-60${perfectus-build}</aries.proxy.version>
         <aries-proxy-version>${aries.proxy.version}</aries-proxy-version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
