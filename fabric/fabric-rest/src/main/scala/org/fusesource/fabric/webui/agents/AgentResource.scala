@@ -34,14 +34,6 @@ class AgentResource(val agent: Container, val request:HttpServletRequest) extend
   @JsonProperty
   def id = agent.getId
 
-  //  @PUT
-  //  def create(provider_url:String):Unit = {
-  //    fabric_service.createAgent(provider_url, id)
-  //  }
-  @GET
-  @Path("effective_config")
-  def effective_config = agent.getProfiles.map(_.getOverlay).map(new org.fusesource.fabric.webui.profile.ProfileResource(_))
-
   ////////////////////////////////////////////////
   // Mapping to nice JSON objects.
   ////////////////////////////////////////////////
@@ -102,7 +94,8 @@ class AgentResource(val agent: Container, val request:HttpServletRequest) extend
   @JsonProperty
   def resolver = Option[String](agent.getResolver).getOrElse("")
 
-  @JsonProperty
+  @GET
+  @Path("provisioned_bundles")
   def provisioned_bundles = agent.getProvisionList
 
   @PUT

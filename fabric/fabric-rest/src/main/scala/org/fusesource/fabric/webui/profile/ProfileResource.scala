@@ -292,16 +292,6 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
     self.setParents(new_parents)
   }
 
-  @DELETE
-  def delete = {
-    Option(container) match {
-      case Some(agent) =>
-        val profiles = agent.getProfiles
-        agent.setProfiles(profiles.filterNot(_.getId == self.getId).toArray)
-      case None =>
-    }
-  }
-
   def add_agent_config(config: CreateConfigurationEntryDTO) = {
     val map = self.getConfigurations
     if (!map.containsKey("org.fusesource.fabric.agent")) {

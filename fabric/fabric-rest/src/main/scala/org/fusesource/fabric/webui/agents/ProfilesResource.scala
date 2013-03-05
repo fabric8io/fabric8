@@ -20,10 +20,8 @@ import core.MediaType
 import org.fusesource.fabric.api.{Profile, Container}
 import org.codehaus.jackson.annotate.JsonProperty
 import scala.Array._
-import org.fusesource.fabric.webui.{ByID, BaseResource}
-import org.fusesource.fabric.webui.{ByID, BaseResource}
-import collection.mutable.ListBuffer
-import org.fusesource.fabric.webui.profile.ProfileResource
+import org.fusesource.fabric.webui._
+import scala.Some
 
 
 class AddProfileDTO {
@@ -37,20 +35,48 @@ class AddProfileDTO {
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  * @author ldywicki
  */
+
+class ContainerProfileResource(val self:Profile, val container:Container)
+  extends BaseResource with HasID {
+
+  @JsonProperty
+  def id = self.getId
+
+  @JsonProperty
+  def version = self.getVersion
+
+  @JsonProperty
+  def parents = self.getParents.map(_.getId)
+
+  @JsonProperty
+  def _abstract = self.isAbstract
+
+  @JsonProperty
+  def _hidden = self.isHidden
+
+  @JsonProperty
+  def _locked = self.isLocked
+
+  @JsonProperty
+  def profile_attributes = self.getAttributes
+
+  @DELETE
+  def delete = {
+    val profiles = container.getProfiles
+    container.setProfiles(profiles.filterNot(_.getId == self.getId).toArray)
+  }
+
+}
+
 class ProfilesResource(val agent: Container)
   extends BaseResource {
 
   @GET
-  override def get: Array[ProfileResource] = agent.getProfiles.map(new ProfileResource(_, agent)).sortWith(ByID(_, _))
+  override def get: Array[ContainerProfileResource] = agent.getProfiles.map(new ContainerProfileResource(_, agent)).sortWith(ByID(_, _))
 
   @Path("{id}")
-  def assigned(@PathParam("id") id: String): ProfileResource = {
+  def assigned(@PathParam("id") id: String): ContainerProfileResource = {
     get.find(_.id == id).getOrElse(not_found)
-  }
-
-  def available: Array[String] = {
-    val assigned = get.toSet[ProfileResource].map(_.id)
-    agent.getVersion.getProfiles.filterNot(p => assigned.contains(p.getId)).map(_.getId)
   }
 
   @POST
