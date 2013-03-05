@@ -20,12 +20,12 @@ Before building and running this example you need:
 
 ## Files in the Example
 * `pom.xml` - the Maven POM file for building the example
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/Customer.java` - a Java class defining the JAXB representation of the Customer element processed by the example
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/CustomerService.java` - a Java class implementing the service that handles customer requests using JAXRS
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/Order.java` - a Java class defining the JAXB representation of the Order element processed by the example. It also defines a JAXRS sub-resource that processes orders.
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/Prooduct.java` - a Java class defining the JAXB representation of the Product element used in the orders
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxrs/client/Client.java` - a Java class implementing an HTTP client that can be used to test the service
-* `src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/client/*.xml` - data files used by the client to test the service
+* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/Customer.java` - a Java class defining the JAXB representation of the Customer element processed by the example
+* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/CustomerService.java` - a Java class implementing the service that handles customer requests using JAXRS
+* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/Order.java` - a Java class defining the JAXB representation of the Order element processed by the example. It also defines a JAXRS sub-resource that processes orders.
+* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/Prooduct.java` - a Java class defining the JAXB representation of the Product element used in the orders
+* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/client/Client.java` - a Java class implementing an HTTP client that can be used to test the service
+* `src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client/*.xml` - data files used by the client to test the service
 * `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
 ## Building the Example
@@ -97,14 +97,14 @@ The client makes a sequence of RESTful invocations and displays the results.
 
 ### To run a command-line utility:
 
-You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/client`, so we will use those for testing our services.
+You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client`, so we will use those for testing our services.
 
 1. Open a command prompt and change directory to `<esb_home>/examples/rest`.
 2. Run the following curl commands (curl commands may not be available on all platforms):
     
     * Create a customer
  
-            curl -X POST -T src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
+            curl -X POST -T src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
   
     * Retrieve the customer instance with id 123
     
@@ -112,7 +112,7 @@ You can use a command-line utility, such as cURL or wget, to perform the HTTP re
 
     * Update the customer instance with id 123
   
-            curl -X PUT -T src/main/resources/org.jboss.fuse.examples/cxf/jaxrs/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
+            curl -X PUT -T src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
 
     * Delete the customer instance with id 123
   
