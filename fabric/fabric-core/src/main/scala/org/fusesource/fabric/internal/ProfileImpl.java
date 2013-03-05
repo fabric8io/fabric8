@@ -476,6 +476,16 @@ public class ProfileImpl implements Profile {
 		return true;
 	}
 
+    /**
+     * Checks of the agent configuration of the current {@link Profile} matcher the other {@link Profile}.
+     * @param other
+     * @return
+     */
+    public boolean agentConfigurationEquals(Profile other) {
+        ProfileOverlayImpl selfOverlay = new ProfileOverlayImpl(this);
+        return selfOverlay.agentConfigurationEquals(other);
+    }
+
 
 	@Override
 	public String toString() {

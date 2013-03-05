@@ -138,6 +138,13 @@ public interface Profile extends Comparable<Profile>, HasId {
     boolean configurationEquals(Profile other);
 
     /**
+     * Checks if the two Profiles share the same agent configuration.
+     * @param other
+     * @return
+     */
+    boolean agentConfigurationEquals(Profile other);
+
+    /**
      * Returns true if this profile is Abstract. Abstract profiles should not be provisioned by default,
      * they are intended to be inherited
      */

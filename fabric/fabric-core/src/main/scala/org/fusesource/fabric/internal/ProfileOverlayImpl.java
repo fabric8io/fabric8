@@ -29,9 +29,9 @@ import static org.fusesource.fabric.internal.ProfileImpl.*;
 
 public class ProfileOverlayImpl implements Profile {
 
-    private final ProfileImpl self;
+    private final Profile self;
 
-    public ProfileOverlayImpl(ProfileImpl self) {
+    public ProfileOverlayImpl(Profile self) {
         this.self = self;
     }
 
@@ -138,6 +138,26 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public boolean configurationEquals(Profile other) {
         return self.configurationEquals(other);
+    }
+
+    /**
+     * Checks if the two Profiles share the same agent configuration.
+     *
+     * @param other
+     * @return
+     */
+    @Override
+    public boolean agentConfigurationEquals(Profile other) {
+        ProfileOverlayImpl otherOverlay = new ProfileOverlayImpl(other);
+        if (!getConfigurations().containsKey(AGENT_PID) && !otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
+          return true;
+        } else if (getConfigurations().containsKey(AGENT_PID) != otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
+            return false;
+        } else if (getConfigurations().containsKey(AGENT_PID) && !getConfigurations().get(AGENT_PID).equals(otherOverlay.getConfigurations().get(AGENT_PID))) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
     public void delete() {
