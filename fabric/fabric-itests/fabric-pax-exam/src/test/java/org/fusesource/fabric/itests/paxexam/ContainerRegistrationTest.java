@@ -33,7 +33,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     @Test
     public void testSshPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-		Set<Container> containers = ContainerBuilder.child(1).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+		Set<Container> containers = ContainerBuilder.create(1,1).withName("cnt").withProfiles("default").assertProvisioningResult().build();
 
         Container child1 = containers.iterator().next();
         System.err.println(executeCommand("fabric:profile-edit --i org.apache.karaf.shell default"));
@@ -49,7 +49,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     public void testJmxPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
 		System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create(1,1).withName("cnt").withProfiles("default").assertProvisioningResult().build();
 
         Container child1 = containers.iterator().next();
         System.err.println(executeCommand("fabric:profile-edit --i org.apache.karaf.management child-profile"));

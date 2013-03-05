@@ -51,10 +51,10 @@ public class JoinTest extends FabricTestSupport {
 	public void testJoin() throws Exception {
         FabricService fabricService = getFabricService();
 		String version = System.getProperty("fabric.version");
+        System.err.println(executeCommand("fabric:create -n"));
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
-			System.err.println(executeCommand("fabric:create -n"));
 			Container child1 = fabricService.getContainer("child1");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
 			System.err.println(executeCommand("fabric:container-list"));
@@ -71,6 +71,7 @@ public class JoinTest extends FabricTestSupport {
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
         FabricService fabricService = getFabricService();
+        System.err.println(executeCommand("fabric:create -n"));
         IZKClient zookeeper = getZookeeper();
 		String version = System.getProperty("fabric.version");
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
@@ -78,7 +79,7 @@ public class JoinTest extends FabricTestSupport {
 		try {
 			System.err.println(executeCommand("admin:start child1"));
 			System.err.println(executeCommand("admin:start child2"));
-			System.err.println(executeCommand("fabric:create -n"));
+
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
@@ -102,7 +103,7 @@ public class JoinTest extends FabricTestSupport {
 	public Option[] config() {
 		return new Option[]{
 				new DefaultCompositeOption(fabricDistributionConfiguration()),
-				debugConfiguration("5005", false),
+				//debugConfiguration("5005", false),
 				editConfigurationFilePut("etc/system.properties", "karaf.name", "myroot"),
 				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fuse-fabric"))
 		};

@@ -23,6 +23,7 @@ import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.linkedin.util.clock.Timespan;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -49,7 +50,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         FabricService fabricService = getFabricService();
         //Test autostartup.
         assertNotNull(fabricService);
-        Thread.sleep(DEFAULT_WAIT);
+        IZKClient zookeeer = getZookeeper();
+        zookeeer.waitForConnected(new Timespan(60, Timespan.TimeUnit.SECOND));
         Container[] containers = fabricService.getContainers();
         assertNotNull(containers);
         assertEquals("Expected to find 1 container", 1, containers.length);

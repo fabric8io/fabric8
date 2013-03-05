@@ -172,7 +172,7 @@ public class EnsembleTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                debugConfiguration("5005", false)
+                //debugConfiguration("5005", false)
         };
     }
 }

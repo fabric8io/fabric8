@@ -18,11 +18,11 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -34,8 +34,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -43,6 +41,7 @@ import java.util.Set;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -70,19 +69,24 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
         List<Container> dosgiProviderContainers = containerList.subList(0, containerList.size() / 2);
         List<Container> dosgiCamelContainers = containerList.subList(containerList.size() / 2, containerList.size());
 
+
+
         for (Container c : dosgiProviderContainers) {
-            Profile p = getFabricService().getProfile(c.getVersion().getName(), "dogi-provider");
+            ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
+            Profile p = getFabricService().getProfile(c.getVersion().getName(), "dosgi-provider");
             c.setProfiles(new Profile[]{p});
         }
 
         for (Container c : dosgiCamelContainers) {
-            Profile p = getFabricService().getProfile(c.getVersion().getName(), "dogi-camel");
+            ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
+            Profile p = getFabricService().getProfile(c.getVersion().getName(), "dosgi-camel");
             c.setProfiles(new Profile[]{p});
         }
 
         Provision.assertSuccess(dosgiProviderContainers, PROVISION_TIMEOUT);
         Provision.assertSuccess(dosgiCamelContainers, PROVISION_TIMEOUT);
 
+        Thread.sleep(10000L);
         for (Container c : dosgiCamelContainers) {
             String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
             System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));
@@ -97,7 +101,7 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005",true),
+                //debugConfiguration("5005",false),
                 editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID))
         };
     }
