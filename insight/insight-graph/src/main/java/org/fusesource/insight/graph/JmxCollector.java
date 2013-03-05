@@ -78,7 +78,7 @@ public class JmxCollector {
     private Scheduler scheduler;
     private MBeanServer mbeanServer;
     private IZKClient zkClient;
-    private String clusterRoot = "/fabric/registry/clusters/stats";
+    private String clusterRoot = "/fabric/registry/insight/stats";
     private Map<String,ZKClusterOutputWriter> outputWriters = new HashMap<String, ZKClusterOutputWriter>();
 
     public JmxCollector(FabricService fabricService) {
