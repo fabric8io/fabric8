@@ -35,7 +35,7 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.commands.support.ZookeeperContentManager;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
 import org.osgi.service.cm.Configuration;
@@ -259,7 +259,7 @@ public class ProfileEdit extends FabricCommand {
     private void openInEditor(Profile profile, String resource) throws Exception {
         String id = profile.getId();
         String version = profile.getVersion();
-        String path = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id) + "/" + resource;
+        String path = ZkProfiles.getPath(version, id) + "/" + resource;
         //Call the editor
         ConsoleEditor editor = editorFactory.create(getTerminal());
         editor.setTitle("Profile");
