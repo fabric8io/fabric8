@@ -82,7 +82,6 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
-               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric.virt</groupId>
@@ -103,7 +102,6 @@
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-fabric</artifactId>
-               <version>${fuse.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.insight</groupId>
