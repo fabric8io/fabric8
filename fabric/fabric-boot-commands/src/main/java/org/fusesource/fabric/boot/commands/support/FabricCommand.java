@@ -125,11 +125,10 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     protected boolean isPartOfEnsemble(String containerName) {
         boolean result = false;
         Container container = fabricService.getContainer(containerName);
-        String version = container.getVersion().toString();
         try {
             List<String> containerList = new ArrayList<String>();
-            String clusterId = zooKeeper.getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble");
-            String containers = zooKeeper.getStringData("/fabric/configs/versions/" + version + "/general/fabric-ensemble/" + clusterId);
+            String clusterId = zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLES.getPath());
+            String containers = zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
             Collections.addAll(containerList, containers.split(","));
             result = containerList.contains(containerName);
         } catch (Throwable t) {
