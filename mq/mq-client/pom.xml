@@ -37,6 +37,43 @@
         <artifactId>activemq-osgi</artifactId>
         <version>${activemq.version}</version>
       </dependency>
+
+      <!-- dependencies needed for "fabric" discovery in standalone mode -->
+      <dependency>
+        <groupId>org.jboss.amq</groupId>
+        <artifactId>mq-fabric</artifactId>
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-groups</artifactId>
+        <scope>runtime</scope>
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-zookeeper</artifactId>
+          <scope>runtime</scope>
+          <optional>true</optional>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-linkedin-zookeeper</artifactId>
+          <scope>runtime</scope>
+          <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.framework</artifactId>
+        <optional>true</optional>
+      </dependency>
+      <dependency>
+        <groupId>com.weiglewilczek.scala-lang-osgi</groupId>
+        <artifactId>scala-library</artifactId>
+        <version>${scala-version}</version>
+        <scope>runtime</scope>
+        <optional>true</optional>
+      </dependency>
       <dependency>
           <groupId>org.ops4j.pax.logging</groupId>
           <artifactId>pax-logging-api</artifactId>
