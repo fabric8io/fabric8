@@ -515,9 +515,14 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                   Set<String> bundles,
                                   Set<String> fabs,
                                   Set<String> overrides) throws Exception {
+
+		updateStatus("downloading", null);
+		Map<String, File> fabDownloads = downloadBundles(Collections.<Feature>emptySet(), fabs, Collections.<String>emptySet());
+
+		updateStatus("resolving", null);
         Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
-        for (String fab : fabs) {
-            FabResolver resolver = fabResolverFactory.getResolver(new URL(fab));
+        for (Map.Entry<String, File> entry : fabDownloads.entrySet()) {
+            FabResolver resolver = fabResolverFactory.getResolver(entry.getValue().toURI().toURL());
             FabBundleInfo info = resolver.getInfo();
             for (String name : info.getFeatures()) {
                 Feature feature = search(name, repositories.values());

@@ -81,8 +81,8 @@ public class Provision {
         waitForContainerStatus(containers, timeout);
         for (Container container : containers) {
             if (!"success".equals(container.getProvisionStatus())) {
-                throw new Exception("Container " + container.getId() + " failed to provision.");
-            }
+				throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
+			}
         }
     }
 }

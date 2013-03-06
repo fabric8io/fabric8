@@ -27,7 +27,7 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 public abstract class ContainerBuilder<T extends ContainerBuilder, O extends CreateContainerOptions> {
 
     public static final Long CREATE_TIMEOUT = 10 * 60000L;
-    public static final Long PROVISION_TIMEOUT = 3 * 60000L;
+    public static final Long PROVISION_TIMEOUT = 5 * 60000L;
     public static final String CONTAINER_TYPE_PROPERTY = "FABRIC_ITEST_CONTAINER_TYPE";
     public static final String CONTAINER_NUMBER_PROPERTY = "FABRIC_ITEST_CONTAINER_NUMBER";
     public static final Set<Container> CONTAINERS = new HashSet<Container>();
