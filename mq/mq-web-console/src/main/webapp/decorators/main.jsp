@@ -94,13 +94,8 @@
           </tr>
         </tbody>
       </table>
-
-      <div id="footer">
-        &copy; 2013 Red Hat, Inc. and/or its affiliates. All rights reserved.
-      </div>
-      <div id="dialog_container">
-      </div>
-
+      <div id="footer">&copy; 2013 Red Hat, Inc. and/or its affiliates. All rights reserved.</div>
+      <div id="dialog_container"></div>
     </div>
   </div>
 </body>

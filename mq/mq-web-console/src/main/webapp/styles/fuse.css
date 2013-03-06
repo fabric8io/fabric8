@@ -1458,6 +1458,7 @@ table tbody th {
 
 .body-table {
   background: #ffffff;
+  margin-bottom: 0px;
 }
 
 div.body-content {
