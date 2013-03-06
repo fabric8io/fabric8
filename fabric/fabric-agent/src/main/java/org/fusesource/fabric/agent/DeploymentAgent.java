@@ -1004,23 +1004,19 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         final Map<String, File> downloads = new ConcurrentHashMap<String, File>();
         final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
         for (final String location : locations) {
-            //final String strippedLocation = location.startsWith(FAB_PROTOCOL) ? location.substring(FAB_PROTOCOL.length()) : location;
+            final String strippedLocation = location.startsWith(FAB_PROTOCOL) ? location.substring(FAB_PROTOCOL.length()) : location;
             //The Fab URL Handler may not be present so we strip the fab protocol before downloading.
-            if (!location.startsWith(FAB_PROTOCOL)) {
-                manager.download(location).addListener(new FutureListener<DownloadFuture>() {
-                    public void operationComplete(DownloadFuture future) {
-                        try {
-                            downloads.put(location, future.getFile());
-                        } catch (Throwable e) {
-                            errors.add(e);
-                        } finally {
-                            latch.countDown();
-                        }
+            manager.download(strippedLocation).addListener(new FutureListener<DownloadFuture>() {
+                public void operationComplete(DownloadFuture future) {
+                    try {
+                        downloads.put(strippedLocation, future.getFile());
+                    } catch (Throwable e) {
+                        errors.add(e);
+                    } finally {
+                        latch.countDown();
                     }
-                });
-            } else {
-                latch.countDown();
-            }
+                }
+            });
         }
         latch.await();
         if (!errors.isEmpty()) {
