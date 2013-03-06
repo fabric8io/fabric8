@@ -88,10 +88,11 @@ public abstract class RemoteBrokerFacadeSupport extends BrokerFacadeSupport {
 
     public String[] getBrokerNames() throws Exception {
         MBeanServerConnection connection = getMBeanServerConnection();
-        ObjectName names = new ObjectName("org.apache.activemq:Type=Broker,*");
+        ObjectName names = new ObjectName("org.apache.activemq:type=Broker,brokerName=*");
         Set<String> rc = new HashSet<String>();
-        for(ObjectName name: connection.queryNames(names, null)) {
-            String bn = name.getKeyProperty("BrokerName");
+        Set<ObjectName> objectNames = connection.queryNames(names, null);
+        for(ObjectName name: objectNames) {
+            String bn = name.getKeyProperty("brokerName");
             if(bn!=null) {
                 rc.add(bn);
             }
@@ -116,10 +117,10 @@ public abstract class RemoteBrokerFacadeSupport extends BrokerFacadeSupport {
             throws IOException, MalformedObjectNameException {
         ObjectName name;
         if (this.brokerName == null) {
-            name = new ObjectName("org.apache.activemq:Type=Broker,*");
+            name = new ObjectName("org.apache.activemq:type=Broker,brokerName=*");
         } else {
-            name = new ObjectName("org.apache.activemq:BrokerName="
-                    + this.brokerName + ",Type=Broker");
+            name = new ObjectName("org.apache.activemq:brokerName="
+                    + this.brokerName + ",type=Broker");
         }
 
         Set<ObjectName> brokers = connection.queryNames(name, null);

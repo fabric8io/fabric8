@@ -13,19 +13,23 @@
  *  implied.  See the License for the specific language governing
  *  permissions and limitations under the License.
  */
-
 package org.fusesource.fabric.activemq.facade;
 
-import org.apache.activemq.broker.jmx.*;
-
-import javax.management.ObjectName;
-import javax.management.QueryExp;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import javax.management.*;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
+
+import com.sun.xml.internal.ws.util.StringUtils;
+import org.apache.activemq.broker.jmx.*;
 
 /**
  * A useful base class for an implementation of {@link BrokerFacade}
@@ -48,7 +52,6 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
             }
         }));
     }
-
 
     public Collection<QueueViewFacade> getQueues() throws Exception {
         BrokerViewFacade broker = getBrokerAdmin();
@@ -122,7 +125,8 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<ConnectionViewFacade> getConnections() throws Exception {
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName + ",Type=Connection,*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",connector=clientConnectors,connectorName=*,connectionName=*");
+
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), ConnectionViewMBean.class, ConnectionViewFacade.class);
     }
@@ -130,12 +134,12 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<String> getConnections(String connectorName) throws Exception {
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Connection,ConnectorName=" + connectorName + ",*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",connector=clientConnectors,connectorName=" + connectorName + ",connectionName=*");
         Set<ObjectName> queryResult = queryNames(query, null);
         Collection<String> result = new ArrayList<String>(queryResult.size());
         for (ObjectName on : queryResult) {
-            String name = on.getKeyProperty("Connection").replace('_', ':');
+            String name = on.getKeyProperty("connectionName").replace('_', ':');
             result.add(name);
         }
         return result;
@@ -145,8 +149,8 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     public ConnectionViewFacade getConnection(String connectionName) throws Exception {
         connectionName = connectionName.replace(':', '_');
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Connection,*,Connection=" + connectionName);
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",connector=clientConnectors,*,connectionName=" + connectionName);
         Set<ObjectName> queryResult = queryNames(query, null);
         if (queryResult.size() == 0)
             return null;
@@ -158,18 +162,18 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<String> getConnectors() throws Exception {
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName + ",Type=Connector,*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",connector=clientConnectors,connectorName=*");
         Set<ObjectName> queryResult = queryNames(query, null);
         Collection<String> result = new ArrayList<String>(queryResult.size());
         for (ObjectName on : queryResult)
-            result.add(on.getKeyProperty("ConnectorName"));
+            result.add(on.getKeyProperty("connectorName"));
         return result;
     }
 
     public ConnectorViewFacade getConnector(String name) throws Exception {
         String brokerName = getBrokerName();
-        ObjectName objectName = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Connector,ConnectorName=" + name);
+        ObjectName objectName = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",connector=clientConnectors,connectorName=" + name);
         Object rc = newProxyInstance(objectName, ConnectorViewMBean.class, true);
         return proxy(ConnectorViewFacade.class, rc, objectName.getCanonicalName());
     }
@@ -177,7 +181,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<NetworkConnectorViewFacade> getNetworkConnectors() throws Exception {
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName + ",Type=NetworkConnector,*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",connector=networkConnectors,networkConnectorName=*");
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), NetworkConnectorViewMBean.class,
                 NetworkConnectorViewFacade.class);
@@ -185,7 +189,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
 
     public Collection<NetworkBridgeViewFacade> getNetworkBridges() throws Exception {
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName + ",Type=NetworkBridge,*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",connector=networkConnectors,networkConnectorName=*,networkBridge=*");
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]),
                 NetworkBridgeViewMBean.class, NetworkBridgeViewFacade.class);
@@ -194,24 +198,26 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<SubscriptionViewFacade> getQueueConsumers(String queueName) throws Exception {
         String brokerName = getBrokerName();
-        queueName = queueName.replace('\"', '_');
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Subscription,destinationType=Queue,destinationName=" + queueName + ",*");
+        queueName = queueName.replace("\"", "_");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",destinationType=Queue,destinationName=" + queueName + ",endpoint=Consumer,*");
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), SubscriptionViewMBean.class, SubscriptionViewFacade.class);
     }
 
     @Override
+    //TODO check query
     public Collection<SubscriptionViewFacade> getTopicConsumers(String topicName) throws Exception {
         String brokerName = getBrokerName();
         topicName = topicName.replace('\"', '_');
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Subscription,persistentMode=Non-Durable,destinationType=Topic,destinationName=" + topicName + ",*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",destinationType=Topic,destinationName=" + topicName + ",endpoint=Consumer,*");
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), SubscriptionViewMBean.class, SubscriptionViewFacade.class);
     }
 
     @Override
+    //TODO check query
     public Collection<DurableSubscriptionViewFacade> getTopicDurableConsumers(String topicName) throws Exception {
         String brokerName = getBrokerName();
         topicName = topicName.replace('\"', '_');
@@ -223,6 +229,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
 
     @Override
     @SuppressWarnings("unchecked")
+    //TODO check query
     public Collection<ProducerViewFacade> getQueueProducers(String queueName) throws Exception {
         String brokerName = getBrokerName();
         queueName = queueName.replace('\"', '_');
@@ -247,6 +254,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
 
     @Override
     @SuppressWarnings("unchecked")
+    //TODO check query
     public Collection<ProducerViewFacade> getTopicProducers(String topicName) throws Exception {
         String brokerName = getBrokerName();
         topicName = topicName.replace('\"', '_');
@@ -273,10 +281,10 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     public Collection<SubscriptionViewFacade> getConsumersOnConnection(String connectionName) throws Exception {
         connectionName = connectionName.replace(':', '_');
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Subscription,clientId=" + connectionName + ",*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",*,endpoint=Consumer,clientId=" + connectionName);
         Set<ObjectName> queryResult = queryNames(query, null);
-        return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), SubscriptionViewFacade.class, SubscriptionViewFacade.class);
+        return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), SubscriptionViewMBean.class,  SubscriptionViewFacade.class);
     }
 
     public JobSchedulerViewFacade getJobScheduler() throws Exception {
