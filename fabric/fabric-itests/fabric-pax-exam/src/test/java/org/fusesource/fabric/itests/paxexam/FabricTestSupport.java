@@ -262,8 +262,8 @@ public class FabricTestSupport extends FuseTestSupport {
                         maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
                         .karafVersion(getKarafVersion()).name("Fabric Karaf Distro").unpackDirectory(new File("target/paxexam/unpack/")),
                 useOwnExamBundlesStartLevel(50),
-                envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY),
-                envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY),
+                envAsSystemProperty(ContainerBuilder.CONTAINER_TYPE_PROPERTY, "child"),
+                envAsSystemProperty(ContainerBuilder.CONTAINER_NUMBER_PROPERTY, "1"),
                 envAsSystemProperty(SshContainerBuilder.SSH_HOSTS_PROPERTY),
                 envAsSystemProperty(SshContainerBuilder.SSH_USERS_PROPERTY),
                 envAsSystemProperty(SshContainerBuilder.SSH_PASSWORD_PROPERTY),
@@ -288,8 +288,12 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     private Option envAsSystemProperty(String name) {
+        return envAsSystemProperty(name, "");
+    }
+
+    private Option envAsSystemProperty(String name, String defaultValue) {
         String value = System.getenv(name);
-        return editConfigurationFilePut("etc/system.properties", name, value != null ? value : "");
+        return editConfigurationFilePut("etc/system.properties", name, value != null ? value : defaultValue);
     }
 
 }

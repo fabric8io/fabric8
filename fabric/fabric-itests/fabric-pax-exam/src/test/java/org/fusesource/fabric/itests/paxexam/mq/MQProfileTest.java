@@ -2,54 +2,59 @@ package org.fusesource.fabric.itests.paxexam.mq;
 
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.FabricFeaturesTest;
+import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import javax.management.ObjectName;
 import java.util.ArrayList;
+import java.util.Set;
 
-import static junit.framework.Assert.*;
+import static junit.framework.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class MQProfileTest extends FabricTestSupport {
-    
+public class MQProfileTest extends FabricFeaturesTest {
+
     ArrayList<Container> containers = new ArrayList<Container>();
 
     @After
     public void tearDown() throws InterruptedException {
-       for (Container container : containers) {
-           System.out.println("destroying " + container.getId());
-           destroyChildContainer(container.getId());
-       }
+        ContainerBuilder.destroy();
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testLocalChildCreation() throws Exception {
+
         System.err.println(executeCommand("fabric:create -n"));
-        addStagingRepoToDefaultProfile();
-        containers.add(createAndAssertChildContainer("mq1", "root", "mq"));
 
-        containers.add(createAndAssertChildContainer("example", "root", "example-mq"));
+        Set<Container> containers = ContainerBuilder.create().withName("mq1").withProfiles("mq").assertProvisioningResult().build();
 
+        installAndCheckFeature("activemq");
+
+        Container container = getFabricService().getContainer("mq1");
 
         // give it a bit time
-        Thread.sleep(3000);
+        Thread.sleep(5000);
 
         // check jmx stats
-        Container container = getFabricService().getContainer("mq1");
-        BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:Type=Broker,BrokerName=mq1"), BrokerViewMBean.class);
+        BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq1"), BrokerViewMBean.class);
+        assertEquals("Producer not present", 0, bean.getTotalProducerCount());
+        assertEquals("Consumer not present", 0, bean.getTotalConsumerCount());
+
+
+        containers.addAll(ContainerBuilder.create().withName("example").withProfiles("example-mq").assertProvisioningResult().build());
+        // give it a bit time
+        Thread.sleep(5000);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
@@ -106,7 +111,7 @@ public class MQProfileTest extends FabricTestSupport {
         //TODO add example to verify failover
 
     }
-    
+
     @Ignore  // JIRA ESB-1687
     @Test
     public void testMQCreateNetwork() throws Exception {
@@ -144,7 +149,6 @@ public class MQProfileTest extends FabricTestSupport {
 
     @Configuration
     public Option[] config() {
-        return new Option[] {new DefaultCompositeOption(fabricDistributionConfiguration()),
-               mavenBundle("org.apache.activemq", "activemq-osgi", MavenUtils.getArtifactVersion("org.apache.activemq", "activemq-broker"))};
+        return fabricDistributionConfiguration();
     }
 }
