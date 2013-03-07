@@ -185,7 +185,7 @@ public class StatsCollector {
             public void run() {
                 process();
             }
-        }, 0, defaultDelay, TimeUnit.SECONDS);
+        }, 1, defaultDelay, TimeUnit.SECONDS);
     }
 
     public void stop() throws Exception {
@@ -243,7 +243,7 @@ public class StatsCollector {
                 long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
                 state.future = this.executor.scheduleAtFixedRate(
                         new Task(state),
-                        Math.round(Math.random() * 1000),
+                        Math.round(Math.random() * 1000) + 1,
                         delay * 1000,
                         TimeUnit.MILLISECONDS);
                 queries.put(q, state);
