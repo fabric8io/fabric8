@@ -19,6 +19,7 @@ package org.fusesource.insight.graph;
 
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.action.index.IndexRequest;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
@@ -36,7 +37,6 @@ import org.fusesource.insight.graph.model.Query;
 import org.fusesource.insight.graph.model.QueryResult;
 import org.fusesource.insight.graph.model.Request;
 import org.fusesource.insight.graph.model.Server;
-import org.fusesource.insight.graph.support.JSONReader;
 import org.fusesource.insight.graph.support.JmxUtils;
 import org.fusesource.insight.graph.support.Renderer;
 import org.fusesource.insight.graph.support.ScriptUtils;
@@ -309,7 +309,7 @@ public class StatsCollector {
         byte[] bytes = fileConfigurations.get(GRAPH_JSON);
         if (bytes != null && bytes.length > 0) {
             try {
-                Map object = (Map) new JSONReader().read(new String(bytes));
+                Map object = new ObjectMapper().readValue(bytes, Map.class);
                 for (Map q : (List<Map>) object.get(QUERIES)) {
                     String name = (String) q.get(NAME);
                     String url = (String) q.get(URL);

@@ -16,13 +16,13 @@
  */
 package org.fusesource.insight.graph;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.insight.graph.model.MBeanAttrs;
 import org.fusesource.insight.graph.model.MBeanOpers;
 import org.fusesource.insight.graph.model.Query;
 import org.fusesource.insight.graph.model.QueryResult;
 import org.fusesource.insight.graph.model.Request;
 import org.fusesource.insight.graph.model.Server;
-import org.fusesource.insight.graph.support.JSONReader;
 import org.fusesource.insight.graph.support.JmxUtils;
 import org.fusesource.insight.graph.support.Renderer;
 import org.junit.Test;
@@ -34,7 +34,6 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class GraphTest {
 
@@ -59,10 +58,7 @@ public class GraphTest {
                                            ManagementFactory.getPlatformMBeanServer());
         String output = new Renderer().render(qrs);
 
-        Object json = new JSONReader().read(output);
-        assertNotNull(json);
-        assertTrue(json instanceof Map);
-        Map map = (Map) json;
+        Map map = new ObjectMapper().readValue(output, Map.class);
         assertEquals("local", map.get("host"));
         assertNotNull(map.get("timestamp"));
         assertNotNull(map.get("mem"));
@@ -87,10 +83,7 @@ public class GraphTest {
                 ManagementFactory.getPlatformMBeanServer());
         String output = new Renderer().render(qrs);
 
-        Object json = new JSONReader().read(output);
-        assertNotNull(json);
-        assertTrue(json instanceof Map);
-        Map map = (Map) json;
+        Map map = new ObjectMapper().readValue(output, Map.class);
         assertEquals("local", map.get("host"));
         assertNotNull(map.get("timestamp"));
     }

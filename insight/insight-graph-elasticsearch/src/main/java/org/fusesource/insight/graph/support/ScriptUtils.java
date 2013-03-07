@@ -16,33 +16,36 @@
  */
 package org.fusesource.insight.graph.support;
 
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.module.SimpleModule;
+import org.codehaus.jackson.map.ser.std.DateSerializer;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public final class ScriptUtils {
 
-    private static SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+    private static final SimpleDateFormat format;
+    private static final ObjectMapper mapper;
+
+    static {
+        format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX");
+        mapper = new ObjectMapper();
+        mapper.setSerializationConfig(mapper.getSerializationConfig().withDateFormat(format));
+    }
 
     public static String toIso(Date d) {
         return format.format(d);
     }
 
     public static String toJson(Object o) {
-        return new JSONWriter() {
-            @SuppressWarnings("unchecked")
-            protected void value(Object object) {
-                if (object instanceof Date) {
-                    date((Date) object);
-                } else {
-                    super.value(object);
-                }
-            }
-
-            protected void date(Date d) {
-                string(toIso(d));
-            }
-
-        }.write(o);
+        try {
+            return mapper.writeValueAsString(o);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not serialize " + o, e);
+        }
     }
 
 }

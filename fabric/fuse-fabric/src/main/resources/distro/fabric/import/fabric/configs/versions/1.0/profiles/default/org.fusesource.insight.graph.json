@@ -9,22 +9,22 @@
     {
       "name": "pool",
       "obj" : "java.lang:type=MemoryPool,*",
-      "attrs" : [ "Usage", "PeakUsage" ],
+      "attrs" : [ "Usage", "PeakUsage" ]
     },
     {
       "name": "threading",
       "obj" : "java.lang:type=Threading",
-      "attrs" : [ "ThreadCount", "PeakThreadCount" ],
+      "attrs" : [ "ThreadCount", "PeakThreadCount" ]
     },
     {
       "name": "gc",
       "obj" : "java.lang:type=GarbageCollector,*",
-      "attrs" : [ "CollectionCount", "CollectionTime" ],
+      "attrs" : [ "CollectionCount", "CollectionTime" ]
     },
     {
       "name": "buffer_pools",
       "obj" : "java.nio:type=BufferPool,*",
-      "attrs" : [ "Count", "MemoryUsed", "TotalCapacity" ],
+      "attrs" : [ "Count", "MemoryUsed", "TotalCapacity" ]
     } ]
   } ]
 }
