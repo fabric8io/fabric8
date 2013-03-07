@@ -43,7 +43,7 @@ public class CreateContainerTask implements Callable<Set<Container>> {
                 Container container = metadata.getContainer();
                 containers.add(container);
                 if (!metadata.isSuccess()) {
-                    throw new FabricException("Failed to create container:" + container.getId(), metadata.getFailure());
+                    throw new FabricException("Failed to create container." , metadata.getFailure());
                 }
             }
         }
