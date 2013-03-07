@@ -26,14 +26,16 @@ public class Query {
     private final String template;
     private final int period;
     private final int minPeriod;
+    private final String lock;
 
-    public Query(String name, Set<Request> requests, String url, String template, int period, int minPeriod) {
+    public Query(String name, Set<Request> requests, String url, String template, String lock, int period, int minPeriod) {
         this.name = name;
         this.requests = requests;
         this.url = url;
         this.template = template;
         this.period = period;
         this.minPeriod = minPeriod;
+        this.lock = lock;
     }
 
     public String getName() {
@@ -60,6 +62,10 @@ public class Query {
         return minPeriod;
     }
 
+    public String getLock() {
+        return lock;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -68,10 +74,12 @@ public class Query {
         Query query = (Query) o;
 
         if (period != query.period) return false;
+        if (minPeriod != query.minPeriod) return false;
         if (requests != null ? !requests.equals(query.requests) : query.requests != null) return false;
         if (name != null ? !name.equals(query.name) : query.name != null) return false;
         if (template != null ? !template.equals(query.template) : query.template != null) return false;
         if (url != null ? !url.equals(query.url) : query.url != null) return false;
+        if (lock != null ? !lock.equals(query.lock) : query.lock != null) return false;
 
         return true;
     }

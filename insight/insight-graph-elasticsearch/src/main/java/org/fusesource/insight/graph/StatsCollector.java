@@ -18,10 +18,16 @@
 package org.fusesource.insight.graph;
 
 
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.elasticsearch.action.index.IndexRequest;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.insight.elasticsearch.ElasticSender;
 import org.fusesource.insight.graph.model.MBeanAttrs;
 import org.fusesource.insight.graph.model.MBeanOpers;
@@ -40,6 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -61,6 +69,7 @@ public class StatsCollector {
     public static final String NAME = "name";
     public static final String URL = "url";
     public static final String TEMPLATE = "template";
+    public static final String LOCK = "lock";
     public static final String PERIOD = "period";
     public static final String MIN_PERIOD = "minPeriod";
     public static final String REQUESTS = "requests";
@@ -70,11 +79,14 @@ public class StatsCollector {
     public static final String ARGS = "args";
     public static final String SIG = "sig";
     public static final String DEFAULT = "default";
+    public static final String LOCK_GLOBAL = "global";
+    public static final String LOCK_HOST = "host";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(StatsCollector.class);
 
     private BundleContext bundleContext;
     private FabricService fabricService;
+    private IZKClient zookeeper;
 
     private ScheduledThreadPoolExecutor executor;
     private Map<Query, QueryState> queries = new HashMap<Query, QueryState>();
@@ -82,6 +94,10 @@ public class StatsCollector {
 
     private ServiceTracker<MBeanServer, MBeanServer> mbeanServer;
     private ServiceTracker<ElasticSender, ElasticSender> sender;
+
+    // Locks management
+    private Group globalGroup;
+    private Group hostGroup;
 
     private int defaultDelay = 60;
     private int threadPoolSize = 5;
@@ -95,6 +111,34 @@ public class StatsCollector {
         QueryResult lastResult;
         boolean lastResultSent;
         long lastSent;
+        ClusteredSingleton<QueryNodeState> lock;
+
+        public void close() {
+            future.cancel(false);
+            if (lock != null) {
+                lock.leave();
+            }
+        }
+    }
+
+    static class QueryNodeState implements NodeState {
+        @JsonProperty
+        String id;
+        @JsonProperty
+        String container;
+
+        QueryNodeState() {
+        }
+
+        QueryNodeState(String id, String container) {
+            this.id = id;
+            this.container = container;
+        }
+
+        @Override
+        public String id() {
+            return id;
+        }
     }
 
     public void setBundleContext(BundleContext bundleContext) {
@@ -121,13 +165,17 @@ public class StatsCollector {
         this.fabricService = fabricService;
     }
 
+    public void setZookeeper(IZKClient zookeeper) {
+        this.zookeeper = zookeeper;
+    }
+
     public void start() throws IOException {
         this.executor = new ScheduledThreadPoolExecutor(threadPoolSize);
         this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 
-        this.mbeanServer = new ServiceTracker(bundleContext, MBeanServer.class, null);
-        this.sender = new ServiceTracker(bundleContext, ElasticSender.class, null);
+        this.mbeanServer = new ServiceTracker<MBeanServer, MBeanServer>(bundleContext, MBeanServer.class, null);
+        this.sender = new ServiceTracker<ElasticSender, ElasticSender>(bundleContext, ElasticSender.class, null);
 
         this.mbeanServer.open();
         this.sender.open();
@@ -153,6 +201,14 @@ public class StatsCollector {
         } catch (InterruptedException e) {
             // Ignore
         }
+        this.mbeanServer.close();
+        this.sender.close();
+        if (globalGroup != null) {
+            globalGroup.close();
+        }
+        if (hostGroup != null) {
+            hostGroup.close();
+        }
     }
 
 
@@ -168,7 +224,7 @@ public class StatsCollector {
             }
             for (Query q : queries.keySet()) {
                 if (!newQueries.remove(q)) {
-                    queries.remove(q).future.cancel(false);
+                    queries.remove(q).close();
                 }
             }
             Server server = new Server(container.getId());
@@ -176,6 +232,14 @@ public class StatsCollector {
                 QueryState state = new QueryState();
                 state.server = server;
                 state.query = q;
+
+                // Clustered stats ?
+                if (q.getLock() != null) {
+                    state.lock = new ClusteredSingleton<QueryNodeState>(QueryNodeState.class);
+                    state.lock.start(startGroup(q.getLock()));
+                    state.lock.join(new QueryNodeState(q.getName(), container.getId()));
+                }
+
                 long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
                 state.future = this.executor.scheduleAtFixedRate(
                         new Task(state),
@@ -184,6 +248,30 @@ public class StatsCollector {
                         TimeUnit.MILLISECONDS);
                 queries.put(q, state);
             }
+        }
+    }
+
+    protected synchronized Group startGroup(String lock) {
+        if (LOCK_GLOBAL.equals(lock)) {
+            if (globalGroup == null) {
+                globalGroup = ZooKeeperGroupFactory.create(zookeeper,
+                                "/fabric/registry/clusters/insight-graph/global");
+            }
+            return globalGroup;
+        } else if (LOCK_HOST.equals(lock)) {
+            if (hostGroup == null) {
+                String host;
+                try {
+                    host = InetAddress.getLocalHost().getHostName();
+                } catch (UnknownHostException e) {
+                    throw new IllegalStateException("Unable to retrieve host name", e);
+                }
+                hostGroup = ZooKeeperGroupFactory.create(zookeeper,
+                                "/fabric/registry/clusters/insight-graph/host-" + host);
+            }
+            return hostGroup;
+        } else {
+            throw new IllegalArgumentException("Unknown lock type: " + lock);
         }
     }
 
@@ -197,6 +285,7 @@ public class StatsCollector {
                     String name = (String) q.get(NAME);
                     String url = (String) q.get(URL);
                     String template = (String) q.get(TEMPLATE);
+                    String lock = (String) q.get(LOCK);
                     int period = DEFAULT.equals(q.get(PERIOD)) ? defaultDelay : q.get(PERIOD) != null ? ((Number) q.get(PERIOD)).intValue() : defaultDelay;
                     int minPeriod = DEFAULT.equals(q.get(MIN_PERIOD)) ? defaultDelay : q.get(MIN_PERIOD) != null ? ((Number) q.get(MIN_PERIOD)).intValue() : period;
                     Set<Request> requests = new HashSet<Request>();
@@ -217,7 +306,7 @@ public class StatsCollector {
                             throw new IllegalArgumentException("Unknown request " + ScriptUtils.toJson(mb));
                         }
                     }
-                    queries.add(new Query(name, requests, url, template, period, minPeriod));
+                    queries.add(new Query(name, requests, url, template, lock, period, minPeriod));
                 }
             } catch (Throwable t) {
                 LOG.warn("Unable to load queries from profile " + profile.getId(), t);
@@ -241,26 +330,31 @@ public class StatsCollector {
             try {
                 MBeanServer mbs = mbeanServer.getService();
                 ElasticSender snd = sender.getService();
-                if (mbs != null && snd != null) {
-                    QueryResult qrs = JmxUtils.execute(query.server, query.query, mbs);
-                    boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
-                            qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
-                    if (!forceSend && query.lastResult != null) {
-                        if (qrs.getResults().equals(query.lastResult.getResults())) {
-                            query.lastResult = qrs;
-                            query.lastResultSent = false;
-                            return;
-                        }
-                        if (!query.lastResultSent) {
-                            renderAndSend(snd, query.lastResult);
-                        }
-                    }
-                    query.lastResult = qrs;
-                    query.lastResultSent = true;
-                    query.lastSent = qrs.getTimestamp().getTime();
-                    renderAndSend(snd, qrs);
+                // Abort if required services aren't available
+                if (mbs == null || snd == null) {
+                    return;
                 }
-
+                // If there's a lock, check we are the master
+                if (query.lock != null && !query.lock.isMaster()) {
+                    return;
+                }
+                QueryResult qrs = JmxUtils.execute(query.server, query.query, mbs);
+                boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
+                        qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
+                if (!forceSend && query.lastResult != null) {
+                    if (qrs.getResults().equals(query.lastResult.getResults())) {
+                        query.lastResult = qrs;
+                        query.lastResultSent = false;
+                        return;
+                    }
+                    if (!query.lastResultSent) {
+                        renderAndSend(snd, query.lastResult);
+                    }
+                }
+                query.lastResult = qrs;
+                query.lastResultSent = true;
+                query.lastSent = qrs.getTimestamp().getTime();
+                renderAndSend(snd, qrs);
             } catch (Exception e) {
                 LOG.debug("Error sending stats", e);
             }

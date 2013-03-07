@@ -3,6 +3,7 @@
     "name" : "elasticsearch-health",
     "period": 1,
     "minPeriod": "default",
+    "lock": "global",
     "requests" : [ {
       "name": "health",
       "obj" : "org.elasticsearch:service=restjmx",
