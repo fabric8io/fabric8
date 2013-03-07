@@ -28,7 +28,6 @@ import javax.management.*;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 import org.apache.activemq.broker.jmx.*;
 
 /**
