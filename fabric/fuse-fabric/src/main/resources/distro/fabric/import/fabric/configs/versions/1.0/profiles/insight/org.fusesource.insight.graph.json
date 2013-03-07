@@ -1,6 +1,8 @@
 {
   "queries" : [ {
     "name" : "elasticsearch-health",
+    "period": 1,
+    "minPeriod": "default",
     "requests" : [ {
       "name": "health",
       "obj" : "org.elasticsearch:service=restjmx",

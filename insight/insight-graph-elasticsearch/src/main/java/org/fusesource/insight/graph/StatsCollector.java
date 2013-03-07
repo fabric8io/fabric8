@@ -62,12 +62,14 @@ public class StatsCollector {
     public static final String URL = "url";
     public static final String TEMPLATE = "template";
     public static final String PERIOD = "period";
+    public static final String MIN_PERIOD = "minPeriod";
     public static final String REQUESTS = "requests";
     public static final String OBJ = "obj";
     public static final String ATTRS = "attrs";
     public static final String OPER = "oper";
     public static final String ARGS = "args";
     public static final String SIG = "sig";
+    public static final String DEFAULT = "default";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(StatsCollector.class);
 
@@ -75,7 +77,7 @@ public class StatsCollector {
     private FabricService fabricService;
 
     private ScheduledThreadPoolExecutor executor;
-    private Map<Query, ScheduledFuture<?>> queries = new HashMap<Query, ScheduledFuture<?>>();
+    private Map<Query, QueryState> queries = new HashMap<Query, QueryState>();
     private Renderer renderer = new Renderer();
 
     private ServiceTracker<MBeanServer, MBeanServer> mbeanServer;
@@ -85,6 +87,15 @@ public class StatsCollector {
     private int threadPoolSize = 5;
     private String index;
     private String type;
+
+    static class QueryState {
+        ScheduledFuture<?> future;
+        Server server;
+        Query query;
+        QueryResult lastResult;
+        boolean lastResultSent;
+        long lastSent;
+    }
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -157,18 +168,21 @@ public class StatsCollector {
             }
             for (Query q : queries.keySet()) {
                 if (!newQueries.remove(q)) {
-                    queries.remove(q).cancel(false);
+                    queries.remove(q).future.cancel(false);
                 }
             }
             Server server = new Server(container.getId());
             for (Query q : newQueries) {
+                QueryState state = new QueryState();
+                state.server = server;
+                state.query = q;
                 long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
-                ScheduledFuture<?> future = this.executor.scheduleAtFixedRate(
-                        new Task(server, q),
+                state.future = this.executor.scheduleAtFixedRate(
+                        new Task(state),
                         Math.round(Math.random() * 1000),
                         delay * 1000,
                         TimeUnit.MILLISECONDS);
-                queries.put(q, future);
+                queries.put(q, state);
             }
         }
     }
@@ -183,7 +197,8 @@ public class StatsCollector {
                     String name = (String) q.get(NAME);
                     String url = (String) q.get(URL);
                     String template = (String) q.get(TEMPLATE);
-                    int period = q.get(PERIOD) != null ? ((Number) q.get(PERIOD)).intValue() : 0;
+                    int period = DEFAULT.equals(q.get(PERIOD)) ? defaultDelay : q.get(PERIOD) != null ? ((Number) q.get(PERIOD)).intValue() : defaultDelay;
+                    int minPeriod = DEFAULT.equals(q.get(MIN_PERIOD)) ? defaultDelay : q.get(MIN_PERIOD) != null ? ((Number) q.get(MIN_PERIOD)).intValue() : period;
                     Set<Request> requests = new HashSet<Request>();
                     for (Map mb : (List<Map>) q.get(REQUESTS)) {
                         if (mb.containsKey(ATTRS)) {
@@ -202,7 +217,7 @@ public class StatsCollector {
                             throw new IllegalArgumentException("Unknown request " + ScriptUtils.toJson(mb));
                         }
                     }
-                    queries.add(new Query(name, requests, url, template, period));
+                    queries.add(new Query(name, requests, url, template, period, minPeriod));
                 }
             } catch (Throwable t) {
                 LOG.warn("Unable to load queries from profile " + profile.getId(), t);
@@ -215,11 +230,9 @@ public class StatsCollector {
 
     class Task implements Runnable {
 
-        private final Server server;
-        private final Query query;
+        private final QueryState query;
 
-        public Task(Server server, Query query) {
-            this.server = server;
+        public Task(QueryState query) {
             this.query = query;
         }
 
@@ -229,21 +242,38 @@ public class StatsCollector {
                 MBeanServer mbs = mbeanServer.getService();
                 ElasticSender snd = sender.getService();
                 if (mbs != null && snd != null) {
-                    QueryResult qrs = JmxUtils.execute(server, query, mbs);
-                    String output = renderer.render(qrs);
-
-                    IndexRequest request = new IndexRequest()
-                            .index(getIndex(index, qrs))
-                            .type(getType(type, qrs))
-                            .source(output)
-                            .create(true);
-
-                    snd.push(request);
+                    QueryResult qrs = JmxUtils.execute(query.server, query.query, mbs);
+                    boolean forceSend = query.query.getMinPeriod() == query.query.getPeriod() ||
+                            qrs.getTimestamp().getTime() - query.lastSent >= TimeUnit.SECONDS.toMillis(query.query.getMinPeriod());
+                    if (!forceSend && query.lastResult != null) {
+                        if (qrs.getResults().equals(query.lastResult.getResults())) {
+                            query.lastResult = qrs;
+                            query.lastResultSent = false;
+                            return;
+                        }
+                        if (!query.lastResultSent) {
+                            renderAndSend(snd, query.lastResult);
+                        }
+                    }
+                    query.lastResult = qrs;
+                    query.lastResultSent = true;
+                    query.lastSent = qrs.getTimestamp().getTime();
+                    renderAndSend(snd, qrs);
                 }
 
             } catch (Exception e) {
                 LOG.debug("Error sending stats", e);
             }
+        }
+
+        private void renderAndSend(ElasticSender snd, QueryResult qrs) throws Exception {
+            String output = renderer.render(qrs);
+            IndexRequest request = new IndexRequest()
+                    .index(getIndex(index, qrs))
+                    .type(getType(type, qrs))
+                    .source(output)
+                    .create(true);
+            snd.push(request);
         }
 
     }

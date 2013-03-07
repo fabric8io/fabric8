@@ -51,7 +51,7 @@ public class GraphTest {
                                         Arrays.asList("Count", "MemoryUsed", "TotalCapacity")),
                         new MBeanAttrs("gc", "java.lang:type=GarbageCollector,*",
                                         Arrays.asList("CollectionCount", "CollectionTime"))
-                )), null, null, 0);
+                )), null, null, 0, 0);
 
         System.gc();
 
@@ -79,7 +79,7 @@ public class GraphTest {
                         Arrays.asList("HeapMemoryUsage", "NonHeapMemoryUsage")),
                 new MBeanOpers("deadlocks", "java.lang:type=Threading", "dumpAllThreads",
                         Arrays.<Object>asList(true, true), Arrays.<String>asList(boolean.class.getName(), boolean.class.getName()))
-        )), null, null, 0);
+        )), null, null, 0, 0);
 
         System.gc();
 

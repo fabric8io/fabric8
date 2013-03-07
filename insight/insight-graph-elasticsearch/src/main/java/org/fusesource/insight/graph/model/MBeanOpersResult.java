@@ -36,4 +36,20 @@ public class MBeanOpersResult extends Result<MBeanOpers> {
         return results;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MBeanOpersResult that = (MBeanOpersResult) o;
+
+        if (results != null ? !results.equals(that.results) : that.results != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return results != null ? results.hashCode() : 0;
+    }
 }

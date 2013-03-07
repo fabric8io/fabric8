@@ -25,13 +25,15 @@ public class Query {
     private final String url;
     private final String template;
     private final int period;
+    private final int minPeriod;
 
-    public Query(String name, Set<Request> requests, String url, String template, int period) {
+    public Query(String name, Set<Request> requests, String url, String template, int period, int minPeriod) {
         this.name = name;
         this.requests = requests;
         this.url = url;
         this.template = template;
         this.period = period;
+        this.minPeriod = minPeriod;
     }
 
     public String getName() {
@@ -52,6 +54,10 @@ public class Query {
 
     public int getPeriod() {
         return period;
+    }
+
+    public int getMinPeriod() {
+        return minPeriod;
     }
 
     @Override
