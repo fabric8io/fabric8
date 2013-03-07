@@ -36,6 +36,9 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
+import org.apache.maven.wagon.Wagon;
+import org.apache.maven.wagon.providers.file.FileWagon;
+import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
@@ -242,7 +245,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     protected RepositorySystem newRepositorySystem() {
         DefaultServiceLocator locator = new DefaultServiceLocator();
-        locator.setServices(WagonProvider.class, new MavenProxyImpl.ManualWagonProvider());
+        locator.setServices(WagonProvider.class, new ManualWagonProvider());
         locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
         locator.setService(org.sonatype.aether.spi.log.Logger.class, LogAdapter.class);
         return locator.getService(RepositorySystem.class);
@@ -427,5 +430,29 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         public void warn(String msg, Throwable error) {
             LOGGER.log(Level.WARNING, msg, error);
         }
+    }
+
+    public static class ManualWagonProvider implements WagonProvider
+    {
+
+        public Wagon lookup( String roleHint )
+                throws Exception
+        {
+            if( "file".equals( roleHint ) )
+            {
+                return new FileWagon();
+            }
+            else if( "http".equals( roleHint ) )
+            {
+                return new LightweightHttpWagon();
+            }
+            return null;
+        }
+
+        public void release( Wagon wagon )
+        {
+
+        }
+
     }
 }
