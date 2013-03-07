@@ -53,7 +53,9 @@ public class ElasticSenderImpl implements ElasticSender, Runnable {
 
     public void destroy() {
         running = false;
-        thread.interrupt();
+        if (thread != null) {
+            thread.interrupt();
+        }
     }
 
     public void push(IndexRequest data) {
