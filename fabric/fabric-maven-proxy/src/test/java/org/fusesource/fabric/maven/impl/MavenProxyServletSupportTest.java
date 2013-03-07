@@ -23,6 +23,10 @@ public class MavenProxyServletSupportTest {
         Assert.assertTrue(m.matches());
         Assert.assertEquals("maven-metadata-rep-1234.xml", m.group(4));
         Assert.assertEquals("rep-1234", m.group(7));
+
+        m = MavenProxyServletSupport.ARTIFACT_METADATA_URL_REGEX.matcher("groupId/artifactId/version/maven-metadata.xml.md5");
+        Assert.assertTrue(m.matches());
+        Assert.assertEquals("maven-metadata.xml", m.group(4));
     }
 
     @Test
@@ -77,6 +81,9 @@ public class MavenProxyServletSupportTest {
         Assert.assertEquals("groupId:artifactId:extension:classifier:version",servlet.convertToMavenUrl("groupId/artifactId/version/artifactId-version-classifier.extension"));
         Assert.assertEquals("group.id:artifactId:extension:classifier:version",servlet.convertToMavenUrl("group/id/artifactId/version/artifactId-version-classifier.extension"));
         Assert.assertEquals("group.id:artifact.id:extension:classifier:version",servlet.convertToMavenUrl("group/id/artifact.id/version/artifact.id-version-classifier.extension"));
+
+        Assert.assertEquals("group.id:artifact.id:extension.sha1:classifier:version",servlet.convertToMavenUrl("group/id/artifact.id/version/artifact.id-version-classifier.extension.sha1"));
+        Assert.assertEquals("group.id:artifact.id:extension.md5:classifier:version",servlet.convertToMavenUrl("group/id/artifact.id/version/artifact.id-version-classifier.extension.md5"));
 
         Assert.assertEquals("group-id:artifactId:extension:classifier:version",servlet.convertToMavenUrl("group-id/artifactId/version/artifactId-version-classifier.extension"));
         Assert.assertEquals("group-id:artifact-id:extension:classifier:version",servlet.convertToMavenUrl("group-id/artifact-id/version/artifact-id-version-classifier.extension"));

@@ -76,7 +76,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     //3: version
     //4: maven-metadata xml filename
     //7: repository id.
-    public static final Pattern ARTIFACT_METADATA_URL_REGEX = Pattern.compile("([^ ]+)/([^/ ]+)/([^/ ]+)/((maven-metadata([-]([^ .]+))?.xml))");
+    //9: type
+    public static final Pattern ARTIFACT_METADATA_URL_REGEX = Pattern.compile("([^ ]+)/([^/ ]+)/([^/ ]+)/((maven-metadata([-]([^ .]+))?.xml))([.]([^ ]+))?");
 
     public static final Pattern REPOSITORY_ID_REGEX  = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
 
@@ -325,7 +326,11 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             String groupId = pathMatcher.group(1).replaceAll("/", ".");
             String artifactId = pathMatcher.group(2);
             String version = pathMatcher.group(3);
-            metadata = new DefaultMetadata(groupId, artifactId, version, "", Metadata.Nature.RELEASE_OR_SNAPSHOT);
+            String type = pathMatcher.group(9);
+            if (type == null) {
+                type = "";
+            }
+            metadata = new DefaultMetadata(groupId, artifactId, version, type, Metadata.Nature.RELEASE_OR_SNAPSHOT);
 
         }
         return metadata;
@@ -365,6 +370,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     /**
      * Removes all options from the repository spec.
+     *
      * @param spec
      * @return
      */
