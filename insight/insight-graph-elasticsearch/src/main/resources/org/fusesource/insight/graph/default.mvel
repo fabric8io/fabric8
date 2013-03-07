@@ -1,0 +1,16 @@
+{
+  "host": "${result.server.name}",
+  "timestamp": @{toJson(result.timestamp)},
+  "queries": { @foreach{e : result.results.entrySet()}
+    "@{e.key}": [ @foreach{r : e.value.results} {
+      "name": "@{r.objectName}"@if{e.value.request.type == 'attrs'},
+      "attrs": { @foreach{a : r.attrs.entrySet()}
+        "@{a.key}": @{toJson(a.value)}@end{', '}
+        }@else{e.value.request.type == 'oper'},
+      "value": @{toJson(r.value)}@end{}
+      }@end{', '}
+    ]@end{', '}
+  }
+}
+
+

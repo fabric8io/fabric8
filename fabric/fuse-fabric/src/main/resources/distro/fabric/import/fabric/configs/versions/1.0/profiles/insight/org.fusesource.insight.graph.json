@@ -1,0 +1,13 @@
+{
+  "queries" : [ {
+    "name" : "elasticsearch-health",
+    "requests" : [ {
+      "name": "health",
+      "obj" : "org.elasticsearch:service=restjmx",
+      "oper": "exec",
+      "args": [ "GET", "/_cluster/health", null ],
+      "sig" : [ "java.lang.String", "java.lang.String", "java.lang.String" ]
+    } ],
+    "template": "{ \"timestamp\": @{toJson(result.timestamp)}, \"health\": @{result.results['health'].results[0].value} }"
+  } ]
+}

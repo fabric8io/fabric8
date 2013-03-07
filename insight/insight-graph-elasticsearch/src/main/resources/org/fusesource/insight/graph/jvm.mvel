@@ -1,0 +1,42 @@
+{
+  "host": "${result.server.name}",
+  "timestamp": @{toJson(result.timestamp)}@if{result.results['memory'] != null},
+  "mem": {
+     "heap_used": @{result.results['memory'].results[0].attrs['HeapMemoryUsage']['used']},
+     "heap_committed": @{result.results['memory'].results[0].attrs['HeapMemoryUsage']['committed']},
+     "non_heap_used": @{result.results['memory'].results[0].attrs['NonHeapMemoryUsage']['used']},
+     "non_heap_committed": @{result.results['memory'].results[0].attrs['NonHeapMemoryUsage']['committed']}@if{result.results['pool'] != null},
+     "pools": { @foreach{p : result.results['pool'].results}
+        "@{p.objectName.getKeyProperty('name')}": {
+          "used": @{p.attrs['Usage']['used']},
+          "max": @{p.attrs['Usage']['max']},
+          "peak_used": @{p.attrs['PeakUsage']['max']},
+          "peak_max": @{p.attrs['PeakUsage']['max']}
+        }@end{', '}
+     }
+  @end{}
+  }@end{}@if{result.results['threading'] != null},
+  "threads": {
+    "count": @{result.results['threading'].results[0].attrs['ThreadCount']},
+    "peack_count": @{result.results['threading'].results[0].attrs['PeakThreadCount']}
+  }@end{}@if{result.results['gc'] != null},
+  "gc": {
+    "collection_count": @{ cc = 0; foreach (p : result.results['gc'].results) { cc += p.attrs['CollectionCount']; } cc; },
+    "collection_time": @{ cc = 0; foreach (p : result.results['gc'].results) { cc += p.attrs['CollectionTime']; } cc; },
+    "collectors": { @foreach{p : result.results['gc'].results}
+      "@{p.objectName.getKeyProperty('name')}": {
+        "collection_count": @{p.attrs['CollectionCount']},
+        "collection_time": @{p.attrs['CollectionTime']}
+      }@end{', '}
+    }
+  }@end{}@if{result.results['buffer_pools'] != null},
+  "buffer_pools": { @foreach{p : result.results['buffer_pools'].results}
+    "@{p.objectName.getKeyProperty('name')}": {
+      "count": @{p.attrs['Count']},
+      "memory_used": @{p.attrs['MemoryUsed']},
+      "total_capacity": @{p.attrs['TotalCapacity']}
+    }@end{', '}
+  }@end{}
+}
+
+

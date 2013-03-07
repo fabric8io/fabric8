@@ -57,6 +57,7 @@
     <module>insight-log-elasticsearch</module>
     <module>insight-elasticsearch</module>
     <module>insight-graph</module>
+    <module>insight-graph-elasticsearch</module>
     <module>insight-maven</module>
     <module>insight-maven-web</module>
     <module>insight-kibana</module>

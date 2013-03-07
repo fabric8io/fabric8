@@ -1,20 +1,30 @@
 {
-  "servers" : [ {
-    "local" : true,
-    "queries" : [ {
+  "queries" : [ {
+    "name" : "jvm",
+    "requests" : [ {
+      "name": "memory",
       "obj" : "java.lang:type=Memory",
-      "attr" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ],
-      "resultAlias" : "Memory"
+      "attrs" : [ "HeapMemoryUsage", "NonHeapMemoryUsage" ]
     },
     {
+      "name": "pool",
+      "obj" : "java.lang:type=MemoryPool,*",
+      "attrs" : [ "Usage", "PeakUsage" ],
+    },
+    {
+      "name": "threading",
       "obj" : "java.lang:type=Threading",
-      "attr" : [ "ThreadCount" ],
-      "resultAlias" : "Threading"
+      "attrs" : [ "ThreadCount", "PeakThreadCount" ],
     },
     {
-      "obj" : "java.lang:type=OperatingSystem",
-      "attr" : [ "ProcessCpuLoad", "SystemCpuLoad" ],
-      "resultAlias" : "OperatingSystem"
+      "name": "gc",
+      "obj" : "java.lang:type=GarbageCollector,*",
+      "attrs" : [ "CollectionCount", "CollectionTime" ],
+    },
+    {
+      "name": "buffer_pools",
+      "obj" : "java.nio:type=BufferPool,*",
+      "attrs" : [ "Count", "MemoryUsed", "TotalCapacity" ],
     } ]
   } ]
 }
