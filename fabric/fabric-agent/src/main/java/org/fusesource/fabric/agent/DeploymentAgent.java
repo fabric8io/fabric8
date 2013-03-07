@@ -478,7 +478,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         if (!repositories.containsKey(uri)) {
             File file = manager.download(uri.toString()).await().getFile();
             FeatureValidationUtil.validate(file.toURI());
-            RepositoryImpl repo = new RepositoryImpl(uri);
+            //We are using the file uri instead of the maven url, because we want to make sure, that the repo can load.
+            //If we used the maven uri instead then we would have to make sure that the download location is added to
+            //the ops4j pax url configuration. Using the first is a lot safer and less prone to misconfigurations.
+            RepositoryImpl repo = new RepositoryImpl(file.toURI());
             repositories.put(uri, repo);
             repo.load();
             for (URI ref : repo.getRepositories()) {
