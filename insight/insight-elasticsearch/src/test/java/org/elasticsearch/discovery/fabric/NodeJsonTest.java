@@ -33,7 +33,7 @@ public class NodeJsonTest {
         Map<String, String> attr = new HashMap<String, String>();
         attr.put("key", "value");
         DiscoveryNode n = new DiscoveryNode("thename", "theid", new InetSocketTransportAddress("thehost", 3234), attr);
-        FabricDiscovery.ESNode node = new FabricDiscovery.ESNode("thecluster", n);
+        FabricDiscovery.ESNode node = new FabricDiscovery.ESNode("thecluster", n, false);
 
         byte[] data = ClusteredSupport$.MODULE$.encode(node, ClusteredSupport$.MODULE$.DEFAULT_MAPPER());
         System.err.println(new String(data));

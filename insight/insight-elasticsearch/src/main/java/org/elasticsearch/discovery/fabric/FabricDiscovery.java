@@ -100,6 +100,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     private final ClusteredSingleton<ESNode> singleton;
     private final AtomicBoolean initialStateSent = new AtomicBoolean();
     private boolean joined;
+    private boolean singletonConnected;
 
     @Inject
     public FabricDiscovery(Settings settings,
@@ -220,7 +221,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         joined = false;
         singleton.start(group);
         joined = true;
-        singleton.join(new ESNode(clusterName.value(), localNode));
+        singleton.join(new ESNode(clusterName.value(), localNode, false));
         return zk;
     }
 
@@ -247,6 +248,9 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     private void updateCluster() {
+        if (singletonConnected) {
+            singleton.update(new ESNode(clusterName.value(), localNode, singleton.isMaster()));
+        }
         if (singleton.isMaster()) {
             clusterService.submitStateUpdateTask("fabric-discovery", new ProcessedClusterStateUpdateTask() {
                 @Override
@@ -295,12 +299,12 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     public void connected() {
-        changed();
+        singletonConnected = true;
     }
 
     @Override
     public void disconnected() {
-        changed();
+        singletonConnected = false;
     }
 
     @Override
@@ -363,10 +367,12 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     static class ESNode implements NodeState {
         private final String id;
         private final DiscoveryNode node;
+        private final boolean master;
 
-        ESNode(String id, DiscoveryNode node) {
+        ESNode(String id, DiscoveryNode node, boolean master) {
             this.id = id;
             this.node = node;
+            this.master = master;
         }
 
         @Override
@@ -377,6 +383,10 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         public DiscoveryNode node() {
             return node;
         }
+
+        public boolean isMaster() {
+            return master;
+        }
     }
 
     static class NodeSerializer extends JsonSerializer<ESNode> {
@@ -384,6 +394,12 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         public void serialize(ESNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
             jgen.writeStringField("id", value.id());
+            jgen.writeStringField("agent", System.getProperty("karaf.name"));
+            if (value.isMaster()) {
+                jgen.writeArrayFieldStart("services");
+                jgen.writeString("elasticsearch");
+                jgen.writeEndArray();
+            }
             jgen.writeStringField("nodeName", value.node().name());
             jgen.writeStringField("nodeId", value.node().id());
             jgen.writeStringField("address", value.node().address().toString());
@@ -406,7 +422,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                 Map map = jp.readValueAs(Map.class);
                 String id = map.get("id").toString();
                 DiscoveryNode node = (DiscoveryNode) Base64.decodeToObject(map.get("binary").toString(), Base64.NO_OPTIONS, DiscoveryNode.class.getClassLoader());
-                return new ESNode(id, node);
+                return new ESNode(id, node, false);
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e);
             }

@@ -23,6 +23,7 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
@@ -125,14 +126,17 @@ public class StatsCollector {
         @JsonProperty
         String id;
         @JsonProperty
-        String container;
+        String agent;
+        @JsonProperty
+        String[] services;
 
         QueryNodeState() {
         }
 
-        QueryNodeState(String id, String container) {
+        QueryNodeState(String id, String agent, String[] services) {
             this.id = id;
-            this.container = container;
+            this.agent = agent;
+            this.services = services;
         }
 
         @Override
@@ -213,41 +217,66 @@ public class StatsCollector {
 
 
     public void process() {
-        Container container = fabricService.getCurrentContainer();
-        if (container != null) {
-            Set<Query> newQueries = new HashSet<Query>();
-            Profile[] profiles = container.getProfiles();
-            if (profiles != null) {
-                for (Profile profile : profiles) {
-                    loadProfile(profile, newQueries);
+        try {
+            Container container = fabricService.getCurrentContainer();
+            if (container != null) {
+                Set<Query> newQueries = new HashSet<Query>();
+                Profile[] profiles = container.getProfiles();
+                if (profiles != null) {
+                    for (Profile profile : profiles) {
+                        loadProfile(profile, newQueries);
+                    }
                 }
-            }
-            for (Query q : queries.keySet()) {
-                if (!newQueries.remove(q)) {
-                    queries.remove(q).close();
+                for (Query q : queries.keySet()) {
+                    if (!newQueries.remove(q)) {
+                        queries.remove(q).close();
+                    }
                 }
-            }
-            Server server = new Server(container.getId());
-            for (Query q : newQueries) {
-                QueryState state = new QueryState();
-                state.server = server;
-                state.query = q;
+                Server server = new Server(container.getId());
+                for (Query q : newQueries) {
+                    final String queryName = q.getName();
+                    final String containerName = container.getId();
+                    final QueryState state = new QueryState();
+                    state.server = server;
+                    state.query = q;
 
-                // Clustered stats ?
-                if (q.getLock() != null) {
-                    state.lock = new ClusteredSingleton<QueryNodeState>(QueryNodeState.class);
-                    state.lock.start(startGroup(q.getLock()));
-                    state.lock.join(new QueryNodeState(q.getName(), container.getId()));
-                }
+                    // Clustered stats ?
 
-                long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
-                state.future = this.executor.scheduleAtFixedRate(
-                        new Task(state),
-                        Math.round(Math.random() * 1000) + 1,
-                        delay * 1000,
-                        TimeUnit.MILLISECONDS);
-                queries.put(q, state);
+                    if (q.getLock() != null) {
+                        state.lock = new ClusteredSingleton<QueryNodeState>(QueryNodeState.class);
+                        state.lock.add(new ChangeListener() {
+                            volatile boolean connected;
+                            @Override
+                            public void changed() {
+                                if (connected) {
+                                    state.lock.update(new QueryNodeState(queryName, containerName,
+                                            state.lock.isMaster() ? new String[] { "stat" } : null));
+                                }
+                            }
+                            @Override
+                            public void connected() {
+                                this.connected = true;
+                            }
+                            @Override
+                            public void disconnected() {
+                                this.connected = false;
+                            }
+                        });
+                        state.lock.start(startGroup(q.getLock()));
+                        state.lock.join(new QueryNodeState(queryName, containerName, null));
+                    }
+
+                    long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
+                    state.future = this.executor.scheduleAtFixedRate(
+                            new Task(state),
+                            Math.round(Math.random() * 1000) + 1,
+                            delay * 1000,
+                            TimeUnit.MILLISECONDS);
+                    queries.put(q, state);
+                }
             }
+        } catch (Throwable t) {
+            LOG.warn("Error while starting statistics", t);
         }
     }
 
