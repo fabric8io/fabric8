@@ -205,7 +205,6 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     }
 
     @Override
-    //TODO check query
     public Collection<SubscriptionViewFacade> getTopicConsumers(String topicName) throws Exception {
         String brokerName = getBrokerName();
         topicName = topicName.replace('\"', '_');
@@ -216,30 +215,26 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     }
 
     @Override
-    //TODO check query
     public Collection<DurableSubscriptionViewFacade> getTopicDurableConsumers(String topicName) throws Exception {
         String brokerName = getBrokerName();
         topicName = topicName.replace('\"', '_');
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Subscription,persistentMode=Durable,destinationType=Topic,destinationName=" + topicName + ",*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName +  ",destinationType=Topic,destinationName=" + topicName + ",endpoint=Consumer,consumerId=Durable(*),*");
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), DurableSubscriptionViewMBean.class, DurableSubscriptionViewFacade.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    //TODO check query
     public Collection<ProducerViewFacade> getQueueProducers(String queueName) throws Exception {
         String brokerName = getBrokerName();
         queueName = queueName.replace('\"', '_');
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Producer,destinationType=Queue,destinationName=" + queueName + ",*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",destinationType=Queue,destinationName=" + queueName + ",endpoint=Producer,*");
         Set<ObjectName> queryResult = queryNames(query, null);
         Collection<ProducerViewFacade> producers = getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), ProducerViewMBean.class, ProducerViewFacade.class);
 
         // Now look for dynamic ones.
-        query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Producer,destinationType=Dynamic,*");
+        query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",endpoint=dynamicProducer,*");
         queryResult = queryNames(query, null);
         Collection<ProducerViewFacade> dynamics = getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), ProducerViewMBean.class, ProducerViewFacade.class);
         for (ProducerViewFacade dynamicProducer : dynamics) {
@@ -253,18 +248,16 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
 
     @Override
     @SuppressWarnings("unchecked")
-    //TODO check query
     public Collection<ProducerViewFacade> getTopicProducers(String topicName) throws Exception {
         String brokerName = getBrokerName();
         topicName = topicName.replace('\"', '_');
-        ObjectName query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Producer,destinationType=Topic,destinationName=" + topicName + ",*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
+                + ",destinationType=Queue,destinationName=" + topicName + ",endpoint=Producer,*");
         Set<ObjectName> queryResult = queryNames(query, null);
         Collection<ProducerViewFacade> producers = getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), ProducerViewMBean.class, ProducerViewFacade.class);
 
         // Now look for dynamic ones.
-        query = new ObjectName("org.apache.activemq:BrokerName=" + brokerName
-                + ",Type=Producer,destinationType=Dynamic,*");
+        query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",endpoint=dynamicProducer,*");
         queryResult = queryNames(query, null);
         Collection<ProducerViewFacade> dynamics = getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), ProducerViewMBean.class, ProducerViewFacade.class);
         for (ProducerViewFacade dynamicProducer : dynamics) {
