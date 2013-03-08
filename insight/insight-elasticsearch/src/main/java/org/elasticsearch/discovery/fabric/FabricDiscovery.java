@@ -100,7 +100,6 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     private final ClusteredSingleton<ESNode> singleton;
     private final AtomicBoolean initialStateSent = new AtomicBoolean();
     private boolean joined;
-    private boolean singletonConnected;
 
     @Inject
     public FabricDiscovery(Settings settings,
@@ -248,8 +247,10 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     }
 
     private void updateCluster() {
-        if (singletonConnected) {
+        try {
             singleton.update(new ESNode(clusterName.value(), localNode, singleton.isMaster()));
+        } catch (Exception e) {
+            // Ignore if not joined
         }
         if (singleton.isMaster()) {
             clusterService.submitStateUpdateTask("fabric-discovery", new ProcessedClusterStateUpdateTask() {
@@ -299,12 +300,12 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     public void connected() {
-        singletonConnected = true;
+        changed();
     }
 
     @Override
     public void disconnected() {
-        singletonConnected = false;
+        changed();
     }
 
     @Override
