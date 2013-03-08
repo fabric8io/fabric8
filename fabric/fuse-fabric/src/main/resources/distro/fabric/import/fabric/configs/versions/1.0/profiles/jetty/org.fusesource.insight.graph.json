@@ -1,0 +1,20 @@
+{
+  "queries" : [ {
+    "name" : "jetty",
+    "requests" : [ {
+      "name": "stats",
+      "obj" : "org.eclipse.jetty.server.handler:type=statisticshandler,id=0",
+      "attrs" : [ 
+		"dispatched", "dispatchedActive", "dispatchedActiveMax", 
+ 		"dispatchedTimeMax", "dispatchedTimeMean", "dispatchedTimeStdDev", "dispatchedTimeTotal", 
+		"expires",
+		"requestTimeMax", "requestTimeMean", "requestTimeStdDev", "requestTimeTotal",
+		"requests", "requestsActive", "requestsActiveMax",
+		"reponses1xx", "reponses2xx", "reponses3xx", "reponses4xx", "reponses5xx",
+		"responsesBytesTotal",
+		"suspends", "suspendsActive", "suspendsActiveMax", "resumes"
+ 	  ]
+    } ],
+    "template": "{ \"host\": @{toJson(result.server.name)}, \"timestamp\": @{toJson(result.timestamp)} @foreach{e : result.results['stats'].results[0].attrs.entrySet()}, \"${e.key}\": ${toJson(e.value)} @end{} }"
+  } ]
+}
