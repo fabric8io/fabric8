@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +52,7 @@ public class DuplicateBundlesTest extends EsbTestSupport {
 
     @Test
     public void testDulicates() throws Exception {
-        FeaturesService featuresService = getOsgiService(FeaturesService.class);
+        FeaturesService featuresService = ServiceLocator.getOsgiService(FeaturesService.class);
         Feature[] features = featuresService.listFeatures();
         List<BundleInfo> bundles = new ArrayList<BundleInfo>();
 
