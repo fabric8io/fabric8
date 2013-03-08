@@ -36,6 +36,7 @@ import org.fusesource.insight.graph.model.MBeanOpers;
 import org.fusesource.insight.graph.model.Query;
 import org.fusesource.insight.graph.model.QueryResult;
 import org.fusesource.insight.graph.model.Request;
+import org.fusesource.insight.graph.model.Result;
 import org.fusesource.insight.graph.model.Server;
 import org.fusesource.insight.graph.support.JmxUtils;
 import org.fusesource.insight.graph.support.Renderer;
@@ -55,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -90,7 +92,7 @@ public class StatsCollector {
     private IZKClient zookeeper;
 
     private ScheduledThreadPoolExecutor executor;
-    private Map<Query, QueryState> queries = new HashMap<Query, QueryState>();
+    private Map<Query, QueryState> queries = new ConcurrentHashMap<Query, QueryState>();
     private Renderer renderer = new Renderer();
 
     private ServiceTracker<MBeanServer, MBeanServer> mbeanServer;
@@ -391,6 +393,9 @@ public class StatsCollector {
 
         private void renderAndSend(ElasticSender snd, QueryResult qrs) throws Exception {
             String output = renderer.render(qrs);
+            if (output == null || output.isEmpty()) {
+                return;
+            }
             IndexRequest request = new IndexRequest()
                     .index(getIndex(index, qrs))
                     .type(getType(type, qrs))
