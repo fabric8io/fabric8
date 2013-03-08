@@ -61,8 +61,8 @@ To display the current broker statistics using the remote console, type:
 
 To validate the installation with a simple JMS producer and consumer, type:
 
-    java -jar lib/mq-client.jar producer --user <Username> --password <Password>
-    java -jar lib/mq-client.jar consumer --user <Username> --password <Password>
+    java -jar extras/mq-client.jar producer --user <Username> --password <Password>
+    java -jar extras/mq-client.jar consumer --user <Username> --password <Password>
 
 View the webconsole at http://localhost:8181/activemqweb
 
