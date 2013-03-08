@@ -248,7 +248,12 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         //answer.setContainerName(element.get);
         ThrowableInformation throwableInformation = element.getThrowableInformation();
         if (throwableInformation != null) {
-            answer.setException(throwableInformation.getThrowableStrRep());
+            ThrowableFormatter renderer = new ThrowableFormatter();
+            String[] stack = renderer.doRender(throwableInformation.getThrowable());
+            if (stack == null) {
+                stack = element.getThrowableStrRep();
+            }
+            answer.setException(stack);
         }
         LocationInfo locationInformation = element.getLocationInformation();
         if (locationInformation != null) {

@@ -49,7 +49,7 @@ public class MavenCoordHelper {
         return coordinates;
     }
 
-    private static String getMavenCoordinates(Class cls) throws IOException {
+    public static String getMavenCoordinates(Class cls) throws IOException {
         StringBuilder buffer = new StringBuilder();
         try {
             CodeSource source = cls.getProtectionDomain().getCodeSource();
