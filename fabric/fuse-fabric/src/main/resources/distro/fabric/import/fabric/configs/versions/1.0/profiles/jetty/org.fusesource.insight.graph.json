@@ -2,7 +2,7 @@
   "queries" : [ {
     "name" : "jetty",
     "requests" : [ {
-      "name": "stats",
+      "name": "requests",
       "obj" : "org.eclipse.jetty.server.handler:type=statisticshandler,id=0",
       "attrs" : [ 
 		"dispatched", "dispatchedActive", "dispatchedActiveMax", 
@@ -10,11 +10,20 @@
 		"expires",
 		"requestTimeMax", "requestTimeMean", "requestTimeStdDev", "requestTimeTotal",
 		"requests", "requestsActive", "requestsActiveMax",
-		"reponses1xx", "reponses2xx", "reponses3xx", "reponses4xx", "reponses5xx",
+		"responses1xx", "responses2xx", "responses3xx", "responses4xx", "responses5xx",
 		"responsesBytesTotal",
 		"suspends", "suspendsActive", "suspendsActiveMax", "resumes"
  	  ]
+    }, {
+      "name": "nio",
+      "obj" : "org.eclipse.jetty.server.nio:type=selectchannelconnector,id=0",
+      "attrs" : [ 
+		"connections", 
+		"connectionsDurationMax", "connectionsDurationMean", "connectionsDurationStdDev", "connectionsDurationTotal",
+		"connectionsOpen", "connectionsOpenMax", 
+		"connectionsRequestsMax", "connectionsRequestsMean", "connectionsRequestsStdDev"
+ 	  ]
     } ],
-    "template": "{ \"host\": @{toJson(result.server.name)}, \"timestamp\": @{toJson(result.timestamp)} @foreach{e : result.results['stats'].results[0].attrs.entrySet()}, \"${e.key}\": ${toJson(e.value)} @end{} }"
+    "template": "{ \"host\": @{toJson(result.server.name)}, \"timestamp\": @{toJson(result.timestamp)} @foreach{r : result.results.keySet()}, \"@{r}\": { @foreach{e : result.results[r].results[0].attrs.entrySet()} \"@{e.key}\": @{toJson(e.value)} @end{', '} } @end{} }"
   } ]
 }

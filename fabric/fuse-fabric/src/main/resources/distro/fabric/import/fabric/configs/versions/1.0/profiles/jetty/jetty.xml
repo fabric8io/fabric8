@@ -4,6 +4,19 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
 
 <Configure class="org.eclipse.jetty.server.Server">
 
+    <Call id="MBeanServer" class="java.lang.management.ManagementFactory" name="getPlatformMBeanServer" />
+
+    <Call id="Container" name="getContainer">
+        <Call name="addEventListener">
+            <Arg>
+                <New class="org.fusesource.insight.jetty.MBeanContainerWrapper">
+                    <Arg><Ref id="MBeanServer"/></Arg>
+                    <Call name="start" />
+                </New>
+            </Arg>
+        </Call>
+    </Call>
+
     <!-- =========================================================== -->
     <!-- Set connectors                                              -->
     <!-- =========================================================== -->
@@ -21,7 +34,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                 </Set>
                 <!-- default port will be overwritten by pax-web configuration -->
                 <Set name="port">
-                    <Property name="jetty.port" default="8182"/>
+                    <Property name="jetty.port" default="8181"/>
                 </Set>
                 <Set name="maxIdleTime">300000</Set>
                 <Set name="Acceptors">2</Set>
@@ -47,19 +60,6 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
         </Arg>
     </Call>
 
-	<Call id="MBeanServer" class="java.lang.management.ManagementFactory" name="getPlatformMBeanServer" />
-	
-	<Call id="Container" name="getContainer">
-		<Call name="addEventListener">
-			<Arg>
-				<New class="org.eclipse.jetty.jmx.MBeanContainer">
-					<Arg><Ref id="MBeanServer"/></Arg>
-					<Call name="start" />
-				</New>
-			</Arg>
-		</Call>
-	</Call>
-	
 	<Call name="getHandler">
 		<Set name="handlers">
 			<Array type="org.eclipse.jetty.server.Handler">
@@ -76,7 +76,11 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
 											<New class="org.eclipse.jetty.server.handler.DefaultHandler" />
 										</Item>
 										<Item>
-											<New class="org.eclipse.jetty.server.handler.RequestLogHandler" />
+											<New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                                                <Set name="requestLog">
+                                                    <New class="org.fusesource.insight.jetty.ElasticSearchRequestLog" />
+                                                </Set>
+                                            </New>
 										</Item>
 									</Array>
 								</Set>
