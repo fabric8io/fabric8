@@ -102,6 +102,31 @@ object VersionResource {
 
 }
 
+class LightweightProfileResource(val self: Profile) extends BaseResource with HasID {
+
+  @JsonProperty
+  def id = self.getId
+
+  @JsonProperty
+  def version = self.getVersion
+
+  @JsonProperty
+  def is_abstract = Option(self.getAttributes.getProperty(Profile.ABSTRACT)).getOrElse({"false"}).toBoolean
+
+  @JsonProperty
+  def is_locked = Option(self.getAttributes.getProperty(Profile.LOCKED)).getOrElse({"false"}).toBoolean
+
+  @JsonProperty
+  def is_hidden = Option(self.getAttributes.getProperty(Profile.HIDDEN)).getOrElse({"false"}).toBoolean
+
+  @JsonProperty
+  def children = fabric_service.getVersion(self.getVersion).getProfiles.filter(_.getParents.iterator.contains(self)).map(_.getId)
+
+  @JsonProperty
+  def agents = self.getAssociatedContainers.map(_.getId)
+
+}
+
 class VersionResource(val self: Version) extends BaseResource with HasID with Exportable {
 
   import VersionResource._
@@ -129,7 +154,10 @@ class VersionResource(val self: Version) extends BaseResource with HasID with Ex
 
   @GET
   @Path("profiles")
-  def profiles: Array[ProfileResource] = self.getProfiles().map(new ProfileResource(_)).sortWith(ByID(_, _))
+  def profiles: Array[LightweightProfileResource] = self.getProfiles().map(new
+LightweightProfileResource(_)).sortWith(ByID(_, _))
+
+  def full_profiles: Array[ProfileResource] = self.getProfiles().map(new ProfileResource(_)).sortWith(ByID(_, _))
 
   @Path("profiles/{id}")
   def profiles(@PathParam("id") id: String, @QueryParam("overlay") overlay: Boolean): ProfileResource = {
@@ -140,7 +168,7 @@ class VersionResource(val self: Version) extends BaseResource with HasID with Ex
     if (overlay) {
       new ProfileResource(rc.self.getOverlay)
     } else {
-      rc
+      new ProfileResource(rc.self)
     }
   }
 
@@ -152,7 +180,7 @@ class VersionResource(val self: Version) extends BaseResource with HasID with Ex
   def export(out: OutputStream): Unit = {
     val temp = File.createTempFile("exp", "zip")
     val zip = new ZipArchiveOutputStream(temp)
-    profiles.foreach(_.write_to_zip(zip))
+    full_profiles.foreach(_.write_to_zip(zip))
     zip.close()
 
     val in = new FileInputStream(temp)
