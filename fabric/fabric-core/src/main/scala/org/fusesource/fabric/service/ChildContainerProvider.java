@@ -78,6 +78,10 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(" ").append(options.getJvmOpts());
                 }
 
+                if (options.getJvmOpts() != null && !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
+                    jvmOptsBuilder.append(" -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
+                }
+
                 String features = "fabric-agent";
                 String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
                 String originalName = options.getName();

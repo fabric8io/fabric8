@@ -183,6 +183,9 @@ public final class ContainerProviderUtils {
 
             sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
         }
+        if (options.getJvmOpts() != null && !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
+            options.setJvmOpts(options.getJvmOpts() + " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
+        }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
             sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
         }
@@ -209,6 +212,9 @@ public final class ContainerProviderUtils {
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         if (options instanceof CreateJCloudsContainerOptions) {
             sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
+        }
+        if (options.getJvmOpts() != null && !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
+            options.setJvmOpts(options.getJvmOpts() + " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
         }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
             sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
