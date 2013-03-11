@@ -55,7 +55,7 @@
     <!-- ActiveMQ connectivity for Camel -->
     <dependency>
       <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
+      <artifactId>activemq-osgi</artifactId>
             <version>${activemq-version}</version>
             <scope>provided</scope>
     </dependency>
