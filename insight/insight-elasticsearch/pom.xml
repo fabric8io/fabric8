@@ -46,7 +46,7 @@
       <fuse.osgi.services.export>
           org.elasticsearch.node.Node,
           org.fusesource.insight.elasticsearch.ElasticRest,
-          org.fusesource.insight.elasticsearch.ElasticSender
+          org.fusesource.insight.storage.StorageService
       </fuse.osgi.services.export>
   </properties>
 
@@ -62,6 +62,10 @@
       <dependency>
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-zookeeper</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.fusesource.insight</groupId>
+          <artifactId>insight-storage</artifactId>
       </dependency>
 
       <dependency>

@@ -17,16 +17,14 @@
 
 package org.elasticsearch.pojo;
 
-import org.elasticsearch.action.delete.DeleteRequest;
-import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
 import org.fusesource.insight.elasticsearch.ElasticRest;
-import org.fusesource.insight.elasticsearch.ElasticSender;
 import org.fusesource.insight.elasticsearch.impl.ElasticRestImpl;
-import org.fusesource.insight.elasticsearch.impl.ElasticSenderImpl;
+import org.fusesource.insight.elasticsearch.impl.ElasticStorageImpl;
+import org.fusesource.insight.storage.StorageService;
 
 import java.io.IOException;
 
@@ -34,34 +32,34 @@ import java.io.IOException;
  * Instead of registering 3 different services, we use a single wrapper which delegate to the
  * three services.  It helps management of service registration.
  */
-public class ExtendedInternalNode implements Node, ElasticRest, ElasticSender {
+public class ExtendedInternalNode implements Node, ElasticRest, StorageService {
 
     private final InternalNode node;
     private final ElasticRestImpl rest;
-    private final ElasticSenderImpl sender;
+    private final ElasticStorageImpl storage;
 
     public ExtendedInternalNode(InternalNode node) {
         this.node = node;
         this.rest = new ElasticRestImpl(node);
-        this.sender = new ElasticSenderImpl(node);
+        this.storage = new ElasticStorageImpl(node);
     }
 
     @Override
     public Node start() {
         Node n = this.node.start();
-        this.sender.init();
+        this.storage.init();
         return n;
     }
 
     @Override
     public Node stop() {
-        this.sender.destroy();
+        this.storage.destroy();
         return this.node.stop();
     }
 
     @Override
     public void close() {
-        this.sender.destroy();
+        this.storage.destroy();
         this.node.close();
     }
 
@@ -106,12 +104,7 @@ public class ExtendedInternalNode implements Node, ElasticRest, ElasticSender {
     }
 
     @Override
-    public void push(IndexRequest request) {
-        this.sender.push(request);
-    }
-
-    @Override
-    public void push(DeleteRequest request) {
-        this.sender.push(request);
+    public void store(String type, long timestamp, String jsonData) {
+        this.storage.store(type, timestamp, jsonData);
     }
 }

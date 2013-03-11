@@ -113,7 +113,7 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.insight</groupId>
-               <artifactId>insight-log-elasticsearch</artifactId>
+               <artifactId>insight-log-storage</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
@@ -284,7 +284,7 @@
                                    <feature>fabric-webui</feature>
                                    <feature>mq-fabric</feature>
                                    <feature>insight-elasticsearch</feature>
-                                   <feature>insight-log-elasticsearch</feature>
+                                   <feature>insight-log-storage</feature>
                                    <feature>process-manager</feature>
                                    <feature>jolokia</feature>
                                </features>

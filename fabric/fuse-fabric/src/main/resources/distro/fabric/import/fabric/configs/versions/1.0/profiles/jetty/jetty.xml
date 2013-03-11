@@ -78,7 +78,7 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
 										<Item>
 											<New class="org.eclipse.jetty.server.handler.RequestLogHandler">
                                                 <Set name="requestLog">
-                                                    <New class="org.fusesource.insight.jetty.ElasticSearchRequestLog" />
+                                                    <New class="org.fusesource.insight.jetty.InsightRequestLog" />
                                                 </Set>
                                             </New>
 										</Item>

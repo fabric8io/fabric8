@@ -1,0 +1,52 @@
+<!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0">
+
+    <ext:property-placeholder placeholder-prefix="$[" placeholder-suffix="]"/>
+
+    <cm:property-placeholder persistent-id="org.fusesource.insight.log.storage" update-strategy="reload"/>
+
+    <bean id="appender" class="org.fusesource.insight.log.storage.InsightLogAppender">
+        <property name="name" value="$[karaf.name]" />
+        <property name="type" value="${es.log.type}"/>
+        <property name="storage" ref="storage" />
+    </bean>
+    <service ref="appender" interface="org.ops4j.pax.logging.spi.PaxAppender">
+        <service-properties>
+            <entry key="org.ops4j.pax.logging.appender.name" value="InsightLogAppender"/>
+        </service-properties>
+    </service>
+
+    <bean id="handler" class="org.fusesource.insight.log.storage.InsightEventHandler">
+        <property name="name" value="$[karaf.name]" />
+        <property name="type" value="${es.evt.type}"/>
+        <property name="storage" ref="storage" />
+    </bean>
+    <service ref="handler" interface="org.osgi.service.event.EventHandler">
+        <service-properties>
+            <entry key="event.topics" value="*" />
+        </service-properties>
+    </service>
+
+    <bean id="storage" class="org.fusesource.insight.log.storage.StorageProxy"
+          init-method="init" destroy-method="destroy">
+        <property name="context" ref="blueprintBundleContext" />
+    </bean>
+
+</blueprint>

@@ -16,18 +16,18 @@
  */
 package org.elasticsearch.pojo;
 
-import java.security.PrivilegedAction;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Map;
-import javax.security.auth.Subject;
-
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.node.internal.InternalNode;
 import org.fusesource.insight.elasticsearch.ElasticRest;
-import org.fusesource.insight.elasticsearch.ElasticSender;
+import org.fusesource.insight.storage.StorageService;
 import org.osgi.framework.BundleContext;
+
+import javax.security.auth.Subject;
+import java.security.PrivilegedAction;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.Map;
 
 public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode> {
 
@@ -80,7 +80,7 @@ public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode>
 
     @Override
     protected String[] getExposedClasses(ExtendedInternalNode node) {
-        return new String[] { Node.class.getName(), ElasticRest.class.getName(), ElasticSender.class.getName() };
+        return new String[] { Node.class.getName(), ElasticRest.class.getName(), StorageService.class.getName() };
     }
 
 }
