@@ -91,7 +91,9 @@
         <module>fabric-utils</module>
         
         <module>openshift</module>
+        <!--
         <module>fmc-distro</module>
+        -->
 
 
     </modules>
