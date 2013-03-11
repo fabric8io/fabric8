@@ -81,6 +81,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     public static final Pattern REPOSITORY_ID_REGEX  = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
 
+	private static final String DEFAULT_REPO_ID = "default";
+
     protected String localRepository;
     protected String remoteRepositories = "repo1.maven.org/maven2@id=central,repo.fusesource.com/nexus/content/groups/public@id=fusepublic,repo.fusesource.com/nexus/content/groups/releases@id=fusereleases,repo.fusesource.com/nexus/content/groups/public-snapshots@id=fusesnapshots,repo.fusesource.com/nexus/content/groups/ea@id=fuseeasrlyaccess";
     protected String updatePolicy;
@@ -95,8 +97,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected File tmpFolder = new File(System.getProperty("karaf.data") +  File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
     public synchronized void start() throws IOException {
-        if (!tmpFolder.exists()) {
-            tmpFolder.mkdirs();
+        if (!tmpFolder.exists() && !tmpFolder.mkdirs()) {
+            throw new IOException("Failed to create temporary artifact folder");
         }
         if (localRepository.equals("")) {
             //It doesn't work when using the file:// protocol prefix.
@@ -118,19 +120,19 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             if (idMatcher.matches()) {
                 id = idMatcher.group(2);
                 rep = cleanUpRepositorySpec(rep);
-                remoteRepository = new RemoteRepository(id + Math.abs(rep.hashCode()), "default", rep);
+                remoteRepository = new RemoteRepository(id + Math.abs(rep.hashCode()), DEFAULT_REPO_ID, rep);
             }   else {
                 id = "rep-" + rep.hashCode();
                 rep = cleanUpRepositorySpec(rep);
-                remoteRepository = new RemoteRepository("repo-" + Math.abs(rep.hashCode()), "default", rep);
+                remoteRepository = new RemoteRepository("repo-" + Math.abs(rep.hashCode()), DEFAULT_REPO_ID, rep);
             }
             remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
             repositories.put(id, remoteRepository);
         }
 
-        repositories.put("local", new RemoteRepository("local", "default", "file://" + localRepository));
-        repositories.put("karaf", new RemoteRepository("karaf", "default", "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
-        repositories.put("user", new RemoteRepository("user", "default", "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+        repositories.put("local", new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository));
+        repositories.put("karaf", new RemoteRepository("karaf", DEFAULT_REPO_ID, "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
+        repositories.put("user", new RemoteRepository("user", DEFAULT_REPO_ID, "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
 
     }
 
@@ -204,12 +206,12 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         } else if (metdataMatcher.matches()) {
             LOGGER.log(Level.INFO, String.format("Received upload request for maven metadata : %s", path));
             try {
-                String filename = path.substring(path.lastIndexOf("/") + 1);
+                String filename = path.substring(path.lastIndexOf('/') + 1);
                 Metadata metadata = convertPathToMetadata(path);
                 metadata = metadata.setFile(readFile(is, tmpFolder, filename));
                 InstallRequest request = new InstallRequest();
                 request.addMetadata(metadata);
-                InstallResult result = system.install(session, request);
+                system.install(session, request);
                 success = true;
             } catch (Exception e) {
                 LOGGER.log(Level.WARNING, String.format("Failed to uploade metadata: %s due to %s", path, e));
@@ -220,12 +222,12 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             LOGGER.log(Level.INFO, String.format("Received upload request for maven artifact : %s", path));
             Artifact artifact = null;
             try {
-                String filename = path.substring(path.lastIndexOf("/") + 1);
+                String filename = path.substring(path.lastIndexOf('/') + 1);
                 artifact = convertPathToArtifact(path);
                 artifact = artifact.setFile(readFile(is, tmpFolder, filename));
                 InstallRequest request = new InstallRequest();
                 request.addArtifact(artifact);
-                InstallResult result = system.install(session, request);
+                system.install(session, request);
                 success = true;
                 LOGGER.log(Level.INFO, "Artifact installed: " + artifact.toString());
             } catch (Exception e) {
@@ -284,9 +286,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             }
 
             if (stripedFileName != null && stripedFileName.startsWith("-") && stripedFileName.contains(".")) {
-                classifier = stripedFileName.substring(1, stripedFileName.indexOf("."));
+                classifier = stripedFileName.substring(1, stripedFileName.indexOf('.'));
             }
-            extension = stripedFileName.substring(stripedFileName.indexOf(".") + 1);
+            extension = stripedFileName.substring(stripedFileName.indexOf('.') + 1);
             sb.append(groupId).append(":").append(artifactId).append(":").append(extension).append(":");
             if (classifier != null && !classifier.isEmpty()) {
                 sb.append(classifier).append(":");
@@ -317,7 +319,6 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
      */
     protected Metadata convertPathToMetadata(String path) throws InvalidMavenArtifactRequest {
         DefaultMetadata metadata = null;
-        StringBuilder sb = new StringBuilder();
         if (path == null) {
             throw new InvalidMavenArtifactRequest("Cannot match request path to maven url, request path is empty.");
         }
@@ -349,13 +350,13 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         FileOutputStream fos = null;
         try {
             tmpFile = new File(tempLocation, name);
-            if (tmpFile.exists()) {
-                tmpFile.delete();
+            if (tmpFile.exists() && !tmpFile.delete()) {
+                throw new IOException("Failed to delete file");
             }
             fos = new FileOutputStream(tmpFile);
 
-            int length = 0;
-            byte buffer[] = new byte[4096];
+            int length;
+            byte buffer[] = new byte[8192];
 
             while ((length = is.read(buffer)) != -1) {
                 fos.write(buffer, 0, length);
@@ -379,7 +380,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             return spec;
         } else if (!spec.contains("@")) {
             return spec;
-        } else return spec.substring(0, spec.indexOf("@"));
+        } else {
+			return spec.substring(0, spec.indexOf('@'));
+		}
     }
 
 

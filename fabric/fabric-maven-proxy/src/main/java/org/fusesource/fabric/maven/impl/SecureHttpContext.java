@@ -19,12 +19,15 @@ package org.fusesource.fabric.maven.impl;
 
 import org.apache.commons.codec.binary.Base64;
 import org.osgi.service.http.HttpContext;
-import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.Subject;
-import javax.security.auth.callback.*;
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.AccountException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginContext;

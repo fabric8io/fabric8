@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.maven.impl;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -43,7 +44,8 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        InputStream inputStream = null;
+        InputStream is = null;
+		BufferedInputStream bis = null;
 
         try {
             String path = req.getPathInfo();
@@ -57,24 +59,25 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
             }
 
             try {
-                inputStream = new FileInputStream(artifactFile);
+                is = new FileInputStream(artifactFile);
+
                 LOGGER.log(Level.INFO, String.format("Writing response for file : %s", path));
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.setContentType("application/octet-stream");
                 resp.setDateHeader("Date", System.currentTimeMillis());
                 resp.setHeader("Connection", "close");
-                resp.setContentLength(inputStream.available());
+                resp.setContentLength(is.available());
                 resp.setHeader("Server", "MavenProxy Proxy/" + FabricConstants.FABRIC_VERSION);
-                byte buffer[] = new byte[4096];
+                byte buffer[] = new byte[8192];
                 int length;
-                while ((length = inputStream.read(buffer)) != -1) {
+                while ((length = is.read(buffer)) != -1) {
                     resp.getOutputStream().write(buffer, 0, length);
                 }
                 resp.getOutputStream().flush();
             } finally {
-                if (inputStream != null) {
+                if (is != null) {
                     try {
-                        inputStream.close();
+                        is.close();
                     } catch (Exception ex) {
                     }
                 }
