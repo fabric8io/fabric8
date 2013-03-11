@@ -126,13 +126,13 @@ public class MQDistroTest extends FuseTestSupport {
         }
 
         // verify mq-client
-        Process process = Runtime.getRuntime().exec("java -jar lib" + File.separator + "mq-client.jar producer --count 1 --user " + USER_NAME_ND_PASSWORD + " --password " + USER_NAME_ND_PASSWORD,
+        Process process = Runtime.getRuntime().exec("java -jar extras" + File.separator + "mq-client.jar producer --count 1 --user " + USER_NAME_ND_PASSWORD + " --password " + USER_NAME_ND_PASSWORD,
                 null, // env
                 new File(System.getProperty("user.dir")));
         process.waitFor();
         assertEquals("producer worked, exit(0)?", 0, process.exitValue());
 
-        process = Runtime.getRuntime().exec("java -jar lib" + File.separator + "mq-client.jar consumer --count 1 --user " + USER_NAME_ND_PASSWORD + " --password " + USER_NAME_ND_PASSWORD,
+        process = Runtime.getRuntime().exec("java -jar extras" + File.separator + "mq-client.jar consumer --count 1 --user " + USER_NAME_ND_PASSWORD + " --password " + USER_NAME_ND_PASSWORD,
                 null, // env
                 new File(System.getProperty("user.dir")));
         process.waitFor();
