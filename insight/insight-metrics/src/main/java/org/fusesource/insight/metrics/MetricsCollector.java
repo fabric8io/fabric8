@@ -100,7 +100,6 @@ public class MetricsCollector {
 
     private int defaultDelay = 60;
     private int threadPoolSize = 5;
-    private String index;
     private String type;
 
     static class QueryState {
@@ -153,10 +152,6 @@ public class MetricsCollector {
 
     public void setThreadPoolSize(int threadPoolSize) {
         this.threadPoolSize = threadPoolSize;
-    }
-
-    public void setIndex(String index) {
-        this.index = index;
     }
 
     public void setType(String type) {

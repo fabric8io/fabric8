@@ -22,7 +22,6 @@
       <cm:default-properties>
           <cm:property name="defaultDelay" value="60"/>
           <cm:property name="threadPoolSize" value="5"/>
-          <cm:property name="index" value="insight"/>
           <cm:property name="type" value="sta"/>
       </cm:default-properties>
   </cm:property-placeholder>
@@ -36,7 +35,6 @@
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="defaultDelay" value="${defaultDelay}" />
         <property name="threadPoolSize" value="${threadPoolSize}" />
-        <property name="index" value="${index}" />
         <property name="type" value="${type}" />
   </bean>
 
