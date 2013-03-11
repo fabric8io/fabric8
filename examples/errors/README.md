@@ -45,7 +45,7 @@ To run the example:
 4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/errors/input` directory.
 5. Wait a few moment and you will find the files in directories under `work/errors`:
 ** `order4.xml` will always end up in the `work/errors/validation` directory
-** other files will end up in `work/errors/output` or `work/errors/deadletter` depending on the runtime exceptions that occur
+** other files will end up in `work/errors/done` or `work/errors/deadletter` depending on the runtime exceptions that occur
 6. Use `log:display` to check out the business logging - the exact output may look differently because the 'unexpected runtime exception...' happen randomly
         Processing order4.xml
         Order validation failure: order date 2012-03-04 should not be a Sunday
