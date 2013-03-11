@@ -35,21 +35,6 @@
     <fuse.osgi.export>org.fusesource.insight.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
 
-  <dependencyManagement>
-      <dependencies>
-          <dependency>
-              <groupId>org.codehaus.jackson</groupId>
-              <artifactId>jackson-core-asl</artifactId>
-              <version>1.9.5</version>
-          </dependency>
-          <dependency>
-              <groupId>org.codehaus.jackson</groupId>
-              <artifactId>jackson-mapper-asl</artifactId>
-              <version>1.9.5</version>
-          </dependency>
-      </dependencies>
-  </dependencyManagement>
-
   <modules>
     <module>insight-storage</module>
     <module>insight-log-core</module>
