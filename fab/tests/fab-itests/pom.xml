@@ -31,7 +31,17 @@
   <name>${project.artifactId}</name>
   <description>Fuse Application Bundles :: Tests :: Integration Tests</description>
 
+  <properties>
+    <pax-exam-version>3.0.1</pax-exam-version>
+  </properties>
+
   <dependencies>
+      <dependency>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>org.apache.felix.framework</artifactId>
+        <scope>test</scope>
+      </dependency>
+
       <!-- Set up Pax Exam with Pax Runner and @Inject support -->
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
@@ -42,7 +52,7 @@
 
       <dependency>
           <groupId>org.ops4j.pax.exam</groupId>
-          <artifactId>pax-exam-container-paxrunner</artifactId>
+          <artifactId>pax-exam-container-native</artifactId>
           <version>${pax-exam-version}</version>
           <scope>test</scope>
       </dependency>
@@ -72,14 +82,6 @@
           <groupId>org.apache.geronimo.specs</groupId>
           <artifactId>geronimo-atinject_1.0_spec</artifactId>
           <version>1.0</version>
-      </dependency>
-
-      <!-- For sane logging -->
-      <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-simple</artifactId>
-          <version>${slf4j-version}</version>
-          <scope>test</scope>
       </dependency>
 
       <!-- Scala -->
@@ -180,6 +182,20 @@
       <dependency>
           <groupId>org.ops4j.pax.url</groupId>
           <artifactId>pax-url-mvn</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.ops4j.pax.logging</groupId>
+          <artifactId>pax-logging-api</artifactId>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.mina</groupId>
+          <artifactId>mina-core</artifactId>
+          <version>${mina-version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.sshd</groupId>
+          <artifactId>sshd-core</artifactId>
+          <version>${sshd-version}</version>
       </dependency>
   </dependencies>
 
