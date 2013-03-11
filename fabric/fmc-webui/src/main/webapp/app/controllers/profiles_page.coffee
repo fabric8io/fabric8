@@ -24,6 +24,7 @@ define [
   "controllers/controls/validating_text_input"
   "controllers/controls/collection"
   "controllers/controls/swappable_model_view"
+  "controllers/controls/loading_page"
 ], (app, jade, Versions, Profile) ->
 
 
@@ -529,6 +530,7 @@ define [
 
 
   app.router.route "/versions", "versions", ->
+    app.page new FON.LoadingPage
     app.versions.fetch
       success: (model, resp) =>
         if !app.session_state.get "selected_version"
