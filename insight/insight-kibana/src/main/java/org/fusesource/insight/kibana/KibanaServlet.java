@@ -141,7 +141,13 @@ public class KibanaServlet extends HttpServlet {
 
     @Override
     public void destroy() {
-        this.tracker.close();
+        try {
+            this.tracker.close();
+        } catch (IllegalStateException e) {
+            // Context is certainly already destroyed as we don' use any activator
+            // The destroy() method is usually called from the web extender when destroying the
+            // servlet, reacting to the http service being unget.
+        }
     }
 
     @Override
