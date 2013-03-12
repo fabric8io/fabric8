@@ -61,8 +61,11 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 
 public class FabricTestSupport extends FuseTestSupport {
 
-    public static final String GROUP_ID = "org.fusesource.fabric";
-    public static final String ARTIFACT_ID = "fuse-fabric";
+    public static final String FABRIC_ITEST_GROUP_ID = "FABRIC_ITEST_GROUP_ID";
+    public static final String FABRIC_ITEST_ARTIFACT_ID = "FABRIC_ITEST_ARTIFACT_ID";
+
+    public static final String GROUP_ID = System.getenv().containsKey(FABRIC_ITEST_GROUP_ID) ? System.getenv(FABRIC_ITEST_GROUP_ID) : "org.fusesource.fabric";
+    public static final String ARTIFACT_ID = System.getenv().containsKey(FABRIC_ITEST_ARTIFACT_ID) ? System.getenv(FABRIC_ITEST_ARTIFACT_ID) : "fuse-fabric";
 
     static final String KARAF_GROUP_ID = "org.apache.karaf";
     static final String KARAF_ARTIFACT_ID = "apache-karaf";
