@@ -91,7 +91,7 @@ public class InsightRequestLog extends AbstractLifeCycle implements RequestLog, 
     }
 
     private String getString(String name, String def) {
-        Object v = this.properties.get(name);
+        Object v = this.properties != null ? this.properties.get(name) : null;
         if (v == null) {
             return def;
         } else {
@@ -100,7 +100,7 @@ public class InsightRequestLog extends AbstractLifeCycle implements RequestLog, 
     }
 
     private boolean getBoolean(String name, boolean def) {
-        Object v = this.properties.get(name);
+        Object v = this.properties != null ? this.properties.get(name) : null;
         if (v instanceof Boolean) {
             return (Boolean) v;
         } else if (v == null) {
