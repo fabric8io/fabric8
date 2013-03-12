@@ -384,7 +384,7 @@ public class MetricsCollector {
 
         private void renderAndSend(StorageService svc, QueryResult qrs) throws Exception {
             String output = renderer.render(qrs);
-            if (output == null || output.isEmpty()) {
+            if (output == null || output.trim().isEmpty()) {
                 return;
             }
             svc.store(type + "-" + qrs.getQuery().getName(),
