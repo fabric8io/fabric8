@@ -44,6 +44,7 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,6 +70,8 @@ public class KibanaServlet extends HttpServlet {
     private static final Logger LOGGER = LoggerFactory.getLogger(KibanaServlet.class);
 
     private static ServiceTracker<ElasticRest, ElasticRest> tracker;
+
+    private static final DateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
 
     public static class Config {
 
@@ -563,7 +566,7 @@ public class KibanaServlet extends HttpServlet {
     }
 
     private static String formatDate(Date date) {
-        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(date);
+        return isoFormat.format(date);
     }
 
     public static class Json {
@@ -908,7 +911,7 @@ public class KibanaServlet extends HttpServlet {
 
     private static long parseDate(String date) {
         try {
-            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").parse(date).getTime();
+            return isoFormat.parse(date).getTime();
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }

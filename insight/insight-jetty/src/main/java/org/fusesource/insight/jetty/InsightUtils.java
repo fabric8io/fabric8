@@ -22,7 +22,7 @@ import java.util.Date;
 
 public class InsightUtils {
 
-    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+    private static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
     private static final SimpleDateFormat indexFormat = new SimpleDateFormat("yyyy.MM.dd");
 
     public static String getIndex(String index, long timestamp) {
