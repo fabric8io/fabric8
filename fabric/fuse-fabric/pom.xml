@@ -150,14 +150,6 @@
                <version>${jolokia-version}</version>
            </dependency>
 
-           <!-- for hawtio -->
-           <dependency>
-             <groupId>io.hawt</groupId>
-             <artifactId>hawtio-web</artifactId>
-             <version>${hawtio-version}</version>
-             <type>war</type>
-           </dependency>
-
          <!-- these are copied to the lib folder -->
         <dependency>
             <groupId>org.apache.xerces</groupId>
