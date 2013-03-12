@@ -36,10 +36,12 @@ import java.util.regex.Pattern;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.tracker.NodeEvent;
 import org.linkedin.zookeeper.tracker.NodeEventsListener;
@@ -324,6 +326,8 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                     if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
                         zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name), "${zk:" + name + "/" + resolutionPolicy + "}");
                     }
+                    //Update the rmi.server.hostname
+                    System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, ZooKeeperUtils.getSubstitutedData(zooKeeper, zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name))));
                 }
 
                 if (!this.version.equals(version)) {
