@@ -74,31 +74,29 @@ public class FabricServiceImpl implements FabricService {
     private ConfigurationAdmin configurationAdmin;
     private String profile = ZkDefs.DEFAULT_PROFILE;
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
+    private final HealthCheck healthCheck = new HealthCheck(this);
+    private final FabricManager managerMBean = new FabricManager(this);
     private MBeanServer mbeanServer;
-    private HealthCheck healthCheck = new HealthCheck(this);
-    private FabricManager managerMBean = new FabricManager(this);
 
     public FabricServiceImpl() {
         providers = new ConcurrentHashMap<String, ContainerProvider>();
         providers.put("child", new ChildContainerProvider(this));
     }
 
-    public void init() {
-        MBeanServer server = getMbeanServer();
-        if (server != null) {
-            healthCheck.registerMBeanServer(server);
-            managerMBean.registerMBeanServer(server);
+    public void bindMBeanServer(MBeanServer mbeanServer) {
+        unbindMBeanServer(this.mbeanServer);
+        this.mbeanServer = mbeanServer;
+        if (mbeanServer != null) {
+            healthCheck.registerMBeanServer(this.mbeanServer);
+            managerMBean.registerMBeanServer(this.mbeanServer);
         }
     }
 
-    public void destroy() {
+    public void unbindMBeanServer(MBeanServer mbeanServer) {
         if (mbeanServer != null) {
-            if (managerMBean != null) {
-                managerMBean.unregisterMBeanServer(mbeanServer);
-            }
-            if (healthCheck != null) {
-                healthCheck.unregisterMBeanServer(mbeanServer);
-            }
+            managerMBean.unregisterMBeanServer(mbeanServer);
+            healthCheck.unregisterMBeanServer(mbeanServer);
+            this.mbeanServer = null;
         }
     }
 
@@ -110,32 +108,12 @@ public class FabricServiceImpl implements FabricService {
         this.zooKeeper = zooKeeper;
     }
 
-    public MBeanServer getMbeanServer() {
-        if (mbeanServer == null) {
-            // default to platform mbean server
-            mbeanServer = ManagementFactory.getPlatformMBeanServer();
-        }
-        return mbeanServer;
-    }
-
-    public void setMbeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer = mbeanServer;
-    }
-
     public HealthCheck getHealthCheck() {
         return healthCheck;
     }
 
-    public void setHealthCheck(HealthCheck healthCheck) {
-        this.healthCheck = healthCheck;
-    }
-
     public FabricManager getManagerMBean() {
         return managerMBean;
-    }
-
-    public void setManagerMBean(FabricManager managerMBean) {
-        this.managerMBean = managerMBean;
     }
 
     public String getDefaultRepo() {

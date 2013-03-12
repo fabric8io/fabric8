@@ -20,14 +20,16 @@
 
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" />
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-    <reference id="mbeanServer" interface="javax.management.MBeanServer"/>
+
+    <reference id="mbeanServer" interface="javax.management.MBeanServer">
+        <reference-listener ref="fabricService" bind-method="bindMBeanServer" unbind-method="unbindMBeanServer" />
+    </reference>
 
 
-    <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl" init-method="init" destroy-method="destroy">
+    <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl">
         <cm:managed-properties persistent-id="org.fusesource.fabric.service" update-strategy="container-managed"/>
         <property name="zooKeeper" ref="zooKeeper"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
-        <property name="mbeanServer" ref="mbeanServer"/>
     </bean>
 
     <reference-list interface="org.fusesource.fabric.api.ContainerProvider" availability="optional">
