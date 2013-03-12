@@ -50,14 +50,14 @@ To display the log using the remote console, type:
 [Linux/Unix]
     ./bin/client -u <Username> -p <Password> log:display
 [Windows]
-    ./bin/client.bat -u <Username> -p <Password> log:display
+    .\bin\client.bat -u <Username> -p <Password> log:display
 
 To display the current broker statistics using the remote console, type:
    
 [Linux/Unix]
     ./bin/client -u <Username> -p <Password> activemq:bstat
 [Windows]
-    ./bin/client.bat -u <Username> -p <Password> activemq:bstat
+    .\bin\client.bat -u <Username> -p <Password> activemq:bstat
 
 To validate the installation with a simple JMS producer and consumer, type:
 
