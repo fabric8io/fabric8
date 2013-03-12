@@ -1,0 +1,11 @@
+{ 
+    "host": @{toJson(result.server.name)}, 
+    "timestamp": @{toJson(result.timestamp)} 
+    @foreach{r : result.results.keySet()}, 
+        "@{r}": { 
+            @foreach{e : result.results[r].results[0].attrs.entrySet()} 
+                "@{e.key}": @{toJson(e.value)} 
+            @end{', '} 
+        } 
+    @end{} 
+}

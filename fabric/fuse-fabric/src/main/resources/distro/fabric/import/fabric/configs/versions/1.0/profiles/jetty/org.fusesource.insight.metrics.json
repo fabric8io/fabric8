@@ -1,6 +1,7 @@
 {
   "queries" : [ {
     "name" : "jetty",
+	"url": "zk:/fabric/metrics/jetty.mvel",
     "requests" : [ {
       "name": "requests",
       "obj" : "org.eclipse.jetty.server.handler:type=statisticshandler,id=0",
@@ -23,7 +24,6 @@
 		"connectionsOpen", "connectionsOpenMax", 
 		"connectionsRequestsMax", "connectionsRequestsMean", "connectionsRequestsStdDev"
  	  ]
-    } ],
-    "template": "{ \"host\": @{toJson(result.server.name)}, \"timestamp\": @{toJson(result.timestamp)} @foreach{r : result.results.keySet()}, \"@{r}\": { @foreach{e : result.results[r].results[0].attrs.entrySet()} \"@{e.key}\": @{toJson(e.value)} @end{', '} } @end{} }"
+    } ]
   } ]
 }

@@ -1,0 +1,13 @@
+@if{result.results['peer'].results.size() > 0}
+{
+    "host": "${result.server.name}",
+    "timestamp": @{toJson(result.timestamp)},
+    "type": "${result.results['peer'].results[0].objectName.getKeyProperty('name2')}"
+    @foreach{e : result.results['peer'].results[0].attrs.entrySet()}
+        , "${e.key}": ${toJson(e.value)}
+    @end{}
+    @foreach{e : result.results['tree'].results[0].attrs.entrySet()}
+        , "${e.key}": ${toJson(e.value)}
+    @end{}
+}
+@end{}

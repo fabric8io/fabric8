@@ -1,6 +1,7 @@
 {
   "queries" : [ {
     "name" : "jvm",
+	"url": "zk:/fabric/metrics/jvm.mvel",
     "requests" : [ {
       "name": "memory",
       "obj" : "java.lang:type=Memory",
@@ -28,6 +29,7 @@
     } ]
   }, {
     "name": "zookeeper",
+	"url": "zk:/fabric/metrics/zookeeper.mvel",
     "requests": [ {
       "name": "peer",
       "obj" : "org.apache.zookeeper:name0=*,name1=*,name2=*",
@@ -36,7 +38,6 @@
       "name": "tree",
       "obj" : "org.apache.zookeeper:name3=InMemoryDataTree,*",
       "attrs": [ "NodeCount", "WatchCount" ]
-    } ],
-    "template": "@if{result.results['peer'].results.size() > 0}{ \"host\": \"${result.server.name}\", \"timestamp\": @{toJson(result.timestamp)}, \"type\": \"${result.results['peer'].results[0].objectName.getKeyProperty('name2')}\" @foreach{e : result.results['peer'].results[0].attrs.entrySet()}, \"${e.key}\": ${toJson(e.value)} @end{} @foreach{e : result.results['tree'].results[0].attrs.entrySet()}, \"${e.key}\": ${toJson(e.value)} @end{} }@end{}"
+    } ]
   } ]
 }
