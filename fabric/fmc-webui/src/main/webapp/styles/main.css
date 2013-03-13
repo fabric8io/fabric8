@@ -211,7 +211,8 @@ tr:hover td div.hovered  {
 .hover {
   visibility:hidden
 }
-hovered:hover {
+
+.hovered:hover {
   visibility: visible;
 }
 
@@ -441,8 +442,9 @@ table tbody tr.selected:first-child td {
     margin-left: auto;
     min-height: 100%;
 }
+
 #header {
-    background-image: url("../img/header.png");
+    background-image: url("../img/header-check.png");
     padding: 20px 20px 8px 20px;
     border-bottom: 1px solid #000000;
     box-shadow: 0 3px 0 0 #4E9FDD;

@@ -436,7 +436,7 @@ table tbody tr.selected:first-child td {
     margin-left: auto;
 }
 #header {
-    background-image: url("../images/header.png");
+    background-image: url("../images/header-check.png");
     padding: 20px 20px 8px 20px;
     border-bottom: 1px solid #000000;
     box-shadow: 0 3px 0 0 #4E9FDD;
@@ -461,11 +461,20 @@ table tbody tr.selected:first-child td {
 	clear: right;
 }
 
+#productname .company {
+  font-size: 14px;
+  display: block;
+}
+
 #productname {
     float: right;
     font-size: 20px;
     color: white;
-    padding-top: 8px;
+    padding-top: 0px;
+}
+
+#productname sub {
+  font-size: 8px;
 }
 
 #flash_container {

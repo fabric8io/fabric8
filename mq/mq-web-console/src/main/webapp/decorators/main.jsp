@@ -49,7 +49,8 @@
           <img src="images/logo.png" alt="Red Hat">
         </div>
         <div id="productname">
-          JBoss A-MQ
+          <span class="company">Red Hat<sub>&reg;</sub></span>
+          JBoss<sub>&reg;</sub> A-MQ
         </div>
         <div id="topbar_nav_container">
         </div>
