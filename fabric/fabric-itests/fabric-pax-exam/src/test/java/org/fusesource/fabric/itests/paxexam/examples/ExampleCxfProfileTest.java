@@ -41,7 +41,6 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
         destroyChildContainer("cxf-server");
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));

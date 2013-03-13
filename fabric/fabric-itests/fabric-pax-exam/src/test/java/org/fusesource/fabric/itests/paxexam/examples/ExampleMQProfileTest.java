@@ -40,15 +40,14 @@ public class ExampleMQProfileTest extends FabricTestSupport {
         destroyChildContainer("broker1");
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("broker1", "root", "mq");
         createAndAssertChildContainer("mq1", "root", "example-mq");
         System.err.println(executeCommand("fabric:cluster-list"));
-        System.err.println(executeCommand("fabric:container-connect broker1 activemq:bstat"));
-        String output = executeCommand("fabric:container-connect broker1 activemq:query -QQueue=FABRIC.DEMO");
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin broker1 activemq:bstat"));
+        String output = executeCommand("fabric:container-connect -u admin -p admin broker1 activemq:query -QQueue=FABRIC.DEMO");
         Assert.assertTrue(output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0"));
     }
 

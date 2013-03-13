@@ -40,7 +40,6 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
         destroyChildContainer("broker1");
     }
 
-    @Ignore // JIRA ESB-1687
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
@@ -48,7 +47,7 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
         createAndAssertChildContainer("camel1", "root", "example-camel");
         System.err.println(executeCommand("fabric:cluster-list"));
         Thread.sleep(5000);
-        String output = executeCommand("fabric:container-connect camel1 camel:route-info route2");
+        String output = executeCommand("fabric:container-connect -u admin -p admin camel1 camel:route-info route2");
         System.err.println(output);
         Assert.assertTrue("Expected at least 1 completed exchange.",output.contains("Exchanges Completed: ") && !output.contains("Exchanges Completed: 0"));
     }
