@@ -20,6 +20,7 @@ import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -46,6 +47,7 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
 
 
     @Test
+    @Ignore
     public void testExample() throws Exception {
 		String version = System.getProperty("fabric.version");
         System.err.println(executeCommand("fabric:create -n"));

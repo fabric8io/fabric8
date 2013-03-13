@@ -42,6 +42,7 @@ public class ExampleCxfProfileTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         createAndAssertChildContainer("cxf-server", "root", "example-cxf");
