@@ -44,7 +44,7 @@ public final class ZooKeeperUtils {
     public static void copy(IZKClient source, IZKClient dest, String path) throws InterruptedException, KeeperException {
         for (String child : ZookeeperCommandBuilder.getChildren(path).execute(source)) {
             child = path + "/" + child;
-            if (ZookeeperCommandBuilder.exists(child).execute(dest) == null) {
+            if (exists(dest, child) == null) {
                 byte[] data  = ZookeeperCommandBuilder.getData(child).execute(source);
                 ZookeeperCommandBuilder.set(child, data).execute(dest);
                 copy(source, dest, child);
@@ -56,8 +56,8 @@ public final class ZooKeeperUtils {
         for (String child : ZookeeperCommandBuilder.getChildren(from).execute(zk)) {
             String fromChild = from + "/" + child;
             String toChild = to + "/" + child;
-            if (zk.exists(toChild) == null) {
-                byte[] data  = ZookeeperCommandBuilder.getData(from).execute(zk);
+            if (exists(zk, toChild) == null) {
+                byte[] data  = ZookeeperCommandBuilder.getData(fromChild).execute(zk);
                 ZookeeperCommandBuilder.set(toChild, data).execute(zk);
                 copy(zk, fromChild, toChild);
             }
@@ -65,7 +65,7 @@ public final class ZooKeeperUtils {
     }
 
     public static void add(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        if (ZookeeperCommandBuilder.exists(path).execute(zooKeeper) == null) {
+        if (exists(zooKeeper, path) == null) {
             ZookeeperCommandBuilder.set(path, value).execute(zooKeeper);
         } else {
             String data = ZookeeperCommandBuilder.getStringData(path).execute(zooKeeper);
@@ -81,7 +81,7 @@ public final class ZooKeeperUtils {
     }
 
     public static void remove(IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
-        if (zooKeeper.exists(path) != null) {
+        if (exists(zooKeeper, path) != null) {
             List<String> parts = new LinkedList<String>();
             String data = zooKeeper.getStringData( path );
             if (data != null) {
@@ -118,7 +118,7 @@ public final class ZooKeeperUtils {
     }
 
     public static void set(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
-        if(ZookeeperCommandBuilder.exists(path).execute(zooKeeper) != null) {
+        if(exists(zooKeeper, path) != null) {
             ZookeeperCommandBuilder.set(path, value).execute(zooKeeper);
         }
         try {
@@ -134,7 +134,7 @@ public final class ZooKeeperUtils {
     }
 
     public static void createDefault(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        if (ZookeeperCommandBuilder.exists(path).execute(zooKeeper) == null) {
+        if (exists(zooKeeper, path) == null) {
             ZookeeperCommandBuilder.set(path, value).execute(zooKeeper);
         }
     }
@@ -176,7 +176,7 @@ public final class ZooKeeperUtils {
 
     public static String getSubstitutedPath(final IZKClient zooKeeper, String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
         String normalizedPath = path != null && path.contains("#") ? path.substring(0,path.lastIndexOf('#')) : path;
-        if (normalizedPath != null && ZookeeperCommandBuilder.exists(normalizedPath).execute(zooKeeper) != null) {
+        if (normalizedPath != null && exists(zooKeeper, normalizedPath) != null) {
             byte[] data = ZookeeperCommandBuilder.loadUrl(path).execute(zooKeeper);
             if (data != null && data.length > 0) {
                 String str = new String( ZookeeperCommandBuilder.loadUrl(path).execute(zooKeeper), "UTF-8");

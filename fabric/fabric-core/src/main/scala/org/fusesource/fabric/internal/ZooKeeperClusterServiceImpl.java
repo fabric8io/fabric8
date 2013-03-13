@@ -266,6 +266,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			ZooKeeperUtils.createDefault(client, fabricProfile, "default");
 			p = getProperties(client, fabricProfile + "/org.fusesource.fabric.agent.properties", new Properties());
 			p.put("feature.fabric-commands", "fabric-commands");
+            ZooKeeperUtils.set(client, fabricProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
 			ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
 			String assignedProfile = System.getProperty(SystemProperties.PROFILE);
@@ -431,7 +432,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String version = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
 
             for (String container : containers) {
-                if (ZookeeperCommandBuilder.exists(ZkPath.CONTAINER_ALIVE.getPath(container)).execute(zooKeeper) == null) {
+                if (ZooKeeperUtils.exists(zooKeeper, ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
                     throw new FabricException("The container " + container + " is not alive");
                 }
             }
@@ -589,7 +590,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    public static void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException, TimeoutException {
+    public static void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));

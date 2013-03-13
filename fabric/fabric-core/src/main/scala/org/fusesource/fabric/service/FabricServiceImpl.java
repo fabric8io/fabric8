@@ -491,8 +491,8 @@ public class FabricServiceImpl implements FabricService {
     public Version getDefaultVersion() {
         try {
             String version = null;
-            if (zooKeeper.exists(ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
-                version = zooKeeper.getStringData(ZkPath.CONFIG_DEFAULT_VERSION.getPath());
+            if (ZooKeeperUtils.exists(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
+                version = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
             }
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
