@@ -151,9 +151,13 @@ define [
         control: @name
         controller: @
         validator: (text) =>
+          regex = /^[a-zA-Z0-9_-]*$/
           if !text || text == ""
             ok: false,
             msg: "You must specify a profile name"
+          else if !regex.test(text)
+            ok: false
+            msg: "Name can only contain letters, numbers, \u201c-\u201d, and \u201c_\u201d"
           else if @compare(text)
             ok: false,
             msg: "Profile names must be unique"
