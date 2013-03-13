@@ -74,7 +74,7 @@ public class ZookeeperImportUtils {
                     if (verbose) {
                         System.out.println("importing: " + key);
                     }
-                    zooKeeper.createOrSetWithParents(key, data, CreateMode.PERSISTENT);
+                    ZookeeperCommandBuilder.set(key,data).execute(zooKeeper);
                 }
             } else {
                 System.out.printf("Creating path \"%s\" with value \"%s\"\n", key, data);
@@ -108,7 +108,7 @@ public class ZookeeperImportUtils {
                     continue;
                 }
                 if (!dryRun) {
-                    zooKeeper.createOrSetWithParents(name, value, CreateMode.PERSISTENT);
+                    ZookeeperCommandBuilder.set(name, value).execute(zooKeeper);
                 } else {
                     System.out.printf("Creating path \"%s\" with value \"%s\"\n", name, value);
                 }
@@ -169,13 +169,13 @@ public class ZookeeperImportUtils {
     }
 
     private static void deletePathsNotIn(IZKClient zookeeper, List<String> paths, String target, boolean dryRun) throws Exception {
-        List<String> zkPaths = zookeeper.getAllChildren(target);
+        List<String> zkPaths = ZookeeperCommandBuilder.getChildren(target).execute(zookeeper);
 
         for (String path : zkPaths) {
             path = "/" + path;
             if (!paths.contains(path)) {
                 if (!dryRun) {
-                    zookeeper.deleteWithChildren(path);
+                    ZookeeperCommandBuilder.delete(path).execute(zookeeper);
                 } else {
                     System.out.printf("Deleting path %s and everything under it\n", path);
                 }

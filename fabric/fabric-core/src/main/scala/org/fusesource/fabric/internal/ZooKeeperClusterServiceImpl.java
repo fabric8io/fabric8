@@ -30,6 +30,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +49,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperCommandBuilder;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.util.clock.Timespan;
 import org.osgi.framework.Bundle;
@@ -259,11 +261,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			ZooKeeperUtils.set(client, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
 			ZooKeeperUtils.set(client, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), karafName);
 
+
 			String fabricProfile = ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "fabric");
 			ZooKeeperUtils.createDefault(client, fabricProfile, "default");
 			p = getProperties(client, fabricProfile + "/org.fusesource.fabric.agent.properties", new Properties());
 			p.put("feature.fabric-commands", "fabric-commands");
-			ZooKeeperUtils.set(client, fabricProfile + "/org.fusesource.fabric.agent.properties", toString(p));
 
 			ZooKeeperUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
 			String assignedProfile = System.getProperty(SystemProperties.PROFILE);
@@ -280,7 +282,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			addUsersToZookeeper(client, options.getUsers());
 
 			// Fix acls
-			client.fixACLs("/", true);
+            ZookeeperCommandBuilder.fixAcls("/", true).execute(client);
 
 			// Reset the autostart flag
 			if (ensembleAutoStart) {
@@ -370,15 +372,14 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 	public List<String> getEnsembleContainers() {
 		try {
-			String version = zooKeeper.getStringData(ZkPath.CONFIG_DEFAULT_VERSION.getPath());
 			Configuration[] configs = configurationAdmin.listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
 			if (configs == null || configs.length == 0) {
 				return Collections.emptyList();
 			}
 			List<String> list = new ArrayList<String>();
 			if (zooKeeper.exists(ZkPath.CONFIG_ENSEMBLES.getPath()) != null) {
-				String clusterId = zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLES.getPath());
-				String containers = zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
+				String clusterId = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_ENSEMBLES.getPath());
+				String containers = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
 				Collections.addAll(list, containers.split(","));
 			}
 			return list;
@@ -427,10 +428,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 return;
             }
 
-            String version = zooKeeper.getStringData(ZkPath.CONFIG_DEFAULT_VERSION.getPath());
+            String version = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
 
             for (String container : containers) {
-                if (zooKeeper.exists(ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
+                if (ZookeeperCommandBuilder.exists(ZkPath.CONTAINER_ALIVE.getPath(container)).execute(zooKeeper) == null) {
                     throw new FabricException("The container " + container + " is not alive");
                 }
             }
@@ -439,7 +440,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			Map<String, List<Integer>> usedPorts = new HashMap<String, List<Integer>>();
 			String oldClusterId = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_ENSEMBLES.getPath());
 			if (oldClusterId != null) {
-				Properties p = toProperties(zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLE_PROFILE.getPath("fabric-ensemble-" + oldClusterId) + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + ".properties"));
+				Properties p = toProperties(ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_ENSEMBLE_PROFILE.getPath("fabric-ensemble-" + oldClusterId) + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + ".properties"));
 				for (Object n : p.keySet()) {
 					String node = (String) n;
 					if (node.startsWith("server.")) {
@@ -533,10 +534,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 					//Make sure that the alive zndoe is deleted for each container.
 					for (String container : containers) {
-						String alivePath = "/fabric/registry/containers/alive/" + container;
-						if (dst.exists(alivePath) != null) {
-							dst.deleteWithChildren(alivePath);
-						}
+                        ZookeeperCommandBuilder.delete("/fabric/registry/containers/alive/" + container).execute(dst);
 					}
 
 					ZooKeeperUtils.set(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
@@ -591,7 +589,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
     }
 
-    public static void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException {
+    public static void setConfigProperty(IZKClient client, String file, String prop, String value) throws InterruptedException, KeeperException, IOException, TimeoutException {
         Properties p = getProperties(client, file, new Properties());
         p.setProperty(prop, value);
         ZooKeeperUtils.set(client, file, toString(p));
@@ -676,7 +674,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
      * @throws KeeperException
      * @throws InterruptedException
      */
-    private void addUsersToZookeeper(IZKClient zookeeper, Map<String, String> users) throws KeeperException, InterruptedException {
+    private void addUsersToZookeeper(IZKClient zookeeper, Map<String, String> users) throws KeeperException, InterruptedException, TimeoutException {
         Pattern p = Pattern.compile("(.+),(.+)");
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("encryption.prefix", "{CRYPT}");

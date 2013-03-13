@@ -42,6 +42,7 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperCommandBuilder;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.linkedin.zookeeper.tracker.NodeEvent;
 import org.linkedin.zookeeper.tracker.NodeEventsListener;
@@ -97,22 +98,22 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
             try {
                 // Find our root node
                 String versionNode = ZkPath.CONFIG_CONTAINER.getPath(name);
-                if (zooKeeper.exists(versionNode) == null) {
+                if (ZooKeeperUtils.exists(zooKeeper, versionNode) == null) {
                     ZkPath.createContainerPaths(zooKeeper, name, null, "fabric");
                 }
-                version = zooKeeper.getStringData(versionNode);
+                version = ZooKeeperUtils.get(zooKeeper, versionNode);
                 if (version == null) {
                     throw new IllegalStateException("Configuration for node " + name + " not found at " + ZkPath.CONFIG_CONTAINER.getPath(name));
                 }
                 track(versionNode);
                 node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, name);
-                if (zooKeeper.exists(node) == null) {
-                    zooKeeper.createWithParents(node, CreateMode.PERSISTENT);
+                if (ZooKeeperUtils.exists(zooKeeper, node) == null) {
+                    ZooKeeperUtils.create(zooKeeper, node);
                 }
                 track(node);
 				ensemble = ZkPath.CONFIG_ENSEMBLES.getPath();
-				if (zooKeeper.exists(ensemble) == null) {
-					zooKeeper.createWithParents(ensemble, CreateMode.PERSISTENT);
+				if (ZooKeeperUtils.exists(zooKeeper, ensemble) == null) {
+					ZooKeeperUtils.create(zooKeeper, ensemble);
 				}
                 resolutionPolicy = ZkPath.CONTAINER_RESOLVER.getPath(name);
                 track(resolutionPolicy);
@@ -131,7 +132,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
     protected ZooKeeperTreeTracker<String> track(String path) throws InterruptedException, KeeperException, IOException {
         ZooKeeperTreeTracker<String> tree = trees.get(path);
         if (tree == null) {
-            if (zooKeeper.exists(path) != null) {
+            if (ZooKeeperUtils.exists(zooKeeper, path) != null) {
                 tree = new ZooKeeperTreeTracker<String>(zooKeeper, new ZKStringDataReader(), path);
                 trees.put(path, tree);
                 tree.track(this);
@@ -189,7 +190,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
                 public String getValue(String key) {
                     if (key.startsWith("zk:")) {
                         try {
-                            return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                            return new String(ZookeeperCommandBuilder.loadUrl(key).execute(zooKeeper), "UTF-8");
                         } catch (KeeperException.ConnectionLossException e) {
                             throw new RuntimeException(e);
                         } catch (Exception e) {
@@ -318,16 +319,16 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
         LOGGER.trace("onEvents", nodeEvents);
         try {
             if (!tracking) {
-                String version = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(name));
+                String version = ZooKeeperUtils.get(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(name));
 
-                if (zooKeeper.exists(ZkPath.CONTAINER_IP.getPath(name)) != null) {
-                    String resolutionPointer = zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name));
-                    resolutionPolicy = zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(name));
+                if (ZooKeeperUtils.exists(zooKeeper, ZkPath.CONTAINER_IP.getPath(name)) != null) {
+                    String resolutionPointer = ZooKeeperUtils.get(zooKeeper, ZkPath.CONTAINER_IP.getPath(name));
+                    resolutionPolicy = ZooKeeperUtils.get(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(name));
                     if (resolutionPointer == null || !resolutionPointer.contains(resolutionPolicy)) {
-                        zooKeeper.setData(ZkPath.CONTAINER_IP.getPath(name), "${zk:" + name + "/" + resolutionPolicy + "}");
+                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_IP.getPath(name), "${zk:" + name + "/" + resolutionPolicy + "}");
                     }
                     //Update the rmi.server.hostname
-                    System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, ZooKeeperUtils.getSubstitutedData(zooKeeper, zooKeeper.getStringData(ZkPath.CONTAINER_IP.getPath(name))));
+                    System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, ZooKeeperUtils.getSubstitutedData(zooKeeper, ZooKeeperUtils.get(zooKeeper, ZkPath.CONTAINER_IP.getPath(name))));
                 }
 
                 if (!this.version.equals(version)) {
