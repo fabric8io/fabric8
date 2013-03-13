@@ -99,6 +99,9 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
     public ZkContents read(String path) throws KeeperException, InterruptedException {
         IZKClient zk = getZooKeeper();
         Stat exists = zk.exists(path);
+        if (exists == null) {
+            return null;
+        }
         int numChildren = exists.getNumChildren();
         List<String> children = null;
         if (numChildren > 0) {
