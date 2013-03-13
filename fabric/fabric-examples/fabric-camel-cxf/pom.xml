@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>org.fusesource.fabric</groupId>
 		<artifactId>fabric-examples</artifactId>
-		<version>7.2.0.redhat-SNAPSHOT</version>
+		<version>99-master-SNAPSHOT</version>
 		<relativePath>..</relativePath>
 	</parent>
 
