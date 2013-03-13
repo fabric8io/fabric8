@@ -224,6 +224,10 @@ public class Logs {
 
     private static String getMavenCoordinates(long bundleId) {
         Bundle m_bundle = FrameworkUtil.getBundle(Logs.class).getBundleContext().getBundle(bundleId);
+        if (m_bundle == null) {
+            // Not sure why can't we find the bundleId?
+            return null;
+        }
         String id = Long.toString(m_bundle.getBundleId()) + ":" + Long.toString(m_bundle.getLastModified());
         String maven = MAVEN_COORDINATES.get(id);
         if (maven == null) {
