@@ -43,6 +43,7 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.HealthCheck;
+import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
@@ -76,6 +77,7 @@ public class FabricServiceImpl implements FabricService {
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
     private final HealthCheck healthCheck = new HealthCheck(this);
     private final FabricManager managerMBean = new FabricManager(this);
+    private final ZooKeeperFacade zooKeeperMBean = new ZooKeeperFacade(this);
     private MBeanServer mbeanServer;
 
     public FabricServiceImpl() {
@@ -89,11 +91,13 @@ public class FabricServiceImpl implements FabricService {
         if (mbeanServer != null) {
             healthCheck.registerMBeanServer(this.mbeanServer);
             managerMBean.registerMBeanServer(this.mbeanServer);
+            zooKeeperMBean.registerMBeanServer(this.mbeanServer);
         }
     }
 
     public void unbindMBeanServer(MBeanServer mbeanServer) {
         if (mbeanServer != null) {
+            zooKeeperMBean.unregisterMBeanServer(mbeanServer);
             managerMBean.unregisterMBeanServer(mbeanServer);
             healthCheck.unregisterMBeanServer(mbeanServer);
             this.mbeanServer = null;
