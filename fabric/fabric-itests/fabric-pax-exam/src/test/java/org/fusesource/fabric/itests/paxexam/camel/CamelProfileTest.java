@@ -29,9 +29,7 @@ public class CamelProfileTest extends FabricFeaturesTest {
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
-        for (Container container : containers) {
-            assertProvisionedFeature(container.getId(), "camel-hazelcast", "camel", "camel-hazelcast");
-        }
+        assertProvisionedFeature(containers, "camel-hazelcast", "camel", "camel-hazelcast");
     }
 
     @Configuration

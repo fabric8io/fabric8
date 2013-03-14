@@ -181,6 +181,17 @@ public class FabricTestSupport extends FuseTestSupport {
      * @throws Exception
      */
     public boolean containerSetProfile(String containerName, String profileName) throws Exception {
+        return containerSetProfile(containerName, profileName, true);
+    }
+
+    /**
+     * Cleans a containers profile by switching to default profile and reseting the profile.
+     *
+     * @param containerName
+     * @param profileName
+     * @throws Exception
+     */
+    public boolean containerSetProfile(String containerName, String profileName, Boolean waitForProvision) throws Exception {
         System.out.println("Switching profile: " + profileName + " on container:" + containerName);
         FabricService fabricService = getFabricService();
 
@@ -203,7 +214,7 @@ public class FabricTestSupport extends FuseTestSupport {
             }
         }
 
-        if (!same) {
+        if (!same && waitForProvision) {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
             ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);

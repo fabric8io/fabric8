@@ -18,8 +18,11 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import junit.framework.Assert;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -29,6 +32,8 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Set;
+
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
@@ -36,37 +41,58 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class CreateChildContainerTest extends FabricTestSupport {
 
+    @After
+    public void tearDown() throws InterruptedException {
+        ContainerBuilder.destroy();
+    }
+
     @Test
     public void testLocalChildCreation() throws Exception {
-         System.err.println(executeCommand("fabric:create -n"));
-         try {
-         createAndAssertChildContainer("child1", "root", "default");
-         } finally {
-             destroyChildContainer("child1");
-         }
+        System.err.println(executeCommand("fabric:create -n"));
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
     }
 
     /**
      * This is a test for: http://fusesource.com/issues/browse/FABRIC-370
+     *
      * @throws Exception
      */
     @Test
     public void testContainerDelete() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        createAndAssertChildContainer("child1", "root", "default");
         System.err.println(executeCommand("fabric:version-create"));
-        destroyChildContainer("child1");
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
         IZKClient zooKeeper = getOsgiService(IZKClient.class);
-        Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", "child1")));
-        Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", "child1")));
-        Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER.getPath("child1")));
-        Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_DOMAINS.getPath("child1")));
-        Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_PROVISION.getPath("child1")));
+        for (Container c : containers) {
+            try {
+                c.destroy();
+                Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
+                Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
+                Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER.getPath(c.getId())));
+                Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
+                Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
+            } catch (Exception ex) {
+                //ignore
+            }
+        }
+    }
+
+    /**
+     * http://fusesource.com/issues/browse/FABRIC-351
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testContainerWithJvmOpts() throws Exception {
+        System.err.println(executeCommand("fabric:create -n"));
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").
+                withJvmOpts("-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008")
+                .assertProvisioningResult().build();
     }
 
     @Configuration
     public Option[] config() {
-        return new Option[] {
+        return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 //debugConfiguration("5005",false)
         };

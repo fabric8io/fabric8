@@ -17,22 +17,23 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
+
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*;
 
 /**
@@ -40,7 +41,8 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*
  */
 public abstract class FabricFeaturesTest extends FabricTestSupport {
 
-    private Map<String, String[]> featureArguments = new LinkedHashMap<String, String[]>();
+    private final Map<String, String[]> featureArguments = new LinkedHashMap<String, String[]>();
+    private final Set<Container> targetContainers = new HashSet<Container>();
 
     @After
     public void tearDown() throws InterruptedException {
@@ -54,33 +56,68 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      * @param profileName
      * @param expectedSymbolicNames
      */
-    public void assertProvisionedFeature(String containerName, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
-        System.out.println("Testing profile:"+profileName+" on container:"+containerName+" by adding feature:"+featureNames);
+    public void assertProvisionedFeature(Set<Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
+        IZKClient zooKeeper = getZookeeper();
+        StringBuilder sb = new StringBuilder();
+        sb.append("[ ");
+        for (Container container : containers) {
+            sb.append(container.getId()).append(" ");
+        }
+        sb.append("]");
+
+        System.out.println("Testing profile:" + profileName + " on container:" + sb.toString() + " by adding feature:" + featureNames);
         FabricService fabricService = getFabricService();
-        //We set container to default to clean the container up.
-        containerSetProfile(containerName, "default");
-        Container container = fabricService.getContainer(containerName);
-        Version version = container.getVersion();
+        Version version = fabricService.getDefaultVersion();
+
+        Profile defaultProfile = fabricService.getProfile(version.getName(), "default");
         Profile targetProfile = fabricService.getProfile(version.getName(), profileName);
-        List<String> originalFeatures = targetProfile.getFeatures();
-        List<String> testFeatures = new ArrayList(originalFeatures.size());
-        Collections.copy(originalFeatures,testFeatures);
+
+        for (Container container : containers) {
+            //We set container to default to clean the container up.
+            container.setProfiles(new Profile[]{defaultProfile});
+        }
+        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+
         for (String featureName : featureNames.split(" ")) {
-            testFeatures.add(featureNames);
+            System.out.println(executeCommand("fabric:profile-edit --features "+featureName+" "+targetProfile.getId()));
         }
 
-        targetProfile.setFeatures(testFeatures);
-        //Test the modified profile.
-        containerSetProfile(containerName, profileName);
-        for (String symbolicName : expectedSymbolicNames.split(" ")) {
-            String bundles = executeCommand("container-connect -u admin -p admin " + containerName + " osgi:list -s -t 0 | grep " + symbolicName);
-            Assert.assertNotNull(bundles);
-            Assert.assertTrue(bundles.contains(symbolicName));
-            System.out.println(bundles);
+        for (Container container : containers) {
+            //Test the modified profile.
+            if (!defaultProfile.configurationEquals(targetProfile)) {
+                ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+            }
+            container.setProfiles(new Profile[]{targetProfile});
+            //containerSetProfile(container.getId(), profileName, false);
         }
-        //We set the container to default to clean up the profile.
-        containerSetProfile(containerName, "default");
-        targetProfile.setFeatures(originalFeatures);
+
+        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+        System.out.println(executeCommand("fabric:profile-display "+ profileName));
+        System.out.println(executeCommand("fabric:container-list"));
+
+        for (Container container : containers) {
+            for (String symbolicName : expectedSymbolicNames.split(" ")) {
+                System.out.println( executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0"));
+                String bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s -t 0 | grep " + symbolicName);
+                System.out.flush();
+                Assert.assertNotNull(bundles);
+                Assert.assertTrue("Expected to find symbolic name:" + symbolicName, bundles.contains(symbolicName));
+                System.out.println(bundles);
+            }
+        }
+
+        for (Container container : containers) {
+            //We set the container to default to clean up the profile.
+            if (!defaultProfile.configurationEquals(targetProfile)) {
+                ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+            }
+            container.setProfiles(new Profile[]{defaultProfile});
+        }
+
+        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+        for (String featureName : featureNames.split(" ")) {
+            System.out.println(executeCommand("fabric:profile-edit --delete --features "+featureName+" "+targetProfile.getId()));
+        }
     }
 
     @Test
@@ -88,14 +125,14 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         String feature = System.getProperty("feature");
         if (feature != null && !feature.isEmpty() && featureArguments.containsKey(feature)) {
             String[] arguments = featureArguments.get(feature);
-            Assert.assertEquals("Feature "+feature+" should have been prepared with 4 arguments", 4, arguments.length);
-            assertProvisionedFeature(arguments[0],arguments[1],arguments[2],arguments[3]);
+            Assert.assertEquals("Feature " + feature + " should have been prepared with 4 arguments", 3, arguments.length);
+            assertProvisionedFeature(targetContainers, arguments[0], arguments[1], arguments[2]);
         } else {
-            for (Map.Entry<String,String[]> entry : featureArguments.entrySet())  {
+            for (Map.Entry<String, String[]> entry : featureArguments.entrySet()) {
                 feature = entry.getKey();
                 String[] arguments = entry.getValue();
-                Assert.assertEquals("Feature "+feature+" should have been prepared with 4 arguments", 4, arguments.length);
-                assertProvisionedFeature(arguments[0],arguments[1],arguments[2],arguments[3]);
+                Assert.assertEquals("Feature " + feature + " should have been prepared with 4 arguments", 3, arguments.length);
+                assertProvisionedFeature(targetContainers, arguments[0], arguments[1], arguments[2]);
             }
         }
     }
@@ -108,8 +145,9 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      * @param profileName
      * @param expectedSymbolicName
      */
-    public void prepareFeaturesForTesting(String containerName, String featureName, String profileName, String expectedSymbolicName)  {
-        featureArguments.put(featureName, new String[] {containerName,featureName,profileName,expectedSymbolicName});
+    public void prepareFeaturesForTesting(Set<Container> containers, String featureName, String profileName, String expectedSymbolicName) {
+        targetContainers.addAll(containers);
+        featureArguments.put(featureName, new String[]{ featureName, profileName, expectedSymbolicName});
     }
 
     @Configuration
