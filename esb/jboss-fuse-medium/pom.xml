@@ -108,8 +108,7 @@
                                 <feature>fabric-monitor</feature>
                                 <feature>fabric-zeroconf</feature>
                                 <feature>mq-fabric</feature>
-                                <feature>insight-elasticsearch</feature>
-                                <feature>insight-log-elasticsearch</feature>
+                                <feature>insight-log-storage</feature>
                                 <feature>process-manager</feature>
                                 <feature>jolokia</feature>
                             </features>
