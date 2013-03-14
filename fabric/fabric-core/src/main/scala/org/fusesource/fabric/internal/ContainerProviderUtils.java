@@ -59,6 +59,7 @@ public final class ContainerProviderUtils {
     private static final String EXIT_IF_NOT_EXISTS = loadFunction("exit_if_not_exists.sh");
     private static final String COPY_NODE_METADATA = loadFunction("copy_node_metadata.sh");
     private static final String KARAF_CHECK = loadFunction("karaf_check.sh");
+    private static final String KARAF_KILL = loadFunction("karaf_kill.sh");
     private static final String REPLACE_IN_FILE = loadFunction("replace_in_file.sh");
     private static final String CONFIGURE_HOSTNAMES = loadFunction("configure_hostname.sh");
 	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
@@ -235,10 +236,12 @@ public final class ContainerProviderUtils {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(KARAF_KILL).append("\n");
+
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
-        sb.append("run bin/stop").append("\n");
+        sb.append("karaf_kill `pwd`").append("\n");
         return sb.toString();
     }
 
@@ -252,10 +255,11 @@ public final class ContainerProviderUtils {
     public static String buildUninstallScript(CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append(RUN_FUNCTION).append("\n");
+        sb.append(KARAF_KILL).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getName()).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
-        sb.append("run bin/stop").append("\n");
+        sb.append("karaf_kill `pwd`").append("\n");
         sb.append("run cd  ../..").append("\n");
         sb.append("run rm -rf ").append(options.getName()).append("\n");
         return sb.toString();
