@@ -476,6 +476,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			String realConnectionUrl = "";
 			String containerList = "";
 			for (String container : containers) {
+                version =  ZooKeeperRetriableUtils.get(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container));
 				String ip = ZooKeeperRetriableUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_IP.getPath(container));
 
 				String minimumPort = String.valueOf(Ports.MIN_PORT_NUMBER);
@@ -522,7 +523,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 			if (oldClusterId != null) {
 				Properties properties = ZooKeeperRetriableUtils.getProperties(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties");
-				properties.put("zookeeper.url", realConnectionUrl);
+				properties.put("zookeeper.url", ZooKeeperRetriableUtils.getSubstitutedData(zooKeeper, realConnectionUrl));
 				properties.put("zookeeper.password", options.getZookeeperPassword());
 				OsgiZkClient dst = new OsgiZkClient();
 				dst.updated(properties);

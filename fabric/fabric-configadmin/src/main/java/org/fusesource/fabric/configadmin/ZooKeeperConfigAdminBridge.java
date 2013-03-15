@@ -115,6 +115,7 @@ public class ZooKeeperConfigAdminBridge implements NodeEventsListener<String>, L
 				if (ZooKeeperUtils.exists(zooKeeper, ensemble) == null) {
 					ZooKeeperUtils.create(zooKeeper, ensemble);
 				}
+                track(ensemble);
                 resolutionPolicy = ZkPath.CONTAINER_RESOLVER.getPath(name);
                 track(resolutionPolicy);
             } finally {
