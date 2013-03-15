@@ -55,7 +55,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
         String containerType = System.getProperty(CONTAINER_TYPE_PROPERTY, "child");
         int numberOfContainers = Math.max(minimumNumber, Integer.parseInt(System.getProperty(CONTAINER_NUMBER_PROPERTY, "1")));
 
-        if (maximumNumber < numberOfContainers) {
+        if (maximumNumber < numberOfContainers && maximumNumber != 0) {
             numberOfContainers = minimumNumber;
         }
 

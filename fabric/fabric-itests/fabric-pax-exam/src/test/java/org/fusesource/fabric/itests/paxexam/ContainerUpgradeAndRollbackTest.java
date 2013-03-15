@@ -34,7 +34,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      * 1. create a child container
      * 2. create a new version
      * 3. modify the profile of the new version
-     * 4. upgrade all contaienrs
+     * 4. upgrade all containers
      * 5. verify that child is provisioned according to the new version
      * 6. rollback containers.
      * 7. verify that the child is provisioned according to the old version.
