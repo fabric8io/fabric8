@@ -42,6 +42,8 @@ import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.jmx.FabricManager;
+import org.fusesource.fabric.api.jmx.FileSystem;
+import org.fusesource.fabric.api.jmx.FileSystemMBean;
 import org.fusesource.fabric.api.jmx.HealthCheck;
 import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
 import org.fusesource.fabric.internal.ContainerImpl;
@@ -78,6 +80,7 @@ public class FabricServiceImpl implements FabricService {
     private final HealthCheck healthCheck = new HealthCheck(this);
     private final FabricManager managerMBean = new FabricManager(this);
     private final ZooKeeperFacade zooKeeperMBean = new ZooKeeperFacade(this);
+    private final FileSystem fileSystemMBean = new FileSystem();
     private MBeanServer mbeanServer;
 
     public FabricServiceImpl() {
@@ -91,6 +94,7 @@ public class FabricServiceImpl implements FabricService {
         if (mbeanServer != null) {
             healthCheck.registerMBeanServer(this.mbeanServer);
             managerMBean.registerMBeanServer(this.mbeanServer);
+            fileSystemMBean.registerMBeanServer(this.mbeanServer);
             zooKeeperMBean.registerMBeanServer(this.mbeanServer);
         }
     }
@@ -98,6 +102,7 @@ public class FabricServiceImpl implements FabricService {
     public void unbindMBeanServer(MBeanServer mbeanServer) {
         if (mbeanServer != null) {
             zooKeeperMBean.unregisterMBeanServer(mbeanServer);
+            fileSystemMBean.unregisterMBeanServer(mbeanServer);
             managerMBean.unregisterMBeanServer(mbeanServer);
             healthCheck.unregisterMBeanServer(mbeanServer);
             this.mbeanServer = null;
@@ -118,6 +123,10 @@ public class FabricServiceImpl implements FabricService {
 
     public FabricManager getManagerMBean() {
         return managerMBean;
+    }
+
+    public FileSystem getFileSystem() {
+        return fileSystemMBean;
     }
 
     public String getDefaultRepo() {

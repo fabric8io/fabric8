@@ -26,6 +26,16 @@
       "name": "buffer_pools",
       "obj" : "java.nio:type=BufferPool,*",
       "attrs" : [ "Count", "MemoryUsed", "TotalCapacity" ]
+    },
+    {
+      "name": "os",
+      "obj" : "java.lang:type=OperatingSystem",
+      "attrs" : [ "OpenFileDescriptorCount", "MaxFileDescriptorCount", "FreePhysicalMemorySize", "TotalPhysicalMemorySize", "FreeSwapSpaceSize", "TotalSwapSpaceSize", "ProcessCpuLoad", "ProcessCpuTime", "SystemCpuLoad", "SystemLoadAverage" ]
+    },
+    {
+      "name": "filesystem",
+      "obj" : "org.fusesource.fabric:service=FileSystem",
+      "attrs" : [ "FreeSpace", "TotalSpace" ]
     } ]
   }, {
     "name": "zookeeper",

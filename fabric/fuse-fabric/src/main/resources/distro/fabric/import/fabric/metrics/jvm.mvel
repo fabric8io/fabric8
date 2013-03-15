@@ -36,5 +36,35 @@
       "memory_used": @{p.attrs['MemoryUsed']},
       "total_capacity": @{p.attrs['TotalCapacity']}
     }@end{', '}
+  }@end{}@if{result.results['os'] != null},
+  "os": {
+    "descriptor": {
+	  @code{open = result.results['os'].results[0].attrs['OpenFileDescriptorCount']}
+	  @code{total = result.results['os'].results[0].attrs['MaxFileDescriptorCount']}
+      "free": @{total - open},
+      "total": @{total},
+      "used": @{(open * 100) / total}
+    },
+    "memory": {
+	  @code{free = result.results['os'].results[0].attrs['FreePhysicalMemorySize']}
+	  @code{total = result.results['os'].results[0].attrs['TotalPhysicalMemorySize']}
+      "free": @{free},
+      "total": @{total},
+      "used": @{((total - free) * 100) / total}
+    },
+    "swap": {
+	  @code{free = result.results['os'].results[0].attrs['FreeSwapSpaceSize']}
+	  @code{total = result.results['os'].results[0].attrs['TotalSwapSpaceSize']}
+      "free": @{free},
+      "total": @{total},
+      "used": @{((total - free) * 100) / total}
+    }@if{result.results['filesystem'] != null},
+    "filesystem": {
+	  @code{free = result.results['filesystem'].results[0].attrs['FreeSpace']}
+	  @code{total = result.results['filesystem'].results[0].attrs['TotalSpace']}
+      "free": @{free},
+      "total": @{total},
+      "used": @{((total - free) * 100) / total}
+    }@end{}
   }@end{}
 }
