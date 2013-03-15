@@ -68,8 +68,8 @@ To run the example:
 
 ## More information
 For more information see:
-* http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-RecipientList.html for the Recipient List EIP
-* http://fusesource.com/docs/esbent/7.0/camel_eip/_IDU_WireTap.html for the Wire Tap EIP
-* http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-MsgFilter.html for the Message Filter EIP
-* http://fusesource.com/docs/esbent/7.0/camel_eip/MsgRout-Splitter.html for the Splitter EIP
+* http://www.enterpriseintegrationpatterns.com/RecipientList.html
+* http://www.enterpriseintegrationpatterns.com/WireTap.html
+* http://www.enterpriseintegrationpatterns.com/Filter.html
+* http://www.enterpriseintegrationpatterns.com/Sequencer.html
 * https://access.redhat.com/knowledge/docs/JBoss_Fuse for more information about using JBoss Fuse
