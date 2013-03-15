@@ -24,6 +24,9 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
+
 @Command(name = "container-change-profile", scope = "fabric", description = "Replaces a container's profiles with the specified list of profiles")
 public class ContainerChangeProfile extends FabricCommand {
 
@@ -35,6 +38,8 @@ public class ContainerChangeProfile extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(container);
+        validateProfileName(profiles);
 
         Container cont = getContainer(container);
         Profile[] profs = getProfiles(cont.getVersion(), this.profiles);

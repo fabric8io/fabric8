@@ -23,6 +23,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "ensemble-remove", scope = "fabric", description = "Re-create the current ensemble, excluding the specified containers from the ensemble", detailedDescription = "classpath:ensemble.txt")
 public class EnsembleRemove extends EnsembleCommandSupport {
@@ -39,6 +40,7 @@ public class EnsembleRemove extends EnsembleCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(containers);
 		StringBuilder builder = new StringBuilder();
 		builder.append("Removing containers:");
 		for (String container : containers) {

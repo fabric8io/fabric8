@@ -23,6 +23,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 @Command(name = "container-remove-profile", scope = "fabric", description = "Removes a profile form container's list of profiles.")
 public class ContainerRemoveProfile extends FabricCommand {
@@ -35,6 +37,9 @@ public class ContainerRemoveProfile extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(container);
+        validateProfileName(profiles);
+
 
         Container cont = getContainer(container);
         Profile[] existingProfiles = cont.getProfiles();

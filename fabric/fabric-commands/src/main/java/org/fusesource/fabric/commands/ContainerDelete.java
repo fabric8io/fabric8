@@ -22,6 +22,8 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+
 @Command(name = "container-delete", scope = "fabric", description = "Stops and deletes an existing container", detailedDescription = "classpath:containerDelete.txt")
 public class ContainerDelete extends FabricCommand {
 
@@ -37,6 +39,7 @@ public class ContainerDelete extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(name);
         if (isPartOfEnsemble(name) && !force) {
             System.out.println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
             return null;

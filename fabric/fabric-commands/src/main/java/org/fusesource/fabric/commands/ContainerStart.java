@@ -20,6 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-start", scope = "fabric", description = "Start the specified container")
 public class ContainerStart extends FabricCommand {
@@ -29,6 +30,7 @@ public class ContainerStart extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(container);
         Container found = getContainer(container);
         if (!found.isAlive()) {
             found.start();

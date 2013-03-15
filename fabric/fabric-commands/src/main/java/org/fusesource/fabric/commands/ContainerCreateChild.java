@@ -27,6 +27,8 @@ import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
+
 @Command(name = "container-create-child", scope = "fabric", description = "Creates one or more child containers", detailedDescription = "classpath:containerCreateChild.txt")
 public class ContainerCreateChild extends ContainerCreateSupport {
 
@@ -46,6 +48,8 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     @Override
     protected Object doExecute() throws Exception {
         CreateContainerMetadata[] metadatas = null;
+        validateProfileName(profiles);
+
         // validate input before creating containers
         preCreateContainer(name);
 

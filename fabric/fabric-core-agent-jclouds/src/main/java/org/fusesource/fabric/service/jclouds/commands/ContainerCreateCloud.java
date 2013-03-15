@@ -27,6 +27,7 @@ import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 @Command(name = "container-create-cloud", scope = "fabric", description = "Creates one or more new containers on the cloud")
 public class ContainerCreateCloud extends ContainerCreateSupport {
@@ -100,6 +101,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     protected Object doExecute() throws Exception {
         // validate input before creating containers
         preCreateContainer(name);
+        validateProfileName(profiles);
 
         CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
 

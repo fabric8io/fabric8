@@ -23,6 +23,9 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
+
 @Command(name = "container-add-profile", scope = "fabric", description = "Adds the specified profile to the container list of profiles.")
 public class ContainerAddProfile extends FabricCommand {
 
@@ -34,6 +37,8 @@ public class ContainerAddProfile extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(container);
+        validateProfileName(profiles);
 
         Container cont = getContainer(container);
         Profile[] existingProfiles = cont.getProfiles();

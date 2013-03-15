@@ -38,7 +38,8 @@
             org.jledit.utils,
             org.fusesource.fabric.commands.support,
             org.fusesource.fabric.boot.commands.support,
-            org.fusesource.fabric.utils.shell
+            org.fusesource.fabric.utils.shell,
+            org.fusesource.fabric.utils
         </fuse.osgi.private.pkg>
         <fuse.osgi.services.import>
             org.fusesource.fabric.zookeeper.IZKClient

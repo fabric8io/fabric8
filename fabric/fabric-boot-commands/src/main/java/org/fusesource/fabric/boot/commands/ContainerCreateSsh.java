@@ -16,9 +16,6 @@
  */
 package org.fusesource.fabric.boot.commands;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URI;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -29,6 +26,11 @@ import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
+
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
+
+import java.net.URI;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {
@@ -72,6 +74,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     protected Object doExecute() throws Exception {
         // validate input before creating containers
         preCreateContainer(name);
+        validateProfileName(profiles);
 
         CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
         CreateSshContainerOptions options = CreateContainerOptionsBuilder.ssh()

@@ -22,6 +22,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-domains", scope = "fabric", description = "Lists a container's JMX domains.")
 public class ContainerDomains extends FabricCommand {
@@ -31,6 +32,7 @@ public class ContainerDomains extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(container);
         Container found = getContainer(container);
 
         List<String> domains = found.getJmxDomains();

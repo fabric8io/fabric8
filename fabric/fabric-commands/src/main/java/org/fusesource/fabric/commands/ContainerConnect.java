@@ -40,6 +40,8 @@ import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.osgi.service.blueprint.container.BlueprintContainer;
 
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+
 @Command(name = "container-connect", scope = "fabric", description = "Connect to a remote container")
 public class ContainerConnect extends FabricCommand implements BlueprintContainerAware {
 
@@ -62,7 +64,7 @@ public class ContainerConnect extends FabricCommand implements BlueprintContaine
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-
+        validateContainersName(container);
         String cmdStr = "";
         if (command != null) {
             StringBuilder sb = new StringBuilder();

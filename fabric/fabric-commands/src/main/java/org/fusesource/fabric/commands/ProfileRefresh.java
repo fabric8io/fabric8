@@ -26,6 +26,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.HashMap;
 import java.util.Map;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 @Command(name = "profile-refresh", scope = "fabric", description = "Performs a change to the profile, that triggers the deployment agent. It's intended to be used for scanning for snapshot changes", detailedDescription = "classpath:profileRefresh.txt")
 public class ProfileRefresh extends FabricCommand {
@@ -39,6 +40,7 @@ public class ProfileRefresh extends FabricCommand {
 	@Override
 	protected Object doExecute() throws Exception {
 		checkFabricAvailable();
+        validateProfileName(profileName);
 		Version version = versionName != null ? fabricService.getVersion(versionName) : fabricService.getDefaultVersion();
 		Profile profile = fabricService.getProfile(version.getName(), profileName);
 		if (profile == null) {

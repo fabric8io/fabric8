@@ -26,6 +26,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.commands.support.ContainerUpgradeSupport;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-upgrade", scope = "fabric", description = "Upgrade containers to a new version", detailedDescription = "classpath:containerUpgrade.txt")
 public class ContainerUpgrade extends ContainerUpgradeSupport {
@@ -40,6 +41,8 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(containerIds);
+
         // check and validate version
         Version version = fabricService.getVersion(this.version);
 

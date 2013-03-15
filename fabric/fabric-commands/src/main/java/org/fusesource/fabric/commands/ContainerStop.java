@@ -21,6 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-stop", scope = "fabric", description = "Shut down an existing container")
 public class ContainerStop extends FabricCommand {
@@ -33,6 +34,7 @@ public class ContainerStop extends FabricCommand {
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(container);
         if (isPartOfEnsemble(container) && !force) {
             System.out.println("Container is part of the ensemble. If you still want to stop it, please use -f option.");
             return null;

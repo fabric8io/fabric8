@@ -41,6 +41,7 @@ import org.jledit.EditorFactory;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 /**
  *
@@ -119,6 +120,7 @@ public class ProfileEdit extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateProfileName(profileName);
         if (delete) {
             set = false;
         }

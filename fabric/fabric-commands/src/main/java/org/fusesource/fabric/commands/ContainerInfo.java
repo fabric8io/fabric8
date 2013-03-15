@@ -22,6 +22,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.utils.SystemProperties;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-info", scope = "fabric", description = "Dispalys information about the containers")
 public class ContainerInfo extends FabricCommand {
@@ -34,6 +35,7 @@ public class ContainerInfo extends FabricCommand {
 	@Override
 	protected Object doExecute() throws Exception {
 		checkFabricAvailable();
+        validateContainersName(containerName);
 		if (!containerExists(containerName)) {
 			System.out.println("Container " + containerName + " does not exists!");
 			return null;

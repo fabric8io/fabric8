@@ -29,6 +29,8 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.osgi.framework.ServiceReference;
 
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
+
 public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
     protected String version;
@@ -58,6 +60,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
      * @throws IllegalArgumentException is thrown if input is invalid
      */
     protected void preCreateContainer(String name) throws IllegalArgumentException {
+        validateContainersName(name);
         if (!isEnsembleServer) {
             ServiceReference sr = getBundleContext().getServiceReference(ZooKeeperClusterService.class.getName());
             ZooKeeperClusterService zkcs = sr != null ? getService(ZooKeeperClusterService.class, sr) : null;

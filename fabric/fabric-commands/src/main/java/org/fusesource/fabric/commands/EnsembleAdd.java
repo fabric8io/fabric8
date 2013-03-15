@@ -23,6 +23,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
+import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "ensemble-add", scope = "fabric", description = "Extend the current fabric ensemble by converting the specified containers into ensemble servers", detailedDescription = "classpath:ensembleAdd.txt")
 public class EnsembleAdd extends EnsembleCommandSupport {
@@ -39,6 +40,8 @@ public class EnsembleAdd extends EnsembleCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
+        validateContainersName(containers);
+
         if (containers != null && !containers.isEmpty()) {
             StringBuilder builder = new StringBuilder();
             builder.append("Adding containers:");
