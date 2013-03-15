@@ -15,19 +15,12 @@ with the admin role by adding a line with the following syntax:
 
 The admin role grants full administration privileges to the user.
 
-To make the container's JMX port accessible, modify the following lines of the
-./etc/system.properties file to use the credentials of one of the users from the
-users.properties file:
+To make the container's JMX port and ActiveMQ Web console accessible, modify the 
+following lines of the ./etc/system.properties file to use the credentials of one 
+of the users from the users.properties file:
 
-webconsole.jmx.user=<Username>
-webconsole.jmx.password=<Password>
-
-To make the ActiveMQ Web console accessible, add the following lines to the
-./etc/system.properties file, using the credentials of one of the users from the
-users.properties file:
-
-webconsole.jms.user=<Username>
-webconsole.jms.password=<Password>
+activemq.jmx.user=<Username>
+activemq.jmx.password=<Password>
 
 Quick Start
 -----------
