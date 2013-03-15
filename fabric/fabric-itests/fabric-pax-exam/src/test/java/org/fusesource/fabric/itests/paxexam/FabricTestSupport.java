@@ -286,7 +286,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                logLevel(LogLevelOption.LogLevel.ERROR),
+                logLevel(LogLevelOption.LogLevel.WARN),
                 keepRuntimeFolder()
         };
     }
@@ -307,7 +307,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
     private Option envAsSystemProperty(String name, String defaultValue) {
         String value = System.getenv(name);
-        return editConfigurationFilePut("etc/system.properties", name, value != null ? value : defaultValue);
+        return editConfigurationFilePut("etc/system.properties", name, (value != null && !value.isEmpty()) ? value : defaultValue);
     }
 
 }

@@ -258,10 +258,8 @@ public class FabricServiceImpl implements FabricService {
         String containerId = container.getId();
         LOGGER.info("Destroying container {}", containerId);
         ContainerProvider provider = getProvider(container);
-        try {
-            provider.destroy(container);
-        } catch (Exception e) {
-        }
+        provider.destroy(container);
+
         try {
             //Wipe all config entries that are related to the container for all versions.
             for (Version version : getVersions()) {
@@ -272,6 +270,7 @@ public class FabricServiceImpl implements FabricService {
             zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
             zooKeeper.deleteWithChildren(ZkPath.CONTAINER_PROVISION.getPath(containerId));
         } catch (Exception e) {
+           LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
         }
     }
 

@@ -17,26 +17,38 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Properties;
+
 import org.apache.maven.profiles.ProfilesConversionUtils;
+import org.apache.zookeeper.server.ZooKeeperServerBean;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.util.tracker.ServiceTracker;
 
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -61,7 +73,45 @@ public class FabricCreateTest extends FabricTestSupport {
 
 
     @Test
-    public void testCreateWithProfileSelextion() throws Exception {
+    public void testCreateWithConnectionLoss() throws Exception {
+        FabricService fabricService = getFabricService();
+        assertNotNull(fabricService);
+
+        //Generate a connection loss right after the client is connected
+        bundleContext.registerService(LifecycleListener.class.getName(),
+                new LifecycleListener() {
+                    private boolean first = true;
+
+                    @Override
+                    public void onConnected() {
+                        System.err.println("Connected");
+                        System.err.flush();
+                        if (first) {
+                            first = false;
+                            try {
+                                final OsgiZkClient zooKeeper = (OsgiZkClient) getZookeeper();
+                                Thread.sleep(200);
+                                zooKeeper.testGenerateConnectionLoss();
+                            } catch (Exception e) {
+                                e.printStackTrace(System.err);
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onDisconnected() {
+                        System.err.println("Disconnected");
+                        System.err.flush();
+                    }
+                }, new Hashtable<String, Object>());
+
+        System.err.println(executeCommand("fabric:create -n", 90000L, false));
+        System.err.println(executeCommand("fabric:container-list", 90000L, false));
+
+    }
+
+    @Test
+    public void testCreateWithProfileSelection() throws Exception {
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
 
@@ -79,6 +129,8 @@ public class FabricCreateTest extends FabricTestSupport {
 
     @Configuration
     public Option[] config() {
-        return fabricDistributionConfiguration();
+        return new Option[]{
+                new DefaultCompositeOption(fabricDistributionConfiguration())
+        };
     }
 }

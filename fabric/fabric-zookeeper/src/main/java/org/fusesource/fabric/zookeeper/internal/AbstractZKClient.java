@@ -156,6 +156,7 @@ public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.Abs
     }
 
     public void testGenerateConnectionLoss() throws Exception {
+        waitForConnected();
         Object clientCnxnSocket  = getField(_zk, "_zk", "cnxn", "sendThread", "clientCnxnSocket");
         callMethod(clientCnxnSocket, "testableCloseSocket");
     }

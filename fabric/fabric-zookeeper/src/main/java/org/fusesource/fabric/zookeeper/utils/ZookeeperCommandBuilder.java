@@ -2,15 +2,22 @@ package org.fusesource.fabric.zookeeper.utils;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.WatchedEvent;
+import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
+import org.apache.zookeeper.proto.WatcherEvent;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
+import org.linkedin.util.clock.Timespan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 public class ZookeeperCommandBuilder<T> {
 
@@ -18,8 +25,8 @@ public class ZookeeperCommandBuilder<T> {
 
     private final ZookeeperCommand<T> command;
     private int retries = 3;
-    private long retryDelay = 1000L;
-    private long timeout = 6000L;
+    private long retryDelay = 5000L;
+    private long timeout = 60000L;
 
     private ZookeeperCommandBuilder(ZookeeperCommand<T> commmnd) {
         this.command = commmnd;
@@ -77,12 +84,10 @@ public class ZookeeperCommandBuilder<T> {
 
 
     public T execute(IZKClient zooKeeper) throws KeeperException, InterruptedException {
-        boolean completed = false;
-        boolean fatal = false;
         boolean rethrow = false;
         long startTime = System.currentTimeMillis();
         KeeperException lastThrown = null;
-        for (int r = 0; r <= retries && (System.currentTimeMillis() - startTime < timeout) && !completed && !fatal; r++) {
+        for (int r = 0; r <= retries && (System.currentTimeMillis() - startTime < timeout); r++) {
             if (r == retries) {
                 rethrow = true;
             }
@@ -93,11 +98,25 @@ public class ZookeeperCommandBuilder<T> {
                 if (rethrow || !shouldRetry(ex.code().intValue())) {
                     throw ex;
                 } else {
-                    Thread.sleep(retryDelay);
+                    LOGGER.warn("Caught recoverable zookeeper exception {}. Retrying {}.", ex.code().name(), r + 1);
+                    waitForZookeeper(zooKeeper);
                 }
+            } catch (IllegalStateException ex) {
+                LOGGER.warn("Caught illegal state exception on zookeeper. Retrying {}.", r + 1);
+                lastThrown = new KeeperException.OperationTimeoutException();
+                waitForZookeeper(zooKeeper);
             }
         }
+        LOGGER.warn("Exhausted retry attempts for recoverable Zookeeper error. Rethrowing.");
         throw lastThrown;
+    }
+
+    private void waitForZookeeper(IZKClient zooKeeper) {
+        try {
+            zooKeeper.waitForConnected(Timespan.milliseconds(retryDelay));
+        } catch (Exception e) {
+            //noop
+        }
     }
 
     public static boolean shouldRetry(int rc) {
@@ -110,7 +129,7 @@ public class ZookeeperCommandBuilder<T> {
 
     private interface ZookeeperCommand<T> {
 
-        T execute(IZKClient zooKeeper) throws KeeperException, InterruptedException;
+        T execute(IZKClient zooKeeper) throws KeeperException, InterruptedException, IllegalStateException;
     }
 
     private static class ZookeeperExistsommand implements ZookeeperCommand<Stat> {
