@@ -23,8 +23,8 @@
 
     <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.example.camel" update-strategy="reload">
         <cm:default-properties>
-            <cm:property name="username" value="karaf" />
-            <cm:property name="password" value="karaf" />
+            <cm:property name="username" value="admin" />
+            <cm:property name="password" value="admin" />
         </cm:default-properties>
     </cm:property-placeholder>
 
