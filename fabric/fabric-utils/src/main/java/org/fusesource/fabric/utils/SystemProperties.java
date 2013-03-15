@@ -25,6 +25,7 @@ public final class SystemProperties {
     public static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
     public static final String PROFILE = "profile";
     public static final String KARAF_NAME = "karaf.name";
+    public static final String KARAF_DATA = "karaf.data";
     public static final String JAVA_RMI_SERVER_HOSTNAME = "java.rmi.server.hostname";
 
 

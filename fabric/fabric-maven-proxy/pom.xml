@@ -54,7 +54,7 @@
             org.apache.felix.webconsole,
             org.apache.maven.*,
             org.sonatype.aether*,
-            org.codehaus.plexus*,
+            org.codehaus.plexus*
         </fuse.osgi.private.pkg>
     </properties>
 

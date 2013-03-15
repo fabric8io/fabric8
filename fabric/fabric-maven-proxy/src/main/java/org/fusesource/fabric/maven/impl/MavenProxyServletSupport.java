@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -46,7 +44,6 @@ import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.connector.wagon.WagonProvider;
 import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.installation.InstallRequest;
-import org.sonatype.aether.installation.InstallResult;
 import org.sonatype.aether.metadata.Metadata;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
@@ -91,8 +88,6 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     protected Map<String, RemoteRepository> repositories;
     protected RepositorySystem system;
     protected RepositorySystemSession session;
-
-    protected ConcurrentMap<String, Object> artifactLocks = new ConcurrentHashMap<String, Object>();
 
     protected File tmpFolder = new File(System.getProperty("karaf.data") +  File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
@@ -180,9 +175,6 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             LOGGER.log(Level.INFO, String.format("Received request for maven artifact : %s", path));
             Artifact artifact = convertPathToArtifact(path);
             String id = artifact.getGroupId() + ":" + artifact.getArtifactId();
-            artifactLocks.putIfAbsent(id, new Object());
-            final Object lock = artifactLocks.get(id);
-            synchronized (lock) {
                 try {
                     ArtifactRequest request = new ArtifactRequest(artifact, new ArrayList<RemoteRepository>(repositories.values()), null);
                     ArtifactResult result = system.resolveArtifact(session, request);
@@ -191,7 +183,6 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                     LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e));
                     return null;
                 }
-            }
         }
         return null;
     }
@@ -462,6 +453,5 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         {
 
         }
-
     }
 }
