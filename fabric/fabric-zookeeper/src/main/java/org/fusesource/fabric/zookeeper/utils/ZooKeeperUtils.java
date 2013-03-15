@@ -141,6 +141,13 @@ public final class ZooKeeperUtils {
         }
     }
 
+    public static void deleteSafe(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
+        if (exists(zooKeeper, path) != null) {
+            zooKeeper.deleteWithChildren(path);
+        }
+    }
+
+
     public static Stat exists(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
         return zooKeeper.exists(path);
     }

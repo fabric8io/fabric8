@@ -263,12 +263,12 @@ public class FabricServiceImpl implements FabricService {
         try {
             //Wipe all config entries that are related to the container for all versions.
             for (Version version : getVersions()) {
-                zooKeeper.deleteWithChildren(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), containerId));
+                ZooKeeperUtils.deleteSafe(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), containerId));
             }
-            zooKeeper.deleteWithChildren(ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            zooKeeper.deleteWithChildren(ZkPath.CONTAINER.getPath(containerId));
-            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
-            zooKeeper.deleteWithChildren(ZkPath.CONTAINER_PROVISION.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zooKeeper, ZkPath.CONTAINER.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zooKeeper, ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zooKeeper, ZkPath.CONTAINER_PROVISION.getPath(containerId));
         } catch (Exception e) {
            LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
         }
