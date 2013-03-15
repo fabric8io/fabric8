@@ -319,11 +319,11 @@
                            <configuration>
                                <target name="update-properties">
                                    <echo message="Fixing start/stop scripts in windows assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="a-mq.bat"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="a-mq.bat"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="amq.bat"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="amq.bat"/>
                                    <echo message="Fixing start/stop scripts in unix assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/a-mq"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/a-mq"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/amq"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/amq"/>
                                    <echo message="Updating etc/system.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/system-mq.properties" />

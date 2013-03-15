@@ -126,14 +126,14 @@
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>a-mq</destName>
+            <destName>amq</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <file>
             <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
-            <destName>a-mq.bat</destName>
+            <destName>amq.bat</destName>
             <fileMode>0755</fileMode>
             <lineEnding>dos</lineEnding>
         </file>

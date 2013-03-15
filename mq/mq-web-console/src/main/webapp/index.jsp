@@ -97,7 +97,7 @@
               <H3>Useful Links</H3>
 
               <ul class="alternate">
-                <li><a href="http://www.redhat.com/products/jbossenterprisemiddleware/amq/"
+                <li><a href="https://access.redhat.com/knowledge/docs/JBoss_A-MQ/"
                        title="The most popular and powerful open source Message Broker">Documentation</a></li>
                 </li>
               </ul>
