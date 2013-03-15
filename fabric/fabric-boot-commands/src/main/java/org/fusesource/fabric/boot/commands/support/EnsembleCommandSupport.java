@@ -17,6 +17,8 @@
 package org.fusesource.fabric.boot.commands.support;
 
 import java.io.IOException;
+
+import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.shell.ShellUtils;
@@ -43,11 +45,25 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
         }
     }
 
+    protected boolean checkIfShouldModify(CommandSession session, boolean force) throws IOException {
+        if (force) {
+            return true;
+        } else {
+            String response = ShellUtils.readLine(session, "This will change of the zookeeper connection string.\nAre you sure want to proceed(yes/no):", false);
+            if (response != null && (response.toLowerCase().equals("yes") || response.toLowerCase().equals("y"))) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
     /**
      * Prompts the user for username and/or password.
-     * @param user      The default username.
-     * @param password  The default password.
-     * @return          An String array with username at index 0 and password at index 1.
+     *
+     * @param user     The default username.
+     * @param password The default password.
+     * @return An String array with username at index 0 and password at index 1.
      * @throws IOException
      */
     protected String[] promptForNewUser(String user, String password) throws IOException {
@@ -64,11 +80,11 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
             String password1 = null;
             String password2 = null;
             while (password1 == null || !password1.equals(password2)) {
-                password1 = ShellUtils.readLine(session, "Password for "+user+": ", true);
-                password2 = ShellUtils.readLine(session, "Verify password for "+user+":", true);
+                password1 = ShellUtils.readLine(session, "Password for " + user + ": ", true);
+                password2 = ShellUtils.readLine(session, "Verify password for " + user + ":", true);
                 if (password1 != null && password1.equals(password2)) {
                     password = password1;
-                }  else {
+                } else {
                     System.out.println("Passwords did not match. Please try again!");
                 }
             }

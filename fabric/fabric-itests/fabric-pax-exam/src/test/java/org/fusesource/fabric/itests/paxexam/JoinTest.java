@@ -84,11 +84,11 @@ public class JoinTest extends FabricTestSupport {
 			Container child2 = fabricService.getContainer("child2");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
 			waitForProvisionSuccess(child2, PROVISION_TIMEOUT);
-			System.err.println(executeCommand("fabric:ensemble-add child1 child2"));
+			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
 			Thread.sleep(5000);
 			zookeeper.waitForConnected();
 			System.err.println(executeCommand("fabric:container-list"));
-			System.err.println(executeCommand("fabric:ensemble-remove child1 child2"));
+			System.err.println(executeCommand("fabric:ensemble-remove --force child1 child2"));
 			Thread.sleep(5000);
 			zookeeper.waitForConnected();
 			System.err.println(executeCommand("fabric:container-list"));

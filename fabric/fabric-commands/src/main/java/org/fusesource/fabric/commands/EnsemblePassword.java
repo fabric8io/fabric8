@@ -17,6 +17,7 @@
 package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 @Command(name = "ensemble-password", scope = "fabric", description = "Display the ensemble password", detailedDescription = "classpath:ensemblePassword.txt")

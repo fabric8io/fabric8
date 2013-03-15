@@ -76,7 +76,7 @@ public class EnsembleTest extends FabricTestSupport {
                 addedContainers.add(cnt2);
                 WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
                 System.err.println(executeCommand("fabric:container-resolver-list"));
-                System.err.println(executeCommand("fabric:ensemble-add " + cnt1.getId() + " " + cnt2.getId()));
+                System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
                 Future<String> future = excutorService.submit(waitTask);
                 future.get(120, TimeUnit.SECONDS);
                 zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
@@ -96,7 +96,7 @@ public class EnsembleTest extends FabricTestSupport {
                 containerQueue.add(cnt2);
                 WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
                 System.err.println(executeCommand("fabric:container-resolver-list"));
-                System.err.println(executeCommand("fabric:ensemble-remove " + cnt1.getId() + " " + cnt2.getId()));
+                System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
                 Future<String> future = excutorService.submit(waitTask);
                 future.get(120, TimeUnit.SECONDS);
                 zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
@@ -133,7 +133,7 @@ public class EnsembleTest extends FabricTestSupport {
             addedContainers.add(cnt1);
             addedContainers.add(cnt2);
             WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
-            System.err.println(executeCommand("fabric:ensemble-add " + cnt1.getId() + " " + cnt2.getId()));
+            System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
             Future<String> future = excutorService.submit(waitTask);
             future.get(60, TimeUnit.SECONDS);
             zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
@@ -155,7 +155,7 @@ public class EnsembleTest extends FabricTestSupport {
             Container cnt1 = addedContainers.removeFirst();
             Container cnt2 = addedContainers.removeFirst();
             WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
-            System.err.println(executeCommand("fabric:ensemble-remove " + cnt1.getId() + " " + cnt2.getId()));
+            System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
             Future<String> future = excutorService.submit(waitTask);
             future.get(60, TimeUnit.SECONDS);
             zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));

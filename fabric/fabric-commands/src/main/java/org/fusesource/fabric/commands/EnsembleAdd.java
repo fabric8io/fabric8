@@ -23,16 +23,20 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 
 import java.util.List;
+
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "ensemble-add", scope = "fabric", description = "Extend the current fabric ensemble by converting the specified containers into ensemble servers", detailedDescription = "classpath:ensembleAdd.txt")
 public class EnsembleAdd extends EnsembleCommandSupport {
 
-	@Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
-	private boolean generateZookeeperPassword = false;
+    @Option(name = "--generate-zookeeper-password", multiValued = false, description = "Flag to enable automatic generation of password")
+    private boolean generateZookeeperPassword = false;
 
-	@Option(name = "--new-zookeeper-password", multiValued = false, description = "The ensemble new password to use (defaults to the old one)")
-	private String zookeeperPassword;
+    @Option(name = "--new-zookeeper-password", multiValued = false, description = "The ensemble new password to use (defaults to the old one)")
+    private String zookeeperPassword;
+
+    @Option(name = "-f", aliases = "--force", multiValued = false, description = "Flag to force the addition without prompt")
+    private boolean force = false;
 
     @Argument(required = true, multiValued = true, description = "List of containers to be added")
     private List<String> containers;
@@ -41,25 +45,27 @@ public class EnsembleAdd extends EnsembleCommandSupport {
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         validateContainersName(containers);
-
-        if (containers != null && !containers.isEmpty()) {
-            StringBuilder builder = new StringBuilder();
-            builder.append("Adding containers:");
-            for (String container : containers) {
-                builder.append(" ").append(container);
+        if (checkIfShouldModify(session, force)) {
+            if (containers != null && !containers.isEmpty()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Adding containers:");
+                for (String container : containers) {
+                    builder.append(" ").append(container);
+                }
+                builder.append(" to the ensemble. This may take a while.");
+                System.out.println(builder.toString());
+                if (generateZookeeperPassword) {
+                    CreateEnsembleOptions options = CreateEnsembleOptions.build();
+                    service.addToCluster(containers, options);
+                } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
+                    service.addToCluster(containers);
+                } else {
+                    CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword);
+                    service.addToCluster(containers, options);
+                }
             }
-            builder.append(" to the ensemble. This may take a while.");
-            System.out.println(builder.toString());
-			if (generateZookeeperPassword) {
-				CreateEnsembleOptions options = CreateEnsembleOptions.build();
-				service.addToCluster(containers, options);
-			} else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
-				service.addToCluster(containers);
-			} else {
-				CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword);
-				service.addToCluster(containers, options);
-			}
-		}
+            System.out.println("Updated Zookeeper connection string: "+ service.getZooKeeperUrl());
+        }
         return null;
     }
 
