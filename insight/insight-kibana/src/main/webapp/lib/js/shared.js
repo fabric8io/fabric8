@@ -307,7 +307,7 @@ function flatten_json(object,root,array) {
     var rootname = root.length == 0 ? index : root + '.' + index;
     if(typeof obj == 'object' ) {
       if($.isArray(obj))
-        array[rootname] = typeof obj === 'undefined' ? null : obj.join(',');
+        array[rootname] = typeof obj === 'undefined' ? null : flatten_array(obj, index);
       else
         flatten_json(obj,rootname,array)
     } else {
@@ -315,6 +315,14 @@ function flatten_json(object,root,array) {
     }
   }
   return sortObj(array);
+}
+
+function flatten_array(obj, index) {
+   if (index === 'exception') {
+      return obj.join('\n');
+   } else {
+      return obj.join(',');
+   }
 }
 
 function xmlEnt(value) {
