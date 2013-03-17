@@ -322,6 +322,9 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
             }
             File file = resolver.resolveFile(groupId, artifactId, "sources", "jar", version);
             if (file.exists() && file.isFile()) {
+                if (isRoot(filePath)) {
+                    return jarIndex(file);
+                }
                 String fileUri = file.toURI().toString();
                 URL url = new URL("jar:" + fileUri + "!" + filePath);
                 return loadString(url);

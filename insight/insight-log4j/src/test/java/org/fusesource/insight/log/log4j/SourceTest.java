@@ -52,6 +52,10 @@ public class SourceTest {
 
         String content = assertSourceContains(paxCoords, "org.ops4j.pax.web.service.internal.HttpServiceFactoryImpl", "HttpServiceFactoryImpl.java", "HttpServiceFactoryImpl");
         //System.out.println(content);
+
+
+        // now lets get an index of the files
+        assertSourceContains(mavenCoords, "", "/", "org/apache/camel/CamelContext.java");
     }
 
     private String assertSourceContains(String mavenCoords, String className, String path, String expectedContent) throws IOException {

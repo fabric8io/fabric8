@@ -26,6 +26,7 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -33,7 +34,14 @@ import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.jar.JarInputStream;
 
 /**
  * Base class for any {@link org.fusesource.insight.log.service.LogQueryMBean} implementation
@@ -221,22 +229,83 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
             return loadCoords(coords, filePath);
         } else {
             // lets enumerate all values if space separated
-            for (String coord : array) {
-                try {
-                    return loadCoords(coord, filePath);
-                } catch (IOException e) {
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("" + e);
+            if (isRoot(filePath)) {
+                StringBuilder buffer = new StringBuilder();
+                for (String coord : array) {
+                    try {
+                        String text = loadCoords(coord, filePath);
+                        if (text != null) {
+                            buffer.append(text);
+                        }
+                    } catch (IOException e) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("" + e);
+                        }
                     }
                 }
+                return buffer.toString();
+            } else {
+                for (String coord : array) {
+                    try {
+                        return loadCoords(coord, filePath);
+                    } catch (IOException e) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("" + e);
+                        }
+                    }
+                }
+                return null;
             }
-            return null;
         }
     }
 
     protected String loadCoords(String coords, String filePath) throws IOException {
         URL url = new URL("jar:mvn:" + coords + "/jar/sources!" + filePath);
+        if (isRoot(filePath)) {
+            return jarIndex(url);
+        }
         return loadString(url);
+    }
+
+    protected String jarIndex(URL url) throws IOException {
+        StringBuilder buffer = new StringBuilder();
+        JarInputStream in = new JarInputStream(url.openStream());
+        while (true) {
+            JarEntry entry = in.getNextJarEntry();
+            if (entry == null) {
+                return buffer.toString();
+            }
+            addJarEntryToIndex(entry, buffer);
+
+        }
+    }
+
+    protected String jarIndex(File file) throws IOException {
+        StringBuilder buffer = new StringBuilder();
+        JarFile jarFile = new JarFile(file);
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            addJarEntryToIndex(entry, buffer);
+        }
+        return buffer.toString();
+    }
+
+    protected void addJarEntryToIndex(JarEntry entry, StringBuilder buffer) {
+        // no need to show empty directories
+        if (!entry.isDirectory()) {
+            buffer.append(entry.getName());
+            buffer.append("\n");
+        }
+    }
+
+
+
+    /**
+     * Returns true if the file path is "/" or empty
+     */
+    protected boolean isRoot(String filePath) {
+        return filePath == null || filePath.length() == 0 || filePath.equals("/");
     }
 
     public static String ensureStartsWithSlash(String path) {
