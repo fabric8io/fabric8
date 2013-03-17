@@ -33,15 +33,12 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.net.InetAddress;
+import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.jar.JarInputStream;
 
 /**
  * Base class for any {@link org.fusesource.insight.log.service.LogQueryMBean} implementation
@@ -262,6 +259,7 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
     protected String loadCoords(String coords, String filePath) throws IOException {
         URL url = new URL("jar:mvn:" + coords + "/jar/sources!" + filePath);
         if (isRoot(filePath)) {
+            System.out.println("about to try open jar: " + url);
             return jarIndex(url);
         }
         return loadString(url);
@@ -269,20 +267,17 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
 
     protected String jarIndex(URL url) throws IOException {
         StringBuilder buffer = new StringBuilder();
-        JarInputStream in = new JarInputStream(url.openStream());
-        while (true) {
-            JarEntry entry = in.getNextJarEntry();
-            if (entry == null) {
-                return buffer.toString();
-            }
-            addJarEntryToIndex(entry, buffer);
-
-        }
+        JarURLConnection uc = (JarURLConnection) url.openConnection();
+        return jarIndex(uc.getJarFile());
     }
 
     protected String jarIndex(File file) throws IOException {
-        StringBuilder buffer = new StringBuilder();
         JarFile jarFile = new JarFile(file);
+        return jarIndex(jarFile);
+    }
+
+    protected String jarIndex(JarFile jarFile) {
+        StringBuilder buffer = new StringBuilder();
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             JarEntry entry = entries.nextElement();
