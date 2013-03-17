@@ -259,7 +259,6 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
     protected String loadCoords(String coords, String filePath) throws IOException {
         URL url = new URL("jar:mvn:" + coords + "/jar/sources!" + filePath);
         if (isRoot(filePath)) {
-            System.out.println("about to try open jar: " + url);
             return jarIndex(url);
         }
         return loadString(url);
