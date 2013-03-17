@@ -23,6 +23,11 @@ import org.ops4j.pax.logging.spi.PaxLoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static org.fusesource.insight.log.service.support.MavenCoordinates.addMavenCoord;
 import static org.fusesource.insight.log.storage.InsightUtils.formatDate;
 import static org.fusesource.insight.log.storage.InsightUtils.quote;
 
@@ -71,6 +76,7 @@ public class InsightLogAppender implements PaxAppender {
 
             String[] throwable = paxLoggingEvent.getThrowableStrRep();
             if( throwable!=null ) {
+                throwable = addMavenCoord(throwable);
                 writer.append(",\n  \"exception\" : [");
                 for (int i = 0; i < throwable.length; i++) {
                     if(i!=0)
@@ -82,7 +88,18 @@ public class InsightLogAppender implements PaxAppender {
 
             writer.append(",\n  \"properties\" : { ");
             boolean first = true;
-            for (Object key : paxLoggingEvent.getProperties().keySet()) {
+            Map<String, String> properties = new HashMap<String, String>();
+            Set<Map.Entry> set = paxLoggingEvent.getProperties().entrySet();
+            for (Map.Entry entry : set) {
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+                if (key != null && value != null) {
+                    properties.put(key.toString(), value.toString());
+                }
+            }
+            addMavenCoord(properties);
+
+            for (Object key : properties.keySet()) {
                 if (first) {
                     first = false;
                 } else {
@@ -90,7 +107,7 @@ public class InsightLogAppender implements PaxAppender {
                 }
                 quote(key.toString(), writer);
                 writer.append(": ");
-                quote(paxLoggingEvent.getProperties().get(key).toString(), writer);
+                quote(properties.get(key).toString(), writer);
             }
             writer.append(" }");
             writer.append("\n}");
