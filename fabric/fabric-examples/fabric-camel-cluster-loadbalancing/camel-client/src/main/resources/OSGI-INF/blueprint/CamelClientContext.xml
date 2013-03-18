@@ -32,9 +32,9 @@
         <route id="fabric-client">
             <from uri="timer://foo?fixedRate=true&amp;period=2000"/>
             <setBody>
-                <simple>Hello from Fabric Client to group "Local"</simple>
+                <simple>Hello from Fabric Client to group "Cluster"</simple>
             </setBody>
-            <to uri="fabric-camel:local"/>
+            <to uri="fabric-camel:cluster"/>
             <log message=">>> ${body} : ${header.karaf.name}"/>
         </route>
 

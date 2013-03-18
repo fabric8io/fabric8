@@ -1,0 +1,2 @@
+shell:echo Create Fabric server \(Zookeeper registry\)
+fabric:create --new-user admin  --new-user-password admin --zookeeper-password admin -p fmc

@@ -17,81 +17,86 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.fusesource.examples</groupId>
-        <artifactId>fabric-camel-cluster</artifactId>
-        <version>99-master-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>org.fusesource.examples</groupId>
+    <artifactId>fabric-camel-cluster</artifactId>
+    <version>99-master-SNAPSHOT</version>
+  </parent>
 
-    <name>Fuse Fabric :: Example :: Cluster with Fabric Camel :: Features</name>
-    <packaging>jar</packaging>
-    <groupId>org.fusesource.examples.fabric-camel-cluster</groupId>
-    <artifactId>features</artifactId>
+  <name>Fuse Fabric :: Example :: Cluster with Fabric Camel :: Features</name>
+  <packaging>jar</packaging>
+  <groupId>org.fusesource.examples.fabric-camel-cluster</groupId>
+  <artifactId>features</artifactId>
 
-    <build>
-        <!-- enable filtering of the features file -->
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>../etc</directory>
-                <filtering>true</filtering>
-                <targetPath>distro/etc</targetPath>
-            </resource>
-        </resources>
+  <build>
+    <!-- enable filtering of the features file -->
+    <resources>
+      <resource>
+        <directory>${pom.basedir}/src/main/resources</directory>
+        <filtering>true</filtering>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>../etc</directory>
+        <filtering>true</filtering>
+        <targetPath>distro/etc</targetPath>
+      </resource>
+    </resources>
 
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>filter</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- attach the generated features file as an artifact, so that it is published to the maven repository -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>${build-helper-maven-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/fabric.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
-                                </artifact>
-                                <artifact>
-                                    <file>target/classes/distro/etc/install-fabric-camel-on-fuse-esb7.karaf</file>
-                                    <type>karaf</type>
-                                    <classifier>installer</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>filter</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>resources</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- attach the generated features file as an artifact, so that it is published to the maven repository -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>attach-artifacts</id>
+            <phase>package</phase>
+            <goals>
+              <goal>attach-artifact</goal>
+            </goals>
+            <configuration>
+              <artifacts>
+                <artifact>
+                  <file>target/classes/fabric.xml</file>
+                  <type>xml</type>
+                  <classifier>features</classifier>
+                </artifact>
+                <artifact>
+                  <file>target/classes/distro/etc/install-fabric-camel-loadbalancer-example.karaf</file>
+                  <type>karaf</type>
+                  <classifier>installer</classifier>
+                </artifact>
+                <artifact>
+                  <file>target/classes/distro/etc/install-fabric-and-fmc.fabric</file>
+                  <type>fabric</type>
+                  <classifier>installer</classifier>
+                </artifact>
+              </artifacts>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 
 </project>

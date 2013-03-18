@@ -19,15 +19,10 @@
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.0.0"
            xsi:schemaLocation="
-           http://www.osgi.org/xmlns/blueprint/v1.0.0
-           http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
+           http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
     <!-- osgi blueprint property placeholder -->
-    <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.examples.camel.loadbalancing.server">
-        <cm:default-properties>
-            <cm:property name="portNumber" value="8181"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
+    <cm:property-placeholder id="myConfig" persistent-id="org.fusesource.fabric.examples.camel.loadbalancing.server"/>
 
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
 
@@ -37,11 +32,11 @@
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">
         <!-- using Camel properties component and refer to the blueprint property placeholder by its id -->
-        <propertyPlaceholder id="properties" location="blueprint:placeholder"
-                             prefixToken="{{" suffixToken="}}"/>
+        <propertyPlaceholder id="properties" location="blueprint:myConfig"
+                             prefixToken="[[" suffixToken="]]"/>
 
         <route id="fabric-server">
-            <from uri="fabric-camel:local:jetty:http://0.0.0.0:{{portNumber}}/fabric"/>
+            <from uri="fabric-camel:cluster:jetty:http://0.0.0.0:[[portNumber]]/fabric"/>
             <log message="Request received : ${body}"/>
             <setHeader headerName="karaf.name">
                 <simple>${sys.karaf.name}</simple>
