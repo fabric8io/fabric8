@@ -1,7 +1,7 @@
 {
 	"host": @{toJson(result.server.name)},
-	"timestamp": @{toJson(result.timestamp)},
-	@foreach{c : result.results['contexts'].results}
+	"timestamp": @{toJson(result.timestamp)}
+	@foreach{c : result.results['contexts'].results},
 	  @code{contextId = c.objectName.getKeyProperty('context')}
 	  @{c.objectName.getKeyProperty('name')}: {
 	    @foreach{e : c.attrs.entrySet()}
@@ -25,5 +25,5 @@
           @end{}
         }
       }
-    @end{', '}
+    @end{}
 }

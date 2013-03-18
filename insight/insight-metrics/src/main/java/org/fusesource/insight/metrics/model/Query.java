@@ -22,17 +22,17 @@ public class Query {
 
     private final String name;
     private final Set<Request> requests;
-    private final String url;
     private final String template;
+    private final String metadata;
     private final int period;
     private final int minPeriod;
     private final String lock;
 
-    public Query(String name, Set<Request> requests, String url, String template, String lock, int period, int minPeriod) {
+    public Query(String name, Set<Request> requests, String template, String metadata, String lock, int period, int minPeriod) {
         this.name = name;
         this.requests = requests;
-        this.url = url;
         this.template = template;
+        this.metadata = metadata;
         this.period = period;
         this.minPeriod = minPeriod;
         this.lock = lock;
@@ -46,12 +46,12 @@ public class Query {
         return requests;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
     public String getTemplate() {
         return template;
+    }
+
+    public String getMetadata() {
+        return metadata;
     }
 
     public int getPeriod() {
@@ -78,7 +78,7 @@ public class Query {
         if (requests != null ? !requests.equals(query.requests) : query.requests != null) return false;
         if (name != null ? !name.equals(query.name) : query.name != null) return false;
         if (template != null ? !template.equals(query.template) : query.template != null) return false;
-        if (url != null ? !url.equals(query.url) : query.url != null) return false;
+        if (metadata != null ? !metadata.equals(query.metadata) : query.metadata != null) return false;
         if (lock != null ? !lock.equals(query.lock) : query.lock != null) return false;
 
         return true;
@@ -88,8 +88,8 @@ public class Query {
     public int hashCode() {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (requests != null ? requests.hashCode() : 0);
-        result = 31 * result + (url != null ? url.hashCode() : 0);
         result = 31 * result + (template != null ? template.hashCode() : 0);
+        result = 31 * result + (metadata != null ? metadata.hashCode() : 0);
         result = 31 * result + period;
         return result;
     }

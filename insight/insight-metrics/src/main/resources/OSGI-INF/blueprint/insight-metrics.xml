@@ -36,6 +36,7 @@
         <property name="defaultDelay" value="${defaultDelay}" />
         <property name="threadPoolSize" value="${threadPoolSize}" />
         <property name="type" value="${type}" />
+        <property name="objectName" value="org.fusesource.insight:type=MetricsCollector"/>
   </bean>
 
 

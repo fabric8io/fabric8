@@ -40,14 +40,21 @@ import org.fusesource.insight.metrics.support.Renderer;
 import org.fusesource.insight.metrics.support.ScriptUtils;
 import org.fusesource.insight.storage.StorageService;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -57,17 +64,20 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static org.fusesource.insight.metrics.support.IoUtils.loadFully;
+import static org.fusesource.insight.metrics.support.ScriptUtils.parseJson;
+
 /**
  * Collects all the charting metrics defined against its profiles
  */
-public class MetricsCollector {
+public class MetricsCollector implements MetricsCollectorMBean {
 
     public static final String GRAPH_JSON = "org.fusesource.insight.metrics.json";
 
     public static final String QUERIES = "queries";
     public static final String NAME = "name";
-    public static final String URL = "url";
     public static final String TEMPLATE = "template";
+    public static final String METADATA = "metadata";
     public static final String LOCK = "lock";
     public static final String PERIOD = "period";
     public static final String MIN_PERIOD = "minPeriod";
@@ -82,6 +92,8 @@ public class MetricsCollector {
     public static final String LOCK_HOST = "host";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(MetricsCollector.class);
+
+    private ObjectName objectName;
 
     private BundleContext bundleContext;
     private FabricService fabricService;
@@ -109,6 +121,7 @@ public class MetricsCollector {
         QueryResult lastResult;
         boolean lastResultSent;
         long lastSent;
+        Map metadata;
         ClusteredSingleton<QueryNodeState> lock;
 
         public void close() {
@@ -142,6 +155,10 @@ public class MetricsCollector {
         }
     }
 
+    public void setObjectName(ObjectName objectName) {
+        this.objectName = objectName;
+    }
+
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
@@ -166,12 +183,46 @@ public class MetricsCollector {
         this.zookeeper = zookeeper;
     }
 
+    @Override
+    public String getMetrics() {
+        Map<String, Object> meta = new HashMap<String, Object>();
+        for (Map.Entry<Query, QueryState> e : queries.entrySet()) {
+            meta.put(e.getKey().getName(), e.getValue().metadata);
+        }
+        return ScriptUtils.toJson(meta);
+    }
+
     public void start() throws IOException {
         this.executor = new ScheduledThreadPoolExecutor(threadPoolSize);
         this.executor.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);
         this.executor.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
 
-        this.mbeanServer = new ServiceTracker<MBeanServer, MBeanServer>(bundleContext, MBeanServer.class, null);
+        this.mbeanServer = new ServiceTracker<MBeanServer, MBeanServer>(bundleContext, MBeanServer.class, new ServiceTrackerCustomizer<MBeanServer, MBeanServer>() {
+            @Override
+            public MBeanServer addingService(ServiceReference<MBeanServer> reference) {
+                MBeanServer service = bundleContext.getService(reference);
+                try {
+                    service.registerMBean(MetricsCollector.this, objectName);
+                } catch (Exception e) {
+                    LOG.info("Unable to register metrics collector mbean", e);
+                }
+                return service;
+            }
+
+            @Override
+            public void modifiedService(ServiceReference<MBeanServer> reference, MBeanServer service) {
+            }
+
+            @Override
+            public void removedService(ServiceReference<MBeanServer> reference, MBeanServer service) {
+                try {
+                    service.unregisterMBean(objectName);
+                } catch (Exception e) {
+                    LOG.info("Unable to unregister metrics collector mbean", e);
+                }
+                bundleContext.ungetService(reference);
+            }
+        });
         this.storage = new ServiceTracker<StorageService, StorageService>(bundleContext, StorageService.class, null);
 
         this.mbeanServer.open();
@@ -232,6 +283,9 @@ public class MetricsCollector {
                     final QueryState state = new QueryState();
                     state.server = server;
                     state.query = q;
+                    if (q.getMetadata() != null) {
+                        state.metadata = parseJson(loadFully(new URL(q.getMetadata())));
+                    }
 
                     // Clustered stats ?
 
@@ -305,8 +359,8 @@ public class MetricsCollector {
                 Map object = new ObjectMapper().readValue(bytes, Map.class);
                 for (Map q : (List<Map>) object.get(QUERIES)) {
                     String name = (String) q.get(NAME);
-                    String url = (String) q.get(URL);
                     String template = (String) q.get(TEMPLATE);
+                    String metadata = (String) q.get(METADATA);
                     String lock = (String) q.get(LOCK);
                     int period = DEFAULT.equals(q.get(PERIOD)) ? defaultDelay : q.get(PERIOD) != null ? ((Number) q.get(PERIOD)).intValue() : defaultDelay;
                     int minPeriod = DEFAULT.equals(q.get(MIN_PERIOD)) ? defaultDelay : q.get(MIN_PERIOD) != null ? ((Number) q.get(MIN_PERIOD)).intValue() : period;
@@ -328,7 +382,7 @@ public class MetricsCollector {
                             throw new IllegalArgumentException("Unknown request " + ScriptUtils.toJson(mb));
                         }
                     }
-                    queries.add(new Query(name, requests, url, template, lock, period, minPeriod));
+                    queries.add(new Query(name, requests, template, metadata, lock, period, minPeriod));
                 }
             } catch (Throwable t) {
                 LOG.warn("Unable to load queries from profile " + profile.getId(), t);

@@ -38,37 +38,6 @@ import static org.junit.Assert.assertNotNull;
 public class MetricsTest {
 
     @Test
-    public void testJvm() throws Exception {
-        Query query = new Query("jvm", new HashSet<Request>(Arrays.asList(
-                        new MBeanAttrs("memory", "java.lang:type=Memory",
-                                        Arrays.asList("HeapMemoryUsage", "NonHeapMemoryUsage")),
-                        new MBeanAttrs("pool", "java.lang:type=MemoryPool,*",
-                                        Arrays.asList("Usage", "PeakUsage")),
-                        new MBeanAttrs("threading", "java.lang:type=Threading",
-                                        Arrays.asList("DaemonThreadCount", "PeakThreadCount", "ThreadCount")),
-                        new MBeanAttrs("buffer_pools", "java.nio:type=BufferPool,*",
-                                        Arrays.asList("Count", "MemoryUsed", "TotalCapacity")),
-                        new MBeanAttrs("gc", "java.lang:type=GarbageCollector,*",
-                                        Arrays.asList("CollectionCount", "CollectionTime"))
-                )), null, null, null, 0, 0);
-
-        System.gc();
-
-        QueryResult qrs = JmxUtils.execute(new Server("local"), query,
-                                           ManagementFactory.getPlatformMBeanServer());
-        String output = new Renderer().render(qrs);
-
-        Map map = new ObjectMapper().readValue(output, Map.class);
-        assertEquals("local", map.get("host"));
-        assertNotNull(map.get("timestamp"));
-        assertNotNull(map.get("mem"));
-        assertNotNull(map.get("threads"));
-        assertNotNull(map.get("gc"));
-        assertNotNull(map.get("buffer_pools"));
-
-    }
-
-    @Test
     public void testDefault() throws Exception {
         Query query = new Query("test", new HashSet<Request>(Arrays.asList(
                 new MBeanAttrs("memory", "java.lang:type=Memory",

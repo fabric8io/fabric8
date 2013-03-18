@@ -1,7 +1,7 @@
 {
 	"host": @{toJson(result.server.name)},
-	"timestamp": @{toJson(result.timestamp)},
-	@foreach{b : result.results['broker'].results}
+	"timestamp": @{toJson(result.timestamp)}
+	@foreach{b : result.results['broker'].results},
 	  @code{brokerName = b.objectName.getKeyProperty('brokerName')}
 	  "@{brokerName}": { @foreach{e : b.attrs.entrySet()}
 	    "@{e.key}": @{toJson(e.value)}, @end{}

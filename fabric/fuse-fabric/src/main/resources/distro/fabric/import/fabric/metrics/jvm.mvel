@@ -18,7 +18,7 @@
   }@end{}@if{result.results['threading'] != null},
   "threads": {
     "count": @{result.results['threading'].results[0].attrs['ThreadCount']},
-    "peack_count": @{result.results['threading'].results[0].attrs['PeakThreadCount']}
+    "peak_count": @{result.results['threading'].results[0].attrs['PeakThreadCount']}
   }@end{}@if{result.results['gc'] != null},
   "gc": {
     "collection_count": @{ cc = 0; foreach (p : result.results['gc'].results) { cc += p.attrs['CollectionCount']; } cc; },

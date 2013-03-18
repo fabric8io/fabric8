@@ -1,7 +1,8 @@
 {
   "queries" : [ {
     "name" : "elasticsearch",
-	"url": "zk:/fabric/metrics/elasticsearch.mvel",
+	"template": "zk:/fabric/metrics/elasticsearch.mvel",
+	"metadata": "zk:/fabric/metrics/elasticsearch.json",
     "period": 1,
     "minPeriod": "default",
     "lock": "global",

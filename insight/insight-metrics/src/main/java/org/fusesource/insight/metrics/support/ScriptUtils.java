@@ -20,6 +20,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 
 public final class ScriptUtils {
 
@@ -41,6 +42,14 @@ public final class ScriptUtils {
             return mapper.writeValueAsString(o);
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not serialize " + o, e);
+        }
+    }
+
+    public static Map parseJson(String str) {
+        try {
+            return mapper.readValue(str, Map.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not deserialize " + str, e);
         }
     }
 

@@ -1,0 +1,44 @@
+{
+    "health.number_of_nodes": {
+        "description": "Number of nodes",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "health.number_of_data_nodes": {
+        "description": "Number of data nodes",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "health.active_primary_shards": {
+        "description": "Active primary shards",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "health.active_shards": {
+        "description": "Active shards",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "health.relocating_shards": {
+        "description": "Relocating shards",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "health.initializing_shards": {
+        "description": "Initializing shards",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    },
+    "health.unassigned_shards": {
+        "description": "Unassigned shards",
+        "category": "utilization",
+        "type": "dynamic",
+        "unit": "count"
+    }
+}
