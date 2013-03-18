@@ -28,6 +28,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SourceTest {
     private Log4jLogQuery logQuery = new Log4jLogQuery();
+    protected String mavenCoords = "org.apache.camel:camel-core:2.10.3";
 
     @Before
     public void init() {
@@ -41,7 +42,6 @@ public class SourceTest {
 
     @Test
     public void testSourceDownload() throws Exception {
-        String mavenCoords = "org.apache.camel:camel-core:2.10.3";
         String expectedContent = "CamelContext";
         assertSourceContains(mavenCoords, "org.apache.camel.CamelContext", "/org/apache/camel/CamelContext.java", expectedContent);
         assertSourceContains(mavenCoords, "org.apache.camel.CamelContext", "CamelContext.java", expectedContent);
@@ -58,8 +58,22 @@ public class SourceTest {
         assertSourceContains(mavenCoords, "", "/", "org/apache/camel/CamelContext.java");
     }
 
-    private String assertSourceContains(String mavenCoords, String className, String path, String expectedContent) throws IOException {
+    @Test
+    public void testJavaDocDownload() throws Exception {
+        assertJavaDocContains(mavenCoords, "index.html", "Package, class and interface descriptions");
+        assertJavaDocContains(mavenCoords, "org/apache/camel/CamelContext.html", "CamelContext");
+    }
+
+
+    protected String assertSourceContains(String mavenCoords, String className, String path, String expectedContent) throws IOException {
         String content = logQuery.getSource(mavenCoords, className, path);
+        //System.out.println("Found content: " + content);
+        assertTrue("content should contain '" + expectedContent + "' but was: " + content, content.indexOf(expectedContent) > 0);
+        return content;
+    }
+
+    protected String assertJavaDocContains(String mavenCoords, String path, String expectedContent) throws IOException {
+        String content = logQuery.getJavaDoc(mavenCoords, path);
         //System.out.println("Found content: " + content);
         assertTrue("content should contain '" + expectedContent + "' but was: " + content, content.indexOf(expectedContent) > 0);
         return content;

@@ -299,7 +299,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         }
     }
 
-    protected String loadCoords(String coords, String filePath) throws IOException {
+    protected String loadCoords(String coords, String filePath, String classifier) throws IOException {
         String[] split = coords.split("/");
         if (split != null && split.length > 2) {
             String groupId = split[0];
@@ -320,7 +320,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
                 }
                 resolver = new AetherBasedResolver(config);
             }
-            File file = resolver.resolveFile(groupId, artifactId, "sources", "jar", version);
+            File file = resolver.resolveFile(groupId, artifactId, classifier, "jar", version);
             if (file.exists() && file.isFile()) {
                 if (isRoot(filePath)) {
                     return jarIndex(file);

@@ -218,19 +218,27 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
                 }
             }
         }
+        return getArtifactFile(mavenCoords, filePath, "sources");
+    }
+
+    public String getJavaDoc(String mavenCoordinates, String filePath) throws IOException {
+        return getArtifactFile(mavenCoordinates, filePath, "javadoc");
+    }
+
+    protected String getArtifactFile(String mavenCoords, String filePath, String classifier) throws IOException {
         filePath = ensureStartsWithSlash(filePath);
 
         String coords = mavenCoords.replace(':', '/');
         String[] array = coords.split("\\s+");
         if (array == null || array.length < 2) {
-            return loadCoords(coords, filePath);
+            return loadCoords(coords, filePath, classifier);
         } else {
             // lets enumerate all values if space separated
             if (isRoot(filePath)) {
                 StringBuilder buffer = new StringBuilder();
                 for (String coord : array) {
                     try {
-                        String text = loadCoords(coord, filePath);
+                        String text = loadCoords(coord, filePath, classifier);
                         if (text != null) {
                             buffer.append(text);
                         }
@@ -244,7 +252,7 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
             } else {
                 for (String coord : array) {
                     try {
-                        return loadCoords(coord, filePath);
+                        return loadCoords(coord, filePath, classifier);
                     } catch (IOException e) {
                         if (LOG.isDebugEnabled()) {
                             LOG.debug("" + e);
@@ -256,8 +264,8 @@ public abstract class LogQuerySupport implements LogQuerySupportMBean {
         }
     }
 
-    protected String loadCoords(String coords, String filePath) throws IOException {
-        URL url = new URL("jar:mvn:" + coords + "/jar/sources!" + filePath);
+    protected String loadCoords(String coords, String filePath, String classifier) throws IOException {
+        URL url = new URL("jar:mvn:" + coords + "/jar/" + classifier + "!" + filePath);
         if (isRoot(filePath)) {
             return jarIndex(url);
         }
