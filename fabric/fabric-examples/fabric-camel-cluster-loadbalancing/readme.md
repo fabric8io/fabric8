@@ -113,10 +113,11 @@ And run the following commands in the console
 To verify that the camel client consuming the services receive well responses randomly, connect
 to the Fabric container camel-client and check the log
 
-2013-03-15 18:05:08,022 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9191
-2013-03-15 18:05:10,018 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9191
-2013-03-15 18:05:12,019 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9090
-2013-03-15 18:05:14,021 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9090
+    2013-03-15 18:05:08,022 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9191
+    2013-03-15 18:05:10,018 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9191
+    2013-03-15 18:05:12,019 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9090
+    2013-03-15 18:05:14,021 | INFO  | #0 - timer://foo | fabric-client                    | rg.apache.camel.util.CamelLogger  176 | 96 - org.apache.camel.camel-core - 2.10.0.redhat-60015 | >>> Response from Fabric Container : camel-9090
+
 
 Enjoy Clustering with Fabric Camel !
 ====================================
