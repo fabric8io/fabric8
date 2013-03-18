@@ -18,6 +18,7 @@ package org.fusesource.insight.log.service.support;
 
 import org.fusesource.insight.log.service.Logs;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 import java.net.URL;
@@ -85,17 +86,24 @@ public class MavenCoordinates {
         return getMavenCoordinates(bundleId);
     }
 
+    private static Bundle getBundle(long bundleId) {
+        Bundle logBundle = FrameworkUtil.getBundle(Logs.class);
+        BundleContext bundleContext = logBundle != null ? logBundle.getBundleContext() : null;
+        Bundle bundle = bundleContext != null ? bundleContext.getBundle(bundleId) : null;
+        return bundle;
+    }
+
     private static String getMavenCoordinates(long bundleId) {
-        Bundle m_bundle = FrameworkUtil.getBundle(Logs.class).getBundleContext().getBundle(bundleId);
-        if (m_bundle == null) {
+        Bundle bundle = getBundle(bundleId);
+        if (bundle == null) {
             // Not sure why can't we find the bundleId?
             return null;
         }
-        String id = Long.toString(m_bundle.getBundleId()) + ":" + Long.toString(m_bundle.getLastModified());
+        String id = Long.toString(bundle.getBundleId()) + ":" + Long.toString(bundle.getLastModified());
         String maven = MAVEN_COORDINATES.get(id);
         if (maven == null) {
             try {
-                Enumeration<URL> e = m_bundle.findEntries("META-INF/maven/", "pom.properties", true);
+                Enumeration<URL> e = bundle.findEntries("META-INF/maven/", "pom.properties", true);
                 StringBuilder buf = new StringBuilder();
                 while (e != null && e.hasMoreElements()) {
                     URL url = e.nextElement();
