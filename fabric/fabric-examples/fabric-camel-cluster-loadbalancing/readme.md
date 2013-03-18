@@ -68,7 +68,7 @@ The project will deploy fabric camel routes on Fuse ESB 7 / JBoss Fuse instance 
     export JAVA_PERM_MEM=64m
     export JAVA_MAX_PERM_MEM=512m
 
-In an install of Fuse ESB 7 (http://repo.fusesource.com/nexus/content/groups/public/org/fusesource/esb/fuse-esb/7.0.0.fuse-061/) or later
+In an install of Fuse ESB 7 (http://repo.fusesource.com/nexus/content/groups/public/org/fusesource/esb/fuse-esb/7.1.0.fuse-047/) or JBoss Fuse (https://access.redhat.com/downloads/)
 
     Start the server
     bin/fuseesb or bin/fuseesb.bat
