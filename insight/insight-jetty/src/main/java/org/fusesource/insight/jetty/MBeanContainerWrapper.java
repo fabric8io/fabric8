@@ -26,6 +26,7 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 import org.eclipse.jetty.util.thread.ShutdownThread;
 
+import javax.management.DynamicMBean;
 import javax.management.MBeanServer;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
@@ -362,6 +363,7 @@ public class MBeanContainerWrapper extends MBeanContainer
 
     static Object mbeanFor(Object o, Class clazz)
     {
+        ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try
         {
             Class oClass = clazz;
@@ -369,10 +371,11 @@ public class MBeanContainerWrapper extends MBeanContainer
 
             while (mbean == null && oClass != null)
             {
+                Thread.currentThread().setContextClassLoader(oClass.getClassLoader());
+
                 String pName = oClass.getPackage().getName();
                 String cName = oClass.getName().substring(pName.length() + 1);
                 String mName = pName + ".jmx." + cName + "MBean";
-
 
                 try
                 {
@@ -393,6 +396,11 @@ public class MBeanContainerWrapper extends MBeanContainer
                             mbean=mClass.newInstance();
                             ((ModelMBean)mbean).setManagedResource(o, "objectReference");
                         }
+                    }
+
+                    if (mbean instanceof DynamicMBean)
+                    {
+                        ((DynamicMBean) mbean).getMBeanInfo();
                     }
 
                     if (LOG.isDebugEnabled())
