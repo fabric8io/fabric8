@@ -102,19 +102,23 @@ public class MavenCoordinates {
         String id = Long.toString(bundle.getBundleId()) + ":" + Long.toString(bundle.getLastModified());
         String maven = MAVEN_COORDINATES.get(id);
         if (maven == null) {
-            try {
-                Enumeration<URL> e = bundle.findEntries("META-INF/maven/", "pom.properties", true);
-                StringBuilder buf = new StringBuilder();
-                while (e != null && e.hasMoreElements()) {
-                    URL url = e.nextElement();
-                    org.fusesource.insight.log.support.MavenCoordinates.appendMavenCoordinateFromPomProperties(url.openStream(), buf);
+            if (bundle.getState() >= Bundle.RESOLVED) {
+                try {
+                    Enumeration<URL> e = bundle.findEntries("META-INF/maven/", "pom.properties", true);
+                    StringBuilder buf = new StringBuilder();
+                    while (e != null && e.hasMoreElements()) {
+                        URL url = e.nextElement();
+                        org.fusesource.insight.log.support.MavenCoordinates.appendMavenCoordinateFromPomProperties(url.openStream(), buf);
+                    }
+                    maven = buf.toString();
+                } catch (Throwable t) {
+                    // Ignore
+                    maven = "";
                 }
-                maven = buf.toString();
-            } catch (Throwable t) {
-                // Ignore
+                MAVEN_COORDINATES.put(id, maven);
+            } else {
                 maven = "";
             }
-            MAVEN_COORDINATES.put(id, maven);
         }
         return maven;
     }
