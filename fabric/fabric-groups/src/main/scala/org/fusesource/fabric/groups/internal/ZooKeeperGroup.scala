@@ -88,6 +88,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
       }
     }
     joins.clear
+    tree.destroy
     zk.removeListener(this)
   }
 
