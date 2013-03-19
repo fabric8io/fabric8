@@ -68,7 +68,11 @@ public class InsightRequestLog extends AbstractLifeCycle implements RequestLog, 
 
     @Override
     protected void doStop() throws Exception {
-        storage.close();
+        try {
+            storage.close();
+        } catch (IllegalStateException e) {
+            // Ignore, in case, the bundle context is already invalidated
+        }
         this.registration.unregister();
     }
 
