@@ -93,9 +93,11 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
                     resp.getOutputStream().write(buffer, 0, length);
                 }
                 resp.getOutputStream().flush();
+            } catch (Exception ex) {
+                LOGGER.warning("Error while downloading artifact:" + ex.getMessage());
             } finally {
                 Closeables.closeQuitely(is);
-                if (masterFuture != null) {
+                if (masterFuture != null && artifactFile != null) {
                     masterFuture.release(artifactFile);
                 }
             }
@@ -133,13 +135,17 @@ public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
             this.path = path;
         }
 
-
         @Override
         public File call() throws Exception {
             File download = download(path);
+            if (download != null)  {
             File tmpFile = Files.createTempFile();
             Files.copy(download, tmpFile);
             return tmpFile;
+            } else {
+                return null;
+            }
         }
     }
 }
+

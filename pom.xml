@@ -100,6 +100,7 @@
         <perfectus-build>019</perfectus-build>
         <activemq-version>5.8.0.redhat-60${perfectus-build}</activemq-version>
         <jmdns-version>3.4.1</jmdns-version>
+        <aether-version>1.11</aether-version>
         <antlr-version>3.3</antlr-version>
         <archetype-packaging.version>2.2</archetype-packaging.version>
         <aries-blueprint-version>1.0.1.redhat-60${perfectus-build}</aries-blueprint-version>
@@ -169,6 +170,7 @@
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
         <logback-version>1.0.0</logback-version>
+        <maven-version>3.0.3</maven-version>
         <maven-assembly-plugin-version>2.4</maven-assembly-plugin-version>
         <maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
         <maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
@@ -843,12 +845,6 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
-                <artifactId>fabric-util</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-maven-proxy</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
@@ -1396,7 +1392,11 @@
                 <artifactId>jackson-xc</artifactId>
                 <version>${jackson-version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava-version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

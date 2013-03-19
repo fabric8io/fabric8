@@ -20,7 +20,6 @@ package org.fusesource.fabric.itests.paxexam.cloud;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import javax.annotation.Nullable;
 
 import com.google.common.base.Predicate;
 import org.apache.commons.io.IOUtils;
@@ -131,7 +130,7 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
 
         for (ComputeMetadata computeMetadata : computeService.listNodesDetailsMatching(new Predicate<ComputeMetadata>() {
             @Override
-            public boolean apply(@Nullable ComputeMetadata metadata) {
+            public boolean apply(ComputeMetadata metadata) {
                 NodeMetadata nodeMetadata = (NodeMetadata) metadata;
                 return nodeMetadata.getGroup().equals(group) && nodeMetadata.getState().equals(NodeState.RUNNING);
             }

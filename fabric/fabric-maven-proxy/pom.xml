@@ -49,11 +49,13 @@
             com.google.common.base,
             org.fusesource.fabric.maven.impl,
             org.fusesource.fabric.utils,
+            org.fusesource.fabric.utils.mvn,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
             org.apache.felix.webconsole,
             org.apache.maven.*,
             org.sonatype.aether*,
+            org.sonatype.plexus*,
             org.codehaus.plexus*
         </fuse.osgi.private.pkg>
     </properties>
@@ -113,28 +115,53 @@
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-impl</artifactId>
-            <version>1.11</version>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-connector-wagon</artifactId>
-            <version>1.11</version>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-spi</artifactId>
-            <version>1.11</version>
+            <version>${aether-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
-            <version>3.0.3</version>
+            <version>${maven-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-file</artifactId>
             <version>1.0-beta-7</version>
         </dependency>
+        <dependency>
+            <groupId>org.sonatype.plexus</groupId>
+            <artifactId>plexus-sec-dispatcher</artifactId>
+            <version>1.3</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.codehaus.plexus</groupId>
+            <artifactId>plexus-container-default</artifactId>
+            <version>1.5.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-aether-provider</artifactId>
+            <version>${maven-version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.maven</groupId>
+            <artifactId>maven-settings-builder</artifactId>
+            <version>${maven-version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-http-lightweight</artifactId>

@@ -21,7 +21,6 @@ import org.fusesource.fabric.api.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.CountDownLatch;
 
 public class CreateContainerTask implements Callable<Set<Container>> {
 

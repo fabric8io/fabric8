@@ -22,25 +22,46 @@
             <cm:property name="localRepository" value=""/>
             <cm:property name="remoteRepositories"
                          value="repo1.maven.org/maven2@id=central,repo.fusesource.com/nexus/content/groups/public@id=fusepublic,repo.fusesource.com/nexus/content/groups/releases@id=fusereleases,repo.fusesource.com/nexus/content/groups/public-snapshots@id=fusesnapshots,repo.fusesource.com/nexus/content/groups/ea@id=fuseeasrlyaccess"/>
+            <cm:property name="appendSystemRepos" value="false"/>
             <cm:property name="updatePolicy" value="always"/>
             <cm:property name="checksumPolicy" value="fail"/>
             <cm:property name="uploadRole" value="admin"/>
             <cm:property name="uploadRealm" value="karaf"/>
+            <cm:property name="proxy.protocol" value="http"/>
+            <cm:property name="proxy.host" value=""/>
+            <cm:property name="proxy.port" value="3128"/>
+            <cm:property name="proxy.username" value=""/>
+            <cm:property name="proxy.password" value=""/>
+            <cm:property name="proxy.nonProxyHosts" value="localhost"/>
         </cm:default-properties>
     </cm:property-placeholder>
 
     <bean id="mavenDownloadProxyServlet" class="org.fusesource.fabric.maven.impl.MavenDownloadProxyServlet" init-method="start" destroy-method="stop">
         <property name="localRepository" value="${localRepository}"/>
         <property name="remoteRepositories" value="${remoteRepositories}"/>
+        <property name="appendSystemRepos" value="${appendSystemRepos}"/>
         <property name="updatePolicy" value="${updatePolicy}"/>
         <property name="checksumPolicy" value="${checksumPolicy}"/>
+        <property name="proxyProtocol" value="${proxy.protocol}"/>
+        <property name="proxyHost" value="${proxy.host}"/>
+        <property name="proxyPort" value="${proxy.port}"/>
+        <property name="proxyUsername" value="${proxy.username}"/>
+        <property name="proxyPassword" value="${proxy.password}"/>
+        <property name="proxyNonProxyHosts" value="${proxy.nonProxyHosts}"/>
     </bean>
 
     <bean id="mavenUploadProxyServlet" class="org.fusesource.fabric.maven.impl.MavenUploadProxyServlet" init-method="start" destroy-method="stop">
         <property name="localRepository" value="${localRepository}"/>
         <property name="remoteRepositories" value="${remoteRepositories}"/>
+        <property name="appendSystemRepos" value="${appendSystemRepos}"/>
         <property name="updatePolicy" value="${updatePolicy}"/>
         <property name="checksumPolicy" value="${checksumPolicy}"/>
+        <property name="proxyProtocol" value="${proxy.protocol}"/>
+        <property name="proxyHost" value="${proxy.host}"/>
+        <property name="proxyPort" value="${proxy.port}"/>
+        <property name="proxyUsername" value="${proxy.username}"/>
+        <property name="proxyPassword" value="${proxy.password}"/>
+        <property name="proxyNonProxyHosts" value="${proxy.nonProxyHosts}"/>
     </bean>
 
     <bean id="registrationHandler" class="org.fusesource.fabric.maven.impl.MavenProxyRegistrationHandler" init-method="init" destroy-method="destroy">

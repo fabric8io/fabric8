@@ -16,7 +16,6 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
-import com.google.common.collect.Lists;
 import org.fusesource.fabric.api.*;
 
 import java.util.*;
@@ -33,7 +32,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
     public static final Set<Container> CONTAINERS = new HashSet<Container>();
 
     private final O createOptions;
-    private final List<String> profileNames = Lists.newArrayList("default");
+    private final List<String> profileNames = new LinkedList<String>();
     private boolean waitForProvisioning;
     private boolean assertProvisioningResult;
     private long provisionTimeOut = PROVISION_TIMEOUT;

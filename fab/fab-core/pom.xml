@@ -30,11 +30,6 @@
   <name>${project.artifactId}</name>
   <description>Fuse Application Bundles :: Core</description>
 
-  <properties>
-    <aetherVersion>1.7</aetherVersion>
-    <mavenVersion>3.0</mavenVersion>
-  </properties>
-
   <dependencies>
     <dependency>
         <groupId>org.fusesource.fabric</groupId>
@@ -46,32 +41,32 @@
     <dependency>
       <groupId>org.sonatype.aether</groupId>
       <artifactId>aether-api</artifactId>
-      <version>${aetherVersion}</version>
+      <version>${aether-version}</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.aether</groupId>
       <artifactId>aether-spi</artifactId>
-      <version>${aetherVersion}</version>
+      <version>${aether-version}</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.aether</groupId>
       <artifactId>aether-util</artifactId>
-      <version>${aetherVersion}</version>
+      <version>${aether-version}</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.aether</groupId>
       <artifactId>aether-impl</artifactId>
-      <version>${aetherVersion}</version>
+      <version>${aether-version}</version>
     </dependency>
     <dependency>
       <groupId>org.sonatype.aether</groupId>
       <artifactId>aether-connector-wagon</artifactId>
-      <version>${aetherVersion}</version>
+      <version>${aether-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-aether-provider</artifactId>
-      <version>${mavenVersion}</version>
+      <version>${maven-version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.maven.wagon</groupId>

@@ -476,6 +476,26 @@ public class MavenResolverImpl implements MavenResolver {
                 LOGGER.debug("Metadata resolved: " + toString(event));
             }
 
+			@Override
+			public void artifactDownloading(RepositoryEvent event) {
+				LOGGER.debug("Artifact downloading: " + toString(event));
+			}
+
+			@Override
+			public void artifactDownloaded(RepositoryEvent event) {
+				LOGGER.debug("Metadata downloaded: " + toString(event));
+			}
+
+			@Override
+			public void metadataDownloading(RepositoryEvent event) {
+				LOGGER.debug("Metadata downloading: " + toString(event));
+			}
+
+			@Override
+			public void metadataDownloaded(RepositoryEvent event) {
+				LOGGER.debug("Metadata downloaded: " + toString(event));
+			}
+
             @Override
             public void artifactInstalling(RepositoryEvent event) {
                 LOGGER.debug("Artifact installing: " + toString(event));

@@ -22,10 +22,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -37,6 +34,7 @@ import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.apache.maven.wagon.Wagon;
 import org.apache.maven.wagon.providers.file.FileWagon;
 import org.apache.maven.wagon.providers.http.LightweightHttpWagon;
+import org.apache.maven.wagon.providers.http.LightweightHttpsWagon;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.RepositorySystemSession;
@@ -46,6 +44,7 @@ import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.installation.InstallRequest;
 import org.sonatype.aether.metadata.Metadata;
 import org.sonatype.aether.repository.LocalRepository;
+import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactRequest;
@@ -53,6 +52,8 @@ import org.sonatype.aether.resolution.ArtifactResult;
 import org.sonatype.aether.resolution.MetadataRequest;
 import org.sonatype.aether.resolution.MetadataResult;
 import org.sonatype.aether.spi.connector.RepositoryConnectorFactory;
+import org.sonatype.aether.util.DefaultRepositoryCache;
+import org.sonatype.aether.util.DefaultRepositorySystemSession;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.metadata.DefaultMetadata;
 
@@ -76,20 +77,28 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     //9: type
     public static final Pattern ARTIFACT_METADATA_URL_REGEX = Pattern.compile("([^ ]+)/([^/ ]+)/([^/ ]+)/((maven-metadata([-]([^ .]+))?.xml))([.]([^ ]+))?");
 
-    public static final Pattern REPOSITORY_ID_REGEX  = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
+    public static final Pattern REPOSITORY_ID_REGEX = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
 
-	private static final String DEFAULT_REPO_ID = "default";
+    private static final String DEFAULT_REPO_ID = "default";
 
     protected String localRepository;
     protected String remoteRepositories = "repo1.maven.org/maven2@id=central,repo.fusesource.com/nexus/content/groups/public@id=fusepublic,repo.fusesource.com/nexus/content/groups/releases@id=fusereleases,repo.fusesource.com/nexus/content/groups/public-snapshots@id=fusesnapshots,repo.fusesource.com/nexus/content/groups/ea@id=fuseeasrlyaccess";
+    private boolean appendSystemRepos;
+
     protected String updatePolicy;
     protected String checksumPolicy;
 
     protected Map<String, RemoteRepository> repositories;
     protected RepositorySystem system;
     protected RepositorySystemSession session;
+    protected File tmpFolder = new File(System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
-    protected File tmpFolder = new File(System.getProperty("karaf.data") +  File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
+    private String proxyProtocol;
+    private String proxyHost;
+    private int proxyPort;
+    private String proxyUsername;
+    private String proxyPassword;
+    private String proxyNonProxyHosts;
 
     public synchronized void start() throws IOException {
         if (!tmpFolder.exists() && !tmpFolder.mkdirs()) {
@@ -97,7 +106,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         }
         if (localRepository.equals("")) {
             //It doesn't work when using the file:// protocol prefix.
-            localRepository = System.getProperty("karaf.data") +  File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
+            localRepository = System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
         }
         if (system == null) {
             system = newRepositorySystem();
@@ -108,7 +117,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         repositories = new HashMap<String, RemoteRepository>();
 
         for (String rep : remoteRepositories.split(",")) {
-            String id = "";
+            String id;
             RemoteRepository remoteRepository = null;
             rep = rep.trim();
             Matcher idMatcher = REPOSITORY_ID_REGEX.matcher(rep);
@@ -116,19 +125,25 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 id = idMatcher.group(2);
                 rep = cleanUpRepositorySpec(rep);
                 remoteRepository = new RemoteRepository(id + Math.abs(rep.hashCode()), DEFAULT_REPO_ID, rep);
-            }   else {
+            } else {
                 id = "rep-" + rep.hashCode();
                 rep = cleanUpRepositorySpec(rep);
                 remoteRepository = new RemoteRepository("repo-" + Math.abs(rep.hashCode()), DEFAULT_REPO_ID, rep);
             }
             remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+            remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
             repositories.put(id, remoteRepository);
         }
 
         repositories.put("local", new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository));
         repositories.put("karaf", new RemoteRepository("karaf", DEFAULT_REPO_ID, "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
         repositories.put("user", new RemoteRepository("user", DEFAULT_REPO_ID, "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
-
+        if (appendSystemRepos) {
+            for (RemoteRepository sysRepo : MavenUtils.getRemoteRepositories()) {
+                sysRepo.setProxy(session.getProxySelector().getProxy(sysRepo));
+                repositories.put(sysRepo.getId(), sysRepo);
+            }
+        }
     }
 
     public synchronized void stop() {
@@ -175,14 +190,14 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             LOGGER.log(Level.INFO, String.format("Received request for maven artifact : %s", path));
             Artifact artifact = convertPathToArtifact(path);
             String id = artifact.getGroupId() + ":" + artifact.getArtifactId();
-                try {
-                    ArtifactRequest request = new ArtifactRequest(artifact, new ArrayList<RemoteRepository>(repositories.values()), null);
-                    ArtifactResult result = system.resolveArtifact(session, request);
-                    return result.getArtifact().getFile();
-                } catch (Exception e) {
-                    LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e));
-                    return null;
-                }
+            try {
+                ArtifactRequest request = new ArtifactRequest(artifact, new ArrayList<RemoteRepository>(repositories.values()), null);
+                ArtifactResult result = system.resolveArtifact(session, request);
+                return result.getArtifact().getFile();
+            } catch (Exception e) {
+                LOGGER.log(Level.WARNING, String.format("Could not find artifact : %s due to %s", artifact, e));
+                return null;
+            }
         }
         return null;
     }
@@ -231,7 +246,13 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
     }
 
     protected RepositorySystemSession newSession(RepositorySystem system, String localRepository) {
-        MavenRepositorySystemSession session = new MavenRepositorySystemSession();
+
+        DefaultRepositorySystemSession session = new MavenRepositorySystemSession();
+        session.setOffline(false);
+        session.setProxySelector(MavenUtils.getProxySelector(proxyProtocol, proxyHost, proxyPort, proxyNonProxyHosts, proxyUsername, proxyPassword));
+        session.setMirrorSelector(MavenUtils.getMirrorSelector());
+        session.setAuthenticationSelector(MavenUtils.getAuthSelector());
+        session.setCache(new DefaultRepositoryCache());
         LocalRepository localRepo = new LocalRepository(localRepository);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(localRepo));
         return session;
@@ -270,10 +291,13 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             String extension = "jar";
             String classifier = "";
             String filePerfix = artifactId + "-" + version;
-            String stripedFileName = filename.substring(filePerfix.length());
+            String stripedFileName = null;
 
             if (version.endsWith("SNAPSHOT")) {
-                stripedFileName = stripedFileName.replaceAll("\\d{8}.\\d+-\\d+", "SNAPSHOT");
+                stripedFileName = filename.replaceAll("\\d{8}.\\d+-\\d+", "SNAPSHOT");
+                stripedFileName = stripedFileName.substring(filePerfix.length());
+            } else {
+                stripedFileName = filename.substring(filePerfix.length());
             }
 
             if (stripedFileName != null && stripedFileName.startsWith("-") && stripedFileName.contains(".")) {
@@ -320,7 +344,9 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             String version = pathMatcher.group(3);
             String type = pathMatcher.group(9);
             if (type == null) {
-                type = "";
+                type = "maven-metadata.xml";
+            } else {
+                type = "maven-metadata.xml." + type;
             }
             metadata = new DefaultMetadata(groupId, artifactId, version, type, Metadata.Nature.RELEASE_OR_SNAPSHOT);
 
@@ -330,9 +356,10 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     /**
      * Reads a {@link File} from the {@link InputStream} then saves it under a temp location and returns the file.
-     * @param is            The source input stream.
-     * @param tempLocation  The temporary location to save the content of the stream.
-     * @param name          The name of the file.
+     *
+     * @param is           The source input stream.
+     * @param tempLocation The temporary location to save the content of the stream.
+     * @param name         The name of the file.
      * @return
      * @throws FileNotFoundException
      */
@@ -354,8 +381,14 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             }
         } catch (Exception ex) {
         } finally {
-            try {fos.flush();}catch (Exception ex) {}
-            try {fos.close();}catch (Exception ex) {}
+            try {
+                fos.flush();
+            } catch (Exception ex) {
+            }
+            try {
+                fos.close();
+            } catch (Exception ex) {
+            }
         }
         return tmpFile;
     }
@@ -372,8 +405,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         } else if (!spec.contains("@")) {
             return spec;
         } else {
-			return spec.substring(0, spec.indexOf('@'));
-		}
+            return spec.substring(0, spec.indexOf('@'));
+        }
     }
 
 
@@ -405,6 +438,62 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         this.checksumPolicy = checksumPolicy;
     }
 
+    public String getProxyProtocol() {
+        return proxyProtocol;
+    }
+
+    public void setProxyProtocol(String proxyProtocol) {
+        this.proxyProtocol = proxyProtocol;
+    }
+
+    public String getProxyHost() {
+        return proxyHost;
+    }
+
+    public void setProxyHost(String proxyHost) {
+        this.proxyHost = proxyHost;
+    }
+
+    public int getProxyPort() {
+        return proxyPort;
+    }
+
+    public void setProxyPort(int proxyPort) {
+        this.proxyPort = proxyPort;
+    }
+
+    public String getProxyUsername() {
+        return proxyUsername;
+    }
+
+    public void setProxyUsername(String proxyUsername) {
+        this.proxyUsername = proxyUsername;
+    }
+
+    public String getProxyPassword() {
+        return proxyPassword;
+    }
+
+    public void setProxyPassword(String proxyPassword) {
+        this.proxyPassword = proxyPassword;
+    }
+
+    public String getProxyNonProxyHosts() {
+        return proxyNonProxyHosts;
+    }
+
+    public void setProxyNonProxyHosts(String proxyNonProxyHosts) {
+        this.proxyNonProxyHosts = proxyNonProxyHosts;
+    }
+
+    public boolean isAppendSystemRepos() {
+        return appendSystemRepos;
+    }
+
+    public void setAppendSystemRepos(boolean appendSystemRepos) {
+        this.appendSystemRepos = appendSystemRepos;
+    }
+
     public static class LogAdapter implements org.sonatype.aether.spi.log.Logger {
 
         public boolean isDebugEnabled() {
@@ -432,25 +521,21 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         }
     }
 
-    public static class ManualWagonProvider implements WagonProvider
-    {
+    public static class ManualWagonProvider implements WagonProvider {
 
-        public Wagon lookup( String roleHint )
-                throws Exception
-        {
-            if( "file".equals( roleHint ) )
-            {
+        public Wagon lookup(String roleHint)
+                throws Exception {
+            if ("file".equals(roleHint)) {
                 return new FileWagon();
-            }
-            else if( "http".equals( roleHint ) )
-            {
+            } else if ("http".equals(roleHint)) {
                 return new LightweightHttpWagon();
+            } else if ("https".equals(roleHint)) {
+                return new LightweightHttpsWagon();
             }
             return null;
         }
 
-        public void release( Wagon wagon )
-        {
+        public void release(Wagon wagon) {
 
         }
     }

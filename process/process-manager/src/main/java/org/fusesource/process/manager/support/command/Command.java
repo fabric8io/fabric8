@@ -28,6 +28,7 @@ import com.google.common.io.Closeables;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
+import scala.actors.threadpool.Arrays;
 
 import java.io.*;
 import java.util.List;
@@ -47,7 +48,7 @@ public class Command {
     private final Duration timeLimit;
 
     public Command(String... command) {
-        this(ImmutableList.copyOf(command), DEFAULT_SUCCESSFUL_EXIT_CODES, DEFAULT_DIRECTORY, ImmutableMap.<String, String>of(), DEFAULT_TIME_LIMIT);
+        this(ImmutableList.copyOf(Arrays.asList(command)), DEFAULT_SUCCESSFUL_EXIT_CODES, DEFAULT_DIRECTORY, ImmutableMap.<String, String>of(), DEFAULT_TIME_LIMIT);
     }
 
     public Command(List<String> command, Set<Integer> successfulExitCodes, File directory, Map<String, String> environment, Duration timeLimit) {
@@ -73,7 +74,7 @@ public class Command {
 
     public Command addArgs(String... args) {
         Preconditions.checkNotNull(args, "args is null");
-        return addArgs(ImmutableList.copyOf(args));
+        return addArgs(ImmutableList.copyOf(Arrays.asList(args)));
     }
 
     public Command addArgs(Iterable<String> args) {
