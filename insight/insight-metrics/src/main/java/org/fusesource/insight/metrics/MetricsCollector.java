@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -251,6 +252,9 @@ public class MetricsCollector implements MetricsCollectorMBean {
         }
         this.mbeanServer.close();
         this.storage.close();
+        for (QueryState q : queries.values()) {
+            q.close();
+        }
         if (globalGroup != null) {
             globalGroup.close();
         }
@@ -292,21 +296,20 @@ public class MetricsCollector implements MetricsCollectorMBean {
                     if (q.getLock() != null) {
                         state.lock = new ClusteredSingleton<QueryNodeState>(QueryNodeState.class);
                         state.lock.add(new ChangeListener() {
-                            volatile boolean connected;
                             @Override
                             public void changed() {
-                                if (connected) {
+                                try {
                                     state.lock.update(new QueryNodeState(queryName, containerName,
                                             state.lock.isMaster() ? new String[] { "stat" } : null));
+                                } catch (IllegalStateException e) {
+                                    // not joined ? ignore
                                 }
                             }
                             @Override
                             public void connected() {
-                                this.connected = true;
                             }
                             @Override
                             public void disconnected() {
-                                this.connected = false;
                             }
                         });
                         state.lock.start(startGroup(q.getLock()));
@@ -322,6 +325,8 @@ public class MetricsCollector implements MetricsCollectorMBean {
                     queries.put(q, state);
                 }
             }
+        } catch (RejectedExecutionException t) {
+            // Ignore, the thread pool has been shut down
         } catch (Throwable t) {
             LOG.warn("Error while starting metrics", t);
         }
