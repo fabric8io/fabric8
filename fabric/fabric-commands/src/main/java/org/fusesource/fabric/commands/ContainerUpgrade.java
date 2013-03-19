@@ -64,7 +64,7 @@ public class ContainerUpgrade extends ContainerUpgradeSupport {
         List<Container> toUpgrade = new ArrayList<Container>();
         List<Container> same = new ArrayList<Container>();
         for (String containerName : containerIds) {
-            Container container = fabricService.getContainer(containerName);
+            Container container = getContainer(containerName);
 
             // check first that all can upgrade
             int num = canUpgrade(version, container);

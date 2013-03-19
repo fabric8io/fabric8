@@ -64,7 +64,7 @@ public class ContainerRollback extends ContainerUpgradeSupport {
         List<Container> toRollback = new ArrayList<Container>();
         List<Container> same = new ArrayList<Container>();
         for (String containerName : containerIds) {
-            Container container = fabricService.getContainer(containerName);
+            Container container = getContainer(containerName);
 
             // check first that all can rollback
             int num = canRollback(version, container);
