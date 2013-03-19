@@ -60,7 +60,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
     }
 
     @Override
-    public void onEvents(Collection<NodeEvent<String>> nodeEvents) {
+    public synchronized void onEvents(Collection<NodeEvent<String>> nodeEvents) {
         repositories.clear();
         allfeatures.clear();
         installed.clear();
@@ -118,7 +118,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
      * @return
      */
     @Override
-    public Repository[] listRepositories() {
+    public synchronized Repository[] listRepositories() {
         if (repositories.isEmpty()) {
             Set<String> repositoryUris = new LinkedHashSet<String>();
             Container container = fabricService.getCurrentContainer();
@@ -199,7 +199,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
     }
 
     @Override
-    public Feature[] listFeatures() throws Exception {
+    public synchronized Feature[] listFeatures() throws Exception {
         if (allfeatures.isEmpty()) {
             Repository[] repositories = listRepositories();
             for (Repository repository : repositories) {
@@ -218,7 +218,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
     }
 
     @Override
-    public Feature[] listInstalledFeatures() {
+    public synchronized Feature[] listInstalledFeatures() {
         if (installed.isEmpty()) {
             try {
                 Map<String, Map<String, Feature>> allFeatures = getFeatures(listProfileRepositories());
@@ -256,7 +256,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
 
 
     @Override
-    public boolean isInstalled(Feature feature) {
+    public synchronized boolean isInstalled(Feature feature) {
         if (installed.isEmpty()) {
             listInstalledFeatures();
         }
