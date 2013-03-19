@@ -18,6 +18,8 @@
 package org.fusesource.fabric.maven.impl;
 
 import org.apache.commons.codec.binary.Base64;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.http.HttpContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,9 +42,9 @@ import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.Principal;
 
-public class SecureHttpContext implements HttpContext {
+public class MavenSecureHttpContext implements HttpContext {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecureHttpContext.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MavenSecureHttpContext.class);
 
     private static final String HEADER_WWW_AUTHENTICATE = "WWW-Authenticate";
     private static final String HEADER_AUTHORIZATION = "Authorization";
@@ -55,7 +57,7 @@ public class SecureHttpContext implements HttpContext {
     /**
      * Constructor
      */
-    public SecureHttpContext(HttpContext base, String realm, String role) {
+    public MavenSecureHttpContext(HttpContext base, String realm, String role) {
         this.base = base;
         this.realm = realm;
         this.role = role;
@@ -197,5 +199,11 @@ public class SecureHttpContext implements HttpContext {
     public String getRole() {
         return role;
     }
+
+    public String toString() {
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        return getClass().getSimpleName() + "{" + bundle.getSymbolicName() + " - " + bundle.getBundleId() + "}";
+    }
+
 
 }

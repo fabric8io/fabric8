@@ -18,6 +18,8 @@
 package org.fusesource.fabric.jolokia;
 
 import org.fusesource.fabric.utils.Base64Encoder;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.osgi.service.http.HttpContext;
@@ -197,5 +199,10 @@ public class JolokiaSecureHttpContext implements HttpContext, ManagedService {
             realm = props.get(REALM) != null ? (String) props.get(REALM) : realm;
             role = props.get(ROLE) != null ? (String) props.get(ROLE) : role;
         }
+    }
+
+    public String toString() {
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        return getClass().getSimpleName() + "{" + bundle.getSymbolicName() + " - " + bundle.getBundleId() + "}";
     }
 }

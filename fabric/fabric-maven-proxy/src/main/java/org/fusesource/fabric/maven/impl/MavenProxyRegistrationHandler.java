@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
@@ -88,9 +89,9 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
 
             try {
                 HttpContext base = httpService.createDefaultHttpContext();
-                HttpContext secure = new SecureHttpContext(base, realm, role);
-                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, null, base);
-                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, null, secure);
+                HttpContext secure = new MavenSecureHttpContext(base, realm, role);
+                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, createParams("maven-download"), base);
+                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, createParams("maven-upload"), secure);
             } catch (Throwable t) {
                 LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
             }
@@ -98,6 +99,12 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
             register(MavenProxy.DOWNLOAD_TYPE);
             register(MavenProxy.UPLOAD_TYPE);
         }
+    }
+
+    private Dictionary createParams(String name) {
+        Dictionary d = new Hashtable();
+        d.put("servlet-name", name);
+        return d;
     }
 
     public void unbindHttpService(HttpService httpService) {
