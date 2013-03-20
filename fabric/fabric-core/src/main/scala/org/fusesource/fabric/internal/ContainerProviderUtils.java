@@ -63,6 +63,7 @@ public final class ContainerProviderUtils {
     private static final String REPLACE_IN_FILE = loadFunction("replace_in_file.sh");
     private static final String CONFIGURE_HOSTNAMES = loadFunction("configure_hostname.sh");
 	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
+    private static final String WAIT_FOR_PORT = loadFunction("wait_for_port.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
@@ -98,6 +99,7 @@ public final class ContainerProviderUtils {
         sb.append(REPLACE_IN_FILE).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
 		sb.append(FIND_FREE_PORT).append("\n");
+        sb.append(WAIT_FOR_PORT).append("\n");
         sb.append("run mkdir -p ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run mkdir -p ").append(options.getName()).append("\n");
@@ -188,10 +190,12 @@ public final class ContainerProviderUtils {
             options.setJvmOpts(options.getJvmOpts() + " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
         }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-            sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
+            sb.append("export JAVA_OPTS=\"" + options.getJvmOpts()).append("\"\n");
         }
         sb.append("nohup bin/start &").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
+        sb.append("wait_for_port $SSH_PORT").append("\n");
+        sb.append("wait_for_port $RMI_REGISTRY_PORT").append("\n");
         return sb.toString();
     }
 
@@ -218,7 +222,7 @@ public final class ContainerProviderUtils {
             options.setJvmOpts(options.getJvmOpts() + " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
         }
         if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-            sb.append("export JAVA_OPTS=" + options.getJvmOpts()).append("\n");
+            sb.append("export JAVA_OPTS=\"" + options.getJvmOpts()).append("\"\n");
         }
         sb.append("nohup bin/start &").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
