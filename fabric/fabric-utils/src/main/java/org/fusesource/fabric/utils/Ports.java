@@ -27,7 +27,8 @@ import java.util.regex.Pattern;
 
 public class Ports {
 
-    public static final int DEFAULT_SSH_PORT = 8101;
+    public static final int DEFAULT_HOST_SSH_PORT = 22;
+    public static final int DEFAULT_KARAF_SSH_PORT = 8101;
     public static final int DEFAULT_ZOOKEEPER_SERVER_PORT = 2181;
     public static final int DEFAULT_ZOOKEEPER_PEER_PORT = 2888;
     public static final int DEFAULT_ZOOKEEPER_ELECTION_PORT = 3888;

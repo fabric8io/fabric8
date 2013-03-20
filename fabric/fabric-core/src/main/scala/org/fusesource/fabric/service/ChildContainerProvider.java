@@ -108,7 +108,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                     //This is not enough as it will not work if children has been created and then deleted.
                     //The admin service should be responsible for allocating ports
-                    int sshPort = mapPortToRange(Ports.DEFAULT_SSH_PORT + i, minimumPort, maximumPort);
+                    int sshPort = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + i, minimumPort, maximumPort);
                     while (usedPorts.contains(sshPort)) {
                         sshPort++;
                     }

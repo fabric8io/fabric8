@@ -44,7 +44,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     @Option(name = "--password", description = "Password for login. If the password is omitted, private key authentication is used instead.")
     private String password;
     @Option(name = "--port", description = "The IP port number for the SSH connection.")
-    private int port = Ports.DEFAULT_SSH_PORT;
+    private int port = Ports.DEFAULT_HOST_SSH_PORT;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
