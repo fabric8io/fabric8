@@ -42,22 +42,6 @@ To run the example:
         osgi:install -s fab:mvn:org.jboss.fuse.examples/secure-rest/${project.version}
 3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 admin=admin
-4. edit etc/jetty.xml and comment out
-    <Call name="addBean">
-        <Arg>
-            <New class="org.eclipse.jetty.plus.jaas.JAASLoginService">
-                <Set name="name">karaf</Set>
-                <Set name="loginModuleName">karaf</Set>
-                <Set name="roleClassNames">
-                    <Array type="java.lang.String">
-                        <Item>org.apache.karaf.jaas.boot.principal.RolePrincipal</Item>
-                    </Array>
-                </Set>
-            </New>
-        </Arg>
-    </Call>
-as this example use cxf JAASLoginInterceptor with KARAF jaas realm to do authentication, shouldn't have 
-jetty JAASLoginService enabled to do the authentication.
 
 There are several ways you can interact with the running RESTful Web services:
 * browse the Web service metadata
