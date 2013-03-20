@@ -92,10 +92,7 @@ define [
     child_control: (model) ->
       row = new ConnectionRow
         model: model
-      if row.template_data().ViewType != "unknown"
-        row
-      else
-        null
+      row
 
 
   class ConnectionDetailPage extends FON.ModelBackedTemplate

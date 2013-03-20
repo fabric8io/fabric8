@@ -15,20 +15,16 @@
  */
 package org.fusesource.fabric.activemq.facade;
 
+import org.apache.activemq.broker.jmx.*;
+
+import javax.management.ObjectName;
+import javax.management.QueryExp;
+import javax.management.openmbean.CompositeData;
+import javax.management.openmbean.TabularData;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import javax.management.*;
-import javax.management.openmbean.CompositeData;
-import javax.management.openmbean.TabularData;
-
-import org.apache.activemq.broker.jmx.*;
+import java.util.*;
 
 /**
  * A useful base class for an implementation of {@link BrokerFacade}
@@ -124,7 +120,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     @SuppressWarnings("unchecked")
     public Collection<ConnectionViewFacade> getConnections() throws Exception {
         String brokerName = getBrokerName();
-        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",connector=clientConnectors,connectorName=*,connectionName=*");
+        ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName + ",connector=clientConnectors,connectorName=*,connectionViewType=clientId,connectionName=*");
 
         Set<ObjectName> queryResult = queryNames(query, null);
         return getManagedObjects(queryResult.toArray(new ObjectName[queryResult.size()]), ConnectionViewMBean.class, ConnectionViewFacade.class);
@@ -134,7 +130,7 @@ public abstract class BrokerFacadeSupport implements BrokerFacade {
     public Collection<String> getConnections(String connectorName) throws Exception {
         String brokerName = getBrokerName();
         ObjectName query = new ObjectName("org.apache.activemq:type=Broker,brokerName=" + brokerName
-                + ",connector=clientConnectors,connectorName=" + connectorName + ",connectionName=*");
+                + ",connector=clientConnectors,connectorName=" + connectorName + ",connectionViewType=clientId,connectionName=*");
         Set<ObjectName> queryResult = queryNames(query, null);
         Collection<String> result = new ArrayList<String>(queryResult.size());
         for (ObjectName on : queryResult) {
