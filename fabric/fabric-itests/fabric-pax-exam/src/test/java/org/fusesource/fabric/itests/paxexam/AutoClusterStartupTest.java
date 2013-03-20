@@ -19,6 +19,9 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
+import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.Test;
@@ -34,6 +37,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Dictionary;
 
 import static junit.framework.Assert.assertEquals;
@@ -52,6 +56,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         assertNotNull(fabricService);
         IZKClient zookeeer = getZookeeper();
         zookeeer.waitForConnected(new Timespan(60, Timespan.TimeUnit.SECOND));
+        Provision.waitForContainerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", (FabricServiceImpl) fabricService)), PROVISION_TIMEOUT);
         Container[] containers = fabricService.getContainers();
         assertNotNull(containers);
         assertEquals("Expected to find 1 container", 1, containers.length);
