@@ -56,7 +56,7 @@
     <bean id="pooledConnectionFactory"
           class="org.apache.activemq.pool.PooledConnectionFactory">
         <property name="maxConnections" value="1" />
-        <property name="maximumActive" value="500" />
+        <property name="maximumActiveSessionPerConnection" value="500" />
         <property name="connectionFactory" ref="jmsConnectionFactory" />
     </bean>
 
