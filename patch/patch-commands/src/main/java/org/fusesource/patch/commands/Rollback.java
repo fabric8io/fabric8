@@ -25,7 +25,7 @@ import org.fusesource.patch.Service;
 @Command(scope = "patch", name = "rollback", description = "Rollback a patch installation")
 public class Rollback extends PatchCommandSupport {
 
-    @Argument(name = "PATCH", description = "name of the patch to rollback")
+    @Argument(name = "PATCH", description = "name of the patch to rollback", required = true, multiValued = false)
     String patchId;
     
     @Override

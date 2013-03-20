@@ -27,7 +27,7 @@ import org.fusesource.patch.Service;
 @Command(scope = "patch", name = "install", description = "Install a patch")
 public class Install extends PatchCommandSupport {
 
-    @Argument(name = "PATCH", description = "name of the patch to install")
+    @Argument(name = "PATCH", description = "name of the patch to install", required = true, multiValued = false)
     String patchId;
 
     @Option(name = "--force", description = "Force the installation of the patch")

@@ -30,7 +30,7 @@ public class Add extends PatchCommandSupport {
     @Option(name = "--bundles", description = "Show bundles contained in patches")
     boolean bundles;
 
-    @Argument
+    @Argument(required = true, multiValued = false)
     String url;
     
     @Override

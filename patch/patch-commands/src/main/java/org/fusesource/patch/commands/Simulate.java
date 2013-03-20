@@ -26,7 +26,7 @@ import org.fusesource.patch.Service;
 @Command(scope = "patch", name = "simulate", description = "Simulate a patch installation")
 public class Simulate extends PatchCommandSupport {
 
-    @Argument(name = "PATCH", description = "name of the patch to simulate")
+    @Argument(name = "PATCH", description = "name of the patch to simulate", required = true, multiValued = false)
     String patchId;
 
     @Override
