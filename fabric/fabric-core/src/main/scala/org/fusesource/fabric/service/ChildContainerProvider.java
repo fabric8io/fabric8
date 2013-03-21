@@ -16,18 +16,18 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.karaf.admin.InstanceSettings;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerChildMetadata;
-import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.IZKClient;
@@ -82,8 +82,10 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(" -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
                 }
 
-                String features = "fabric-agent";
-                String featuresUrls = "mvn:org.fusesource.fabric/fuse-fabric/" + FabricConstants.FABRIC_VERSION + "/xml/features";
+                Profile defaultProfile = service.getProfile(parent.getVersion().getName(), "default");
+                String featuresUrls = listAsString(defaultProfile.getRepositories());
+                String features = listAsString(defaultProfile.getFeatures());
+
                 String originalName = options.getName();
                 usedPorts.addAll(getContainerUsedPorts(parent));
 
@@ -271,5 +273,21 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
         zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}", CreateMode.PERSISTENT);
         zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}", CreateMode.PERSISTENT);
+    }
+
+    private static String listAsString(List<String> value) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        if (value != null) {
+            for (String el : value) {
+                if (first) {
+                    first = false;
+                } else {
+                    sb.append(",");
+                }
+                sb.append(el);
+            }
+        }
+        return sb.toString();
     }
 }
