@@ -20,21 +20,16 @@ import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+import static org.ops4j.pax.exam.OptionUtils.combine;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.util.List;
-
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.ops4j.pax.exam.CoreOptions.systemProperty;
-import static org.ops4j.pax.exam.OptionUtils.combine;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -47,7 +42,6 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
 
 
     @Test
-    @Ignore
     public void testExample() throws Exception {
 		String version = System.getProperty("fabric.version");
         System.err.println(executeCommand("fabric:create -n"));
@@ -59,8 +53,7 @@ public class ExampleCamelCxfTest extends FabricTestSupport {
 		Thread.sleep(5000);
 		System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list"));
 		System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 camel:route-list"));
-		String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin child1 camel:route-info fabric-camel-cxf | grep Started")).getPlain().toString();
-		System.err.println(response);
+		String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin child1 camel:route-list | grep fabric-camel-cxf")).getPlain().toString();
 		Assert.assertTrue(response.contains("fabric-camel-cxf"));
 	}
 
