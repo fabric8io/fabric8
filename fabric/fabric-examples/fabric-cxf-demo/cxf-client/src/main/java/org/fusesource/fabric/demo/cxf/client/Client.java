@@ -31,7 +31,8 @@ public class Client {
 
     public Client() {
         // The feature will try to create a zookeeper client itself by checking the system property of
-        // zookeeper.url
+        // zookeeper.url and zookeeper.password
+        System.setProperty("zookeeper.password", "admin");
         FabricLoadBalancerFeature feature = new FabricLoadBalancerFeature();
         // Feature will use this path to locate the service
         feature.setFabricPath("cxf/demo");
