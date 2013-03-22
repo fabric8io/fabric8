@@ -32,7 +32,7 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.cxf
+            org.fusesource.fabric.cxf;version=${project.version},
         </fuse.osgi.export>
     </properties>
 
