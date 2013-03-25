@@ -40,9 +40,13 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     private static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
 
     private volatile IZKClient zkClient;
+
+    private String zooKeeperUrl;
+    private String zooKeeperPassword;
     private String zkRoot = "/fabric/cxf/endpoints/";
     private String fabricPath;
     private boolean shouldCloseZkClient = false;
+    // Default ZooKeeper connection timeout
     private long maximumConnectionTimeout = 10 * 1000L;
     private volatile Group group;
     private LoadBalanceStrategy loadBalanceStrategy;
@@ -133,10 +137,16 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
 
     public synchronized IZKClient getZkClient() throws Exception {
         if (zkClient == null) {
-            String connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
-            String password = System.getProperty(ZOOKEEPER_PASSWORD);
+            String connectString = getZooKeeperUrl();
+            if (connectString == null) {
+                connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
+            }
+            String password = getZooKeeperPassword();
+            if (password == null) {
+                System.getProperty(ZOOKEEPER_PASSWORD);
+            }
             LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
-            ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
+            ZKClient client = new ZKClient(connectString, Timespan.milliseconds(getMaximumConnectionTimeout()), null);
             if (password != null && !password.isEmpty()) {
                 client.setPassword(password);
             }
@@ -195,6 +205,22 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
 
     public void setAddressResolver(ServerAddressResolver addressResolver) {
         this.addressResolver = addressResolver;
+    }
+
+    public String getZooKeeperUrl() {
+        return zooKeeperUrl;
+    }
+
+    public void setZooKeeperUrl(String zooKeeperUrl) {
+        this.zooKeeperUrl = zooKeeperUrl;
+    }
+
+    public String getZooKeeperPassword() {
+        return zooKeeperPassword;
+    }
+
+    public void setZooKeeperPassword(String zooKeeperPassword) {
+        this.zooKeeperPassword = zooKeeperPassword;
     }
 
     @Override
