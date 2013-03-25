@@ -31,11 +31,20 @@
 
     <dependencies>
       <!-- Camel -->
+      <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-jetty</artifactId>
+          <version>${camel.version}</version>
+      </dependency>
     </dependencies>
 
     <properties>
+        <!-- Make sure that we express the dependency to jetty in the OSGi Metadata.
+             This is important to make sure that camel-jetty component will be available,
+             when we publish the fabric endpoint -->
         <osgi-import-pkg>
             org.linkedin.zookeeper.client,
+            org.apache.camel.component.jetty,
             *
          </osgi-import-pkg>
          <osgi-export-pkg />

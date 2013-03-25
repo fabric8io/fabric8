@@ -37,12 +37,12 @@ public class FabricCamelComponentTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
-        ContainerBuilder.destroy();
+        //ContainerBuilder.destroy();
     }
 
     @Test
     public void testRegistryEntries() throws Exception {
-        int startingPort = 9191;
+        int startingPort = 9090;
         System.err.println(executeCommand("fabric:create -n root"));
         IZKClient zooKeeper = getZookeeper();
         //Wait for zookeeper service to become available.
@@ -54,7 +54,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-edit --features camel-server fabric-camel-server"));
         executeCommand("fabric:profile-edit --features camel-client fabric-camel-client");
 
-        Set<Container> containers = ContainerBuilder.create(3).withName("fabric-camel").withProfiles("camel").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create(3).withName("fabric-camel").withProfiles("fabric-camel").assertProvisioningResult().build();
 
         //We will use the first container as a client and the rest as servers.
         Container camelClientContainer = containers.iterator().next();
@@ -65,8 +65,10 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         int index = 1;
         for (Container c : camelServerContainers) {
             zooKeeper.setData(ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+            executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " log:set DEBUG");
             System.err.println(executeCommand("fabric:profile-create --parents fabric-camel-server fabric-camel-server-" + index));
             System.err.println(executeCommand("fabric:profile-edit --pid org.fusesource.fabric.examples.camel.loadbalancing.server/portNumber=" + (startingPort++) + " fabric-camel-server-" + index));
+            System.err.println(executeCommand("fabric:profile-display fabric-camel-server-" + index));
             System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " fabric-camel-server-" + (index++)));
         }
 
@@ -86,7 +88,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();
         System.err.println(response);
         int failed = Integer.parseInt(response.replaceAll("[^0-9]", ""));
-        Assert.assertEquals(0, failed);
+        Assert.assertEquals("Failed exchanges found on client",0, failed);
 
         //We want to kill all but one server, so we take out the first and keep it to the end.
         Container lastActiveServerContainer = camelServerContainers.iterator().next();
@@ -97,7 +99,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
             response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();
             System.err.println(response);
             failed = Integer.parseInt(response.replaceAll("[^0-9]", ""));
-            Assert.assertEquals(0, failed);
+            Assert.assertEquals("Failed exchanges found after container:"+c.getId()+ " shut down",0, failed);
         }
     }
 
@@ -105,7 +107,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005",false),
+                //debugConfiguration("5005",true),
                 editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID))
         };
     }

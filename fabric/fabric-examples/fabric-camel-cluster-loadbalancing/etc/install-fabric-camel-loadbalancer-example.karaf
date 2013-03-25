@@ -5,7 +5,6 @@ fabric:profile-create --parents camel camel-cluster
 
 shell:echo Add repositories and features to the camel-cluster profile
 fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-cluster/features/${project.version}/xml/features camel-cluster
-fabric:profile-edit --features camel-jetty  camel-cluster
 fabric:profile-edit --features camel-server camel-cluster
 
 shell:echo Create port-9090 profile extending camel-cluster to specify the port number used by the server
@@ -27,7 +26,6 @@ shell:sleep 2000
 shell:echo Create Fabric Camel Consumer profile to deploy the client calling the cluster
 fabric:profile-create --parents camel camel-consumer
 fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-cluster/features/${project.version}/xml/features camel-consumer
-fabric:profile-edit --features camel-jetty camel-consumer
 fabric:profile-edit --features camel-client camel-consumer
 
 shell:echo Create fabric container camel-client
