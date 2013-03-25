@@ -95,6 +95,8 @@
         <module>fmc-distro</module>
         -->
 
+        <module>fabric-git</module>
+        <module>fabric-git-server</module>
 
     </modules>
 

@@ -92,6 +92,7 @@
         <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.services.export />
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
+        <fuse.osgi.require.bundle />
 
         <fmc-port>8107</fmc-port>
 
@@ -155,6 +156,7 @@
         <jetty6-version>6.1.26_4</jetty6-version>
         <jetty-plugin-version>7.6.7.v20120910</jetty-plugin-version>
         <jetty-version>7.6.7.v20120910</jetty-version>
+        <jgit.version>2.2.0.201212191850-r</jgit.version>
         <jledit.version>0.2.0</jledit.version>
         <jolokia-version>1.1.0</jolokia-version>
         <jms-1.1-version>1.1.1</jms-1.1-version>
@@ -337,6 +339,7 @@
                             <_failok>${fuse.osgi.failok}</_failok>
                             <Export-Service>${fuse.osgi.services.export}</Export-Service>
                             <Embed-Dependency>${fuse.osgi.embed.dependency}</Embed-Dependency>
+                            <Require-Bundle>${fuse.osgi.require.bundle}</Require-Bundle>
                         </instructions>
                     </configuration>
                     <executions>
@@ -810,6 +813,18 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-features-service</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-git</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-git-server</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
