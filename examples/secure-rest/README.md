@@ -152,4 +152,4 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
 ## More information
 For more information see:
 
-* https://access.redhat.com/knowledge/docs/JBoss_Fuse for more information about using JBoss Fuse
+* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse

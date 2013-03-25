@@ -72,4 +72,4 @@ For more information see:
 * http://www.enterpriseintegrationpatterns.com/WireTap.html
 * http://www.enterpriseintegrationpatterns.com/Filter.html
 * http://www.enterpriseintegrationpatterns.com/Sequencer.html
-* https://access.redhat.com/knowledge/docs/JBoss_Fuse for more information about using JBoss Fuse
+* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse

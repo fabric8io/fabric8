@@ -53,4 +53,4 @@ To run the example:
 For more information see:
 
 * http://www.enterpriseintegrationpatterns.com/ContentBasedRouter.html for more information about the CBR EIP
-* https://access.redhat.com/knowledge/docs/JBoss_Fuse for more information about using JBoss Fuse
+* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse
