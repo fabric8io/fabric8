@@ -541,20 +541,25 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 					ZooKeeperRetriableUtils.set(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
 					ZooKeeperRetriableUtils.set(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
-					for (String container : dst.getChildren("/fabric/configs/versions/" + version + "/containers")) {
-						ZooKeeperRetriableUtils.remove(dst, "/fabric/configs/versions/" + version + "/containers/" + container, "fabric-ensemble-" + oldClusterId + "-.*");
-					}
 
-					ZooKeeperRetriableUtils.set(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
-					ZooKeeperRetriableUtils.set(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-					ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
-					ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-					setConfigProperty(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-					setConfigProperty(dst, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-					setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-					setConfigProperty(zooKeeper, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
+                    ZooKeeperRetriableUtils.set(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    ZooKeeperRetriableUtils.set(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
+                    ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 
-				} finally {
+
+                    for (String v : zooKeeper.getChildren("/fabric/configs/versions/")) {
+                        for (String container : dst.getChildren("/fabric/configs/versions/" + v + "/containers")) {
+                            ZooKeeperRetriableUtils.remove(dst, "/fabric/configs/versions/" + v + "/containers/" + container, "fabric-ensemble-" + oldClusterId + "-.*");
+                        }
+                        setConfigProperty(dst, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
+                        setConfigProperty(dst, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
+                        setConfigProperty(zooKeeper, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
+                        setConfigProperty(zooKeeper, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
+                    }
+
+
+                } finally {
 					dst.close();
 				}
 			} else {

@@ -37,7 +37,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import javax.inject.Inject;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -147,7 +146,6 @@ public class EnsembleTest extends FabricTestSupport {
         }
 
 
-
         System.err.println(executeCommand("fabric:version-create"));
         System.err.println(executeCommand("fabric:container-upgrade --all 1.3"));
 
@@ -165,6 +163,84 @@ public class EnsembleTest extends FabricTestSupport {
             Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
             Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
             Provision.waitForContainerAlive(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+        }
+    }
+
+    /**
+     * We want to test the ensemble health is not affected if part of the ensemble is switched to an other version.
+     * @throws Exception
+     */
+    @Test
+    public void testAddAndRemoveWithPartialVersionUpgrades() throws Exception {
+        System.err.println(executeCommand("fabric:create -n"));
+        ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
+        Assert.assertNotNull(zooKeeperClusterService);
+
+        IZKClient zookeeper = getZookeeper();
+        FabricService fabricService = getFabricService();
+
+        System.err.println(executeCommand("fabric:version-create"));
+        System.err.println(executeCommand("fabric:container-upgrade --all 1.1"));
+
+        LinkedList<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
+        LinkedList<Container> addedContainers = new LinkedList<Container>();
+
+        System.err.println(executeCommand("fabric:version-create"));
+        System.err.println(executeCommand("fabric:container-upgrade --all 1.2"));
+
+
+        Random rand = new Random();
+
+        for (int version = 3; version < 6; version++) {
+
+            Provision.waitForContainerAlive(containerQueue, PROVISION_TIMEOUT);
+            Provision.waitForContainerAlive(addedContainers, PROVISION_TIMEOUT);
+            for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
+                Container cnt1 = containerQueue.removeFirst();
+                Container cnt2 = containerQueue.removeFirst();
+                addedContainers.add(cnt1);
+                addedContainers.add(cnt2);
+                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+                System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
+                Future<String> future = excutorService.submit(waitTask);
+                future.get(60, TimeUnit.SECONDS);
+                zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+                System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
+                System.err.println(executeCommand("fabric:container-list"));
+                List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
+                Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
+                Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
+                System.err.println(executeCommand("fabric:container-list"));
+                Provision.waitForContainerAlive(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+            }
+
+
+            int index = rand.nextInt(addedContainers.size());
+            String randomContainer = addedContainers.get(index).getId();
+            System.err.println(executeCommand("fabric:version-create 1." + version));
+            System.err.println(executeCommand("fabric:container-upgrade 1." + version + " " + randomContainer));
+
+            Provision.waitForContainerAlive(containerQueue, PROVISION_TIMEOUT);
+            Provision.waitForContainerAlive(addedContainers, PROVISION_TIMEOUT);
+            for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
+                Container cnt1 = addedContainers.removeFirst();
+                Container cnt2 = addedContainers.removeFirst();
+                containerQueue.add(cnt1);
+                containerQueue.add(cnt2);
+                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+                System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
+                Future<String> future = excutorService.submit(waitTask);
+                future.get(60, TimeUnit.SECONDS);
+                zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+                System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
+                System.err.println(executeCommand("fabric:container-list"));
+                List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
+                Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
+                Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
+                Provision.waitForContainerAlive(Arrays.asList(fabricService.getContainers()), PROVISION_TIMEOUT);
+            }
+
+            System.err.println(executeCommand("fabric:container-rollback --all 1."+(version-1)));
         }
     }
 
