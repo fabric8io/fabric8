@@ -41,7 +41,7 @@ To run the example:
 2. In the JBoss Fuse console, enter the following command:
         osgi:install -s fab:mvn:org.jboss.fuse.examples/secure-rest/${project.version}
 3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
-admin=admin
+admin=admin,admin
 
 There are several ways you can interact with the running RESTful Web services:
 * browse the Web service metadata
