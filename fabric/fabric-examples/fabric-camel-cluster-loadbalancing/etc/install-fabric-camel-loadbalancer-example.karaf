@@ -35,3 +35,9 @@ shell:echo Install zookeeper commands to display data registered
 fabric:profile-create --parents fabric zookeeper-commands
 fabric:profile-edit --features fabric-zookeeper-commands zookeeper-commands
 fabric:container-add-profile root zookeeper-commands
+
+# Uncomment it if you would like to use hawtio 1.1-SNAPSHOT console
+#fabric:profile-create --parents karaf hawtio-snapshot
+#fabric:profile-edit --repositories mvn:io.hawt/hawtio-karaf/1.1-SNAPSHOT/xml/features
+#fabric:profile-edit --pid org.ops4j.pax.web/org.osgi.service.http.port=8282 hawtio-snapshot
+#fabric:profile-edit --features hawtio hawtio-snapshot
