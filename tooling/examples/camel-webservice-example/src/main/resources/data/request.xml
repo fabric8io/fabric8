@@ -1,0 +1,6 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Header/>
+    <soap:Body>
+        <ns2:getCustomerByName xmlns:ns2="http://training.fusesource.com/">Fuse</ns2:getCustomerByName>
+    </soap:Body>
+</soap:Envelope>

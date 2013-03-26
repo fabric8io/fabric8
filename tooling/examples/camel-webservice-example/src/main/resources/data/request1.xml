@@ -1,0 +1,16 @@
+Headers: {accept-encoding=[gzip,deflate], connection=[keep-alive], Content-Length=[586], content-type=[text/xml;charset=UTF-8], Host=[0.0.0.0:9191], SOAPAction=["http://example.fuse.redhat.com/saveCustomer"], User-Agent=[Apache-HttpClient/4.1.1 (java 1.5)]}
+Payload: <soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:exam="http://example.fuse.redhat.com/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <exam:saveCustomer>
+         <exam:customer>
+            <exam:name>RedHat1</exam:name>
+            <exam:address>Sao Paulo, Brazil</exam:address>
+            <exam:numOrders>22</exam:numOrders>
+            <exam:revenue>1000.0</exam:revenue>
+            <exam:test>100.0</exam:test>
+            <exam:type>BUSINESS</exam:type>
+         </exam:customer>
+      </exam:saveCustomer>
+   </soapenv:Body>
+</soapenv:Envelope>

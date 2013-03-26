@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="CustomerService"
+                  targetNamespace="http://example.fusesource.org/"
+                  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:tns="http://example.fusesource.org/"
+                  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+    <wsdl:types>
+        <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+                   xmlns:tns="http://example.fusesource.org/"
+                   elementFormDefault="qualified"
+                   targetNamespace="http://example.fusesource.org/">
+
+            <!-- Entity definition -->
+            <xs:complexType name="customer">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" type="xs:string"/>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="address"
+                                nillable="true" type="xs:string"/>
+                    <xs:element name="numOrders" type="xs:int"/>
+                    <xs:element name="revenue" type="xs:double"/>
+                    <xs:element minOccurs="0" name="test" type="xs:decimal"/>
+                    <xs:element minOccurs="0" name="birthDate" type="xs:dateTime"/>
+                    <xs:element minOccurs="0" name="type" type="tns:customerType"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:simpleType name="customerType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="PRIVATE"/>
+                    <xs:enumeration value="BUSINESS"/>
+                </xs:restriction>
+            </xs:simpleType>
+
+            <!-- Methods -->
+            <xs:element name="getCustomerByName" type="tns:getCustomerByName"/>
+            <xs:complexType name="getCustomerByName">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="name" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="getCustomerByNameResponse" type="tns:getCustomerByNameResponse"/>
+            <xs:complexType name="getCustomerByNameResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:customer"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="getAllCustomers"/>
+
+            <xs:element name="getAllCustomersResponse" type="tns:getAllCustomersResponse"/>
+            <xs:complexType name="getAllCustomersResponse">
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" name="return" type="tns:customer"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="saveCustomer" type="tns:saveCustomer"/>
+
+            <xs:element name="saveCustomerResponse" type="tns:saveCustomer"/>
+            <xs:complexType name="saveCustomer">
+                <xs:sequence>
+                    <xs:element name="customer" type="tns:customer"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="NoSuchCustomer" type="tns:NoSuchCustomer"/>
+            <xs:complexType name="NoSuchCustomer">
+                <xs:sequence>
+                    <xs:element name="customerId" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+
+            <xs:element name="NotAuthorizedUser" type="tns:NotAuthorizedUser"/>
+            <xs:complexType name="NotAuthorizedUser">
+                <xs:sequence>
+                    <xs:element name="user" nillable="true" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:schema>
+    </wsdl:types>
+
+    <wsdl:message name="getCustomerByName">
+        <wsdl:part name="parameters" element="tns:getCustomerByName"/>
+    </wsdl:message>
+    <wsdl:message name="getCustomerByNameResponse">
+        <wsdl:part name="parameters" element="tns:getCustomerByNameResponse"/>
+    </wsdl:message>
+
+    <wsdl:message name="getAllCustomers"/>
+    <wsdl:message name="getAllCustomersResponse">
+        <wsdl:part name="parameters" element="tns:getAllCustomersResponse"/>
+    </wsdl:message>
+
+    <wsdl:message name="saveCustomerRequest">
+        <wsdl:part name="parameters" element="tns:saveCustomer"/>
+    </wsdl:message>
+    <wsdl:message name="saveCustomerResponse">
+        <wsdl:part name="parameters" element="tns:saveCustomerResponse"/>
+    </wsdl:message>
+
+    <wsdl:message name="NoSuchCustomerFault">
+        <wsdl:part name="NoSuchCustomerFault" element="tns:NoSuchCustomer"/>
+    </wsdl:message>
+
+    <wsdl:message name="NotAuthorizedUserFault">
+        <wsdl:part name="NotAuthorizedUserFault" element="tns:NotAuthorizedUser"/>
+    </wsdl:message>
+
+    <wsdl:portType name="CustomerService">
+        <wsdl:operation name="getCustomerByName">
+            <wsdl:input name="getCustomerByName" message="tns:getCustomerByName"/>
+            <wsdl:output name="getCustomerByNameResponse" message="tns:getCustomerByNameResponse"/>
+            <wsdl:fault name="NoSuchCustomerFault" message="tns:NoSuchCustomerFault"/>
+            <wsdl:fault name="NotAuthorizedUserFault" message="tns:NotAuthorizedUserFault"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="getAllCustomers">
+            <wsdl:input message="tns:getAllCustomers"/>
+            <wsdl:output message="tns:getAllCustomersResponse"/>
+            <wsdl:fault name="NotAuthorizedUserFault" message="tns:NotAuthorizedUserFault"/>
+        </wsdl:operation>
+
+        <wsdl:operation name="saveCustomer">
+            <wsdl:input name="saveCustomerRequest" message="tns:saveCustomerRequest"/>
+            <wsdl:output name="saveCustomerResponse" message="tns:saveCustomerResponse"/>
+            <wsdl:fault name="NotAuthorizedUserFault" message="tns:NotAuthorizedUserFault"/>
+        </wsdl:operation>
+    </wsdl:portType>
+
+    <wsdl:binding name="CustomerServiceServiceSoapBinding"
+                  type="tns:CustomerService">
+
+        <soap:binding style="document"
+                      transport="http://schemas.xmlsoap.org/soap/http"/>
+
+        <wsdl:operation name="getCustomerByName">
+            <soap:operation
+                    soapAction="http://example.fusesource.org/getCustomerByName"/>
+            <wsdl:input name="getCustomerByName">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="getCustomerByNameResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="NoSuchCustomerFault">
+                <soap:fault use="literal" name="NoSuchCustomerFault"/>
+            </wsdl:fault>
+            <wsdl:fault name="NotAuthorizedUserFault">
+                <soap:fault use="literal" name="NotAuthorizedUserFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="getAllCustomers">
+            <soap:operation soapAction="http://example.fusesource.org/getAllCustomers"/>
+            <wsdl:output>
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="NotAuthorizedUserFault">
+                <soap:fault use="literal" name="NotAuthorizedUserFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+
+        <wsdl:operation name="saveCustomer">
+            <soap:operation soapAction="http://example.fusesource.org/saveCustomer"/>
+            <wsdl:input name="saveCustomerRequest">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="saveCustomerResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+            <wsdl:fault name="NotAuthorizedUserFault">
+                <soap:fault use="literal" name="NotAuthorizedUserFault"/>
+            </wsdl:fault>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="CustomerService">
+        <wsdl:port name="CustomerServicePort" binding="tns:CustomerServiceServiceSoapBinding">
+            <soap:address location="http://localhost:8888/CustomerServicePort"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>
