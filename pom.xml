@@ -179,6 +179,7 @@
         <maven-fab-plugin-version>1.16</maven-fab-plugin-version>
         <maven-jar-plugin-version>2.4</maven-jar-plugin-version>
         <maven-resources-plugin-version>2.6</maven-resources-plugin-version>
+        <maven-war-plugin-version>2.3</maven-war-plugin-version>
         <mina-version>2.0.7</mina-version>
         <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
         <mvel-version>2.1.4.Final</mvel-version>
