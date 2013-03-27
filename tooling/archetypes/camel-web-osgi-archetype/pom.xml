@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>archetypes</artifactId>
-    <version>7.2.0.redhat-SNAPSHOT</version>
+    <version>99-master-SNAPSHOT</version>
   </parent>
 
   <groupId>org.apache.camel.archetypes</groupId>
