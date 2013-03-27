@@ -241,16 +241,8 @@
                                     <artifactId>apache-activemq</artifactId>
                                     <version>${activemq.version}</version>
                                     <classifier>bin</classifier>
-                                    <type>tar.gz</type>
-                                    <outputDirectory>target/dependencies/unix</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>org.apache.activemq</groupId>
-                                    <artifactId>apache-activemq</artifactId>
-                                    <version>${activemq.version}</version>
-                                    <classifier>bin</classifier>
                                     <type>zip</type>
-                                    <outputDirectory>target/dependencies/win</outputDirectory>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>

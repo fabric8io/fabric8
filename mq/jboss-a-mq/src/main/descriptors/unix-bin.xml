@@ -152,7 +152,7 @@
             <lineEnding>unix</lineEnding>
         </file>
         <file>
-            <source>${basedir}/target/dependencies/unix/apache-activemq-${activemq.version}-bin.tar.gz</source>
+            <source>${basedir}/target/dependencies/unix/apache-activemq-${activemq.version}-bin.zip</source>
             <outputDirectory>extras</outputDirectory>
             <fileMode>0644</fileMode>
         </file>

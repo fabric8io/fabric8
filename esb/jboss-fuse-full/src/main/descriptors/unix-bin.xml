@@ -32,12 +32,12 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/apache-camel-${camel.version}.tar.gz</source>
+            <source>${basedir}/target/dependencies/unix/apache-camel-${camel.version}.zip</source>
             <outputDirectory>extras</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
         <file>
-            <source>${basedir}/target/dependencies/unix/apache-cxf-${cxf.version}.tar.gz</source>
+            <source>${basedir}/target/dependencies/unix/apache-cxf-${cxf.version}.zip</source>
             <outputDirectory>extras</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
