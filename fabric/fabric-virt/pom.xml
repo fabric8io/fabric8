@@ -33,7 +33,8 @@
     <description>FuseSource :: Fabric :: Virt :: Pom</description>
 
     <modules>
-        <module>bundles</module>
+    <!-- these are already released    
+        <module>bundles</module> -->
         <module>services</module>
         <module>commands</module>
     </modules>
