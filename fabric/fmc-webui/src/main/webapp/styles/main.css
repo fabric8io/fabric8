@@ -1442,3 +1442,47 @@ span.pending\.gif {
     background-color: rgb(137, 127, 133);
     box-shadow: inset 0px 1px 0px 0px rgba(250,250,250,0.5);
 }
+
+#users tbody tr td:first-child {
+  max-width: 217px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#user_overview_container div table tbody tr td:last-child {
+  max-width: 217px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+
+#agent_nav_container table tbody tr td:first-child {
+  max-width: 217px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#agent_details_container div table thead tr th h4 {
+  max-width: 342px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.versions.nav_buttons ul li {
+  max-width: 432px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.profiles.nav_buttons ul li {
+  max-width: 432px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
