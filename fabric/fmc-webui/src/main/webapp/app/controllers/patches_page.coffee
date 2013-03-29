@@ -31,6 +31,7 @@ define [
 
     elements:
       "select[name=version-select]": "version_select"
+      "input[name=patch_file]": "file_input"
       ".patch-list": "patch_list"
       "form": "upload_form"
       "a.upload.btn": "upload_button"
@@ -89,7 +90,15 @@ define [
 
       @apply_button.toggleClass 'disabled', @patch_files.length == 0
 
+      @upload_button.toggleClass 'disabled', @file_input.val() == ""
+
+      @file_input.change (event) =>
+        @upload_button.toggleClass 'disabled', @file_input.val() == ""
+
       @upload_button.click =>
+        if @upload_button.hasClass('disabled')
+          return false;
+
         app.flash
           kind: "info"
           title: "Uploading patch file to server"
@@ -101,7 +110,9 @@ define [
               title: "Successfully uploaded patch file"
               hide_after: 2000
 
-          error: (data, textStatus, errorThrown) ->
+          error: (data, textStatus, errorThrown) =>
+            @file_input.val ""
+            @upload_button.addClass 'disabled'
             app.flash
               kind: "error"
               title: "Error uploading patch file: "
