@@ -953,12 +953,6 @@ define [
       @do_return = @options.do_return if @options.do_return
 
     on_render: (self) ->
-      $(document.documentElement).bind 'keyup.wizard', (event) =>
-        switch event.which
-          when 27 then @cancel.click()
-          when 37 then @back.click()
-          when 39, 13 then @next.click()
-        false
 
       @cancel.click (event) =>
         @do_return()
