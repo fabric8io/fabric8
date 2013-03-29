@@ -18,7 +18,7 @@ package org.fusesource.fabric.webui.patching
 
 import javax.ws.rs._
 import core.Context
-import java.io.{FileOutputStream, InputStream, FilenameFilter, File}
+import java.io._
 import org.codehaus.jackson.annotate.JsonProperty
 import com.sun.jersey.multipart.FormDataParam
 import com.sun.jersey.core.header.FormDataContentDisposition
@@ -26,6 +26,8 @@ import org.apache.commons.io.IOUtils
 import javax.ws.rs.core.Response.Status._
 import javax.servlet.http.{HttpSession, HttpServletRequest}
 import org.fusesource.fabric.webui.Services
+import java.util.zip.ZipInputStream
+import org.apache.commons.compress.archivers.zip.ZipFile
 
 /**
  *
@@ -101,7 +103,7 @@ class PatchFilesResource extends BaseUpgradeResource {
     }
 
     val patch_dir = get_or_create_patch_dir
-    val temp = File.createTempFile(patch_file_detail.getFileName, ".upload")
+    var temp = File.createTempFile(patch_file_detail.getFileName, ".upload")
 
     Services.LOG.debug("Created temp file : {}", temp.getAbsolutePath)
 
@@ -111,8 +113,38 @@ class PatchFilesResource extends BaseUpgradeResource {
       IOUtils.copy(patch_file, out)
       out.flush
       out.close
-      temp.renameTo(new File(patch_dir, patch_file_detail.getFileName))
+
+      val target = new File(patch_dir, patch_file_detail.getFileName)
+      temp.renameTo(target)
+      temp = target;
+
       Services.LOG.debug("Moved temp file to : {}", temp.getAbsolutePath)
+
+      //validate that the uploaded zip is actually a patch
+      var repo_entries = 0;
+      var descriptors = 0;
+      val zip = new ZipFile(temp.getAbsolutePath);
+
+      import collection.JavaConverters._
+
+      zip.getEntries.asScala.foreach((x) => {
+        if (!x.isDirectory) {
+          if (x.getName.startsWith("repository/")) {
+            repo_entries = repo_entries + 1
+          } else if (x.getName.endsWith(".patch") && !x.getName.contains("/")) {
+             descriptors = descriptors + 1
+          }
+        }
+      })
+
+      zip.close()
+
+      Services.LOG.debug("Found " + repo_entries + " repository entries and " + descriptors + " patch descriptors");
+
+      if (descriptors == 0) {
+        throw new Exception("Provided file is not a valid patch file");
+      }
+
       new PatchFileResource(patch_dir, temp.getName)
     } catch {
       case t: Throwable =>
