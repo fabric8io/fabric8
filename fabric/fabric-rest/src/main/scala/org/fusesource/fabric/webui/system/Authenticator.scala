@@ -23,10 +23,12 @@ import javax.servlet.ServletContext
 import org.slf4j.{LoggerFactory, Logger}
 import javax.security.auth.callback.{CallbackHandler, NameCallback, PasswordCallback, Callback}
 import org.apache.karaf.jaas.config.JaasRealm
+import org.apache.karaf.jaas.boot.principal.RolePrincipal
 import org.apache.karaf.jaas.modules.{BackingEngineFactory, BackingEngine}
 import java.util.HashMap
 import org.osgi.framework.FrameworkUtil
 import org.fusesource.fabric.webui.Services
+import javax.security.auth.Subject
 
 @Singleton
 class Authenticator(@Context servletContext: ServletContext) {
@@ -42,7 +44,28 @@ class Authenticator(@Context servletContext: ServletContext) {
       val callback = new LoginCallbackHandler(username, password)
       val lc = new LoginContext(domain, callback)
       lc.login()
-      true
+      var subject:Subject = null;
+
+      Option[Subject](lc.getSubject()) match {
+        case Some(s) =>
+          subject = s
+        case None =>
+          throw new Exception("Subject not set after calling LoginContext.login()");
+      }
+
+      var hasRole = false
+
+      subject.getPrincipals.toArray().foreach((x) => {
+         x match {
+           case rp:RolePrincipal =>
+             if (rp.getName.equals("admin")) {
+               hasRole = true
+             }
+           case _ =>
+         }
+      })
+
+      hasRole
     } catch {
       case e:Throwable => {
         logger.info("Authentication failed", e)
