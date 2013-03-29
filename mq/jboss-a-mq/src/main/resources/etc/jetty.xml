@@ -33,17 +33,63 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
         </Arg>
     </Call>
 
+    <New class="org.eclipse.jetty.plus.jaas.JAASLoginService"
+        id="DefaultLoginService">
+        <Set name="name">karaf</Set>
+        <Set name="loginModuleName">karaf</Set>
+        <Set name="roleClassNames">
+            <Array type="java.lang.String">
+                <Item>org.apache.karaf.jaas.boot.principal.RolePrincipal</Item>
+            </Array>
+        </Set>
+    </New>  
+
+    <New class="org.eclipse.jetty.util.security.Constraint"
+        id="DefaultSecurityConstraint">
+        <Set name="authenticate">true</Set>
+        <Set name="name">BASIC</Set>
+        <Set name="roles">
+            <Array type="java.lang.String">
+                <Item>admin</Item>
+            </Array>
+        </Set>
+    </New>
+
+    <New class="org.eclipse.jetty.security.ConstraintSecurityHandler"
+        id="DefaultSecurityHandler">
+        <Set name="loginService">
+            <Ref id="DefaultLoginService" />
+        </Set>
+        <Set name="realmName">MyRealm</Set>
+        <Call name="addConstraintMapping">
+            <Arg>
+                <New class="org.eclipse.jetty.security.ConstraintMapping">
+                    <Set name="pathSpec">/*</Set>
+                    <Set name="constraint">
+                        <Ref id="DefaultSecurityConstraint" />
+                    </Set>
+                </New>
+            </Arg>
+        </Call>
+    </New>      
+
     <Call name="addBean">
-        <Arg>
-            <New class="org.eclipse.jetty.plus.jaas.JAASLoginService">
-                <Set name="name">karaf</Set>
-                <Set name="loginModuleName">karaf</Set>
-                <Set name="roleClassNames">
-                    <Array type="java.lang.String">
-                        <Item>org.apache.karaf.jaas.boot.principal.RolePrincipal</Item>
-                    </Array>
-                </Set>
-            </New>
-        </Arg>
+        <Arg><Ref id="DefaultLoginService" /></Arg>
     </Call>
+
+    <Call name="setAttribute">
+        <Arg>DefaultSecurityConstraint</Arg>
+        <Arg><Ref id="DefaultSecurityConstraint" /></Arg>
+    </Call>
+
+    <Call name="setAttribute">
+        <Arg>DefaultLoginService</Arg>
+        <Arg><Ref id="DefaultLoginService" /></Arg>
+    </Call>
+
+    <Call name="setAttribute">
+        <Arg>DefaultSecurityHandler</Arg>
+        <Arg><Ref id="DefaultSecurityHandler" /></Arg>
+    </Call>
+
 </Configure>
