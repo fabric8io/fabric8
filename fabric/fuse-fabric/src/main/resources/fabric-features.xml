@@ -49,7 +49,7 @@
         <bundle>mvn:org.apache.aries/org.apache.aries.util/${aries.util.version}</bundle>
         <bundle>mvn:org.apache.aries.proxy/org.apache.aries.proxy.api/${aries.proxy.version}</bundle>
         <bundle>mvn:org.apache.aries.proxy/org.apache.aries.proxy.impl/${aries.proxy.version}</bundle>
-        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.asm/${asm.bundle.version}</bundle>
+        <bundle>mvn:org.ow2.asm/asm-all/${asm.version}</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.api/${aries.jmx.version}</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/${aries.jmx.version}</bundle>
         <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.api/${aries.jmx.version}</bundle>
