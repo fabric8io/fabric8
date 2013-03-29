@@ -34,6 +34,7 @@ define [
       ".patch-list": "patch_list"
       "form": "upload_form"
       "a.upload.btn": "upload_button"
+      "a.apply.btn": "apply_button"
 
     events:
       "click a.apply.btn": "do_apply"
@@ -44,6 +45,13 @@ define [
       @version = @options.version if @options.version
       @patch_files = @options.patch_files if @options.patch_files
 
+      @patch_files.bind 'remove', @patch_files_changed, @
+      @patch_files.bind 'add', @patch_files_changed, @
+
+    patch_files_changed: ->
+      if @apply_button
+        @apply_button.toggleClass 'disabled', @patch_files.length == 0
+
     poll: ->
       @versions.fetch
         op: "update"
@@ -51,8 +59,10 @@ define [
         op: "update"
 
     do_apply: ->
+      if @apply_button.hasClass('disabled')
+        return false
 
-      arguments = 
+      arguments =
         target_version: @version.id
 
       options = 
@@ -76,6 +86,8 @@ define [
 
 
     on_render: ->
+
+      @apply_button.toggleClass 'disabled', @patch_files.length == 0
 
       @upload_button.click =>
         app.flash
@@ -134,6 +146,8 @@ define [
               controller.delete.click (event) ->
                 FON.confirm_delete(model.id, "patch", -> model.destroy()).render()
                 false
+
+
 
       file_listing.render()
 
