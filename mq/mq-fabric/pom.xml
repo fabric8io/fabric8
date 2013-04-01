@@ -32,6 +32,10 @@
   <name>JBoss A-MQ Fabric</name>
   <description>JBoss A-MQ Fabric</description>
 
+  <properties>
+    <fuse.osgi.services.export>javax.jms.ConnectionFactory</fuse.osgi.services.export>
+  </properties>
+
   <dependencies>
 
     <dependency>
