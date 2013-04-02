@@ -12,6 +12,10 @@ function validate_requirements() {
         echo "Command Failed:Tar is not installed.";
         exit -1;
   fi
+  if ! which unzip &> /dev/null; then
+        echo "Command Failed:Unzip is not installed.";
+        exit -1;
+  fi
 }
 
 function check_java_version() {

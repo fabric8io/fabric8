@@ -54,6 +54,7 @@ public final class ContainerProviderUtils {
     private static final String MAVEN_DOWNLOAD_FUNCTION = loadFunction("maven_download.sh");
     private static final String INSTALL_JDK = loadFunction("install_open_jdk.sh");
     private static final String INSTALL_CURL = loadFunction("install_curl.sh");
+    private static final String INSTALL_UNZIP = loadFunction("install_unzip.sh");
     private static final String UPDATE_PKGS = loadFunction("update_pkgs.sh");
     private static final String VALIDATE_REQUIREMENTS = loadFunction("validate_requirements.sh");
     private static final String EXIT_IF_NOT_EXISTS = loadFunction("exit_if_not_exists.sh");
@@ -91,6 +92,7 @@ public final class ContainerProviderUtils {
         sb.append(MAVEN_DOWNLOAD_FUNCTION).append("\n");
         sb.append(UPDATE_PKGS).append("\n");
         sb.append(INSTALL_CURL).append("\n");
+        sb.append(INSTALL_UNZIP).append("\n");
         sb.append(INSTALL_JDK).append("\n");
         sb.append(VALIDATE_REQUIREMENTS).append("\n");
         sb.append(EXIT_IF_NOT_EXISTS).append("\n");
@@ -111,6 +113,7 @@ public final class ContainerProviderUtils {
             sb.append("update_pkgs").append("\n");
             sb.append("install_openjdk").append("\n");
             sb.append("install_curl").append("\n");
+            sb.append("install_unzip").append("\n");
         }
         sb.append("validate_requirements").append("\n");
         extractZipIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
