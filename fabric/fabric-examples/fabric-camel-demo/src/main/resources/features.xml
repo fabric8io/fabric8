@@ -26,7 +26,6 @@
         <feature>camel-jms</feature>
         <feature>camel-core</feature>
         <feature>camel-blueprint</feature>
-        <bundle>mvn:org.apache.activemq/activemq-camel/${activemq-version}</bundle>
         <bundle>mvn:org.fusesource.examples/fabric-camel-demo/${pom.version}</bundle>
     </feature>
 
