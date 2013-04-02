@@ -44,6 +44,7 @@ import javax.xml.transform.{Source, TransformerFactory}
 import javax.xml.transform.stream.{StreamSource, StreamResult}
 import javax.xml.validation.{Schema, SchemaFactory}
 import java.io._
+import parser.PatchedXMLParser
 
 case class XsdDetails(path: String, uri: String, aClass: Class[_]) {
   def classLoader = aClass.getClassLoader
@@ -468,7 +469,7 @@ class RouteXml extends Logging {
     parser.parse(inputSource)
     return parser.getDocument
 */
-    val parser = new XMLParser()
+    val parser = new PatchedXMLParser()
     return parser.parse(source)
   }
 
