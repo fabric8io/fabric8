@@ -61,13 +61,13 @@ public class FabricCreateTest extends FabricTestSupport {
 
         System.err.println(executeCommand("fabric:create -n"));
 
-        Profile karafProfile = fabricService.getProfile(ZkDefs.DEFAULT_VERSION,"karaf");
+        Profile karafProfile = fabricService.getDefaultVersion().getProfile("karaf");
         assertNotNull(karafProfile);
 
-        Profile camelProfile = fabricService.getProfile(ZkDefs.DEFAULT_VERSION,"camel");
+        Profile camelProfile = fabricService.getDefaultVersion().getProfile("camel");
         assertNotNull(camelProfile);
 
-        Profile activeMq = fabricService.getProfile(ZkDefs.DEFAULT_VERSION,"mq");
+        Profile activeMq = fabricService.getDefaultVersion().getProfile("mq");
         assertNotNull(activeMq);
     }
 

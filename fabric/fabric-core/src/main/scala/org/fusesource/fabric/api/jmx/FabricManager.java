@@ -104,7 +104,8 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public ProfileDTO createProfile(String version, String name) {
-        return ProfileDTO.newInstance(getFabricService(), getFabricService().createProfile(version, name));
+        return ProfileDTO.newInstance(getFabricService(),
+                    getFabricService().getVersion(version).createProfile(name));
     }
 
     @Override
@@ -201,7 +202,8 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public List<String> containerIdsForProfile(String versionId, String profileId) {
-        Profile profile = getFabricService().getProfile(versionId, profileId);
+        Version version = getFabricService().getVersion(versionId);
+        Profile profile = version != null ? version.getProfile(profileId) : null;
         if (profile != null) {
             return new ArrayList<String>();
         }
@@ -210,7 +212,8 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public List<ContainerDTO> containersForProfile(String versionId, String profileId) {
-        Profile profile = getFabricService().getProfile(versionId, profileId);
+        Version version = getFabricService().getVersion(versionId);
+        Profile profile = version != null ? version.getProfile(profileId) : null;
         if (profile != null) {
             return new ArrayList<ContainerDTO>();
         }
@@ -283,19 +286,20 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public ProfileDTO getProfile(String version, String name) {
-        return ProfileDTO.newInstance(getFabricService(), getFabricService().getProfile(version, name));
+    public ProfileDTO getProfile(String versionId, String profileId) {
+        return ProfileDTO.newInstance(getFabricService(),
+                                      getFabricService().getVersion(versionId).getProfile(profileId));
     }
 
 
     @Override
     public List<ProfileDTO> getProfiles(String version) {
-        return ProfileDTO.newInstances(getFabricService(), getFabricService().getProfiles(version));
+        return ProfileDTO.newInstances(getFabricService(), getFabricService().getVersion(version).getProfiles());
     }
 
     @Override
     public List<String> getProfileIds(String version) {
-        return Ids.getIds(getFabricService().getProfiles(version));
+        return Ids.getIds(getFabricService().getVersion(version).getProfiles());
     }
     
     @Override

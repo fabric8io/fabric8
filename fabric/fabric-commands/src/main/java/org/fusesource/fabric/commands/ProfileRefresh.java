@@ -42,7 +42,7 @@ public class ProfileRefresh extends FabricCommand {
 		checkFabricAvailable();
         validateProfileName(profileName);
 		Version version = versionName != null ? fabricService.getVersion(versionName) : fabricService.getDefaultVersion();
-		Profile profile = fabricService.getProfile(version.getName(), profileName);
+		Profile profile = version.getProfile(profileName);
 		if (profile == null) {
 			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getName());
 		}

@@ -111,7 +111,9 @@ public interface FabricService {
      * Returns all the {@link Profile}s for the specified {@link Version}.
      * @param version   The {@link Version} that will be used for querying {@link Profile}s.
      * @return          The matching {@link Profile}s.
+     * @deprecated Use {@link Version#getProfiles()}
      */
+    @Deprecated
     Profile[] getProfiles(String version);
 
     /**
@@ -119,7 +121,9 @@ public interface FabricService {
      * @param version
      * @param name
      * @return
+     * @deprecated Use {@link Version#getProfile(String)}
      */
+    @Deprecated
     Profile getProfile(String version, String name);
 
     /**
@@ -127,7 +131,9 @@ public interface FabricService {
      * @param version   The string value of the {@link Version}.
      * @param name      The name of the new {@link Profile}.
      * @return
+     * @deprecated Use {@link Version#createProfile(String)}
      */
+    @Deprecated
     Profile createProfile(String version, String name);
 
     /**

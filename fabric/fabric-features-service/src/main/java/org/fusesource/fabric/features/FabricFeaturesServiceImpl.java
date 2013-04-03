@@ -123,7 +123,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
             Set<String> repositoryUris = new LinkedHashSet<String>();
             Container container = fabricService.getCurrentContainer();
             Version version = container.getVersion();
-            Profile[] profiles = fabricService.getProfiles(version.getName());
+            Profile[] profiles = version.getProfiles();
             if (profiles != null) {
                 for (Profile profile : profiles) {
                     if (profile.getRepositories() != null) {

@@ -104,7 +104,7 @@ public class FabricTestSupport extends FuseTestSupport {
             }
             Container container = metadata[0].getContainer();
             Version version = fabricService.getDefaultVersion();
-            Profile profile = fabricService.getProfile(version.getName(), profileName);
+            Profile profile = version.getProfile(profileName);
             assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[]{profile});
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
@@ -197,7 +197,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
         Container container = fabricService.getContainer(containerName);
         Version version = container.getVersion();
-        Profile[] profiles = new Profile[]{fabricService.getProfile(version.getName(), profileName)};
+        Profile[] profiles = new Profile[]{version.getProfile(profileName)};
         Profile[] currentProfiles = container.getProfiles();
 
         Arrays.sort(profiles);

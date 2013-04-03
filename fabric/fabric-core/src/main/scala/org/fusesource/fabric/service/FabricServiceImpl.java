@@ -449,7 +449,7 @@ public class FabricServiceImpl implements FabricService {
             if (zooKeeper != null && zooKeeper.isConnected()) {
                 Version defaultVersion = getDefaultVersion();
                 if (defaultVersion != null) {
-                    Profile profile = getProfile(defaultVersion.getName(), "default");
+                    Profile profile = defaultVersion.getProfile("default");
                     if (profile != null) {
                         Map<String, Map<String, String>> configurations = profile.getConfigurations();
                         if (configurations != null) {

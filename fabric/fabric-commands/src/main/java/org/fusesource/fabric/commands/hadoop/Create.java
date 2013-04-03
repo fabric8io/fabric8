@@ -33,6 +33,7 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 
 @Command(scope = "hadoop", name = "create", description = "Create an hadoop cluster")
 public class Create extends OsgiCommandSupport {
@@ -113,7 +114,7 @@ public class Create extends OsgiCommandSupport {
                                       "insight-hdfs-" + name)) {
             Profile profile = null;
             try {
-                profile = service.getProfile(service.getDefaultVersion().getName(), p);
+                profile = service.getDefaultVersion().getProfile(p);
             } catch (Throwable t) {
                 // Ignore
             }
@@ -126,11 +127,11 @@ public class Create extends OsgiCommandSupport {
             }
         }
 
-        String version = service.getDefaultVersion().getName();
-        Profile hadoop = service.getProfile(version, "hadoop");
+        Version version = service.getDefaultVersion();
+        Profile hadoop = version.getProfile("hadoop");
         Map<String, Map<String, String>> configs;
 
-        Profile cluster = service.createProfile(service.getDefaultVersion().getName(), "hadoop-" + name);
+        Profile cluster = version.createProfile("hadoop-" + name);
         cluster.setParents(new Profile[] { hadoop });
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.fabric.hadoop", new HashMap<String, String>());
@@ -138,43 +139,43 @@ public class Create extends OsgiCommandSupport {
         configs.get("org.fusesource.fabric.hadoop").put("dfs.http.address", "hdfs://${zk:" + nameNode + "/ip}:9002");
         cluster.setConfigurations(configs);
 
-        Profile nameNodeProfile = service.createProfile(service.getDefaultVersion().getName(), "hadoop-" + name + "-namenode");
+        Profile nameNodeProfile = version.createProfile("hadoop-" + name + "-namenode");
         nameNodeProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.fabric.hadoop", new HashMap<String, String>());
         configs.get("org.fusesource.fabric.hadoop").put("nameNode", "true");
         nameNodeProfile.setConfigurations(configs);
 
-        Profile secondaryNameNodeProfile = service.createProfile(service.getDefaultVersion().getName(), "hadoop-" + name + "-secondary-namenode");
+        Profile secondaryNameNodeProfile = version.createProfile("hadoop-" + name + "-secondary-namenode");
         secondaryNameNodeProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.fabric.hadoop", new HashMap<String, String>());
         configs.get("org.fusesource.fabric.hadoop").put("secondaryNameNode", "true");
         secondaryNameNodeProfile.setConfigurations(configs);
 
-        Profile dataNodeProfile = service.createProfile(service.getDefaultVersion().getName(), "hadoop-" + name + "-datanode");
+        Profile dataNodeProfile = version.createProfile("hadoop-" + name + "-datanode");
         dataNodeProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.fabric.hadoop", new HashMap<String, String>());
         configs.get("org.fusesource.fabric.hadoop").put("dataNode", "true");
         dataNodeProfile.setConfigurations(configs);
 
-        Profile jobTrackerProfile = service.createProfile(service.getDefaultVersion().getName(), "hadoop-" + name + "-job-tracker");
+        Profile jobTrackerProfile = version.createProfile("hadoop-" + name + "-job-tracker");
         jobTrackerProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.fabric.hadoop", new HashMap<String, String>());
         configs.get("org.fusesource.fabric.hadoop").put("jobTracker", "true");
         jobTrackerProfile.setConfigurations(configs);
 
-        Profile taskTrackerProfile = service.createProfile(service.getDefaultVersion().getName(), "hadoop-" + name + "-task-tracker");
+        Profile taskTrackerProfile = version.createProfile("hadoop-" + name + "-task-tracker");
         taskTrackerProfile.setParents(new Profile[]{cluster});
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.fabric.hadoop", new HashMap<String, String>());
         configs.get("org.fusesource.fabric.hadoop").put("taskTracker", "true");
         taskTrackerProfile.setConfigurations(configs);
 
-        Profile insightProfile = service.createProfile(service.getDefaultVersion().getName(), "insight-hdfs-" + name);
-        insightProfile.setParents(new Profile[]{ service.getProfile(service.getDefaultVersion().getName(), "insight-hdfs")});
+        Profile insightProfile = version.createProfile("insight-hdfs-" + name);
+        insightProfile.setParents(new Profile[]{ version.getProfile("insight-hdfs")});
         configs = new HashMap<String, Map<String, String>>();
         configs.put("org.fusesource.insight.elasticsearch-default", new HashMap<String, String>());
         configs.get("org.fusesource.insight.elasticsearch-default").put("gateway.hdfs.uri", "hdfs://${zk:" + nameNode + "/ip}:9000");

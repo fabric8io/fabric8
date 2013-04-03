@@ -205,7 +205,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
                 container.setVersion(version);
                 Set<Profile> profiles = new HashSet(Arrays.asList(container.getProfiles()));
                 for (String profileName : profileNames) {
-                    Profile profile = fabricService.getProfile(container.getVersion().getName(), profileName);
+                    Profile profile = container.getVersion().getProfile(profileName);
                     profiles.add(profile);
                 }
                 container.setProfiles(profiles.toArray(new Profile[profiles.size()]));

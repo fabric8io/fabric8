@@ -69,8 +69,8 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         FabricService fabricService = getFabricService();
         Version version = fabricService.getDefaultVersion();
 
-        Profile defaultProfile = fabricService.getProfile(version.getName(), "default");
-        Profile targetProfile = fabricService.getProfile(version.getName(), profileName);
+        Profile defaultProfile = version.getProfile("default");
+        Profile targetProfile = version.getProfile(profileName);
 
         for (Container container : containers) {
             //We set container to default to clean the container up.

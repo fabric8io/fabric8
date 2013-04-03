@@ -19,6 +19,7 @@ package org.fusesource.fabric.service;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.MQService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 
 import java.util.Map;
 
@@ -32,17 +33,18 @@ public class MQServiceImpl implements MQService {
     }
 
     @Override
-    public Profile createMQProfile(String version, String brokerName, Map<String, String> configs) {
-        Profile parentProfile = fabricService.getProfile(version, MQ_PROFILE_BASE);
+    public Profile createMQProfile(String versionId, String brokerName, Map<String, String> configs) {
+        Version version = fabricService.getVersion(versionId);
+        Profile parentProfile = version.getProfile(MQ_PROFILE_BASE);
         String pidName = "org.fusesource.mq.fabric.server-" + brokerName;
         Profile result = parentProfile;
         if (brokerName != null) {
-            result = fabricService.getProfile(version, brokerName);
+            result = version.getProfile(brokerName);
             // create a profile if it doesn't exist
             Map config = null;
 
             if (result == null) {
-                result = fabricService.createProfile(version, brokerName);
+                result = version.createProfile(brokerName);
                 result.setParents(new Profile[]{parentProfile});
             } else {
                 config = result.getConfigurations().get(pidName);

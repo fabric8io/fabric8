@@ -45,7 +45,7 @@ public class ProfileEditTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key=value default"));
 
         //Check that my.pid has been added to the default profile        
-        Profile profile = fabricService.getProfile(fabricService.getDefaultVersion().getName(), "default");
+        Profile profile = fabricService.getDefaultVersion().getProfile("default");
         Assert.assertNotNull(profile);
         Map<String, Map<String, String>> configurations = profile.getConfigurations();
         Assert.assertNotNull(configurations);
@@ -115,7 +115,7 @@ public class ProfileEditTest extends FabricTestSupport {
 
         Thread.sleep(DEFAULT_WAIT);
         //Check that my.pid has been added to the default profile        
-        Profile profile = fabricService.getProfile(fabricService.getDefaultVersion().getName(), "default");
+        Profile profile = fabricService.getDefaultVersion().getProfile("default");
         Assert.assertNotNull(profile);
         Map<String, Map<String, String>> configurations = profile.getConfigurations();
         Assert.assertNotNull(configurations);

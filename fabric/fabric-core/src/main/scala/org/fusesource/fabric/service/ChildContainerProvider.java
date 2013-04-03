@@ -82,7 +82,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(" -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
                 }
 
-                Profile defaultProfile = service.getProfile(parent.getVersion().getName(), "default");
+                Profile defaultProfile = parent.getVersion().getProfile("default");
                 String featuresUrls = listAsString(defaultProfile.getRepositories());
                 String features = listAsString(defaultProfile.getFeatures());
 

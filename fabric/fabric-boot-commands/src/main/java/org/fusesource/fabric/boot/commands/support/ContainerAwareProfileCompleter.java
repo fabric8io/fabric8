@@ -56,15 +56,8 @@ public class ContainerAwareProfileCompleter implements Completer {
     @Override
     public int complete(String buffer, int cursor, List<String> candidates) {
         StringsCompleter delegate = new StringsCompleter();
-        String versionName = null;
         try {
-            Version defaultVersion = fabricService.getDefaultVersion();
-            if (defaultVersion != null) {
-                versionName = defaultVersion.getName();
-            }
-            if (versionName == null) {
-                versionName = ZkDefs.DEFAULT_VERSION;
-            }
+            Version version = fabricService.getDefaultVersion();
 
             Container container = fabricService.getCurrentContainer();
 
@@ -82,7 +75,7 @@ public class ContainerAwareProfileCompleter implements Completer {
                 }
             }
 
-            Profile[] profiles = fabricService.getProfiles(versionName);
+            Profile[] profiles = version.getProfiles();
             List<String> allProfileNames = new LinkedList<String>();
             if (containerProfiles != null) {
                 for (Profile p : profiles) {

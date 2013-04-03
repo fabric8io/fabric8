@@ -36,15 +36,8 @@ public class ProfileCompleter implements Completer {
         StringsCompleter delegate = new StringsCompleter();
         String versionName = null;
         try {
-            Version defaultVersion = fabricService.getDefaultVersion();
-            if (defaultVersion != null) {
-                versionName = defaultVersion.getName();
-            }
-            if (versionName == null) {
-                versionName = ZkDefs.DEFAULT_VERSION;
-            }
-
-            Profile[] profiles = fabricService.getProfiles(versionName);
+            Version version = fabricService.getDefaultVersion();
+            Profile[] profiles = version.getProfiles();
             for (Profile profile : profiles) {
                 delegate.getStrings().add(profile.getId());
             }
