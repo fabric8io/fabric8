@@ -33,6 +33,8 @@ public abstract class ZKComponentSupport extends DefaultComponent {
     private IZKClient zkClient;
     private boolean shouldCloseZkClient = false;
     private long maximumConnectionTimeout = 10 * 1000L;
+    private String zooKeeperUrl;
+    private String zooKeeperPassword;
 
     public IZKClient getZkClient() {
         return zkClient;
@@ -58,6 +60,23 @@ public abstract class ZKComponentSupport extends DefaultComponent {
         this.maximumConnectionTimeout = maximumConnectionTimeout;
     }
 
+
+    public String getZooKeeperUrl() {
+        return zooKeeperUrl;
+    }
+
+    public void setZooKeeperUrl(String zooKeeperUrl) {
+        this.zooKeeperUrl = zooKeeperUrl;
+    }
+
+    public String getZooKeeperPassword() {
+        return zooKeeperPassword;
+    }
+
+    public void setZooKeeperPassword(String zooKeeperPassword) {
+        this.zooKeeperPassword = zooKeeperPassword;
+    }
+
     @Override
     protected void doStart() throws Exception {
         super.doStart();
@@ -73,10 +92,16 @@ public abstract class ZKComponentSupport extends DefaultComponent {
             }
         }
         if (zkClient == null) {
-            String connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
-            String password = System.getProperty(ZOOKEEPER_PASSWORD);
+            String connectString = getZooKeeperUrl();
+            if (connectString == null) {
+                connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
+            }
+            String password = getZooKeeperPassword();
+            if (password == null) {
+                System.getProperty(ZOOKEEPER_PASSWORD);
+            }
             LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
-            ZKClient client = new ZKClient(connectString, Timespan.parse("10s"), null);
+            ZKClient client = new ZKClient(connectString, Timespan.milliseconds(getMaximumConnectionTimeout()), null);
             if (password != null && !password.isEmpty()) {
                 client.setPassword(password);
             }
