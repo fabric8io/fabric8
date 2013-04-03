@@ -51,7 +51,7 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
-    public Properties getAttributes() {
+    public Map<String, String> getAttributes() {
         return service.getProfileDataStore().getProfileAttributes(version, id);
     }
 
@@ -182,7 +182,7 @@ public class ProfileImpl implements Profile {
 
     public Profile[] getParents() {
         try {
-            String str = getAttributes().getProperty(PARENTS);
+            String str = getAttributes().get(PARENTS);
             if (str == null || str.isEmpty()) {
                 return new Profile[0];
             }
@@ -342,17 +342,17 @@ public class ProfileImpl implements Profile {
 
     @Override
     public boolean isAbstract() {
-        return Boolean.parseBoolean(getAttributes().getProperty(ABSTRACT));
+        return Boolean.parseBoolean(getAttributes().get(ABSTRACT));
     }
 
     @Override
     public boolean isLocked() {
-        return Boolean.parseBoolean(getAttributes().getProperty(LOCKED));
+        return Boolean.parseBoolean(getAttributes().get(LOCKED));
     }
 
     @Override
 	public boolean isHidden() {
-		return Boolean.parseBoolean(getAttributes().getProperty(HIDDEN));
+		return Boolean.parseBoolean(getAttributes().get(HIDDEN));
 	}
 
 }

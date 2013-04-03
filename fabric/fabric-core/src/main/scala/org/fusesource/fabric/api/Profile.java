@@ -18,7 +18,6 @@ package org.fusesource.fabric.api;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public interface Profile extends Comparable<Profile>, HasId {
 
@@ -62,7 +61,7 @@ public interface Profile extends Comparable<Profile>, HasId {
      * Returns a read only map of all the attributes of this profile
      * @return
      */
-    Properties getAttributes();
+    Map<String, String> getAttributes();
 
     /**
      * Change an attribute on this version.

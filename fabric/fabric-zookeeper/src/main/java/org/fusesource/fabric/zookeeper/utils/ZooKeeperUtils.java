@@ -164,6 +164,15 @@ public final class ZooKeeperUtils {
         return properties;
     }
 
+    public static Map<String, String> getPropertiesAsMap(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
+        Properties properties = getProperties(zooKeeper, path);
+        Map<String, String> map = new HashMap<String, String>();
+        for (String key : properties.stringPropertyNames()) {
+            map.put(key, properties.getProperty(key));
+        }
+        return map;
+    }
+
     public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
         ZKData<String> zkData = zooKeeper.getZKStringData(path);
         String value = zkData.getData();
@@ -174,6 +183,14 @@ public final class ZooKeeperUtils {
             } catch (IOException ignore) {}
         }
         return properties;
+    }
+
+    public static void setPropertiesAsMap(IZKClient zooKeeper, String path, Map<String, String> map) throws KeeperException, InterruptedException {
+        Properties properties = new Properties();
+        for (String key : map.keySet()) {
+            properties.put(key, map.get(key));
+        }
+        setProperties(zooKeeper, path, properties);
     }
 
     public static void setProperties(IZKClient zooKeeper, String path, Properties properties) throws InterruptedException, KeeperException {

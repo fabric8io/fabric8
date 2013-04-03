@@ -24,6 +24,7 @@ import org.fusesource.fabric.api.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -31,7 +32,7 @@ import java.util.Properties;
  */
 public class ProfileDTO implements HasId {
     private String id;
-    private Properties attributes;
+    private Map<String, String> attributes;
     private List<String> bundles;
     private List<String> fabs;
     private List<String> features;
@@ -130,11 +131,11 @@ public class ProfileDTO implements HasId {
         return id.hashCode();
     }
 
-    public Properties getAttributes() {
+    public Map<String, String> getAttributes() {
         return attributes;
     }
 
-    public void setAttributes(Properties attributes) {
+    public void setAttributes(Map<String, String> attributes) {
         this.attributes = attributes;
     }
 

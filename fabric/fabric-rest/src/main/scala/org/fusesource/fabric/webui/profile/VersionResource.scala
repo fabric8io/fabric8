@@ -111,13 +111,13 @@ class LightweightProfileResource(val self: Profile) extends BaseResource with Ha
   def version = self.getVersion
 
   @JsonProperty
-  def is_abstract = Option(self.getAttributes.getProperty(Profile.ABSTRACT)).getOrElse({"false"}).toBoolean
+  def is_abstract = Option(self.getAttributes.get(Profile.ABSTRACT)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def is_locked = Option(self.getAttributes.getProperty(Profile.LOCKED)).getOrElse({"false"}).toBoolean
+  def is_locked = Option(self.getAttributes.get(Profile.LOCKED)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def is_hidden = Option(self.getAttributes.getProperty(Profile.HIDDEN)).getOrElse({"false"}).toBoolean
+  def is_hidden = Option(self.getAttributes.get(Profile.HIDDEN)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
   def children = fabric_service.getVersion(self.getVersion).getProfiles.filter(_.getParents.iterator.contains(self)).map(_.getId)

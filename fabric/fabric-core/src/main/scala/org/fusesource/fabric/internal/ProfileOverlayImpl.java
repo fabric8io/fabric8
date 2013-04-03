@@ -46,7 +46,7 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
-    public Properties getAttributes() {
+    public Map<String, String> getAttributes() {
         return self.getAttributes();
     }
 

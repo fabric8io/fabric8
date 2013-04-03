@@ -81,9 +81,9 @@ public class ProfileDisplay extends FabricCommand {
         output.println("Version   : " + p.getVersion());
 
         output.println("Attributes: ");
-        Properties props = p.getAttributes();
-        for (String key : props.stringPropertyNames()) {
-            output.println("\t" + key + ": " + props.getProperty(key));
+        Map<String, String> props = p.getAttributes();
+        for (String key : props.keySet()) {
+            output.println("\t" + key + ": " + props.get(key));
         }
 
         output.printf("Containers: %s\n", toString(p.getAssociatedContainers()));

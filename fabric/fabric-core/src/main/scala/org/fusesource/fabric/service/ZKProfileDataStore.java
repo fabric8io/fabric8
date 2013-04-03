@@ -190,10 +190,10 @@ public class ZKProfileDataStore implements ProfileDataStore {
     }
     
     @Override
-    public Properties getVersionAttributes(String version) {
+    public Map<String, String> getVersionAttributes(String version) {
         try {
             String node = ZkPath.CONFIG_VERSION.getPath(version);
-            return ZooKeeperUtils.getProperties(zk, node);
+            return ZooKeeperUtils.getPropertiesAsMap(zk, node);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -202,14 +202,14 @@ public class ZKProfileDataStore implements ProfileDataStore {
     @Override
     public void setVersionAttribute(String version, String key, String value) {
         try {
-            Properties props = getVersionAttributes(version);
+            Map<String, String> props = getVersionAttributes(version);
             if (value != null) {
-                props.setProperty(key, value);
+                props.put(key, value);
             } else {
                 props.remove(key);
             }
             String node = ZkPath.CONFIG_VERSION.getPath(version);
-            ZooKeeperUtils.setProperties(zk, node, props);
+            ZooKeeperUtils.setPropertiesAsMap(zk, node, props);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -217,10 +217,10 @@ public class ZKProfileDataStore implements ProfileDataStore {
 
 
     @Override
-    public Properties getProfileAttributes(String version, String profile) {
+    public Map<String, String> getProfileAttributes(String version, String profile) {
         try {
             String path = ZkProfiles.getPath(version, profile);
-            return ZooKeeperUtils.getProperties(zk, path);
+            return ZooKeeperUtils.getPropertiesAsMap(zk, path);
         } catch (Exception e) {
             throw new FabricException(e);
         }

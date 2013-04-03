@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.Properties;
+import java.util.Map;
 
 public interface Version extends Comparable<Version>, HasId {
 
@@ -42,7 +42,7 @@ public interface Version extends Comparable<Version>, HasId {
      * Returns a read only map of all the attributes of this version
      * @return
      */
-    Properties getAttributes();
+    Map<String, String> getAttributes();
 
     /**
      * Change an attribute on this version.

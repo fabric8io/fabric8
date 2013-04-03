@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.VersionSequence;
 import org.fusesource.fabric.service.FabricServiceImpl;
 
+import java.util.Map;
 import java.util.Properties;
 
 public class VersionImpl implements Version {
@@ -46,7 +47,7 @@ public class VersionImpl implements Version {
     }
 
     @Override
-    public Properties getAttributes() {
+    public Map<String, String> getAttributes() {
         return service.getProfileDataStore().getVersionAttributes(name);
     }
 

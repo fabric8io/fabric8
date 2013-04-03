@@ -81,9 +81,10 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
     zip.putArchiveEntry(root)
 
     val attributes = self.getAttributes();
-
+    val props = new Properties();
+    attributes.foreach(p => props.setProperty(p._1, p._2))
     val out = new ByteArrayOutputStream
-    attributes.store(out, "Exported on " + new Date)
+    props.store(out, "Exported on " + new Date)
     configs.put("attributes.properties", out.toByteArray)
 
     configs.foreach {
@@ -118,16 +119,16 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
   def version = self.getVersion
 
   @JsonProperty
-  def is_abstract = Option(profile_attributes.getProperty(Profile.ABSTRACT)).getOrElse({"false"}).toBoolean
+  def is_abstract = Option(profile_attributes.get(Profile.ABSTRACT)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def is_locked = Option(profile_attributes.getProperty(Profile.LOCKED)).getOrElse({"false"}).toBoolean
+  def is_locked = Option(profile_attributes.get(Profile.LOCKED)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def is_hidden = Option(profile_attributes.getProperty(Profile.HIDDEN)).getOrElse({"false"}).toBoolean
+  def is_hidden = Option(profile_attributes.get(Profile.HIDDEN)).getOrElse({"false"}).toBoolean
 
   @JsonProperty
-  def description = Option(profile_attributes.getProperty(Profile.DESCRIPTION)).getOrElse({""})
+  def description = Option(profile_attributes.get(Profile.DESCRIPTION)).getOrElse({""})
 
   @JsonProperty
   def profile_attributes = self.getAttributes

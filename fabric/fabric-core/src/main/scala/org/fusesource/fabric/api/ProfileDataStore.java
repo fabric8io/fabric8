@@ -56,7 +56,7 @@ public interface ProfileDataStore {
 
     void deleteVersion(String version);
 
-    Properties getVersionAttributes(String version);
+    Map<String, String> getVersionAttributes(String version);
 
     void setVersionAttribute(String version, String key, String value);
 
@@ -74,7 +74,7 @@ public interface ProfileDataStore {
 
     void deleteProfile(String version, String profile);
 
-    Properties getProfileAttributes(String version, String profile);
+    Map<String, String> getProfileAttributes(String version, String profile);
 
     void setProfileAttribute(String version, String profile, String key, String value);
 
