@@ -121,12 +121,12 @@ public class ZKProfileDataStore implements ProfileDataStore {
     }
 
     @Override
-    public String getVersion(String name) {
+    public boolean hasVersion(String name) {
         try {
             if (zk != null && zk.isConnected() && ZooKeeperUtils.exists(zk, ZkPath.CONFIG_VERSION.getPath(name)) == null) {
-                return null;
+                return false;
             }
-            return name;
+            return true;
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {
@@ -154,7 +154,8 @@ public class ZKProfileDataStore implements ProfileDataStore {
                 if (!create) {
                     return null;
                 } else {
-                    return createProfile(version, profile);
+                    createProfile(version, profile);
+                    return profile;
                 }
             }
             return profile;
@@ -164,16 +165,15 @@ public class ZKProfileDataStore implements ProfileDataStore {
     }
 
     @Override
-    public String getProfile(String version, String profile) {
-        return getProfile(version, profile, false);
+    public boolean hasProfile(String version, String profile) {
+        return getProfile(version, profile, false) != null;
     }
 
     @Override
-    public String createProfile(String version, String profile) {
+    public void createProfile(String version, String profile) {
         try {
             String path = ZkProfiles.getPath(version, profile);
             ZooKeeperUtils.create(zk, path);
-            return profile;
         } catch (Exception e) {
             throw new FabricException(e);
         }

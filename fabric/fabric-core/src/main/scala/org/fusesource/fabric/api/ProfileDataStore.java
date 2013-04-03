@@ -28,25 +28,27 @@ import java.util.Properties;
  */
 public interface ProfileDataStore {
 
-    Properties getProfileAttributes(String version, String profile);
+    //
+    // Import
+    //
 
-    void setProfileAttribute(String version, String profile, String key, String value);
+    void importFromFileSystem(String from);
 
-    Map<String, byte[]> getFileConfigurations(String version, String profile);
+    //
+    // Default version
+    //
 
-    byte[] getFileConfiguration(String version, String profile, String pid) throws InterruptedException, KeeperException;
+    String getDefaultVersion();
 
-    void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
+    void setDefaultVersion(String versionId);
 
-    Map<String, Map<String, String>> getConfigurations(String version, String profile);
+    //
+    // Version management
+    //
 
-    Map<String, String> getConfiguration(String version, String profile, String pid) throws InterruptedException, KeeperException, IOException;
+    List<String> getVersions();
 
-    void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
-
-    Properties getVersionAttributes(String version);
-
-    void setVersionAttribute(String version, String key, String value);
+    boolean hasVersion(String name);
 
     void createVersion(String version);
 
@@ -54,27 +56,45 @@ public interface ProfileDataStore {
 
     void deleteVersion(String version);
 
-    List<String> getVersions();
+    Properties getVersionAttributes(String version);
 
-    String getVersion(String name);
+    void setVersionAttribute(String version, String key, String value);
+
+    //
+    // Profile management
+    //
 
     List<String> getProfiles(String version);
 
-    String getProfile(String version, String profile);
+    boolean hasProfile(String version, String profile);
 
-    String createProfile(String version, String profile);
+    void createProfile(String version, String profile);
+
+    String getProfile(String version, String profile, boolean create);
 
     void deleteProfile(String version, String profile);
 
-    void importFromFileSystem(String from);
+    Properties getProfileAttributes(String version, String profile);
 
-    String getDefaultVersion();
+    void setProfileAttribute(String version, String profile, String key, String value);
 
-    void setDefaultVersion(String versionId);
+    // File configurations, including Map based configurations
 
-    void setFileConfiguration(String version, String id, String pid, byte[] configuration);
+    Map<String, byte[]> getFileConfigurations(String version, String profile);
 
-    String getProfile(String version, String profile, boolean create);
+    byte[] getFileConfiguration(String version, String profile, String name) throws InterruptedException, KeeperException;
+
+    void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
+
+    void setFileConfiguration(String version, String profile, String name, byte[] configuration);
+
+    // Map based configurations
+
+    Map<String, Map<String, String>> getConfigurations(String version, String profile);
+
+    Map<String, String> getConfiguration(String version, String profile, String pid) throws InterruptedException, KeeperException, IOException;
+
+    void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
 
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
 }

@@ -532,7 +532,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public Version getVersion(String name) {
-        if (getProfileDataStore().getVersion(name) != null) {
+        if (getProfileDataStore().hasVersion(name)) {
             return new VersionImpl(name, this);
         }
         throw new FabricException("Version '" + name + "' does not exist");
@@ -550,7 +550,7 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public Profile getProfile(String version, String name) {
-        if (getProfileDataStore().getProfile(version, name) != null) {
+        if (getProfileDataStore().hasProfile(version, name)) {
             return new ProfileImpl(name, version, this);
         }
         throw new FabricException("Profile '" + name + "' does not exist in version '" + version + "'.");
