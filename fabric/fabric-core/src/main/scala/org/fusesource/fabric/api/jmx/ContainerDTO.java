@@ -19,7 +19,6 @@ package org.fusesource.fabric.api.jmx;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.HasId;
 import org.fusesource.fabric.api.Ids;
-import org.fusesource.fabric.api.Versions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -114,7 +113,7 @@ public class ContainerDTO implements HasId {
         this.resolver = container.getResolver();
         this.sshUrl = container.getSshUrl();
         this.type = container.getType();
-        this.versionId = Versions.getId(container.getVersion());
+        this.versionId = Ids.getId(container.getVersion());
         this.geoLocation = container.getGeoLocation();
     }
 

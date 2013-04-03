@@ -36,6 +36,11 @@ public class VersionImpl implements Version {
     }
 
     @Override
+    public String getId() {
+        return getName();
+    }
+
+    @Override
     public String getName() {
         return name;
     }

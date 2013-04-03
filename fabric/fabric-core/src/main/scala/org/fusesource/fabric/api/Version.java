@@ -18,7 +18,7 @@ package org.fusesource.fabric.api;
 
 import java.util.Properties;
 
-public interface Version extends Comparable<Version> {
+public interface Version extends Comparable<Version>, HasId {
 
     /**
      * The attribute key for the description of the version
@@ -33,7 +33,9 @@ public interface Version extends Comparable<Version> {
     /**
      * Returns the name of the version
      * @return
+     * @deprecated use {@link #getId()}
      */
+    @Deprecated
     String getName();
 
     /**
