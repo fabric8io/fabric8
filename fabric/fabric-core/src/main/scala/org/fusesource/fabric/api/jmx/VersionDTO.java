@@ -22,7 +22,6 @@ import org.fusesource.fabric.api.Version;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * A DTO for returning versions from JSON MBeans
@@ -60,7 +59,7 @@ public class VersionDTO implements HasId {
     }
 
     public VersionDTO(Version version) {
-        this.id = version.getName();
+        this.id = version.getId();
         this.attributes = version.getAttributes();
     }
 

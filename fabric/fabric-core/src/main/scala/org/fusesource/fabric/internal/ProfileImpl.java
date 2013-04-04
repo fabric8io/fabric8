@@ -220,7 +220,7 @@ public class ProfileImpl implements Profile {
             ArrayList<Container> rc = new ArrayList<Container>();
             Container[] containers = service.getContainers();
             for (Container container : containers) {
-                if (!container.getVersion().getName().equals(getVersion())) {
+                if (!container.getVersion().getId().equals(getVersion())) {
                     continue;
                 }
                 for (Profile p : container.getProfiles()) {

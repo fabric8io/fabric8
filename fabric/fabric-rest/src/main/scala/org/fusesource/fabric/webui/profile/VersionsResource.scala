@@ -126,13 +126,13 @@ class VersionsResource extends BaseResource {
 
     val version = if (target_name.equals("")) {
       val rc = BaseUpgradeResource.create_version
-      Services.LOG.info("Creating new version {}", rc.getName());
+      Services.LOG.info("Creating new version {}", rc.getId());
       rc
     } else {
       try {
         Option(fabric_service.getVersion(target_name)) match {
           case Some(rc) =>
-            Services.LOG.info("Overwriting existing version {}", rc.getName());
+            Services.LOG.info("Overwriting existing version {}", rc.getId());
             rc
           case None =>
             Services.LOG.info("Creating new emtpy version {}", target_name);
@@ -158,7 +158,7 @@ class VersionsResource extends BaseResource {
         VersionResource.create_profile(version, data, profile)
       }
     }
-    version.getName
+    version.getId
   }
 
   //@GET @Path("default")

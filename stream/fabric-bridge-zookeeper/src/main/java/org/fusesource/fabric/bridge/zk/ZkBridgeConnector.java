@@ -111,7 +111,7 @@ public class ZkBridgeConnector extends BridgeConnector implements LifecycleListe
 
         // get gateway profile
         if (versionName == null) {
-            versionName = fabricService.getDefaultVersion().getName();
+            versionName = fabricService.getDefaultVersion().getId();
         }
 		LOG.info("Looking for profile " + gatewayProfileName + " under version " + versionName);
 		Version version = fabricService.getVersion(versionName);

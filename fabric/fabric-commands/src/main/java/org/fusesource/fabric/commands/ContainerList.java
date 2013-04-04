@@ -85,7 +85,7 @@ public class ContainerList extends FabricCommand {
                 if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
                     marker = "*";
                 }
-                out.println(String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), status(container)));
+                out.println(String.format(FORMAT, indent + container.getId() + marker, container.getVersion().getId(), container.isAlive(), toString(container.getProfiles()), status(container)));
             }
         }
     }
@@ -103,7 +103,7 @@ public class ContainerList extends FabricCommand {
                 if (container.getId().equals(fabricService.getCurrentContainer().getId())) {
                     marker = "*";
                 }
-                out.println(String.format(VERBOSE_FORMAT, indent + container.getId() + marker,  container.getVersion().getName(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
+                out.println(String.format(VERBOSE_FORMAT, indent + container.getId() + marker,  container.getVersion().getId(), container.isAlive(), toString(container.getProfiles()), container.getSshUrl(), container.getJmxUrl(), status(container)));
             }
         }
     }

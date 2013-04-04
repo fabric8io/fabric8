@@ -195,7 +195,7 @@ public final class CommandUtils {
     public static int countContainersByVersion(Container[] containers, Version version) {
         int answer = 0;
         for (Container container : containers) {
-            if (container.getVersion().getName().equals(version.getName())) {
+            if (container.getVersion().getId().equals(version.getId())) {
                 answer++;
             }
         }

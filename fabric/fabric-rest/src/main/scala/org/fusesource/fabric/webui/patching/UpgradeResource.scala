@@ -40,7 +40,7 @@ class UpgradeResource extends BaseUpgradeResource {
     val version = create_version(dto.target_version)
     Services.LOG.debug("Applying specified upgrades : {} to version : ", dto, version)
     patch_service.applyUpgrades(version, dto.upgrades)
-    version.getName
+    version.getId
   }
 
 }

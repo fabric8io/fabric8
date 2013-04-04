@@ -44,7 +44,7 @@ public class ProfileRefresh extends FabricCommand {
 		Version version = versionName != null ? fabricService.getVersion(versionName) : fabricService.getDefaultVersion();
 		Profile profile = version.getProfile(profileName);
 		if (profile == null) {
-			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getName());
+			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getId());
 		}
 		Map<String, Map<String, String>> configuration = profile.getConfigurations();
 		Map<String, String> agentConfiguration = configuration.get("org.fusesource.fabric.agent");

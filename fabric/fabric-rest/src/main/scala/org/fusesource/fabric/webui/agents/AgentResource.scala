@@ -47,7 +47,7 @@ class AgentResource(val agent: Container, val request:HttpServletRequest) extend
   def root = agent.isRoot
 
   @JsonProperty
-  def version = agent.getVersion.getName
+  def version = agent.getVersion.getId
 
   @JsonProperty
   def ssh_url = agent.getSshUrl

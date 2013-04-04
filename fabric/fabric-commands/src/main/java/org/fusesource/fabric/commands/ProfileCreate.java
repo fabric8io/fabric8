@@ -43,7 +43,7 @@ public class ProfileCreate extends FabricCommand {
         Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
         
         Profile[] parents = getProfiles(ver, this.parents);
-        Profile profile = fabricService.getVersion(ver.getName()).createProfile(name);
+        Profile profile = fabricService.getVersion(ver.getId()).createProfile(name);
         profile.setParents(parents);
         return null;
     }

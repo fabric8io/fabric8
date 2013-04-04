@@ -36,7 +36,7 @@ public class VersionCompleter implements Completer {
         StringsCompleter delegate = new StringsCompleter();
         Version[] versions = fabricService.getVersions();
         for (Version version : versions) {
-            delegate.getStrings().add(version.getName());
+            delegate.getStrings().add(version.getId());
         }
         return delegate.complete(buffer, cursor, candidates);
     }

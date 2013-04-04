@@ -63,7 +63,7 @@ class PatchResource extends BaseUpgradeResource {
       }
     })
     patch_service.applyPatches(version, patches)
-    version.getName
+    version.getId
   }
 
 }

@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
@@ -357,7 +356,7 @@ public class FabricManager implements FabricManagerMBean {
         String defaultVersionId = null;
         Version defaultVersion = getFabricService().getDefaultVersion();
         if (defaultVersion != null) {
-            defaultVersionId = defaultVersion.getName();
+            defaultVersionId = defaultVersion.getId();
         }
         List<VersionDTO> answer = VersionDTO.newInstances(getFabricService().getVersions());
         for (VersionDTO versionDTO : answer) {

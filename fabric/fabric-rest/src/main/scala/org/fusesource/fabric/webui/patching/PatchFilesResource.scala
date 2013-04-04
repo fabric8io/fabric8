@@ -171,11 +171,11 @@ class PatchFilesResource extends BaseUpgradeResource {
     }
 
     val version = create_version(args.target_version)
-    Services.LOG.info("Created version {}", version.getName)
+    Services.LOG.info("Created version {}", version.getId)
 
     patch_files.foreach((x) => {
       try {
-        Services.LOG.info("Applying patch {} to version {}", x.getName, version.getName)
+        Services.LOG.info("Applying patch {} to version {}", x.getName, version.getId)
         patch_service.applyFinePatch(version, x.toURI.toURL, session.getAttribute("username").asInstanceOf[String], session.getAttribute("password").asInstanceOf[String])
       } catch {
         case t: Throwable =>
@@ -194,6 +194,6 @@ class PatchFilesResource extends BaseUpgradeResource {
       }
     })
 
-    version.getName
+    version.getId
   }
 }

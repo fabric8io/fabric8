@@ -132,13 +132,13 @@ class VersionResource(val self: Version) extends BaseResource with HasID with Ex
   import VersionResource._
 
   @JsonProperty
-  def id = self.getName
+  def id = self.getId
 
   @JsonProperty
-  def derived_from = Option(self.getDerivedFrom).map(_.getName).getOrElse(null)
+  def derived_from = Option(self.getDerivedFrom).map(_.getId).getOrElse(null)
 
   @JsonProperty
-  def _default = fabric_service.getDefaultVersion.getName == self.getName
+  def _default = fabric_service.getDefaultVersion.getId == self.getId
 
   @JsonProperty
   def agents: Array[String] = fabric_service.getContainers.filter(_.getVersion == self).map(_.getId)

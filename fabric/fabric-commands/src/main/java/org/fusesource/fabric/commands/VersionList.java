@@ -43,9 +43,9 @@ public class VersionList extends FabricCommand {
 
         // they are sorted in the correct order by default
         for (Version version : versions) {
-            boolean isDefault = defaultVersion.getName().equals(version.getName());
+            boolean isDefault = defaultVersion.getId().equals(version.getId());
             int active = countContainersByVersion(containers, version);
-            out.println(String.format("%-15s %-9s %-14s", version.getName(), (isDefault ? "true" : "false"), active));
+            out.println(String.format("%-15s %-9s %-14s", version.getId(), (isDefault ? "true" : "false"), active));
         }
     }
 

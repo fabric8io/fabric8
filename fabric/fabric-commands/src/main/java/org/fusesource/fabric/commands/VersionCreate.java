@@ -65,7 +65,7 @@ public class VersionCreate extends FabricCommand {
         Version created;
         if (parent != null) {
             created = fabricService.createVersion(parent, name);
-            System.out.println("Created version: " + name + " as copy of: " + parent.getName());
+            System.out.println("Created version: " + name + " as copy of: " + parent.getId());
         } else {
             created = fabricService.createVersion(name);
             System.out.println("Created version: " + name);

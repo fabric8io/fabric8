@@ -128,7 +128,7 @@ public class ZkGatewayConnector extends GatewayConnector implements Runnable, Li
 
 		// find or create a profile
         if (versionName == null) {
-            versionName = fabricService.getDefaultVersion().getName();
+            versionName = fabricService.getDefaultVersion().getId();
         }
 		LOG.info("Looking for profile " + profileName + " under version " + versionName);
 		Version version = fabricService.getVersion(versionName);

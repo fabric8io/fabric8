@@ -87,10 +87,10 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             for (String profile : names) {
                 Profile prof = getProfile(profiles, profile, ver);
                 if (prof == null) {
-                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " does not exist.");
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getId() + " does not exist.");
                 }
                 if (prof.isAbstract()) {
-                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getName() + " is abstract and can not be associated to containers.");
+                    throw new IllegalArgumentException("Profile " + profile + " with version " + ver.getId() + " is abstract and can not be associated to containers.");
                 }
             }
         }
@@ -111,11 +111,11 @@ public abstract class ContainerCreateSupport extends FabricCommand {
 
             List<String> names = getProfileNames();
             try {
-                Profile[] profiles = getProfiles(ver.getName(), names);
+                Profile[] profiles = getProfiles(ver.getId(), names);
                 for (CreateContainerMetadata metadata : metadatas) {
                     if (metadata.isSuccess()) {
                         Container child = metadata.getContainer();
-                        log.trace("Setting version " + ver.getName() + " on container " + child.getId());
+                        log.trace("Setting version " + ver.getId() + " on container " + child.getId());
                         child.setVersion(ver);
                         log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
                         child.setProfiles(profiles);
@@ -157,7 +157,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
 
         for (Profile profile : profiles) {
-            if (profile.getId().equals(name) && profile.getVersion().equals(version.getName())) {
+            if (profile.getId().equals(name) && profile.getVersion().equals(version.getId())) {
                 return profile;
             }
         }

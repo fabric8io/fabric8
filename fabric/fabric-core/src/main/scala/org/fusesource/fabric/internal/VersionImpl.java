@@ -39,12 +39,12 @@ public class VersionImpl implements Version {
     }
 
     @Override
-    public String getId() {
-        return getName();
+    public String getName() {
+        return getId();
     }
 
     @Override
-    public String getName() {
+    public String getId() {
         return id;
     }
 
