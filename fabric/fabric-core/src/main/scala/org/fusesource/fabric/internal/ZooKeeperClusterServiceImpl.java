@@ -17,7 +17,7 @@
 package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ProfileDataStore;
+import org.fusesource.fabric.api.DataStore;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -52,9 +52,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperRetriableUtils;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperCommandBuilder;
-import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.util.clock.Timespan;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -75,7 +73,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 	private ConfigurationAdmin configurationAdmin;
     private IZKClient zooKeeper;
 	private FabricService fabricService;
-    private ProfileDataStore profileDataStore;
+    private DataStore dataStore;
     private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
 
     public void init() {
@@ -123,12 +121,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         this.zooKeeper = zooKeeper;
     }
 
-    public void setProfileDataStore(ProfileDataStore profileDataStore) {
-        this.profileDataStore = profileDataStore;
+    public void setDataStore(DataStore dataStore) {
+        this.dataStore = dataStore;
     }
 
-    public ProfileDataStore getProfileDataStore() {
-        return profileDataStore;
+    public DataStore getDataStore() {
+        return dataStore;
     }
 
     public void createLocalServer() {
@@ -241,13 +239,13 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 			// Import data into zookeeper
 			if (autoImportFrom != null) {
-                getProfileDataStore().importFromFileSystem(autoImportFrom);
+                getDataStore().importFromFileSystem(autoImportFrom);
 			}
 
-            getProfileDataStore().setDefaultVersion(version);
+            getDataStore().setDefaultVersion(version);
 
             // configure default profile
-            String defaultProfile = getProfileDataStore().getProfile(version, "default", true);
+            String defaultProfile = getDataStore().getProfile(version, "default", true);
 
             ZooKeeperRetriableUtils.set(client, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + karafName + "/ip}:" + Integer.toString(mappedPort));
             ZooKeeperRetriableUtils.set(client, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
@@ -255,12 +253,12 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             Properties zkProps = new Properties();
             zkProps.setProperty("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
             zkProps.setProperty("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-            getProfileDataStore().setFileConfiguration(version, defaultProfile, "org.fusesource.fabric.zookeeper.properties", DataStoreHelpers.toBytes(zkProps));
+            getDataStore().setFileConfiguration(version, defaultProfile, "org.fusesource.fabric.zookeeper.properties", DataStoreHelpers.toBytes(zkProps));
 
             // configure the ensemble
-            String ensembleProfile = getProfileDataStore().getProfile(version, "fabric-ensemble-0000", true);
-            getProfileDataStore().setProfileAttribute(version, ensembleProfile, "abstract", "true");
-            getProfileDataStore().setProfileAttribute(version, ensembleProfile, "hidden", "true");
+            String ensembleProfile = getDataStore().getProfile(version, "fabric-ensemble-0000", true);
+            getDataStore().setProfileAttribute(version, ensembleProfile, "abstract", "true");
+            getDataStore().setProfileAttribute(version, ensembleProfile, "hidden", "true");
 
             Properties ensembleProps = new Properties();
             ensembleProps.put("tickTime", "2000");
@@ -269,24 +267,24 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ensembleProps.put("dataDir", "data/zookeeper/0000");
 
             loadPropertiesFrom(ensembleProps, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
-            getProfileDataStore().setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(ensembleProps));
+            getDataStore().setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(ensembleProps));
 
             // configure this server in the ensemble
-            String ensembleServerProfile = getProfileDataStore().getProfile(version, "fabric-ensemble-0000-1", true);
-            getProfileDataStore().setProfileAttribute(version, ensembleServerProfile, "hidden", "true");
-            getProfileDataStore().setProfileAttribute(version, ensembleServerProfile, "parents", ensembleProfile);
+            String ensembleServerProfile = getDataStore().getProfile(version, "fabric-ensemble-0000-1", true);
+            getDataStore().setProfileAttribute(version, ensembleServerProfile, "hidden", "true");
+            getDataStore().setProfileAttribute(version, ensembleServerProfile, "parents", ensembleProfile);
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
-            getProfileDataStore().setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(serverProps));
+            getDataStore().setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(serverProps));
 
 			ZooKeeperRetriableUtils.set(client, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
 			ZooKeeperRetriableUtils.set(client, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), karafName);
 
             // configure fabric profile
-            String fabricProfile = getProfileDataStore().getProfile(version, "fabric", true);
-            Properties agentProps = DataStoreHelpers.toProperties(getProfileDataStore().getFileConfiguration(version, fabricProfile, "org.fusesource.fabric.agent.properties"));
+            String fabricProfile = getDataStore().getProfile(version, "fabric", true);
+            Properties agentProps = DataStoreHelpers.toProperties(getDataStore().getFileConfiguration(version, fabricProfile, "org.fusesource.fabric.agent.properties"));
             agentProps.put("feature.fabric-commands", "fabric-commands");
-            getProfileDataStore().setFileConfiguration(version, "fabric", "org.fusesource.fabric.agent.properties", DataStoreHelpers.toBytes(agentProps));
+            getDataStore().setFileConfiguration(version, "fabric", "org.fusesource.fabric.agent.properties", DataStoreHelpers.toBytes(agentProps));
 
 			ZooKeeperRetriableUtils.createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
 			String assignedProfile = System.getProperty(SystemProperties.PROFILE);
@@ -299,7 +297,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			// add auth
             Map<String, String> configs = new HashMap<String, String>();
             configs.put("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}" );
-            getProfileDataStore().setConfiguration(version, defaultProfile, "org.fusesource.fabric.jaas", configs);
+            getDataStore().setConfiguration(version, defaultProfile, "org.fusesource.fabric.jaas", configs);
 
             // outside of the profile storage area, so we'll keep these in zk
 			ZooKeeperRetriableUtils.createDefault(client, "/fabric/authentication/encryption.enabled", "true");
@@ -453,7 +451,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 return;
             }
 
-            String version = getProfileDataStore().getDefaultVersion();
+            String version = getDataStore().getDefaultVersion();
 
             for (String container : containers) {
                 Container c = fabricService.getContainer(container);
@@ -473,7 +471,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 String profile = "fabric-ensemble-" + oldClusterId;
                 String pid = "org.fusesource.fabric.zookeeper.server-" + oldClusterId;
 
-                Map<String, String> p = getProfileDataStore().getConfiguration(version, profile, pid);
+                Map<String, String> p = getDataStore().getConfiguration(version, profile, pid);
 
                 if (p == null) {
                     throw new FabricException("Failed to find old cluster configuration for ID " + oldClusterId);
@@ -487,7 +485,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 					}
 				}
 
-                Map<String, String> zkConfig = getProfileDataStore().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper");
+                Map<String, String> zkConfig = getDataStore().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper");
                 if (zkConfig == null) {
                     throw new FabricException("Failed to find old zookeeper configuration in default profile");
                 }
@@ -505,9 +503,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			}
 
             // create new ensemble
-            String ensembleProfile = getProfileDataStore().getProfile(version, "fabric-ensemble-" + newClusterId, true);
-            getProfileDataStore().setProfileAttribute(version, ensembleProfile, "abstract", "true");
-            getProfileDataStore().setProfileAttribute(version, ensembleProfile, "hidden", "true");
+            String ensembleProfile = getDataStore().getProfile(version, "fabric-ensemble-" + newClusterId, true);
+            getDataStore().setProfileAttribute(version, ensembleProfile, "abstract", "true");
+            getDataStore().setProfileAttribute(version, ensembleProfile, "hidden", "true");
 
             Properties ensembleProperties = new Properties();
             ensembleProperties.put("tickTime", "2000");
@@ -537,9 +535,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 Properties ensembleMemberProperties = new Properties();
 
                 // configure this server in the ensemble
-                String ensembleMemberProfile = getProfileDataStore().getProfile(version, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index), true);
-                getProfileDataStore().setProfileAttribute(version, ensembleMemberProfile, "hidden", "true");
-                getProfileDataStore().setProfileAttribute(version, ensembleMemberProfile, "parents", ensembleProfile);
+                String ensembleMemberProfile = getDataStore().getProfile(version, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index), true);
+                getDataStore().setProfileAttribute(version, ensembleMemberProfile, "hidden", "true");
+                getDataStore().setProfileAttribute(version, ensembleMemberProfile, "parents", ensembleProfile);
 
                 String port1 = Integer.toString(findPort(usedPorts, ip, mapPortToRange(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT, minimumPort, maximumPort)));
                 if (containers.size() > 1) {
@@ -550,7 +548,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 }
                 ensembleMemberProperties.put("clientPort", port1);
 
-                getProfileDataStore().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberPid, DataStoreHelpers.toBytes(ensembleMemberProperties));
+                getDataStore().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberPid, DataStoreHelpers.toBytes(ensembleMemberProperties));
 
                 // add this container to the ensemble
 				ZooKeeperRetriableUtils.add(zooKeeper, "/fabric/configs/versions/" + version + "/containers/" + container, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index));
@@ -568,10 +566,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			}
 
             String ensembleConfigName = "org.fusesource.fabric.zookeeper.server-" + newClusterId;
-            getProfileDataStore().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreHelpers.toBytes(ensembleProperties) );
+            getDataStore().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreHelpers.toBytes(ensembleProperties) );
 
             if (oldClusterId != null) {
-                Properties properties = DataStoreHelpers.toProperties(getProfileDataStore().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper"));
+                Properties properties = DataStoreHelpers.toProperties(getDataStore().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper"));
 				properties.put("zookeeper.url", ZooKeeperRetriableUtils.getSubstitutedData(zooKeeper, realConnectionUrl));
 				properties.put("zookeeper.password", options.getZookeeperPassword());
 				OsgiZkClient dst = new OsgiZkClient();

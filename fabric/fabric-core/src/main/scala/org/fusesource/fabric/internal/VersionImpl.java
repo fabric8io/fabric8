@@ -16,24 +16,26 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.VersionSequence;
 import org.fusesource.fabric.service.FabricServiceImpl;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class VersionImpl implements Version {
 
-    private final String name;
+    private final String id;
     private final FabricServiceImpl service;
     private final VersionSequence sequence;
 
-    public VersionImpl(String name, FabricServiceImpl service) {
-        this.name = name;
+    public VersionImpl(String id, FabricServiceImpl service) {
+        this.id = id;
         this.service = service;
-        this.sequence = new VersionSequence(name);
+        this.sequence = new VersionSequence(id);
     }
 
     @Override
@@ -43,17 +45,17 @@ public class VersionImpl implements Version {
 
     @Override
     public String getName() {
-        return name;
+        return id;
     }
 
     @Override
     public Map<String, String> getAttributes() {
-        return service.getProfileDataStore().getVersionAttributes(name);
+        return service.getDataStore().getVersionAttributes(id);
     }
 
     @Override
     public void setAttribute(String key, String value) {
-        service.getProfileDataStore().setVersionAttribute(name, key, value);
+        service.getDataStore().setVersionAttribute(id, key, value);
     }
 
     @Override
@@ -73,14 +75,14 @@ public class VersionImpl implements Version {
 
         VersionImpl version = (VersionImpl) o;
 
-        if (name != null ? !name.equals(version.name) : version.name != null) return false;
+        if (id != null ? !id.equals(version.id) : version.id != null) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return id != null ? id.hashCode() : 0;
     }
 
     @Override
@@ -91,27 +93,36 @@ public class VersionImpl implements Version {
 
     @Override
     public Profile[] getProfiles() {
-        return service.getProfiles(name);
+        List<String> names = service.getDataStore().getProfiles(id);
+        List<Profile> profiles = new ArrayList<Profile>();
+        for (String name : names) {
+            profiles.add(new ProfileImpl(name, id, service));
+        }
+        return profiles.toArray(new Profile[profiles.size()]);
     }
 
     @Override
-    public Profile getProfile(String name) {
-        return service.getProfile(this.name, name);
+    public Profile getProfile(String profileId) {
+        if (service.getDataStore().hasProfile(id, profileId)) {
+            return new ProfileImpl(profileId, id, service);
+        }
+        throw new FabricException("Profile '" + profileId + "' does not exist in version '" + id + "'.");
     }
 
     @Override
-    public Profile createProfile(String name) {
-        return service.createProfile(this.name, name);
+    public Profile createProfile(String profileId) {
+        service.getDataStore().createProfile(id, profileId);
+        return new ProfileImpl(profileId, id, service);
     }
 
     @Override
     public void delete() {
-        service.deleteVersion(name);
+        service.getDataStore().deleteVersion(id);
     }
 
     @Override
     public String toString() {
         // TODO: add attributes
-        return name;
+        return id;
     }
 }

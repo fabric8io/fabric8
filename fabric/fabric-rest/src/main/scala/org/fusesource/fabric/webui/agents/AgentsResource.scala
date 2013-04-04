@@ -76,7 +76,7 @@ class AgentsResource extends BaseResource {
     require(requested_profiles != null, "profiles must be set")
 
     val version = fabric_service.getVersion(requested_version)
-    val profiles = requested_profiles.map(version.getProfile(_))
+    val profiles = requested_profiles.filter(!_.isEmpty()).map(version.getProfile(_))
 
     val agents: Array[CreateContainerMetadata[_ <: CreateContainerOptions]] = if (providerType == "child") {
 

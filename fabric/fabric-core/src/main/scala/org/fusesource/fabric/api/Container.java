@@ -84,7 +84,7 @@ public interface Container extends HasId {
     String getPublicHostname();
     void setPublicHostname(String publicHostname);
 
-    String getManulIp();
+    String getManualIp();
     void setManualIp(String manualIp);
 
     int getMinimumPort();

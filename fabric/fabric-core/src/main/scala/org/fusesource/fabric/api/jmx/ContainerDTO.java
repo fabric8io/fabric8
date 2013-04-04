@@ -100,7 +100,7 @@ public class ContainerDTO implements HasId {
         this.localHostName = container.getLocalHostname();
         this.localIp = container.getLocalIp();
         this.location = container.getLocation();
-        this.manualIp = container.getManulIp();
+        this.manualIp = container.getManualIp();
         this.maximumPort = container.getMaximumPort();
         this.minimumPort = container.getMinimumPort();
         this.parentId = Ids.getId(container.getParent());

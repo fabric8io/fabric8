@@ -16,9 +16,9 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
@@ -30,7 +30,6 @@ import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -74,13 +73,7 @@ public class ContainerImpl implements Container {
     }
 
     public boolean isAlive() {
-        try {
-            return service.getZooKeeper().exists(ZkPath.CONTAINER_ALIVE.getPath(id)) != null;
-        } catch (KeeperException.NoNodeException e) {
-            return false;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return service.getDataStore().isContainerAlive(id);
     }
 
     public boolean isRoot() {
@@ -89,6 +82,7 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isEnsembleServer() {
+        // TODO: how to abstract the ensemble set up ?
         try {
             String clusterId = service.getZooKeeper().getStringData(ZkPath.CONFIG_ENSEMBLES.getPath());
             String containers = service.getZooKeeper().getStringData(ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
@@ -111,12 +105,7 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isProvisioningPending() {
-        String result = getProvisionResult();
-        if (result == null) {
-            return false;
-        } else {
-            return !isProvisioningComplete();
-        }
+        return isManaged() && !isProvisioningComplete();
     }
 
     @Override
@@ -135,29 +124,11 @@ public class ContainerImpl implements Container {
     }
 
     public String getSshUrl() {
-        try {
-            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_SSH.getPath(id));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.SshUrl);
     }
 
     public String getJmxUrl() {
-        try {
-            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_JMX.getPath(id));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    private String getZkData(ZkPath path) {
-        try {
-            return service.getZooKeeper().getStringData(path.getPath(id));
-        } catch (KeeperException.NoNodeException e) {
-            return null;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.JmxUrl);
     }
 
     @Override
@@ -167,149 +138,73 @@ public class ContainerImpl implements Container {
 
     @Override
     public Version getVersion() {
-        try {
-            String version = getZkData(ZkPath.CONFIG_CONTAINER);
-            if (version == null) {
-                return null;
-            }
-            return new VersionImpl(version, service);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        String versionId = service.getDataStore().getContainerVersion(id);
+        if (versionId == null) {
+            return null;
         }
+        return new VersionImpl(versionId, service);
     }
 
     @Override
     public void setVersion(Version version) {
-        try {
-            Version curretVersion = getVersion();
-
-            Profile[] profiles = getProfiles();
+        if (version.compareTo(getVersion()) != 0) {
             if (requiresUpgrade(version) && isManaged()) {
-                if (version.compareTo(curretVersion) > 0) {
-                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "upgrading");
-                } else {
-                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(getId()), "downgrading");
-                }
+                String status = version.compareTo(getVersion()) > 0 ? "upgrading" : "downgrading";
+                service.getDataStore().setContainerAttribute(id, DataStore.ContainerAttribute.ProvisionStatus, status);
             }
-
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < profiles.length; i++) {
-                if (i > 0) {
-                    sb.append(" ");
-                }
-                sb.append(profiles[i].getId());
-            }
-
-            //Transfer profiles to the new version.
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version.getName(), id), sb.toString());
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONFIG_CONTAINER.getPath(id), version.getName());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            service.getDataStore().setContainerVersion(id, version.getId());
         }
     }
 
     public Profile[] getProfiles() {
-        try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
-            String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
-            String str = service.getZooKeeper().getStringData(node);
-            if (str == null) {
-                return new Profile[0];
-            }
-            List<Profile> profiles = new ArrayList<Profile>();
-            if (!str.trim().isEmpty()) {
-                for (String p : str.split(" +")) {
-                    if (!p.isEmpty()) {
-                        profiles.add(new ProfileImpl(p, version, service));
-                    }
-                }
-            }
-            if (profiles.isEmpty()) {
-                profiles.add(new ProfileImpl("default", version, service));
-            }
-            return profiles.toArray(new Profile[profiles.size()]);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        Version version = getVersion();
+        List<String> profileIds = service.getDataStore().getContainerProfiles(id);
+        if (profileIds.isEmpty()) {
+            profileIds.add(ZkDefs.DEFAULT_PROFILE);
         }
+        List<Profile> profiles = new ArrayList<Profile>();
+        for (String profileId : profileIds) {
+            profiles.add(version.getProfile(profileId));
+        }
+        return profiles.toArray(new Profile[profiles.size()]);
     }
 
     public void setProfiles(Profile[] profiles) {
-        try {
-            String version = service.getZooKeeper().getStringData(ZkPath.CONFIG_CONTAINER.getPath(id));
-            String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
-            List<String> existingProfiles = Arrays.asList(service.getZooKeeper().getStringData(node).split(" "));
-
-            StringBuilder sb = new StringBuilder();
-            if (profiles != null) {
-                for (Profile profile : profiles) {
-                    if (!version.equals(profile.getVersion())) {
-                        throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
-                                + profile.getVersion() + " expected version " + version);
-                    } else if (profile.isAbstract()) {
-                        throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
-                                + "be associated to containers");
-                    } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !existingProfiles.contains(profile.getId())) {
-                        throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
-                    }
-
-                    if (sb.length() > 0) {
-                        sb.append(" ");
-                    }
-                    sb.append(profile.getId());
-                }
+        String versionId = service.getDataStore().getContainerVersion(id);
+        List<String> currentProfileIds = service.getDataStore().getContainerProfiles(id);
+        List<String> profileIds = new ArrayList<String>();
+        for (Profile profile : profiles) {
+            if (!versionId.equals(profile.getVersion())) {
+                throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
+                        + profile.getVersion() + " expected version " + versionId);
+            } else if (profile.isAbstract()) {
+                throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
+                        + "be associated to containers");
+            } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId())) {
+                throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
             }
-            String str = sb.toString();
-            if (str.trim().isEmpty()) {
-                str = "default";
-            }
-            service.getZooKeeper().setData(node, str);
-        } catch (Exception e) {
-            throw new FabricException(e);
+            profileIds.add(profile.getId());
         }
+        if (profileIds.isEmpty()) {
+            profileIds.add(ZkDefs.DEFAULT_PROFILE);
+        }
+        service.getDataStore().setContainerProfiles(id, profileIds);
     }
 
     public String getLocation() {
-        try {
-            String path = ZkPath.CONTAINER_LOCATION.getPath(id);
-            if (service.getZooKeeper().exists(path) != null) {
-                return service.getZooKeeper().getStringData(path);
-            } else {
-                return "";
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getOptionalAttribute(DataStore.ContainerAttribute.Location, "");
     }
 
     public void setLocation(String location) {
-        try {
-            String path = ZkPath.CONTAINER_LOCATION.getPath(id);
-            ZooKeeperUtils.set(service.getZooKeeper(), path, location);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.Location, location);
     }
 
     public String getGeoLocation() {
-        try {
-            String path = ZkPath.CONTAINER_GEOLOCATION.getPath(id);
-            if (service.getZooKeeper().exists(path) != null) {
-                return service.getZooKeeper().getStringData(path);
-            } else {
-                return "";
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getOptionalAttribute(DataStore.ContainerAttribute.GeoLocation, "");
     }
 
     public void setGeoLocation(String location) {
-        try {
-            String path = ZkPath.CONTAINER_GEOLOCATION.getPath(id);
-            ZooKeeperUtils.set(service.getZooKeeper(), path, location);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.GeoLocation, location);
     }
 
     /**
@@ -320,167 +215,88 @@ public class ContainerImpl implements Container {
      */
     @Override
     public String getResolver() {
-        try {
-            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.Resolver);
     }
 
     /**
      * Sets the resolver value of the {@link org.fusesource.fabric.api.Container}.
      *
-     * @param resolver
+     * @param resolver the new resolver for this container
      */
     @Override
     public void setResolver(String resolver) {
-        try {
-            List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-            if (!validResolverList.contains(resolver)) {
-                throw new FabricException("Resolver " + resolver + " is not valid.");
-            }
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id), "${zk:" + id + "/" + resolver + "}");
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_RESOLVER.getPath(id), resolver);
-        } catch (Exception e) {
-            throw new FabricException(e);
+        List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
+        if (!validResolverList.contains(resolver)) {
+            throw new FabricException("Resolver " + resolver + " is not valid.");
         }
+        setAttribute(DataStore.ContainerAttribute.Resolver, resolver);
     }
 
     /**
      * Returns the resolved address of the {@link org.fusesource.fabric.api.Container}.
      *
-     * @return
+     * @return the resolved address for this container
      */
     @Override
     public String getIp() {
-        try {
-            return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_IP.getPath(id));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.Ip);
     }
 
     @Override
     public String getLocalIp() {
-        try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_IP.getPath(id)) == null) {
-                return null;
-            } else {
-                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_IP.getPath(id));
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getNullableSubstitutedAttribute(DataStore.ContainerAttribute.LocalIp);
     }
 
     @Override
     public void setLocalIp(String localIp) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_IP.getPath(id), localIp);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.LocalIp, localIp);
     }
 
     @Override
     public String getLocalHostname() {
-        try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id)) == null) {
-                return null;
-            } else {
-                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id));
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getNullableSubstitutedAttribute(DataStore.ContainerAttribute.LocalHostName);
     }
 
     @Override
     public void setLocalHostname(String localHostname) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(id), localHostname);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.LocalHostName, localHostname);
     }
 
     @Override
     public String getPublicIp() {
-        try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_IP.getPath(id)) == null) {
-                return null;
-            } else {
-                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id));
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getNullableSubstitutedAttribute(DataStore.ContainerAttribute.PublicIp);
     }
 
     @Override
     public void setPublicIp(String publicIp) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_IP.getPath(id), publicIp);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.PublicIp, publicIp);
     }
 
     @Override
     public String getPublicHostname() {
-        try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id)) == null) {
-                return null;
-            } else {
-                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id));
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getNullableSubstitutedAttribute(DataStore.ContainerAttribute.PublicHostName);
     }
 
     @Override
     public void setPublicHostname(String publicHostname) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(id), publicHostname);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.PublicHostName, publicHostname);
     }
 
     @Override
-    public String getManulIp() {
-        try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_MANUAL_IP.getPath(id)) == null) {
-                return null;
-            } else {
-                return ZooKeeperUtils.getSubstitutedPath(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id));
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+    public String getManualIp() {
+        return getNullableSubstitutedAttribute(DataStore.ContainerAttribute.ManualIp);
     }
 
     @Override
     public void setManualIp(String manualIp) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_MANUAL_IP.getPath(id), manualIp);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.ManualIp, manualIp);
     }
 
     @Override
     public int getMinimumPort() {
         int minimumPort = 0;
         try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PORT_MIN.getPath(id)) != null) {
-                minimumPort = Integer.parseInt(service.getZooKeeper().getStringData(ZkPath.CONTAINER_PORT_MIN.getPath(id)));
-            }
-        } catch (InterruptedException e) {
-            throw new FabricException(e);
-        } catch (KeeperException e) {
-            throw new FabricException(e);
+            minimumPort = Integer.parseInt(getOptionalAttribute(DataStore.ContainerAttribute.PortMin, "0"));
         } catch (NumberFormatException e) {
             //ignore and fallback to 0
         }
@@ -489,37 +305,23 @@ public class ContainerImpl implements Container {
 
     @Override
     public void setMinimumPort(int port) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(id), String.valueOf(port));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.PortMin, String.valueOf(port));
     }
 
     @Override
     public int getMaximumPort() {
         int maximumPort = 0;
         try {
-            if (service.getZooKeeper().exists(ZkPath.CONTAINER_PORT_MAX.getPath(id)) != null) {
-                maximumPort = Integer.parseInt(service.getZooKeeper().getStringData(ZkPath.CONTAINER_PORT_MAX.getPath(id)));
-            }
-        } catch (InterruptedException e) {
-            throw new FabricException(e);
-        } catch (KeeperException e) {
-            throw new FabricException(e);
+            maximumPort = Integer.parseInt(getOptionalAttribute(DataStore.ContainerAttribute.PortMax, "0"));
         } catch (NumberFormatException e) {
-            //ignore and fallback to 0
+            // Ignore and fallback to 0
         }
         return maximumPort;
     }
 
     @Override
     public void setMaximumPort(int port) {
-        try {
-            ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(id), String.valueOf(port));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        setAttribute(DataStore.ContainerAttribute.PortMax, String.valueOf(port));
     }
 
     public BundleInfo[] getBundles(ContainerTemplate containerTemplate) {
@@ -570,14 +372,8 @@ public class ContainerImpl implements Container {
     }
 
     public List<String> getJmxDomains() {
-        try {
-            List<String> list = service.getZooKeeper().getChildren(ZkPath.CONTAINER_DOMAINS.getPath(getId()));
-            Collections.sort(list);
-            return Collections.unmodifiableList(list);
-        } catch (Exception e) {
-            logger.warn("Error while retrieving jmx domains. This exception will be ignored.", e);
-            return Collections.emptyList();
-        }
+        String str = getOptionalAttribute(DataStore.ContainerAttribute.Domains, null);
+        return str != null ? Arrays.asList(str.split("\n")) : Collections.<String>emptyList();
     }
 
     public void start() {
@@ -605,7 +401,7 @@ public class ContainerImpl implements Container {
                 children.add(container);
             }
         }
-        return children.toArray(new Container[0]);
+        return children.toArray(new Container[children.size()]);
     }
 
     public String getType() {
@@ -614,17 +410,17 @@ public class ContainerImpl implements Container {
 
     @Override
     public String getProvisionResult() {
-        return getZkData(ZkPath.CONTAINER_PROVISION_RESULT);
+        return getOptionalAttribute(DataStore.ContainerAttribute.ProvisionStatus, "");
     }
 
     @Override
     public String getProvisionException() {
-        return getZkData(ZkPath.CONTAINER_PROVISION_EXCEPTION);
+        return getOptionalAttribute(DataStore.ContainerAttribute.ProvisionException, null);
     }
 
     @Override
     public List<String> getProvisionList() {
-        String str = getZkData(ZkPath.CONTAINER_PROVISION_LIST);
+        String str = getOptionalAttribute(DataStore.ContainerAttribute.ProvisionList, null);
         return str != null ? Arrays.asList(str.split("\n")) : null;
     }
 
@@ -632,9 +428,9 @@ public class ContainerImpl implements Container {
     public CreateContainerMetadata<?> getMetadata() {
         try {
             if (metadata == null) {
-                if (service.getZooKeeper().exists(ZkPath.CONTAINER_METADATA.getPath(id)) != null) {
+                String encoded = getOptionalAttribute(DataStore.ContainerAttribute.Metadata, null);
+                if (encoded != null) {
                     //The metadata are stored encoded so that they are import/export friendly.
-                    String encoded = service.getZooKeeper().getStringData(ZkPath.CONTAINER_METADATA.getPath(id));
                     byte[] decoded = Base64Encoder.decode(encoded).getBytes(Base64Encoder.base64CharSet);
                     ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
                     metadata = (CreateContainerMetadata) ois.readObject();
@@ -651,12 +447,9 @@ public class ContainerImpl implements Container {
     public void setMetadata(CreateContainerMetadata<?> metadata) {
         this.metadata = metadata;
         try {
-            //We need to check if zookeeper is available.
-            if (service.getZooKeeper().isConnected()) {
-                byte[] metadataBytes = ObjectUtils.toBytes(metadata);
-                byte[] encoded = Base64Encoder.encode(metadataBytes);
-                ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_METADATA.getPath(id), new String(encoded));
-            }
+            byte[] metadataBytes = ObjectUtils.toBytes(metadata);
+            byte[] encoded = Base64Encoder.encode(metadataBytes);
+            setAttribute(DataStore.ContainerAttribute.Metadata, new String(encoded, Base64Encoder.base64CharSet));
         } catch (Exception e) {
             logger.warn("Error while storing metadata. This exception will be ignored.", e);
         }
@@ -664,22 +457,16 @@ public class ContainerImpl implements Container {
 
     /**
      * Checks if container requires upgrade/rollback operation.
-     *
-     * @param version
-     * @return
      */
     private boolean requiresUpgrade(Version version) {
-        Boolean requiresUpgrade = false;
-        Profile[] oldProfiles = getProfiles();
-
+        boolean requiresUpgrade = false;
         if (version.compareTo(getVersion()) == 0) {
             return false;
         }
-
-        for (int i = 0; i < oldProfiles.length; i++) {
+        for (Profile oldProfile : getProfiles()) {
             // get new profile
-            Profile newProfile = version.getProfile(oldProfiles[i].getId());
-            if (newProfile != null && !oldProfiles[i].agentConfigurationEquals(newProfile)) {
+            Profile newProfile = version.getProfile(oldProfile.getId());
+            if (newProfile != null && !oldProfile.agentConfigurationEquals(newProfile)) {
                 requiresUpgrade = true;
             }
         }
@@ -688,8 +475,6 @@ public class ContainerImpl implements Container {
 
     /**
      * Checks if Container is root and has alive children.
-     *
-     * @return
      */
     public boolean hasAliveChildren() {
         for (Container child : getChildren()) {
@@ -729,4 +514,21 @@ public class ContainerImpl implements Container {
         String status = getProvisionStatus();
         return isAlive() && (status == null || status.length() == 0 || status.toLowerCase().startsWith("success"));
     }
+
+    private String getOptionalAttribute(DataStore.ContainerAttribute attribute, String def) {
+        return service.getDataStore().getContainerAttribute(id, attribute, def, false, false);
+    }
+
+    private String getNullableSubstitutedAttribute(DataStore.ContainerAttribute attribute) {
+        return service.getDataStore().getContainerAttribute(id, attribute, null, false, true);
+    }
+
+    private String getMandatorySubstitutedAttribute(DataStore.ContainerAttribute attribute) {
+        return service.getDataStore().getContainerAttribute(id, attribute, null, true, true);
+    }
+
+    private void setAttribute(DataStore.ContainerAttribute attribute, String value) {
+        service.getDataStore().setContainerAttribute(id, attribute, value);
+    }
+
 }

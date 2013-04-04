@@ -50,7 +50,7 @@ public class ContainerResolverList extends FabricCommand {
             String localIp = container.getLocalIp();
             String publicHostName = container.getPublicHostname();
             String publicIp = container.getPublicIp();
-            String manualIp = container.getManulIp();
+            String manualIp = container.getManualIp();
 
             localHostName = localHostName != null ? localHostName : "";
             localIp = localIp != null ? localIp : "";

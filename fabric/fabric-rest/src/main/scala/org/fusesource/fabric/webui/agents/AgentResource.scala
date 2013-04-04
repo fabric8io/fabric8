@@ -89,7 +89,7 @@ class AgentResource(val agent: Container, val request:HttpServletRequest) extend
   def public_hostname = Option[String](agent.getPublicHostname).getOrElse("")
 
   @JsonProperty
-  def manual_ip = Option[String](agent.getManulIp).getOrElse("")
+  def manual_ip = Option[String](agent.getManualIp).getOrElse("")
 
   @JsonProperty
   def resolver = Option[String](agent.getResolver).getOrElse("")

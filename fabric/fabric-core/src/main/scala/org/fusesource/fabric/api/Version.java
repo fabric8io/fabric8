@@ -59,12 +59,12 @@ public interface Version extends Comparable<Version>, HasId {
 
     /**
      * Gets a profile with the given name.
-     * @param name name of the profile to get.
+     * @param profileId name of the profile to get.
      * @return {@link Profile} with the given name. Returns <code>null</code> if it doesn't exist.
      */
-    Profile getProfile(String name);
+    Profile getProfile(String profileId);
 
-    Profile createProfile(String name);
+    Profile createProfile(String profileId);
 
     void delete();
 

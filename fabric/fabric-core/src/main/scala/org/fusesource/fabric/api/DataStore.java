@@ -26,13 +26,62 @@ import java.util.Properties;
 /**
  * @author Stan Lewis
  */
-public interface ProfileDataStore {
+public interface DataStore {
 
     //
     // Import
     //
 
     void importFromFileSystem(String from);
+
+    //
+    // Container management
+    //
+
+    List<String> getContainers();
+
+    boolean hasContainer(String containerId);
+
+    String getContainerParent(String containerId);
+
+    void deleteContainer(String containerId);
+
+    void createContainerConfig(String parent, String containerId);
+
+    String getContainerVersion(String containerId);
+
+    void setContainerVersion(String containerId, String versionId);
+
+    List<String> getContainerProfiles(String containerId);
+
+    void setContainerProfiles(String containerId, List<String> profileIds);
+
+    boolean isContainerAlive(String id);
+
+    public enum ContainerAttribute {
+        Metadata,
+        ProvisionStatus,
+        ProvisionException,
+        ProvisionList,
+        Location,
+        GeoLocation,
+        Resolver,
+        Ip,
+        LocalIp,
+        LocalHostName,
+        PublicIp,
+        PublicHostName,
+        ManualIp,
+        SshUrl,
+        JmxUrl,
+        PortMin,
+        PortMax,
+        Domains,
+    }
+
+    String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted);
+
+    void setContainerAttribute(String containerId, ContainerAttribute attribute, String value);
 
     //
     // Default version
@@ -97,4 +146,15 @@ public interface ProfileDataStore {
     void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
 
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
+
+    //
+    // Global information storage
+    //
+
+    String getDefaultJvmOptions();
+    void setDefaultJvmOptions(String jvmOptions);
+
+    FabricRequirements getRequirements();
+    void setRequirements(FabricRequirements requirements) throws IOException;
+
 }

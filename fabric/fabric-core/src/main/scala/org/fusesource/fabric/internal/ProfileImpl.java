@@ -20,10 +20,6 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-
-import static org.fusesource.fabric.zookeeper.ZkProfiles.getPath;
 
 import java.io.IOException;
 import java.util.*;
@@ -52,12 +48,12 @@ public class ProfileImpl implements Profile {
 
     @Override
     public Map<String, String> getAttributes() {
-        return service.getProfileDataStore().getProfileAttributes(version, id);
+        return service.getDataStore().getProfileAttributes(version, id);
     }
 
     @Override
     public void setAttribute(String key, String value) {
-        service.getProfileDataStore().setProfileAttribute(version, id, key, value);
+        service.getDataStore().setProfileAttribute(version, id, key, value);
     }
 
     public FabricServiceImpl getService() {
@@ -250,7 +246,7 @@ public class ProfileImpl implements Profile {
 
     @Override
     public Map<String, byte[]> getFileConfigurations() {
-        return getService().getProfileDataStore().getFileConfigurations(version, id);
+        return getService().getDataStore().getFileConfigurations(version, id);
     }
 
     @Override
@@ -258,11 +254,11 @@ public class ProfileImpl implements Profile {
         if (isLocked()) {
             throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
         }
-        getService().getProfileDataStore().setFileConfigurations(version, id, configurations);
+        getService().getDataStore().setFileConfigurations(version, id, configurations);
     }
 
     public Map<String, Map<String, String>> getConfigurations() {
-        return getService().getProfileDataStore().getConfigurations(version, id);
+        return getService().getDataStore().getConfigurations(version, id);
     }
 
     @Override
@@ -278,7 +274,7 @@ public class ProfileImpl implements Profile {
         if (isLocked()) {
             throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
         }
-        getService().getProfileDataStore().setConfigurations(version, id, configurations);
+        getService().getDataStore().setConfigurations(version, id, configurations);
     }
 
     public void delete() {

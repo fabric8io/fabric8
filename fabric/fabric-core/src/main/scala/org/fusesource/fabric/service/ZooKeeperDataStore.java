@@ -19,8 +19,13 @@ package org.fusesource.fabric.service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.ProfileDataStore;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.DataStoreHelpers;
+import org.fusesource.fabric.internal.ProfileImpl;
+import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -32,10 +37,15 @@ import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import java.io.IOException;
 import java.util.*;
 
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
+
 /**
  * @author Stan Lewis
  */
-public class ZKProfileDataStore implements ProfileDataStore {
+public class ZooKeeperDataStore implements DataStore {
+
+    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
+    public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
     private IZKClient zk;
 
@@ -53,6 +63,208 @@ public class ZKProfileDataStore implements ProfileDataStore {
             ZookeeperImportUtils.importFromFileSystem(zk, from, "/", null, null, false, false, false);
         } catch (Exception e) {
             throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public List<String> getContainers() {
+        try {
+            return zk.getChildren(ZkPath.CONFIGS_CONTAINERS.getPath());
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public boolean hasContainer(String containerId) {
+        return getContainers().contains(containerId);
+    }
+
+    @Override
+    public String getContainerParent(String containerId) {
+        try {
+            return zk.getStringData(ZkPath.CONTAINER_PARENT.getPath(containerId)).trim();
+        } catch (KeeperException.NoNodeException e) {
+            // Ignore
+            return "";
+        } catch (Throwable e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void deleteContainer(String containerId) {
+        try {
+            //Wipe all config entries that are related to the container for all versions.
+            for (String version : getVersions()) {
+                ZooKeeperUtils.deleteSafe(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, containerId));
+            }
+            ZooKeeperUtils.deleteSafe(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zk, ZkPath.CONTAINER.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zk, ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+            ZooKeeperUtils.deleteSafe(zk, ZkPath.CONTAINER_PROVISION.getPath(containerId));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void createContainerConfig(String parent, String containerId) {
+        try {
+            String versionId = getDefaultVersion();
+            ZooKeeperUtils.set(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
+            ZooKeeperUtils.set(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), ZkDefs.DEFAULT_PROFILE);
+            zk.createOrSetWithParents(CONTAINER_PARENT.getPath(containerId), parent, CreateMode.PERSISTENT);
+        } catch (FabricException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getContainerVersion(String containerId) {
+        try {
+            return ZooKeeperUtils.get(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setContainerVersion(String containerId, String versionId) {
+        try {
+            String oldVersionId = ZooKeeperUtils.get(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            String oldProfileIds = ZooKeeperUtils.get(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(oldVersionId, containerId));
+
+            ZooKeeperUtils.set(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), oldProfileIds);
+            ZooKeeperUtils.set(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public List<String> getContainerProfiles(String containerId) {
+        try {
+            String versionId = ZooKeeperUtils.get(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            String str = ZooKeeperUtils.get(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+            return str == null ? Collections.<String>emptyList() : Arrays.asList(str.split(" +"));
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setContainerProfiles(String containerId, List<String> profileIds) {
+        try {
+            String versionId = ZooKeeperUtils.get(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            StringBuilder sb = new StringBuilder();
+            for (String profileId : profileIds) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(profileId);
+            }
+            ZooKeeperUtils.set(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public boolean isContainerAlive(String id) {
+        try {
+            return zk.exists(ZkPath.CONTAINER_ALIVE.getPath(id)) != null;
+        } catch (KeeperException.NoNodeException e) {
+            return false;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted) {
+        if (attribute == ContainerAttribute.Domains) {
+            try {
+                List<String> list = zk.getChildren(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+                Collections.sort(list);
+                StringBuilder sb = new StringBuilder();
+                for (String l : list) {
+                    if (sb.length() > 0) {
+                        sb.append("\n");
+                    }
+                    sb.append(l);
+                }
+                return sb.toString();
+            } catch (Exception e) {
+                return "";
+            }
+        } else {
+            try {
+                if (substituted) {
+                    return ZooKeeperUtils.getSubstitutedPath(zk, getAttributePath(containerId, attribute));
+                } else {
+                    return ZooKeeperUtils.get(zk, getAttributePath(containerId, attribute));
+                }
+            } catch (KeeperException.NoNodeException e) {
+                if (mandatory) {
+                    throw new FabricException(e);
+                }
+                return def;
+            } catch (Exception e) {
+                throw new FabricException(e);
+            }
+        }
+    }
+
+    @Override
+    public void setContainerAttribute(String containerId, ContainerAttribute attribute, String value) {
+        // Special case for resolver
+        // TODO: we could use a double indirection on the ip so that it does not need to change
+        // TODO: something like ${zk:container/${zk:container/resolver}}
+        if (attribute == ContainerAttribute.Resolver) {
+            try {
+                ZooKeeperUtils.set(zk, ZkPath.CONTAINER_IP.getPath(containerId), "${zk:" + containerId + "/" + value + "}");
+                ZooKeeperUtils.set(zk, ZkPath.CONTAINER_RESOLVER.getPath(containerId), value);
+            } catch (Exception e) {
+                throw new FabricException(e);
+            }
+        } else {
+            try {
+                if (value == null) {
+                    ZooKeeperUtils.deleteSafe(zk, getAttributePath(containerId, attribute));
+                } else {
+                    ZooKeeperUtils.set(zk, getAttributePath(containerId, attribute), value);
+                }
+            } catch (KeeperException.NoNodeException e) {
+                // Ignore
+            } catch (Exception e) {
+                throw new FabricException(e);
+            }
+        }
+    }
+
+    private String getAttributePath(String containerId, ContainerAttribute attribute)  {
+        switch (attribute) {
+            case Metadata:           return ZkPath.CONTAINER_METADATA.getPath(containerId);
+            case ProvisionStatus:    return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
+            case ProvisionException: return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
+            case ProvisionList:      return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
+            case Location:           return ZkPath.CONTAINER_LOCATION.getPath(containerId);
+            case GeoLocation:        return ZkPath.CONTAINER_GEOLOCATION.getPath(containerId);
+            case Resolver:           return ZkPath.CONTAINER_RESOLVER.getPath(containerId);
+            case Ip:                 return ZkPath.CONTAINER_IP.getPath(containerId);
+            case LocalIp:            return ZkPath.CONTAINER_LOCAL_IP.getPath(containerId);
+            case LocalHostName:      return ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(containerId);
+            case PublicIp:           return ZkPath.CONTAINER_PUBLIC_IP.getPath(containerId);
+            case PublicHostName:     return ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId);
+            case ManualIp:           return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
+            case JmxUrl:             return ZkPath.CONTAINER_JMX.getPath(containerId);
+            case SshUrl:             return ZkPath.CONTAINER_SSH.getPath(containerId);
+            case PortMin:            return ZkPath.CONTAINER_PORT_MIN.getPath(containerId);
+            case PortMax:            return ZkPath.CONTAINER_PORT_MAX.getPath(containerId);
+            default:                 throw new IllegalArgumentException("Unsupported container attribute " + attribute);
         }
     }
 
@@ -390,6 +602,54 @@ public class ZKProfileDataStore implements ProfileDataStore {
         }
     }
 
+    @Override
+    public String getDefaultJvmOptions() {
+        try {
+            if (zk.isConnected() && zk.exists(JVM_OPTIONS_PATH) != null) {
+                return zk.getStringData(JVM_OPTIONS_PATH);
+            } else {
+                return "";
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
 
+    @Override
+    public void setDefaultJvmOptions(String jvmOptions) {
+        try {
+            String opts = jvmOptions != null ? jvmOptions : "";
+            zk.createOrSetWithParents(JVM_OPTIONS_PATH, opts, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
 
+    @Override
+    public FabricRequirements getRequirements() {
+        try {
+            FabricRequirements answer = null;
+            if (zk.exists(REQUIREMENTS_JSON_PATH) != null) {
+                String json = zk.getStringData(REQUIREMENTS_JSON_PATH);
+                answer = RequirementsJson.fromJSON(json);
+            }
+            if (answer == null) {
+                answer = new FabricRequirements();
+            }
+            return answer;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setRequirements(FabricRequirements requirements) throws IOException {
+        try {
+            requirements.removeEmptyRequirements();
+            String json = RequirementsJson.toJSON(requirements);
+            zk.createOrSetWithParents(REQUIREMENTS_JSON_PATH, json, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
 }
