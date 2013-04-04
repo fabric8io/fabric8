@@ -55,8 +55,8 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setPublicAddresses(Set<String> publicAddresses) {
         this.publicAddresses = publicAddresses;
-        if (publicAddresses != null && publicAddresses.size() > 0) {
-            getContainerConfiguration().put("publicip", publicAddresses.toArray(new String[0])[0]);
+        if (publicAddresses != null && !publicAddresses.isEmpty()) {
+            getContainerConfiguration().put("publicip", publicAddresses.iterator().next());
         }
     }
 
@@ -66,8 +66,8 @@ public class CreateJCloudsContainerMetadata extends CreateContainerBasicMetadata
 
     public void setPrivateAddresses(Set<String> privateAddresses) {
         this.privateAddresses = privateAddresses;
-        if (privateAddresses != null && privateAddresses.size() > 0) {
-            getContainerConfiguration().put("localip", privateAddresses.toArray(new String[0])[0]);
+        if (privateAddresses != null && !privateAddresses.isEmpty()) {
+            getContainerConfiguration().put("localip", privateAddresses.iterator().next());
         }
     }
 

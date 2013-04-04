@@ -108,7 +108,7 @@ public class CloudContainerInstallationTask implements Runnable {
             String publicAddress = "";
             Properties addresses = new Properties();
             if (publicAddresses != null && !publicAddresses.isEmpty()) {
-                publicAddress = publicAddresses.toArray(new String[publicAddresses.size()])[0];
+                publicAddress = publicAddresses.iterator().next();
                 addresses.put(ZkDefs.PUBLIC_IP, publicAddress);
             }
 
