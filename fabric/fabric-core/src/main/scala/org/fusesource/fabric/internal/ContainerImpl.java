@@ -428,14 +428,7 @@ public class ContainerImpl implements Container {
     public CreateContainerMetadata<?> getMetadata() {
         try {
             if (metadata == null) {
-                String encoded = getOptionalAttribute(DataStore.ContainerAttribute.Metadata, null);
-                if (encoded != null) {
-                    //The metadata are stored encoded so that they are import/export friendly.
-                    byte[] decoded = Base64Encoder.decode(encoded).getBytes(Base64Encoder.base64CharSet);
-                    ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
-                    metadata = (CreateContainerMetadata) ois.readObject();
-
-                }
+                metadata = service.getDataStore().getContainerMetadata(id);
             }
             return metadata;
         } catch (Exception e) {
@@ -446,13 +439,6 @@ public class ContainerImpl implements Container {
 
     public void setMetadata(CreateContainerMetadata<?> metadata) {
         this.metadata = metadata;
-        try {
-            byte[] metadataBytes = ObjectUtils.toBytes(metadata);
-            byte[] encoded = Base64Encoder.encode(metadataBytes);
-            setAttribute(DataStore.ContainerAttribute.Metadata, new String(encoded, Base64Encoder.base64CharSet));
-        } catch (Exception e) {
-            logger.warn("Error while storing metadata. This exception will be ignored.", e);
-        }
     }
 
     /**

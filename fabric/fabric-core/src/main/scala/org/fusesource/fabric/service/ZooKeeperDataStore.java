@@ -18,6 +18,8 @@ package org.fusesource.fabric.service;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricRequirements;
@@ -26,6 +28,8 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
+import org.fusesource.fabric.utils.Base64Encoder;
+import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -34,7 +38,9 @@ import org.fusesource.fabric.zookeeper.utils.ZooKeeperRetriableUtils;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.*;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
@@ -109,14 +115,54 @@ public class ZooKeeperDataStore implements DataStore {
     }
 
     @Override
-    public void createContainerConfig(String parent, String containerId) {
+    public void createContainerConfig(CreateContainerMetadata metadata) {
         try {
+            CreateContainerOptions options = metadata.getCreateOptions();
+            String containerId = metadata.getContainerName();
+            String parent = options.getParent();
             String versionId = getDefaultVersion();
             ZooKeeperUtils.set(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
             ZooKeeperUtils.set(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), ZkDefs.DEFAULT_PROFILE);
-            zk.createOrSetWithParents(CONTAINER_PARENT.getPath(containerId), parent, CreateMode.PERSISTENT);
+            ZooKeeperUtils.set(zk, ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
+
+            //We encode the metadata so that they are more friendly to import/export.
+            ZooKeeperUtils.set(zk, ZkPath.CONTAINER_METADATA.getPath(containerId), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
+
+            Map<String, String> configuration = metadata.getContainerConfiguration();
+            for (Map.Entry<String, String> entry : configuration.entrySet()) {
+                String key = entry.getKey();
+                String value = entry.getValue();
+                ZooKeeperUtils.set(zk, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key), value);
+            }
+
+            // If no resolver specified but a resolver is already present in the registry, use the registry value
+            if (options.getResolver() == null && zk.exists(ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
+                options.setResolver(zk.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(containerId)));
+            } else if (options.getResolver() != null) {
+                // Use the resolver specified in the options and do nothing.
+            } else if (zk.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+                // If there is a globlal resolver specified use it.
+                options.setResolver(zk.getStringData(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)));
+            } else {
+                // Fallback to the default resolver
+                options.setResolver(ZkDefs.DEFAULT_RESOLVER);
+            }
+            // Set the resolver if not already set
+            ZooKeeperUtils.set(zk, ZkPath.CONTAINER_RESOLVER.getPath(containerId), options.getResolver());
         } catch (FabricException e) {
             throw e;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public CreateContainerMetadata getContainerMetadata(String containerId) {
+        try {
+            byte[] encoded = zk.getData(ZkPath.CONTAINER_METADATA.getPath(containerId));
+            byte[] decoded = Base64Encoder.decode(encoded);
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
+            return (CreateContainerMetadata) ois.readObject();
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -247,7 +293,6 @@ public class ZooKeeperDataStore implements DataStore {
 
     private String getAttributePath(String containerId, ContainerAttribute attribute)  {
         switch (attribute) {
-            case Metadata:           return ZkPath.CONTAINER_METADATA.getPath(containerId);
             case ProvisionStatus:    return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
             case ProvisionException: return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
             case ProvisionList:      return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);

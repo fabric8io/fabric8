@@ -275,41 +275,16 @@ public class FabricServiceImpl implements FabricService {
                 throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
 
-            Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
             Set<? extends CreateContainerMetadata> metadatas = provider.create(options);
 
             for (CreateContainerMetadata metadata : metadatas) {
                 if (metadata.isSuccess()) {
+                    Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
                     //An ensemble server can be created without an existing ensemble.
                     //In this case container config will be created by the newly created container.
                     //TODO: We need to make sure that this entries are somehow added even to ensemble servers.
                     if (!options.isEnsembleServer()) {
-                        getDataStore().createContainerConfig(parent != null ? parent.getId() : "", metadata.getContainerName());
-                        // Store metadata
-                        //We encode the metadata so that they are more friendly to import/export.
-                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
-
-                        Map<String, String> configuration = metadata.getContainerConfiguration();
-                        for (Map.Entry<String, String> entry : configuration.entrySet()) {
-                            String key = entry.getKey();
-                            String value = entry.getValue();
-                            ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key), value);
-                        }
-
-                        //If no resolver specified but a resolver is already present in the registry, use the registry value
-                        if (options.getResolver() == null && zooKeeper.exists(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())) != null) {
-                            options.setResolver(zooKeeper.getStringData(ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName())));
-                        } else if (options.getResolver() != null) {
-                            //use the resolver specified in the options and do nothing.
-                        } else if (zooKeeper.exists(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-                            //If there is a globlal resolver specified use it.
-                            options.setResolver(zooKeeper.getStringData(ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)));
-                        } else {
-                            //Fallback to the default resolver
-                            options.setResolver(ZkDefs.DEFAULT_RESOLVER);
-                        }
-                        //Set the resolver if not exists
-                        ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(metadata.getContainerName()), options.getResolver());
+                        getDataStore().createContainerConfig(metadata);
                     }
                     ContainerImpl container = new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this);
                     metadata.setContainer(container);

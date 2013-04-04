@@ -46,7 +46,9 @@ public interface DataStore {
 
     void deleteContainer(String containerId);
 
-    void createContainerConfig(String parent, String containerId);
+    void createContainerConfig(CreateContainerMetadata metadata);
+
+    CreateContainerMetadata getContainerMetadata(String containerId);
 
     String getContainerVersion(String containerId);
 
@@ -59,7 +61,6 @@ public interface DataStore {
     boolean isContainerAlive(String id);
 
     public enum ContainerAttribute {
-        Metadata,
         ProvisionStatus,
         ProvisionException,
         ProvisionList,
