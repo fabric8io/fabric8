@@ -246,14 +246,6 @@ public class FabricServiceImpl implements FabricService {
         return provider;
     }
 
-    public static String getParentFromURI(URI uri) {
-        String parent = uri.getHost();
-        if (parent == null) {
-            parent = uri.getSchemeSpecificPart();
-        }
-        return parent;
-    }
-
     public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
         if (options.getZookeeperUrl() == null && !options.isEnsembleServer()) {
             options.setZookeeperUrl(getZookeeperUrl());
@@ -330,6 +322,31 @@ public class FabricServiceImpl implements FabricService {
             //On exception just return uri.
         }
         return uri;
+    }
+
+    @Override
+    public List<URI> getMavenRepoURIs() {
+        try {
+            List<URI> uris = new ArrayList<URI>();
+            if (zooKeeper != null && zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
+                if (children != null && !children.isEmpty()) {
+                    Collections.sort(children);
+                }
+                if (children != null) {
+                    for (String child : children) {
+                        String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
+                        if (mavenRepo != null && !mavenRepo.endsWith("/")) {
+                            mavenRepo += "/";
+                        }
+                        uris.add(new URI(mavenRepo));
+                    }
+                }
+            }
+            return uris;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
     }
 
     @Override

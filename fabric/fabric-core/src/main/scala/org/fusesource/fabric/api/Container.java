@@ -120,8 +120,13 @@ public interface Container extends HasId {
     boolean isProvisioningPending();
 
     String getProvisionResult();
+    void setProvisionResult(String result);
+
     String getProvisionException();
+    void setProvisionException(String exception);
+
     List<String> getProvisionList();
+    void setProvisionList(List<String> bundles);
     
     String getProvisionStatus();
 

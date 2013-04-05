@@ -61,9 +61,7 @@
             org.apache.felix.framework.monitor;resolution:=optional,
             org.apache.commons.logging.*,
             org.slf4j.*,
-            org.linkedin.zookeeper.*,
-            org.apache.zookeeper.*,
-            org.fusesource.fabric.zookeeper.*
+            org.fusesource.fabric.api.*
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
@@ -77,7 +75,7 @@
             org.fusesource.fabric.agent.mvn,
             org.fusesource.fabric.agent.download,
             org.fusesource.fabric.agent.utils,
-					  org.fusesource.fabric.agent.sort,
+		    org.fusesource.fabric.agent.sort,
             org.apache.felix.bundlerepository*,
             org.apache.felix.bundleplugin*,
             org.apache.karaf.features.*,

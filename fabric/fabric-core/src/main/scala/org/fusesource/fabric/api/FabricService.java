@@ -19,6 +19,7 @@ package org.fusesource.fabric.api;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 
 public interface FabricService {
 
@@ -88,6 +89,8 @@ public interface FabricService {
      * Returns the current maven proxy repository to use to create new container
      */
     URI getMavenRepoURI();
+
+    List<URI> getMavenRepoURIs();
 
     /**
      * Returns the current maven proxy repository to use to deploy new builds to the fabric

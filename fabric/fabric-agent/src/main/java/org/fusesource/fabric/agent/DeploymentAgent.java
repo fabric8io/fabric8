@@ -74,6 +74,8 @@ import org.fusesource.fabric.agent.mvn.PropertyStore;
 import org.fusesource.fabric.agent.sort.RequirementSort;
 import org.fusesource.fabric.agent.utils.ChecksumUtils;
 import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.MavenResolverImpl;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
@@ -117,7 +119,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     private PackageAdmin packageAdmin;
     private StartLevel startLevel;
     private ObrResolver obrResolver;
-    private ServiceTracker zkClient;
+    private ServiceTracker<FabricService, FabricService> fabricService;
 
     private final Object refreshLock = new Object();
     private long refreshTimeout = 5000;
@@ -156,8 +158,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return obrResolver;
     }
 
-    public ServiceTracker getZkClient() {
-        return zkClient;
+    public ServiceTracker<FabricService, FabricService> getFabricService() {
+        return fabricService;
     }
 
     public void setBundleContext(BundleContext bundleContext) {
@@ -176,8 +178,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         this.obrResolver = obrResolver;
     }
 
-    public void setZkClient(ServiceTracker zkClient) {
-        this.zkClient = zkClient;
+    public void setFabricService(ServiceTracker<FabricService, FabricService> fabricService) {
+        this.fabricService = fabricService;
     }
 
     public void start() throws IOException {
@@ -258,14 +260,14 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private void updateStatus(String status, Throwable result, List<Resource> resources, boolean force) {
         try {
-            IZKClient zk;
+            FabricService fs;
             if (force) {
-                zk = (IZKClient) zkClient.waitForService(0);
+                fs = fabricService.waitForService(0);
             } else {
-                zk = (IZKClient) zkClient.getService();
+                fs = fabricService.getService();
             }
-            if (zk != null) {
-                String name = System.getProperty(SystemProperties.KARAF_NAME);
+            if (fs != null) {
+                Container container = fs.getCurrentContainer();
                 String e;
                 if (result == null) {
                     e = null;
@@ -275,16 +277,16 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                     e = sw.toString();
                 }
                 if (resources != null) {
-                    StringWriter sw = new StringWriter();
+                    List<String> uris = new ArrayList<String>();
                     for (Resource res : resources) {
-                        sw.write(res.getURI() + "\n");
+                        uris.add(res.getURI());
                     }
-                    zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_LIST.getPath(name), sw.toString(), CreateMode.PERSISTENT);
+                    container.setProvisionList(uris);
                 }
-                zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_RESULT.getPath(name), status, CreateMode.PERSISTENT);
-                zk.createOrSetWithParents(ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(name), e, CreateMode.PERSISTENT);
+                container.setProvisionResult(status);
+                container.setProvisionException(e);
             } else {
-                LOGGER.info("ZooKeeper not available");
+                LOGGER.info("FabricService not available");
             }
         } catch (Throwable e) {
             LOGGER.warn("Unable to set provisioning result");
@@ -435,29 +437,19 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private void addMavenProxies(Dictionary props) {
         try {
-            IZKClient zooKeeper = (IZKClient) zkClient.waitForService(0);
-            if (zooKeeper.exists(ZkPath.MAVEN_PROXY.getPath("download")) != null) {
-                StringBuffer sb = new StringBuffer();
-                List<String> proxies = zooKeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("download"));
-                //We want the maven proxies to be sorted in the same manner that the fabric service does.
-                //That's because when someone uses the fabric service to pick a repo for deployment, we want that repo to be used first.
-                Collections.sort(proxies);
-                for (String proxy : proxies) {
-                    try {
-                        String mavenRepo = ZooKeeperUtils.getSubstitutedPath(zooKeeper, ZkPath.MAVEN_PROXY.getPath("download") + "/" + proxy);
-                        if (mavenRepo != null && mavenRepo.length() > 0) {
-                            if (!mavenRepo.endsWith("/")) {
-                                mavenRepo += "/";
-                            }
-                            if (sb.length() > 0) {
-                                sb.append(",");
-                            }
-                            sb.append(mavenRepo);
-                            sb.append("@snapshots");
-                        }
-                    } catch (Throwable t) {
-                        LOGGER.warn("Failed to resolve proxy: " + proxy + ". It will be ignored.");
+            FabricService fs = fabricService.waitForService(0);
+            if (fs != null) {
+                StringBuilder sb = new StringBuilder();
+                for (URI uri : fs.getMavenRepoURIs()) {
+                    String mavenRepo = uri.toString();
+                    if (!mavenRepo.endsWith("/")) {
+                        mavenRepo += "/";
                     }
+                    if (sb.length() > 0) {
+                        sb.append(",");
+                    }
+                    sb.append(mavenRepo);
+                    sb.append("@snapshots");
                 }
                 String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
                 if (existingRepos != null) {

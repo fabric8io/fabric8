@@ -16,13 +16,9 @@
  */
 package org.fusesource.fabric.agent;
 
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Properties;
-
 import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
 import org.apache.felix.utils.log.Logger;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.api.FabricService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -36,6 +32,9 @@ import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.LoggerFactory;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 public class Activator implements BundleActivator {
 
     public static final String AGENT_PID = "org.fusesource.fabric.agent";
@@ -45,8 +44,7 @@ public class Activator implements BundleActivator {
     private DeploymentAgent agent;
     private ServiceTracker packageAdmin;
     private ServiceTracker startLevel;
-    private ServiceTracker zkClient;
-    private ServiceTracker fabricService;
+    private ServiceTracker<FabricService, FabricService> fabricService;
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
@@ -60,7 +58,7 @@ public class Activator implements BundleActivator {
         agent.setObrResolver(obr);
         agent.setPackageAdmin(getPackageAdmin(context));
         agent.setStartLevel(getStartLevel(context));
-        agent.setZkClient(getZkClient(context));
+        agent.setFabricService(getFabricService(context));
         agent.start();
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(Constants.SERVICE_PID, AGENT_PID);
@@ -91,11 +89,11 @@ public class Activator implements BundleActivator {
         }
         return null;
     }
-    
-    private ServiceTracker getZkClient(BundleContext context) {
-        zkClient = new ServiceTracker(context, IZKClient.class.getName(), null);
-        zkClient.open();
-        return zkClient;
+
+    private ServiceTracker<FabricService, FabricService> getFabricService(BundleContext context) {
+        fabricService = new ServiceTracker<FabricService, FabricService>(context, FabricService.class, null);
+        fabricService.open();
+        return fabricService;
     }
 
     private StartLevel getStartLevel(BundleContext context) {
@@ -116,7 +114,7 @@ public class Activator implements BundleActivator {
         agent.stop();
         packageAdmin.close();
         startLevel.close();
-        zkClient.close();
+        fabricService.close();
     }
 
 }

@@ -414,14 +414,36 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public void setProvisionResult(String result) {
+        setAttribute(DataStore.ContainerAttribute.ProvisionStatus, result);
+    }
+
+    @Override
     public String getProvisionException() {
         return getOptionalAttribute(DataStore.ContainerAttribute.ProvisionException, null);
+    }
+
+    @Override
+    public void setProvisionException(String exception) {
+        setAttribute(DataStore.ContainerAttribute.ProvisionException, exception);
     }
 
     @Override
     public List<String> getProvisionList() {
         String str = getOptionalAttribute(DataStore.ContainerAttribute.ProvisionList, null);
         return str != null ? Arrays.asList(str.split("\n")) : null;
+    }
+
+    @Override
+    public void setProvisionList(List<String> bundles) {
+        StringBuilder str = new StringBuilder();
+        for (String b : bundles) {
+            if (str.length() > 0) {
+                str.append("\n");
+            }
+            str.append(b);
+        }
+        setAttribute(DataStore.ContainerAttribute.ProvisionList, str.toString());
     }
 
     @Override

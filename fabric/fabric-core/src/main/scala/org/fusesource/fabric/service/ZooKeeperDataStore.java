@@ -290,11 +290,11 @@ public class ZooKeeperDataStore implements DataStore {
             }
         } else {
             try {
-                if (value == null) {
-                    ZooKeeperUtils.deleteSafe(zk, getAttributePath(containerId, attribute));
-                } else {
+//                if (value == null) {
+//                    ZooKeeperUtils.deleteSafe(zk, getAttributePath(containerId, attribute));
+//                } else {
                     ZooKeeperUtils.set(zk, getAttributePath(containerId, attribute), value);
-                }
+//                }
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Exception e) {
