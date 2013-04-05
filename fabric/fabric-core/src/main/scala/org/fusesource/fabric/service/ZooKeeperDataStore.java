@@ -23,10 +23,7 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.DataStoreHelpers;
-import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.ObjectUtils;
@@ -34,9 +31,17 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
+import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperRetriableUtils;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperCommandBuilder;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.linkedin.zookeeper.tracker.NodeEvent;
+import org.linkedin.zookeeper.tracker.NodeEventsListener;
+import org.linkedin.zookeeper.tracker.ZKStringDataReader;
+import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -54,6 +59,8 @@ public class ZooKeeperDataStore implements DataStore {
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
     private IZKClient zk;
+    private ZooKeeperTreeTracker<String> tracker;
+    private final List<Runnable> callbacks = new ArrayList<Runnable>();
 
     public void setZk(IZKClient zk) {
         this.zk = zk;
@@ -63,12 +70,49 @@ public class ZooKeeperDataStore implements DataStore {
         return zk;
     }
 
+    public void destroy() {
+        if (tracker != null) {
+            tracker.destroy();
+        }
+    }
+
     @Override
     public void importFromFileSystem(String from) {
         try {
             ZookeeperImportUtils.importFromFileSystem(zk, from, "/", null, null, false, false, false);
         } catch (Exception e) {
             throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void trackConfiguration(Runnable callback) {
+        synchronized (callbacks) {
+            try {
+                callbacks.add(callback);
+                if (tracker == null) {
+                    tracker = new ZooKeeperTreeTracker<String>(zk, new ZKStringDataReader(), ZkPath.CONFIGS.getPath());
+                    tracker.track(new NodeEventsListener<String>() {
+                        @Override
+                        public void onEvents(Collection<NodeEvent<String>> nodeEvents) {
+                            List<Runnable> cbs;
+                            synchronized (callbacks) {
+                                cbs = new ArrayList<Runnable>(callbacks);
+                                callbacks.clear();
+                            }
+                            for (Runnable cb : cbs) {
+                                try {
+                                    cb.run();
+                                } catch (Throwable t) {
+                                    // Ignore
+                                }
+                            }
+                        }
+                    });
+                }
+            } catch (Exception e) {
+                throw new FabricException(e);
+            }
         }
     }
 
@@ -534,7 +578,7 @@ public class ZooKeeperDataStore implements DataStore {
         }
         if (zk.getData(path) == null) {
             List<String> children = zk.getChildren(path);
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             for (String child : children) {
                 String value = zk.getStringData(path + "/" + child);
                 buf.append(String.format("%s = %s\n", child, value));
@@ -656,6 +700,53 @@ public class ZooKeeperDataStore implements DataStore {
             ZooKeeperUtils.set(zk, p, data);
         } catch (Exception e) {
             throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+        for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
+            Map<String, String> props = entry.getValue();
+            InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
+                public String getValue(String key) {
+                    if (key.startsWith("zk:")) {
+                        try {
+                            return new String(ZookeeperCommandBuilder.loadUrl(key).execute(zk), "UTF-8");
+                        } catch (KeeperException.NoNodeException e) {
+                            return key;
+                        } catch (Exception e) {
+                            throw new FabricException(e);
+                        }
+                    } else if (key.startsWith("profile:")) {
+                        String pid = key.substring("profile:".length(), key.indexOf("/"));
+                        String propertyKey = key.substring(key.indexOf("/") + 1);
+                        Map<String, String> targetProps = configs.get(pid);
+                        if (targetProps != null && targetProps.containsKey(propertyKey)) {
+                            return targetProps.get(propertyKey);
+                        } else {
+                            return key;
+                        }
+                    } else {
+                        String value = "";
+                        BundleContext context = getBundleContext();
+                        if (context != null) {
+                            value = context.getProperty(key);
+                        }
+                        if (value == null) {
+                            value = System.getProperty(key, "");
+                        }
+                        return value;
+                    }
+                }
+            });
+        }
+    }
+
+    private static BundleContext getBundleContext() {
+        try {
+            return FrameworkUtil.getBundle(ZooKeeperDataStore.class).getBundleContext();
+        } catch (Throwable t) {
+            return null;
         }
     }
 

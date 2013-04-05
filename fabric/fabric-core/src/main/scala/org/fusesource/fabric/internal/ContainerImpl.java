@@ -26,8 +26,6 @@ import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.utils.Base64Encoder;
-import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.jmx.framework.BundleStateMBean;
@@ -37,12 +35,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import java.io.ByteArrayInputStream;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -196,7 +191,7 @@ public class ContainerImpl implements Container {
     }
 
     public Profile getOverlayProfile() {
-        return new ContainerProfile().getOverlay();
+        return new ProfileOverlayImpl(new ContainerProfile(), true, service.getDataStore());
     }
 
     private class ContainerProfile extends ProfileImpl {

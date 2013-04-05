@@ -31,14 +31,10 @@
     <description>Fuse Fabric :: ZooKeeper ConfigAdmin Bridge</description>
 
     <properties>
-        <fuse.osgi.import.additional>
-            org.fusesource.fabric.zookeeper,
-        </fuse.osgi.import.additional>
         <fuse.osgi.export>
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.configadmin,
-            org.fusesource.fabric.utils,
+            org.fusesource.fabric.configadmin
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -57,18 +53,13 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-utils</artifactId>
+            <artifactId>fabric-core</artifactId>
         </dependency>
 
         <dependency>

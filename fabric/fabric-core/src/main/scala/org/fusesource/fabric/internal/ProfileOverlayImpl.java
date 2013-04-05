@@ -16,23 +16,34 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.Profile;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Profile;
-
-import static org.fusesource.fabric.internal.ProfileImpl.*;
+import static org.fusesource.fabric.internal.ProfileImpl.AGENT_PID;
+import static org.fusesource.fabric.internal.ProfileImpl.ConfigListType;
+import static org.fusesource.fabric.internal.ProfileImpl.getContainerConfigList;
 
 public class ProfileOverlayImpl implements Profile {
 
     private final Profile self;
+    private final boolean substitute;
+    private final DataStore dataStore;
 
     public ProfileOverlayImpl(Profile self) {
+        this(self, false, null);
+    }
+
+    public ProfileOverlayImpl(Profile self, boolean substitute, DataStore dataStore) {
         this.self = self;
+        this.substitute = substitute;
+        this.dataStore = dataStore;
     }
 
     @Override
@@ -184,26 +195,6 @@ public class ProfileOverlayImpl implements Profile {
         Properties props;
     }
 
-    @Override
-    public Map<String, byte[]> getFileConfigurations() {
-        try {
-            Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
-            supplement(self, aggregate);
-
-            Map<String, byte[]> rc = new HashMap<String, byte[]>();
-            for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
-                SupplementControl ctrl = entry.getValue();
-                if( ctrl.props!=null ) {
-                    ctrl.data = DataStoreHelpers.toBytes(ctrl.props);
-                }
-                rc.put(entry.getKey(), ctrl.data);
-            }
-            return rc;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
     private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
         for (Profile p : profile.getParents()) {
             supplement(p, aggregate);
@@ -256,6 +247,26 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public Map<String, byte[]> getFileConfigurations() {
+        try {
+            Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
+            supplement(self, aggregate);
+
+            Map<String, byte[]> rc = new HashMap<String, byte[]>();
+            for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
+                SupplementControl ctrl = entry.getValue();
+                if( ctrl.props!=null ) {
+                    ctrl.data = DataStoreHelpers.toBytes(ctrl.props);
+                }
+                rc.put(entry.getKey(), ctrl.data);
+            }
+            return rc;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
     public Map<String, Map<String, String>> getConfigurations() {
         try {
             Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
@@ -267,6 +278,9 @@ public class ProfileOverlayImpl implements Profile {
                 if( ctrl.props!=null ) {
                     rc.put(DataStoreHelpers.stripSuffix(entry.getKey(), ".properties"), DataStoreHelpers.toMap(ctrl.props));
                 }
+            }
+            if (substitute && dataStore != null) {
+                dataStore.substituteConfigurations(rc);
             }
             return rc;
         } catch (Exception e) {

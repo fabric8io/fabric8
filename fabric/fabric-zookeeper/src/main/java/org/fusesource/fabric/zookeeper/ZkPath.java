@@ -39,6 +39,7 @@ public enum ZkPath {
 
 
     // config nodes
+    CONFIGS                        ("/fabric/configs"),
     CONFIGS_CONTAINERS             ("/fabric/configs/containers/"),
     CONFIG_CONTAINER               ("/fabric/configs/containers/{container}"),
     CONFIG_DEFAULT_VERSION         ("/fabric/configs/default-version"),
@@ -176,7 +177,7 @@ public enum ZkPath {
                 if( node.isContainerNode() ) {
                     throw new IOException("Path '"+ ref +"' is not a value in the json file.");
                 }
-                String textValue = node.getValueAsText();
+                String textValue = node.asText();
                 rc = textValue.getBytes("UTF-8");
             } else {
                 throw new IOException("Do not know how to handle path fragments for path: "+path);

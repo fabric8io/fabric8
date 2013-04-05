@@ -147,6 +147,11 @@ public class FabricServiceImpl implements FabricService {
         this.configurationAdmin = configurationAdmin;
     }
 
+    @Override
+    public void trackConfiguration(Runnable callback) {
+        getDataStore().trackConfiguration(callback);
+    }
+
     public Container[] getContainers() {
         Map<String, Container> containers = new HashMap<String, Container>();
         List<String> containerIds = getDataStore().getContainers();

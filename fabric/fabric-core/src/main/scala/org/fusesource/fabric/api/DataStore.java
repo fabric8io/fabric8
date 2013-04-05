@@ -21,7 +21,6 @@ import org.apache.zookeeper.KeeperException;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * @author Stan Lewis
@@ -33,6 +32,12 @@ public interface DataStore {
     //
 
     void importFromFileSystem(String from);
+
+    //
+    // Tracking
+    //
+
+    void trackConfiguration(Runnable callback);
 
     //
     // Container management
@@ -147,6 +152,8 @@ public interface DataStore {
     void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
 
     void setConfiguration(String version, String profile, String pid, Map<String, String> configuration);
+
+    void substituteConfigurations(Map<String, Map<String, String>> configurations);
 
     //
     // Global information storage

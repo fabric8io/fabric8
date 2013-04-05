@@ -34,7 +34,7 @@
     </bean>
 
 
-    <bean id="zkDataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore">
+    <bean id="zkDataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
       <property name="zk" ref="zooKeeper"/>
     </bean>
 

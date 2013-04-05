@@ -25,6 +25,13 @@ public interface FabricService {
 
     final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public/";
 
+
+    /**
+     * Track configuration changes.
+     * @param callback The Callback to call when a configuration change is detected.
+     */
+    void trackConfiguration(Runnable callback);
+
     /**
      * Gets the existing {@link Container}s.
      * @return An array of @{link Container}s
