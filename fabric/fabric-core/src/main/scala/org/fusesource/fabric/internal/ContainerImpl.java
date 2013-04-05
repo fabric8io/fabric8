@@ -42,7 +42,9 @@ import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ContainerImpl implements Container {
 
@@ -159,12 +161,12 @@ public class ContainerImpl implements Container {
     public Profile[] getProfiles() {
         Version version = getVersion();
         List<String> profileIds = service.getDataStore().getContainerProfiles(id);
-        if (profileIds.isEmpty()) {
-            profileIds.add(ZkDefs.DEFAULT_PROFILE);
-        }
         List<Profile> profiles = new ArrayList<Profile>();
         for (String profileId : profileIds) {
             profiles.add(version.getProfile(profileId));
+        }
+        if (profiles.isEmpty()) {
+            profiles.add(version.getProfile(ZkDefs.DEFAULT_PROFILE));
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }
@@ -173,22 +175,81 @@ public class ContainerImpl implements Container {
         String versionId = service.getDataStore().getContainerVersion(id);
         List<String> currentProfileIds = service.getDataStore().getContainerProfiles(id);
         List<String> profileIds = new ArrayList<String>();
-        for (Profile profile : profiles) {
-            if (!versionId.equals(profile.getVersion())) {
-                throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
-                        + profile.getVersion() + " expected version " + versionId);
-            } else if (profile.isAbstract()) {
-                throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
-                        + "be associated to containers");
-            } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId())) {
-                throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
+        if (profiles != null) {
+            for (Profile profile : profiles) {
+                if (!versionId.equals(profile.getVersion())) {
+                    throw new IllegalArgumentException("Version mismatch setting profile " + profile.getId() + " with version "
+                            + profile.getVersion() + " expected version " + versionId);
+                } else if (profile.isAbstract()) {
+                    throw new IllegalArgumentException("The profile " + profile.getId() + " is abstract and can not "
+                            + "be associated to containers");
+                } else if (profile.getId().matches(ENSEMBLE_PROFILE_PATTERN) && !currentProfileIds.contains(profile.getId())) {
+                    throw new IllegalArgumentException("The profile " + profile.getId() + " is not assignable.");
+                }
+                profileIds.add(profile.getId());
             }
-            profileIds.add(profile.getId());
         }
         if (profileIds.isEmpty()) {
             profileIds.add(ZkDefs.DEFAULT_PROFILE);
         }
         service.getDataStore().setContainerProfiles(id, profileIds);
+    }
+
+    public Profile getOverlayProfile() {
+        return new ContainerProfile().getOverlay();
+    }
+
+    private class ContainerProfile extends ProfileImpl {
+        private ContainerProfile() {
+            super("#container-" + ContainerImpl.this.id,
+                  ContainerImpl.this.getVersion().getId(),
+                  ContainerImpl.this.service);
+        }
+
+        @Override
+        public Profile[] getParents() {
+            return ContainerImpl.this.getProfiles();
+        }
+
+        @Override
+        public Map<String, String> getAttributes() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public void setAttribute(String key, String value) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Container[] getAssociatedContainers() {
+            return new Container[] { ContainerImpl.this };
+        }
+
+        @Override
+        public Map<String, byte[]> getFileConfigurations() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public void setFileConfigurations(Map<String, byte[]> configurations) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Map<String, Map<String, String>> getConfigurations() {
+            return Collections.emptyMap();
+        }
+
+        @Override
+        public void setConfigurations(Map<String, Map<String, String>> configurations) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void delete() {
+            throw new UnsupportedOperationException();
+        }
     }
 
     public String getLocation() {

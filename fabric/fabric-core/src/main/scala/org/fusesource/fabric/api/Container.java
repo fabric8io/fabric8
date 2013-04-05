@@ -47,6 +47,8 @@ public interface Container extends HasId {
     Profile[] getProfiles();
     void setProfiles(Profile[] profiles);
 
+    Profile getOverlayProfile();
+
     String getLocation();
     void setLocation(String location);
 

@@ -174,8 +174,7 @@ public final class ZooKeeperUtils {
     }
 
     public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        ZKData<String> zkData = zooKeeper.getZKStringData(path);
-        String value = zkData.getData();
+        String value = zooKeeper.getStringData(path);
         Properties properties = new Properties();
         if (value != null) {
             try {

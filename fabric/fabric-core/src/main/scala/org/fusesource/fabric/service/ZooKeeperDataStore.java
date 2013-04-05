@@ -207,7 +207,7 @@ public class ZooKeeperDataStore implements DataStore {
         try {
             String versionId = ZooKeeperUtils.get(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId));
             String str = ZooKeeperUtils.get(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
-            return str == null ? Collections.<String>emptyList() : Arrays.asList(str.split(" +"));
+            return str == null || str.isEmpty() ? Collections.<String>emptyList() : Arrays.asList(str.split(" +"));
         } catch (Exception e) {
             throw new FabricException(e);
         }
