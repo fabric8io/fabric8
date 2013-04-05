@@ -100,37 +100,6 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
-    /**
-     * Post logic after the containers have been created.
-     *
-     * @param metadatas the created containers
-     */
-    protected void postCreateContainers(CreateContainerMetadata[] metadatas) {
-        if (!isEnsembleServer) {
-            Version ver = version != null ? fabricService.getVersion(version) : fabricService.getDefaultVersion();
-
-            List<String> names = getProfileNames();
-            try {
-                Profile[] profiles = getProfiles(ver.getId(), names);
-                for (CreateContainerMetadata metadata : metadatas) {
-                    if (metadata.isSuccess()) {
-                        Container child = metadata.getContainer();
-                        log.trace("Setting version " + ver.getId() + " on container " + child.getId());
-                        child.setVersion(ver);
-                        log.trace("Setting profiles " + Arrays.asList(profiles) + " on container " + child.getId());
-                        child.setProfiles(profiles);
-                    }
-                }
-            } catch (Exception ex) {
-                log.warn("Error during postCreateContainers. This exception will be ignored.", ex);
-            }
-        }
-
-        if (log.isDebugEnabled()) {
-            log.debug("postCreateContainers completed for " + Arrays.asList(metadatas) + " containers.");
-        }
-    }
-    
     protected void displayContainers(CreateContainerMetadata[] metadatas) {
         List<CreateContainerMetadata> success = new ArrayList<CreateContainerMetadata>();
         List<CreateContainerMetadata> failures = new ArrayList<CreateContainerMetadata>();

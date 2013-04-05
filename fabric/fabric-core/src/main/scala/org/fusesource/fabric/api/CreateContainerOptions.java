@@ -18,6 +18,7 @@ package org.fusesource.fabric.api;
 
 import java.io.Serializable;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -74,5 +75,11 @@ public interface CreateContainerOptions extends Serializable, Cloneable {
     CreationStateListener getCreationStateListener();
 
     Map<String, ? extends CreateContainerMetadata> getMetadataMap();
+
+    List<String> getProfiles();
+    void setProfiles(List<String> profiles);
+
+    String getVersion();
+    void setVersion(String version);
 
 }

@@ -18,7 +18,9 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -42,6 +44,8 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String zookeeperPassword;
     protected String jvmOpts;
     protected boolean adminAccess = false;
+    protected String version;
+    protected List<String> profiles = new ArrayList<String>();
     protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
     private transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
@@ -122,9 +126,18 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return (T) this;
     }
 
-
     public T creationStateListener(final CreationStateListener creationStateListener) {
         this.creationStateListener = creationStateListener;
+        return (T) this;
+    }
+
+    public T version(String version) {
+        this.version = version;
+        return (T) this;
+    }
+
+    public T profiles(List<String> profiles) {
+        this.profiles = profiles;
         return (T) this;
     }
 
@@ -253,12 +266,27 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.creationStateListener = creationStateListener;
     }
 
-
     public void setAdminAccess(boolean adminAccess) {
         this.adminAccess = adminAccess;
     }
 
     public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
         return metadataMap;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public List<String> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<String> profiles) {
+        this.profiles = profiles;
     }
 }

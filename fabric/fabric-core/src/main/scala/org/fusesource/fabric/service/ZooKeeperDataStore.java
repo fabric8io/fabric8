@@ -120,9 +120,21 @@ public class ZooKeeperDataStore implements DataStore {
             CreateContainerOptions options = metadata.getCreateOptions();
             String containerId = metadata.getContainerName();
             String parent = options.getParent();
-            String versionId = getDefaultVersion();
+            String versionId = options.getVersion() != null ? options.getVersion() : getDefaultVersion();
+            List<String> profileIds = options.getProfiles();
+            if (profileIds == null || profileIds.isEmpty()) {
+                profileIds = Collections.singletonList(ZkDefs.DEFAULT_PROFILE);
+            }
+            StringBuilder sb = new StringBuilder();
+            for (String profileId : profileIds) {
+                if (sb.length() > 0) {
+                    sb.append(" ");
+                }
+                sb.append(profileId);
+            }
+
             ZooKeeperUtils.set(zk, ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
-            ZooKeeperUtils.set(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), ZkDefs.DEFAULT_PROFILE);
+            ZooKeeperUtils.set(zk, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
             ZooKeeperUtils.set(zk, ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
 
             //We encode the metadata so that they are more friendly to import/export.

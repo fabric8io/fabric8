@@ -96,7 +96,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
-        .createEnsembleOptions(ensembleOptions);
+        .createEnsembleOptions(ensembleOptions)
+        .version(version)
+        .profiles(profiles);
 
 
         if (path != null && !path.isEmpty()) {
@@ -110,8 +112,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         }
         // display containers
         displayContainers(metadatas);
-        // and set its profiles and versions after creation
-        postCreateContainers(metadatas);
         return null;
     }
 }

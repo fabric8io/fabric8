@@ -132,7 +132,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
-        .createEnsembleOptions(ensembleOptions);
+        .createEnsembleOptions(ensembleOptions)
+        .version(version)
+        .profiles(profiles);
 
         if (path != null && !path.isEmpty()) {
             args.setPath(path);
@@ -145,8 +147,6 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         }
         // display containers
         displayContainers(metadatas);
-        // and set its profiles and versions after creation
-        postCreateContainers(metadatas);
         return null;
     }
 

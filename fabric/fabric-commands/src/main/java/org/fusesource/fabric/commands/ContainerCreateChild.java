@@ -68,7 +68,9 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .zookeeperPassword(fabricService.getZookeeperPassword())
                 .jvmOpts(jvmOpts)
                 .jmxUser(jmxUser)
-                .jmxPassword(jmxPassword);
+                .jmxPassword(jmxPassword)
+                .version(version)
+                .profiles(profiles);
 
         try {
             metadatas = fabricService.createContainers(options);
@@ -86,8 +88,6 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
         // display containers
         displayContainers(metadatas);
-        // and set its profiles and versions after creation
-        postCreateContainers(metadatas);
         return null;
     }
 

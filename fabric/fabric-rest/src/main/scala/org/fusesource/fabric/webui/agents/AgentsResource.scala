@@ -26,6 +26,8 @@ import org.fusesource.fabric.webui._
 import org.fusesource.fabric.webui.{Services, ByID, JsonProvider, BaseResource}
 import org.fusesource.fabric.api._
 import javax.servlet.http.HttpServletRequest
+import java.util
+import collection.JavaConversions._
 
 /**
  * Resource representing root agents resource.
@@ -87,6 +89,8 @@ class AgentsResource extends BaseResource {
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
       value.setJmxUser(Services.jmx_username(request))
       value.setJmxPassword(Services.jmx_password(request))
+      value.setVersion(version.getId)
+      value.setProfiles(profiles.map(_.getId).toList)
       fabric_service.createContainers(value)
 
     } else if (providerType == "ssh") {
@@ -96,6 +100,8 @@ class AgentsResource extends BaseResource {
       value.setNumber(1)
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
+      value.setVersion(version.getId)
+      value.setProfiles(profiles.map(_.getId).toList)
       fabric_service.createContainers(value)
 
     } else if (providerType == "jclouds") {
@@ -118,6 +124,8 @@ class AgentsResource extends BaseResource {
 
       value.setZookeeperUrl(fabric_service.getZookeeperUrl())
       value.setZookeeperPassword(fabric_service.getZookeeperPassword())
+      value.setVersion(version.getId)
+      value.setProfiles(profiles.map(_.getId).toList)
       fabric_service.createContainers(value)
 
     } else {
@@ -127,25 +135,7 @@ class AgentsResource extends BaseResource {
     if (agents == null) {
       throw new RuntimeException("Error creating containers, instances returned from service is null")
     }
-
-    try {
-      agents.foreach((x) => {
-        val container = x.getContainer
-        if (container != null) {
-          container.setVersion(version)
-          container.setProfiles(profiles)
-        }
-      })
-      agents
-    } catch {
-      case t: Throwable =>
-        val ensemble_server = options.get("ensembleServer")
-        if (ensemble_server != null && ensemble_server.asInstanceOf[Boolean]) {
-          null
-        } else {
-          throw t
-        }
-    }
+    agents
   }
 
   @POST
