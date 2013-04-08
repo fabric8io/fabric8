@@ -30,6 +30,7 @@ import org.linkedin.util.clock.Timespan;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceListener;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ManagedService;
 
@@ -70,6 +71,7 @@ public class OsgiZkClientTest {
         reset(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
         zkClientRegistration.unregister();
         managedServiceRegistration.unregister();
+        serverStatsRegistration.unregister();
         replay(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
 
         
@@ -150,7 +152,8 @@ public class OsgiZkClientTest {
 
     protected void createServer() throws Exception {
         reset(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
-        expect(bundleContext.registerService(eq(ServerStats.Provider.class.getName()), anyObject(), (Dictionary) anyObject())).andReturn(serverStatsRegistration);
+        expect(bundleContext.registerService(aryEq(new String[]{ServerStats.Provider.class.getName()}), anyObject(), (Dictionary) anyObject())).andReturn(serverStatsRegistration);
+        expect(bundleContext.getServiceReferences(LifecycleListener.class.getName(), null)).andReturn(null).anyTimes();
         replay(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
 
         Hashtable properties = new Hashtable();
@@ -160,6 +163,8 @@ public class OsgiZkClientTest {
         properties.put("dataDir", "target/data/zookeeper/" + System.currentTimeMillis());
         properties.put("clientPort", Integer.toString(port));
         serverFactory.updated("pid", properties);
+
+        Thread.sleep(1000);
 
         verify(bundleContext, serverStatsRegistration, managedServiceRegistration, zkClientRegistration);
     }

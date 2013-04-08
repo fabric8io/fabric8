@@ -49,6 +49,10 @@ public class ContainerImplTest {
 
     public static final String CONTAINER_ID = "test";
 
+    static {
+        System.setProperty("karaf.data", "target/data");
+    }
+
     FabricServiceImpl fabricService = new FabricServiceImpl();
     Container container = new ContainerImpl(null, CONTAINER_ID, fabricService);
     IZKClient izkClient = createMock(IZKClient.class);
