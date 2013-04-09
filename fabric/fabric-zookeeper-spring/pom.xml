@@ -27,6 +27,12 @@
     <artifactId>fabric-zookeeper-spring</artifactId>
     <packaging>bundle</packaging>
 
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.fabric.zookeeper.spring;version=${project.version},
+        </fuse.osgi.export>
+    </properties>
+
     <name>${project.artifactId}</name>
     <description>Fuse Fabric :: ZooKeeper :: Spring integration</description>
 
