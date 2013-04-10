@@ -19,9 +19,6 @@ package org.fusesource.fabric.zookeeper;
 
 public interface ZkDefs {
 
-    String SUCCESS = "success";
-    String ERROR = "error";
-
     String DEFAULT_VERSION = "1.0";
     String DEFAULT_PROFILE = "default";
 

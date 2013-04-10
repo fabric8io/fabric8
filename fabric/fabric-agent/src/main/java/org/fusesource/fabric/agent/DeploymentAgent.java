@@ -61,7 +61,6 @@ import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeatureValidationUtil;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.apache.karaf.features.internal.RepositoryImpl;
-import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.agent.download.DownloadFuture;
 import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.download.FutureListener;
@@ -84,11 +83,7 @@ import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
-import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -248,7 +243,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
                 // This update is critical, so
                 if (success || result != null) {
-                    updateStatus(success ? ZkDefs.SUCCESS : ZkDefs.ERROR, result, null, true);
+                    updateStatus(success ? Container.PROVISION_SUCCESS : Container.PROVISION_ERROR, result, null, true);
                 }
             }
         });

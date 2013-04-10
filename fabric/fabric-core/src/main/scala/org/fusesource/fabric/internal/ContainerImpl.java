@@ -97,7 +97,7 @@ public class ContainerImpl implements Container {
     @Override
     public boolean isProvisioningComplete() {
         String result = getProvisionResult();
-        return ZkDefs.SUCCESS.equals(result) || ZkDefs.ERROR.equals(result);
+        return PROVISION_SUCCESS.equals(result) || PROVISION_ERROR.equals(result);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class ContainerImpl implements Container {
 
         if (provisioned != null) {
             result = provisioned;
-            if (result.equals(ZkDefs.ERROR) && provisionException != null) {
+            if (result.equals(PROVISION_ERROR) && provisionException != null) {
                 result += " - " + provisionException.split(System.getProperty("line.separator"))[0];
             }
         }

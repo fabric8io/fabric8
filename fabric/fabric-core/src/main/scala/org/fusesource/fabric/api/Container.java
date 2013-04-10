@@ -24,6 +24,9 @@ import java.util.List;
 
 public interface Container extends HasId {
 
+    String PROVISION_SUCCESS = "success";
+    String PROVISION_ERROR = "error";
+
     String getType();
 
     String getId();
