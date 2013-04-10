@@ -41,6 +41,7 @@ public class LoadBalanceClientServerTest extends AbstractJUnit4SpringContextTest
     @Autowired
     protected Hello helloProxy;
 
+
     @Test
     public void testClientServer() throws Exception {
         assertNotNull(bus);
@@ -69,10 +70,10 @@ public class LoadBalanceClientServerTest extends AbstractJUnit4SpringContextTest
         assertEquals("Get a wrong response", "Hello", response);
 
 
-        // Try to call the hello proxy which is created by Spring
+        // Try to call the hello proxy which is created by Spring with setting feature on the bus
         response = helloProxy.sayHello();
         assertEquals("Get a wrong response", "Hello", response);
-        
+
     }
 
 }

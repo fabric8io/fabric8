@@ -41,9 +41,6 @@
 
   <jaxws:client id="helloProxy" address="http://dummyAddress"
                  serviceClass="org.fusesource.fabric.cxf.Hello">
-          <jaxws:features>
-              <ref bean="fabicLoadBalancerFeature" />
-          </jaxws:features>
   </jaxws:client>
 
   <!-- configure the feature on the bus -->

@@ -22,6 +22,7 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.buslifecycle.BusLifeCycleListener;
 import org.apache.cxf.buslifecycle.BusLifeCycleManager;
 import org.apache.cxf.endpoint.Client;
+import org.apache.cxf.endpoint.ClientLifeCycleManager;
 import org.apache.cxf.endpoint.ConduitSelector;
 import org.apache.cxf.endpoint.ConduitSelectorHolder;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
@@ -54,14 +55,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     private ServerAddressResolver addressResolver;
 
     public void initialize(Client client, Bus bus) {
-        LoadBalanceTargetSelector selector = getDefaultLoadBalanceTargetSelector();
-        selector.setEndpoint(client.getEndpoint());
-        try {
-            selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
-            client.setConduitSelector(selector);
-        } catch (Exception e) {
-            LOG.error("Cannot setup the LoadBalanceStrategy due to " + e);
-        }
+        setupClientConduitSelector(client);
         // setup the BusLifeCycleListener
         BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
         manager.registerLifeCycleListener(this);
@@ -91,19 +85,40 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     public void initialize(Bus bus) {
         try {
             FabricServerListener lister = new FabricServerListener(getGroup(), addressResolver);
-            // register the listener itself
-            ServerLifeCycleManager mgr = bus.getExtension(ServerLifeCycleManager.class);
-            if (mgr != null) {
-                mgr.registerListener(lister);
+            // register the server listener itself
+            ServerLifeCycleManager serverMgr = bus.getExtension(ServerLifeCycleManager.class);
+            if (serverMgr != null) {
+                serverMgr.registerListener(lister);
             } else {
                 LOG.error("Cannot find the ServerLifeCycleManager, we cannot publish the service through fabric.");
             }
+            // register the client listener
+            ClientLifeCycleManager clientMgr = bus.getExtension(ClientLifeCycleManager.class);
+            FabricClientListener clientListener = new FabricClientListener(this);
+            if (clientMgr != null) {
+                clientMgr.registerListener(clientListener);
+            } else {
+                LOG.error("Cannot find the ClientLifeCycleManager, the client cannot access the service through fabric");
+            }
+
         } catch (Exception ex) {
             LOG.error("Cannot initialize the bus with FabricLoadBalancerFeature due to " + ex);
         }
         // setup the BusLifeCycleListener
         BusLifeCycleManager manager = bus.getExtension(BusLifeCycleManager.class);
         manager.registerLifeCycleListener(this);
+    }
+
+    protected void setupClientConduitSelector(Client client) {
+        //TODO do we need to check if the ConduitSelector is replaced
+        LoadBalanceTargetSelector selector = getDefaultLoadBalanceTargetSelector();
+        selector.setEndpoint(client.getEndpoint());
+        try {
+            selector.setLoadBalanceStrategy(getLoadBalanceStrategy());
+            client.setConduitSelector(selector);
+        } catch (Exception e) {
+            LOG.error("Cannot setup the LoadBalanceStrategy due to " + e);
+        }
     }
 
     protected LoadBalanceStrategy getDefaultLoadBalanceStrategy() {
