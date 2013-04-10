@@ -26,6 +26,10 @@ public class RandomLoadBalanceStrategy extends FabricLoadBalanceStrategySupport 
     }
 
     public String getNextAlternateAddress() {
-        return alternateAddressList.get(random.nextInt(alternateAddressList.size()));
+        if (alternateAddressList.size() > 0) {
+            return alternateAddressList.get(random.nextInt(alternateAddressList.size()));
+        } else {
+            throw new IllegalArgumentException("The AlternateAddressList is empty, please fresh the list shortly.");
+        }
     }
 }
