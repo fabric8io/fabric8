@@ -137,7 +137,7 @@ public interface DataStore {
 
     Map<String, byte[]> getFileConfigurations(String version, String profile);
 
-    byte[] getFileConfiguration(String version, String profile, String name) throws InterruptedException, KeeperException;
+    byte[] getFileConfiguration(String version, String profile, String name);
 
     void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations);
 
@@ -147,7 +147,7 @@ public interface DataStore {
 
     Map<String, Map<String, String>> getConfigurations(String version, String profile);
 
-    Map<String, String> getConfiguration(String version, String profile, String pid) throws InterruptedException, KeeperException, IOException;
+    Map<String, String> getConfiguration(String version, String profile, String pid);
 
     void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations);
 

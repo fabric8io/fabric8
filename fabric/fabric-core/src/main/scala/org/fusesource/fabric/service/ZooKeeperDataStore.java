@@ -571,21 +571,25 @@ public class ZooKeeperDataStore implements DataStore {
     }
 
     @Override
-    public byte[] getFileConfiguration(String version, String profile, String pid) throws InterruptedException, KeeperException {
-        String path = ZkProfiles.getPath(version, profile) + "/" + pid;
-        if (ZooKeeperUtils.exists(zk, path) == null) {
-            return null;
-        }
-        if (zk.getData(path) == null) {
-            List<String> children = zk.getChildren(path);
-            StringBuilder buf = new StringBuilder();
-            for (String child : children) {
-                String value = zk.getStringData(path + "/" + child);
-                buf.append(String.format("%s = %s\n", child, value));
+    public byte[] getFileConfiguration(String version, String profile, String pid) {
+        try {
+            String path = ZkProfiles.getPath(version, profile) + "/" + pid;
+            if (ZooKeeperUtils.exists(zk, path) == null) {
+                return null;
             }
-            return buf.toString().getBytes();
-        } else {
-            return zk.getData(path);
+            if (zk.getData(path) == null) {
+                List<String> children = zk.getChildren(path);
+                StringBuilder buf = new StringBuilder();
+                for (String child : children) {
+                    String value = zk.getStringData(path + "/" + child);
+                    buf.append(String.format("%s = %s\n", child, value));
+                }
+                return buf.toString().getBytes();
+            } else {
+                return zk.getData(path);
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
         }
     }
 
@@ -653,7 +657,7 @@ public class ZooKeeperDataStore implements DataStore {
             for (Map.Entry<String, byte[]> entry: configs.entrySet()){
                 if(entry.getKey().endsWith(".properties")) {
                     String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
-                    configurations.put(pid, getConfiguration(version, profile, pid));
+                    configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
                 }
             }
             return configurations;
@@ -663,13 +667,17 @@ public class ZooKeeperDataStore implements DataStore {
     }
 
     @Override
-    public Map<String, String> getConfiguration(String version, String profile, String pid) throws InterruptedException, KeeperException, IOException {
-        String path = ZkProfiles.getPath(version, profile) + "/" + pid +".properties";
-        if (ZooKeeperUtils.exists(zk, path) == null) {
-            return null;
+    public Map<String, String> getConfiguration(String version, String profile, String pid) {
+        try {
+            String path = ZkProfiles.getPath(version, profile) + "/" + pid +".properties";
+            if (ZooKeeperUtils.exists(zk, path) == null) {
+                return null;
+            }
+            byte[] data = zk.getData(path);
+            return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
+        } catch (Exception e) {
+            throw new FabricException(e);
         }
-        byte[] data = zk.getData(path);
-        return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
     }
 
     @Override
