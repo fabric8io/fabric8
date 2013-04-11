@@ -76,8 +76,6 @@ public class FabricGitServiceImpl implements FabricGitService, LifecycleListener
 		} catch (RepositoryNotFoundException e) {
 			try {
 				Git git = Git.init().setDirectory(localRepo).call();
-				Files.writeToFile(new File(localRepo, "README"), "", Charset.forName("UTF-8"));
-				git.add().addFilepattern("README").call();
 				git.commit().setMessage("First Commit").setCommitter("fabric", "user@fabric").call();
 				return git;
 			} catch (GitAPIException ex) {
