@@ -34,6 +34,8 @@ import java.util.Map;
 public class FabricConfigAdminBridge implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
+    public static final String AGENT_PID = "org.fusesource.fabric.agent";
+    public static final String LAST_MODIFIED = "lastModified";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
 
@@ -83,6 +85,9 @@ public class FabricConfigAdminBridge implements Runnable {
                 configs.remove(config);
                 Dictionary props = config.getProperties();
                 Hashtable old = props != null ? new Hashtable() : null;
+                if (pid.equals(AGENT_PID)) {
+                    c.put(LAST_MODIFIED, String.valueOf(profile.getLastModfied()));
+                }
                 if (old != null) {
                     for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
                         Object key = e.nextElement();
@@ -153,5 +158,4 @@ public class FabricConfigAdminBridge implements Runnable {
             return newConfiguration;
         }
     }
-
 }

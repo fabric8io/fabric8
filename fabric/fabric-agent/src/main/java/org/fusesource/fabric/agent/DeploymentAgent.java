@@ -106,6 +106,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     public static final String FAB_PROTOCOL = "fab:";
     private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
+    private static final String SNAPSHOT = "SNAPSHOT";
+    private static final String BLUEPRINT_PREFIX = "blueprint:";
+    private static final String SPRING_PREFIX = "spring:";
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
@@ -187,7 +191,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         for (Bundle bundle : systemBundleContext.getBundles()) {
             try {
-                if (bundle.getLocation().endsWith("SNAPSHOT")) {
+                if (isUpdateable(bundle)) {
                     org.fusesource.fabric.agent.mvn.Parser parser = new org.fusesource.fabric.agent.mvn.Parser(bundle.getLocation());
                     String systemPath = System.getProperty("karaf.home") + File.separator + "system" + File.separator + parser.getArtifactPath().substring(4);
                     String agentDownloadsPath = System.getProperty("karaf.data") + "/maven/agent" + File.separator + parser.getArtifactPath().substring(4);
@@ -581,7 +585,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 for (Resource res : toDeploy) {
                     if (res.getSymbolicName().equals(bundle.getSymbolicName())) {
                         if (res.getVersion().equals(bundle.getVersion())) {
-                            if (res.getVersion().getQualifier().endsWith("SNAPSHOT")) {
+                            if (isUpdateable(res)) {
                                 // if the checksum are different
                                 InputStream is = null;
                                 try {
@@ -708,7 +712,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
             // save a checksum of installed snapshot bundle
-            if (bundle.getVersion().getQualifier().endsWith("SNAPSHOT") && !newCheckums.containsKey(bundle.getLocation())) {
+            if (bundle.getVersion().getQualifier().endsWith(SNAPSHOT) && !newCheckums.containsKey(bundle.getLocation())) {
                 newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, downloads, infos))));
             }
         }
@@ -1066,6 +1070,14 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             }
         }
         return downloadExecutor;
+    }
+
+    private static boolean isUpdateable(Bundle bundle) {
+        return (bundle.getLocation().endsWith(SNAPSHOT) || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(SPRING_PREFIX));
+    }
+
+    private static boolean isUpdateable(Resource resource) {
+        return (resource.getVersion().getQualifier().endsWith("SNAPSHOT") || resource.getURI().startsWith(BLUEPRINT_PREFIX) || resource.getURI().startsWith(SPRING_PREFIX));
     }
 
     interface ExecutorServiceFinder {

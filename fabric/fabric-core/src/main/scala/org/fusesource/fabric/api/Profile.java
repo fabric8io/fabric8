@@ -160,4 +160,9 @@ public interface Profile extends Comparable<Profile>, HasId {
      * @return
      */
     boolean isHidden();
+
+    /**
+     * Returns the time in milliseconds of the last modification of the profile.
+     */
+    long getLastModfied();
 }

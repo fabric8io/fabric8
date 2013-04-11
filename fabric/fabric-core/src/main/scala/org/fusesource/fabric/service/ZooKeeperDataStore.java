@@ -18,11 +18,8 @@ package org.fusesource.fabric.service;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.FabricRequirements;
+import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.utils.Base64Encoder;
@@ -31,11 +28,7 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
-import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperRetriableUtils;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.fusesource.fabric.zookeeper.utils.ZookeeperCommandBuilder;
-import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.fusesource.fabric.zookeeper.utils.*;
 import org.linkedin.zookeeper.tracker.NodeEvent;
 import org.linkedin.zookeeper.tracker.NodeEventsListener;
 import org.linkedin.zookeeper.tracker.ZKStringDataReader;
@@ -47,8 +40,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.*;
-
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 /**
  * @author Stan Lewis
@@ -339,7 +330,7 @@ public class ZooKeeperDataStore implements DataStore {
 //                if (value == null) {
 //                    ZooKeeperUtils.deleteSafe(zk, getAttributePath(containerId, attribute));
 //                } else {
-                    ZooKeeperUtils.set(zk, getAttributePath(containerId, attribute), value);
+                ZooKeeperUtils.set(zk, getAttributePath(containerId, attribute), value);
 //                }
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
@@ -349,25 +340,42 @@ public class ZooKeeperDataStore implements DataStore {
         }
     }
 
-    private String getAttributePath(String containerId, ContainerAttribute attribute)  {
+    private String getAttributePath(String containerId, ContainerAttribute attribute) {
         switch (attribute) {
-            case ProvisionStatus:    return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
-            case ProvisionException: return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
-            case ProvisionList:      return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
-            case Location:           return ZkPath.CONTAINER_LOCATION.getPath(containerId);
-            case GeoLocation:        return ZkPath.CONTAINER_GEOLOCATION.getPath(containerId);
-            case Resolver:           return ZkPath.CONTAINER_RESOLVER.getPath(containerId);
-            case Ip:                 return ZkPath.CONTAINER_IP.getPath(containerId);
-            case LocalIp:            return ZkPath.CONTAINER_LOCAL_IP.getPath(containerId);
-            case LocalHostName:      return ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(containerId);
-            case PublicIp:           return ZkPath.CONTAINER_PUBLIC_IP.getPath(containerId);
-            case PublicHostName:     return ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId);
-            case ManualIp:           return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
-            case JmxUrl:             return ZkPath.CONTAINER_JMX.getPath(containerId);
-            case SshUrl:             return ZkPath.CONTAINER_SSH.getPath(containerId);
-            case PortMin:            return ZkPath.CONTAINER_PORT_MIN.getPath(containerId);
-            case PortMax:            return ZkPath.CONTAINER_PORT_MAX.getPath(containerId);
-            default:                 throw new IllegalArgumentException("Unsupported container attribute " + attribute);
+            case ProvisionStatus:
+                return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
+            case ProvisionException:
+                return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
+            case ProvisionList:
+                return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
+            case Location:
+                return ZkPath.CONTAINER_LOCATION.getPath(containerId);
+            case GeoLocation:
+                return ZkPath.CONTAINER_GEOLOCATION.getPath(containerId);
+            case Resolver:
+                return ZkPath.CONTAINER_RESOLVER.getPath(containerId);
+            case Ip:
+                return ZkPath.CONTAINER_IP.getPath(containerId);
+            case LocalIp:
+                return ZkPath.CONTAINER_LOCAL_IP.getPath(containerId);
+            case LocalHostName:
+                return ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(containerId);
+            case PublicIp:
+                return ZkPath.CONTAINER_PUBLIC_IP.getPath(containerId);
+            case PublicHostName:
+                return ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId);
+            case ManualIp:
+                return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
+            case JmxUrl:
+                return ZkPath.CONTAINER_JMX.getPath(containerId);
+            case SshUrl:
+                return ZkPath.CONTAINER_SSH.getPath(containerId);
+            case PortMin:
+                return ZkPath.CONTAINER_PORT_MIN.getPath(containerId);
+            case PortMax:
+                return ZkPath.CONTAINER_PORT_MAX.getPath(containerId);
+            default:
+                throw new IllegalArgumentException("Unsupported container attribute " + attribute);
         }
     }
 
@@ -503,7 +511,7 @@ public class ZooKeeperDataStore implements DataStore {
             throw new FabricException(e);
         }
     }
-    
+
     @Override
     public Map<String, String> getVersionAttributes(String version) {
         try {
@@ -552,6 +560,15 @@ public class ZooKeeperDataStore implements DataStore {
                 props.remove(key);
             }
             ZooKeeperUtils.setProperties(zk, path, props);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public long getLastModified(String version, String profile) {
+        try {
+            return ZooKeeperUtils.getLastModified(zk, ZkProfiles.getPath(version, profile));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -620,7 +637,7 @@ public class ZooKeeperDataStore implements DataStore {
     public void setFileConfiguration(String version, String profile, String pid, byte[] configuration) {
         try {
             String path = ZkProfiles.getPath(version, profile);
-            String configPath =  path + "/" + pid;
+            String configPath = path + "/" + pid;
             if (ZooKeeperUtils.exists(zk, configPath) != null && zk.getChildren(configPath).size() > 0) {
                 List<String> kids = zk.getChildren(configPath);
                 ArrayList<String> saved = new ArrayList<String>();
@@ -638,7 +655,7 @@ public class ZooKeeperDataStore implements DataStore {
                     ZooKeeperRetriableUtils.set(zk, newPath, nameValue[1].trim());
                     saved.add(nameValue[0].trim());
                 }
-                for ( String kid : kids ) {
+                for (String kid : kids) {
                     if (!saved.contains(kid)) {
                         zk.deleteWithChildren(configPath + "/" + kid);
                     }
@@ -656,8 +673,8 @@ public class ZooKeeperDataStore implements DataStore {
         try {
             Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
             Map<String, byte[]> configs = getFileConfigurations(version, profile);
-            for (Map.Entry<String, byte[]> entry: configs.entrySet()){
-                if(entry.getKey().endsWith(".properties")) {
+            for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
+                if (entry.getKey().endsWith(".properties")) {
                     String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
                     configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
                 }
@@ -671,7 +688,7 @@ public class ZooKeeperDataStore implements DataStore {
     @Override
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
         try {
-            String path = ZkProfiles.getPath(version, profile) + "/" + pid +".properties";
+            String path = ZkProfiles.getPath(version, profile) + "/" + pid + ".properties";
             if (ZooKeeperUtils.exists(zk, path) == null) {
                 return null;
             }
@@ -694,7 +711,7 @@ public class ZooKeeperDataStore implements DataStore {
                 setConfiguration(version, profile, pid, entry.getValue());
             }
             for (String key : oldCfgs.keySet()) {
-                zk.deleteWithChildren(path + "/" + key +".properties");
+                zk.deleteWithChildren(path + "/" + key + ".properties");
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -706,7 +723,7 @@ public class ZooKeeperDataStore implements DataStore {
         try {
             String path = ZkProfiles.getPath(version, profile);
             byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(configuration));
-            String p =  path + "/" + pid + ".properties";
+            String p = path + "/" + pid + ".properties";
             ZooKeeperUtils.set(zk, p, data);
         } catch (Exception e) {
             throw new FabricException(e);

@@ -16,19 +16,6 @@
  */
 package org.fusesource.fabric.zookeeper.utils;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
@@ -36,6 +23,12 @@ import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.ZKData;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URISyntaxException;
+import java.util.*;
 
 public final class ZooKeeperUtils {
 
@@ -47,7 +40,7 @@ public final class ZooKeeperUtils {
         for (String child : source.getChildren(path)) {
             child = path + "/" + child;
             if (dest.exists(child) == null) {
-                byte[] data  = source.getData(child);
+                byte[] data = source.getData(child);
                 set(dest, child, data);
                 copy(source, dest, child);
             }
@@ -59,7 +52,7 @@ public final class ZooKeeperUtils {
             String fromChild = from + "/" + child;
             String toChild = to + "/" + child;
             if (zk.exists(toChild) == null) {
-                byte[] data  = zk.getData(fromChild);
+                byte[] data = zk.getData(fromChild);
                 set(zk, toChild, data);
                 copy(zk, fromChild, toChild);
             }
@@ -82,16 +75,16 @@ public final class ZooKeeperUtils {
         }
     }
 
-    public static void remove(IZKClient zooKeeper, String path, String value ) throws InterruptedException, KeeperException {
+    public static void remove(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) != null) {
             List<String> parts = new LinkedList<String>();
-            String data = zooKeeper.getStringData( path );
+            String data = zooKeeper.getStringData(path);
             if (data != null) {
                 parts = new ArrayList<String>(Arrays.asList(data.split(" ")));
             }
             boolean changed = false;
             StringBuilder sb = new StringBuilder();
-            for (Iterator<String> it = parts.iterator(); it.hasNext();) {
+            for (Iterator<String> it = parts.iterator(); it.hasNext(); ) {
                 String v = it.next();
                 if (v.matches(value)) {
                     it.remove();
@@ -112,7 +105,7 @@ public final class ZooKeeperUtils {
     }
 
     public static String get(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        return zooKeeper.getStringData( path);
+        return zooKeeper.getStringData(path);
     }
 
     public static void set(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
@@ -120,12 +113,12 @@ public final class ZooKeeperUtils {
     }
 
     public static void set(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
-        if(zooKeeper.exists(path) != null) {
+        if (zooKeeper.exists(path) != null) {
             zooKeeper.setByteData(path, value);
         }
         try {
             zooKeeper.createWithParents(path, value, CreateMode.PERSISTENT);
-        } catch(KeeperException.NodeExistsException e) {
+        } catch (KeeperException.NodeExistsException e) {
             // this should not happen very often (race condition)
             zooKeeper.setByteData(path, value);
         }
@@ -137,7 +130,7 @@ public final class ZooKeeperUtils {
 
     public static void createDefault(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
-            zooKeeper.createWithParents( path, value, CreateMode.PERSISTENT );
+            zooKeeper.createWithParents(path, value, CreateMode.PERSISTENT);
         }
     }
 
@@ -159,7 +152,8 @@ public final class ZooKeeperUtils {
         if (value != null) {
             try {
                 properties.load(new StringReader(value));
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
         }
         return properties;
     }
@@ -179,7 +173,8 @@ public final class ZooKeeperUtils {
         if (value != null) {
             try {
                 properties.load(new StringReader(value));
-            } catch (IOException ignore) {}
+            } catch (IOException ignore) {
+            }
         }
         return properties;
     }
@@ -212,11 +207,12 @@ public final class ZooKeeperUtils {
             StringWriter writer = new StringWriter();
             p.save(writer);
             zooKeeper.setData(path, writer.toString());
-        } catch (IOException e) {}
+        } catch (IOException e) {
+        }
     }
 
     public static String getSubstitutedPath(final IZKClient zooKeeper, String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
-        String normaledPath = path != null && path.contains("#") ? path.substring(0,path.lastIndexOf('#')) : path;
+        String normaledPath = path != null && path.contains("#") ? path.substring(0, path.lastIndexOf('#')) : path;
         if (normaledPath != null && zooKeeper.exists(normaledPath) != null) {
             byte[] data = ZkPath.loadURL(zooKeeper, path);
             if (data != null && data.length > 0) {
@@ -227,7 +223,7 @@ public final class ZooKeeperUtils {
         return null;
     }
 
-    public static String getSubstitutedData(final IZKClient zooKeeper, String data) throws   URISyntaxException {
+    public static String getSubstitutedData(final IZKClient zooKeeper, String data) throws URISyntaxException {
         Map<String, String> props = new HashMap<String, String>();
         props.put("data", data);
 
@@ -249,6 +245,7 @@ public final class ZooKeeperUtils {
 
     /**
      * Generate a random String that can be used as a Zookeeper password.
+     *
      * @return
      */
     public static String generatePassword() {
@@ -264,6 +261,27 @@ public final class ZooKeeperUtils {
             }
         }
         return password.toString();
+    }
+
+    /**
+     * Returns the last modified time of the znode taking childs into consideration.
+     * @param zooKeeper
+     * @param path
+     * @return
+     * @throws KeeperException
+     * @throws InterruptedException
+     */
+    public static long getLastModified(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
+        long lastModified = 0;
+        List<String> children = zooKeeper.getChildren(path);
+        if (children.isEmpty()) {
+            return zooKeeper.exists(path).getMtime();
+        } else {
+            for (String child : children) {
+                lastModified = Math.max(getLastModified(zooKeeper, path + "/" + child), lastModified);
+            }
+        }
+        return lastModified;
     }
 
 }

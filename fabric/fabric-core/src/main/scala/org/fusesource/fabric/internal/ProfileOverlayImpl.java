@@ -26,9 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.fusesource.fabric.internal.ProfileImpl.AGENT_PID;
-import static org.fusesource.fabric.internal.ProfileImpl.ConfigListType;
-import static org.fusesource.fabric.internal.ProfileImpl.getContainerConfigList;
+import static org.fusesource.fabric.internal.ProfileImpl.*;
 
 public class ProfileOverlayImpl implements Profile {
 
@@ -161,7 +159,7 @@ public class ProfileOverlayImpl implements Profile {
     public boolean agentConfigurationEquals(Profile other) {
         ProfileOverlayImpl otherOverlay = new ProfileOverlayImpl(other);
         if (!getConfigurations().containsKey(AGENT_PID) && !otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
-          return true;
+            return true;
         } else if (getConfigurations().containsKey(AGENT_PID) != otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
             return false;
         } else if (getConfigurations().containsKey(AGENT_PID) && !getConfigurations().get(AGENT_PID).equals(otherOverlay.getConfigurations().get(AGENT_PID))) {
@@ -191,7 +189,7 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     private static class SupplementControl {
-        byte [] data;
+        byte[] data;
         Properties props;
     }
 
@@ -202,7 +200,7 @@ public class ProfileOverlayImpl implements Profile {
 
         // TODO fix this, should this every happen???
         if (profile instanceof ProfileOverlayImpl) {
-            if (((ProfileOverlayImpl)profile).self.equals(self)) {
+            if (((ProfileOverlayImpl) profile).self.equals(self)) {
                 return;
             }
         }
@@ -212,19 +210,19 @@ public class ProfileOverlayImpl implements Profile {
             // we can use fine grained inheritance based updating if it's
             // a properties file.
             String fileName = entry.getKey();
-            if( fileName.endsWith(".properties") ) {
+            if (fileName.endsWith(".properties")) {
                 SupplementControl ctrl = aggregate.get(fileName);
-                if( ctrl!=null ) {
+                if (ctrl != null) {
                     // we can update the file..
 
                     Properties childMap = DataStoreHelpers.toProperties(entry.getValue());
-                    if( childMap.remove(DELETED)!=null ) {
+                    if (childMap.remove(DELETED) != null) {
                         ctrl.props.clear();
                     }
 
                     // Update the entries...
-                    for (Map.Entry<Object, Object> p: childMap.entrySet()){
-                        if( DELETED.equals(p.getValue()) ) {
+                    for (Map.Entry<Object, Object> p : childMap.entrySet()) {
+                        if (DELETED.equals(p.getValue())) {
                             ctrl.props.remove(p.getKey());
                         } else {
                             ctrl.props.put(p.getKey(), p.getValue());
@@ -255,7 +253,7 @@ public class ProfileOverlayImpl implements Profile {
             Map<String, byte[]> rc = new HashMap<String, byte[]>();
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                 SupplementControl ctrl = entry.getValue();
-                if( ctrl.props!=null ) {
+                if (ctrl.props != null) {
                     ctrl.data = DataStoreHelpers.toBytes(ctrl.props);
                 }
                 rc.put(entry.getKey(), ctrl.data);
@@ -275,7 +273,7 @@ public class ProfileOverlayImpl implements Profile {
             Map<String, Map<String, String>> rc = new HashMap<String, Map<String, String>>();
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                 SupplementControl ctrl = entry.getValue();
-                if( ctrl.props!=null ) {
+                if (ctrl.props != null) {
                     rc.put(DataStoreHelpers.stripSuffix(entry.getKey(), ".properties"), DataStoreHelpers.toMap(ctrl.props));
                 }
             }
@@ -301,5 +299,17 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public boolean isHidden() {
         return self.isHidden();
+    }
+
+    /**
+     * Returns the time in milliseconds of the last modification of the profile.
+     */
+    @Override
+    public long getLastModfied() {
+        long lastModified = self.getLastModfied();
+        for (Profile p : getParents()) {
+            lastModified = Math.max(lastModified, p.getLastModfied());
+        }
+        return lastModified;
     }
 }

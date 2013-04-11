@@ -133,6 +133,8 @@ public interface DataStore {
 
     void setProfileAttribute(String version, String profile, String key, String value);
 
+    long getLastModified(String version, String profile);
+
     // File configurations, including Map based configurations
 
     Map<String, byte[]> getFileConfigurations(String version, String profile);

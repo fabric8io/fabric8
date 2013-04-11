@@ -59,4 +59,15 @@
 
     <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />
 
+    <!-- ZooKeeper url handler -->
+    <bean id="urlHandler" class="org.fusesource.fabric.service.ProfileUrlHandler">
+        <argument ref="fabricService"/>
+    </bean>
+
+    <service ref="urlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
+        <service-properties>
+            <entry key="url.handler.protocol" value="profile" />
+        </service-properties>
+    </service>
+
 </blueprint>

@@ -16,12 +16,7 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
@@ -35,11 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ContainerImpl implements Container {
 
@@ -197,8 +188,8 @@ public class ContainerImpl implements Container {
     private class ContainerProfile extends ProfileImpl {
         private ContainerProfile() {
             super("#container-" + ContainerImpl.this.id,
-                  ContainerImpl.this.getVersion().getId(),
-                  ContainerImpl.this.service);
+                    ContainerImpl.this.getVersion().getId(),
+                    ContainerImpl.this.service);
         }
 
         @Override
@@ -218,7 +209,7 @@ public class ContainerImpl implements Container {
 
         @Override
         public Container[] getAssociatedContainers() {
-            return new Container[] { ContainerImpl.this };
+            return new Container[]{ContainerImpl.this};
         }
 
         @Override
@@ -244,6 +235,18 @@ public class ContainerImpl implements Container {
         @Override
         public void delete() {
             throw new UnsupportedOperationException();
+        }
+
+        /**
+         * Returns the time in milliseconds of the last modification of the profile.
+         */
+        @Override
+        public long getLastModfied() {
+            long lastModified = 0;
+            for (Profile p : getProfiles()) {
+                lastModified = Math.max(lastModified, p.getLastModfied());
+            }
+            return lastModified;
         }
     }
 

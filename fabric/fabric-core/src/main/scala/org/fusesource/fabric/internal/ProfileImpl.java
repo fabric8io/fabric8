@@ -351,4 +351,12 @@ public class ProfileImpl implements Profile {
 		return Boolean.parseBoolean(getAttributes().get(HIDDEN));
 	}
 
+    /**
+     * Returns the time in milliseconds of the last modification of the profile.
+     */
+    @Override
+    public long getLastModfied() {
+        return getService().getDataStore().getLastModified(version, id);
+    }
+
 }
