@@ -219,6 +219,8 @@ public class ZooKeeperDataStore implements DataStore {
             byte[] decoded = Base64Encoder.decode(encoded);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
             return (CreateContainerMetadata) ois.readObject();
+        } catch (KeeperException.NoNodeException e) {
+            return null;
         } catch (Exception e) {
             throw new FabricException(e);
         }
