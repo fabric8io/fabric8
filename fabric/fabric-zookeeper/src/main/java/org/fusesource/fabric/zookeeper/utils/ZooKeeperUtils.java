@@ -193,9 +193,24 @@ public final class ZooKeeperUtils {
     }
 
     public static void setProperties(IZKClient zooKeeper, String path, Properties properties) throws InterruptedException, KeeperException {
-        StringWriter writer = new StringWriter();
         try {
-            properties.store(writer, null);
+            org.apache.felix.utils.properties.Properties p = new org.apache.felix.utils.properties.Properties();
+            String org = zooKeeper.getStringData(path);
+            if (org != null) {
+                p.load(new StringReader(org));
+            }
+            List<String> keys = new ArrayList<String>();
+            for (String key : properties.stringPropertyNames()) {
+                p.put(key, properties.getProperty(key));
+                keys.add(key);
+            }
+            List<String> deleted = new ArrayList<String>(p.keySet());
+            deleted.removeAll(keys);
+            for (String key : deleted) {
+                p.remove(key);
+            }
+            StringWriter writer = new StringWriter();
+            p.save(writer);
             zooKeeper.setData(path, writer.toString());
         } catch (IOException e) {}
     }

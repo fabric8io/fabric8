@@ -51,7 +51,8 @@
             org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
-            org.fusesource.fabric.utils
+            org.fusesource.fabric.utils,
+            org.apache.felix.utils.properties,
         </fuse.osgi.private.pkg>
     </properties>
 
