@@ -110,6 +110,28 @@ public class Files {
     }
 
     /**
+     * Writes {@link String} content to {@link File}.
+     *
+     * @param file
+     * @param content
+     * @throws IOException
+     */
+    public static void writeToFile(File file, byte[] content) throws IOException {
+        FileOutputStream fos = null;
+        try {
+            if (file == null) {
+                throw new FileNotFoundException("No file specified.");
+            } else if (!file.exists() && !file.getParentFile().exists() && !file.getParentFile().mkdirs()) {
+                throw new FileNotFoundException("Could not find or create file:" + file.getName());
+            }
+            fos = new FileOutputStream(file);
+            fos.write(content);
+        } finally {
+            Closeables.closeQuitely(fos);
+        }
+    }
+
+    /**
      * Copy the source {@link File} to the target {@link File}.
      * @param source
      * @param target

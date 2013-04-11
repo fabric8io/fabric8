@@ -41,7 +41,11 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -243,8 +247,59 @@ public class Bridge {
             StringWriter sw = new StringWriter();
             versionProps.save(sw);
             zookeeper.setData(zkNode, sw.toString());
+
         }
-        // TODO new git versions and deleted zk versions
+        // Metadata
+        Map<String, String> versionsMetadata = ZooKeeperUtils.getPropertiesAsMap(zookeeper, ZkPath.CONFIG_VERSIONS.getPath());
+        for (String version : zkVersions) {
+            versionsMetadata.put(version, "active");
+        }
+        // Handle versions in git and not in zookeeper
+        Map<String, Ref> locals = new HashMap<String, Ref>();
+        Map<String, Ref> remotes = new HashMap<String, Ref>();
+        Set<String> versions = new HashSet<String>();
+        for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
+            if (ref.getName().startsWith("refs/remotes/" + remoteName + "/")) {
+                String name = ref.getName().substring(("refs/remotes/" + remoteName + "/").length());
+                remotes.put(name, ref);
+                versions.add(name);
+            } else if (ref.getName().startsWith("refs/heads/")) {
+                String name = ref.getName().substring(("refs/heads/").length());
+                if (!name.endsWith("-tmp")) {
+                    locals.put(name, ref);
+                    versions.add(name);
+                }
+            }
+        }
+        // Iterate through known git versions
+        for (String version : versions) {
+            String state = versionsMetadata.get(version);
+            if (zkVersions.contains(version)) {
+                continue;
+            }
+            // The version is not known to zookeeper, so create it
+            if (state == null) {
+                if (locals.containsKey(version)) {
+                    if (remoteAvailable) {
+                        git.push().setRefSpecs(new RefSpec(version)).call();
+                    }
+                } else {
+                    git.branchCreate().setName(version).call();
+                    git.reset().setMode(ResetCommand.ResetType.HARD).setRef(remotes.get(version).getName()).call();
+                }
+
+                versionsMetadata.put("version", "active");
+                // TODO: import all profiles / containers
+            }
+            // The version has been deleted from zookeeper so delete it in git
+            else {
+                git.checkout().setName("master").setForce(true).call();
+                git.branchDelete().setBranchNames(version, version + "-tmp").setForce(true).call();
+                git.push().setRefSpecs(new RefSpec(version + ":")).call();
+                versionsMetadata.remove(version);
+            }
+        }
+        ZooKeeperUtils.setPropertiesAsMap(zookeeper, ZkPath.CONFIG_VERSIONS.getPath(), versionsMetadata);
     }
 
     private static List<String> list(File dir) {
