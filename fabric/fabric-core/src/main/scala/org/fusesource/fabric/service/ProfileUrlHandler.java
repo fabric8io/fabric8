@@ -46,33 +46,15 @@ public class ProfileUrlHandler extends AbstractURLStreamHandlerService {
 
         @Override
         public InputStream getInputStream() throws IOException {
-            String profileId = getProfileFromUrl(url);
-            String path = getProfileResourceFromUrl(url);
-            Profile profile = fabricService.getCurrentContainer().getVersion().getProfile(profileId);
+            String path = url.getPath();
+            Profile profile = fabricService.getCurrentContainer().getOverlayProfile();
+
             if (profile.getFileConfigurations().containsKey(path)) {
                 byte[] b = profile.getFileConfigurations().get(path);
                 return new ByteArrayInputStream(b);
             } else {
-                throw new IllegalArgumentException("Resource " + path + " does not exist for the profile:" + profileId);
+                throw new IllegalArgumentException("Resource " + path + " does not exist in the profile overlay.");
             }
-        }
-    }
-
-    public static String getProfileFromUrl(URL url) {
-        if (url.getHost() != null && !url.getHost().isEmpty()) {
-            return url.getHost();
-        } else {
-            String path = url.getPath();
-            return path.substring(0, url.getPath().indexOf("/"));
-        }
-    }
-
-    public static String getProfileResourceFromUrl(URL url) {
-        if (url.getHost() != null && !url.getHost().isEmpty()) {
-            return url.getPath();
-        } else {
-            String path = url.getPath();
-            return path.substring(url.getPath().indexOf("/") + 1);
         }
     }
 }

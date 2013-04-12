@@ -86,7 +86,7 @@ public class FabricConfigAdminBridge implements Runnable {
                 Dictionary props = config.getProperties();
                 Hashtable old = props != null ? new Hashtable() : null;
                 if (pid.equals(AGENT_PID)) {
-                    c.put(LAST_MODIFIED, String.valueOf(profile.getLastModfied()));
+                    c.put(LAST_MODIFIED, String.valueOf(profile.getLastModified()));
                 }
                 if (old != null) {
                     for (Enumeration e = props.keys(); e.hasMoreElements(); ) {

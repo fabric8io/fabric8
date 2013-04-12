@@ -355,7 +355,7 @@ public class ProfileImpl implements Profile {
      * Returns the time in milliseconds of the last modification of the profile.
      */
     @Override
-    public long getLastModfied() {
+    public long getLastModified() {
         return getService().getDataStore().getLastModified(version, id);
     }
 

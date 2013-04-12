@@ -164,5 +164,5 @@ public interface Profile extends Comparable<Profile>, HasId {
     /**
      * Returns the time in milliseconds of the last modification of the profile.
      */
-    long getLastModfied();
+    long getLastModified();
 }
