@@ -34,13 +34,13 @@
     </bean>
 
 
-    <bean id="zkDataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
+    <bean id="dataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
       <property name="zk" ref="zooKeeper"/>
     </bean>
 
-    <service ref="zkDataStore" interface="org.fusesource.fabric.api.DataStore"/>
+    <service ref="dataStore" interface="org.fusesource.fabric.api.DataStore"/>
 
-    <reference id="dataStore" interface="org.fusesource.fabric.api.DataStore" availability="optional"/>
+    <!--reference id="dataStore" interface="org.fusesource.fabric.api.DataStore" availability="optional"/-->
 
 
     <reference-list interface="org.fusesource.fabric.api.ContainerProvider" availability="optional">
