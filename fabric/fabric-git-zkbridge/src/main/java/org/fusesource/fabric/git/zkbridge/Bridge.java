@@ -18,24 +18,27 @@ package org.fusesource.fabric.git.zkbridge;
 
 import org.apache.felix.utils.properties.Properties;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.data.Stat;
 import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.transport.RefSpec;
 import org.fusesource.fabric.git.FabricGitService;
+import org.fusesource.fabric.groups.ChangeListener;
+import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,21 +59,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-public class Bridge {
+public class Bridge implements LifecycleListener, ChangeListener {
 
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
     public static final String METADATA = ".metadata";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);
 
+    private final ClusteredSingleton<GitZkBridgeNode> singleton = new ClusteredSingleton<GitZkBridgeNode>(GitZkBridgeNode.class);
+    private Group group;
+    private boolean connected = false;
+
     private FabricGitService gitService;
     private IZKClient zookeeper;
     private long period;
     private ScheduledExecutorService executors;
-
-    public void setGitService(FabricGitService gitService) {
-        this.gitService = gitService;
-    }
 
     public void setZookeeper(IZKClient zookeeper) {
         this.zookeeper = zookeeper;
@@ -80,13 +83,87 @@ public class Bridge {
         this.period = period;
     }
 
+    public void bindGitService(FabricGitService gitService) {
+        this.gitService = gitService;
+        if (connected) {
+            singleton.join(createState());
+        }
+    }
+
+    public void unbindGitService(FabricGitService gitService) {
+        if (connected) {
+            singleton.leave();
+        }
+        this.gitService = null;
+    }
+
+    @Override
+    public synchronized void onConnected() {
+        connected = true;
+        group = ZooKeeperGroupFactory.create(zookeeper, "/fabric/registry/clusters/gitzkbridge");
+        singleton.start(group);
+
+        if (gitService != null) {
+            singleton.join(createState());
+        }
+    }
+
+    @Override
+    public synchronized void onDisconnected() {
+        connected = false;
+        try {
+            if (group != null) {
+                group.close();
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to remove git server from registry.", e);
+        }
+    }
+
+    @Override
+    public void connected() {
+        changed();
+    }
+
+    @Override
+    public void disconnected() {
+        changed();
+    }
+
+    @Override
+    public void changed() {
+        if (singleton.isMaster()) {
+            LOGGER.info("Git/zk bridge is active");
+        } else {
+            LOGGER.info("Git/zk bridge is inactive");
+        }
+        try {
+            singleton.update(createState());
+        } catch (IllegalStateException e) {
+            // Ignore
+        }
+    }
+
+    GitZkBridgeNode createState() {
+        GitZkBridgeNode state = new GitZkBridgeNode();
+        state.setId("bridge");
+        state.setAgent(System.getProperty("karaf.name"));
+        if (singleton.isMaster()) {
+            state.setServices(new String[] { "bridge" });
+        }
+        return state;
+    }
+
     public void init() {
+        singleton.add(this);
         executors = Executors.newSingleThreadScheduledExecutor();
         executors.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
-                    update(gitService.get(), zookeeper);
+                    if (singleton.isMaster() && gitService != null) {
+                        update(gitService.get(), zookeeper);
+                    }
                 } catch (Exception e) {
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug("Unable to sync git/zookeeper", e);
@@ -100,6 +177,12 @@ public class Bridge {
 
     public void destroy() {
         executors.shutdown();
+        try {
+            singleton.leave();
+        } catch (IllegalStateException e) {
+            // Ignore
+        }
+        group.close();
     }
 
     public static void update(Git git, IZKClient zookeeper) throws Exception {
@@ -271,7 +354,7 @@ public class Bridge {
         List<String> gitProfiles = list(git.getRepository().getWorkTree());
         gitProfiles.remove(".git");
         gitProfiles.remove(METADATA);
-        gitProfiles.remove("containers.properties");
+        gitProfiles.remove(CONTAINERS_PROPERTIES);
         List<String> zkProfiles = zookeeper.getChildren(zkNode + "/profiles");
         for (String profile : zkProfiles) {
             File profileDir = new File(git.getRepository().getWorkTree(), profile);

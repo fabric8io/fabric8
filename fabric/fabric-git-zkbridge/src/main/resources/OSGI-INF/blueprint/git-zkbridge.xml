@@ -25,13 +25,20 @@
     </cm:property-placeholder>
 
     <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
-    <reference id="gitService" interface="org.fusesource.fabric.git.FabricGitService"/>
+    <reference id="gitService" interface="org.fusesource.fabric.git.FabricGitService" availability="optional">
+        <reference-listener ref="bridge" bind-method="bindGitService" unbind-method="unbindGitService"/>
+    </reference>
 
     <bean id="bridge" class="org.fusesource.fabric.git.zkbridge.Bridge"
           init-method="init" destroy-method="destroy">
         <property name="zookeeper" ref="zookeeper"/>
-        <property name="gitService" ref="gitService"/>
         <property name="period" value="${period}"/>
     </bean>
+
+    <service ref="bridge">
+        <interfaces>
+            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+        </interfaces>
+    </service>
 
 </blueprint>
