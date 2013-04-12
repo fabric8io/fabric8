@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
 
 public final class FabricValidations {
 
-    private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("[a-zA-Z0-9_-]+");
+    private static final Pattern ALLOWED_NAMES_PATTERN = Pattern.compile("[a-zA-Z0-9]+[a-zA-Z0-9_-]*");
 
 
     private FabricValidations() {
@@ -36,7 +36,7 @@ public final class FabricValidations {
     }
 
     public static void validateProfileName(String profileName) {
-        if (profileName == null || profileName.isEmpty() || !ALLOWED_NAMES_PATTERN.matcher(profileName).matches()) {
+        if (!isValidName(profileName)) {
             throw new IllegalArgumentException("Profile name '" + profileName + "' is invalid");
         }
     }
@@ -50,8 +50,12 @@ public final class FabricValidations {
     }
 
     public static void validateContainersName(String containerName) {
-        if (containerName == null || containerName.isEmpty() || !ALLOWED_NAMES_PATTERN.matcher(containerName).matches()) {
+        if (!isValidName(containerName)) {
             throw new IllegalArgumentException("Container name '" + containerName + "' is invalid");
         }
+    }
+
+    public static boolean isValidName(String containerName) {
+       return containerName != null && !containerName.isEmpty() && ALLOWED_NAMES_PATTERN.matcher(containerName).matches();
     }
 }
