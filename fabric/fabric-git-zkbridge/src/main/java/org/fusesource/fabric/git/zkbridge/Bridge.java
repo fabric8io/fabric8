@@ -88,7 +88,11 @@ public class Bridge {
                 try {
                     update(gitService.get(), zookeeper);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to sync git/zookeeper", e);
+                    } else {
+                        LOGGER.info("Unable to sync git / zookeeper: " + e.getClass().getName() + ": " + e.getMessage());
+                    }
                 }
             }
         }, period, period, TimeUnit.MILLISECONDS);
@@ -205,11 +209,10 @@ public class Bridge {
             // Apply changes to git
             syncVersionFromZkToGit(git, zookeeper, zkNode);
 
-
             if (git.status().call().isClean()) {
                 git.checkout().setName(version).setForce(true).call();
             } else {
-                ObjectId rev = git.commit().setMessage("Merge zookeeper update").call().getId();
+                ObjectId rev = git.commit().setMessage("Merge zookeeper updates in version " + version).call().getId();
                 git.checkout().setName(version).setForce(true).call();
                 MergeResult result = git.merge().setStrategy(MergeStrategy.OURS).include(rev).call();
                 // TODO: check merge conflicts
