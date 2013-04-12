@@ -18,12 +18,13 @@ package org.fusesource.fabric.service;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.utils.Base64Encoder;
+import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.ObjectUtils;
+import org.fusesource.fabric.utils.ChecksumUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -38,7 +39,9 @@ import org.osgi.framework.FrameworkUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.net.URL;
 import java.util.*;
 
 /**
@@ -752,6 +755,17 @@ public class ZooKeeperDataStore implements DataStore {
                             return targetProps.get(propertyKey);
                         } else {
                             return key;
+                        }
+                    } else if (key.startsWith("checksum:")) {
+                        InputStream is = null;
+                        try {
+                            URL url = new URL(key.substring("checksum:".length()));
+                            is = url.openStream();
+                            return String.valueOf(ChecksumUtils.checksum(is));
+                        } catch (Exception ex) {
+                            return "0";
+                        } finally {
+                            Closeables.closeQuitely(is);
                         }
                     } else {
                         String value = "";
