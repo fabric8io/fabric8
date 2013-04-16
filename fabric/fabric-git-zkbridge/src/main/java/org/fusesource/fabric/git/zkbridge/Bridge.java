@@ -22,12 +22,17 @@ import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
+import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.RebaseResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.MergeStrategy;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.ClusteredSingleton;
@@ -92,7 +97,11 @@ public class Bridge implements LifecycleListener, ChangeListener {
 
     public void unbindGitService(FabricGitService gitService) {
         if (connected) {
-            singleton.leave();
+            try {
+                singleton.leave();
+            } catch (IllegalStateException e) {
+                // Ignore
+            }
         }
         this.gitService = null;
     }
@@ -161,8 +170,15 @@ public class Bridge implements LifecycleListener, ChangeListener {
             @Override
             public void run() {
                 try {
-                    if (singleton.isMaster() && gitService != null) {
-                        update(gitService.get(), zookeeper);
+                    if (gitService != null) {
+                        String user = "karaf";
+                        String password = "karaf";
+                        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user, password);
+                        if (singleton.isMaster()) {
+                            update(gitService.get(), zookeeper, cp);
+                        } else {
+                            updateLocal(gitService.get(), zookeeper, cp);
+                        }
                     }
                 } catch (Exception e) {
                     if (LOGGER.isDebugEnabled()) {
@@ -185,14 +201,60 @@ public class Bridge implements LifecycleListener, ChangeListener {
         group.close();
     }
 
+    public static void updateLocal(Git git, IZKClient zookeeper, CredentialsProvider credentialsProvider) throws Exception {
+        String remoteName = "origin";
+
+        try {
+            git.fetch().setCredentialsProvider(credentialsProvider).setRemote(remoteName).call();
+        } catch (Exception e) {
+            // Ignore fetch exceptions
+            return;
+        }
+
+        // Handle versions in git and not in zookeeper
+        Map<String, Ref> localBranches = new HashMap<String, Ref>();
+        Map<String, Ref> remoteBranches = new HashMap<String, Ref>();
+        Set<String> gitVersions = new HashSet<String>();
+        for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
+            if (ref.getName().startsWith("refs/remotes/" + remoteName + "/")) {
+                String name = ref.getName().substring(("refs/remotes/" + remoteName + "/").length());
+                if (!"master".equals(name) && !name.endsWith("-tmp")) {
+                    remoteBranches.put(name, ref);
+                    gitVersions.add(name);
+                }
+            } else if (ref.getName().startsWith("refs/heads/")) {
+                String name = ref.getName().substring(("refs/heads/").length());
+                if (!name.equals("master") && !name.endsWith("-tmp")) {
+                    localBranches.put(name, ref);
+                    gitVersions.add(name);
+                }
+            }
+        }
+
+        // Check git commmits
+        for (String version : gitVersions) {
+            String localCommit = localBranches.get(version).getObjectId().getName();
+            String remoteCommit = remoteBranches.get(version).getObjectId().getName();
+            if (!localCommit.equals(remoteCommit)) {
+                git.clean().setCleanDirectories(true).call();
+                git.checkout().setName("HEAD").setForce(true).call();
+                git.checkout().setName(version).setForce(true).call();
+                MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
+                // TODO: handle conflicts
+            }
+        }
+    }
+
     public static void update(Git git, IZKClient zookeeper) throws Exception {
+        update(git, zookeeper, null);
+    }
+
+    public static void update(Git git, IZKClient zookeeper, CredentialsProvider credentialsProvider) throws Exception {
         String remoteName = "origin";
 
         boolean remoteAvailable = false;
         try {
-            FetchCommand fetch = git.fetch();
-            fetch.setRemote(remoteName);
-            fetch.call();
+            git.fetch().setCredentialsProvider(credentialsProvider).setRemote(remoteName).call();
             remoteAvailable = true;
         } catch (Exception e) {
             // Ignore fetch exceptions
@@ -205,7 +267,7 @@ public class Bridge implements LifecycleListener, ChangeListener {
         for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
             if (ref.getName().startsWith("refs/remotes/" + remoteName + "/")) {
                 String name = ref.getName().substring(("refs/remotes/" + remoteName + "/").length());
-                if (!"master".equals(name)) {
+                if (!"master".equals(name) && !name.endsWith("-tmp")) {
                     remoteBranches.put(name, ref);
                     gitVersions.add(name);
                 }
@@ -280,17 +342,26 @@ public class Bridge implements LifecycleListener, ChangeListener {
                 git.branchCreate().setName(version + "-tmp").call();
             }
             git.clean().setCleanDirectories(true).call();
-            if (remote != null) {
-                git.rebase().setUpstream(remote.getObjectId()).call();
+            git.checkout().setName("HEAD").setForce(true).call();
+            git.checkout().setName(version).setForce(true).call();
+            if (remoteAvailable && remote != null) {
+                MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remote.getObjectId()).call();
+                // TODO: check merge conflicts
             }
             git.checkout().setName(version + "-tmp").setForce(true).call();
             String gitCommit = versionsMetadata.get(version);
             if (gitCommit != null) {
-                git.reset().setMode(ResetCommand.ResetType.HARD).setRef(gitCommit).call();
+                try {
+                    git.reset().setMode(ResetCommand.ResetType.HARD).setRef(gitCommit).call();
+                } catch (Exception e) {
+                    // Ignore, we did our best
+                    e.printStackTrace();
+                }
             }
 
             // Apply changes to git
             syncVersionFromZkToGit(git, zookeeper, zkNode);
+
 
             if (git.status().call().isClean()) {
                 git.checkout().setName(version).setForce(true).call();
@@ -301,7 +372,7 @@ public class Bridge implements LifecycleListener, ChangeListener {
                 // TODO: check merge conflicts
             }
             if (remoteAvailable) {
-                git.push().setRefSpecs(new RefSpec(version)).call();
+                git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(version)).call();
             }
 
             // Apply changes to zookeeper

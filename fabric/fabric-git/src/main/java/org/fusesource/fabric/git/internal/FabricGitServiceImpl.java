@@ -87,13 +87,20 @@ public class FabricGitServiceImpl implements FabricGitService, LifecycleListener
 
 	@Override
 	public void changed() {
+        String masterUrl = null;
 		GitNode[] masters = watcher.masters();
-		if (masters == null || masters.length == 0) {
-			return;
-		}
+		if (masters != null && masters.length > 0
+                && !masters[0].getAgent().equals(System.getProperty("karaf.name"))) {
+            masterUrl = masters[0].getUrl();
+        }
 		try {
 			StoredConfig config = get().getRepository().getConfig();
-			config.setString("remote", "origin", "url", ZooKeeperUtils.getSubstitutedData(zookeeper,masters[0].getUrl()));
+            if (masterUrl != null) {
+                config.setString("remote", "origin", "url", ZooKeeperUtils.getSubstitutedData(zookeeper,masters[0].getUrl()));
+                config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+            } else {
+                config.unsetSection("remote", "origin");
+            }
 			config.save();
 		} catch (Exception e) {
 			LOGGER.error("Failed to point origin to the new master.", e);
@@ -119,6 +126,7 @@ public class FabricGitServiceImpl implements FabricGitService, LifecycleListener
 
 	@Override
 	public void onDisconnected() {
+        watcher.stop();
 		group.close();
 	}
 }
