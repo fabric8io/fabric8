@@ -98,7 +98,8 @@ public enum ZkPath {
     CLOUD_NODE                     ("/fabric/registry/cloud/nodes/{id}"),
     CLOUD_NODE_IDENTITY            ("/fabric/registry/cloud/nodes/{id}/identity"),
     CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
-    POLICIES                       ("/fabric/registry/policies/{policy}");
+    POLICIES                       ("/fabric/registry/policies/{policy}"),
+    LOCK                           ("{path}/0");
 
 	private static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
 
