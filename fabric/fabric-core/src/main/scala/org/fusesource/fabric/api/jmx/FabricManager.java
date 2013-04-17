@@ -28,6 +28,7 @@ import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public CreateContainerMetadata<?>[] createContainers(Map<String, String> options) {
+    public Map<String, String> createContainers(Map<String, String> options) {
 
         String providerType = options.get("providerType");
 
@@ -118,7 +119,17 @@ public class FabricManager implements FabricManagerMBean {
         createContainerOptions.setZookeeperPassword(getFabricService().getZookeeperPassword());
         createContainerOptions.setZookeeperUrl(getFabricService().getZookeeperUrl());
 
-        return getFabricService().createContainers(createContainerOptions);
+        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(createContainerOptions);
+
+        Map<String, String> rc = new HashMap<String, String>();
+
+        for(CreateContainerMetadata<?> metadata : metadatas) {
+            if (!metadata.isSuccess()) {
+                rc.put(metadata.getContainerName(), metadata.getFailure().getMessage());
+            }
+        }
+
+        return rc;
     }
 
     @Override

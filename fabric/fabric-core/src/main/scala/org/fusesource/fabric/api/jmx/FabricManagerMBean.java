@@ -17,7 +17,6 @@
 package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricStatus;
 
@@ -32,7 +31,7 @@ import java.util.Map;
  */
 public interface FabricManagerMBean {
 
-    CreateContainerMetadata<?>[] createContainers(Map<String, String> options);
+    Map<String, String> createContainers(Map<String, String> options);
 
     ProfileDTO createProfile(String version, String name);
 
