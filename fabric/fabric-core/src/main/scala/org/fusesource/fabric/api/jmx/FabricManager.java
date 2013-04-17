@@ -115,6 +115,9 @@ public class FabricManager implements FabricManagerMBean {
             throw new RuntimeException("Unknown provider type : " + providerType);
         }
 
+        createContainerOptions.setZookeeperPassword(getFabricService().getZookeeperPassword());
+        createContainerOptions.setZookeeperUrl(getFabricService().getZookeeperUrl());
+
         return getFabricService().createContainers(createContainerOptions);
     }
 
