@@ -16,15 +16,8 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.FabricStatus;
-import org.fusesource.fabric.api.Ids;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,8 +90,32 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public CreateContainerMetadata[] createContainers(CreateContainerOptions options) {
-        return getFabricService().createContainers(options);
+    public CreateContainerMetadata<?>[] createContainers(Map<String, String> options) {
+
+        String providerType = options.get("providerType");
+
+        if (providerType == null) {
+            throw new RuntimeException("No providerType provided");
+        }
+
+        CreateContainerOptions createContainerOptions = null;
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        if (providerType.equals("child")) {
+            createContainerOptions = mapper.convertValue(options, CreateContainerChildOptions.class);
+            createContainerOptions.setResolver(null);
+        } else if (providerType.equals("ssh")) {
+            createContainerOptions = mapper.convertValue(options, CreateSshContainerOptions.class);
+        } else if (providerType.equals("jclouds")) {
+            createContainerOptions = mapper.convertValue(options, CreateJCloudsContainerOptions.class);
+        }
+
+        if (createContainerOptions == null) {
+            throw new RuntimeException("Unknown provider type : " + providerType);
+        }
+
+        return getFabricService().createContainers(createContainerOptions);
     }
 
     @Override

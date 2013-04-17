@@ -18,7 +18,6 @@ package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricStatus;
 
@@ -32,7 +31,8 @@ import java.util.Map;
  * <bNote></b> this MBean will not be usable remotely unless you use Jolokia or you have Fabric on your classpath!
  */
 public interface FabricManagerMBean {
-    CreateContainerMetadata[] createContainers(CreateContainerOptions options);
+
+    CreateContainerMetadata<?>[] createContainers(Map<String, String> options);
 
     ProfileDTO createProfile(String version, String name);
 
