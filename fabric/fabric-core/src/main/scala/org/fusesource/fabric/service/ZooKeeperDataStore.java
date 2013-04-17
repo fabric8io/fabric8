@@ -127,7 +127,11 @@ public class ZooKeeperDataStore implements DataStore {
     @Override
     public String getContainerParent(String containerId) {
         try {
-            return zk.getStringData(ZkPath.CONTAINER_PARENT.getPath(containerId)).trim();
+            String parent = zk.getStringData(ZkPath.CONTAINER_PARENT.getPath(containerId));
+            if (parent == null) {
+                return "";
+            }
+            return parent.trim();
         } catch (KeeperException.NoNodeException e) {
             // Ignore
             return "";
