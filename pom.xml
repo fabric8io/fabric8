@@ -831,6 +831,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-git-zkbridge</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.fusesource.fabric.virt</groupId>
                 <artifactId>org.fusesource.fabric.virt.commands</artifactId>
                 <version>${project.version}</version>

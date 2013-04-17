@@ -284,4 +284,29 @@ public final class ZooKeeperUtils {
         return lastModified;
     }
 
+
+    private static String CONTAINERS_NODE = "/fabric/authentication/containers";
+
+    public static String getContainerLogin(String container) {
+        return "container#" + container;
+    }
+
+    public static boolean isContainerLogin(String login) {
+        return login.startsWith("container#");
+    }
+
+    public static Properties getContainerTokens(IZKClient zooKeeper) throws KeeperException, InterruptedException {
+        Properties props = new Properties();
+        for (String key : zooKeeper.getChildren(CONTAINERS_NODE)) {
+            props.setProperty("container#" + key, zooKeeper.getStringData(CONTAINERS_NODE + "/" + key));
+        }
+        return props;
+    }
+
+    public static String generateContainerToken(IZKClient zooKeeper, String container) throws KeeperException, InterruptedException {
+        String password = generatePassword();
+        set(zooKeeper, CONTAINERS_NODE + "/" + container, password);
+        return password;
+    }
+
 }

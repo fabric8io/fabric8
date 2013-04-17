@@ -171,9 +171,10 @@ public class Bridge implements LifecycleListener, ChangeListener {
             public void run() {
                 try {
                     if (gitService != null) {
-                        String user = "karaf";
-                        String password = "karaf";
-                        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(user, password);
+                        String container = System.getProperty("karaf.name");
+                        String login = ZooKeeperUtils.getContainerLogin(container);
+                        String token = ZooKeeperUtils.generateContainerToken(zookeeper, container);
+                        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
                         if (singleton.isMaster()) {
                             update(gitService.get(), zookeeper, cp);
                         } else {
@@ -258,6 +259,11 @@ public class Bridge implements LifecycleListener, ChangeListener {
             remoteAvailable = true;
         } catch (Exception e) {
             // Ignore fetch exceptions
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Unable to fetch master", e);
+            } else if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Unable to fetch master: " + e.getClass().getName() + ": " + e.getMessage());
+            }
         }
 
         // Handle versions in git and not in zookeeper
@@ -355,13 +361,16 @@ public class Bridge implements LifecycleListener, ChangeListener {
                     git.reset().setMode(ResetCommand.ResetType.HARD).setRef(gitCommit).call();
                 } catch (Exception e) {
                     // Ignore, we did our best
-                    e.printStackTrace();
+                    if (LOGGER.isTraceEnabled()) {
+                        LOGGER.trace("Unable to reset branch to commit", e);
+                    } else if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to reset branch to commit " + gitCommit + ": " + e.getClass().getName() + ": " + e.getMessage());
+                    }
                 }
             }
 
             // Apply changes to git
             syncVersionFromZkToGit(git, zookeeper, zkNode);
-
 
             if (git.status().call().isClean()) {
                 git.checkout().setName(version).setForce(true).call();

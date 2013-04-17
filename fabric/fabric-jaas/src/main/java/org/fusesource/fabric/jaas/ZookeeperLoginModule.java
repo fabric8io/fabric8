@@ -45,11 +45,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule {
+
     public static final ThreadLocal<IZKClient> ZOOKEEPER_CONTEXT = new ThreadLocal<IZKClient>();
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
     private boolean debug = false;
     private static Properties users = new Properties();
+    private static Properties containers = new Properties();
 
     EncryptionSupport encryptionSupport;
 
@@ -66,18 +68,18 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
                 try {
                     zookeeper = (IZKClient) bundleContext.getService(serviceReference);
                     users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
+                    containers = ZooKeeperUtils.getContainerTokens(zookeeper);
                 } catch (Exception e) {
                     LOG.warn("Failed fetching authentication data.", e);
                 } finally {
-                    if (serviceReference != null) {
-                        bundleContext.ungetService(serviceReference);
-                    }
+                    bundleContext.ungetService(serviceReference);
                 }
             }
         } else {
             // non-osgi env.
             try {
                 users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
+                containers = ZooKeeperUtils.getContainerTokens(zookeeper);
             } catch (Exception e) {
                 LOG.warn("Failed fetching authentication data.", e);
             }
@@ -109,26 +111,45 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         if (user == null) {
             throw new FailedLoginException("user name is null");
         }
-        String userInfos = users.getProperty(user);
 
-        if (userInfos == null) {
-            throw new FailedLoginException("User doesn't exist");
+        if (ZooKeeperUtils.isContainerLogin(user)) {
+            String token = containers.getProperty(user);
+
+            if (token == null) {
+                throw new FailedLoginException("Container doesn't exist");
+            }
+
+            // the password is in the first position
+            if (!new String(tmpPassword).equals(token)) {
+                throw new FailedLoginException("Tokens do not match");
+            }
+            principals = new HashSet<Principal>();
+            principals.add(new UserPrincipal(user));
+            principals.add(new RolePrincipal("container"));
+            principals.add(new RolePrincipal("admin"));
+            subject.getPrivateCredentials().add(new String(tmpPassword));
+        } else {
+            String userInfos = users.getProperty(user);
+
+            if (userInfos == null) {
+                throw new FailedLoginException("User doesn't exist");
+            }
+
+            // the password is in the first position
+            String[] infos = userInfos.split(",");
+            String password = infos[0];
+
+            if (!checkPassword(new String(tmpPassword), password)) {
+                throw new FailedLoginException("Password does not match");
+            }
+
+            principals = new HashSet<Principal>();
+            principals.add(new UserPrincipal(user));
+            for (int i = 1; i < infos.length; i++) {
+                principals.add(new RolePrincipal(infos[i]));
+            }
+            subject.getPrivateCredentials().add(new String(tmpPassword));
         }
-
-        // the password is in the first position
-        String[] infos = userInfos.split(",");
-        String password = infos[0];
-
-        if (!checkPassword(new String(tmpPassword), password)) {
-            throw new FailedLoginException("Password does not match");
-        }
-
-        principals = new HashSet<Principal>();
-        principals.add(new UserPrincipal(user));
-        for (int i = 1; i < infos.length; i++) {
-            principals.add(new RolePrincipal(infos[i]));
-        }
-        subject.getPrivateCredentials().add(new String(tmpPassword));
 
         if (debug) {
             LOG.debug("Successfully logged in {}", user);

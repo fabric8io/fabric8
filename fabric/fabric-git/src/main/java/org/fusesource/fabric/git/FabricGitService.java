@@ -23,8 +23,5 @@ import java.io.IOException;
 
 public interface FabricGitService {
 
-	int DEFAULT_TIMEOUT = 10000;
-	String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
-
 	Git get() throws IOException;
 }

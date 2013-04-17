@@ -41,7 +41,9 @@ import java.nio.charset.Charset;
 
 public class FabricGitServiceImpl implements FabricGitService, LifecycleListener, ChangeListener {
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
+    public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
 	private Group group;
 	private IZKClient zookeeper;
