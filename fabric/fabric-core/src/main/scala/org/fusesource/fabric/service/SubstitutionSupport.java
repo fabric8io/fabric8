@@ -21,6 +21,7 @@ import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.osgi.framework.BundleContext;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
@@ -40,6 +41,12 @@ public abstract class SubstitutionSupport {
     public synchronized void unbind(PlaceholderResolver resolver) {
         if (resolver != null) {
             placeholderResolvers.remove(resolver.getScheme());
+        }
+    }
+
+    public void setPlaceholderResolvers(List<PlaceholderResolver> resolvers) {
+        for (PlaceholderResolver resolver : resolvers) {
+            bind(resolver);
         }
     }
 
@@ -65,7 +72,7 @@ public abstract class SubstitutionSupport {
                                 return placeholderResolvers.get(scheme).resolve(pid, key, toSubstitute);
                             }
                         }
-                        return substituteBundleProperty(key, getBundleContext());
+                        return substituteBundleProperty(toSubstitute, getBundleContext());
                     }
                 }));
             }

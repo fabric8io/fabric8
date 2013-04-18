@@ -56,7 +56,15 @@
     </bean>
 
     <bean id="dataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
-      <property name="zk" ref="zooKeeper"/>
+        <property name="zk" ref="zooKeeper"/>
+        <property name="placeholderResolvers">
+            <list>
+                <ref component-id="checksumResolver"/>
+                <ref component-id="profilePropertyPointResolver"/>
+                <ref component-id="zookeeperResolver"/>
+                <ref component-id="portResolver"/>
+            </list>
+        </property>
     </bean>
 
     <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init">
@@ -81,7 +89,6 @@
     <bean id="zookeeperResolver" class="org.fusesource.fabric.service.ZookeeperPlaceholderResolver">
         <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
-
     <bean id="portResolver" class="org.fusesource.fabric.service.PortPlaceholderResolver">
         <property name="fabricService" ref="fabricService"/>
     </bean>
@@ -112,10 +119,5 @@
     </service>
 
     <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />
-
-    <service ref="checksumResolver" interface="org.fusesource.fabric.api.PlaceholderResolver"/>
-    <service ref="profilePropertyPointResolver" interface="org.fusesource.fabric.api.PlaceholderResolver"/>
-    <service ref="zookeeperResolver" interface="org.fusesource.fabric.api.PlaceholderResolver"/>
-    <service ref="portResolver" interface="org.fusesource.fabric.api.PlaceholderResolver"/>
 
 </blueprint>
