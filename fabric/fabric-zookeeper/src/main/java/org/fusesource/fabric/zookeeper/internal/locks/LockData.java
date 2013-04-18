@@ -22,7 +22,7 @@ public class LockData {
 
     private final Thread thread;
     private final String lockPath;
-    private final AtomicInteger count = new AtomicInteger();
+    private final AtomicInteger count = new AtomicInteger(1);
 
     public LockData(Thread thread, String lockPath) {
         this.thread = thread;

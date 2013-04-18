@@ -20,10 +20,20 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.Lock;
 import org.fusesource.fabric.zookeeper.LockService;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class LockServiceImpl implements LockService {
 
+    private final Map<String, Lock> locks = new HashMap<String, Lock>();
+
     @Override
-    public Lock getLock(IZKClient zooKeeper, String path) {
-        return new LockImpl(zooKeeper, path);
+    public synchronized Lock getLock(IZKClient zooKeeper, String path) {
+        if (locks.containsKey(path)) {
+            return locks.get(path);
+        } else {
+            locks.put(path, new LockImpl(zooKeeper, path));
+            return locks.get(path);
+        }
     }
 }
