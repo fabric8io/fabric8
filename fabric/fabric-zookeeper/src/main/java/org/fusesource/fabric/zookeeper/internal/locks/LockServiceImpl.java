@@ -6,18 +6,8 @@ import org.fusesource.fabric.zookeeper.LockService;
 
 public class LockServiceImpl implements LockService {
 
-    private IZKClient zooKeeper;
-
     @Override
-    public Lock getLock(String path) {
+    public Lock getLock(IZKClient zooKeeper, String path) {
         return new LockImpl(zooKeeper, path);
-    }
-
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
-    }
-
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
     }
 }

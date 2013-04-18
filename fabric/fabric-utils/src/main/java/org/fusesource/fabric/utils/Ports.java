@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,7 @@ public class Ports {
     public static final int DEFAULT_ZOOKEEPER_ELECTION_PORT = 3888;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
+    public static final int DEFAULT_HTTP_PORT = 8181;
 
 
     public static final int MIN_PORT_NUMBER = 0;
@@ -45,8 +48,26 @@ public class Ports {
         //Utility Class
     }
 
+
+    /**
+     * Returns a {@link Set} of used ports within the range.
+     * @param fromPort
+     * @param toPort
+     * @return
+     */
+    public static Set<Integer> findUsedPorts(int fromPort, int toPort) {
+        Set<Integer> usedPorts = new HashSet<Integer>();
+        for (int port = fromPort; port <= toPort; port++) {
+            if (!isPortFree(port)) {
+                usedPorts.add(port);
+            }
+        }
+        return usedPorts;
+    }
+
     /**
      * Finds a port based on the given ip and the used ports for that ip.
+     *
      * @param usedPorts
      * @param ip
      * @param port
@@ -69,25 +90,27 @@ public class Ports {
 
     /**
      * Finds a the next free local port, based on the list of used ports and the ability to directly check if port is free.
+     *
      * @param usedPorts
-     * @param port
+     * @param fromPort
+     * @param toPort
      * @param checkIfAvailable
      * @return
      */
-    public static int findFreeLocalPort(List<Integer> usedPorts,  int port, boolean checkIfAvailable) {
-        for (; ; ) {
+    public static int findFreeLocalPort(Set<Integer> usedPorts, int fromPort, int toPort, boolean checkIfAvailable) {
+        for (int port = fromPort; port < toPort; port++) {
             if (checkIfAvailable && !isPortFree(port)) {
-                usedPorts.add(port);
+                continue;
             } else if (!usedPorts.contains(port)) {
-                usedPorts.add(port);
                 return port;
             }
-            port++;
         }
+        throw new RuntimeException("No port available within range");
     }
 
     /**
      * Maps the target port inside a port range.
+     *
      * @param port
      * @param minimumPort
      * @param maximumPort
@@ -110,6 +133,7 @@ public class Ports {
 
     /**
      * Maps the target port inside a port range.
+     *
      * @param port
      * @param minimumPort
      * @param maximumPort
@@ -139,6 +163,7 @@ public class Ports {
 
     /**
      * Checks if a local port is free.
+     *
      * @param port
      * @return
      */
@@ -175,16 +200,17 @@ public class Ports {
 
     /**
      * Extracts the port from an addrees.
+     *
      * @param address
      * @return
      */
     public static int extractPort(String address) {
-       Pattern p = Pattern.compile(PORT_PATTERN);
-       Matcher m  = p.matcher(address);
-       if (m.find()) {
-           String match = m.group().substring(1);
-           return Integer.parseInt(match);
-       }
-       return 0;
+        Pattern p = Pattern.compile(PORT_PATTERN);
+        Matcher m = p.matcher(address);
+        if (m.find()) {
+            String match = m.group().substring(1);
+            return Integer.parseInt(match);
+        }
+        return 0;
     }
 }

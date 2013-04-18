@@ -16,22 +16,28 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.FabricStatus;
+import org.fusesource.fabric.api.PatchService;
+import org.fusesource.fabric.api.PortService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.FileSystem;
 import org.fusesource.fabric.api.jmx.HealthCheck;
 import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
-import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.internal.VersionImpl;
-import org.fusesource.fabric.utils.Base64Encoder;
-import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.Configuration;
@@ -42,10 +48,14 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PARENT;
 
 public class FabricServiceImpl implements FabricService {
 
@@ -56,6 +66,7 @@ public class FabricServiceImpl implements FabricService {
 
     private IZKClient zooKeeper;
     private DataStore dataStore;
+    private PortService portService;
     private Map<String, ContainerProvider> providers;
     private ConfigurationAdmin configurationAdmin;
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
@@ -95,6 +106,10 @@ public class FabricServiceImpl implements FabricService {
         return zooKeeper;
     }
 
+    public void setZooKeeper(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
+    }
+
     public void setDataStore(DataStore dataStore) {
         this.dataStore = dataStore;
     }
@@ -103,8 +118,12 @@ public class FabricServiceImpl implements FabricService {
         return dataStore;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public PortService getPortService() {
+        return portService;
+    }
+
+    public void setPortService(PortService portService) {
+        this.portService = portService;
     }
 
     public HealthCheck getHealthCheck() {
@@ -230,6 +249,7 @@ public class FabricServiceImpl implements FabricService {
         LOGGER.info("Destroying container {}", containerId);
         ContainerProvider provider = getProvider(container);
         provider.destroy(container);
+        portService.unRegisterPort(container);
 
         try {
             getDataStore().deleteContainer(container.getId());

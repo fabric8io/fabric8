@@ -41,6 +41,7 @@ public interface Container extends HasId {
     boolean isRoot();
     String getSshUrl();
     String getJmxUrl();
+    String getHttpUrl();
 
     boolean isManaged();
 

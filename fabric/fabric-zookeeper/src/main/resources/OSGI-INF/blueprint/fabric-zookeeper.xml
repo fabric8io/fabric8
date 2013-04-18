@@ -19,17 +19,13 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
     <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
-
     <!-- Zookeeper client -->
     <bean id="zkClient" class="org.fusesource.fabric.zookeeper.internal.OsgiZkClient" init-method="start" destroy-method="close">
         <property name="bundleContext" ref="blueprintBundleContext" />
         <property name="configurationAdmin" ref="configAdmin" />
     </bean>
 
-    <bean id="lockService" class="org.fusesource.fabric.zookeeper.internal.locks.LockServiceImpl">
-        <property name="zooKeeper" ref="zkClient"/>
-    </bean>
-
+    <bean id="lockService" class="org.fusesource.fabric.zookeeper.internal.locks.LockServiceImpl"/>
 
     <!-- ZooKeeper url handler -->
     <bean id="urlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
@@ -40,23 +36,6 @@
             <entry key="url.handler.protocol" value="zk" />
         </service-properties>
     </service>
-    
-    <!-- The karaf container registration -->
-    <bean id="karafContainerRegistration" class="org.fusesource.fabric.zookeeper.internal.KarafContainerRegistration" destroy-method="destroy" depends-on="zkServerFactory">
-        <property name="configurationAdmin" ref="configAdmin" />
-        <property name="bundleContext" ref="blueprintBundleContext" />
-        <property name="zooKeeper" ref="zkClient" />
-    </bean>
-    <service ref="karafContainerRegistration">
-        <interfaces>
-            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
-            <value>org.osgi.service.cm.ConfigurationListener</value>
-        </interfaces>
-    </service>
-
-    <reference interface="javax.management.MBeanServer">
-        <reference-listener ref="karafContainerRegistration" bind-method="registerMBeanServer" unbind-method="unregisterMBeanServer" />
-    </reference>
 
     <!-- ZooKeeper server -->
     <bean id="zkServerFactory" class="org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean" destroy-method="destroy">

@@ -120,6 +120,11 @@ public class ContainerImpl implements Container {
     }
 
     @Override
+    public String getHttpUrl() {
+        return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.HttpUrl);
+    }
+
+    @Override
     public boolean isManaged() {
         return getProvisionResult() != null;
     }

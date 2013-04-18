@@ -13,11 +13,12 @@ import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
-import static org.easymock.EasyMock.eq;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class LockImplTest {
 
@@ -32,6 +33,22 @@ public class LockImplTest {
         expect(zooKeeper.create(ZkPath.LOCK.getPath(path), CreateMode.EPHEMERAL_SEQUENTIAL)).andReturn("/my/lock/" + id).once();
         expect(zooKeeper.getChildren(path)).andReturn(Arrays.asList(id)).once();
         replay(zooKeeper);
+        assertTrue(lock.tryLock(30, TimeUnit.SECONDS));
+        verify(zooKeeper);
+    }
+
+    @Test
+    public void testLockReentrance() throws KeeperException, InterruptedException {
+        String id = "00000001";
+        IZKClient zooKeeper = createMock(IZKClient.class);
+        String path = "/my/lock";
+        LockImpl lock = new LockImpl(zooKeeper, path);
+
+        expect(zooKeeper.exists(path)).andReturn(new Stat()).times(2);
+        expect(zooKeeper.create(ZkPath.LOCK.getPath(path), CreateMode.EPHEMERAL_SEQUENTIAL)).andReturn("/my/lock/" + id).once();
+        expect(zooKeeper.getChildren(path)).andReturn(Arrays.asList(id)).times(2);
+        replay(zooKeeper);
+        assertTrue(lock.tryLock(30, TimeUnit.SECONDS));
         assertTrue(lock.tryLock(30, TimeUnit.SECONDS));
         verify(zooKeeper);
     }

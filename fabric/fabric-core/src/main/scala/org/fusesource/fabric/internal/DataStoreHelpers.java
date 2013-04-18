@@ -16,7 +16,12 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.utils.ChecksumUtils;
+import org.fusesource.fabric.utils.Closeables;
+import org.osgi.framework.BundleContext;
+
 import java.io.*;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -69,4 +74,56 @@ public class DataStoreHelpers {
         rc.load(new StringReader(source));
         return rc;
     }
+
+    /**
+     * Substitutes a placeholder with the checksum:[url] format with the checksum of the urls target.
+     * @param key
+     * @return  The checksum or 0.
+     */
+    public static String substituteChecksum(String key) {
+        InputStream is = null;
+        try {
+            URL url = new URL(key.substring("checksum:".length()));
+            is = url.openStream();
+            return String.valueOf(ChecksumUtils.checksum(is));
+        } catch (Exception ex) {
+            return "0";
+        } finally {
+            Closeables.closeQuitely(is);
+        }
+    }
+
+    /**
+     * Substitutes a placeholder with profile:[property file]/[key], with the target value.
+     * @param key
+     * @param configs
+     * @return  The target value or the key as is.
+     */
+    public static String substituteProfileProperty(String key, Map<String, Map<String, String>> configs) {
+        String pid = key.substring("profile:".length(), key.indexOf("/"));
+        String propertyKey = key.substring(key.indexOf("/") + 1);
+        Map<String, String> targetProps = configs.get(pid);
+        if (targetProps != null && targetProps.containsKey(propertyKey)) {
+            return targetProps.get(propertyKey);
+        } else {
+            return key;
+        }
+    }
+
+    /**
+     * Substitutes bundle property.
+     * @param key
+     * @return  The target value or an empty String.
+     */
+    public static String substituteBundleProperty(String key, BundleContext bundleContext) {
+        String value = "";
+        if (bundleContext != null) {
+            value = bundleContext.getProperty(key);
+        }
+        if (value == null) {
+            value = System.getProperty(key, "");
+        }
+        return value;
+    }
+
 }

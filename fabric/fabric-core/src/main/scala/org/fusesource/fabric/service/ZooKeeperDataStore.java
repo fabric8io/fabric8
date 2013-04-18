@@ -18,18 +18,23 @@ package org.fusesource.fabric.service;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.utils.Base64Encoder;
-import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.ObjectUtils;
-import org.fusesource.fabric.utils.ChecksumUtils;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
-import org.fusesource.fabric.zookeeper.utils.*;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperRetriableUtils;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperCommandBuilder;
+import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.linkedin.zookeeper.tracker.NodeEvent;
 import org.linkedin.zookeeper.tracker.NodeEventsListener;
 import org.linkedin.zookeeper.tracker.ZKStringDataReader;
@@ -39,15 +44,20 @@ import org.osgi.framework.FrameworkUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.ObjectInputStream;
-import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author Stan Lewis
  */
-public class ZooKeeperDataStore implements DataStore {
+public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
@@ -128,10 +138,9 @@ public class ZooKeeperDataStore implements DataStore {
     public String getContainerParent(String containerId) {
         try {
             String parent = zk.getStringData(ZkPath.CONTAINER_PARENT.getPath(containerId));
-            if (parent == null) {
-                return "";
-            }
-            return parent.trim();
+
+            String parentName = zk.getStringData(ZkPath.CONTAINER_PARENT.getPath(containerId));
+            return parentName != null ? parentName.trim() : "";
         } catch (KeeperException.NoNodeException e) {
             // Ignore
             return "";
@@ -375,6 +384,8 @@ public class ZooKeeperDataStore implements DataStore {
                 return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
             case JmxUrl:
                 return ZkPath.CONTAINER_JMX.getPath(containerId);
+            case HttpUrl:
+                return ZkPath.CONTAINER_HTTP.getPath(containerId);
             case SshUrl:
                 return ZkPath.CONTAINER_SSH.getPath(containerId);
             case PortMin:
@@ -737,57 +748,7 @@ public class ZooKeeperDataStore implements DataStore {
         }
     }
 
-    @Override
-    public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
-        for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
-            Map<String, String> props = entry.getValue();
-            InterpolationHelper.performSubstitution(props, new InterpolationHelper.SubstitutionCallback() {
-                public String getValue(String key) {
-                    if (key.startsWith("zk:")) {
-                        try {
-                            return new String(ZookeeperCommandBuilder.loadUrl(key).execute(zk), "UTF-8");
-                        } catch (KeeperException.NoNodeException e) {
-                            return key;
-                        } catch (Exception e) {
-                            throw new FabricException(e);
-                        }
-                    } else if (key.startsWith("profile:")) {
-                        String pid = key.substring("profile:".length(), key.indexOf("/"));
-                        String propertyKey = key.substring(key.indexOf("/") + 1);
-                        Map<String, String> targetProps = configs.get(pid);
-                        if (targetProps != null && targetProps.containsKey(propertyKey)) {
-                            return targetProps.get(propertyKey);
-                        } else {
-                            return key;
-                        }
-                    } else if (key.startsWith("checksum:")) {
-                        InputStream is = null;
-                        try {
-                            URL url = new URL(key.substring("checksum:".length()));
-                            is = url.openStream();
-                            return String.valueOf(ChecksumUtils.checksum(is));
-                        } catch (Exception ex) {
-                            return "0";
-                        } finally {
-                            Closeables.closeQuitely(is);
-                        }
-                    } else {
-                        String value = "";
-                        BundleContext context = getBundleContext();
-                        if (context != null) {
-                            value = context.getProperty(key);
-                        }
-                        if (value == null) {
-                            value = System.getProperty(key, "");
-                        }
-                        return value;
-                    }
-                }
-            });
-        }
-    }
-
-    private static BundleContext getBundleContext() {
+    public BundleContext getBundleContext() {
         try {
             return FrameworkUtil.getBundle(ZooKeeperDataStore.class).getBundleContext();
         } catch (Throwable t) {
@@ -841,6 +802,16 @@ public class ZooKeeperDataStore implements DataStore {
             requirements.removeEmptyRequirements();
             String json = RequirementsJson.toJSON(requirements);
             zk.createOrSetWithParents(REQUIREMENTS_JSON_PATH, json, CreateMode.PERSISTENT);
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    private static String substituteZookeeperUrl(String key, IZKClient zooKeeper) {
+        try {
+            return new String(ZookeeperCommandBuilder.loadUrl(key).execute(zooKeeper), "UTF-8");
+        } catch (KeeperException.NoNodeException e) {
+            return key;
         } catch (Exception e) {
             throw new FabricException(e);
         }

@@ -80,6 +80,7 @@ public interface DataStore {
         ManualIp,
         SshUrl,
         JmxUrl,
+        HttpUrl,
         PortMin,
         PortMax,
         Domains,

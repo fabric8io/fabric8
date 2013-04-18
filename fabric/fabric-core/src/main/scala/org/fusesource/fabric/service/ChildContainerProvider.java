@@ -16,19 +16,15 @@
  */
 package org.fusesource.fabric.service;
 
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.karaf.admin.InstanceSettings;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.internal.FabricConstants;
+import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -45,8 +41,7 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
 
 
-    final FabricServiceImpl service;
-    Set<Integer> usedPorts = new LinkedHashSet<Integer>();
+    private final FabricServiceImpl service;
 
     public ChildContainerProvider(FabricServiceImpl service) {
         this.service = service;
@@ -87,7 +82,9 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                 String features = listAsString(defaultProfile.getFeatures());
 
                 String originalName = options.getName();
-                usedPorts.addAll(getContainerUsedPorts(parent));
+
+                PortService portService = service.getPortService();
+                Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
                 for (int i = 1; i <= options.getNumber(); i++) {
                     String containerName;
@@ -108,25 +105,31 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                     inheritAddresses(service.getZooKeeper(), parentName, containerName, options);
 
-                    //This is not enough as it will not work if children has been created and then deleted.
-                    //The admin service should be responsible for allocating ports
-                    int sshPort = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + i, minimumPort, maximumPort);
-                    while (usedPorts.contains(sshPort)) {
-                        sshPort++;
-                    }
-                    usedPorts.add(sshPort);
+                    //We are creating a container instance, just for the needs of port registration.
+                    Container child = new ContainerImpl(parent, containerName, service) {
+                        @Override
+                        public String getIp() {
+                            return parent.getIp();
+                        }
+                    };
+
+                    int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT , minimumPort, maximumPort);
+                    int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100 , minimumPort, maximumPort);
+                    int sshPort = portService.registerPort(child, "org.apache.karaf.shell", "sshPort", sshFrom, sshTo, usedPorts);
 
 
-                    int rmiServerPort = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + i, minimumPort, maximumPort);
-                    while (usedPorts.contains(rmiServerPort)) {
-                        rmiServerPort++;
-                    }
-                    usedPorts.add(rmiServerPort);
-                    int rmiRegistryPort = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + i, minimumPort, maximumPort);
-                    while (usedPorts.contains(rmiRegistryPort)) {
-                        rmiRegistryPort++;
-                    }
-                    usedPorts.add(rmiRegistryPort);
+                    int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT , minimumPort, maximumPort);
+                    int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100 , minimumPort, maximumPort);
+                    portService.registerPort(child, "org.ops4j.pax.web", "org.osgi.service.http.port", httpFrom, httpTo, usedPorts);
+
+                    int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT , minimumPort, maximumPort);
+                    int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100 , minimumPort, maximumPort);
+                    int rmiServerPort = portService.registerPort(child, "org.apache.karaf.management", "rmiServerPort", rmiServerFrom, rmiServerTo, usedPorts);
+
+                    int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT , minimumPort, maximumPort);
+                    int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100 , minimumPort, maximumPort);
+                    int rmiRegistryPort = portService.registerPort(child, "org.apache.karaf.management", "rmiRegistryPort", rmiRegistryFrom, rmiRegistryTo, usedPorts);
+
 
                     try {
                         adminService.createInstance(containerName,
@@ -192,61 +195,6 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     protected ContainerTemplate getContainerTemplateForChild(Container container) {
         CreateContainerChildOptions options = (CreateContainerChildOptions) container.getMetadata().getCreateOptions();
         return new ContainerTemplate(container.getParent(), options.getJmxUser(), options.getJmxPassword(), false);
-    }
-
-    /**
-     * Extracts the used ports of the {@link Container} and its children.
-     *
-     * @param container
-     * @return
-     */
-    private Set<Integer> getContainerUsedPorts(Container container) {
-        Set<Integer> usedPorts = new LinkedHashSet<Integer>();
-        usedPorts.add(getSshPort(container));
-        usedPorts.addAll(getRmiPorts(container));
-        if (container.getChildren() != null) {
-            for (Container child : container.getChildren()) {
-                usedPorts.addAll(getContainerUsedPorts(child));
-            }
-        }
-        return usedPorts;
-    }
-
-    /**
-     * Extracts the ssh Port of the {@link Container}.
-     *
-     * @param container
-     * @return
-     */
-    private int getSshPort(Container container) {
-        String sshUrl = container.getSshUrl();
-        int sshPort = 0;
-        if (sshUrl != null) {
-            sshPort = Ports.extractPort(sshUrl);
-        }
-        return sshPort;
-    }
-
-    /**
-     * Extracts the rmi ports of the {@link Container}.
-     *
-     * @param container
-     * @return
-     */
-    private Set<Integer> getRmiPorts(Container container) {
-        Set<Integer> rmiPorts = new LinkedHashSet<Integer>();
-        String jmxUrl = container.getJmxUrl();
-        String address = container.getIp();
-        // maybe container didn't register yet, but ports should be already added, so it's OK
-        if (jmxUrl != null && address != null) {
-            Pattern pattern = Pattern.compile(address + ":\\d{1,5}");
-            Matcher mather = pattern.matcher(jmxUrl);
-            while (mather.find()) {
-                String socketAddress = mather.group();
-                rmiPorts.add(Ports.extractPort(socketAddress));
-            }
-        }
-        return rmiPorts;
     }
 
     /**

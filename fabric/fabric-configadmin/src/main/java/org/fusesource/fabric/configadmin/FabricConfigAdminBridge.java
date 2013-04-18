@@ -111,6 +111,7 @@ public class FabricConfigAdminBridge implements Runnable {
             }
             for (Configuration config : configs) {
                 LOGGER.info("Deleting configuration {}", config.getPid());
+                fabricService.getPortService().unRegisterPort(fabricService.getCurrentContainer(), config.getPid());
                 config.delete();
             }
         } catch (Exception e) {

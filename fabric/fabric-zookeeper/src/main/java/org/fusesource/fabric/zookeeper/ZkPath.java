@@ -83,6 +83,7 @@ public enum ZkPath {
     CONTAINER_PARENT               ("/fabric/registry/containers/config/{container}/parent"),
     CONTAINER_JMX                  ("/fabric/registry/containers/config/{container}/jmx"),
     CONTAINER_SSH                  ("/fabric/registry/containers/config/{container}/ssh"),
+    CONTAINER_HTTP                 ("/fabric/registry/containers/config/{container}/http"),
     CONTAINER_LOCATION             ("/fabric/registry/containers/config/{container}/loc"),
     CONTAINER_METADATA             ("/fabric/registry/containers/config/{container}/metadata"),
     CONTAINER_GEOLOCATION          ("/fabric/registry/containers/config/{container}/geoloc"),
@@ -99,7 +100,15 @@ public enum ZkPath {
     CLOUD_NODE_IDENTITY            ("/fabric/registry/cloud/nodes/{id}/identity"),
     CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
     POLICIES                       ("/fabric/registry/policies/{policy}"),
-    LOCK                           ("{path}/0");
+    
+    LOCK                           ("{path}/0"),
+    
+    PORTS                          ("/fabric/registry/ports/"),
+    PORTS_LOCK                     ("/fabric/registry/ports/lock"),
+    PORTS_CONTAINER                ("/fabric/registry/ports/containers/{container}/"),
+    PORTS_CONTAINER_PID            ("/fabric/registry/ports/containers/{container}/{pid}/"),
+    PORTS_CONTAINER_PID_KEY        ("/fabric/registry/ports/containers/{container}/{pid}/{key}"),
+    PORTS_IP                       ("/fabric/registry/ports/ip/{address}");
 
 	private static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
 

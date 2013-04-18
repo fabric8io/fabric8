@@ -188,6 +188,12 @@ public interface FabricService {
     PatchService getPatchService();
 
     /**
+     * Get hte port service.
+     * @return
+     */
+    PortService getPortService();
+
+    /**
      * Get the default JVM options used when creating containers
      * @return
      */

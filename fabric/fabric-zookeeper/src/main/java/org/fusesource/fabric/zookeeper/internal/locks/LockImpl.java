@@ -7,15 +7,21 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.Lock;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class LockImpl implements Lock {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(LockImpl.class);
+
     private final String path;
     private final IZKClient zooKeeper;
-    private String node;
+    private final Map<Thread, LockData> threadLocks = new HashMap<Thread, LockData>();
 
     private final Watcher watcher = new Watcher() {
         @Override
@@ -42,13 +48,20 @@ public class LockImpl implements Lock {
 
         try {
             ZooKeeperUtils.createDefault(zooKeeper, path, "");
+            Thread current = Thread.currentThread();
+            LockData lockData = threadLocks.get(current);
 
-            if (node == null) {
-                node = zooKeeper.create(ZkPath.LOCK.getPath(path), CreateMode.EPHEMERAL_SEQUENTIAL);
+            if (lockData == null) {
+                String lockPath = zooKeeper.create(ZkPath.LOCK.getPath(path), CreateMode.EPHEMERAL_SEQUENTIAL);
+                lockData = new LockData(current, lockPath);
+                threadLocks.put(current, lockData);
             }
+
+            lockData.getCount().incrementAndGet();
+
             while (start + waitFor >= System.currentTimeMillis()) {
                 List<String> children = zooKeeper.getChildren(path);
-                String id = stripPath(node);
+                String id = stripPath(lockData.getLockPath());
                 if (hasLock(id, children)) {
                     return true;
                 } else {
@@ -56,6 +69,7 @@ public class LockImpl implements Lock {
                 }
             }
         } catch (Exception ex) {
+            LOGGER.warn("Error while trying to acquire lock on: {}.", path, ex);
             return false;
         }
         return false;
@@ -64,8 +78,14 @@ public class LockImpl implements Lock {
     @Override
     public synchronized void unlock() {
         try {
-            zooKeeper.delete(node);
-            node = null;
+            Thread current = Thread.currentThread();
+            LockData lockData = threadLocks.get(current);
+            if (lockData != null && lockData.getCount().decrementAndGet() == 0) {
+                if (zooKeeper.exists(lockData.getLockPath()) != null) {
+                    zooKeeper.delete(lockData.getLockPath());
+                }
+                threadLocks.remove(current);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
