@@ -72,7 +72,8 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 
 public class KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
 
-    private transient Logger logger = LoggerFactory.getLogger(KarafContainerRegistration.class);
+    private transient Logger LOGGER = LoggerFactory.getLogger(KarafContainerRegistration.class);
+
     private static final String MANAGEMENT_PID = "org.apache.karaf.management";
     private static final String SSH_PID = "org.apache.karaf.shell";
     private static final String HTTP_PID = "org.ops4j.pax.web";
@@ -119,7 +120,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
         final String name = System.getProperty(SystemProperties.KARAF_NAME);
         String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = System.getProperty("fabric.profiles");
-        logger.trace("onConnected");
+        LOGGER.trace("onConnected");
 
         String nodeAlive = CONTAINER_ALIVE.getPath(name);
         try {
@@ -176,7 +177,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
             registerDomains();
         } catch (Exception e) {
-            logger.warn("Error updating Fabric Container information. This exception will be ignored.", e);
+            LOGGER.warn("Error updating Fabric Container information. This exception will be ignored.", e);
         }
     }
 
@@ -343,18 +344,18 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     public void destroy() {
-        logger.trace("destroy");
+        LOGGER.trace("destroy");
         try {
             unregisterDomains();
         } catch (ServiceException e) {
-            logger.trace("ZooKeeper is no longer available", e);
+            LOGGER.trace("ZooKeeper is no longer available", e);
         } catch (Exception e) {
-            logger.warn("An error occurred during disconnecting to zookeeper. This exception will be ignored.", e);
+            LOGGER.warn("An error occurred during disconnecting to zookeeper. This exception will be ignored.", e);
         }
     }
 
     public void onDisconnected() {
-        logger.trace("onDisconnected");
+        LOGGER.trace("onDisconnected");
         // noop
     }
 
@@ -367,7 +368,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 registerDomains();
             }
         } catch (Exception e) {
-            logger.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
+            LOGGER.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
         }
     }
 
@@ -377,7 +378,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                 mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
                 unregisterDomains();
             } catch (Exception e) {
-                logger.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
+                LOGGER.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
             }
         }
         mbeanServer = null;
@@ -408,7 +409,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     @Override
     public synchronized void handleNotification(Notification notif, Object o) {
-        logger.trace("handleNotification[{}]", notif);
+        LOGGER.trace("handleNotification[{}]", notif);
 
         // we may get notifications when zookeeper client is not really connected
         // handle mbeans registration and de-registration events
@@ -426,14 +427,14 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                     domains.addAll(Arrays.asList(mbeanServer.getDomains()));
                     if (!domains.contains(domain)) {
                         // domain is no present any more
-                        zooKeeper.delete(path);
+                        ZooKeeperUtils.deleteSafe(zooKeeper, path);
                     }
                 }
 //            } catch (KeeperException.SessionExpiredException e) {
-//                logger.debug("Session expiry detected. Handling notification once again", e);
+//                LOGGER.debug("Session expiry detected. Handling notification once again", e);
 //                handleNotification(notif, o);
             } catch (Exception e) {
-                logger.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
+                LOGGER.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
             }
         }
     }
@@ -461,27 +462,33 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
                     int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_KEY));
                     String sshUrl = getSshUrl(name, sshPort);
                     ZooKeeperUtils.set(zooKeeper, CONTAINER_SSH.getPath(name), sshUrl);
-                    fabricService.getPortService().unRegisterPort(current, SSH_PID);
-                    fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
+                    if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_KEY) != sshPort) {
+                        fabricService.getPortService().unRegisterPort(current, SSH_PID);
+                        fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
+                    }
                 }
                 if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
                     int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_KEY));
                     String httpUrl = getSshUrl(name, httpPort);
                     ZooKeeperUtils.set(zooKeeper, CONTAINER_HTTP.getPath(name), httpUrl);
-                    fabricService.getPortService().unRegisterPort(current, HTTP_PID);
-                    fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
-
+                    if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_KEY) != httpPort) {
+                        fabricService.getPortService().unRegisterPort(current, HTTP_PID);
+                        fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
+                    }
                 }
                 if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                     Configuration config = configurationAdmin.getConfiguration(MANAGEMENT_PID);
                     int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_KEY));
                     int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_KEY));
-                    String sshUrl = getJmxUrl(name, rmiRegistryPort, rmiServerPort);
-                    ZooKeeperUtils.set(zooKeeper, CONTAINER_JMX.getPath(name), sshUrl);
-                    fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
-                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
-                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
+                    String jmxUrl = getJmxUrl(name, rmiRegistryPort, rmiServerPort);
+                    ZooKeeperUtils.set(zooKeeper, CONTAINER_JMX.getPath(name), jmxUrl);
+                    if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY) != rmiRegistryPort
+                            || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_KEY) != rmiServerPort) {
+                        fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
+                        fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
+                        fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
+                    }
 
                 }
             }
