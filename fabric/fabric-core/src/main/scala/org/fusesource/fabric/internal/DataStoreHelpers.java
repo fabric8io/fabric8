@@ -116,14 +116,14 @@ public class DataStoreHelpers {
      * @return  The target value or an empty String.
      */
     public static String substituteBundleProperty(String key, BundleContext bundleContext) {
-        String value = "";
+        String value = null;
         if (bundleContext != null) {
             value = bundleContext.getProperty(key);
         }
         if (value == null) {
-            value = System.getProperty(key, "");
+            value = System.getProperty(key);
         }
-        return value;
+        return value != null ? value : "";
     }
 
 }
