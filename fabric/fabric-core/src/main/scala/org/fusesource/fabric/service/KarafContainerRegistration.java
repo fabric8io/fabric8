@@ -90,6 +90,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     private BundleContext bundleContext;
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
     private volatile MBeanServer mbeanServer;
+    private volatile boolean connected;
 
 
     public IZKClient getZooKeeper() {
@@ -117,6 +118,8 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     public synchronized void onConnected() {
+        connected = true;
+
         final String name = System.getProperty(SystemProperties.KARAF_NAME);
         String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = System.getProperty("fabric.profiles");
@@ -356,7 +359,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     public void onDisconnected() {
         LOGGER.trace("onDisconnected");
-        // noop
+        connected = false;
     }
 
     public synchronized void registerMBeanServer(ServiceReference ref) {
@@ -442,7 +445,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
 
     private boolean isConnected() {
         // we are only considered connected if we have a client and its connected
-        return zooKeeper != null && zooKeeper.isConnected();
+        return zooKeeper != null && connected;
     }
 
     /**
@@ -453,7 +456,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     @Override
     public void configurationEvent(ConfigurationEvent event) {
         try {
-            if (zooKeeper.isConnected()) {
+            if (isConnected()) {
                 Container current = getContainer();
 
                 String name = System.getProperty(SystemProperties.KARAF_NAME);
