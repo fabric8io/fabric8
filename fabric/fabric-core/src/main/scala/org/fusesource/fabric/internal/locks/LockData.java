@@ -14,9 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper;
+package org.fusesource.fabric.internal.locks;
 
-public interface LockService {
+import java.util.concurrent.atomic.AtomicInteger;
 
-    Lock getLock(IZKClient zooKeeper, String path);
+public class LockData {
+
+    private final Thread thread;
+    private final String lockPath;
+    private final AtomicInteger count = new AtomicInteger(1);
+
+    public LockData(Thread thread, String lockPath) {
+        this.thread = thread;
+        this.lockPath = lockPath;
+    }
+
+    public String getLockPath() {
+        return lockPath;
+    }
+
+    public AtomicInteger getCount() {
+        return count;
+    }
 }

@@ -14,14 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper;
+package org.fusesource.fabric.api;
 
-import java.util.concurrent.TimeUnit;
+import org.fusesource.fabric.zookeeper.IZKClient;
 
-public interface Lock {
+public interface LockService {
 
-    public boolean tryLock(long time, TimeUnit unit);
-
-    public void unlock();
-
+    Lock getLock(String path);
 }

@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.internal.locks;
+package org.fusesource.fabric.internal.locks;
 
+import org.fusesource.fabric.api.Lock;
+import org.fusesource.fabric.api.LockService;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.Lock;
-import org.fusesource.fabric.zookeeper.LockService;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class LockServiceImpl implements LockService {
 
+    private final IZKClient zooKeeper;
     private final Map<String, Lock> locks = new HashMap<String, Lock>();
 
+    public LockServiceImpl(IZKClient zooKeeper) {
+        this.zooKeeper = zooKeeper;
+    }
+
     @Override
-    public synchronized Lock getLock(IZKClient zooKeeper, String path) {
+    public synchronized Lock getLock(String path) {
         if (locks.containsKey(path)) {
             return locks.get(path);
         } else {

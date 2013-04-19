@@ -20,7 +20,6 @@
 
     <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" />
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-    <reference id="lockService" interface="org.fusesource.fabric.zookeeper.LockService" />
     <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <!--reference id="dataStore" interface="org.fusesource.fabric.api.DataStore" availability="optional"/-->
@@ -48,6 +47,10 @@
         <property name="configurationAdmin" ref="configurationAdmin"/>
         <property name="dataStore" ref="dataStore"/>
         <property name="portService" ref="portService"/>
+    </bean>
+
+    <bean id="lockService" class="org.fusesource.fabric.internal.locks.LockServiceImpl">
+        <argument index="0" ref="zooKeeper"/>
     </bean>
 
     <bean id="portService" class="org.fusesource.fabric.service.ZookeeperPortService">
@@ -119,5 +122,7 @@
     </service>
 
     <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />
+
+    <service ref="lockService" interface="org.fusesource.fabric.api.LockService"/>
 
 </blueprint>

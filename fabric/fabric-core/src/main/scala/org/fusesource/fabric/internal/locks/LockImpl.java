@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.internal.locks;
+package org.fusesource.fabric.internal.locks;
 
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
+import org.fusesource.fabric.api.Lock;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.Lock;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;

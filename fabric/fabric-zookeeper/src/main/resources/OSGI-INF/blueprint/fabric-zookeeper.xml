@@ -25,8 +25,6 @@
         <property name="configurationAdmin" ref="configAdmin" />
     </bean>
 
-    <bean id="lockService" class="org.fusesource.fabric.zookeeper.internal.locks.LockServiceImpl"/>
-
     <!-- ZooKeeper url handler -->
     <bean id="urlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
         <argument ref="zkClient" />
@@ -46,7 +44,5 @@
             <entry key="service.pid" value="org.fusesource.fabric.zookeeper.server"/>
         </service-properties>
     </service>
-
-    <service ref="lockService" interface="org.fusesource.fabric.zookeeper.LockService"/>
 
 </blueprint>

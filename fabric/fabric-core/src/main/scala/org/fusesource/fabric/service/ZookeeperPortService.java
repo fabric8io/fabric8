@@ -20,8 +20,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.Lock;
-import org.fusesource.fabric.zookeeper.LockService;
+import org.fusesource.fabric.api.Lock;
+import org.fusesource.fabric.api.LockService;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
@@ -39,7 +39,7 @@ public class ZookeeperPortService implements PortService {
     public ZookeeperPortService(IZKClient zooKeeper, LockService lockService) {
         this.zooKeeper = zooKeeper;
         this.lockService = lockService;
-        this.lock = lockService.getLock(zooKeeper, ZkPath.PORTS_LOCK.getPath());
+        this.lock = lockService.getLock(ZkPath.PORTS_LOCK.getPath());
     }
 
 

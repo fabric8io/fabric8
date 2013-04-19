@@ -14,26 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.internal.locks;
+package org.fusesource.fabric.api;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.TimeUnit;
 
-public class LockData {
+public interface Lock {
 
-    private final Thread thread;
-    private final String lockPath;
-    private final AtomicInteger count = new AtomicInteger(1);
+    public boolean tryLock(long time, TimeUnit unit);
 
-    public LockData(Thread thread, String lockPath) {
-        this.thread = thread;
-        this.lockPath = lockPath;
-    }
+    public void unlock();
 
-    public String getLockPath() {
-        return lockPath;
-    }
-
-    public AtomicInteger getCount() {
-        return count;
-    }
 }
