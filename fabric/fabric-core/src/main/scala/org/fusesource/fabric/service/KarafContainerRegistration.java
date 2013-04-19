@@ -240,7 +240,7 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     private String getHttpUrl(String name, int httpPort) throws IOException, KeeperException, InterruptedException {
-        return "${zk:" + name + "/ip}:" + httpPort;
+        return "http://${zk:" + name + "/ip}:" + httpPort;
     }
 
 
