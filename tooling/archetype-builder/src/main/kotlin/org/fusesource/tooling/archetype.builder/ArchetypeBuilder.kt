@@ -202,10 +202,18 @@ public open class ArchetypeBuilder() {
         val children = parent.children()
         val elements = children.filter { it.nodeName == name }
         val element = if (elements.isEmpty()) {
-            val newElement = doc.createElement(name)
-            val before = beforeNames.map{ n -> children.find { it.nodeName == n }}
-            val node = before.first ?: parent.getFirstChild()
-            val text = doc.createTextNode("\n  ")
+            val newElement = doc.createElement(name)!!
+            var first: Node? = null;
+            for (n in beforeNames) {
+                first = findChild(parent, n)
+                if (first != null) break
+            }
+/*
+            val before = beforeNames.map{ n -> findChild(parent, n)}
+            val first = before.first
+*/
+            val node: Node = if (first != null) first!! else parent.getFirstChild()!!
+            val text = doc.createTextNode("\n  ")!!
             parent.insertBefore(text, node)
             parent.insertBefore(newElement, text)
             newElement
@@ -213,6 +221,11 @@ public open class ArchetypeBuilder() {
             elements[0]
         }
         return element as Element
+    }
+
+    protected fun findChild(parent: Element, n: String): Node? {
+        val children = parent.children()
+        return children.find { it.nodeName == n }
     }
 
     protected fun copyFile(src: File, dest: File, replaceFn: (String) -> String): Unit {
