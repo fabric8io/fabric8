@@ -100,7 +100,9 @@ public enum ZkPath {
     CLOUD_NODE_IDENTITY            ("/fabric/registry/cloud/nodes/{id}/identity"),
     CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
     POLICIES                       ("/fabric/registry/policies/{policy}"),
-    
+
+    WEBAPPS                        ("/fabric/registry/webapps/"),
+    WEBAPPS_CONTAINER              ("/fabric/registry/webapps/{name}/{version}/{container}"),
     LOCK                           ("{path}/0"),
     
     PORTS                          ("/fabric/registry/ports/"),
