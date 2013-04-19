@@ -56,6 +56,8 @@ public enum ZkPath {
 	CONFIG_ENSEMBLE_PROFILES       ("/fabric/configs/ensemble/profiles"),
 	CONFIG_ENSEMBLE_PROFILE        ("/fabric/configs/ensemble/profiles/{profile}"),
 
+
+
     MAVEN_PROXY                    ("/fabric/registry/maven/proxy/{type}"),
 	GIT                            ("/fabric/registry/clusters/git"),
 
@@ -110,9 +112,14 @@ public enum ZkPath {
     PORTS_CONTAINER                ("/fabric/registry/ports/containers/{container}/"),
     PORTS_CONTAINER_PID            ("/fabric/registry/ports/containers/{container}/{pid}/"),
     PORTS_CONTAINER_PID_KEY        ("/fabric/registry/ports/containers/{container}/{pid}/{key}"),
-    PORTS_IP                       ("/fabric/registry/ports/ip/{address}");
+    PORTS_IP                       ("/fabric/registry/ports/ip/{address}"),
 
-	private static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
+    AUTHENTICATION_CRYPT_ALGORITHM ("/fabric/authentication/crypt/algorithm"),
+    AUTHENTICATION_CRYPT_PASSWORD  ("/fabric/authentication/crypt/password");
+
+
+
+    private static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
 
     /**
      * Path template.

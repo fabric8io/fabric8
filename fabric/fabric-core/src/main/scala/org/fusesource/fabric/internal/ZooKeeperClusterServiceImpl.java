@@ -294,6 +294,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				ZooKeeperRetriableUtils.createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "fabric fabric-ensemble-0000-1");
 			}
 
+
 			// add auth
             Map<String, String> configs = new HashMap<String, String>();
             configs.put("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}" );
@@ -304,7 +305,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			ZooKeeperRetriableUtils.createDefault(client, "/fabric/authentication/domain", "karaf");
 			addUsersToZookeeper(client, options.getUsers());
 
-			// Fix acls
+            ZooKeeperRetriableUtils.createDefault(client, ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), "PBEWithMD5AndDES");
+            ZooKeeperRetriableUtils.createDefault(client, ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), options.getZookeeperPassword());
+
+            // Fix acls
             ZookeeperCommandBuilder.fixAcls("/", true).execute(client);
 
 			// Reset the autostart flag
