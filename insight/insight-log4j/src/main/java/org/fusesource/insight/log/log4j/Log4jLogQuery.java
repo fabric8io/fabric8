@@ -231,8 +231,12 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         }
         LogResults results = new LogResults();
         results.setEvents(list);
-        results.setFromTimestamp(from);
-        results.setToTimestamp(to);
+        if (from < Long.MAX_VALUE) {
+            results.setFromTimestamp(from);
+        }
+        if (to > Long.MIN_VALUE) {
+            results.setToTimestamp(to);
+        }
         if (LOG.isDebugEnabled()) {
             LOG.debug("Requested " + maxCount + " logging items. returning "
                     + results.getEvents().size() + " event(s) from a possible " + getEvents().size());
