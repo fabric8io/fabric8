@@ -103,11 +103,15 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
             return null;
         }
         int numChildren = exists.getNumChildren();
+        int dataLength = exists.getDataLength();
         List<String> children = null;
+        String data = null;
         if (numChildren > 0) {
             children = zk.getChildren(path);
+        } else {
+            data = zk.getStringData(path);
         }
-        return new ZkContents(exists.getDataLength(), children);
+        return new ZkContents(dataLength, children, data);
     }
 
     @Override

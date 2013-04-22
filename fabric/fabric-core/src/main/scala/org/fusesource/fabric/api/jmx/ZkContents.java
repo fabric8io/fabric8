@@ -24,13 +24,23 @@ import java.util.List;
 public class ZkContents {
     private final int dataLength;
     private List<String> children;
+    private final String stringData;
 
-    public ZkContents(int dataLength, List<String> children) {
+    public ZkContents(int dataLength, List<String> children, String stringData) {
         this.dataLength = dataLength;
         this.children = children;
+        this.stringData = stringData;
     }
 
     public List<String> getChildren() {
         return children;
+    }
+
+    public int getDataLength() {
+        return dataLength;
+    }
+
+    public String getStringData() {
+        return stringData;
     }
 }
