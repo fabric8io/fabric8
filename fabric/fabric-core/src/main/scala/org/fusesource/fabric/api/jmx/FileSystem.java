@@ -36,7 +36,7 @@ public class FileSystem implements FileSystemMBean {
     private final String path;
 
     public FileSystem() {
-        fs = new File(System.getProperty("karaf.data"));
+        fs = new File(System.getProperty("karaf.data", "karaf-data"));
         String path;
         try {
             path = fs.getCanonicalPath();
