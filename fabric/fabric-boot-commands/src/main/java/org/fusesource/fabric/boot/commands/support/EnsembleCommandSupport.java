@@ -74,14 +74,22 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
         }
         while (user == null || user.isEmpty()) {
             user = ShellUtils.readLine(session, "New user name: ", false);
+            if (user == null) {
+                break;
+            }
         }
 
-        if (password == null) {
+        if (user != null && password == null) {
             String password1 = null;
             String password2 = null;
             while (password1 == null || !password1.equals(password2)) {
                 password1 = ShellUtils.readLine(session, "Password for " + user + ": ", true);
                 password2 = ShellUtils.readLine(session, "Verify password for " + user + ":", true);
+                
+                if (password1 == null || password2 == null) {
+                    break;
+                }
+                
                 if (password1 != null && password1.equals(password2)) {
                     password = password1;
                 } else {

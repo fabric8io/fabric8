@@ -130,6 +130,11 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             }
         }
 
+        if (newUser == null) {
+            System.out.println("No user specified. Cannot create a new fabric ensemble.");
+            return null;
+        }
+        
         StringBuilder sb = new StringBuilder();
 
         // session is unset when this is called from FMC
