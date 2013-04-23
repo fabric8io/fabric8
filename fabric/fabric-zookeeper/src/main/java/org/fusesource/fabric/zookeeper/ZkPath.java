@@ -104,7 +104,7 @@ public enum ZkPath {
     POLICIES                       ("/fabric/registry/policies/{policy}"),
 
     WEBAPPS                        ("/fabric/registry/webapps/"),
-    WEBAPPS_CONTAINER              ("/fabric/registry/webapps/{name}/{version}/{container}"),
+    WEBAPPS_CONTAINER              ("/fabric/registry/clusters/webapps/{name}/{version}/{container}"),
     LOCK                           ("{path}/0"),
     
     PORTS                          ("/fabric/registry/ports/"),
