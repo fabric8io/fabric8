@@ -59,10 +59,12 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
      * @param webEvent
      */
     void registerWebapp(Container container, WebEvent webEvent) {
+        String id = container.getId();
         String url = container.getHttpUrl() + webEvent.getContextPath();
+        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
             ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.WEBAPPS_CONTAINER.getPath(webEvent.getBundle().getSymbolicName(),
-                                        webEvent.getBundle().getVersion().toString(), container.getId()), url);
+                                        webEvent.getBundle().getVersion().toString(), id), json);
         } catch (Exception e) {
             LOGGER.error("Failed to register webapp {}.", webEvent.getContextPath(), e);
         }
