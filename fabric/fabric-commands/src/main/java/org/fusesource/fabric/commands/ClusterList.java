@@ -81,7 +81,7 @@ public class ClusterList extends FabricCommand {
 
                     Object id = value(map, "id", "container");
                     if (id != null) {
-                        Object agent = value(map, "agent");
+                        Object agent = value(map, "container", "agent");
                         List services = (List) value(map, "services");
 
                         node = cluster.get(id);
