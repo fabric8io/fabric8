@@ -70,7 +70,8 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
 
-public class KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
+public class
+        KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
 
     private transient Logger LOGGER = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
@@ -277,10 +278,14 @@ public class KarafContainerRegistration implements LifecycleListener, Notificati
     }
 
     private void updateIfNeeded(Configuration configuration, String key, int port) throws IOException {
-        Dictionary dictionary = configuration.getProperties();
-        if (!dictionary.get(key).equals(String.valueOf(port))) {
-            dictionary.put(key, String.valueOf(port));
-            configuration.update(dictionary);
+        if (configuration != null) {
+            Dictionary dictionary = configuration.getProperties();
+            if (dictionary != null) {
+                if (!dictionary.get(key).equals(String.valueOf(port))) {
+                    dictionary.put(key, String.valueOf(port));
+                    configuration.update(dictionary);
+                }
+            }
         }
     }
 
