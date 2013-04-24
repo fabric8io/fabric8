@@ -17,17 +17,15 @@
 
 package org.fusesource.fabric.utils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 
 public class HostUtils {
 
@@ -147,38 +145,4 @@ public class HostUtils {
         return chooseAddress(preffered).getHostAddress();
     }
 
-    /**
-     * Get the geographical location (latitude,longitude)
-     * @return  String containing the geolocation - or an empty string on failure
-     */
-    public static String getGeoLocation() {
-        final String LATITUDE = "latitude";
-        final String LONGITUDE = "longitude";
-        String result = "";
-
-        try {
-            String urlStr =  "http://freegeoip.net/json/";
-            URL url = new URL(urlStr);
-            URLConnection urlConnection = url.openConnection();
-            BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
-            String inputLine;
-            String temp = "";
-            while ((inputLine = in.readLine()) != null) {
-                temp += inputLine;
-            }
-
-            if (temp != null && !temp.isEmpty()){
-                ObjectMapper mapper = new ObjectMapper();
-                JsonNode node = mapper.readValue(temp,JsonNode.class);
-                JsonNode latitudeNode = node.get(LATITUDE);
-                JsonNode longitudeNode = node.get(LONGITUDE);
-                if (latitudeNode != null && longitudeNode != null){
-                    result = latitudeNode.toString() + "," + longitudeNode.toString();
-                }
-            }
-        }catch(Exception e) {
-            //this is going to fail if using this offline
-        }
-        return result;
-    }
 }

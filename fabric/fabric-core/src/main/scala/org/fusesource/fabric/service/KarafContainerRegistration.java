@@ -23,6 +23,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.internal.GeoUtils;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -156,7 +157,8 @@ public class
             ZooKeeperUtils.set(zooKeeper, CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName());
             ZooKeeperUtils.set(zooKeeper, CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp());
             ZooKeeperUtils.set(zooKeeper, CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name));
-            ZooKeeperUtils.createDefault(zooKeeper, CONTAINER_GEOLOCATION.getPath(name), HostUtils.getGeoLocation());
+            ZooKeeperUtils.createDefault(zooKeeper, CONTAINER_GEOLOCATION.getPath(name), GeoUtils
+                    .getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
