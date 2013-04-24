@@ -26,6 +26,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.map.ObjectMapper;
+
 public class HostUtils {
 
     public static final String PREFERED_ADDRESS_PROPERTY_NAME = "preferred.network.address";
@@ -149,14 +152,12 @@ public class HostUtils {
      * @return  String containing the geolocation - or an empty string on failure
      */
     public static String getGeoLocation() {
-        final String VAR = "Geobytes";
-        final String LATITUDE = "Latitude";
-        final String LONGITUDE = "Longitude";
+        final String LATITUDE = "latitude";
+        final String LONGITUDE = "longitude";
         String result = "";
 
         try {
-            String urlStr =  "http://gd.geobytes.com/gd?after=-1&variables="+VAR;
-            urlStr +=","  + VAR+LATITUDE + "," + VAR+LONGITUDE;
+            String urlStr =  "http://freegeoip.net/json/";
             URL url = new URL(urlStr);
             URLConnection urlConnection = url.openConnection();
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
@@ -165,22 +166,18 @@ public class HostUtils {
             while ((inputLine = in.readLine()) != null) {
                 temp += inputLine;
             }
-            String latitude = getVariable(temp,VAR+LATITUDE);
-            String longitude = getVariable(temp,VAR+LONGITUDE);
-            result = latitude + ","+ longitude;
+
+            if (temp != null && !temp.isEmpty()){
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode node = mapper.readValue(temp,JsonNode.class);
+                JsonNode latitudeNode = node.get(LATITUDE);
+                JsonNode longitudeNode = node.get(LONGITUDE);
+                if (latitudeNode != null && longitudeNode != null){
+                    result = latitudeNode.toString() + "," + longitudeNode.toString();
+                }
+            }
         }catch(Exception e) {
             //this is going to fail if using this offline
-        }
-        return result;
-    }
-
-    private static String getVariable(String str,String var){
-        String result="";
-        int index = str.indexOf(var);
-        if (index >= 0) {
-            index = str.indexOf("\"",index);
-            int lastIndex = str.indexOf("\"",index+1);
-            result = str.substring(index+1,lastIndex);
         }
         return result;
     }
