@@ -33,7 +33,7 @@ import static org.fusesource.fabric.commands.support.CommandUtils.status;
 @Command(name = "container-list", scope = "fabric", description = "List the containers in the current fabric")
 public class ContainerList extends FabricCommand {
 
-    static final String FORMAT = "%-30s %-9s %-7s %-30s %s";
+    static final String FORMAT = "%-30s %-9s %-7s %-50s %s";
     static final String VERBOSE_FORMAT = "%-20s %-9s %-7s %-30s  %-30s %-90s %s";
 
     static final String[] HEADERS = {"[id]", "[version]", "[alive]", "[profiles]", "[provision status]"};
