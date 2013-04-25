@@ -18,6 +18,7 @@
 package org.fusesource.fabric.fab.osgi.commands.fab;
 
 import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.osgi.Util;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,11 @@ public class StopCommand extends ProcessUnusedBundles {
     private static final transient Logger LOG = LoggerFactory.getLogger(StopCommand.class);
 
     @Override
-    protected void processBundle(Bundle bundle) {
+    protected void processBundle(Bundle bundle) throws Exception {
+        if (Util.isASystemBundle(getBundleContext(), bundle) && !Util.accessToSystemBundleIsAllowed(bundle.getBundleId(), session)) {
+           return;
+        }
+
         stopBundle(bundle);
     }
 

@@ -104,5 +104,5 @@ public abstract class ProcessUnusedBundles extends FabCommandSupport {
         return false;
     }
 
-    protected abstract void processBundle(Bundle bundle);
+    protected abstract void processBundle(Bundle bundle) throws Exception;
 }

@@ -1076,6 +1076,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.karaf.shell</groupId>
+                <artifactId>org.apache.karaf.shell.osgi</artifactId>
+                <version>${karaf-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.karaf.shell</groupId>
                 <artifactId>org.apache.karaf.shell.dev</artifactId>
                 <version>${karaf-version}</version>
             </dependency>

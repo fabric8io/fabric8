@@ -18,6 +18,7 @@
 package org.fusesource.fabric.fab.osgi.commands.fab;
 
 import org.apache.felix.gogo.commands.Command;
+import org.apache.karaf.shell.osgi.Util;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleException;
 import org.slf4j.Logger;
@@ -28,7 +29,11 @@ public class UninstallCommand extends ProcessUnusedBundles {
     private static final transient Logger LOG = LoggerFactory.getLogger(UninstallCommand.class);
 
     @Override
-    protected void processBundle(Bundle bundle) {
+    protected void processBundle(Bundle bundle) throws Exception {
+        if (Util.isASystemBundle(getBundleContext(), bundle) && !Util.accessToSystemBundleIsAllowed(bundle.getBundleId(), session)) {
+           return;
+        }
+
         stopBundle(bundle);
         if (bundle.getState() != Bundle.UNINSTALLED) {
             LOG.debug("Uninstalling bundle %s version %s", bundle.getSymbolicName(), bundle.getVersion());
