@@ -72,7 +72,7 @@ public class ProfileEdit extends FabricCommand {
     @Option(name = "-b", aliases = {"--bundles"}, description = "Edit bundles, specifying a comma-separated list of bundles to add (or delete).", required = false, multiValued = false)
     private String bundlesList;
 
-    @Option(name = "-f", aliases = {"--fabs"}, description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = false)
+    @Option(name = "--fabs", description = "Edit fabs, specifying a comma-separated list of fabs to add (or delete).", required = false, multiValued = false)
     private String fabsList;
 
     @Option(name = "-o", aliases = {"--overrides"}, description = "Edit overrides, specifying a comma-separated list of overrides to add (or delete).", required = false, multiValued = false)
