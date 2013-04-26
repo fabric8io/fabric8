@@ -61,7 +61,8 @@
             org.apache.felix.framework.monitor;resolution:=optional,
             org.apache.commons.logging.*,
             org.slf4j.*,
-            org.fusesource.fabric.api.*
+            org.fusesource.fabric.api.*,
+            org.apache.karaf.shell.osgi
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
