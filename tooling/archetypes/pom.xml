@@ -36,6 +36,7 @@
       <module>camel-cxf-contract-first-archetype</module>
       <module>camel-drools-archetype</module>
       <module>camel-web-osgi-archetype</module>
+      <module>camel-webservice-archetype</module>
     </modules>
 
 
