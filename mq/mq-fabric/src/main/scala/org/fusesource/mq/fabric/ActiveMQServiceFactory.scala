@@ -303,6 +303,15 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
             try {
               // ok boot up the server..
               server = createBroker(config, properties)
+              server._2.addShutdownHook(new Runnable(){
+                def run:Unit = {
+                  // Start up the server again if it shutdown.  Perhaps
+                  // it has lost a Locker and wants a restart.
+                  if(started.get){
+                    trystartup
+                  }
+                }
+              })
               configure_ports(server._2, properties)
               server._2.start()
               info("Broker %s has started.", name)
