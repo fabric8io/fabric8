@@ -384,6 +384,8 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
                 return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
             case JmxUrl:
                 return ZkPath.CONTAINER_JMX.getPath(containerId);
+            case JolokiaUrl:
+                return ZkPath.CONTAINER_JOLOKIA.getPath(containerId);
             case HttpUrl:
                 return ZkPath.CONTAINER_HTTP.getPath(containerId);
             case SshUrl:
