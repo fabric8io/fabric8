@@ -83,6 +83,7 @@
 
         <module>fabric-features-service</module>
         <module>fabric-jolokia</module>
+        <module>fabric-web</module>
 
         <module>fuse-fabric</module>
 
@@ -98,7 +99,6 @@
         <module>fabric-git</module>
         <module>fabric-git-server</module>
         <module>fabric-git-zkbridge</module>
-        <module>fabric-web</module>
 
     </modules>
 

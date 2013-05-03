@@ -276,6 +276,7 @@
                                </descriptors>
                                <features>
                                    <feature>karaf</feature>
+                                   <feature>war</feature>
                                    <feature>fabric-agent</feature>
                                    <feature>fabric-boot-commands</feature>
                                    <feature>fabric-commands</feature>
@@ -286,6 +287,7 @@
                                    <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    <feature>fabric-webui</feature>
+                                   <feature>fabric-web</feature>
                                    <feature>mq-fabric</feature>
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-storage</feature>
