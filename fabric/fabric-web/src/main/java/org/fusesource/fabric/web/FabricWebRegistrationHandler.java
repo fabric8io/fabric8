@@ -90,7 +90,13 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
      */
     void unRegisterWebapp(Container container, WebEvent webEvent) {
         try {
-            zooKeeper.delete(ZkPath.WEBAPPS_CONTAINER.getPath(webEvent.getBundle().getSymbolicName(),
+            String name = webEvent.getBundle().getSymbolicName();
+            if (name.equals("org.jolokia")) {
+                container.setJolokiaUrl(null);
+                System.clearProperty("jolokia.agent");
+            }
+
+            zooKeeper.delete(ZkPath.WEBAPPS_CONTAINER.getPath(name,
                              webEvent.getBundle().getVersion().toString(), container.getId()));
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
