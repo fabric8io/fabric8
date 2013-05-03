@@ -69,6 +69,7 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
         String name = webEvent.getBundle().getSymbolicName();
 
         if (name.equals("org.jolokia")) {
+            container.setJolokiaUrl(url);
             System.setProperty("jolokia.agent", url);
         }
 
