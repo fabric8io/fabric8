@@ -38,6 +38,7 @@ public class ContainerDTO implements HasId {
     private List<String> jmxDomains;
     private List<String> childrenIds;
     private String jmxUrl;
+    private String jolokiaUrl;
     private String localHostName;
     private String localIp;
     private String location;
@@ -97,6 +98,7 @@ public class ContainerDTO implements HasId {
         this.jmxDomains = container.getJmxDomains();
         this.childrenIds = Ids.getIds(container.getChildren());
         this.jmxUrl = container.getJmxUrl();
+        this.jolokiaUrl = container.getJolokiaUrl();
         this.localHostName = container.getLocalHostname();
         this.localIp = container.getLocalIp();
         this.location = container.getLocation();
@@ -174,6 +176,14 @@ public class ContainerDTO implements HasId {
 
     public void setJmxUrl(String jmxUrl) {
         this.jmxUrl = jmxUrl;
+    }
+
+    public String getJolokiaUrl() {
+        return jolokiaUrl;
+    }
+
+    public void setJolokiaUrl(String jolokiaUrl) {
+        this.jolokiaUrl = jolokiaUrl;
     }
 
     public String getLocalHostName() {

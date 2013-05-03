@@ -119,6 +119,14 @@ public class ContainerImpl implements Container {
         return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.JmxUrl);
     }
 
+    public String getJolokiaUrl() {
+        return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.JolokiaUrl);
+    }
+
+    public void setJolokiaUrl(String location) {
+        setAttribute(DataStore.ContainerAttribute.JolokiaUrl, location);
+    }
+
     @Override
     public String getHttpUrl() {
         return getMandatorySubstitutedAttribute(DataStore.ContainerAttribute.HttpUrl);

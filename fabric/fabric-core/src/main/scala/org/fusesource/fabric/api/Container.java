@@ -43,6 +43,9 @@ public interface Container extends HasId {
     String getJmxUrl();
     String getHttpUrl();
 
+    String getJolokiaUrl();
+    void setJolokiaUrl(String location);
+
     boolean isManaged();
 
     Version getVersion();
