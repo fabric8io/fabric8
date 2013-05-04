@@ -86,14 +86,14 @@ public class MavenCoordinates {
         return getMavenCoordinates(bundleId);
     }
 
-    private static Bundle getBundle(long bundleId) {
+    public static Bundle getBundle(long bundleId) {
         Bundle logBundle = FrameworkUtil.getBundle(Logs.class);
         BundleContext bundleContext = logBundle != null ? logBundle.getBundleContext() : null;
         Bundle bundle = bundleContext != null ? bundleContext.getBundle(bundleId) : null;
         return bundle;
     }
 
-    private static String getMavenCoordinates(long bundleId) {
+    public static String getMavenCoordinates(long bundleId) {
         Bundle bundle = getBundle(bundleId);
         if (bundle == null) {
             // Not sure why can't we find the bundleId?

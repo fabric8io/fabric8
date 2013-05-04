@@ -22,6 +22,7 @@ import org.apache.karaf.shell.log.VmLogAppender;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.fusesource.insight.log.LogFilter;
 import org.fusesource.insight.log.LogResults;
+import org.fusesource.insight.log.service.support.MavenCoordinates;
 import org.fusesource.insight.log.support.LogQuerySupport;
 import org.fusesource.insight.log.support.Predicate;
 import org.ops4j.pax.logging.spi.PaxLoggingEvent;
@@ -75,6 +76,11 @@ public class LogQuery extends LogQuerySupport implements LogQueryMBean {
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    @Override
+    public String getBundleMavenCoordinates(long bundleId) {
+        return MavenCoordinates.getMavenCoordinates(bundleId);
     }
 
     @Override
