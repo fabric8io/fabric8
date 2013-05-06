@@ -39,6 +39,9 @@ class Authenticator(@Context servletContext: ServletContext) {
   protected val logger : Logger = LoggerFactory getLogger getClass
   protected var domain: String = Services.realm
 
+  protected var engine:BackingEngine = null
+  protected var used_realm: JaasRealm = null
+
   def authenticate(username: String, password: String): Boolean = {
     try {
       val callback = new LoginCallbackHandler(username, password)
@@ -77,10 +80,10 @@ class Authenticator(@Context servletContext: ServletContext) {
   def auth_backing_engine:BackingEngine = {
     if (_bundle_context == null) {
       null
+    } else if (engine != null) {
+      engine
     } else {
       var services = _bundle_context.getServiceReferences(classOf[JaasRealm].getName, null)
-      var engine: BackingEngine = null
-      var used_realm: JaasRealm = null
       services.map(service => {
         val realm = _bundle_context.getService(service).asInstanceOf[JaasRealm]
         if (realm.getName == domain) {
