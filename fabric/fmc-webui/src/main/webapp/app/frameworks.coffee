@@ -383,4 +383,26 @@ define [
   window.btoa = base64.encode if !window.btoa
 
 
+  window.supports_html5_storage = ->
+    return typeof(Storage) != "undefined"
+
+  window.set_local_storage = (key, val) ->
+    if supports_html5_storage
+      localStorage[key] = val
+
+  window.get_local_storage = (key, def) ->
+    if supports_html5_storage
+      rc = localStorage[key]
+      if !rc
+        set_local_storage key, def
+        def
+      else
+        rc
+    else
+      def
+
+
+
+
+
 

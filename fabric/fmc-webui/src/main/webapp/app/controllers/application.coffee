@@ -109,7 +109,7 @@ define [
 
       app.model.bind "change:poll_interval", =>
         @stop_poll()
-        interval = app.model.get("poll_interval")
+        interval = parseInt("" + app.model.get("poll_interval"))
         if interval
           @poll_interval = setInterval (=>@poll()), interval
 

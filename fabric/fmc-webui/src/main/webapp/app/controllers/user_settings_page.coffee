@@ -20,6 +20,23 @@ define [
 ], (app, jade) ->
 
   class UserSettingsPage extends FON.TemplateController
+    template: jade["settings_page/index.jade"]
+
+    elements:
+      "select[name=frequency]": "frequency"
+
+    on_render: ->
+
+      @frequency.val(app.model.get("poll_interval"));
+
+      @frequency.bind "change", =>
+        console.log("Frequency val: ", @frequency.val())
+        app.model.set({poll_interval: @frequency.val()})
+        false
+
+
+
+
 
   app.router.route "/user_settings", "settings", ->
     app.page new UserSettingsPage

@@ -38,5 +38,5 @@ define [
 ], (app, Application) ->
   $ ->
     application = new Application()
-    app.model.set poll_interval: 1000
+    app.model.set poll_interval: window.get_local_storage('poll_interval', 1000);
     app.router.navigate("/containers", true)  unless Backbone.history.start({})

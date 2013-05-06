@@ -81,12 +81,17 @@ define [
         menu.push
           href: "#/users"
           label: "Users"
+      menu.push
+        href: "#/user_settings"
+        label: "Settings"
 
     app.menu menu
 
   app.update_menu = update_menu
   app.versions.bind  "all", update_menu
   app.system_state.bind  "change:has_backing_engine", update_menu
+  app.model.bind "change:poll_interval", =>
+    window.set_local_storage 'poll_interval', app.model.get('poll_interval')
 
   app.model.set({url: window.location.hash})
   $(window).bind('hashchange', (url)->
