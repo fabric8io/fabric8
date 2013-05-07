@@ -88,7 +88,38 @@ public class FabricManager implements FabricManagerMBean {
 
     // Management API
     //-------------------------------------------------------------------------
+    @Override
+    public ServiceStatusDTO getFabricServiceStatus() {
+        ServiceStatusDTO rc = new ServiceStatusDTO();
 
+        try {
+            rc.setClientValid(getFabricService().getZooKeeper() != null);
+        } catch (Throwable t) {
+            rc.setClientValid(false);
+        }
+        if (rc.isClientValid()) {
+            try {
+                rc.setClientConnected(getFabricService().getZooKeeper().isConnected());
+                if (!rc.isClientConnected()) {
+                    rc.setClientConnectionError(getFabricService().getZooKeeper().getState().toString());
+                }
+            } catch(Throwable t) {
+                rc.setClientConnected(false);
+
+            }
+        }
+        try {
+            rc.setManaged(getFabricService().getCurrentContainer().isManaged());
+        } catch (Throwable t) {
+
+        }
+        try {
+            rc.setProvisionComplete(getFabricService().getCurrentContainer().isProvisioningComplete());
+        } catch (Throwable t) {
+
+        }
+        return rc;
+    }
 
     @Override
     public Map<String, String> createContainers(Map<String, String> options) {

@@ -31,6 +31,8 @@ import java.util.Map;
  */
 public interface FabricManagerMBean {
 
+    ServiceStatusDTO getFabricServiceStatus();
+
     Map<String, String> createContainers(Map<String, String> options);
 
     ProfileDTO createProfile(String version, String name);
