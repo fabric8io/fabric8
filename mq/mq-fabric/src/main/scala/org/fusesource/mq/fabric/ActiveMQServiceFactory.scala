@@ -41,6 +41,8 @@ import java.lang.{ThreadLocal, Thread}
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.osgi.framework.{ServiceRegistration, BundleContext}
 import org.apache.activemq.network.DiscoveryNetworkConnector
+import java.util
+import collection.mutable
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -93,7 +95,10 @@ object ActiveMQServiceFactory {
           LOG.info("Adding network connector " + name)
           val nc = new DiscoveryNetworkConnector(new URI("fabric:" + name))
           nc.setName("fabric-" + name)
-          IntrospectionSupport.setProperties(nc, properties.asInstanceOf[java.util.Map[String, String]], "network.")
+          // copy properties as IntrospectionSupport removes them
+          val network_properties = new mutable.HashMap[String, Object]()
+          network_properties.putAll(properties.asInstanceOf[java.util.Map[String, String]])
+          IntrospectionSupport.setProperties(nc, network_properties, "network.")
           broker.addNetworkConnector(nc)
         }
       }
