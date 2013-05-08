@@ -190,7 +190,24 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public VersionDTO createVersion(String version) {
-        return VersionDTO.newInstance(getFabricService().createVersion(version));
+        return createVersion(getLatestVersion().getId(), version);
+    }
+
+    @Override
+    public VersionDTO createVersion() {
+        return createVersion(getLatestVersion().getSequence().next().getName());
+    }
+
+    private Version getLatestVersion() {
+        Version[] versions = getFabricService().getVersions();
+        Version latest = null;
+        int length = versions.length;
+        if (length > 0) {
+            latest = versions[length - 1];
+        } else {
+            throw new FabricException("No versions available");
+        }
+        return latest;
     }
 
     @Override

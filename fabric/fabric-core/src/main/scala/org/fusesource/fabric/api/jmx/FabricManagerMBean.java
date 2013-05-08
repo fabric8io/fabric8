@@ -41,6 +41,7 @@ public interface FabricManagerMBean {
 
     ProfileDTO changeProfileParents(String version, String name, List<String> parents);
 
+    VersionDTO createVersion();
     VersionDTO createVersion(String version);
     VersionDTO createVersion(String parentVersionId, String toVersion);
 
