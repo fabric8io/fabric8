@@ -37,6 +37,10 @@ public interface FabricManagerMBean {
 
     ProfileDTO createProfile(String version, String name);
 
+    ProfileDTO createProfile(String version, String name, List<String> parents);
+
+    ProfileDTO changeProfileParents(String version, String name, List<String> parents);
+
     VersionDTO createVersion(String version);
     VersionDTO createVersion(String parentVersionId, String toVersion);
 

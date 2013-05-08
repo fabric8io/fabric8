@@ -170,6 +170,20 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public ProfileDTO createProfile(String version, String name, List<String> parents) {
+        Profile p = getFabricService().getVersion(version).createProfile(name);
+        p.setParents(getProfiles(version, parents));
+        return ProfileDTO.newInstance(getFabricService(), p);
+    }
+
+    @Override
+    public ProfileDTO changeProfileParents(String version, String name, List<String> parents) {
+        Profile p = getFabricService().getVersion(version).getProfile(name);
+        p.setParents(getProfiles(version, parents));
+        return ProfileDTO.newInstance(getFabricService(), p);
+    }
+
+    @Override
     public VersionDTO createVersion(String parentVersionId, String toVersion) {
         return VersionDTO.newInstance(getFabricService().createVersion(parentVersionId, toVersion));
     }
@@ -206,15 +220,6 @@ public class FabricManager implements FabricManagerMBean {
             return new ArrayList<String>();
         }
         throw new IllegalStateException(String.format("Container %s not found.",name));
-    }
-
-    private Profile[] getProfiles(Version version, List<String> names) {
-        List<Profile> answer = new ArrayList<Profile>();
-
-        for (String name : names) {
-            answer.add(version.getProfile(name));
-        }
-        return answer.toArray(new Profile[answer.size()]);
     }
 
     @Override
@@ -280,6 +285,33 @@ public class FabricManager implements FabricManagerMBean {
         }
         throw new IllegalStateException(String.format("Profile %s not found.", profileId));
     }
+
+    protected Profile[] getProfiles(String version, List<String> names) {
+        return getProfiles(getFabricService().getVersion(version), names);
+    }
+
+    protected Profile[] getProfiles(Version version, List<String> names) {
+        Profile[] allProfiles = version.getProfiles();
+        List<Profile> profiles = new ArrayList<Profile>();
+        if (names == null) {
+            return new Profile[0];
+        }
+        for (String name : names) {
+            Profile profile = null;
+            for (Profile p : allProfiles) {
+                if (name.equals(p.getId())) {
+                    profile = p;
+                    break;
+                }
+            }
+            if (profile == null) {
+                throw new IllegalArgumentException("Profile " + name + " not found.");
+            }
+            profiles.add(profile);
+        }
+        return profiles.toArray(new Profile[profiles.size()]);
+    }
+
 
 
 /*
