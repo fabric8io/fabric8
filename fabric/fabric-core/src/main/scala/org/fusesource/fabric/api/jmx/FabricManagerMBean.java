@@ -57,6 +57,10 @@ public interface FabricManagerMBean {
 
     void removeProfilesFromContainer(String container, List<String> profiles);
 
+    void applyVersionToContainers(String version, List<String> containers);
+
+    void applyProfilesToContainers(String version, List<String> profiles, List<String> containers);
+
     List<String> getContainerProvisionList(String name);
 
     List<ContainerDTO> containers();
@@ -67,6 +71,9 @@ public interface FabricManagerMBean {
 
     List<ContainerDTO> containersForProfile(String versionId, String profileId);
 
+    List<String> containerIdsForVersion(String versionId);
+
+    List<ContainerDTO> containersForVersion(String versionId);
 /*
     ContainerTemplate getContainerTemplate(String containerId, String jmxUser, String jmxPassword);
 */

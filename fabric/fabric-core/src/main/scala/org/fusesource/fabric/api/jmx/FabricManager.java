@@ -240,6 +240,22 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public void applyVersionToContainers(String version, List<String> containers) {
+        Version v = getFabricService().getVersion(version);
+        for(String container : containers) {
+            getFabricService().getContainer(container).setVersion(v);
+        }
+    }
+
+    @Override
+    public void applyProfilesToContainers(String version, List<String> profiles, List<String> containers) {
+        Profile[] p = getProfiles(version, profiles);
+        for (String container: containers) {
+            getFabricService().getContainer(container).setProfiles(p);
+        }
+    }
+
+    @Override
     public void addProfilesToContainer(String container, List<String> profiles) {
         Container cont = getFabricService().getContainer(container);
         Profile[] existing = cont.getProfiles();
@@ -287,20 +303,65 @@ public class FabricManager implements FabricManagerMBean {
     public List<String> containerIdsForProfile(String versionId, String profileId) {
         Version version = getFabricService().getVersion(versionId);
         Profile profile = version != null ? version.getProfile(profileId) : null;
+        List<String> rc = new ArrayList<String>();
         if (profile != null) {
-            return new ArrayList<String>();
+            for (Container c : getFabricService().getContainers()) {
+                for (Profile p : c.getProfiles()) {
+                    if (p.equals(profile)) {
+                        rc.add(c.getId());
+                    }
+                }
+            }
         }
-        throw new IllegalStateException(String.format("Profile %s not found.", profileId));
+        return rc;
+
+
     }
 
     @Override
     public List<ContainerDTO> containersForProfile(String versionId, String profileId) {
         Version version = getFabricService().getVersion(versionId);
         Profile profile = version != null ? version.getProfile(profileId) : null;
+        List<ContainerDTO> rc = new ArrayList<ContainerDTO>();
         if (profile != null) {
-            return new ArrayList<ContainerDTO>();
+            for (Container c : getFabricService().getContainers()) {
+                for (Profile p : c.getProfiles()) {
+                    if (p.equals(profile)) {
+                        rc.add(ContainerDTO.newInstance(c));
+                    }
+                }
+            }
         }
-        throw new IllegalStateException(String.format("Profile %s not found.", profileId));
+        return rc;
+    }
+
+    @Override
+    public List<String> containerIdsForVersion(String versionId) {
+        Version version = getFabricService().getVersion(versionId);
+        List<String> rc = new ArrayList<String>();
+        if (version != null) {
+            for (Container c : getFabricService().getContainers()) {
+                if (c.getVersion().equals(version)) {
+                    rc.add(c.getId());
+                }
+            }
+        }
+        return rc;
+
+    }
+
+    @Override
+    public List<ContainerDTO> containersForVersion(String versionId) {
+        Version version = getFabricService().getVersion(versionId);
+        List<ContainerDTO> rc = new ArrayList<ContainerDTO>();
+        if (version != null) {
+            for (Container c : getFabricService().getContainers()) {
+                if (c.getVersion().equals(version)) {
+                    rc.add(ContainerDTO.newInstance(c));
+                }
+            }
+        }
+        return rc;
     }
 
     protected Profile[] getProfiles(String version, List<String> names) {
