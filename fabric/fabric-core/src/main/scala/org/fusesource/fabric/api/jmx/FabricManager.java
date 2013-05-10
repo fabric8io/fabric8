@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api.jmx;
 
+import org.apache.commons.codec.binary.Base64;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
@@ -474,8 +475,8 @@ public class FabricManager implements FabricManagerMBean {
     }
     
     @Override
-    public byte[] getConfigurationFile(String versionId, String profileId, String fileName) {
-        return getFabricService().getVersion(versionId).getProfile(profileId).getFileConfigurations().get(fileName);        
+    public String getConfigurationFile(String versionId, String profileId, String fileName) {
+        return Base64.encodeBase64String(getFabricService().getVersion(versionId).getProfile(profileId).getFileConfigurations().get(fileName));
     }
     
     @Override
@@ -487,11 +488,15 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public void setConfigurationFile(String versionId, String profileId, String fileName, byte[] data) {
+    public void setConfigurationFile(String versionId, String profileId, String fileName, String data) {
         Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
         Map<String, byte[]> configs = profile.getFileConfigurations();
-        configs.put(fileName, data);
-        profile.setFileConfigurations(configs);        
+        try {
+            configs.put(fileName, Base64.decodeBase64(data));
+            profile.setFileConfigurations(configs);
+        } catch (Exception e) {
+            throw new FabricException("Error setting config file: ", e);
+        }
     }
 
 
