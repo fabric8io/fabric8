@@ -40,6 +40,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+
 public class MavenProxyRegistrationHandler implements LifecycleListener, ConfigurationListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
@@ -149,12 +153,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
                 String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
                 String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
                 String path = parentPath + "/p_";
-                if (zookeeper.exists(parentPath) == null) {
-                    zookeeper.createWithParents(parentPath, CreateMode.PERSISTENT);
-                }
-                if (zookeeper.exists(path) == null) {
-                    registeredProxies.get(type).add(zookeeper.create(path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
-                }
+                registeredProxies.get(type).add(create(zookeeper, path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
             }
         } catch (Exception e) {
             LOGGER.warn("Failed to register maven proxy.");
@@ -167,9 +166,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
             try {
                 if (connected) {
                     for (String entry : registeredProxies.get(type)) {
-                        if (zookeeper.exists(entry) != null) {
-                            zookeeper.deleteWithChildren(entry);
-                        }
+                        deleteSafe(zookeeper, entry);
                     }
                 }
             } catch (Exception e) {

@@ -16,22 +16,6 @@
  */
 package org.fusesource.fabric.dosgi.impl;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Proxy;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.dosgi.api.Dispatched;
@@ -67,7 +51,31 @@ import org.osgi.service.remoteserviceadmin.RemoteConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.osgi.service.remoteserviceadmin.RemoteConstants.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.ENDPOINT_FRAMEWORK_UUID;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.ENDPOINT_ID;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_EXPORTED_CONFIGS;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_EXPORTED_INTENTS;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_EXPORTED_INTENTS_EXTRA;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_IMPORTED;
+import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_IMPORTED_CONFIGS;
 
 public class Manager implements ServiceListener, ListenerHook, EventHook, FindHook, NodeEventsListener<String>, Dispatched {
 
@@ -145,7 +153,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.server.start();
         // ZooKeeper tracking
         try {
-            this.zooKeeper.createWithParents(DOSGI_REGISTRY, CreateMode.PERSISTENT);
+            create(zooKeeper, DOSGI_REGISTRY, CreateMode.PERSISTENT);
         } catch (KeeperException.NodeExistsException e) {
             // The node already exists, that's fine
         }
@@ -377,7 +385,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
             ExportRegistration registration = exportedServices.remove(reference);
             if (registration != null) {
                 server.unregisterService(registration.getExportedEndpoint().getId());
-                zooKeeper.delete(registration.getZooKeeperNode());
+                delete(zooKeeper, registration.getZooKeeperNode());
             }
         } catch (Exception e) {
             LOGGER.info("Error when unexporting endpoint", e);
@@ -430,7 +438,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
         String descStr = Utils.getEndpointDescriptionXML(description);
         // Publish in ZooKeeper
-        final String nodePath = zooKeeper.create(DOSGI_REGISTRY + "/" + uuid, descStr, CreateMode.EPHEMERAL);
+        final String nodePath = create(zooKeeper, DOSGI_REGISTRY + "/" + uuid, descStr, CreateMode.EPHEMERAL);
         // Return
         return new ExportRegistration(reference, description, nodePath);
     }

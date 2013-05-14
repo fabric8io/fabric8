@@ -30,6 +30,7 @@ import org.fusesource.fabric.zookeeper.ZkPath
 import org.fusesource.fabric.api.Container
 import scala.Some
 import org.jclouds.Context
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
 
 /**
  *
@@ -189,7 +190,7 @@ class ComputeServiceResource(self: ComputeService) extends BaseResource {
     val provider_id = context.getProviderMetadata.getId
 
     try {
-      Services.zoo_keeper.deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(id))
+      ZooKeeperUtils.deleteSafe(Services.zoo_keeper, ZkPath.CLOUD_SERVICE.getPath(id))
     } catch {
       case _ => // Ignore
     }

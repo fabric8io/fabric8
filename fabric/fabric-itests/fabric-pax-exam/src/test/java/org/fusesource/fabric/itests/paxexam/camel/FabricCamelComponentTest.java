@@ -1,10 +1,8 @@
 package org.fusesource.fabric.itests.paxexam.camel;
 
 
-import com.google.inject.Inject;
 import junit.framework.Assert;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
@@ -26,8 +24,8 @@ import scala.actors.threadpool.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static junit.framework.Assert.assertNotNull;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 @RunWith(JUnit4TestRunner.class)
@@ -81,8 +79,8 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));
 
         //Check that the entries have been properly propagated.
-        Assert.assertNotNull(zooKeeper.exists("/fabric/registry/camel/endpoints/"));
-        Assert.assertEquals(1, zooKeeper.getChildren("/fabric/registry/camel/endpoints/").size());
+        Assert.assertNotNull(exists(zooKeeper, "/fabric/registry/camel/endpoints/"));
+        Assert.assertEquals(1, getChildren(zooKeeper, "/fabric/registry/camel/endpoints/").size());
         Thread.sleep(5000);
         System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " camel:route-list"));
         String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();

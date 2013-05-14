@@ -20,7 +20,6 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperRetriableUtils;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.ops4j.pax.web.service.spi.WebEvent;
 import org.ops4j.pax.web.service.spi.WebListener;
@@ -30,6 +29,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class FabricWebRegistrationHandler implements WebListener, LifecycleListener {
 
@@ -75,8 +77,8 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
-            ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.WEBAPPS_CONTAINER.getPath(name,
-                                        webEvent.getBundle().getVersion().toString(), id), json);
+            setData(zooKeeper, ZkPath.WEBAPPS_CONTAINER.getPath(name,
+                    webEvent.getBundle().getVersion().toString(), id), json);
         } catch (Exception e) {
             LOGGER.error("Failed to register webapp {}.", webEvent.getContextPath(), e);
         }
@@ -96,8 +98,8 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
                 System.clearProperty("jolokia.agent");
             }
 
-            zooKeeper.delete(ZkPath.WEBAPPS_CONTAINER.getPath(name,
-                             webEvent.getBundle().getVersion().toString(), container.getId()));
+            delete(zooKeeper, ZkPath.WEBAPPS_CONTAINER.getPath(name,
+                    webEvent.getBundle().getVersion().toString(), container.getId()));
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
         }

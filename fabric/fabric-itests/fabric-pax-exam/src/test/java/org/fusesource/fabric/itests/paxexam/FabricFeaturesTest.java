@@ -17,8 +17,6 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.util.*;
-
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -26,7 +24,6 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +31,12 @@ import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
  * Tests various Fabric Features.
@@ -85,7 +87,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         for (Container container : containers) {
             //Test the modified profile.
             if (!defaultProfile.configurationEquals(targetProfile)) {
-                ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+                setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{targetProfile});
             //containerSetProfile(container.getId(), profileName, false);
@@ -109,7 +111,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         for (Container container : containers) {
             //We set the container to default to clean up the profile.
             if (!defaultProfile.configurationEquals(targetProfile)) {
-                ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+                setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{defaultProfile});
         }

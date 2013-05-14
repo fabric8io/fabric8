@@ -28,9 +28,10 @@ import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.linkedin.zookeeper.client.LifecycleListener;
-import org.linkedin.zookeeper.client.ZKData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 public class ZookeeperProperties extends Properties implements LifecycleListener, Watcher {
 
@@ -53,7 +54,7 @@ public class ZookeeperProperties extends Properties implements LifecycleListener
         StringWriter writer = new StringWriter();
         saveLayout(writer);
         try {
-            zooKeeper.setData(path, writer.toString());
+            setData(zooKeeper, path, writer.toString());
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -72,8 +73,7 @@ public class ZookeeperProperties extends Properties implements LifecycleListener
     }
 
     protected void fetchData() throws Exception {
-        ZKData<String> zkData = zooKeeper.getZKStringData(path, this);
-        String value = zkData.getData();
+        String value = getStringData(zooKeeper, path, this);
         if (value != null) {
             clear();
             load(new StringReader(value));

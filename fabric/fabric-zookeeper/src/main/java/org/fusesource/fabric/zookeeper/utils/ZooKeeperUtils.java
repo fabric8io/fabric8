@@ -41,7 +41,7 @@ public final class ZooKeeperUtils {
             child = path + "/" + child;
             if (dest.exists(child) == null) {
                 byte[] data = source.getData(child);
-                set(dest, child, data);
+                setData(dest, child, data);
                 copy(source, dest, child);
             }
         }
@@ -53,7 +53,7 @@ public final class ZooKeeperUtils {
             String toChild = to + "/" + child;
             if (zk.exists(toChild) == null) {
                 byte[] data = zk.getData(fromChild);
-                set(zk, toChild, data);
+                setData(zk, toChild, data);
                 copy(zk, fromChild, toChild);
             }
         }
@@ -104,15 +104,27 @@ public final class ZooKeeperUtils {
         }
     }
 
-    public static String get(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
+    public static List<String> getChildren(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
+        return zooKeeper.getChildren(path);
+    }
+
+    public static List<String> getAllChildren(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
+        return zooKeeper.getAllChildren(path);
+    }
+
+    public static String getStringData(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
         return zooKeeper.getStringData(path);
     }
 
-    public static void set(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
+    public static String getStringData(IZKClient zooKeeper, String path, Watcher watcher) throws InterruptedException, KeeperException {
+        return zooKeeper.getZKStringData(path, watcher).getData();
+    }
+
+    public static void setData(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         zooKeeper.createOrSetWithParents(path, value, CreateMode.PERSISTENT);
     }
 
-    public static void set(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
+    public static void setData(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) != null) {
             zooKeeper.setByteData(path, value);
         }
@@ -128,6 +140,18 @@ public final class ZooKeeperUtils {
         zooKeeper.createWithParents(path, CreateMode.PERSISTENT);
     }
 
+    public static String create(IZKClient zooKeeper, String path, CreateMode createMode) throws InterruptedException, KeeperException {
+        return zooKeeper.createWithParents(path, createMode);
+    }
+
+    public static String create(IZKClient zooKeeper, String path, String data, CreateMode createMode) throws InterruptedException, KeeperException {
+        return zooKeeper.createWithParents(path, data, createMode);
+    }
+
+    public static String create(IZKClient zooKeeper, String path, byte[] data, CreateMode createMode) throws InterruptedException, KeeperException {
+        return zooKeeper.createWithParents(path, data, createMode);
+    }
+
     public static void createDefault(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
         if (zooKeeper.exists(path) == null) {
             zooKeeper.createWithParents(path, value, CreateMode.PERSISTENT);
@@ -138,6 +162,10 @@ public final class ZooKeeperUtils {
         if (exists(zooKeeper, path) != null) {
             zooKeeper.deleteWithChildren(path);
         }
+    }
+
+    public static void delete(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
+            zooKeeper.delete(path);
     }
 
 
@@ -271,14 +299,14 @@ public final class ZooKeeperUtils {
      * @throws KeeperException
      * @throws InterruptedException
      */
-    public static long getLastModified(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
+    public static long lastModified(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
         long lastModified = 0;
         List<String> children = zooKeeper.getChildren(path);
         if (children.isEmpty()) {
             return zooKeeper.exists(path).getMtime();
         } else {
             for (String child : children) {
-                lastModified = Math.max(getLastModified(zooKeeper, path + "/" + child), lastModified);
+                lastModified = Math.max(lastModified(zooKeeper, path + "/" + child), lastModified);
             }
         }
         return lastModified;
@@ -305,8 +333,13 @@ public final class ZooKeeperUtils {
 
     public static String generateContainerToken(IZKClient zooKeeper, String container) throws KeeperException, InterruptedException {
         String password = generatePassword();
-        set(zooKeeper, CONTAINERS_NODE + "/" + container, password);
+        setData(zooKeeper, CONTAINERS_NODE + "/" + container, password);
         return password;
+    }
+
+    public static boolean fixACLs(IZKClient zooKeeper, String path, boolean recursive) throws KeeperException, InterruptedException {
+        zooKeeper.fixACLs(path, recursive);
+        return true;
     }
 
 }

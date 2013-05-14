@@ -21,7 +21,6 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -30,6 +29,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @Command(name = "cluster-list", scope = "fabric", description = "Lists all ActiveMQ message brokers in the fabric, enabling you to see which brokers are grouped into clusters.")
 public class ClusterList extends FabricCommand {
@@ -56,10 +59,10 @@ public class ClusterList extends FabricCommand {
 
     protected void printCluster(String dir, PrintStream out) throws InterruptedException, KeeperException, IOException, URISyntaxException {
         // do we have any clusters at all?
-        if (getZooKeeper().exists(dir) == null) {
+        if (exists(getZooKeeper(), dir) == null) {
             return;
         }
-        List<String> children = getZooKeeper().getAllChildren(dir);
+        List<String> children = getAllChildren(getZooKeeper(), dir);
         HashMap<String, HashMap<String,ClusterNode>> clusters = new HashMap<String, HashMap<String,ClusterNode>>();
         for (String child : children) {
             String childDir = dir + "/" + child;
@@ -93,7 +96,7 @@ public class ClusterList extends FabricCommand {
                         if (services != null) {
                             if (!services.isEmpty()) {
                                 for (Object service : services) {
-                                    node.services.add(ZooKeeperUtils.getSubstitutedData(getZooKeeper(), service.toString()));
+                                    node.services.add(getSubstitutedData(getZooKeeper(), service.toString()));
                                 }
 
                                 node.masters.add(agent);

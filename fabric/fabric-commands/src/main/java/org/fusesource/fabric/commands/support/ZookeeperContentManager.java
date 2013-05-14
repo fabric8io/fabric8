@@ -3,11 +3,13 @@ package org.fusesource.fabric.commands.support;
 
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jledit.ContentManager;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class ZookeeperContentManager implements ContentManager {
 
@@ -28,7 +30,7 @@ public class ZookeeperContentManager implements ContentManager {
     @Override
     public String load(String location) throws IOException {
         try {
-            String data = zookeeper.getStringData(location);
+            String data = getStringData(zookeeper, location);
             return data != null ? data : "";
         } catch (InterruptedException e) {
             throw new IOException("Failed to read data from zookeeper.", e);
@@ -47,7 +49,7 @@ public class ZookeeperContentManager implements ContentManager {
     @Override
     public boolean save(String content, String location) {
         try {
-            ZooKeeperUtils.set(zookeeper,location, content);
+            setData(zookeeper, location, content);
         } catch (Exception e) {
             return false;
         }

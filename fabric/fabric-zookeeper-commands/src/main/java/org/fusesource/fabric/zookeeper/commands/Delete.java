@@ -21,6 +21,8 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.zookeeper.IZKClient;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+
 @Command(name = "delete", scope = "zk", description = "Delete the specified znode", detailedDescription = "classpath:delete.txt")
 public class Delete extends ZooKeeperCommandSupport {
 
@@ -39,7 +41,7 @@ public class Delete extends ZooKeeperCommandSupport {
             if (version >= 0) {
                 throw new UnsupportedOperationException("Unable to delete a version recursively");
             }
-            zk.deleteWithChildren(path);
+            deleteSafe(zk, path);
         } else {
             zk.delete(path, version);
         }

@@ -21,6 +21,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.easymock.EasyMock.*;
 import static org.fusesource.fabric.zookeeper.ZkPath.*;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 public class EncryptedPropertyResolverTest {
 
@@ -28,8 +29,8 @@ public class EncryptedPropertyResolverTest {
     @Test
     public void testResolve() throws Exception {
         IZKClient zooKeeper = createMock(IZKClient.class);
-        expect(zooKeeper.getStringData(AUTHENTICATION_CRYPT_ALGORITHM.getPath())).andReturn("PBEWithMD5AndDES").anyTimes();
-        expect(zooKeeper.getStringData(AUTHENTICATION_CRYPT_PASSWORD.getPath())).andReturn("mypassword").anyTimes();
+        expect(getStringData(zooKeeper, AUTHENTICATION_CRYPT_ALGORITHM.getPath())).andReturn("PBEWithMD5AndDES").anyTimes();
+        expect(getStringData(zooKeeper, AUTHENTICATION_CRYPT_PASSWORD.getPath())).andReturn("mypassword").anyTimes();
         replay(zooKeeper);
         EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
         resolver.setZooKeeper(zooKeeper);

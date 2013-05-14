@@ -30,7 +30,6 @@ import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceException;
@@ -70,6 +69,14 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MAX;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class
         KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
@@ -133,38 +140,38 @@ public class
             if (profiles != null) {
                 String versionNode = CONFIG_CONTAINER.getPath(name);
                 String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, name);
-                ZooKeeperUtils.createDefault(zooKeeper, versionNode, version);
-                ZooKeeperUtils.createDefault(zooKeeper, profileNode, profiles);
+                createDefault(zooKeeper, versionNode, version);
+                createDefault(zooKeeper, profileNode, profiles);
             }
 
-            Stat stat = ZooKeeperUtils.exists(zooKeeper, nodeAlive);
+            Stat stat = exists(zooKeeper, nodeAlive);
             if (stat != null) {
                 if (stat.getEphemeralOwner() != zooKeeper.getSessionId()) {
-                    zooKeeper.delete(nodeAlive);
-                    zooKeeper.createWithParents(nodeAlive, CreateMode.EPHEMERAL);
+                    delete(zooKeeper, nodeAlive);
+                    create(zooKeeper, nodeAlive, CreateMode.EPHEMERAL);
                 }
             } else {
-                zooKeeper.createWithParents(nodeAlive, CreateMode.EPHEMERAL);
+                create(zooKeeper, nodeAlive, CreateMode.EPHEMERAL);
             }
 
             String domainsNode = CONTAINER_DOMAINS.getPath(name);
-            stat = ZooKeeperUtils.exists(zooKeeper, domainsNode);
+            stat = exists(zooKeeper, domainsNode);
             if (stat != null) {
-                zooKeeper.deleteWithChildren(domainsNode);
+                deleteSafe(zooKeeper, domainsNode);
             }
 
-            ZooKeeperUtils.createDefault(zooKeeper, CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(zooKeeper, name));
-            ZooKeeperUtils.set(zooKeeper, CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName());
-            ZooKeeperUtils.set(zooKeeper, CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp());
-            ZooKeeperUtils.set(zooKeeper, CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name));
-            ZooKeeperUtils.createDefault(zooKeeper, CONTAINER_GEOLOCATION.getPath(name), GeoUtils
+            createDefault(zooKeeper, CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(zooKeeper, name));
+            setData(zooKeeper, CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName());
+            setData(zooKeeper, CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp());
+            setData(zooKeeper, CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name));
+            createDefault(zooKeeper, CONTAINER_GEOLOCATION.getPath(name), GeoUtils
                     .getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
                 String address = System.getProperty(resolver);
-                if (address != null && !address.isEmpty() && ZooKeeperUtils.exists(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
-                    ZooKeeperUtils.set(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver), address);
+                if (address != null && !address.isEmpty() && exists(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
+                    setData(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver), address);
                 }
             }
 
@@ -178,8 +185,8 @@ public class
             //Set the port range values
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
-            ZooKeeperUtils.createDefault(zooKeeper, CONTAINER_PORT_MIN.getPath(name), minimumPort);
-            ZooKeeperUtils.createDefault(zooKeeper, CONTAINER_PORT_MAX.getPath(name), maximumPort);
+            createDefault(zooKeeper, CONTAINER_PORT_MIN.getPath(name), minimumPort);
+            createDefault(zooKeeper, CONTAINER_PORT_MAX.getPath(name), maximumPort);
 
             registerDomains();
         } catch (Exception e) {
@@ -191,7 +198,7 @@ public class
         int rmiRegistryPort = getRmiRegistryPort(container);
         int rmiServerPort = getRmiServerPort(container);
         String jmxUrl = getJmxUrl(container.getId(), rmiServerPort, rmiRegistryPort);
-        ZooKeeperUtils.set(zooKeeper, CONTAINER_JMX.getPath(container.getId()), jmxUrl);
+        setData(zooKeeper, CONTAINER_JMX.getPath(container.getId()), jmxUrl);
         fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
         fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
         Configuration configuration = configurationAdmin.getConfiguration(MANAGEMENT_PID);
@@ -214,7 +221,7 @@ public class
     private void registerSsh(Container container) throws InterruptedException, IOException, KeeperException {
         int sshPort = getSshPort(container);
         String sshUrl = getSshUrl(container.getId(), sshPort);
-        ZooKeeperUtils.set(zooKeeper, CONTAINER_SSH.getPath(container.getId()), sshUrl);
+        setData(zooKeeper, CONTAINER_SSH.getPath(container.getId()), sshUrl);
         fabricService.getPortService().registerPort(container, SSH_PID, SSH_KEY, sshPort);
         Configuration configuration = configurationAdmin.getConfiguration(SSH_PID);
         updateIfNeeded(configuration, SSH_KEY, sshPort);
@@ -232,7 +239,7 @@ public class
     private void registerHttp(Container container) throws InterruptedException, IOException, KeeperException {
         int httpPort = getHttpPort(container);
         String httpUrl = getHttpUrl(container.getId(), httpPort);
-        ZooKeeperUtils.set(zooKeeper, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
+        setData(zooKeeper, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
         fabricService.getPortService().registerPort(container, HTTP_PID, HTTP_KEY, httpPort);
         Configuration configuration = configurationAdmin.getConfiguration(HTTP_PID);
         updateIfNeeded(configuration, HTTP_KEY, httpPort);
@@ -302,11 +309,11 @@ public class
     private static String getGlobalResolutionPolicy(IZKClient zooKeeper) throws InterruptedException, KeeperException {
         String policy = ZkDefs.LOCAL_HOSTNAME;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (ZooKeeperUtils.exists(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
-            policy = ZooKeeperUtils.get(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
+        if (exists(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
+            policy = getStringData(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
         } else if (System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY) != null && validResolverList.contains(System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY))) {
             policy = System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY);
-            ZooKeeperUtils.set(zooKeeper, ZkPath.POLICIES.getPath("resolver"), policy);
+            setData(zooKeeper, ZkPath.POLICIES.getPath("resolver"), policy);
         }
         return policy;
     }
@@ -322,8 +329,8 @@ public class
     private static String getContainerResolutionPolicy(IZKClient zooKeeper, String container) throws InterruptedException, KeeperException {
         String policy = null;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
-        if (ZooKeeperUtils.exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
-            policy = ZooKeeperUtils.get(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container));
+        if (exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
+            policy = getStringData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container));
         } else if (System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY) != null && validResolverList.contains(System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY))) {
             policy = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY);
         }
@@ -332,8 +339,8 @@ public class
             policy = getGlobalResolutionPolicy(zooKeeper);
         }
 
-        if (policy != null && ZooKeeperUtils.exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
-            ZooKeeperUtils.set(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container), policy);
+        if (policy != null && exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) == null) {
+            setData(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container), policy);
         }
         return policy;
     }
@@ -400,7 +407,7 @@ public class
             String name = System.getProperty(SystemProperties.KARAF_NAME);
             domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
-                ZooKeeperUtils.set(zooKeeper, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
+                setData(zooKeeper, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
             }
         }
     }
@@ -409,11 +416,7 @@ public class
         if (isConnected()) {
             String name = System.getProperty(SystemProperties.KARAF_NAME);
             String domainsPath = CONTAINER_DOMAINS.getPath(name);
-            if (ZooKeeperUtils.exists(zooKeeper, domainsPath) != null) {
-                for (String child : zooKeeper.getChildren(domainsPath)) {
-                    zooKeeper.delete(domainsPath + "/" + child);
-                }
-            }
+            deleteSafe(zooKeeper, domainsPath);
         }
     }
 
@@ -429,15 +432,15 @@ public class
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
             try {
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (domains.add(domain) && ZooKeeperUtils.exists(zooKeeper, path) == null) {
-                        ZooKeeperUtils.set(zooKeeper, path, "");
+                    if (domains.add(domain) && exists(zooKeeper, path) == null) {
+                        setData(zooKeeper, path, "");
                     }
                 } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     domains.clear();
                     domains.addAll(Arrays.asList(mbeanServer.getDomains()));
                     if (!domains.contains(domain)) {
                         // domain is no present any more
-                        ZooKeeperUtils.deleteSafe(zooKeeper, path);
+                        deleteSafe(zooKeeper, path);
                     }
                 }
 //            } catch (KeeperException.SessionExpiredException e) {
@@ -471,7 +474,7 @@ public class
                     Configuration config = configurationAdmin.getConfiguration(SSH_PID);
                     int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_KEY));
                     String sshUrl = getSshUrl(name, sshPort);
-                    ZooKeeperUtils.set(zooKeeper, CONTAINER_SSH.getPath(name), sshUrl);
+                    setData(zooKeeper, CONTAINER_SSH.getPath(name), sshUrl);
                     if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_KEY) != sshPort) {
                         fabricService.getPortService().unRegisterPort(current, SSH_PID);
                         fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
@@ -481,7 +484,7 @@ public class
                     Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
                     int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_KEY));
                     String httpUrl = getSshUrl(name, httpPort);
-                    ZooKeeperUtils.set(zooKeeper, CONTAINER_HTTP.getPath(name), httpUrl);
+                    setData(zooKeeper, CONTAINER_HTTP.getPath(name), httpUrl);
                     if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_KEY) != httpPort) {
                         fabricService.getPortService().unRegisterPort(current, HTTP_PID);
                         fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
@@ -492,7 +495,7 @@ public class
                     int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_KEY));
                     int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_KEY));
                     String jmxUrl = getJmxUrl(name, rmiRegistryPort, rmiServerPort);
-                    ZooKeeperUtils.set(zooKeeper, CONTAINER_JMX.getPath(name), jmxUrl);
+                    setData(zooKeeper, CONTAINER_JMX.getPath(name), jmxUrl);
                     if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY) != rmiRegistryPort
                             || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_KEY) != rmiServerPort) {
                         fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
@@ -520,7 +523,7 @@ public class
                 @Override
                 public String getIp() {
                     try {
-                        return ZooKeeperUtils.getSubstitutedPath(zooKeeper, CONTAINER_IP.getPath(name));
+                        return getSubstitutedPath(zooKeeper, CONTAINER_IP.getPath(name));
                     } catch (Exception e) {
                         throw new FabricException(e);
                     }

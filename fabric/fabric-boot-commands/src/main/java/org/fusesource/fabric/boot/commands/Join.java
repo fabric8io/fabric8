@@ -16,10 +16,6 @@
  */
 package org.fusesource.fabric.boot.commands;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Hashtable;
-
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -39,6 +35,12 @@ import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.ConfigurationAdmin;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 
 @Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
 public class Join extends OsgiCommandSupport implements org.fusesource.fabric.boot.commands.service.Join {
@@ -170,7 +172,7 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
             }
             zkClient.start();
             zkClient.waitForConnected();
-            exists = zkClient.exists(ZkPath.CONTAINER.getPath(name)) != null;
+            exists = exists(zkClient, ZkPath.CONTAINER.getPath(name)) != null;
             if (!exists || force) {
                 ZkPath.createContainerPaths(zkClient, containerName, version, profile);
             }

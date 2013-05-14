@@ -34,7 +34,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.util.Set;
 
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 @RunWith(JUnit4TestRunner.class)
@@ -66,11 +66,11 @@ public class CreateChildContainerTest extends FabricTestSupport {
         for (Container c : containers) {
             try {
                 c.destroy();
-                Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
-                Assert.assertNull(zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
-                Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER.getPath(c.getId())));
-                Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
-                Assert.assertNull(zooKeeper.exists(ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
+                Assert.assertNull(exists(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
+                Assert.assertNull(exists(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
+                Assert.assertNull(exists(zooKeeper, ZkPath.CONTAINER.getPath(c.getId())));
+                Assert.assertNull(exists(zooKeeper, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
+                Assert.assertNull(exists(zooKeeper, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
             } catch (Exception ex) {
                 //ignore
             }

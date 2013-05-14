@@ -24,21 +24,19 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.linkedin.util.clock.Timespan;
-import org.osgi.framework.BundleContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Properties;
 
-import static org.junit.Assert.*;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class BridgeTest {
 
@@ -82,11 +80,11 @@ public class BridgeTest {
 
     @Test
     public void testNoLocalNorRemoteBranch() throws Exception {
-        ZooKeeperUtils.deleteSafe(zookeeper, ZkPath.CONFIG_VERSIONS.getPath());
-        ZooKeeperUtils.set(zookeeper, ZkPath.CONFIG_VERSION.getPath("1.0"), "description = default version\n");
-        ZooKeeperUtils.set(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thepid.properties", "foo = bar\n");
-        ZooKeeperUtils.set(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thexml.xml", "<hello/>\n");
-        ZooKeeperUtils.set(zookeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", "root"), "p1");
+        deleteSafe(zookeeper, ZkPath.CONFIG_VERSIONS.getPath());
+        setData(zookeeper, ZkPath.CONFIG_VERSION.getPath("1.0"), "description = default version\n");
+        setData(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thepid.properties", "foo = bar\n");
+        setData(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thexml.xml", "<hello/>\n");
+        setData(zookeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", "root"), "p1");
 
 
         ObjectId rev1 = git.getRepository().getRef("HEAD").getObjectId();
@@ -105,7 +103,7 @@ public class BridgeTest {
         remote.add().addFilepattern(".").call();
         remote.commit().setMessage("Add p2 profile").call();
 
-        ZooKeeperUtils.set(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p3") + "/thepid.properties", "foo = bar\n");
+        setData(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p3") + "/thepid.properties", "foo = bar\n");
 
         rev1 = git.getRepository().getRef("HEAD").getObjectId();
         Bridge.update(git, zookeeper);

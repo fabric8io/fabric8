@@ -22,8 +22,9 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 
-import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
 import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_ALGORITHM;
+import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
 public class EncryptedPropertyResolver implements PlaceholderResolver {
 
@@ -49,7 +50,7 @@ public class EncryptedPropertyResolver implements PlaceholderResolver {
 
     private String getAlgorithm() {
         try {
-            return zooKeeper.getStringData(AUTHENTICATION_CRYPT_ALGORITHM.getPath());
+            return getStringData(zooKeeper, AUTHENTICATION_CRYPT_ALGORITHM.getPath());
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -57,7 +58,7 @@ public class EncryptedPropertyResolver implements PlaceholderResolver {
 
     private String getPassword() {
         try {
-            return zooKeeper.getStringData(AUTHENTICATION_CRYPT_PASSWORD.getPath());
+            return getStringData(zooKeeper, AUTHENTICATION_CRYPT_PASSWORD.getPath());
         } catch (Exception e) {
             throw new FabricException(e);
         }

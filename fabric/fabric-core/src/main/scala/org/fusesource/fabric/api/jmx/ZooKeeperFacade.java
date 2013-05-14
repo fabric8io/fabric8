@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.internal.Objects.notNull;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 /**
  */
@@ -98,7 +99,7 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
 
     public ZkContents read(String path) throws KeeperException, InterruptedException {
         IZKClient zk = getZooKeeper();
-        Stat exists = zk.exists(path);
+        Stat exists = exists(zk, path);
         if (exists == null) {
             return null;
         }
@@ -107,9 +108,9 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
         List<String> children = null;
         String data = null;
         if (numChildren > 0) {
-            children = zk.getChildren(path);
+            children = getChildren(zk, path);
         } else {
-            data = zk.getStringData(path);
+            data = getStringData(zk, path);
         }
         return new ZkContents(dataLength, children, data);
     }

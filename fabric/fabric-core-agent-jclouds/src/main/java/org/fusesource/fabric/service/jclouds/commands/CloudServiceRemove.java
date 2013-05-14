@@ -17,7 +17,6 @@
 
 package org.fusesource.fabric.service.jclouds.commands;
 
-import java.util.Dictionary;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
@@ -25,6 +24,10 @@ import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.karaf.core.Constants;
 import org.osgi.service.cm.Configuration;
+
+import java.util.Dictionary;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 
 @Command(name = "cloud-service-remove", scope = "fabric", description = "Removes a cloud provider from the fabric's registry.")
 public class CloudServiceRemove extends FabricCommand {
@@ -38,9 +41,7 @@ public class CloudServiceRemove extends FabricCommand {
         boolean connected = getZooKeeper().isConnected();
         Container current = null;
         if (connected) {
-            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(name)) != null) {
-                getZooKeeper().deleteWithChildren(ZkPath.CLOUD_SERVICE.getPath(name));
-            }
+            deleteSafe(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
             current = fabricService.getCurrentContainer();
         }
         //Remove compute configurations for the service.

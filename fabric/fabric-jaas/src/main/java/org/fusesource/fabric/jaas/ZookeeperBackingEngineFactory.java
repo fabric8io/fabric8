@@ -19,7 +19,6 @@ package org.fusesource.fabric.jaas;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngine;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.osgi.framework.BundleContext;

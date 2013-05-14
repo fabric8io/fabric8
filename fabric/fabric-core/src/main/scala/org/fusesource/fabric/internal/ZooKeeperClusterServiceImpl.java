@@ -16,31 +16,12 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.DataStore;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
@@ -62,8 +43,31 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.utils.BundleUtils.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import static org.fusesource.fabric.utils.BundleUtils.findAndStopBundle;
+import static org.fusesource.fabric.utils.BundleUtils.findOrInstallBundle;
+import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -404,7 +408,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				return Collections.emptyList();
 			}
 			List<String> list = new ArrayList<String>();
-			if (zooKeeper.exists(ZkPath.CONFIG_ENSEMBLES.getPath()) != null) {
+			if (exists(zooKeeper, ZkPath.CONFIG_ENSEMBLES.getPath()) != null) {
 				String clusterId = ZooKeeperRetriableUtils.get(zooKeeper, ZkPath.CONFIG_ENSEMBLES.getPath());
 				String containers = ZooKeeperRetriableUtils.get(zooKeeper, ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
 				Collections.addAll(list, containers.split(","));
@@ -462,7 +466,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 if (ZooKeeperRetriableUtils.exists(zooKeeper, ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
                     throw new FabricException("The container " + container + " is not alive");
                 }
-                String containerVersion = zooKeeper.getStringData(ZkPath.CONFIG_CONTAINER.getPath(container));
+                String containerVersion = getStringData(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container));
                 if (!version.equals(containerVersion)) {
                     throw new FabricException("The container " + container + " is not using the default-version:" + version);
                 }
@@ -527,11 +531,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				String minimumPort = String.valueOf(Ports.MIN_PORT_NUMBER);
 				String maximumPort = String.valueOf(Ports.MAX_PORT_NUMBER);
 
-				if (zooKeeper.exists(ZkPath.CONTAINER_PORT_MIN.getPath(container)) != null) {
+				if (exists(zooKeeper, ZkPath.CONTAINER_PORT_MIN.getPath(container)) != null) {
 					minimumPort = ZooKeeperRetriableUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_PORT_MIN.getPath(container));
 				}
 
-				if (zooKeeper.exists(ZkPath.CONTAINER_PORT_MAX.getPath(container)) != null) {
+				if (exists(zooKeeper, ZkPath.CONTAINER_PORT_MAX.getPath(container)) != null) {
 					maximumPort = ZooKeeperRetriableUtils.getSubstitutedPath(zooKeeper, ZkPath.CONTAINER_PORT_MAX.getPath(container));
 				}
 
@@ -599,8 +603,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     ZooKeeperRetriableUtils.set(zooKeeper, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 
 
-                    for (String v : zooKeeper.getChildren("/fabric/configs/versions/")) {
-                        for (String container : dst.getChildren("/fabric/configs/versions/" + v + "/containers")) {
+                    for (String v : getChildren(zooKeeper, "/fabric/configs/versions/")) {
+                        for (String container : getChildren(dst, "/fabric/configs/versions/" + v + "/containers")) {
                             ZooKeeperRetriableUtils.remove(dst, "/fabric/configs/versions/" + v + "/containers/" + container, "fabric-ensemble-" + oldClusterId + "-.*");
                         }
                         setConfigProperty(dst, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");

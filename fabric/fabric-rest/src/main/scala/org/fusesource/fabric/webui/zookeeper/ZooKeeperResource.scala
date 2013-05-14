@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.{XmlElement, XmlAttribute, XmlRootElement}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.codehaus.jackson.annotate.JsonProperty
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
 
 @Path("/zookeeper")
 class ZooKeeperResource(val zookeeper: IZKClient, val path: String) extends BaseResource {
@@ -31,10 +32,10 @@ class ZooKeeperResource(val zookeeper: IZKClient, val path: String) extends Base
   def getPath = path
 
   @JsonProperty
-  def getValue = zookeeper.getStringData(path)
+  def getValue = ZooKeeperUtils.getStringData(zookeeper, path)
 
   @JsonProperty
-  def getChildren: Array[String] = zookeeper.getChildren(path).toArray(new Array[String](0))
+  def getChildren: Array[String] = ZooKeeperUtils.getChildren(zookeeper, path).toArray(new Array[String](0))
 
   @Path("{path:.*}")
   @GET

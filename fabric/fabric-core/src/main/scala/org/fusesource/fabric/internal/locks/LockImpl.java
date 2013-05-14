@@ -22,7 +22,6 @@ import org.apache.zookeeper.Watcher;
 import org.fusesource.fabric.api.Lock;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +29,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class LockImpl implements Lock {
 
@@ -64,14 +68,14 @@ public class LockImpl implements Lock {
         LockData lockData;
         String lockPath = null;
         try {
-            ZooKeeperUtils.createDefault(zooKeeper, path, "");
+            createDefault(zooKeeper, path, "");
             Thread current = Thread.currentThread();
 
             lockData = threadLocks.get(current);
 
             if (lockData == null) {
                 lockPath = createLockNode(path);
-                zooKeeper.setData(lockPath, System.getProperty("karaf.name") + "/" + current.getName());
+                setData(zooKeeper, lockPath, System.getProperty("karaf.name") + "/" + current.getName());
                 lockData = new LockData(current, lockPath);
                 threadLocks.put(current, lockData);
             } else {
@@ -108,8 +112,8 @@ public class LockImpl implements Lock {
             LockData lockData = threadLocks.get(current);
             if (lockData != null && lockData.getCount().decrementAndGet() <= 0) {
                 threadLocks.remove(current);
-                if (zooKeeper.exists(lockData.getLockPath()) != null) {
-                    zooKeeper.delete(lockData.getLockPath());
+                if (exists(zooKeeper, lockData.getLockPath()) != null) {
+                    delete(zooKeeper, lockData.getLockPath());
                 }
             }
         } catch (Exception e) {
@@ -135,7 +139,7 @@ public class LockImpl implements Lock {
 
     private void deleteLockNode(String path) {
         try {
-            zooKeeper.delete(path);
+            delete(zooKeeper, path);
         } catch (Exception e) {
             //ignore
         }

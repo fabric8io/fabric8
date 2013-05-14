@@ -17,16 +17,6 @@
 
 package org.fusesource.fabric.itests;
 
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
@@ -49,6 +39,16 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.osgi.util.tracker.ServiceTracker;
 
+import java.util.Collection;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.junit.Assert.assertNotNull;
 
 public class ZooKeeperTest {
@@ -119,7 +119,7 @@ public class ZooKeeperTest {
         client.waitForConnected();
         Thread.sleep(500);
 
-        assertNotNull(client.exists(ZkPath.CONTAINER_ALIVE.getPath(System.getProperty("karaf.name"))));
+        assertNotNull(exists(client, ZkPath.CONTAINER_ALIVE.getPath(System.getProperty("karaf.name"))));
     }
 
 

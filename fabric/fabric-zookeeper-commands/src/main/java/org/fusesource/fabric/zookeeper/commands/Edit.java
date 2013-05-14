@@ -22,11 +22,13 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.ZooDefs;
 import org.fusesource.fabric.commands.support.ZookeeperContentManager;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 import java.nio.charset.Charset;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 
 @Command(name = "edit", scope = "zk", description = "Edits a znode's data", detailedDescription = "classpath:edit.txt")
 public class Edit extends ZooKeeperCommandSupport {
@@ -40,7 +42,7 @@ public class Edit extends ZooKeeperCommandSupport {
 
     @Override
     protected void doExecute(IZKClient zk) throws Exception {
-        if (zk.exists(path) == null) {
+        if (exists(zk, path) == null) {
             zk.createWithParents(path,"", ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
         }
         //Call the editor

@@ -16,11 +16,18 @@
  */
 package org.fusesource.fabric.jaas;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
+import org.apache.karaf.jaas.boot.principal.RolePrincipal;
+import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
+import org.apache.karaf.jaas.modules.Encryption;
+import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleReference;
+import org.osgi.framework.ServiceReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -30,19 +37,15 @@ import javax.security.auth.callback.UnsupportedCallbackException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
 
-import org.apache.karaf.jaas.boot.principal.RolePrincipal;
-import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
-import org.apache.karaf.jaas.modules.Encryption;
-import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleReference;
-import org.osgi.framework.ServiceReference;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerTokens;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.isContainerLogin;
 
 public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule {
 
@@ -67,8 +70,8 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
             if (serviceReference != null) {
                 try {
                     zookeeper = (IZKClient) bundleContext.getService(serviceReference);
-                    users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
-                    containers = ZooKeeperUtils.getContainerTokens(zookeeper);
+                    users = getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
+                    containers = getContainerTokens(zookeeper);
                 } catch (Exception e) {
                     LOG.warn("Failed fetching authentication data.", e);
                 } finally {
@@ -78,8 +81,8 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         } else {
             // non-osgi env.
             try {
-                users = ZooKeeperUtils.getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
-                containers = ZooKeeperUtils.getContainerTokens(zookeeper);
+                users = getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
+                containers = getContainerTokens(zookeeper);
             } catch (Exception e) {
                 LOG.warn("Failed fetching authentication data.", e);
             }
@@ -112,7 +115,7 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
             throw new FailedLoginException("user name is null");
         }
 
-        if (ZooKeeperUtils.isContainerLogin(user)) {
+        if (isContainerLogin(user)) {
             String token = containers.getProperty(user);
 
             if (token == null) {

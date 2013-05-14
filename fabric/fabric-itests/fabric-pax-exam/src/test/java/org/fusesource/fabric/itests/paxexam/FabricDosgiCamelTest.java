@@ -22,7 +22,6 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,8 +39,8 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -72,13 +71,13 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
 
 
         for (Container c : dosgiProviderContainers) {
-            ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
+            setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
             Profile p = c.getVersion().getProfile("dosgi-provider");
             c.setProfiles(new Profile[]{p});
         }
 
         for (Container c : dosgiCamelContainers) {
-            ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
+            setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
             Profile p = c.getVersion().getProfile("dosgi-camel");
             c.setProfiles(new Profile[]{p});
         }

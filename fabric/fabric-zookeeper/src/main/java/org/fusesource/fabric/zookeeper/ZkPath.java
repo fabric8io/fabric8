@@ -16,6 +16,13 @@
  */
 package org.fusesource.fabric.zookeeper;
 
+import org.apache.zookeeper.KeeperException;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
@@ -24,13 +31,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Pattern;
 
-import org.apache.zookeeper.KeeperException;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.fusesource.fabric.zookeeper.internal.SimplePathTemplate;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
  * Set of paths which are used by fon.
@@ -223,25 +226,25 @@ public enum ZkPath {
 
         String v = version;
         //Try to find the version to use
-        if (v == null && zooKeeper.exists(CONFIG_CONTAINER.getPath(container)) != null) {
+        if (v == null && exists(zooKeeper, CONFIG_CONTAINER.getPath(container)) != null) {
             //Try to acquire the version from the registry path /fabric/configs/containers/{container}
-            v = ZooKeeperUtils.get(zooKeeper, CONFIG_CONTAINER.getPath(container));
-        }  else if (zooKeeper.exists(CONFIG_DEFAULT_VERSION.getPath()) != null) {
+            v = getStringData(zooKeeper, CONFIG_CONTAINER.getPath(container));
+        }  else if (exists(zooKeeper, CONFIG_DEFAULT_VERSION.getPath()) != null) {
             //If version is still null, try the default version.
-            v = ZooKeeperUtils.get(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
+            v = getStringData(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
         } else {
             //Else assume version 1.0.
             v = ZkDefs.DEFAULT_VERSION;
         }
 
         //Set the version
-        if (zooKeeper.exists(ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
-            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), v);
+        if (exists(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
+            setData(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), v);
         }
 
         //Set the profiles
-        if (profiles != null && !profiles.isEmpty() && zooKeeper.exists(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container)) == null) {
-            ZooKeeperUtils.set(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container), profiles);
+        if (profiles != null && !profiles.isEmpty() && exists(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container)) == null) {
+            setData(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container), profiles);
         }
     }
 }

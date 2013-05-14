@@ -24,16 +24,13 @@ import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.SshContainerBuilder;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
-import org.ops4j.pax.exam.Inject;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.osgi.service.blueprint.container.BlueprintContainer;
@@ -51,13 +48,15 @@ import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 public class FabricTestSupport extends FuseTestSupport {
 
@@ -119,7 +118,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Thread.sleep(DEFAULT_WAIT);
             //We want to check if container exists before we actually delete them.
             //We need this because getContainer will create a container object if container doesn't exists.
-            if (getZookeeper().exists(ZkPath.CONTAINER.getPath(name)) != null) {
+            if (exists(getZookeeper(), ZkPath.CONTAINER.getPath(name)) != null) {
                 Container container = getFabricService().getContainer(name);
                 //We want to go through container destroy method so that cleanup methods are properly invoked.
                 container.destroy();
@@ -216,7 +215,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
         if (!same && waitForProvision) {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
-            ZooKeeperUtils.set(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
+            setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
         }

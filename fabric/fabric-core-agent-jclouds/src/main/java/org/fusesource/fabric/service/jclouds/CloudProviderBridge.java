@@ -17,18 +17,21 @@
 
 package org.fusesource.fabric.service.jclouds;
 
-import java.util.Dictionary;
-import java.util.Enumeration;
-
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.karaf.core.Constants;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Dictionary;
+import java.util.Enumeration;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
  * A {@link LifecycleListener} that makes sure that whenever it connect to a new ensemble, it updates it with the cloud
@@ -73,15 +76,15 @@ public class CloudProviderBridge implements LifecycleListener {
                         String identity = properties.get(Constants.IDENTITY) != null ? String.valueOf(properties.get(Constants.IDENTITY)) : null;
                         String credential = properties.get(Constants.CREDENTIAL) != null ? String.valueOf(properties.get(Constants.CREDENTIAL)) : null;
                         if (name != null && identity != null && credential != null && getZooKeeper().isConnected()) {
-                            if (getZooKeeper().exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                ZooKeeperUtils.create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
+                            if (exists(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
 
                                 Enumeration keys = properties.keys();
                                 while (keys.hasMoreElements()) {
                                     String key = String.valueOf(keys.nextElement());
                                     String value = String.valueOf(properties.get(key));
                                     if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                        ZooKeeperUtils.set(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                        setData(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                     }
                                 }
                             }

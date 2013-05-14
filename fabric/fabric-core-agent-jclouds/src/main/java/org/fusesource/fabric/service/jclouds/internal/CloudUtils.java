@@ -17,24 +17,27 @@
 
 package org.fusesource.fabric.service.jclouds.internal;
 
-import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.karaf.core.Constants;
-import org.jclouds.karaf.services.ServiceFactorySupport;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class CloudUtils {
 
@@ -100,22 +103,22 @@ public class CloudUtils {
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {
-                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
+                            if (exists(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
 							Enumeration keys = dictionary.keys();
 							while (keys.hasMoreElements()) {
 								Object key = keys.nextElement();
 								Object value = dictionary.get(key);
 								if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-									ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
+									setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
 								}
 							}
 							for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
                                 if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                    ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                    setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                 }
                             }
                         } else {
@@ -164,8 +167,8 @@ public class CloudUtils {
                         configuration.update(dictionary);
 
                         if (zooKeeper.isConnected()) {
-                            if (zooKeeper.exists(ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                ZooKeeperUtils.create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
+                            if (exists(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
 
 							Enumeration keys = dictionary.keys();
@@ -173,7 +176,7 @@ public class CloudUtils {
 								Object key = keys.nextElement();
 								Object value = dictionary.get(key);
 								if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-									ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
+									setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
 								}
 							}
 
@@ -181,7 +184,7 @@ public class CloudUtils {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
                                 if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                    ZooKeeperUtils.set(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                    setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                 }
                             }
                         } else {

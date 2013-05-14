@@ -26,7 +26,6 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -36,9 +35,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import scala.actors.threadpool.Arrays;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -57,13 +56,13 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
         Container brokerContainer = containers.iterator().next();
         containers.remove(brokerContainer);
 
-        zooKeeper.setData(ZkPath.CONTAINER_PROVISION_RESULT.getPath(brokerContainer.getId()), "changing");
+        setData(zooKeeper, ZkPath.CONTAINER_PROVISION_RESULT.getPath(brokerContainer.getId()), "changing");
         System.err.println(executeCommand("fabric:container-change-profile " + brokerContainer.getId() + " mq"));
         Provision.assertSuccess(Arrays.asList(new Container[]{brokerContainer}), PROVISION_TIMEOUT);
         System.err.println(executeCommand("fabric:cluster-list"));
 
         for(Container c : containers) {
-            zooKeeper.setData(ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+            setData(zooKeeper, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
             System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-camel"));
         }
         Provision.assertSuccess(containers, PROVISION_TIMEOUT);

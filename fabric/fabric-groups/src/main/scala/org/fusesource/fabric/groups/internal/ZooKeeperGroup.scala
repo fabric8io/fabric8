@@ -28,6 +28,7 @@ import collection.JavaConversions._
 import java.util.{LinkedHashMap, Collection}
 import org.apache.zookeeper.KeeperException.{ConnectionLossException, NoNodeException, Code}
 import org.fusesource.fabric.zookeeper.IZKClient
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
 
 /**
  *
@@ -36,7 +37,7 @@ import org.fusesource.fabric.zookeeper.IZKClient
 object ZooKeeperGroup {
   def members(zk: IZKClient, path: String):LinkedHashMap[String, Array[Byte]] = {
     var rc = new LinkedHashMap[String, Array[Byte]]
-    zk.getAllChildren(path).sortWith((a,b)=> a < b).foreach { node =>
+    ZooKeeperUtils.getAllChildren(zk, path).sortWith((a,b)=> a < b).foreach { node =>
       try {
         if( node.matches("""0\d+""") ) {
           rc.put(node, zk.getData(path+"/"+node))
@@ -97,7 +98,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
   def onDisconnected() = fireDisconnected()
 
   def join(data:Array[Byte]=null): String = this.synchronized {
-    val id = zk.create(member_path_prefix, data, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
+    val id = ZooKeeperUtils.create(zk, member_path_prefix, data, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
     joins.put(id, 0)
     id
   }
@@ -145,7 +146,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
       }
       try {
         // try create given path in persistent mode
-        zk.createOrSetWithParents(path, "", CreateMode.PERSISTENT)
+        ZooKeeperUtils.setData(zk, path, "")
       } catch {
         case ignore: KeeperException.NodeExistsException =>
       }

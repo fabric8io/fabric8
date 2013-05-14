@@ -21,6 +21,9 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.zookeeper.IZKClient;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
+
 @Command(name = "list", scope = "zk", description = "List a znode's children", detailedDescription = "classpath:list.txt")
 public class List extends ZooKeeperCommandSupport {
 
@@ -42,9 +45,9 @@ public class List extends ZooKeeperCommandSupport {
 
     private java.util.List<String> getPaths(IZKClient zk) throws Exception {
         if (recursive) {
-            return zk.getAllChildren(path);
+            return getAllChildren(zk, path);
         } else {
-            return zk.getChildren(path);
+            return getChildren(zk, path);
         }
     }
 

@@ -16,23 +16,21 @@
  */
 package org.fusesource.fabric.boot.commands.support;
 
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.ConfigurationAdmin;
+
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
@@ -128,8 +126,8 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         Container container = fabricService.getContainer(containerName);
         try {
             List<String> containerList = new ArrayList<String>();
-            String clusterId = zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLES.getPath());
-            String containers = zooKeeper.getStringData(ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
+            String clusterId = getStringData(zooKeeper, ZkPath.CONFIG_ENSEMBLES.getPath());
+            String containers = getStringData(zooKeeper, ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
             Collections.addAll(containerList, containers.split(","));
             result = containerList.contains(containerName);
         } catch (Throwable t) {

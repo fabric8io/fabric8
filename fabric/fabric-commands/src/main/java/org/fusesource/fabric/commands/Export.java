@@ -16,6 +16,13 @@
  */
 package org.fusesource.fabric.commands;
 
+import org.apache.felix.gogo.commands.Argument;
+import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.utils.RegexSupport;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -25,17 +32,11 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Command;
-import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.boot.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.utils.RegexSupport;
-import org.fusesource.fabric.zookeeper.IZKClient;
-
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.getPatterns;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.matches;
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 
 @Command(name = "export", scope = "fabric", description = "Export the contents of the fabric registry to the specified directory in the filesystem", detailedDescription = "classpath:export.txt")
 public class Export extends FabricCommand {
@@ -99,7 +100,7 @@ public class Export extends FabricCommand {
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
         List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
 
-        List<String> paths = zk.getAllChildren(path);
+        List<String> paths = getAllChildren(zk, path);
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 

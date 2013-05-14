@@ -19,7 +19,7 @@ package org.fusesource.fabric.jaas;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.apache.karaf.jaas.modules.*;
+import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.karaf.jaas.modules.properties.PropertiesBackingEngine;
 import org.slf4j.Logger;

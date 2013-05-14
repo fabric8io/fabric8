@@ -16,26 +16,30 @@
  */
 package org.fusesource.fabric.service;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.karaf.admin.management.AdminServiceMBean;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerChildMetadata;
+import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.PortService;
+import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 
 public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
@@ -100,8 +104,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     int minimumPort = parent.getMinimumPort();
                     int maximumPort = parent.getMaximumPort();
 
-                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
-                    ZooKeeperUtils.set(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
+                    setData(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
+                    setData(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
 
                     inheritAddresses(service.getZooKeeper(), parentName, containerName, options);
 
@@ -210,17 +214,17 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     private void inheritAddresses(IZKClient zooKeeper, String parent, String name, CreateContainerChildOptions options) throws KeeperException, InterruptedException {
         //Link to the addresses from the parent container.
         for (String resolver : ZkDefs.VALID_RESOLVERS) {
-            zooKeeper.createOrSetWithParents(CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}", CreateMode.PERSISTENT);
+            setData(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}");
         }
 
         if (options.getResolver() != null) {
-            zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), options.getResolver(), CreateMode.PERSISTENT);
+            setData(zooKeeper, CONTAINER_RESOLVER.getPath(name), options.getResolver());
         } else {
-            zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}", CreateMode.PERSISTENT);
+            setData(zooKeeper, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
         }
 
-        zooKeeper.createOrSetWithParents(CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}", CreateMode.PERSISTENT);
-        zooKeeper.createOrSetWithParents(CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}", CreateMode.PERSISTENT);
+        setData(zooKeeper, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
+        setData(zooKeeper, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
     }
 
     private static String listAsString(List<String> value) {

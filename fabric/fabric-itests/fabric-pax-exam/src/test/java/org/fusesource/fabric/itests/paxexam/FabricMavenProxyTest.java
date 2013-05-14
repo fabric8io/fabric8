@@ -22,9 +22,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.nio.entity.FileNIOEntity;
 import org.fusesource.fabric.api.Container;
@@ -33,7 +30,6 @@ import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +46,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
@@ -71,10 +69,10 @@ public class FabricMavenProxyTest extends FabricTestSupport {
 
         FabricService fabricService = getFabricService();
         IZKClient zookeeper = getZookeeper();
-        List<String> children = zookeeper.getChildren(ZkPath.MAVEN_PROXY.getPath("upload"));
+        List<String> children = getChildren(zookeeper, ZkPath.MAVEN_PROXY.getPath("upload"));
         List<String> uploadUrls = new ArrayList<String>();
         for (String child : children) {
-            String uploadeUrl = ZooKeeperUtils.getSubstitutedPath(zookeeper, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + child);
+            String uploadeUrl = getSubstitutedPath(zookeeper, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + child);
             uploadUrls.add(uploadeUrl);
         }
         //Pick a random maven proxy from the list.

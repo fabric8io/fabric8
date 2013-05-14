@@ -17,7 +17,10 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
@@ -120,7 +123,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
         Provision.assertSuccess(containers, PROVISION_TIMEOUT);
         for (Container container : containers) {
-            assertNotNull(ServiceLocator.getOsgiService(IZKClient.class).exists("/fabric/configs/versions/1.0/containers/" + container.getId()));
+            assertNotNull(exists(ServiceLocator.getOsgiService(IZKClient.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
         }
     }
 
