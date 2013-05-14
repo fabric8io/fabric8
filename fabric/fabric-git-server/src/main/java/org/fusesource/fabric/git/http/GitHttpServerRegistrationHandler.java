@@ -26,6 +26,7 @@ import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
@@ -39,6 +40,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 
@@ -157,7 +160,35 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
             LOGGER.info("Git repo is not the master");
         }
         try {
-            singleton.update(createState());
+            GitNode state = createState();
+            singleton.update(state);
+
+            if (singleton.isMaster()) {
+                // lets register the current URL to ConfigAdmin
+                String pid = "org.fusesource.fabric.git";
+                String url = state.getUrl();
+                try {
+                    String actualUrl = ZooKeeperUtils.getSubstitutedData(zookeeper, url);
+                    Configuration conf = configurationAdmin.getConfiguration(pid);
+                    if (conf == null) {
+                        LOGGER.warn("No configuration for pid " + pid);
+                    } else {
+                        Dictionary<String, Object> properties = conf.getProperties();
+                        if (properties == null) {
+                            properties = new Hashtable<String, Object>();
+                        }
+                        properties.put("fabric-git-url", actualUrl);
+                        conf.update(properties);
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
+                } catch (Throwable e) {
+                    LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
+                }
+            }
         } catch (IllegalStateException e) {
             // Ignore
         }
