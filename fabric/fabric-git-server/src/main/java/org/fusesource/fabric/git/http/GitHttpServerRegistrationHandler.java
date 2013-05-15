@@ -42,8 +42,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.util.List;
 
 public class GitHttpServerRegistrationHandler implements LifecycleListener, ConfigurationListener, ChangeListener {
 
@@ -64,6 +66,9 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
 
     private ConfigurationAdmin configurationAdmin;
 
+    private List<GitListener> listeners = new ArrayList<GitListener>();
+    private String gitRemoteUrl;
+
     public GitHttpServerRegistrationHandler() {
         singleton.add(this);
     }
@@ -75,6 +80,14 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
     public void destroy() {
         onDisconnected();
         unbindHttpService(null);
+    }
+
+    public synchronized void addGitListener(GitListener listener) {
+        listeners.add(listener);
+    }
+
+    public synchronized void removeGitListener(GitListener listener) {
+        listeners.remove(listener);
     }
 
     public synchronized void bindHttpService(HttpService httpService) {
@@ -163,35 +176,54 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
             GitNode state = createState();
             singleton.update(state);
 
-            if (singleton.isMaster()) {
-                // lets register the current URL to ConfigAdmin
-                String pid = "org.fusesource.fabric.git";
-                String url = state.getUrl();
-                try {
-                    String actualUrl = ZooKeeperUtils.getSubstitutedData(zookeeper, url);
-                    Configuration conf = configurationAdmin.getConfiguration(pid);
-                    if (conf == null) {
-                        LOGGER.warn("No configuration for pid " + pid);
-                    } else {
-                        Dictionary<String, Object> properties = conf.getProperties();
-                        if (properties == null) {
-                            properties = new Hashtable<String, Object>();
-                        }
-                        properties.put("fabric-git-url", actualUrl);
-                        conf.update(properties);
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
-                        }
-                    }
-                } catch (URISyntaxException e) {
-                    LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
-                } catch (Throwable e) {
-                    LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
+            String url = state.getUrl();
+            try {
+                String actualUrl = ZooKeeperUtils.getSubstitutedData(zookeeper, url);
+                if (actualUrl != null && (this.gitRemoteUrl == null || !this.gitRemoteUrl.equals(actualUrl))) {
+                    // lets notify listeners
+                    this.gitRemoteUrl = actualUrl;
+                    fireGitRemoteUrlChanged(actualUrl);
                 }
+
+                if (singleton.isMaster()) {
+                    // lets register the current URL to ConfigAdmin
+                    String pid = "org.fusesource.fabric.git";
+                    try {
+                        Configuration conf = configurationAdmin.getConfiguration(pid);
+                        if (conf == null) {
+                            LOGGER.warn("No configuration for pid " + pid);
+                        } else {
+                            Dictionary<String, Object> properties = conf.getProperties();
+                            if (properties == null) {
+                                properties = new Hashtable<String, Object>();
+                            }
+                            properties.put("fabric.git.url", actualUrl);
+                            conf.update(properties);
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
+                            }
+                        }
+                    } catch (Throwable e) {
+                        LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
+                    }
+                }
+            } catch (URISyntaxException e) {
+                LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
             }
+
         } catch (IllegalStateException e) {
             // Ignore
         }
+    }
+
+    protected void fireGitRemoteUrlChanged(String remoteUrl) {
+        for (GitListener listener : listeners) {
+            listener.onRemoteUrlChanged(remoteUrl);
+        }
+    }
+
+    public String getGitRemoteUrl() {
+        return gitRemoteUrl;
     }
 
     @Override
