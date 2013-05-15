@@ -99,6 +99,7 @@
         <module>fabric-git</module>
         <module>fabric-git-server</module>
         <module>fabric-git-zkbridge</module>
+        <module>fabric-git-hawtio</module>
 
     </modules>
 
