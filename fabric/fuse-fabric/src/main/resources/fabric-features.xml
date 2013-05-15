@@ -486,6 +486,7 @@
         <bundle>mvn:org.fusesource.fabric/fabric-git/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-git-server/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-git-zkbridge/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-git-hawtio/${project.version}</bundle>
     </feature>
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
