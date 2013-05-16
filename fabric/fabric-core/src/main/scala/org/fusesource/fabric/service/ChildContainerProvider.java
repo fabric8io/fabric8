@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
@@ -26,7 +27,6 @@ import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.utils.Ports;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
@@ -104,10 +104,10 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     int minimumPort = parent.getMinimumPort();
                     int maximumPort = parent.getMaximumPort();
 
-                    setData(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
-                    setData(service.getZooKeeper(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
+                    setData(service.getCurator(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
+                    setData(service.getCurator(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
 
-                    inheritAddresses(service.getZooKeeper(), parentName, containerName, options);
+                    inheritAddresses(service.getCurator(), parentName, containerName, options);
 
                     //We are creating a container instance, just for the needs of port registration.
                     Container child = new ContainerImpl(parent, containerName, service) {
@@ -204,27 +204,27 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     /**
      * Links child container resolver and addresses to its parents resolver and addresses.
      *
-     * @param zooKeeper
+     * @param curator
      * @param parent
      * @param name
      * @param options
      * @throws KeeperException
      * @throws InterruptedException
      */
-    private void inheritAddresses(IZKClient zooKeeper, String parent, String name, CreateContainerChildOptions options) throws KeeperException, InterruptedException {
+    private void inheritAddresses(CuratorFramework curator, String parent, String name, CreateContainerChildOptions options) throws Exception {
         //Link to the addresses from the parent container.
         for (String resolver : ZkDefs.VALID_RESOLVERS) {
-            setData(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}");
+            setData(curator, CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}");
         }
 
         if (options.getResolver() != null) {
-            setData(zooKeeper, CONTAINER_RESOLVER.getPath(name), options.getResolver());
+            setData(curator, CONTAINER_RESOLVER.getPath(name), options.getResolver());
         } else {
-            setData(zooKeeper, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
+            setData(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
         }
 
-        setData(zooKeeper, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
-        setData(zooKeeper, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
+        setData(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
+        setData(curator, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
     }
 
     private static String listAsString(List<String> value) {

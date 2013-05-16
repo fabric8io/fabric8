@@ -22,6 +22,7 @@ import java.util.Map;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
@@ -29,7 +30,6 @@ import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
@@ -56,7 +56,7 @@ public abstract class ZkConfigHelper {
 		}
 	}
 
-	public static RemoteBridge getBridgeConfig(IZKClient client, Container container, ApplicationContext context) {
+	public static RemoteBridge getBridgeConfig(CuratorFramework client, Container container, ApplicationContext context) {
         final String bridgeConfigPath = getBridgeConfigPath(container);
         RemoteBridge remoteBridge = getData(client, bridgeConfigPath, RemoteBridge.class);
         if (remoteBridge != null) {
@@ -65,7 +65,7 @@ public abstract class ZkConfigHelper {
         return remoteBridge;
     }
 
-    public static void registerBridge(IZKClient client, Container container, RemoteBridge remoteBridge) {
+    public static void registerBridge(CuratorFramework client, Container container, RemoteBridge remoteBridge) {
         // get data to save
         byte[] data = getZkData(remoteBridge);
         final String bridgeConfigPath = getBridgeConfigPath(container);
@@ -82,7 +82,7 @@ public abstract class ZkConfigHelper {
         }
     }
 
-    public static void removeBridge(IZKClient client, Container container) {
+    public static void removeBridge(CuratorFramework client, Container container) {
         final String bridgeConfigPath = getBridgeConfigPath(container);
         try {
             client.deleteWithChildren(bridgeConfigPath);
@@ -139,7 +139,7 @@ public abstract class ZkConfigHelper {
         return stream.toByteArray();
     }
 
-    private static <T> T getData(IZKClient client, String path, Class<T> returnType) {
+    private static <T> T getData(CuratorFramework client, String path, Class<T> returnType) {
         try {
             if (client.exists(path) == null) {
                 return null;

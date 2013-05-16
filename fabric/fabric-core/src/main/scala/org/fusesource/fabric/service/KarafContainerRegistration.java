@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
@@ -27,10 +30,8 @@ import org.fusesource.fabric.internal.GeoUtils;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
@@ -79,7 +80,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class
-        KarafContainerRegistration implements LifecycleListener, NotificationListener, ConfigurationListener {
+        KarafContainerRegistration implements ConnectionStateListener, NotificationListener, ConfigurationListener {
 
     private transient Logger LOGGER = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
@@ -94,7 +95,7 @@ public class
 
 
     private ConfigurationAdmin configurationAdmin;
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
     private FabricService fabricService;
     private BundleContext bundleContext;
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
@@ -102,12 +103,12 @@ public class
     private volatile boolean connected;
 
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
@@ -126,6 +127,19 @@ public class
         this.fabricService = fabricService;
     }
 
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
     public synchronized void onConnected() {
         connected = true;
 
@@ -140,38 +154,38 @@ public class
             if (profiles != null) {
                 String versionNode = CONFIG_CONTAINER.getPath(name);
                 String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, name);
-                createDefault(zooKeeper, versionNode, version);
-                createDefault(zooKeeper, profileNode, profiles);
+                createDefault(curator, versionNode, version);
+                createDefault(curator, profileNode, profiles);
             }
 
-            Stat stat = exists(zooKeeper, nodeAlive);
+            Stat stat = exists(curator, nodeAlive);
             if (stat != null) {
-                if (stat.getEphemeralOwner() != zooKeeper.getSessionId()) {
-                    delete(zooKeeper, nodeAlive);
-                    create(zooKeeper, nodeAlive, CreateMode.EPHEMERAL);
+                if (stat.getEphemeralOwner() != curator.getZookeeperClient().getZooKeeper().getSessionId()) {
+                    delete(curator, nodeAlive);
+                    create(curator, nodeAlive, CreateMode.EPHEMERAL);
                 }
             } else {
-                create(zooKeeper, nodeAlive, CreateMode.EPHEMERAL);
+                create(curator, nodeAlive, CreateMode.EPHEMERAL);
             }
 
             String domainsNode = CONTAINER_DOMAINS.getPath(name);
-            stat = exists(zooKeeper, domainsNode);
+            stat = exists(curator, domainsNode);
             if (stat != null) {
-                deleteSafe(zooKeeper, domainsNode);
+                deleteSafe(curator, domainsNode);
             }
 
-            createDefault(zooKeeper, CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(zooKeeper, name));
-            setData(zooKeeper, CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName());
-            setData(zooKeeper, CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp());
-            setData(zooKeeper, CONTAINER_IP.getPath(name), getContainerPointer(zooKeeper, name));
-            createDefault(zooKeeper, CONTAINER_GEOLOCATION.getPath(name), GeoUtils
+            createDefault(curator, CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(curator, name));
+            setData(curator, CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName());
+            setData(curator, CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp());
+            setData(curator, CONTAINER_IP.getPath(name), getContainerPointer(curator, name));
+            createDefault(curator, CONTAINER_GEOLOCATION.getPath(name), GeoUtils
                     .getGeoLocation());
             //Check if there are addresses specified as system properties and use them if there is not an existing value in the registry.
             //Mostly usable for adding values when creating containers without an existing ensemble.
             for (String resolver : ZkDefs.VALID_RESOLVERS) {
                 String address = System.getProperty(resolver);
-                if (address != null && !address.isEmpty() && exists(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
-                    setData(zooKeeper, CONTAINER_ADDRESS.getPath(name, resolver), address);
+                if (address != null && !address.isEmpty() && exists(curator, CONTAINER_ADDRESS.getPath(name, resolver)) == null) {
+                    setData(curator, CONTAINER_ADDRESS.getPath(name, resolver), address);
                 }
             }
 
@@ -185,8 +199,8 @@ public class
             //Set the port range values
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
-            createDefault(zooKeeper, CONTAINER_PORT_MIN.getPath(name), minimumPort);
-            createDefault(zooKeeper, CONTAINER_PORT_MAX.getPath(name), maximumPort);
+            createDefault(curator, CONTAINER_PORT_MIN.getPath(name), minimumPort);
+            createDefault(curator, CONTAINER_PORT_MAX.getPath(name), maximumPort);
 
             registerDomains();
         } catch (Exception e) {
@@ -194,11 +208,11 @@ public class
         }
     }
 
-    private void registerJmx(Container container) throws InterruptedException, IOException, KeeperException {
+    private void registerJmx(Container container) throws Exception {
         int rmiRegistryPort = getRmiRegistryPort(container);
         int rmiServerPort = getRmiServerPort(container);
         String jmxUrl = getJmxUrl(container.getId(), rmiServerPort, rmiRegistryPort);
-        setData(zooKeeper, CONTAINER_JMX.getPath(container.getId()), jmxUrl);
+        setData(curator, CONTAINER_JMX.getPath(container.getId()), jmxUrl);
         fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
         fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
         Configuration configuration = configurationAdmin.getConfiguration(MANAGEMENT_PID);
@@ -218,10 +232,10 @@ public class
         return "service:jmx:rmi://${zk:" + name + "/ip}:" + serverPort + "/jndi/rmi://${zk:" + name + "/ip}:" + registryPort + "/karaf-" + name;
     }
 
-    private void registerSsh(Container container) throws InterruptedException, IOException, KeeperException {
+    private void registerSsh(Container container) throws Exception {
         int sshPort = getSshPort(container);
         String sshUrl = getSshUrl(container.getId(), sshPort);
-        setData(zooKeeper, CONTAINER_SSH.getPath(container.getId()), sshUrl);
+        setData(curator, CONTAINER_SSH.getPath(container.getId()), sshUrl);
         fabricService.getPortService().registerPort(container, SSH_PID, SSH_KEY, sshPort);
         Configuration configuration = configurationAdmin.getConfiguration(SSH_PID);
         updateIfNeeded(configuration, SSH_KEY, sshPort);
@@ -236,10 +250,10 @@ public class
     }
 
 
-    private void registerHttp(Container container) throws InterruptedException, IOException, KeeperException {
+    private void registerHttp(Container container) throws Exception {
         int httpPort = getHttpPort(container);
         String httpUrl = getHttpUrl(container.getId(), httpPort);
-        setData(zooKeeper, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
+        setData(curator, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
         fabricService.getPortService().registerPort(container, HTTP_PID, HTTP_KEY, httpPort);
         Configuration configuration = configurationAdmin.getConfiguration(HTTP_PID);
         updateIfNeeded(configuration, HTTP_KEY, httpPort);
@@ -306,7 +320,7 @@ public class
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private static String getGlobalResolutionPolicy(IZKClient zooKeeper) throws InterruptedException, KeeperException {
+    private static String getGlobalResolutionPolicy(CuratorFramework zooKeeper) throws Exception {
         String policy = ZkDefs.LOCAL_HOSTNAME;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
         if (exists(zooKeeper, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
@@ -326,7 +340,7 @@ public class
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private static String getContainerResolutionPolicy(IZKClient zooKeeper, String container) throws InterruptedException, KeeperException {
+    private static String getContainerResolutionPolicy(CuratorFramework zooKeeper, String container) throws Exception {
         String policy = null;
         List<String> validResolverList = Arrays.asList(ZkDefs.VALID_RESOLVERS);
         if (exists(zooKeeper, ZkPath.CONTAINER_RESOLVER.getPath(container)) != null) {
@@ -348,15 +362,15 @@ public class
     /**
      * Returns a pointer to the container IP based on the global IP policy.
      *
-     * @param zookeeper The zookeeper client to use to read global policy.
+     * @param curator The curator client to use to read global policy.
      * @param container The name of the container.
      * @return
      * @throws InterruptedException
      * @throws KeeperException
      */
-    private static String getContainerPointer(IZKClient zookeeper, String container) throws InterruptedException, KeeperException {
+    private static String getContainerPointer(CuratorFramework curator, String container) throws Exception {
         String pointer = "${zk:%s/%s}";
-        String policy = getContainerResolutionPolicy(zookeeper, container);
+        String policy = getContainerResolutionPolicy(curator, container);
         return String.format(pointer, container, policy);
     }
 
@@ -367,7 +381,7 @@ public class
         } catch (ServiceException e) {
             LOGGER.trace("ZooKeeper is no longer available", e);
         } catch (Exception e) {
-            LOGGER.warn("An error occurred during disconnecting to zookeeper. This exception will be ignored.", e);
+            LOGGER.warn("An error occurred during disconnecting to curator. This exception will be ignored.", e);
         }
     }
 
@@ -402,21 +416,21 @@ public class
         bundleContext.ungetService(ref);
     }
 
-    protected void registerDomains() throws InterruptedException, KeeperException {
+    protected void registerDomains() throws Exception {
         if (isConnected() && mbeanServer != null) {
             String name = System.getProperty(SystemProperties.KARAF_NAME);
             domains.addAll(Arrays.asList(mbeanServer.getDomains()));
             for (String domain : mbeanServer.getDomains()) {
-                setData(zooKeeper, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
+                setData(curator, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
             }
         }
     }
 
-    protected void unregisterDomains() throws InterruptedException, KeeperException {
+    protected void unregisterDomains() throws Exception {
         if (isConnected()) {
             String name = System.getProperty(SystemProperties.KARAF_NAME);
             String domainsPath = CONTAINER_DOMAINS.getPath(name);
-            deleteSafe(zooKeeper, domainsPath);
+            deleteSafe(curator, domainsPath);
         }
     }
 
@@ -424,7 +438,7 @@ public class
     public synchronized void handleNotification(Notification notif, Object o) {
         LOGGER.trace("handleNotification[{}]", notif);
 
-        // we may get notifications when zookeeper client is not really connected
+        // we may get notifications when curator client is not really connected
         // handle mbeans registration and de-registration events
         if (isConnected() && mbeanServer != null && notif instanceof MBeanServerNotification) {
             MBeanServerNotification notification = (MBeanServerNotification) notif;
@@ -432,15 +446,15 @@ public class
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
             try {
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (domains.add(domain) && exists(zooKeeper, path) == null) {
-                        setData(zooKeeper, path, "");
+                    if (domains.add(domain) && exists(curator, path) == null) {
+                        setData(curator, path, "");
                     }
                 } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     domains.clear();
                     domains.addAll(Arrays.asList(mbeanServer.getDomains()));
                     if (!domains.contains(domain)) {
                         // domain is no present any more
-                        deleteSafe(zooKeeper, path);
+                        deleteSafe(curator, path);
                     }
                 }
 //            } catch (KeeperException.SessionExpiredException e) {
@@ -455,7 +469,7 @@ public class
 
     private boolean isConnected() {
         // we are only considered connected if we have a client and its connected
-        return zooKeeper != null && connected;
+        return curator != null && connected;
     }
 
     /**
@@ -474,7 +488,7 @@ public class
                     Configuration config = configurationAdmin.getConfiguration(SSH_PID);
                     int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_KEY));
                     String sshUrl = getSshUrl(name, sshPort);
-                    setData(zooKeeper, CONTAINER_SSH.getPath(name), sshUrl);
+                    setData(curator, CONTAINER_SSH.getPath(name), sshUrl);
                     if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_KEY) != sshPort) {
                         fabricService.getPortService().unRegisterPort(current, SSH_PID);
                         fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
@@ -484,7 +498,7 @@ public class
                     Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
                     int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_KEY));
                     String httpUrl = getSshUrl(name, httpPort);
-                    setData(zooKeeper, CONTAINER_HTTP.getPath(name), httpUrl);
+                    setData(curator, CONTAINER_HTTP.getPath(name), httpUrl);
                     if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_KEY) != httpPort) {
                         fabricService.getPortService().unRegisterPort(current, HTTP_PID);
                         fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
@@ -495,7 +509,7 @@ public class
                     int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_KEY));
                     int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_KEY));
                     String jmxUrl = getJmxUrl(name, rmiRegistryPort, rmiServerPort);
-                    setData(zooKeeper, CONTAINER_JMX.getPath(name), jmxUrl);
+                    setData(curator, CONTAINER_JMX.getPath(name), jmxUrl);
                     if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY) != rmiRegistryPort
                             || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_KEY) != rmiServerPort) {
                         fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
@@ -523,7 +537,7 @@ public class
                 @Override
                 public String getIp() {
                     try {
-                        return getSubstitutedPath(zooKeeper, CONTAINER_IP.getPath(name));
+                        return getSubstitutedPath(curator, CONTAINER_IP.getPath(name));
                     } catch (Exception e) {
                         throw new FabricException(e);
                     }

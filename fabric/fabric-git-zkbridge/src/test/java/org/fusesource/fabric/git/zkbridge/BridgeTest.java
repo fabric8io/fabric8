@@ -16,18 +16,18 @@
  */
 package org.fusesource.fabric.git.zkbridge;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.utils.Files;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.linkedin.util.clock.Timespan;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import static org.junit.Assert.assertTrue;
 public class BridgeTest {
 
     private ZKServerFactoryBean sfb;
-    private IZKClient zookeeper;
+    private CuratorFramework curator;
     private Git git;
     private Git remote;
 
@@ -52,9 +52,14 @@ public class BridgeTest {
         delete(sfb.getDataLogDir());
         sfb.afterPropertiesSet();
 
-        ZKClient zk = new ZKClient("localhost:" + sfb.getClientPortAddress().getPort(), new Timespan(3600000), null);
-        zk.start();
-        zookeeper = zk;
+        CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .connectString("localhost:" + sfb.getClientPortAddress().getPort())
+                .retryPolicy(new RetryOneTime(1000))
+                .connectionTimeoutMs(360000);
+
+        curator = builder.build();
+        curator.start();
+        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
         File root =  new File(System.getProperty("basedir", ".") + "/target/git").getCanonicalFile();
         delete(root);
@@ -80,17 +85,17 @@ public class BridgeTest {
 
     @Test
     public void testNoLocalNorRemoteBranch() throws Exception {
-        deleteSafe(zookeeper, ZkPath.CONFIG_VERSIONS.getPath());
-        setData(zookeeper, ZkPath.CONFIG_VERSION.getPath("1.0"), "description = default version\n");
-        setData(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thepid.properties", "foo = bar\n");
-        setData(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thexml.xml", "<hello/>\n");
-        setData(zookeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", "root"), "p1");
+        deleteSafe(curator, ZkPath.CONFIG_VERSIONS.getPath());
+        setData(curator, ZkPath.CONFIG_VERSION.getPath("1.0"), "description = default version\n");
+        setData(curator, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thepid.properties", "foo = bar\n");
+        setData(curator, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p1") + "/thexml.xml", "<hello/>\n");
+        setData(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", "root"), "p1");
 
 
         ObjectId rev1 = git.getRepository().getRef("HEAD").getObjectId();
-        Bridge.update(git, zookeeper);
+        Bridge.update(git, curator);
         ObjectId rev2 = git.getRepository().getRef("HEAD").getObjectId();
-        Bridge.update(git, zookeeper);
+        Bridge.update(git, curator);
         ObjectId rev3 = git.getRepository().getRef("HEAD").getObjectId();
 
         assertFalse(rev1.equals(rev2));
@@ -103,12 +108,12 @@ public class BridgeTest {
         remote.add().addFilepattern(".").call();
         remote.commit().setMessage("Add p2 profile").call();
 
-        setData(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p3") + "/thepid.properties", "foo = bar\n");
+        setData(curator, ZkPath.CONFIG_VERSIONS_PROFILE.getPath("1.0", "p3") + "/thepid.properties", "foo = bar\n");
 
         rev1 = git.getRepository().getRef("HEAD").getObjectId();
-        Bridge.update(git, zookeeper);
+        Bridge.update(git, curator);
         rev2 = git.getRepository().getRef("HEAD").getObjectId();
-        Bridge.update(git, zookeeper);
+        Bridge.update(git, curator);
         rev3 = git.getRepository().getRef("HEAD").getObjectId();
 
         assertFalse(rev1.equals(rev2));

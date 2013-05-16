@@ -16,23 +16,23 @@
  */
 package org.fusesource.fabric.dosgi;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.fusesource.fabric.dosgi.impl.Manager;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 
-public class Activator implements LifecycleListener {
+public class Activator implements ConnectionStateListener {
 
     private BundleContext bundleContext;
     private Manager manager;
     private String uri;
     private String exportedAddress;
     private long timeout = TimeUnit.MINUTES.toMillis(5);
-    private ServiceReference reference;
-    private IZKClient zookeeper;
+    private CuratorFramework curator;
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
@@ -52,49 +52,44 @@ public class Activator implements LifecycleListener {
 
     public void destroy() {
         destroyManager();
-        if (reference != null) {
-            ServiceReference ref = reference;
-            reference = null;
-            zookeeper = null;
-            this.bundleContext.ungetService(ref);
-        }
+        curator = null;
     }
 
     protected void destroyManager() {
         if (manager != null) {
             Manager mgr = manager;
             manager = null;
-            mgr.destroy();
+            try {
+                mgr.destroy();
+            } catch (IOException e) {
+                //ignore
+            }
         }
     }
 
-    public void registerZooKeeper(ServiceReference ref) {
-        destroy();
-        try {
-            reference = ref;
-            zookeeper = (IZKClient) this.bundleContext.getService(reference);
-            zookeeper.registerListener(this);
-        } catch (Exception e) {
-            throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);
+
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
         }
     }
 
-    public void unregisterZooKeeper(ServiceReference reference) {
-        destroy();
-    }
-
-    @Override
     public void onConnected() {
         destroyManager();
         try {
-            manager = new Manager(this.bundleContext, zookeeper, uri, exportedAddress, timeout);
+            manager = new Manager(this.bundleContext, curator, uri, exportedAddress, timeout);
             manager.init();
         } catch (Exception e) {
             throw new RuntimeException("Unable to start DOSGi service: " + e.getMessage(), e);
         }
     }
 
-    @Override
     public void onDisconnected() {
         destroyManager();
     }

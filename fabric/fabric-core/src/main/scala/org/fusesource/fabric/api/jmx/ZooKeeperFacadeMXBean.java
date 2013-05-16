@@ -26,12 +26,12 @@ public interface ZooKeeperFacadeMXBean {
     /**
      * Reads the contents of a path
      */
-    ZkContents read(String path) throws KeeperException, InterruptedException;
+    ZkContents read(String path) throws Exception;
 
     /**
      * Returns the content of the given path, assuming the path refers to a file
      */
-    String getContents(String path) throws KeeperException, InterruptedException;
+    String getContents(String path) throws Exception;
 
 /*
     void write(String path, String commitMessage,

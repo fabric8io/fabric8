@@ -17,10 +17,8 @@
 package org.fusesource.fabric.groups
 
 import internal.ZooKeeperGroup
-import org.apache.zookeeper.data.ACL
-import org.apache.zookeeper.ZooDefs.Ids
 import java.util.LinkedHashMap
-import org.fusesource.fabric.zookeeper.IZKClient
+import org.apache.curator.framework.CuratorFramework
 
 /**
  * <p>
@@ -30,8 +28,8 @@ import org.fusesource.fabric.zookeeper.IZKClient
  */
 object ZooKeeperGroupFactory {
 
-  def create(zk: IZKClient, path: String):Group = new ZooKeeperGroup(zk, path)
-  def members(zk: IZKClient, path: String):LinkedHashMap[String, Array[Byte]] = ZooKeeperGroup.members(zk, path)
+  def create(curator: CuratorFramework, path: String):Group = new ZooKeeperGroup(curator, path)
+  def members(curator: CuratorFramework, path: String):LinkedHashMap[String, Array[Byte]] = ZooKeeperGroup.members(curator, path)
 }
 
 /**

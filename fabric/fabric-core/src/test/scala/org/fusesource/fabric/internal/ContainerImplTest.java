@@ -16,34 +16,41 @@
 
 package org.fusesource.fabric.internal;
 
-
-import org.apache.zookeeper.CreateMode;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.api.ExistsBuilder;
+import org.apache.curator.framework.api.GetChildrenBuilder;
+import org.apache.curator.framework.api.GetDataBuilder;
+import org.apache.curator.framework.api.SetDataBuilder;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.easymock.EasyMock;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.service.ZooKeeperDataStore;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.Before;
 import org.junit.Test;
 import scala.actors.threadpool.Arrays;
 
-
 import java.util.Collections;
 import java.util.Map;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
+import static org.easymock.EasyMock.verify;
+import static org.fusesource.fabric.zookeeper.ZkDefs.DEFAULT_PROFILE;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_PROFILE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class ContainerImplTest {
 
@@ -55,110 +62,177 @@ public class ContainerImplTest {
 
     FabricServiceImpl fabricService = new FabricServiceImpl();
     Container container = new ContainerImpl(null, CONTAINER_ID, fabricService);
-    IZKClient izkClient = createMock(IZKClient.class);
+    CuratorFramework curator = createMock(CuratorFramework.class);
 
     @Before
     public void setUp() {
         ZooKeeperDataStore zooKeeperDataStore = new ZooKeeperDataStore();
-        zooKeeperDataStore.setZk(izkClient);
+        zooKeeperDataStore.setCurator(curator);
         fabricService.setDataStore(zooKeeperDataStore);
-        fabricService.setZooKeeper(izkClient);
-        reset(izkClient);
+        fabricService.setCurator(curator);
+        reset(container);
     }
 
     @Test
-    public void testSetEmptyProfiles() throws KeeperException, InterruptedException {
+    public void testSetEmptyProfiles() throws Exception {
         String id = CONTAINER_ID;
         String version = "1.0";
-        expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
-        expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn(ZkDefs.DEFAULT_PROFILE).anyTimes();
-        expect(izkClient.createOrSetWithParents(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id), ZkDefs.DEFAULT_PROFILE, CreateMode.PERSISTENT)).andReturn(null).anyTimes();
-        replay(izkClient);
+        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
+        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
+
+        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
+        expect(getBuilder.forPath(CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn(DEFAULT_PROFILE.getBytes()).anyTimes();
+        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
+        expect(curator.getData()).andReturn(getBuilder).anyTimes();
+        expect(curator.setData()).andReturn(setBuilder).anyTimes();
+
+        replay(getBuilder);
+        replay(setBuilder);
+        replay(curator);
 
         container.setProfiles(null);
         container.setProfiles(new Profile[0]);
-        verify(izkClient);
+        verify(curator);
+        verify(getBuilder);
+        verify(setBuilder);
     }
 
     @Test
-    public void testGetWithNoProfile() throws KeeperException, InterruptedException {
+    public void testGetWithNoProfile() throws Exception {
         String id = CONTAINER_ID;
         String version = "1.0";
+
         String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
-        expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, ZkDefs.DEFAULT_PROFILE))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.getStringData(node)).andReturn("");
-        replay(izkClient);
+        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
+        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
+        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+
+        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
+        expect(getBuilder.forPath(node)).andReturn("".getBytes()).anyTimes();
+        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
+        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
+        expect(curator.getData()).andReturn(getBuilder).anyTimes();
+        expect(curator.setData()).andReturn(setBuilder).anyTimes();
+        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+
+        replay(getBuilder);
+        replay(setBuilder);
+        replay(existsBuilder);
+        replay(curator);
 
         Profile[] profiles = container.getProfiles();
         assertNotNull(profiles);
         assertEquals(1, profiles.length);
         assertEquals(ZkDefs.DEFAULT_PROFILE, profiles[0].getId());
-        verify(izkClient);
+        verify(curator);
+        verify(getBuilder);
+        verify(setBuilder);
+        verify(existsBuilder);
     }
 
     @Test
-    public void testGetSingleProfile() throws KeeperException, InterruptedException {
+    public void testGetSingleProfile() throws Exception {
         String id = CONTAINER_ID;
         String version = "1.0";
         String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
-        expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel"))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.getStringData(node)).andReturn("camel");
-        replay(izkClient);
+
+        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
+        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
+        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+
+        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
+        expect(getBuilder.forPath(node)).andReturn("camel".getBytes()).anyTimes();
+        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
+        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
+        expect(curator.getData()).andReturn(getBuilder).anyTimes();
+        expect(curator.setData()).andReturn(setBuilder).anyTimes();
+        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+
+        replay(getBuilder);
+        replay(setBuilder);
+        replay(existsBuilder);
+        replay(curator);
 
         Profile[] profiles = container.getProfiles();
         assertNotNull(profiles);
         assertEquals(1, profiles.length);
         assertEquals("camel", profiles[0].getId());
-        verify(izkClient);
+        verify(curator);
+        verify(getBuilder);
+        verify(setBuilder);
+        verify(existsBuilder);
     }
 
     @Test
-    public void testGetMultipleProfiles() throws KeeperException, InterruptedException {
+    public void testGetMultipleProfiles() throws Exception {
         String id = CONTAINER_ID;
         String version = "1.0";
         String node = ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id);
-        expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel"))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "esb"))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.getStringData(node)).andReturn("camel esb");
-        replay(izkClient);
+
+        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
+        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
+        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+
+        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
+        expect(getBuilder.forPath(node)).andReturn("camel esb".getBytes()).anyTimes();
+        expect(setBuilder.forPath(eq(CONFIG_VERSIONS_CONTAINER.getPath(version, id)), (byte[]) anyObject())).andReturn(null).anyTimes();
+        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
+        expect(curator.getData()).andReturn(getBuilder).anyTimes();
+        expect(curator.setData()).andReturn(setBuilder).anyTimes();
+        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+
+        replay(getBuilder);
+        replay(setBuilder);
+        replay(existsBuilder);
+        replay(curator);
 
         Profile[] profiles = container.getProfiles();
         assertNotNull(profiles);
         assertEquals(2, profiles.length);
         assertEquals("camel", profiles[0].getId());
         assertEquals("esb", profiles[1].getId());
-        verify(izkClient);
+        verify(curator);
+        verify(getBuilder);
+        verify(setBuilder);
+        verify(existsBuilder);
     }
 
     @Test
-    public void testGetContainerProfileOverlay() throws KeeperException, InterruptedException {
+    public void testGetContainerProfileOverlay() throws Exception {
         String id = CONTAINER_ID;
         String version = "1.0";
-        expect(izkClient.getStringData(ZkPath.CONFIG_CONTAINER.getPath(id))).andReturn(version).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel"))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf"))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "esb"))).andReturn(new Stat()).anyTimes();
-        expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn("esb").anyTimes();
-        expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "esb"))).andReturn("parents=cxf camel\n").anyTimes();
-        expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf"))).andReturn(null).anyTimes();
-        expect(izkClient.getStringData(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel"))).andReturn(null).anyTimes();
 
-        expect(izkClient.getChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "esb"))).andReturn(Collections.<String>emptyList()).anyTimes();
-        expect(izkClient.getChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf"))).andReturn(Arrays.asList(new String[] { "pid1.properties", "pid2.properties" })).anyTimes();
-        expect(izkClient.getChildren(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel"))).andReturn(Arrays.asList(new String[]{"pid1.properties"})).anyTimes();
 
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf") + "/pid1.properties")).andReturn(new Stat()).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf") + "/pid2.properties")).andReturn(new Stat()).anyTimes();
-        expect(izkClient.exists(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel") + "/pid1.properties")).andReturn(new Stat()).anyTimes();
+        GetDataBuilder getBuilder = createMock(GetDataBuilder.class);
+        SetDataBuilder setBuilder = createMock(SetDataBuilder.class);
+        ExistsBuilder existsBuilder = createMock(ExistsBuilder.class);
+        GetChildrenBuilder getChildrenBuilder = createMock(GetChildrenBuilder.class);
 
-        expect(izkClient.getData(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf") + "/pid1.properties")).andReturn("k1=v1\nk2=v2".getBytes()).anyTimes();
-        expect(izkClient.getData(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "cxf") + "/pid2.properties")).andReturn("k3=v3".getBytes()).anyTimes();
-        expect(izkClient.getData(ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, "camel") + "/pid1.properties")).andReturn("k1=v4".getBytes()).anyTimes();
+        expect(getBuilder.forPath(CONFIG_CONTAINER.getPath(id))).andReturn(version.getBytes()).anyTimes();
+        expect(getBuilder.forPath(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, id))).andReturn("esb".getBytes()).anyTimes();
+        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "esb")))).andReturn("parents=cxf camel\n".getBytes()).anyTimes();
+        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")))).andReturn(null).anyTimes();
+        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel")))).andReturn(null).anyTimes();
 
-        replay(izkClient);
+        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "esb")))).andReturn(Collections.<String>emptyList()).anyTimes();
+        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")))).andReturn(Arrays.asList(new String[] { "pid1.properties", "pid2.properties" })).anyTimes();
+        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel")))).andReturn(Arrays.asList(new String[]{"pid1.properties"})).anyTimes();
+
+        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")+ "/pid1.properties" ))).andReturn("k1=v1\nk2=v2".getBytes()).anyTimes();
+        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")+ "/pid2.properties"))).andReturn("k3=v3".getBytes()).anyTimes();
+        expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel") + "/pid1.properties"))).andReturn("k1=v4".getBytes()).anyTimes();
+
+        expect(existsBuilder.forPath(EasyMock.<String>anyObject())).andReturn(new Stat()).anyTimes();
+        expect(curator.getData()).andReturn(getBuilder).anyTimes();
+        expect(curator.setData()).andReturn(setBuilder).anyTimes();
+        expect(curator.getChildren()).andReturn(getChildrenBuilder).anyTimes();
+        expect(curator.checkExists()).andReturn(existsBuilder).anyTimes();
+
+        replay(getBuilder);
+        replay(setBuilder);
+        replay(existsBuilder);
+        replay(getChildrenBuilder);
+        replay(curator);
 
         Map<String, Map<String, String>> configs = container.getOverlayProfile().getConfigurations();
         assertNotNull(configs);
@@ -170,7 +244,11 @@ public class ContainerImplTest {
         assertNotNull(configs.get("pid2"));
         assertEquals(1, configs.get("pid2").size());
         assertEquals("v3", configs.get("pid2").get("k3"));
-        verify(izkClient);
+        verify(curator);
+        verify(getBuilder);
+        verify(setBuilder);
+        verify(getChildrenBuilder);
+        verify(existsBuilder);
     }
 
     @Test(expected = FabricException.class)

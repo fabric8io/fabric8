@@ -2,11 +2,11 @@ package org.fusesource.fabric.itests.paxexam.camel;
 
 
 import junit.framework.Assert;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
@@ -25,6 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
@@ -42,7 +43,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
     public void testRegistryEntries() throws Exception {
         int startingPort = 9090;
         System.err.println(executeCommand("fabric:create -n root"));
-        IZKClient zooKeeper = getZookeeper();
+        CuratorFramework curator = getCurator();
         //Wait for zookeeper service to become available.
         System.err.println(executeCommand("fabric:profile-create --parents camel fabric-camel"));
         System.err.println(executeCommand("fabric:profile-create --parents fabric-camel fabric-camel-server"));
@@ -62,7 +63,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
 
         int index = 1;
         for (Container c : camelServerContainers) {
-            zooKeeper.setData(ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
             executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " log:set DEBUG");
             System.err.println(executeCommand("fabric:profile-create --parents fabric-camel-server fabric-camel-server-" + index));
             System.err.println(executeCommand("fabric:profile-edit --pid org.fusesource.fabric.examples.camel.loadbalancing.server/portNumber=" + (startingPort++) + " fabric-camel-server-" + index));
@@ -71,7 +72,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         }
 
         Provision.assertSuccess(camelServerContainers, PROVISION_TIMEOUT);
-        zooKeeper.setData(ZkPath.CONTAINER_PROVISION_RESULT.getPath(camelClientContainer.getId()), "changing");
+        setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(camelClientContainer.getId()), "changing");
         System.err.println(executeCommand("fabric:container-change-profile " + camelClientContainer.getId() + " fabric-camel-client"));
         Provision.assertSuccess(Arrays.asList(new Container[]{camelClientContainer}), PROVISION_TIMEOUT);
 
@@ -79,8 +80,8 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));
 
         //Check that the entries have been properly propagated.
-        Assert.assertNotNull(exists(zooKeeper, "/fabric/registry/camel/endpoints/"));
-        Assert.assertEquals(1, getChildren(zooKeeper, "/fabric/registry/camel/endpoints/").size());
+        Assert.assertNotNull(exists(curator, "/fabric/registry/camel/endpoints/"));
+        Assert.assertEquals(1, getChildren(curator, "/fabric/registry/camel/endpoints/").size());
         Thread.sleep(5000);
         System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " camel:route-list"));
         String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin " + camelClientContainer.getId() + " camel:route-info fabric-client | grep Failed")).getPlain().toString();

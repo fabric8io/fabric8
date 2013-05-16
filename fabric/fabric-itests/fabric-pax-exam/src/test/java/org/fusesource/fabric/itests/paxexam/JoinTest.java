@@ -16,13 +16,10 @@
  */
 package org.fusesource.fabric.itests.paxexam;
 
-import junit.framework.Assert;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -32,9 +29,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import javax.inject.Inject;
-import java.util.List;
 
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
 import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
@@ -72,7 +66,7 @@ public class JoinTest extends FabricTestSupport {
 	public void testJoinAndAddToEnsemble() throws Exception {
         FabricService fabricService = getFabricService();
         System.err.println(executeCommand("fabric:create -n"));
-        IZKClient zookeeper = getZookeeper();
+        CuratorFramework curator = getCurator();
 		String version = System.getProperty("fabric.version");
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
 		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child2"));
@@ -86,11 +80,11 @@ public class JoinTest extends FabricTestSupport {
 			waitForProvisionSuccess(child2, PROVISION_TIMEOUT);
 			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
 			Thread.sleep(5000);
-			zookeeper.waitForConnected();
+			curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
 			System.err.println(executeCommand("fabric:ensemble-remove --force child1 child2"));
 			Thread.sleep(5000);
-			zookeeper.waitForConnected();
+            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
 			System.err.println(executeCommand("admin:stop child1"));

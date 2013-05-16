@@ -95,7 +95,7 @@ public class ZkManagedBridgeServiceFactory extends AbstractZkManagedServiceFacto
 
     private ZkBridgeConnector createBridgeConnector(String pid, Dictionary<String, String> properties) throws ConfigurationException {
         ZkBridgeConnector bridgeConnector = new ZkBridgeConnector();
-        bridgeConnector.setZooKeeper(getZooKeeper());
+        bridgeConnector.setCurator(getZooKeeper());
         bridgeConnector.setFabricService(getFabricService());
         bridgeConnector.setId(pid);
 

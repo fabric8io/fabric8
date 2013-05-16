@@ -17,17 +17,14 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
-
 	<bean id="fabricGitService" class="org.fusesource.fabric.git.internal.FabricGitServiceImpl"
                 init-method="init" destroy-method="destroy">
-		<property name="zookeeper" ref="zookeeper"/>
 	</bean>
 
 	<service ref="fabricGitService">
 		<interfaces>
 			<value>org.fusesource.fabric.git.FabricGitService</value>
-			<value>org.linkedin.zookeeper.client.LifecycleListener</value>
+			<value>org.apache.curator.framework.state.ConnectionStateListener</value>
 		</interfaces>
 	</service>
 

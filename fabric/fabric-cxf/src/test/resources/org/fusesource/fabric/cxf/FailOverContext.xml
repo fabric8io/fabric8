@@ -28,13 +28,13 @@
     <property name="purge" value="true"/>
   </bean>
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean" depends-on="zkServer">
-    <property name="timeoutText" value="30s"/>
-    <property name="connectString" value="localhost:2181"/>
-  </bean>
+    <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean" depends-on="zkServer">
+        <property name="timeout" value="3000"/>
+        <property name="connectString" value="localhost:2181"/>
+    </bean>
 
   <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricFailOverFeature">
-      <property name="zkClient" ref="zkClient" />
+      <property name="curator" ref="curator" />
       <property name="fabricPath" value="simple/test" />
   </bean>
   <!-- configure the feature on the bus -->

@@ -38,10 +38,10 @@ public class CloudServiceRemove extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        boolean connected = getZooKeeper().isConnected();
+        boolean connected = getCurator().getZookeeperClient().isConnected();
         Container current = null;
         if (connected) {
-            deleteSafe(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
+            deleteSafe(getCurator(), ZkPath.CLOUD_SERVICE.getPath(name));
             current = fabricService.getCurrentContainer();
         }
         //Remove compute configurations for the service.

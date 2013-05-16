@@ -24,10 +24,10 @@
     <!-- osgi blueprint property placeholder -->
     <cm:property-placeholder id="myConfig" persistent-id="org.fusesource.fabric.examples.camel.loadbalancing.server"/>
 
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
     <bean id="fabric-camel" class="org.fusesource.fabric.camel.FabricComponent">
-        <property name="zkClient" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">

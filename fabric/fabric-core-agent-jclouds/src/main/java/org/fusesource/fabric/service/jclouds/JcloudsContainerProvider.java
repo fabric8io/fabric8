@@ -37,6 +37,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Strings;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -57,7 +58,6 @@ import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -78,7 +78,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private FirewallManagerFactory firewallManagerFactory;
     private CredentialStore credentialStore;
     private ConfigurationAdmin configurationAdmin;
-    private IZKClient zooKeeper;
+    private CuratorFramework zooKeeper;
     private BundleContext bundleContext;
 
     private ServiceReference computeReference = null;
@@ -518,11 +518,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         this.configurationAdmin = configurationAdmin;
     }
 
-    public IZKClient getZooKeeper() {
+    public CuratorFramework getZooKeeper() {
         return zooKeeper;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
+    public void setZooKeeper(CuratorFramework zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
 

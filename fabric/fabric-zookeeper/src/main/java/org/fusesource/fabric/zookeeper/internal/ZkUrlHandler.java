@@ -24,7 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.slf4j.Logger;
@@ -36,21 +36,21 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
 
     private static final String SYNTAX = "zk: zk-node-path";
 
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
 
     public ZkUrlHandler() {
     }
 
-    public ZkUrlHandler(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public ZkUrlHandler(CuratorFramework curator) {
+        this.curator = curator;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     /**
@@ -93,7 +93,7 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
         @Override
         public InputStream getInputStream() throws IOException {
             try {
-              return new ByteArrayInputStream(ZkPath.loadURL(zooKeeper, url.toString()));
+              return new ByteArrayInputStream(ZkPath.loadURL(curator, url.toString()));
             } catch (Exception e) {
                 LOGGER.error("Error opening zookeeper url", e);
                 throw (IOException) new IOException("Error opening zookeeper url").initCause(e);

@@ -1,9 +1,9 @@
 package org.fusesource.fabric.itests.paxexam;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Test;
@@ -123,7 +123,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
         Provision.assertSuccess(containers, PROVISION_TIMEOUT);
         for (Container container : containers) {
-            assertNotNull(exists(ServiceLocator.getOsgiService(IZKClient.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
+            assertNotNull(exists(ServiceLocator.getOsgiService(CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
         }
     }
 

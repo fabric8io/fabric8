@@ -135,7 +135,7 @@ class SystemResource extends BaseResource {
   def connected(@Context request: HttpServletRequest): ConnectionStatusDTO = {
     val rc = new ConnectionStatusDTO
     try {
-      val zk = Services.zoo_keeper
+      val zk = Services.curator
       if (zk != null) {
         rc.client_valid = true
       } else {
@@ -147,9 +147,9 @@ class SystemResource extends BaseResource {
     }
     if (rc.client_valid) {
       try {
-        rc.client_connected = Services.zoo_keeper.isConnected
+        rc.client_connected = Services.curator.getZookeeperClient.isConnected
         if (!rc.client_connected) {
-          rc.client_connection_error = Services.zoo_keeper.getState.toString
+          rc.client_connection_error = Services.curator.getState.toString
         }
 
       } catch {

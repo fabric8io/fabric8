@@ -31,7 +31,7 @@ import java.util.Set;
 
 public class ZookeeperBackingEngine implements BackingEngine {
 
-    public static final String USERS_NODE = "fabric/authentication/users";
+    public static final String USERS_NODE = "/fabric/authentication/users";
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(PropertiesBackingEngine.class);
 

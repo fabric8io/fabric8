@@ -17,12 +17,13 @@
 
 package org.fusesource.fabric.maven.impl;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -41,16 +42,15 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 
-public class MavenProxyRegistrationHandler implements LifecycleListener, ConfigurationListener {
+public class MavenProxyRegistrationHandler implements ConnectionStateListener, ConfigurationListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
 
     private String port;
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
-    private IZKClient zookeeper = null;
+    private CuratorFramework curator = null;
     private boolean connected = false;
     private String name = System.getProperty(SystemProperties.KARAF_NAME);
 
@@ -117,23 +117,20 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
         this.httpService = null;
     }
 
-    public void bindZooKeeper(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
-        if (zookeeper != null) {
-            zookeeper.registerListener(this);
-        }
-    }
-
-    public void unbindZooKeeper(IZKClient zookeeper) {
-        if (zookeeper != null) {
-            zookeeper.removeListener(this);
-        }
-        this.connected = false;
-        this.zookeeper = null;
-    }
-
 
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
     public void onConnected() {
         connected = true;
         register(MavenProxy.DOWNLOAD_TYPE);
@@ -141,7 +138,6 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
     }
 
 
-    @Override
     public void onDisconnected() {
         connected = false;
     }
@@ -153,7 +149,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
                 String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
                 String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
                 String path = parentPath + "/p_";
-                registeredProxies.get(type).add(create(zookeeper, path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
+                registeredProxies.get(type).add(create(curator, path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
             }
         } catch (Exception e) {
             LOGGER.warn("Failed to register maven proxy.");
@@ -166,7 +162,7 @@ public class MavenProxyRegistrationHandler implements LifecycleListener, Configu
             try {
                 if (connected) {
                     for (String entry : registeredProxies.get(type)) {
-                        deleteSafe(zookeeper, entry);
+                        deleteSafe(curator, entry);
                     }
                 }
             } catch (Exception e) {

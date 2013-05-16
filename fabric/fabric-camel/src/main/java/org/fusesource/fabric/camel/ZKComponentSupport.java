@@ -19,9 +19,9 @@ package org.fusesource.fabric.camel;
 import org.apache.camel.impl.DefaultComponent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.internal.ZKClient;
-import org.linkedin.util.clock.Timespan;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
 
 /**
  */
@@ -30,18 +30,18 @@ public abstract class ZKComponentSupport extends DefaultComponent {
     private static final String ZOOKEEPER_URL = "zookeeper.url";
     private static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
 
-    private IZKClient zkClient;
+    private CuratorFramework curator;
     private boolean shouldCloseZkClient = false;
-    private long maximumConnectionTimeout = 10 * 1000L;
+    private int maximumConnectionTimeout = 10 * 1000;
     private String zooKeeperUrl;
     private String zooKeeperPassword;
 
-    public IZKClient getZkClient() {
-        return zkClient;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZkClient(IZKClient zkClient) {
-        this.zkClient = zkClient;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     public boolean isShouldCloseZkClient() {
@@ -52,11 +52,11 @@ public abstract class ZKComponentSupport extends DefaultComponent {
         this.shouldCloseZkClient = shouldCloseZkClient;
     }
 
-    public long getMaximumConnectionTimeout() {
+    public int getMaximumConnectionTimeout() {
         return maximumConnectionTimeout;
     }
 
-    public void setMaximumConnectionTimeout(long maximumConnectionTimeout) {
+    public void setMaximumConnectionTimeout(int maximumConnectionTimeout) {
         this.maximumConnectionTimeout = maximumConnectionTimeout;
     }
 
@@ -80,18 +80,18 @@ public abstract class ZKComponentSupport extends DefaultComponent {
     @Override
     protected void doStart() throws Exception {
         super.doStart();
-        if (zkClient == null) {
+        if (curator == null) {
             try {
-                zkClient = (IZKClient) getCamelContext().getRegistry().lookup("zkClient");
+                curator = (CuratorFramework) getCamelContext().getRegistry().lookup("curator");
             } catch (Exception exception) {
-                // try to get the zkClient from the OSGi service registry
-                zkClient = (IZKClient) getCamelContext().getRegistry().lookup(IZKClient.class.getName());
+                // try to get the curator from the OSGi service registry
+                curator = (CuratorFramework) getCamelContext().getRegistry().lookup(CuratorFramework.class.getName());
             }
-            if (zkClient != null) {
-                LOG.debug("IZKClient found in camel registry. " + zkClient);
+            if (curator != null) {
+                LOG.debug("IZKClient found in camel registry. " + curator);
             }
         }
-        if (zkClient == null) {
+        if (curator == null) {
             String connectString = getZooKeeperUrl();
             if (connectString == null) {
                 connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
@@ -100,25 +100,31 @@ public abstract class ZKComponentSupport extends DefaultComponent {
             if (password == null) {
                 System.getProperty(ZOOKEEPER_PASSWORD);
             }
-            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
-            ZKClient client = new ZKClient(connectString, Timespan.milliseconds(getMaximumConnectionTimeout()), null);
+            LOG.debug("CuratorFramework not find in camel registry, creating new with connection " + connectString);
+            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                                                                             .connectString(connectString)
+                                                                             .retryPolicy(new RetryOneTime(1000))
+                                                                             .connectionTimeoutMs(getMaximumConnectionTimeout());
+
             if (password != null && !password.isEmpty()) {
-                client.setPassword(password);
+                builder.authorization("digest", ("fabric:"+password).getBytes());
             }
-            LOG.debug("Starting IZKClient " + zkClient);
+
+            CuratorFramework client = builder.build();
+            LOG.debug("Starting curator " + curator);
             client.start();
-            zkClient = client;
+            curator = client;
             setShouldCloseZkClient(true);
         }
         // ensure we are started
-        zkClient.waitForConnected(new Timespan(getMaximumConnectionTimeout()));
+        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
     }
 
     @Override
     protected void doStop() throws Exception {
         super.doStop();
-        if (zkClient != null && isShouldCloseZkClient()) {
-            zkClient.close();
+        if (curator != null && isShouldCloseZkClient()) {
+            curator.close();
         }
     }
 }

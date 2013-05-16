@@ -21,10 +21,9 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import org.apache.zookeeper.KeeperException;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,19 +86,19 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
     /**
      * Returns the ZooKeeper client or throwns an exception if its not configured properly
      */
-    protected IZKClient getZooKeeper() {
-        IZKClient zooKeeper = fabricService.getZooKeeper();
-        notNull(zooKeeper, "zooKeeper");
-        return zooKeeper;
+    protected CuratorFramework getCurator() {
+        CuratorFramework curator = fabricService.getCurator();
+        notNull(curator, "curator");
+        return curator;
     }
 
     // Facade API
     //-------------------------------------------------------------------------
 
 
-    public ZkContents read(String path) throws KeeperException, InterruptedException {
-        IZKClient zk = getZooKeeper();
-        Stat exists = exists(zk, path);
+    public ZkContents read(String path) throws Exception {
+        CuratorFramework curator = getCurator();
+        Stat exists = exists(curator, path);
         if (exists == null) {
             return null;
         }
@@ -108,16 +107,15 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
         List<String> children = null;
         String data = null;
         if (numChildren > 0) {
-            children = getChildren(zk, path);
+            children = getChildren(curator, path);
         } else {
-            data = getStringData(zk, path);
+            data = getStringData(curator, path);
         }
         return new ZkContents(dataLength, children, data);
     }
 
     @Override
-    public String getContents(String path) throws KeeperException, InterruptedException {
-        byte[] data = getZooKeeper().getData(path);
-        return new String(data);
+    public String getContents(String path) throws Exception {
+        return getStringData(getCurator(), path);
     }
 }

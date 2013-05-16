@@ -95,7 +95,7 @@ public class CloudServiceList extends FabricCommand {
 			for (ComputeService computeService : computeServices) {
 				if (computeService.getContext().unwrap().getId().equals(providerOrApi)) {
 					String name = (String) computeService.getContext().unwrap().getName();
-					if (getZooKeeper() != null && getZooKeeper().isConnected()) {
+					if (getCurator() != null && getCurator().getZookeeperClient().isConnected()) {
 						fabricServices.append(name).append(" ");
 					} else {
 						localServices.append(name).append(" ");

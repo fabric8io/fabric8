@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.zookeeper;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
@@ -43,7 +44,7 @@ public enum ZkPath {
 
     // config nodes
     CONFIGS                        ("/fabric/configs"),
-    CONFIGS_CONTAINERS             ("/fabric/configs/containers/"),
+    CONFIGS_CONTAINERS             ("/fabric/configs/containers"),
     CONFIG_CONTAINER               ("/fabric/configs/containers/{container}"),
     CONFIG_DEFAULT_VERSION         ("/fabric/configs/default-version"),
     CONFIG_VERSIONS                ("/fabric/configs/versions"),
@@ -107,14 +108,14 @@ public enum ZkPath {
     CLOUD_NODE_CREDENTIAL          ("/fabric/registry/cloud/nodes/{id}/credential"),
     POLICIES                       ("/fabric/registry/policies/{policy}"),
 
-    WEBAPPS                        ("/fabric/registry/webapps/"),
+    WEBAPPS                        ("/fabric/registry/webapps"),
     WEBAPPS_CONTAINER              ("/fabric/registry/clusters/webapps/{name}/{version}/{container}"),
     LOCK                           ("{path}/0"),
     
-    PORTS                          ("/fabric/registry/ports/"),
+    PORTS                          ("/fabric/registry/ports"),
     PORTS_LOCK                     ("/fabric/registry/ports/lock"),
-    PORTS_CONTAINER                ("/fabric/registry/ports/containers/{container}/"),
-    PORTS_CONTAINER_PID            ("/fabric/registry/ports/containers/{container}/{pid}/"),
+    PORTS_CONTAINER                ("/fabric/registry/ports/containers/{container}"),
+    PORTS_CONTAINER_PID            ("/fabric/registry/ports/containers/{container}/{pid}"),
     PORTS_CONTAINER_PID_KEY        ("/fabric/registry/ports/containers/{container}/{pid}/{key}"),
     PORTS_IP                       ("/fabric/registry/ports/ip/{address}"),
 
@@ -155,10 +156,11 @@ public enum ZkPath {
         return this.path.bindByName(args);
     }
 
+
     /**
      * Loads a zoo keeper URL content using the provided ZooKeeper client.
      */
-    public static byte[] loadURL(IZKClient zooKeeper, String url) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+    public static byte[] loadURL(CuratorFramework curator, String url) throws Exception {
         URI uri = new URI(url);
         String ref = uri.getFragment();
         String path = uri.getSchemeSpecificPart();
@@ -167,7 +169,7 @@ public enum ZkPath {
             path = ZkPath.CONTAINER.getPath(path);
         }
 
-        byte rc [] = zooKeeper.getData(path);
+        byte rc [] = curator.getData().forPath(path);
         if( ref!=null ) {
             if( path.endsWith(".properties") ) {
                 Properties properties = new Properties();
@@ -221,30 +223,30 @@ public enum ZkPath {
 		} else return ZkPath.CONFIG_VERSIONS_PROFILE.getPath(version, id);
 	}
 
-    public static void createContainerPaths(IZKClient zooKeeper, String container, String version, String profiles) throws InterruptedException, KeeperException {
+    public static void createContainerPaths(CuratorFramework curator, String container, String version, String profiles) throws Exception {
         boolean versionProvided = version != null;
 
         String v = version;
         //Try to find the version to use
-        if (v == null && exists(zooKeeper, CONFIG_CONTAINER.getPath(container)) != null) {
+        if (v == null && exists(curator, CONFIG_CONTAINER.getPath(container)) != null) {
             //Try to acquire the version from the registry path /fabric/configs/containers/{container}
-            v = getStringData(zooKeeper, CONFIG_CONTAINER.getPath(container));
-        }  else if (exists(zooKeeper, CONFIG_DEFAULT_VERSION.getPath()) != null) {
+            v = getStringData(curator, CONFIG_CONTAINER.getPath(container));
+        }  else if (exists(curator, CONFIG_DEFAULT_VERSION.getPath()) != null) {
             //If version is still null, try the default version.
-            v = getStringData(zooKeeper, CONFIG_DEFAULT_VERSION.getPath());
+            v = getStringData(curator, CONFIG_DEFAULT_VERSION.getPath());
         } else {
             //Else assume version 1.0.
             v = ZkDefs.DEFAULT_VERSION;
         }
 
         //Set the version
-        if (exists(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
-            setData(zooKeeper, ZkPath.CONFIG_CONTAINER.getPath(container), v);
+        if (exists(curator, ZkPath.CONFIG_CONTAINER.getPath(container)) == null || versionProvided) {
+            setData(curator, ZkPath.CONFIG_CONTAINER.getPath(container), v);
         }
 
         //Set the profiles
-        if (profiles != null && !profiles.isEmpty() && exists(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container)) == null) {
-            setData(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container), profiles);
+        if (profiles != null && !profiles.isEmpty() && exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container)) == null) {
+            setData(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(v, container), profiles);
         }
     }
 }

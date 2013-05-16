@@ -21,10 +21,10 @@
            http://www.osgi.org/xmlns/blueprint/v1.0.0
            http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd">
 
-    <reference id="org.fusesource.fabric.zookeeper.IZKClient" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
     <bean id="fabric-camel" class="org.fusesource.fabric.camel.FabricComponent">
-        <property name="zkClient" ref="org.fusesource.fabric.zookeeper.IZKClient"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
     <camelContext id="camel" trace="false" xmlns="http://camel.apache.org/schema/blueprint">

@@ -95,7 +95,7 @@ public class ZkManagedGatewayServiceFactory extends AbstractZkManagedServiceFact
 
     private ZkGatewayConnector createGatewayConnector(String pid, Dictionary<String, String> properties) throws ConfigurationException {
         ZkGatewayConnector gatewayConnector = new ZkGatewayConnector();
-        gatewayConnector.setZooKeeper(getZooKeeper());
+        gatewayConnector.setCurator(getZooKeeper());
         gatewayConnector.setFabricService(getFabricService());
         gatewayConnector.setId(pid);
 

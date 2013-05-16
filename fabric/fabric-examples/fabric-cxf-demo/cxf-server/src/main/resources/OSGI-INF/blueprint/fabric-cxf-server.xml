@@ -28,11 +28,11 @@
            http://cxf.apache.org/blueprint/jaxws.xsd
            ">
 
-    <reference id="org.fusesource.fabric.zookeeper.IZKClient" interface="org.fusesource.fabric.zookeeper.IZKClient" />
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
 
     <!-- The FabricFailOverFeature will try to access other service endpoint with round rad -->
     <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">
-        <property name="zkClient" ref="org.fusesource.fabric.zookeeper.IZKClient" />
+        <property name="curator" ref="curator" />
         <property name="fabricPath" value="cxf/demo" />
     </bean>
 

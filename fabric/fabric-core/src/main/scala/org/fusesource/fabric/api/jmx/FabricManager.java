@@ -94,15 +94,15 @@ public class FabricManager implements FabricManagerMBean {
         ServiceStatusDTO rc = new ServiceStatusDTO();
 
         try {
-            rc.setClientValid(getFabricService().getZooKeeper() != null);
+            rc.setClientValid(getFabricService().getCurator() != null);
         } catch (Throwable t) {
             rc.setClientValid(false);
         }
         if (rc.isClientValid()) {
             try {
-                rc.setClientConnected(getFabricService().getZooKeeper().isConnected());
+                rc.setClientConnected(getFabricService().getCurator().getZookeeperClient().isConnected());
                 if (!rc.isClientConnected()) {
-                    rc.setClientConnectionError(getFabricService().getZooKeeper().getState().toString());
+                    rc.setClientConnectionError(getFabricService().getCurator().getState().toString());
                 }
             } catch(Throwable t) {
                 rc.setClientConnected(false);
@@ -546,8 +546,8 @@ public class FabricManager implements FabricManagerMBean {
     }
 
 /*
-    public IZKClient getZooKeeper() {
-        return getFabricService().getZooKeeper();
+    public IZKClient getCurator() {
+        return getFabricService().getCurator();
     }
 */
 

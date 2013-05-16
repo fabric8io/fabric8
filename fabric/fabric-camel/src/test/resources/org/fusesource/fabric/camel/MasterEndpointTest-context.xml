@@ -25,12 +25,12 @@
   </bean>
 
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean" depends-on="zkServer">
-    <property name="timeoutText" value="30s"/>
-    <property name="connectString" value="localhost:2181"/>
-  </bean>
+    <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean">
+        <property name="timeout" value="30000"/>
+        <property name="connectString" value="localhost:2181"/>
+    </bean>
 
-  <camelContext xmlns="http://camel.apache.org/schema/spring" depends-on="zkClient">
+  <camelContext xmlns="http://camel.apache.org/schema/spring" depends-on="curator">
 
     <route>
       <from uri="master:master-000:seda:bar?size=10"/>

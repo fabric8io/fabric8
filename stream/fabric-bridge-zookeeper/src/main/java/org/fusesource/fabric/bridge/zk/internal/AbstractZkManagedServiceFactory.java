@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.jms.ConnectionFactory;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.bridge.MessageConverter;
 import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
@@ -33,7 +34,6 @@ import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.DispatchPolicy;
 import org.fusesource.fabric.bridge.zk.model.ZkBridgeDestinationsConfigFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -61,7 +61,7 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    private IZKClient zooKeeper;
+    private CuratorFramework zooKeeper;
 
     private FabricService fabricService;
 
@@ -271,11 +271,11 @@ public abstract class AbstractZkManagedServiceFactory implements ManagedServiceF
             new OsgiApplicationContextAdapter(pid, this));
     }
 
-    public IZKClient getZooKeeper() {
+    public CuratorFramework getZooKeeper() {
         return zooKeeper;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
+    public void setZooKeeper(CuratorFramework zooKeeper) {
         this.zooKeeper = zooKeeper;
     }
 

@@ -21,7 +21,6 @@ import org.osgi.service.cm.ConfigurationException
 import org.osgi.service.cm.ManagedServiceFactory
 import org.slf4j.LoggerFactory
 import reflect.BeanProperty
-import org.fusesource.fabric.zookeeper.IZKClient
 import java.util.{Properties, Dictionary}
 import collection.mutable.HashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -43,6 +42,7 @@ import org.osgi.framework.{ServiceRegistration, BundleContext}
 import org.apache.activemq.network.DiscoveryNetworkConnector
 import java.util
 import collection.mutable
+import org.apache.curator.framework.CuratorFramework
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -123,7 +123,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   @BeanProperty
   var bundleContext: BundleContext = null
   @BeanProperty
-  var zooKeeper: IZKClient = null
+  var curator: CuratorFramework = null
 
   var owned_pools = Set[String]()
   
@@ -235,7 +235,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       discoveryAgent.setAgent(System.getProperty("karaf.name"))
       discoveryAgent.setId(name)
       discoveryAgent.setGroupName(group)
-      discoveryAgent.setZkClient(zooKeeper)
+      discoveryAgent.setCurator(curator)
       discoveryAgent.singleton.add(new ChangeListener() {
         def changed {
           if (discoveryAgent.singleton.isMaster) {

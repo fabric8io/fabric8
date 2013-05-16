@@ -17,8 +17,8 @@
 package org.fusesource.fabric.bridge.zk.internal;
 
 
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.commands.Import;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 /**
  * User: dbokde
@@ -36,7 +36,7 @@ public class TestImport extends Import {
     }
 
     @Override
-    public void doExecute(IZKClient client) throws Exception {
+    public void doExecute(CuratorFramework client) throws Exception {
         super.doExecute(client);
     }
 }

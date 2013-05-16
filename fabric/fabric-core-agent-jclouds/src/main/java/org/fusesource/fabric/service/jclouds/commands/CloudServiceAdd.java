@@ -99,22 +99,22 @@ public class CloudServiceAdd extends FabricCommand {
         // Only Provider is specified.
         else if (!Strings.isNullOrEmpty(providerValue) && (Strings.isNullOrEmpty(apiValue) || Strings.isNullOrEmpty(endpointValue))) {
             serviceName = providerValue;
-            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
+            CloudUtils.registerProvider(getCurator(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
         }
         //Only Api specified
         else if (Strings.isNullOrEmpty(providerValue) && (!Strings.isNullOrEmpty(apiValue) && !Strings.isNullOrEmpty(endpointValue))) {
             serviceName = apiValue;
-            CloudUtils.registerApi(getZooKeeper(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
+            CloudUtils.registerApi(getCurator(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
         }
         //Both are specified but Api is passed as an option, so it gains priority.
         else if (Strings.isNullOrEmpty(api)) {
             serviceName = apiValue;
-            CloudUtils.registerApi(getZooKeeper(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
+            CloudUtils.registerApi(getCurator(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
         }
         //In all other cases we assume the user wants to use a provider.
         else {
             serviceName = providerValue;
-            CloudUtils.registerProvider(getZooKeeper(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
+            CloudUtils.registerProvider(getCurator(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
         }
 
 

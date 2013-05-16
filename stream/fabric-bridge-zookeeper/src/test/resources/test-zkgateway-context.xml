@@ -22,13 +22,13 @@
         http://fusesource.org/fabric/bridge http://fusesource.org/fabric/bridge/fabric-bridge.xsd
         http://fusesource.org/fabric/bridge/zookeeper http://fusesource.org/fabric/bridge/zookeeper/fabric-bridge-zookeeper.xsd">
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
   <bean id="fabricservice" class="org.fusesource.fabric.service.FabricServiceImpl">
-    <property name="zooKeeper" ref="zkClient"/>
+    <property name="curator" ref="curator"/>
   </bean>
 
   <!-- destinations configured using Fabric -->
@@ -39,7 +39,7 @@
   <!-- Fabric configured gateway, uses Fabric to discover destinations -->
   <zkbridge:zkgateway-connector id="myzkgateway" inboundDestinationsRef="upstream"
                                 outboundDestinationsRef="downstream" fabricServiceRef="fabricservice"
-                                zooKeeperRef="zkClient" profileName="test-gateway" phase="1">
+                                zooKeeperRef="curator" profileName="test-gateway" phase="1">
     <bridge:local-broker
         brokerUrl="vm://remote?broker.persistent=false&amp;broker.brokerName=remote&amp;jms.prefetchPolicy.queuePrefetch=10"/>
   </zkbridge:zkgateway-connector>

@@ -17,10 +17,11 @@
 
 package org.fusesource.fabric.service.jclouds;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.karaf.core.Constants;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
  *
  * If for any reason the new ensemble already has registered information for a provider, the provider will be skipped.
  */
-public class CloudProviderBridge implements LifecycleListener {
+public class CloudProviderBridge implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudProviderBridge.class);
 
@@ -51,16 +52,27 @@ public class CloudProviderBridge implements LifecycleListener {
     private static final String BLOBSTORE_FILTER = "(service.factoryPid=org.jclouds.blobstore)";
 
     private ConfigurationAdmin configurationAdmin;
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
 
 
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
     public void onConnected() {
        registerServices(COMPUTE_FILTER);
        registerServices(BLOBSTORE_FILTER);
     }
 
-    @Override
     public void onDisconnected() {
 
     }
@@ -75,16 +87,16 @@ public class CloudProviderBridge implements LifecycleListener {
                         String name = properties.get(Constants.NAME) != null ? String.valueOf(properties.get(Constants.NAME)) : null;
                         String identity = properties.get(Constants.IDENTITY) != null ? String.valueOf(properties.get(Constants.IDENTITY)) : null;
                         String credential = properties.get(Constants.CREDENTIAL) != null ? String.valueOf(properties.get(Constants.CREDENTIAL)) : null;
-                        if (name != null && identity != null && credential != null && getZooKeeper().isConnected()) {
-                            if (exists(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                create(getZooKeeper(), ZkPath.CLOUD_SERVICE.getPath(name));
+                        if (name != null && identity != null && credential != null && getCurator().getZookeeperClient().isConnected()) {
+                            if (exists(getCurator(), ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(getCurator(), ZkPath.CLOUD_SERVICE.getPath(name));
 
                                 Enumeration keys = properties.keys();
                                 while (keys.hasMoreElements()) {
                                     String key = String.valueOf(keys.nextElement());
                                     String value = String.valueOf(properties.get(key));
                                     if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                        setData(getZooKeeper(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                        setData(getCurator(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                     }
                                 }
                             }
@@ -105,11 +117,11 @@ public class CloudProviderBridge implements LifecycleListener {
         this.configurationAdmin = configurationAdmin;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 }

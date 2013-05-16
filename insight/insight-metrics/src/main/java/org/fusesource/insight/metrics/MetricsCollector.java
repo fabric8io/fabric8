@@ -18,6 +18,7 @@
 package org.fusesource.insight.metrics;
 
 
+import org.apache.curator.framework.CuratorFramework;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
@@ -28,7 +29,6 @@ import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.insight.metrics.model.MBeanAttrs;
 import org.fusesource.insight.metrics.model.MBeanOpers;
 import org.fusesource.insight.metrics.model.Query;
@@ -46,8 +46,6 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
 import java.io.IOException;
@@ -98,7 +96,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     private BundleContext bundleContext;
     private FabricService fabricService;
-    private IZKClient zookeeper;
+    private CuratorFramework curator;
 
     private ScheduledThreadPoolExecutor executor;
     private Map<Query, QueryState> queries = new ConcurrentHashMap<Query, QueryState>();
@@ -180,8 +178,8 @@ public class MetricsCollector implements MetricsCollectorMBean {
         this.fabricService = fabricService;
     }
 
-    public void setZookeeper(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     @Override
@@ -335,7 +333,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
     protected synchronized Group startGroup(String lock) {
         if (LOCK_GLOBAL.equals(lock)) {
             if (globalGroup == null) {
-                globalGroup = ZooKeeperGroupFactory.create(zookeeper,
+                globalGroup = ZooKeeperGroupFactory.create(curator,
                                 "/fabric/registry/clusters/insight-metrics/global");
             }
             return globalGroup;
@@ -347,7 +345,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 } catch (UnknownHostException e) {
                     throw new IllegalStateException("Unable to retrieve host name", e);
                 }
-                hostGroup = ZooKeeperGroupFactory.create(zookeeper,
+                hostGroup = ZooKeeperGroupFactory.create(curator,
                                 "/fabric/registry/clusters/insight-metrics/host-" + host);
             }
             return hostGroup;

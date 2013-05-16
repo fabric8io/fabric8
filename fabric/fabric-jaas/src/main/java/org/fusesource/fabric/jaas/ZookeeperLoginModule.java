@@ -16,12 +16,12 @@
  */
 package org.fusesource.fabric.jaas;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.jaas.boot.principal.RolePrincipal;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
 import org.apache.karaf.jaas.modules.AbstractKarafLoginModule;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleReference;
 import org.osgi.framework.ServiceReference;
@@ -49,7 +49,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.isContainerLo
 
 public class ZookeeperLoginModule extends AbstractKarafLoginModule implements LoginModule {
 
-    public static final ThreadLocal<IZKClient> ZOOKEEPER_CONTEXT = new ThreadLocal<IZKClient>();
+    public static final ThreadLocal<CuratorFramework> ZOOKEEPER_CONTEXT = new ThreadLocal<CuratorFramework>();
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperLoginModule.class);
 
     private boolean debug = false;
@@ -61,17 +61,17 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
     @Override
     public void initialize(Subject subject, CallbackHandler callbackHandler, Map sharedState, Map options) {
         debug = "true".equalsIgnoreCase((String)options.get("debug"));
-        IZKClient zookeeper = ZOOKEEPER_CONTEXT.get();
-        if( zookeeper==null ) {
+        CuratorFramework curator = ZOOKEEPER_CONTEXT.get();
+        if( curator==null ) {
             // osgi env.
             BundleContext bundleContext = ((BundleReference) getClass().getClassLoader()).getBundle().getBundleContext();
             encryptionSupport = new EncryptionSupport(options);
-            ServiceReference serviceReference = bundleContext.getServiceReference(IZKClient.class.getName());
+            ServiceReference serviceReference = bundleContext.getServiceReference(CuratorFramework.class.getName());
             if (serviceReference != null) {
                 try {
-                    zookeeper = (IZKClient) bundleContext.getService(serviceReference);
-                    users = getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
-                    containers = getContainerTokens(zookeeper);
+                    curator = (CuratorFramework) bundleContext.getService(serviceReference);
+                    users = getProperties(curator, ZookeeperBackingEngine.USERS_NODE);
+                    containers = getContainerTokens(curator);
                 } catch (Exception e) {
                     LOG.warn("Failed fetching authentication data.", e);
                 } finally {
@@ -81,8 +81,8 @@ public class ZookeeperLoginModule extends AbstractKarafLoginModule implements Lo
         } else {
             // non-osgi env.
             try {
-                users = getProperties(zookeeper, ZookeeperBackingEngine.USERS_NODE);
-                containers = getContainerTokens(zookeeper);
+                users = getProperties(curator, ZookeeperBackingEngine.USERS_NODE);
+                containers = getContainerTokens(curator);
             } catch (Exception e) {
                 LOG.warn("Failed fetching authentication data.", e);
             }

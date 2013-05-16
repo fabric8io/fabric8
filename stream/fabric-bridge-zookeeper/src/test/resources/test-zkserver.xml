@@ -31,13 +31,13 @@
     <property name="fabricService" ref="fabricservice"/>
   </bean>
 
-  <bean id="zkClient" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
+  <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
     <property name="timeoutText" value="30s"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 
   <bean id="fabricservice" class="org.fusesource.fabric.service.FabricServiceImpl">
-    <property name="zooKeeper" ref="zkClient"/>
+    <property name="curator" ref="curator"/>
   </bean>
 
 </beans>

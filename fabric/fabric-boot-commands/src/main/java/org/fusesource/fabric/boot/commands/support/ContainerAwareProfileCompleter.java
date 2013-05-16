@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.ArgumentCompleter;
@@ -30,8 +31,6 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 
 /**
  * A completer that is aware of the target container.
@@ -45,7 +44,6 @@ public class ContainerAwareProfileCompleter implements Completer {
     private final boolean unassigned;
 
     protected FabricService fabricService;
-    protected IZKClient zooKeeper;
 
     public ContainerAwareProfileCompleter(int containerArgumentIndex, boolean assigned, boolean unassigned) {
         this.containerArgumentIndex = containerArgumentIndex;
@@ -123,11 +121,4 @@ public class ContainerAwareProfileCompleter implements Completer {
         this.fabricService = fabricService;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
-    }
-
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
-    }
 }

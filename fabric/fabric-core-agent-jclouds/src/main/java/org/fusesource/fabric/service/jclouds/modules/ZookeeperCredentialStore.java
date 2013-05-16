@@ -19,13 +19,14 @@ package org.fusesource.fabric.service.jclouds.modules;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.rest.ConfiguresCredentialStore;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,16 +49,16 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
  * Credentials stored in memory will be pushed to Zookeeper when it becomes available.
  */
 @ConfiguresCredentialStore
-public class ZookeeperCredentialStore extends CredentialStore implements LifecycleListener {
+public class ZookeeperCredentialStore extends CredentialStore implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCredentialStore.class);
 
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
     private Cache<String, Credentials> cache;
 
     public void init() {
         this.cache = CacheBuilder.newBuilder().maximumSize(100).build();
-        this.store = new ZookeeperBacking(zooKeeper, cache);
+        this.store = new ZookeeperBacking(curator, cache);
     }
 
     /**
@@ -68,15 +69,28 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
     }
 
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
+
     public void onConnected() {
         //Whenever a connection to Zookeeper is made copy everything to Zookeeper.
         for (Map.Entry<String, Credentials> entry : cache.asMap().entrySet()) {
@@ -86,21 +100,21 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
         }
     }
 
-    @Override
     public void onDisconnected() {
 
     }
+
 
     /**
      * A map implementations which uses a local {@link Cache} and Zookeeper as persistent store.
      */
     private class ZookeeperBacking implements Map<String, Credentials> {
 
-        private final IZKClient zookeeper;
+        private final CuratorFramework curator;
         private final Cache<String, Credentials> cache;
 
-        private ZookeeperBacking(IZKClient zookeeper, Cache<String, Credentials> cache) {
-            this.zookeeper = zookeeper;
+        private ZookeeperBacking(CuratorFramework curator, Cache<String, Credentials> cache) {
+            this.curator = curator;
             this.cache = cache;
         }
 
@@ -111,16 +125,14 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
          */
         public int size() {
             int size = 0;
-            if (zookeeper.isConnected()) {
+            {
                 try {
-                    if (exists(zookeeper, ZkPath.CLOUD_NODES.getPath()) != null) {
-                        size = getChildren(zookeeper, ZkPath.CLOUD_NODES.getPath()).size();
+                    if (exists(curator, ZkPath.CLOUD_NODES.getPath()) != null) {
+                        size = getChildren(curator, ZkPath.CLOUD_NODES.getPath()).size();
                     }
                 } catch (Exception ex) {
-                    //noop
+                    size = (int) cache.size();
                 }
-            } else {
-               size = (int) cache.size();
             }
             return size;
         }
@@ -138,12 +150,10 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
             boolean result  = cache.asMap().containsKey(o);
             //If not found in the cache check the zookeeper if available.
             if (!result) {
-                if (zookeeper.isConnected()) {
-                    try {
-                        result = (exists(zookeeper, ZkPath.CLOUD_NODE.getPath(normalizeKey(o))) != null);
-                    } catch (Exception ex) {
-                        //noop
-                    }
+                try {
+                    result = (exists(curator, ZkPath.CLOUD_NODE.getPath(normalizeKey(o))) != null);
+                } catch (Exception ex) {
+                    //noop
                 }
             }
             return result;
@@ -166,10 +176,10 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
          */
         public Credentials get(Object o) {
             Credentials credentials = cache.asMap().get(o);
-            if (credentials == null && zookeeper.isConnected()) {
+            if (credentials == null) {
                 try {
-                    String identity = getStringData(zookeeper, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(o)));
-                    String credential = getStringData(zookeeper, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(o)));
+                    String identity = getStringData(curator, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(o)));
+                    String credential = getStringData(curator, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(o)));
                     credentials = LoginCredentials.fromCredentials(new Credentials(identity, credential));
                 } catch (Exception e) {
                     LOGGER.debug("Failed to read jclouds credentials from zookeeper due to {}.", e.getMessage());
@@ -187,13 +197,11 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
          */
         public Credentials put(String s, Credentials credentials) {
             cache.put(s, credentials);
-            if (zookeeper.isConnected()) {
-                try {
-                    setData(zookeeper, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(s)), credentials.identity);
-                    setData(zookeeper, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(s)), credentials.credential);
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to store jclouds credentials to zookeeper.", e);
-                }
+            try {
+                setData(curator, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(s)), credentials.identity);
+                setData(curator, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(s)), credentials.credential);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to store jclouds credentials to zookeeper.", e);
             }
             return credentials;
         }
@@ -205,17 +213,15 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
          */
         public Credentials remove(Object o) {
             Credentials credentials = cache.asMap().remove(o);
-            if (zookeeper.isConnected()) {
-                try {
-                    if (credentials == null) {
-                        credentials = get(o);
-                    }
-                    String normalizedKey = normalizeKey(o);
-                    deleteSafe(zookeeper, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizedKey));
-                    deleteSafe(zookeeper, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizedKey));
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to remove jclouds credentials to zookeeper.", e);
+            try {
+                if (credentials == null) {
+                    credentials = get(o);
                 }
+                String normalizedKey = normalizeKey(o);
+                deleteSafe(curator, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizedKey));
+                deleteSafe(curator, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizedKey));
+            } catch (Exception e) {
+                LOGGER.warn("Failed to remove jclouds credentials to zookeeper.", e);
             }
             return credentials;
         }
@@ -234,15 +240,13 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
 
         public void clear() {
             cache.cleanUp();
-            if (zookeeper.isConnected()) {
-                try {
-                    for (String nodeId : keySet()) {
-                        deleteSafe(zookeeper, ZkPath.CLOUD_NODE_IDENTITY.getPath(nodeId));
-                        deleteSafe(zookeeper, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(nodeId));
-                    }
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to clear zookeeper jclouds credentials store.", e);
+            try {
+                for (String nodeId : keySet()) {
+                    deleteSafe(curator, ZkPath.CLOUD_NODE_IDENTITY.getPath(nodeId));
+                    deleteSafe(curator, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(nodeId));
                 }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to clear zookeeper jclouds credentials store.", e);
             }
         }
 
@@ -252,15 +256,12 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
          */
         public Set<String> keySet() {
             Set<String> keys = new HashSet<String>();
-            if (zookeeper.isConnected()) {
                 try {
-                    keys = new HashSet<String>(getChildren(zookeeper, ZkPath.CLOUD_NODE.getPath()));
+                    keys = new HashSet<String>(getChildren(curator, ZkPath.CLOUD_NODE.getPath()));
                 } catch (Exception e) {
                     LOGGER.warn("Failed to read from zookeeper jclouds credentials store.", e);
+                    keys = cache.asMap().keySet();
                 }
-            } else {
-                keys = cache.asMap().keySet();
-            }
             return keys;
         }
 
@@ -275,13 +276,10 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
 
         public Set<Map.Entry<String, Credentials>> entrySet() {
             Set<Map.Entry<String, Credentials>> entrySet = new HashSet<Entry<String, Credentials>>();
-            if (zooKeeper.isConnected()) {
+
                 for (String key : keySet()) {
-                    entrySet.add(new CredentialsEntry(zookeeper, key));
+                    entrySet.add(new CredentialsEntry(curator, key));
                 }
-            } else {
-                entrySet.addAll(cache.asMap().entrySet());
-            }
             return entrySet;
         }
     }
@@ -289,10 +287,10 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
     private static class CredentialsEntry implements Map.Entry<String, Credentials> {
 
         private String key;
-        private IZKClient zookeeper;
+        private CuratorFramework curator;
 
-        private CredentialsEntry(IZKClient zookeeper, String key) {
-            this.zookeeper = zookeeper;
+        private CredentialsEntry(CuratorFramework curator, String key) {
+            this.curator = curator;
             this.key = key;
         }
 
@@ -304,27 +302,23 @@ public class ZookeeperCredentialStore extends CredentialStore implements Lifecyc
         @Override
         public Credentials getValue() {
             Credentials credentials = null;
-            if (zookeeper.isConnected()) {
-                try {
-                    String identity = getStringData(zookeeper, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(key)));
-                    String credential = getStringData(zookeeper, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(key)));
-                    credentials = LoginCredentials.fromCredentials(new Credentials(identity, credential));
-                } catch (Exception e) {
-                    LOGGER.debug("Failed to read jclouds credentials from zookeeper due to {}.", e.getMessage());
-                }
+            try {
+                String identity = getStringData(curator, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(key)));
+                String credential = getStringData(curator, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(key)));
+                credentials = LoginCredentials.fromCredentials(new Credentials(identity, credential));
+            } catch (Exception e) {
+                LOGGER.debug("Failed to read jclouds credentials from zookeeper due to {}.", e.getMessage());
             }
             return credentials;
         }
 
         @Override
         public Credentials setValue(Credentials credentials) {
-            if (zookeeper.isConnected()) {
-                try {
-                    setData(zookeeper, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(key)), credentials.identity);
-                    setData(zookeeper, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(key)), credentials.credential);
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to store jclouds credentials to zookeeper.", e);
-                }
+            try {
+                setData(curator, ZkPath.CLOUD_NODE_IDENTITY.getPath(normalizeKey(key)), credentials.identity);
+                setData(curator, ZkPath.CLOUD_NODE_CREDENTIAL.getPath(normalizeKey(key)), credentials.credential);
+            } catch (Exception e) {
+                LOGGER.warn("Failed to store jclouds credentials to zookeeper.", e);
             }
             return credentials;
         }

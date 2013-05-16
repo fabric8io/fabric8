@@ -16,11 +16,12 @@
  */
 package org.fusesource.fabric.zookeeper.utils;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.linkedin.zookeeper.client.ZKData;
 
@@ -28,42 +29,52 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 public final class ZooKeeperUtils {
+
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     private ZooKeeperUtils() {
         //Utility Class
     }
 
-    public static void copy(IZKClient source, IZKClient dest, String path) throws InterruptedException, KeeperException {
-        for (String child : source.getChildren(path)) {
+    public static void copy(CuratorFramework source, CuratorFramework dest, String path) throws Exception {
+        for (String child : source.getChildren().forPath(path)) {
             child = path + "/" + child;
-            if (dest.exists(child) == null) {
-                byte[] data = source.getData(child);
+            if (dest.checkExists().forPath(child) == null) {
+                byte[] data = source.getData().forPath(child);
                 setData(dest, child, data);
                 copy(source, dest, child);
             }
         }
     }
 
-    public static void copy(IZKClient zk, String from, String to) throws InterruptedException, KeeperException {
-        for (String child : zk.getChildren(from)) {
+    public static void copy(CuratorFramework curator, String from, String to) throws Exception {
+        for (String child : curator.getChildren().forPath(from)) {
             String fromChild = from + "/" + child;
             String toChild = to + "/" + child;
-            if (zk.exists(toChild) == null) {
-                byte[] data = zk.getData(fromChild);
-                setData(zk, toChild, data);
-                copy(zk, fromChild, toChild);
+            if (curator.checkExists().forPath(toChild) == null) {
+                byte[] data = curator.getData().forPath(fromChild);
+                setData(curator, toChild, data);
+                copy(curator, fromChild, toChild);
             }
         }
     }
 
-    public static void add(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        if (zooKeeper.exists(path) == null) {
-            zooKeeper.createOrSetWithParents(path, value, CreateMode.PERSISTENT);
+    public static void add(CuratorFramework curator, String path, String value) throws Exception {
+        if (curator.checkExists().forPath(path) == null) {
+            curator.setData().forPath(path, value != null ? value.getBytes(UTF_8) : null);
         } else {
-            String data = zooKeeper.getStringData(path);
+            String data = getStringData(curator, path);
             if (data == null) {
                 data = "";
             }
@@ -71,16 +82,16 @@ public final class ZooKeeperUtils {
                 data += " ";
             }
             data += value;
-            zooKeeper.setData(path, data);
+            curator.setData().forPath(path, data.getBytes(UTF_8));
         }
     }
 
-    public static void remove(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        if (zooKeeper.exists(path) != null) {
+    public static void remove(CuratorFramework curator, String path, String value) throws Exception {
+        if (curator.checkExists().forPath(path) != null) {
             List<String> parts = new LinkedList<String>();
-            String data = zooKeeper.getStringData(path);
+            String data = getStringData(curator, path);
             if (data != null) {
-                parts = new ArrayList<String>(Arrays.asList(data.split(" ")));
+                parts = new ArrayList<String>(Arrays.asList(data.trim().split(" +")));
             }
             boolean changed = false;
             StringBuilder sb = new StringBuilder();
@@ -99,83 +110,93 @@ public final class ZooKeeperUtils {
                     }
                     sb.append(part);
                 }
-                zooKeeper.setData(path, sb.toString());
+                setData(curator, path, sb.toString());
             }
         }
     }
 
-    public static List<String> getChildren(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
-        return zooKeeper.getChildren(path);
+
+    public static List<String> getChildren(CuratorFramework curator, String path) throws Exception {
+        return curator.getChildren().forPath(path);
     }
 
-    public static List<String> getAllChildren(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
-        return zooKeeper.getAllChildren(path);
-    }
-
-    public static String getStringData(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        return zooKeeper.getStringData(path);
-    }
-
-    public static String getStringData(IZKClient zooKeeper, String path, Watcher watcher) throws InterruptedException, KeeperException {
-        return zooKeeper.getZKStringData(path, watcher).getData();
-    }
-
-    public static void setData(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        zooKeeper.createOrSetWithParents(path, value, CreateMode.PERSISTENT);
-    }
-
-    public static void setData(IZKClient zooKeeper, String path, byte[] value) throws InterruptedException, KeeperException {
-        if (zooKeeper.exists(path) != null) {
-            zooKeeper.setByteData(path, value);
+    public static List<String> getAllChildren(CuratorFramework curator, String path) throws Exception {
+        List<String> children = getChildren(curator, path);
+        List<String> allChildren = new ArrayList();
+        for (String child : children) {
+            String fullPath = ZKPaths.makePath(path, child);
+            allChildren.add(fullPath);
+            allChildren.addAll(getAllChildren(curator, fullPath));
         }
-        try {
-            zooKeeper.createWithParents(path, value, CreateMode.PERSISTENT);
-        } catch (KeeperException.NodeExistsException e) {
-            // this should not happen very often (race condition)
-            zooKeeper.setByteData(path, value);
+        return allChildren;
+    }
+
+    public static String getStringData(CuratorFramework curator, String path) throws Exception {
+        return getStringData(curator, path, null);
+    }
+
+    public static String getStringData(CuratorFramework curator, String path, Watcher watcher) throws Exception {
+        byte[] bytes = watcher != null ? curator.getData().usingWatcher(watcher).forPath(path) : curator.getData().forPath(path);
+        if (bytes == null) {
+            return null;
+        } else {
+            return new String(bytes, UTF_8);
         }
     }
 
-    public static void create(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        zooKeeper.createWithParents(path, CreateMode.PERSISTENT);
+    public static void setData(CuratorFramework curator, String path, String value) throws Exception {
+        setData(curator, path, value != null ? value.getBytes(UTF_8) : null);
     }
 
-    public static String create(IZKClient zooKeeper, String path, CreateMode createMode) throws InterruptedException, KeeperException {
-        return zooKeeper.createWithParents(path, createMode);
+    public static void setData(CuratorFramework curator, String path, byte[] value) throws Exception {
+        if (curator.checkExists().forPath(path) == null) {
+            curator.create().creatingParentsIfNeeded().forPath(path, value != null ? value : null);
+        }
+        curator.setData().forPath(path, value != null ? value : null);
     }
 
-    public static String create(IZKClient zooKeeper, String path, String data, CreateMode createMode) throws InterruptedException, KeeperException {
-        return zooKeeper.createWithParents(path, data, createMode);
+    public static void create(CuratorFramework curator, String path) throws Exception {
+        create(curator, path, CreateMode.PERSISTENT);
     }
 
-    public static String create(IZKClient zooKeeper, String path, byte[] data, CreateMode createMode) throws InterruptedException, KeeperException {
-        return zooKeeper.createWithParents(path, data, createMode);
+    public static String create(CuratorFramework curator, String path, CreateMode createMode) throws Exception {
+        return curator.create().creatingParentsIfNeeded().withMode(createMode).forPath(path);
     }
 
-    public static void createDefault(IZKClient zooKeeper, String path, String value) throws InterruptedException, KeeperException {
-        if (zooKeeper.exists(path) == null) {
-            zooKeeper.createWithParents(path, value, CreateMode.PERSISTENT);
+    public static String create(CuratorFramework curator, String path, String data, CreateMode createMode) throws Exception {
+        return create(curator, path, data != null ? data.getBytes(UTF_8) : null, createMode);
+    }
+
+    public static String create(CuratorFramework curator, String path, byte[] data, CreateMode createMode) throws Exception {
+        return curator.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, data);
+    }
+
+    public static void createDefault(CuratorFramework curator, String path, String value) throws Exception {
+        if (curator.checkExists().forPath(path) == null) {
+            curator.create().creatingParentsIfNeeded().forPath(path, value != null ? value.getBytes(UTF_8) : null);
         }
     }
 
-    public static void deleteSafe(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        if (exists(zooKeeper, path) != null) {
-            zooKeeper.deleteWithChildren(path);
+    public static void deleteSafe(CuratorFramework curator, String path) throws Exception {
+        if (curator.checkExists().forPath(path) != null) {
+            for (String child : curator.getChildren().forPath(path)) {
+                deleteSafe(curator, path + "/" + child);
+            }
+            curator.delete().forPath(path);
         }
     }
 
-    public static void delete(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-            zooKeeper.delete(path);
+    public static void delete(CuratorFramework curator, String path) throws Exception {
+        curator.delete().forPath(path);
     }
 
 
-    public static Stat exists(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        return zooKeeper.exists(path);
+    public static Stat exists(CuratorFramework curator, String path) throws Exception {
+        return curator.checkExists().forPath(path);
     }
 
-    public static Properties getProperties(IZKClient zooKeeper, String path, Watcher watcher) throws InterruptedException, KeeperException {
-        ZKData<String> zkData = zooKeeper.getZKStringData(path, watcher);
-        String value = zkData.getData();
+    public static Properties getProperties(CuratorFramework curator, String path, Watcher watcher) throws Exception {
+        String value = getStringData(curator, path, watcher);
         Properties properties = new Properties();
         if (value != null) {
             try {
@@ -186,8 +207,8 @@ public final class ZooKeeperUtils {
         return properties;
     }
 
-    public static Map<String, String> getPropertiesAsMap(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
-        Properties properties = getProperties(zooKeeper, path);
+    public static Map<String, String> getPropertiesAsMap(CuratorFramework curator, String path) throws Exception {
+        Properties properties = getProperties(curator, path);
         Map<String, String> map = new HashMap<String, String>();
         for (String key : properties.stringPropertyNames()) {
             map.put(key, properties.getProperty(key));
@@ -195,8 +216,8 @@ public final class ZooKeeperUtils {
         return map;
     }
 
-    public static Properties getProperties(IZKClient zooKeeper, String path) throws InterruptedException, KeeperException {
-        String value = zooKeeper.getStringData(path);
+    public static Properties getProperties(CuratorFramework curator, String path) throws Exception {
+        String value = getStringData(curator, path);
         Properties properties = new Properties();
         if (value != null) {
             try {
@@ -207,18 +228,18 @@ public final class ZooKeeperUtils {
         return properties;
     }
 
-    public static void setPropertiesAsMap(IZKClient zooKeeper, String path, Map<String, String> map) throws KeeperException, InterruptedException {
+    public static void setPropertiesAsMap(CuratorFramework curator, String path, Map<String, String> map) throws Exception {
         Properties properties = new Properties();
         for (String key : map.keySet()) {
             properties.put(key, map.get(key));
         }
-        setProperties(zooKeeper, path, properties);
+        setProperties(curator, path, properties);
     }
 
-    public static void setProperties(IZKClient zooKeeper, String path, Properties properties) throws InterruptedException, KeeperException {
+    public static void setProperties(CuratorFramework curator, String path, Properties properties) throws Exception {
         try {
             org.apache.felix.utils.properties.Properties p = new org.apache.felix.utils.properties.Properties();
-            String org = zooKeeper.getStringData(path);
+            String org = getStringData(curator, path);
             if (org != null) {
                 p.load(new StringReader(org));
             }
@@ -234,24 +255,24 @@ public final class ZooKeeperUtils {
             }
             StringWriter writer = new StringWriter();
             p.save(writer);
-            zooKeeper.setData(path, writer.toString());
+            setData(curator, path, writer.toString());
         } catch (IOException e) {
         }
     }
 
-    public static String getSubstitutedPath(final IZKClient zooKeeper, String path) throws InterruptedException, KeeperException, IOException, URISyntaxException {
-        String normaledPath = path != null && path.contains("#") ? path.substring(0, path.lastIndexOf('#')) : path;
-        if (normaledPath != null && zooKeeper.exists(normaledPath) != null) {
-            byte[] data = ZkPath.loadURL(zooKeeper, path);
+    public static String getSubstitutedPath(final CuratorFramework curator, String path) throws Exception {
+        String normalized = path != null && path.contains("#") ? path.substring(0, path.lastIndexOf('#')) : path;
+        if (normalized != null && exists(curator, normalized) != null) {
+            byte[] data = ZkPath.loadURL(curator, path);
             if (data != null && data.length > 0) {
-                String str = new String(ZkPath.loadURL(zooKeeper, path), "UTF-8");
-                return getSubstitutedData(zooKeeper, str);
+                String str = new String(ZkPath.loadURL(curator, path), "UTF-8");
+                return getSubstitutedData(curator, str);
             }
         }
         return null;
     }
 
-    public static String getSubstitutedData(final IZKClient zooKeeper, String data) throws URISyntaxException {
+    public static String getSubstitutedData(final CuratorFramework curator, String data) throws URISyntaxException {
         Map<String, String> props = new HashMap<String, String>();
         props.put("data", data);
 
@@ -260,7 +281,7 @@ public final class ZooKeeperUtils {
             public String getValue(String key) {
                 if (key.startsWith("zk:")) {
                     try {
-                        return new String(ZkPath.loadURL(zooKeeper, key), "UTF-8");
+                        return new String(ZkPath.loadURL(curator, key), "UTF-8");
                     } catch (Exception e) {
                         //ignore and just return null.
                     }
@@ -293,20 +314,21 @@ public final class ZooKeeperUtils {
 
     /**
      * Returns the last modified time of the znode taking childs into consideration.
-     * @param zooKeeper
+     *
+     * @param curator
      * @param path
      * @return
      * @throws KeeperException
      * @throws InterruptedException
      */
-    public static long lastModified(IZKClient zooKeeper, String path) throws KeeperException, InterruptedException {
+    public static long lastModified(CuratorFramework curator, String path) throws Exception {
         long lastModified = 0;
-        List<String> children = zooKeeper.getChildren(path);
+        List<String> children = getChildren(curator, path);
         if (children.isEmpty()) {
-            return zooKeeper.exists(path).getMtime();
+            return exists(curator, path).getMtime();
         } else {
             for (String child : children) {
-                lastModified = Math.max(lastModified(zooKeeper, path + "/" + child), lastModified);
+                lastModified = Math.max(lastModified(curator, path + "/" + child), lastModified);
             }
         }
         return lastModified;
@@ -323,23 +345,18 @@ public final class ZooKeeperUtils {
         return login.startsWith("container#");
     }
 
-    public static Properties getContainerTokens(IZKClient zooKeeper) throws KeeperException, InterruptedException {
+    public static Properties getContainerTokens(CuratorFramework curator) throws Exception {
         Properties props = new Properties();
-        for (String key : zooKeeper.getChildren(CONTAINERS_NODE)) {
-            props.setProperty("container#" + key, zooKeeper.getStringData(CONTAINERS_NODE + "/" + key));
+        for (String key : getChildren(curator, CONTAINERS_NODE)) {
+            props.setProperty("container#" + key, getStringData(curator, CONTAINERS_NODE + "/" + key));
         }
         return props;
     }
 
-    public static String generateContainerToken(IZKClient zooKeeper, String container) throws KeeperException, InterruptedException {
+    public static String generateContainerToken(CuratorFramework curator, String container) throws Exception {
         String password = generatePassword();
-        setData(zooKeeper, CONTAINERS_NODE + "/" + container, password);
+        setData(curator, CONTAINERS_NODE + "/" + container, password);
         return password;
-    }
-
-    public static boolean fixACLs(IZKClient zooKeeper, String path, boolean recursive) throws KeeperException, InterruptedException {
-        zooKeeper.fixACLs(path, recursive);
-        return true;
     }
 
 }

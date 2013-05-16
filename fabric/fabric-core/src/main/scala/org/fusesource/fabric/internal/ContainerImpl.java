@@ -83,8 +83,8 @@ public class ContainerImpl implements Container {
     public boolean isEnsembleServer() {
         // TODO: how to abstract the ensemble set up ?
         try {
-            String clusterId = getStringData(service.getZooKeeper(), ZkPath.CONFIG_ENSEMBLES.getPath());
-            String containers = getStringData(service.getZooKeeper(), ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
+            String clusterId = getStringData(service.getCurator(), ZkPath.CONFIG_ENSEMBLES.getPath());
+            String containers = getStringData(service.getCurator(), ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
             for (String name : containers.split(",")) {
                 if (id.equals(name)) {
                     return true;

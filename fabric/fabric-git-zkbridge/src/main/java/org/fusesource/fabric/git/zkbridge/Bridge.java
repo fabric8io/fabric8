@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.git.zkbridge;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.zookeeper.KeeperException;
 import org.eclipse.jgit.api.Git;
@@ -36,9 +39,7 @@ import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,7 +72,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
-public class Bridge implements LifecycleListener, ChangeListener {
+public class Bridge implements ConnectionStateListener, ChangeListener {
 
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
     public static final String METADATA = ".metadata";
@@ -83,17 +84,9 @@ public class Bridge implements LifecycleListener, ChangeListener {
     private boolean connected = false;
 
     private FabricGitService gitService;
-    private IZKClient zookeeper;
+    private CuratorFramework curator;
     private long period;
     private ScheduledExecutorService executors;
-
-    public void setZookeeper(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
-    }
-
-    public void setPeriod(long period) {
-        this.period = period;
-    }
 
     public void bindGitService(FabricGitService gitService) {
         this.gitService = gitService;
@@ -114,9 +107,21 @@ public class Bridge implements LifecycleListener, ChangeListener {
     }
 
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
     public synchronized void onConnected() {
         connected = true;
-        group = ZooKeeperGroupFactory.create(zookeeper, "/fabric/registry/clusters/gitzkbridge");
+        group = ZooKeeperGroupFactory.create(curator, "/fabric/registry/clusters/gitzkbridge");
         singleton.start(group);
 
         if (gitService != null) {
@@ -124,7 +129,6 @@ public class Bridge implements LifecycleListener, ChangeListener {
         }
     }
 
-    @Override
     public synchronized void onDisconnected() {
         connected = false;
         try {
@@ -180,12 +184,12 @@ public class Bridge implements LifecycleListener, ChangeListener {
                     if (gitService != null) {
                         String container = System.getProperty("karaf.name");
                         String login = getContainerLogin(container);
-                        String token = generateContainerToken(zookeeper, container);
+                        String token = generateContainerToken(curator, container);
                         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
                         if (singleton.isMaster()) {
-                            update(gitService.get(), zookeeper, cp);
+                            update(gitService.get(), curator, cp);
                         } else {
-                            updateLocal(gitService.get(), zookeeper, cp);
+                            updateLocal(gitService.get(), curator, cp);
                         }
                     }
                 } catch (Exception e) {
@@ -209,7 +213,7 @@ public class Bridge implements LifecycleListener, ChangeListener {
         group.close();
     }
 
-    public static void updateLocal(Git git, IZKClient zookeeper, CredentialsProvider credentialsProvider) throws Exception {
+    public static void updateLocal(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
         String remoteName = "origin";
 
         try {
@@ -253,11 +257,11 @@ public class Bridge implements LifecycleListener, ChangeListener {
         }
     }
 
-    public static void update(Git git, IZKClient zookeeper) throws Exception {
+    public static void update(Git git, CuratorFramework zookeeper) throws Exception {
         update(git, zookeeper, null);
     }
 
-    public static void update(Git git, IZKClient zookeeper, CredentialsProvider credentialsProvider) throws Exception {
+    public static void update(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
         String remoteName = "origin";
 
         boolean remoteAvailable = false;
@@ -432,9 +436,9 @@ public class Bridge implements LifecycleListener, ChangeListener {
         setPropertiesAsMap(zookeeper, "/fabric/configs/git", versionsMetadata);
     }
 
-    private static void syncVersionFromZkToGit(Git git, IZKClient zookeeper, String zkNode) throws InterruptedException, KeeperException, IOException, GitAPIException {
+    private static void syncVersionFromZkToGit(Git git, CuratorFramework curator, String zkNode) throws Exception {
         // Version metadata
-        Properties versionProps = loadProps(zookeeper, zkNode);
+        Properties versionProps = loadProps(curator, zkNode);
         versionProps.save(new File(git.getRepository().getWorkTree(), METADATA));
         git.add().addFilepattern(METADATA).call();
         // Profiles
@@ -442,20 +446,20 @@ public class Bridge implements LifecycleListener, ChangeListener {
         gitProfiles.remove(".git");
         gitProfiles.remove(METADATA);
         gitProfiles.remove(CONTAINERS_PROPERTIES);
-        List<String> zkProfiles = getChildren(zookeeper, zkNode + "/profiles");
+        List<String> zkProfiles = getChildren(curator, zkNode + "/profiles");
         for (String profile : zkProfiles) {
             File profileDir = new File(git.getRepository().getWorkTree(), profile);
             profileDir.mkdirs();
             // Profile metadata
-            Properties profileProps = loadProps(zookeeper, zkNode + "/profiles/" + profile);
+            Properties profileProps = loadProps(curator, zkNode + "/profiles/" + profile);
             profileProps.save(new File(git.getRepository().getWorkTree(), profile + "/" + METADATA));
             git.add().addFilepattern(profile + "/" + METADATA).call();
             // Configs
             List<String> gitConfigs = list(profileDir);
             gitConfigs.remove(METADATA);
-            List<String> zkConfigs = getChildren(zookeeper, zkNode + "/profiles/" + profile);
+            List<String> zkConfigs = getChildren(curator, zkNode + "/profiles/" + profile);
             for (String file : zkConfigs) {
-                byte[] data = zookeeper.getData(zkNode + "/profiles/" + profile + "/" + file);
+                byte[] data = curator.getData().forPath(zkNode + "/profiles/" + profile + "/" + file);
                 Files.writeToFile(new File(git.getRepository().getWorkTree(), profile + "/" + file), data);
                 gitConfigs.remove(file);
                 git.add().addFilepattern(profile + "/" + file).call();
@@ -472,8 +476,8 @@ public class Bridge implements LifecycleListener, ChangeListener {
         }
         // Containers
         Properties containerProps = new Properties();
-        for (String container : getChildren(zookeeper, zkNode + "/containers")) {
-            String str = getStringData(zookeeper, zkNode + "/containers/" + container);
+        for (String container : getChildren(curator, zkNode + "/containers")) {
+            String str = getStringData(curator, zkNode + "/containers/" + container);
             if (str != null) {
                 containerProps.setProperty(container, str);
             }
@@ -482,55 +486,55 @@ public class Bridge implements LifecycleListener, ChangeListener {
         git.add().addFilepattern(CONTAINERS_PROPERTIES).call();
     }
 
-    private static void syncVersionFromGitToZk(Git git, IZKClient zookeeper, String zkNode) throws IOException, InterruptedException, KeeperException {
+    private static void syncVersionFromGitToZk(Git git, CuratorFramework curator, String zkNode) throws Exception {
         // Version metadata
         Properties versionProps = loadProps(git, METADATA);
-        setData(zookeeper, zkNode, toString(versionProps));
+        setData(curator, zkNode, toString(versionProps));
         // Profiles
         List<String> gitProfiles = list(git.getRepository().getWorkTree());
         gitProfiles.remove(".git");
         gitProfiles.remove(METADATA);
         gitProfiles.remove(CONTAINERS_PROPERTIES);
-        List<String> zkProfiles = getChildren(zookeeper, zkNode + "/profiles");
+        List<String> zkProfiles = getChildren(curator, zkNode + "/profiles");
         for (String profile : gitProfiles) {
             // Profile metadata
             Properties profileProps = loadProps(git, profile + "/" + METADATA);
-            setData(zookeeper, zkNode + "/profiles/" + profile, toString(profileProps));
+            setData(curator, zkNode + "/profiles/" + profile, toString(profileProps));
             // Configs
-            List<String> zkConfigs = getChildren(zookeeper, zkNode + "/profiles/" + profile);
+            List<String> zkConfigs = getChildren(curator, zkNode + "/profiles/" + profile);
             List<String> gitConfigs = list(new File(git.getRepository().getWorkTree(), profile));
             gitConfigs.remove(METADATA);
             for (String file : gitConfigs) {
                 byte[] data = read(new File(git.getRepository().getWorkTree(), profile + "/" + file));
-                setData(zookeeper, zkNode + "/profiles/" + profile + "/" + file, data);
+                setData(curator, zkNode + "/profiles/" + profile + "/" + file, data);
                 zkConfigs.remove(file);
             }
             // Delete removed configs
             for (String config : zkConfigs) {
-                deleteSafe(zookeeper, zkNode + "/profiles/" + profile + "/" + config);
+                deleteSafe(curator, zkNode + "/profiles/" + profile + "/" + config);
             }
             zkProfiles.remove(profile);
         }
         // Delete removed profiles
         for (String profile : zkProfiles) {
-            deleteSafe(zookeeper, zkNode + "/profiles/" + profile);
+            deleteSafe(curator, zkNode + "/profiles/" + profile);
         }
         // Containers
         Properties containerProps = loadProps(git, CONTAINERS_PROPERTIES);
         for (String container : containerProps.keySet()) {
-            setData(zookeeper, zkNode + "/containers/" + container, containerProps.getProperty(container));
+            setData(curator, zkNode + "/containers/" + container, containerProps.getProperty(container));
         }
-        for (String container : getChildren(zookeeper, zkNode + "/containers")) {
+        for (String container : getChildren(curator, zkNode + "/containers")) {
             if (!containerProps.containsKey(container)) {
-                deleteSafe(zookeeper, zkNode + "/containers/" + container);
+                deleteSafe(curator, zkNode + "/containers/" + container);
             }
         }
     }
 
-    private static Properties loadProps(IZKClient zk, String node) throws KeeperException, InterruptedException, IOException {
+    private static Properties loadProps(CuratorFramework curator, String node) throws Exception {
         Properties props = new Properties();
-        if (exists(zk, node) != null) {
-            String data = getStringData(zk, node);
+        if (exists(curator, node) != null) {
+            String data = getStringData(curator, node);
             if (data != null) {
                 props.load(new StringReader(data));
             }

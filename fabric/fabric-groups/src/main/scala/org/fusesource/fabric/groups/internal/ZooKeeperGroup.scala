@@ -19,28 +19,27 @@ package org.fusesource.fabric.groups.internal
 
 import org.apache.zookeeper._
 import java.lang.String
-import org.linkedin.zookeeper.tracker._
-import org.fusesource.fabric.groups.{ChangeListener, Group}
+import org.fusesource.fabric.groups.Group
 import scala.collection.mutable.HashMap
-import org.apache.zookeeper.data.ACL
-import org.linkedin.zookeeper.client.LifecycleListener
 import collection.JavaConversions._
-import java.util.{LinkedHashMap, Collection}
-import org.apache.zookeeper.KeeperException.{ConnectionLossException, NoNodeException, Code}
-import org.fusesource.fabric.zookeeper.IZKClient
+import java.util.LinkedHashMap
+import org.apache.zookeeper.KeeperException.{ConnectionLossException, NoNodeException}
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
+import org.apache.curator.framework.CuratorFramework
+import org.apache.curator.framework.recipes.cache.{ChildData, PathChildrenCacheEvent, PathChildrenCacheListener, TreeCache}
+import org.apache.curator.framework.state.{ConnectionState, ConnectionStateListener}
 
 /**
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
 object ZooKeeperGroup {
-  def members(zk: IZKClient, path: String):LinkedHashMap[String, Array[Byte]] = {
+  def members(curator: CuratorFramework, path: String):LinkedHashMap[String, Array[Byte]] = {
     var rc = new LinkedHashMap[String, Array[Byte]]
-    ZooKeeperUtils.getAllChildren(zk, path).sortWith((a,b)=> a < b).foreach { node =>
+    ZooKeeperUtils.getChildren(curator, path).sortWith((a,b)=> a < b).foreach { node =>
       try {
         if( node.matches("""0\d+""") ) {
-          rc.put(node, zk.getData(path+"/"+node))
+          rc.put(node, curator.getData().forPath(path+"/"+node))
         } else {
           None
         }
@@ -60,45 +59,55 @@ object ZooKeeperGroup {
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with LifecycleListener with ChangeListenerSupport {
+class ZooKeeperGroup(val curator: CuratorFramework, val root: String) extends Group with ConnectionStateListener with PathChildrenCacheListener with ChangeListenerSupport {
 
-  val tree = new ZooKeeperTreeTracker[Array[Byte]](zk, new ZKByteArrayDataReader, root, 1)
+  //val tree = new ZooKeeperTreeTracker[Array[Byte]](curator, new ZKByteArrayDataReader, root, 1)
+  val tree = new TreeCache(curator, root, true)
   val joins = HashMap[String, Int]()
 
   var members = new LinkedHashMap[String, Array[Byte]]
 
   private def member_path_prefix = root + "/0"
 
-  zk.registerListener(this)
+  curator.getConnectionStateListenable.addListener(this)
+  tree.getListenable.addListener(this)
+  tree.start(TreeCache.StartMode.BUILD_INITIAL_CACHE)
 
   create(root)
-  tree.track(new NodeEventsListener[Array[Byte]]() {
-    def onEvents(events: Collection[NodeEvent[Array[Byte]]]): Unit = {
-      fire_cluster_change
-    }
-  })
   fire_cluster_change
 
+  def childEvent(framework : CuratorFramework, event : PathChildrenCacheEvent): Unit = {
+    fire_cluster_change
+  }
 
   def close = this.synchronized {
     joins.foreach { case (path, version) =>
       try {
-        zk.delete(member_path_prefix + path, version)
+        curator.delete().withVersion(version).forPath(member_path_prefix + path)
       } catch {
         case x:NoNodeException => // Already deleted.
       }
     }
     joins.clear
-    tree.destroy
-    zk.removeListener(this)
+    tree.getListenable.removeListener(this)
+    tree.close
+    curator.getConnectionStateListenable.removeListener(this)
   }
 
-  def connected = zk.isConnected
+  def stateChanged(client :CuratorFramework, newState: ConnectionState) {
+     newState match {
+       case ConnectionState.CONNECTED => onConnected
+       case ConnectionState.RECONNECTED => onConnected
+       case _ => onDisconnected
+    }
+  }
+
+  def connected = curator.getZookeeperClient.isConnected
   def onConnected() = fireConnected()
   def onDisconnected() = fireDisconnected()
 
   def join(data:Array[Byte]=null): String = this.synchronized {
-    val id = ZooKeeperUtils.create(zk, member_path_prefix, data, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
+    val id = ZooKeeperUtils.create(curator, member_path_prefix, data, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
     joins.put(id, 0)
     id
   }
@@ -106,7 +115,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
   def update(path:String, data:Array[Byte]=null): Unit = this.synchronized {
     joins.get(path) match {
       case Some(ver) =>
-        val stat = zk.setData(member_path_prefix+path, data, ver)
+        val stat = curator.setData().withVersion(ver).forPath(member_path_prefix+path, data)
         joins.put(path, stat.getVersion)
       case None => throw new IllegalArgumentException("Has not joined locally: "+path)
     }
@@ -116,7 +125,7 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
     joins.remove(path).foreach {
       case version =>
           try {
-            zk.delete(member_path_prefix + path, version)
+            curator.delete().withVersion(version).forPath(member_path_prefix + path)
           } catch {
             case x: NoNodeException => // Already deleted.
             case x: ConnectionLossException => // disconnected
@@ -126,14 +135,13 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
 
   private def fire_cluster_change: Unit = {
     this.synchronized {
-      val t = tree.getTree.toList.filterNot { x =>
-      // don't include the root node, or nodes that don't match our naming convention.
-        (x._1 == root) || !x._1.stripPrefix(root).matches("""/0\d+""")
+      val t = tree.getCurrentData.filterNot { x:ChildData =>
+        x.getPath == root || !x.getPath.stripPrefix(root).matches("""/0\d+""")
       }
 
       this.members = new LinkedHashMap()
-      t.sortWith((a,b)=> a._1 < b._1 ).foreach { x=>
-        this.members.put(x._1.stripPrefix(member_path_prefix), x._2.getData)
+      t.sortWith((a,b)=> a.getPath < b.getPath ).foreach { x=>
+        this.members.put(x.getPath.stripPrefix(member_path_prefix), x.getData)
       }
     }
     fireChanged()
@@ -141,12 +149,12 @@ class ZooKeeperGroup(val zk: IZKClient, val root: String) extends Group with Lif
 
   private def create(path: String, count : java.lang.Integer = 0): Unit = {
     try {
-      if (zk.exists(path, false) != null) {
+      if (curator.checkExists().forPath(path) != null) {
         return
       }
       try {
         // try create given path in persistent mode
-        ZooKeeperUtils.setData(zk, path, "")
+        ZooKeeperUtils.setData(curator, path, "")
       } catch {
         case ignore: KeeperException.NodeExistsException =>
       }

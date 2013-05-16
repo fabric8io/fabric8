@@ -18,10 +18,10 @@ package org.fusesource.fabric.zookeeper.commands;
 
 import java.net.URL;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 @Command(name = "set", scope = "zk", description = "Set a znode's data", detailedDescription = "classpath:set.txt")
 public class Set extends ZooKeeperCommandSupport {
@@ -36,7 +36,7 @@ public class Set extends ZooKeeperCommandSupport {
     String data;
 
     @Override
-    protected void doExecute(IZKClient zk) throws Exception {
+    protected void doExecute(CuratorFramework curator) throws Exception {
 
         String nodeData = data;
 
@@ -44,6 +44,6 @@ public class Set extends ZooKeeperCommandSupport {
             nodeData = loadUrl(new URL(data));
         }
         
-        zk.setData(path, nodeData);
+        curator.setData().forPath(path, nodeData.getBytes());
     }
 }

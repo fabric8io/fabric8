@@ -90,7 +90,7 @@ class ComputeServicesResource extends BaseResource {
 
     args._type match {
       case "provider" =>
-        registerProvider(Services.zoo_keeper,
+        registerProvider(Services.curator,
                          Services.config_admin,
                          service_id,
                          args.provider,
@@ -99,7 +99,7 @@ class ComputeServicesResource extends BaseResource {
                          props)
       case "api" =>
         require(args.endpoint != null && !args.endpoint.equals(""), "Must specify endpoint URI when registering a cloud API")
-        registerApi(Services.zoo_keeper,
+        registerApi(Services.curator,
                     Services.config_admin,
                     service_id,
                     args.provider,

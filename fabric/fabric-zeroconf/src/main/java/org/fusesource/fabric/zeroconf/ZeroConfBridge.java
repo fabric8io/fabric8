@@ -16,8 +16,8 @@
  */
 package org.fusesource.fabric.zeroconf;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class ZeroConfBridge {
     private String localhost;
     private int weight;
     private int priority;
-    private IZKClient zkClient;
+    private CuratorFramework curator;
     private FabricService fabricService;
     private boolean doList = true;
 
@@ -213,12 +213,12 @@ public class ZeroConfBridge {
         this.fabricService = fabricService;
     }
 
-    public IZKClient getZkClient() {
-        return zkClient;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZkClient(IZKClient zkClient) {
-        this.zkClient = zkClient;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     // Implementation methods
@@ -244,7 +244,7 @@ public class ZeroConfBridge {
         properties.setProperty("host", server);
         properties.setProperty("port", "" + port);
 
-        IZKClient zk = getZkClient();
+        CuratorFramework zk = getCurator();
         if (zk == null) {
             LOG.warn("No ZooKeeper client set so cannot write entry " + key + " with properties: " + properties);
         } else {

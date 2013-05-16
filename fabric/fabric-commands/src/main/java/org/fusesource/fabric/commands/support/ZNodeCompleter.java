@@ -18,23 +18,24 @@ package org.fusesource.fabric.commands.support;
 
 import java.util.List;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.shell.console.Completer;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 
 public class ZNodeCompleter implements Completer {
-    private IZKClient zk;
+    private CuratorFramework curator;
 
     public ZNodeCompleter() {
     }
 
-    public void setZooKeeper(IZKClient zk) {
-        this.zk = zk;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     @SuppressWarnings("unchecked")
     public int complete(String buffer, int cursor, List candidates) {
         try {
-            if (zk.isConnected()) {
+            if (curator.getZookeeperClient().isConnected()) {
                 // Guarantee that the final token is the one we're expanding
                 if (buffer == null) {
                     candidates.add("/");
@@ -48,7 +49,7 @@ public class ZNodeCompleter implements Completer {
                 String prefix = path.substring(idx);
                 // Only the root path can end in a /, so strip it off every other prefix
                 String dir = idx == 1 ? "/" : path.substring(0, idx - 1);
-                List<String> children = zk.getChildren(dir, false);
+                List<String> children = getChildren(curator, dir);
                 for (String child : children) {
                     if (child.startsWith(prefix)) {
                         candidates.add(child);

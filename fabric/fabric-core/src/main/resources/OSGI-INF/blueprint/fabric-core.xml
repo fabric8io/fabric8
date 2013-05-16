@@ -18,11 +18,16 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" />
+
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <!--reference id="dataStore" interface="org.fusesource.fabric.api.DataStore" availability="optional"/-->
+
+    <reference-list interface="org.apache.curator.framework.CuratorFramework">
+        <reference-listener ref="dataStore" bind-method="bind" unbind-method="unbind"/>
+    </reference-list>
 
     <reference-list interface="org.fusesource.fabric.api.ContainerProvider" availability="optional">
         <reference-listener ref="fabricService" bind-method="registerProvider" unbind-method="unregisterProvider"/>
@@ -43,23 +48,22 @@
 
     <bean id="fabricService" class="org.fusesource.fabric.service.FabricServiceImpl">
         <cm:managed-properties persistent-id="org.fusesource.fabric.service" update-strategy="container-managed"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
         <property name="dataStore" ref="dataStore"/>
         <property name="portService" ref="portService"/>
     </bean>
 
     <bean id="lockService" class="org.fusesource.fabric.internal.locks.LockServiceImpl">
-        <argument index="0" ref="zooKeeper"/>
+        <argument index="0" ref="curator"/>
     </bean>
 
     <bean id="portService" class="org.fusesource.fabric.service.ZookeeperPortService">
-        <argument index="0" ref="zooKeeper"/>
-        <argument index="1" ref="lockService"/>
+        <argument index="0" ref="curator"/>
     </bean>
 
     <bean id="dataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
-        <property name="zk" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
         <property name="placeholderResolvers">
             <list>
                 <ref component-id="checksumResolver"/>
@@ -73,7 +77,7 @@
 
     <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init">
         <property name="bundleContext" ref="blueprintBundleContext"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
         <property name="fabricService" ref="fabricService"/>
         <property name="dataStore" ref="dataStore"/>
@@ -91,20 +95,20 @@
         <property name="dataStore" ref="dataStore"/>
     </bean>
     <bean id="zookeeperResolver" class="org.fusesource.fabric.service.ZookeeperPlaceholderResolver">
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
     <bean id="portResolver" class="org.fusesource.fabric.service.PortPlaceholderResolver">
         <property name="fabricService" ref="fabricService"/>
     </bean>
     <bean id="encryptedPropertyResolver" class="org.fusesource.fabric.service.EncryptedPropertyResolver">
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
     <!-- The karaf container registration -->
     <bean id="karafContainerRegistration" class="org.fusesource.fabric.service.KarafContainerRegistration" destroy-method="destroy">
         <property name="configurationAdmin" ref="configAdmin" />
         <property name="bundleContext" ref="blueprintBundleContext" />
-        <property name="zooKeeper" ref="zooKeeper" />
+        <property name="curator" ref="curator" />
         <property name="fabricService" ref="fabricService" />
     </bean>
 
@@ -120,7 +124,7 @@
 
     <service ref="karafContainerRegistration">
         <interfaces>
-            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.apache.curator.framework.state.ConnectionStateListener</value>
             <value>org.osgi.service.cm.ConfigurationListener</value>
         </interfaces>
     </service>

@@ -16,11 +16,12 @@
  */
 package org.fusesource.fabric.web;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.ops4j.pax.web.service.spi.WebEvent;
 import org.ops4j.pax.web.service.spi.WebListener;
 import org.osgi.framework.Bundle;
@@ -33,13 +34,13 @@ import java.util.Map;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-public class FabricWebRegistrationHandler implements WebListener, LifecycleListener {
+public class FabricWebRegistrationHandler implements WebListener, ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
     private final Map<Bundle, WebEvent> bundleEvents = new HashMap<Bundle, WebEvent>();
     private FabricService fabricService;
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
 
     @Override
     public void webEvent(WebEvent webEvent) {
@@ -77,7 +78,7 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
-            setData(zooKeeper, ZkPath.WEBAPPS_CONTAINER.getPath(name,
+            setData(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
                     webEvent.getBundle().getVersion().toString(), id), json);
         } catch (Exception e) {
             LOGGER.error("Failed to register webapp {}.", webEvent.getContextPath(), e);
@@ -98,7 +99,7 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
                 System.clearProperty("jolokia.agent");
             }
 
-            delete(zooKeeper, ZkPath.WEBAPPS_CONTAINER.getPath(name,
+            delete(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
                     webEvent.getBundle().getVersion().toString(), container.getId()));
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
@@ -106,13 +107,24 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
     }
 
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
     public void onConnected() {
         for (Map.Entry<Bundle, WebEvent> entry : bundleEvents.entrySet()) {
             webEvent(entry.getValue());
         }
     }
 
-    @Override
     public void onDisconnected() {
     }
 
@@ -124,11 +136,11 @@ public class FabricWebRegistrationHandler implements WebListener, LifecycleListe
         this.fabricService = fabricService;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 }

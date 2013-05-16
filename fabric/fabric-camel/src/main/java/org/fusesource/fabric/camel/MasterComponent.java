@@ -59,7 +59,7 @@ public class MasterComponent extends ZKComponentSupport {
             childUri = childUri + "?" + URISupport.createQueryString(params);
         }
 
-        Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
+        Group group = ZooKeeperGroupFactory.create(getCurator(), fabricPath);
         return new MasterEndpoint(uri, this, name, group, childUri);
     }
 

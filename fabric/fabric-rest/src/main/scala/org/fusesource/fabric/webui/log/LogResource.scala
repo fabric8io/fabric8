@@ -71,7 +71,7 @@ class LogResource extends BaseResource {
 
     val base = try {
       import collection.JavaConversions
-      val urls = ZooKeeperGroupFactory.members(Services.zoo_keeper, "/fabric/registry/clusters/elastic-search").values().toList.flatMap {
+      val urls = ZooKeeperGroupFactory.members(Services.curator, "/fabric/registry/clusters/elastic-search").values().toList.flatMap {
         data =>
           try {
             Some(new URI(new String(data, "UTF-8")).toString)

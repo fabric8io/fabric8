@@ -1,8 +1,7 @@
 package org.fusesource.fabric.commands.support;
 
 
-import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
 import org.jledit.ContentManager;
 
 import java.io.IOException;
@@ -15,10 +14,10 @@ public class ZookeeperContentManager implements ContentManager {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
-    private final IZKClient zookeeper;
+    private final CuratorFramework curator;
 
-    public ZookeeperContentManager(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
+    public ZookeeperContentManager(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     /**
@@ -30,11 +29,9 @@ public class ZookeeperContentManager implements ContentManager {
     @Override
     public String load(String location) throws IOException {
         try {
-            String data = getStringData(zookeeper, location);
+            String data = getStringData(curator, location);
             return data != null ? data : "";
-        } catch (InterruptedException e) {
-            throw new IOException("Failed to read data from zookeeper.", e);
-        } catch (KeeperException e) {
+        } catch (Exception e) {
             throw new IOException("Failed to read data from zookeeper.", e);
         }
     }
@@ -49,7 +46,7 @@ public class ZookeeperContentManager implements ContentManager {
     @Override
     public boolean save(String content, String location) {
         try {
-            setData(zookeeper, location, content);
+            setData(curator, location, content);
         } catch (Exception e) {
             return false;
         }

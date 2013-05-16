@@ -22,7 +22,7 @@
     <reference id="featuresService" interface="org.apache.karaf.features.FeaturesService"/>
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
     <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
 
@@ -71,7 +71,7 @@
         <command name="fabric/container-delete">
             <action class="org.fusesource.fabric.commands.ContainerDelete">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="containerCompleter"/>
@@ -105,7 +105,7 @@
         <command name="fabric/container-resolver-set">
             <action class="org.fusesource.fabric.commands.ContainerResolverSet">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="resolverCompleter"/>
@@ -118,7 +118,7 @@
         <command name="fabric/container-connect">
             <action class="org.fusesource.fabric.commands.ContainerConnect">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
                 <property name="sshClientId">
                     <bp:idref component-id="sshClient"/>
                 </property>
@@ -131,7 +131,7 @@
       <command name="fabric/container-start">
           <action class="org.fusesource.fabric.commands.ContainerStart">
               <property name="fabricService" ref="fabricService"/>
-              <property name="zooKeeper" ref="zooKeeper"/>
+              <property name="curator" ref="curator"/>
           </action>
           <completers>
               <ref component-id="stoppedContainerCompleter" />
@@ -141,7 +141,7 @@
       <command name="fabric/container-stop">
           <action class="org.fusesource.fabric.commands.ContainerStop">
               <property name="fabricService" ref="fabricService"/>
-              <property name="zooKeeper" ref="zooKeeper"/>
+              <property name="curator" ref="curator"/>
           </action>
           <completers>
               <ref component-id="startedContainerCompleter" />
@@ -151,7 +151,7 @@
       <command name="fabric/container-upgrade">
         <action class="org.fusesource.fabric.commands.ContainerUpgrade">
           <property name="fabricService" ref="fabricService"/>
-            <property name="zooKeeper" ref="zooKeeper"/>
+            <property name="curator" ref="curator"/>
         </action>
         <completers>
           <ref component-id="versionCompleter"/>
@@ -161,7 +161,7 @@
       <command name="fabric/container-rollback">
         <action class="org.fusesource.fabric.commands.ContainerRollback">
           <property name="fabricService" ref="fabricService"/>
-          <property name="zooKeeper" ref="zooKeeper"/>
+          <property name="curator" ref="curator"/>
         </action>
         <completers>
           <ref component-id="versionCompleter"/>
@@ -171,7 +171,7 @@
       <command name="fabric/container-default-jvm-options">
         <action class="org.fusesource.fabric.commands.ContainerDefaultJvmOptions">
           <property name="fabricService" ref="fabricService"/>
-          <property name="zooKeeper" ref="zooKeeper"/>
+          <property name="curator" ref="curator"/>
         </action>
       </command>
 
@@ -217,7 +217,7 @@
         <command name="fabric/cluster-list">
             <action class="org.fusesource.fabric.commands.ClusterList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="clusterCompleter"/>
@@ -228,14 +228,14 @@
         <command name="fabric/status">
             <action class="org.fusesource.fabric.commands.Status">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/require-profile-set">
             <action class="org.fusesource.fabric.commands.RequireProfileSet">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="profileCompleter"/>
@@ -249,7 +249,7 @@
         <command name="fabric/require-profile-delete">
             <action class="org.fusesource.fabric.commands.RequireProfileDelete">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="profileCompleter"/>
@@ -260,14 +260,14 @@
         <command name="fabric/require-profile-list">
             <action class="org.fusesource.fabric.commands.RequireProfileList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
         </command>
 
         <command name="fabric/profile-create">
             <action class="org.fusesource.fabric.commands.ProfileCreate">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <optional-completers>
                 <entry key="--parents" value-ref="profileCompleter"/>
@@ -277,13 +277,13 @@
         <command name="fabric/profile-list">
             <action class="org.fusesource.fabric.commands.ProfileList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
         </command>
         <command name="fabric/profile-display">
             <action class="org.fusesource.fabric.commands.ProfileDisplay">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="profileCompleter"/>
@@ -296,7 +296,7 @@
         <command name="fabric/profile-delete">
             <action class="org.fusesource.fabric.commands.ProfileDelete">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="profileCompleter"/>
@@ -309,7 +309,7 @@
         <command name="fabric/profile-edit">
             <action class="org.fusesource.fabric.commands.ProfileEdit">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="editorFactory" ref="editorFactory"/>
             </action>
@@ -328,7 +328,7 @@
 			  <command name="fabric/profile-refresh">
 				  <action class="org.fusesource.fabric.commands.ProfileRefresh">
 					  <property name="fabricService" ref="fabricService"/>
-					  <property name="zooKeeper" ref="zooKeeper"/>
+					  <property name="curator" ref="curator"/>
 				  </action>
 				  <completers>
 					  <ref component-id="profileCompleter"/>
@@ -339,7 +339,7 @@
         <command name="fabric/profile-change-parents">
             <action class="org.fusesource.fabric.commands.ProfileChangeParents">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
             </action>
             <completers>
@@ -354,7 +354,7 @@
         <command name="fabric/version-create">
             <action class="org.fusesource.fabric.commands.VersionCreate">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <optional-completers>
                 <entry key="--parent" value-ref="versionCompleter"/>
@@ -363,13 +363,13 @@
         <command name="fabric/version-list">
             <action class="org.fusesource.fabric.commands.VersionList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
         </command>
         <command name="fabric/version-delete">
             <action class="org.fusesource.fabric.commands.VersionDelete">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="versionCompleter"/>
@@ -378,7 +378,7 @@
         <command name="fabric/version-set-default">
           <action class="org.fusesource.fabric.commands.VersionSetDefault">
             <property name="fabricService" ref="fabricService"/>
-            <property name="zooKeeper" ref="zooKeeper"/>
+            <property name="curator" ref="curator"/>
           </action>
           <completers>
             <ref component-id="versionCompleter"/>
@@ -387,7 +387,7 @@
         <command name="fabric/mq-create">
             <action class="org.fusesource.fabric.commands.MQCreate">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <optional-completers>
                 <entry key="--version" value-ref="versionCompleter"/>
@@ -395,12 +395,12 @@
         </command>
         <command name="fabric/import">
             <action class="org.fusesource.fabric.commands.Import">
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
         </command>
         <command name="fabric/export">
             <action class="org.fusesource.fabric.commands.Export">
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
         </command>
 
@@ -434,35 +434,29 @@
 
     <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="rootContainerCompleter" class="org.fusesource.fabric.commands.support.RootContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="startedContainerCompleter" class="org.fusesource.fabric.commands.support.StartedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="stoppedContainerCompleter" class="org.fusesource.fabric.commands.support.StoppedContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="clusterCompleter" class="org.fusesource.fabric.commands.support.ZNodeCompleter">
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
     <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="allFeatureCompleter" class="org.fusesource.fabric.commands.support.DelimitedListCompleter">
@@ -500,7 +494,6 @@
         <argument index="1" value="false"/>
         <argument index="2" value="true"/>
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="removeProfileCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerAwareProfileCompleter">
@@ -508,7 +501,6 @@
         <argument index="1" value="true"/>
         <argument index="2" value="false"/>
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
     </bean>
 
     <bean id="bundleLocationCompleter" class="org.fusesource.fabric.commands.support.BundleLocationCompleter">

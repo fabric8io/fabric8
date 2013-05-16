@@ -23,13 +23,14 @@ import java.util.Dictionary;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
 import org.easymock.EasyMock;
 import org.easymock.IAnswer;
 import org.fusesource.fabric.dosgi.impl.Manager;
-import org.fusesource.fabric.zookeeper.internal.ZKClient;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.Test;
-import org.linkedin.util.clock.Timespan;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -57,14 +58,18 @@ public class ManagerTest {
             zkServerFactoryBean.setClientPortAddress(new InetSocketAddress("localhost", zooKeeperPort));
             zkServerFactoryBean.afterPropertiesSet();
 
+            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                    .connectString("localhost:" + zooKeeperPort)
+                    .retryPolicy(new RetryOneTime(1000))
+                    .connectionTimeoutMs(60000);
 
-            ZKClient zooKeeper = new ZKClient("localhost:" + zooKeeperPort, Timespan.ONE_MINUTE, null);
-            zooKeeper.start();
-            zooKeeper.waitForConnected();
+            CuratorFramework curator = builder.build();
+            curator.start();
+            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
             BundleContext bundleContext = createMock(BundleContext.class);
             ServiceRegistration registration = createMock(ServiceRegistration.class);
-            Manager manager = new Manager(bundleContext, zooKeeper, "tcp://localhost:" + serverPort, "localhost", TimeUnit.MINUTES.toMillis(5));
+            Manager manager = new Manager(bundleContext, curator, "tcp://localhost:" + serverPort, "localhost", TimeUnit.MINUTES.toMillis(5));
 
             bundleContext.addServiceListener(manager, "(service.exported.interfaces=*)");
             expect(bundleContext.getProperty("org.osgi.framework.uuid")).andReturn("the-framework-uuid");

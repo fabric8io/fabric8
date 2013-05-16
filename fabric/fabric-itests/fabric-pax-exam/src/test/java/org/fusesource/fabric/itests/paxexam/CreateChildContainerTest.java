@@ -18,9 +18,9 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import junit.framework.Assert;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Test;
@@ -62,15 +62,15 @@ public class CreateChildContainerTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         System.err.println(executeCommand("fabric:version-create"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-        IZKClient zooKeeper = getOsgiService(IZKClient.class);
+        CuratorFramework curator = getOsgiService(CuratorFramework.class);
         for (Container c : containers) {
             try {
                 c.destroy();
-                Assert.assertNull(exists(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
-                Assert.assertNull(exists(zooKeeper, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
-                Assert.assertNull(exists(zooKeeper, ZkPath.CONTAINER.getPath(c.getId())));
-                Assert.assertNull(exists(zooKeeper, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
-                Assert.assertNull(exists(zooKeeper, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
+                Assert.assertNull(exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
+                Assert.assertNull(exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
+                Assert.assertNull(exists(curator, ZkPath.CONTAINER.getPath(c.getId())));
+                Assert.assertNull(exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
+                Assert.assertNull(exists(curator, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
             } catch (Exception ex) {
                 //ignore
             }

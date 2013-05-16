@@ -2,7 +2,6 @@ package org.fusesource.fabric.features;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,24 +11,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeatureValidationUtil;
-import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.apache.karaf.features.internal.RepositoryImpl;
-import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.LifecycleListener;
-import org.linkedin.zookeeper.tracker.NodeEvent;
-import org.linkedin.zookeeper.tracker.NodeEventsListener;
-import org.linkedin.zookeeper.tracker.ZKStringDataReader;
-import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,14 +35,14 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
-public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsListener<String>, LifecycleListener {
+public class FabricFeaturesServiceImpl implements FeaturesService, PathChildrenCacheListener, ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
     private FabricService fabricService;
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
+    private TreeCache profileTracker;
 
-    private ZooKeeperTreeTracker<String> profilesTracker;
 
 
     private final Set<Repository> repositories = new HashSet<Repository>();
@@ -56,30 +53,46 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
     }
 
     public void destroy() throws Exception {
-        profilesTracker.destroy();
+        if (profileTracker != null) {
+            profileTracker.close();
+            profileTracker = null;
+        }
+    }
+
+
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
     }
 
     @Override
-    public synchronized void onEvents(Collection<NodeEvent<String>> nodeEvents) {
+    public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent event) throws Exception {
         repositories.clear();
         allfeatures.clear();
         installed.clear();
     }
 
-    @Override
     public void onConnected() {
-        profilesTracker = new ZooKeeperTreeTracker<String>(zooKeeper, new ZKStringDataReader(), ZkPath.CONFIG_VERSIONS.getPath());
+        if (profileTracker == null) {
+            profileTracker = new TreeCache(curator, ZkPath.CONFIG_VERSIONS.getPath(), false);
+
+        }
         try {
-            profilesTracker.track(this);
-        } catch (InterruptedException e) {
-            LOGGER.error("Error while setting tracker for Fabric Features Service.", e);
-        } catch (KeeperException e) {
+            profileTracker.start();
+            childEvent(curator, null);
+        } catch (Exception e) {
             LOGGER.error("Error while setting tracker for Fabric Features Service.", e);
         }
-        onEvents(null);
     }
 
-    @Override
     public void onDisconnected() {
     }
 
@@ -415,11 +428,11 @@ public class FabricFeaturesServiceImpl implements FeaturesService, NodeEventsLis
         this.fabricService = fabricService;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 }

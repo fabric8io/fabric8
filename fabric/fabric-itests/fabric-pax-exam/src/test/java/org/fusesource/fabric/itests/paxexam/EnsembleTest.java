@@ -17,16 +17,15 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import junit.framework.Assert;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.WaitForZookeeperUrlChange;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.linkedin.util.clock.Timespan;
@@ -62,7 +61,7 @@ public class EnsembleTest extends FabricTestSupport {
         ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
         Assert.assertNotNull(zooKeeperClusterService);
 
-        IZKClient zookeeper = getZookeeper();
+        CuratorFramework curator = getCurator();
         FabricService fabricService = getFabricService();
 
         Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
@@ -73,12 +72,12 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = containerQueue.removeFirst();
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
-                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(curator, curator.getZookeeperClient().getCurrentConnectionString());
                 System.err.println(executeCommand("fabric:container-resolver-list"));
                 System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
                 Future<String> future = excutorService.submit(waitTask);
                 future.get(120, TimeUnit.SECONDS);
-                zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 System.err.println(executeCommand("fabric:container-list"));
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
@@ -93,12 +92,12 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = addedContainers.removeFirst();
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
-                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(curator, curator.getZookeeperClient().getCurrentConnectionString());
                 System.err.println(executeCommand("fabric:container-resolver-list"));
                 System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
                 Future<String> future = excutorService.submit(waitTask);
                 future.get(120, TimeUnit.SECONDS);
-                zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 System.err.println(executeCommand("fabric:container-list"));
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
@@ -114,7 +113,7 @@ public class EnsembleTest extends FabricTestSupport {
         ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
         Assert.assertNotNull(zooKeeperClusterService);
 
-        IZKClient zookeeper = getZookeeper();
+        CuratorFramework curator = getCurator();
         FabricService fabricService = getFabricService();
 
         System.err.println(executeCommand("fabric:version-create"));
@@ -131,11 +130,11 @@ public class EnsembleTest extends FabricTestSupport {
             Container cnt2 = containerQueue.removeFirst();
             addedContainers.add(cnt1);
             addedContainers.add(cnt2);
-            WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+            WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(curator, curator.getZookeeperClient().getCurrentConnectionString());
             System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
             Future<String> future = excutorService.submit(waitTask);
             future.get(60, TimeUnit.SECONDS);
-            zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
             System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
             System.err.println(executeCommand("fabric:container-list"));
             List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
@@ -152,11 +151,11 @@ public class EnsembleTest extends FabricTestSupport {
         for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
             Container cnt1 = addedContainers.removeFirst();
             Container cnt2 = addedContainers.removeFirst();
-            WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+            WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(curator, curator.getZookeeperClient().getCurrentConnectionString());
             System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
             Future<String> future = excutorService.submit(waitTask);
             future.get(60, TimeUnit.SECONDS);
-            zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
             System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
             System.err.println(executeCommand("fabric:container-list"));
             List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
@@ -176,7 +175,7 @@ public class EnsembleTest extends FabricTestSupport {
         ZooKeeperClusterService zooKeeperClusterService = ServiceLocator.getOsgiService(ZooKeeperClusterService.class);
         Assert.assertNotNull(zooKeeperClusterService);
 
-        IZKClient zookeeper = getZookeeper();
+        CuratorFramework curator = getCurator();
         FabricService fabricService = getFabricService();
 
         System.err.println(executeCommand("fabric:version-create"));
@@ -200,11 +199,11 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = containerQueue.removeFirst();
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
-                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(curator, curator.getZookeeperClient().getCurrentConnectionString());
                 System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
                 Future<String> future = excutorService.submit(waitTask);
                 future.get(60, TimeUnit.SECONDS);
-                zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 System.err.println(executeCommand("fabric:container-list"));
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
@@ -227,11 +226,11 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = addedContainers.removeFirst();
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
-                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(zookeeper, zookeeper.getConnectString());
+                WaitForZookeeperUrlChange waitTask = new WaitForZookeeperUrlChange(curator, curator.getZookeeperClient().getCurrentConnectionString());
                 System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
                 Future<String> future = excutorService.submit(waitTask);
                 future.get(60, TimeUnit.SECONDS);
-                zookeeper.waitForConnected(new Timespan(30, Timespan.TimeUnit.SECOND));
+                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 System.err.println(executeCommand("fabric:container-list"));
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();

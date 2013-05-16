@@ -16,14 +16,16 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
+import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Lock;
 import org.fusesource.fabric.api.LockService;
 import org.fusesource.fabric.api.PortService;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -37,22 +39,18 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class ZookeeperPortService implements PortService {
 
+    private final CuratorFramework curator;
+    private final InterProcessLock lock;
 
-    private final IZKClient zooKeeper;
-    private final LockService lockService;
-    private final Lock lock;
-
-    public ZookeeperPortService(IZKClient zooKeeper, LockService lockService) {
-        this.zooKeeper = zooKeeper;
-        this.lockService = lockService;
-        this.lock = lockService.getLock(ZkPath.PORTS_LOCK.getPath());
+    public ZookeeperPortService(CuratorFramework curator) {
+        this.curator = curator;
+        this.lock = new InterProcessMultiLock(curator, Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
     }
 
-
     @Override
-    public int registerPort(Container container, String pid, String key, int fromPort, int toPort, Set<Integer> excludes) {
+    public int registerPort(Container container, String pid, String key, int fromPort, int toPort, Set<Integer> excludes)  {
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
                 int port = lookupPort(container, pid, key);
                 if (port > 0) {
                     return port;
@@ -73,24 +71,24 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
     }
 
     @Override
-    public void registerPort(Container container, String pid, String key, int port) {
+    public void registerPort(Container container, String pid, String key, int port)  {
         String portAsString = String.valueOf(port);
         String containerPortsPath = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
         String ipPortsPath = ZkPath.PORTS_IP.getPath(container.getIp());
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
-                createDefault(zooKeeper, containerPortsPath, portAsString);
-                createDefault(zooKeeper, ipPortsPath, portAsString);
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                createDefault(curator, containerPortsPath, portAsString);
+                createDefault(curator, ipPortsPath, portAsString);
 
-                zooKeeper.setData(containerPortsPath, portAsString);
-                String existingPorts = getStringData(zooKeeper, ipPortsPath);
+                setData(curator, containerPortsPath, portAsString);
+                String existingPorts = getStringData(curator, ipPortsPath);
                 if (!existingPorts.contains(portAsString)) {
-                    setData(zooKeeper, ipPortsPath, existingPorts + " " + portAsString);
+                    setData(curator, ipPortsPath, existingPorts + " " + portAsString);
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -98,7 +96,7 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
     }
 
@@ -107,10 +105,10 @@ public class ZookeeperPortService implements PortService {
         String containerPortsPidKeyPath = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
         String ipPortsPath = ZkPath.PORTS_IP.getPath(container.getIp());
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
-                if (exists(zooKeeper, containerPortsPidKeyPath) != null) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                if (exists(curator, containerPortsPidKeyPath) != null) {
                     int port = lookupPort(container, pid, key);
-                    deleteSafe(zooKeeper, containerPortsPidKeyPath);
+                    deleteSafe(curator, containerPortsPidKeyPath);
 
                     Set<Integer> allPorts = findUsedPortByHost(container);
                     allPorts.remove(port);
@@ -124,7 +122,7 @@ public class ZookeeperPortService implements PortService {
                             sb.append(" ").append(p);
                         }
                     }
-                    setData(zooKeeper, ipPortsPath, sb.toString());
+                    setData(curator, ipPortsPath, sb.toString());
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -132,21 +130,21 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
     }
 
 
     @Override
-    public void unRegisterPort(Container container, String pid) {
+    public void unRegisterPort(Container container, String pid)  {
         String containerPortsPidPath = ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid);
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
-                if (exists(zooKeeper, containerPortsPidPath) != null) {
-                    for (String key : getChildren(zooKeeper, containerPortsPidPath)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                if (exists(curator, containerPortsPidPath) != null) {
+                    for (String key : getChildren(curator, containerPortsPidPath)) {
                         unRegisterPort(container, pid, key);
                     }
-                    deleteSafe(zooKeeper, containerPortsPidPath);
+                    deleteSafe(curator, containerPortsPidPath);
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -154,20 +152,20 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
     }
 
     @Override
-    public void unRegisterPort(Container container) {
+    public void unRegisterPort(Container container)  {
         String containerPortsPath = ZkPath.PORTS_CONTAINER.getPath(container.getId());
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
-                if (exists(zooKeeper, containerPortsPath) != null) {
-                    for (String pid : getChildren(zooKeeper, containerPortsPath)) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                if (exists(curator, containerPortsPath) != null) {
+                    for (String pid : getChildren(curator, containerPortsPath)) {
                         unRegisterPort(container, pid);
                     }
-                    deleteSafe(zooKeeper, containerPortsPath);
+                    deleteSafe(curator, containerPortsPath);
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -175,7 +173,7 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
     }
 
@@ -184,8 +182,8 @@ public class ZookeeperPortService implements PortService {
         int port = 0;
         String path = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
         try {
-            if (exists(zooKeeper, path) != null) {
-                port = Integer.parseInt(getStringData(zooKeeper, path));
+            if (exists(curator, path) != null) {
+                port = Integer.parseInt(getStringData(curator, path));
             }
         } catch (Exception ex) {
             throw new FabricException(ex);
@@ -194,16 +192,16 @@ public class ZookeeperPortService implements PortService {
     }
 
     @Override
-    public Set<Integer> findUsedPortByContainer(Container container) {
+    public Set<Integer> findUsedPortByContainer(Container container)  {
         HashSet<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_CONTAINER.getPath(container.getId());
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
-                if (exists(zooKeeper, path) != null) {
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                if (exists(curator, path) != null) {
 
-                    for (String pid : getChildren(zooKeeper, path)) {
-                        for (String key : getChildren(zooKeeper, ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid))) {
-                            String port = getStringData(zooKeeper, ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key));
+                    for (String pid : getChildren(curator, path)) {
+                        for (String key : getChildren(curator, ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid))) {
+                            String port = getStringData(curator, ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key));
                             try {
                                 ports.add(Integer.parseInt(port));
                             } catch (Exception ex) {
@@ -218,20 +216,20 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
         return ports;
     }
 
     @Override
-    public Set<Integer> findUsedPortByHost(Container container) {
+    public Set<Integer> findUsedPortByHost(Container container)  {
         String ip = container.getIp();
         HashSet<Integer> ports = new HashSet<Integer>();
         String path = ZkPath.PORTS_IP.getPath(ip);
         try {
-            if (lock.tryLock(60, TimeUnit.SECONDS)) {
-                createDefault(zooKeeper, path, "");
-                String boundPorts = getStringData(zooKeeper, path);
+            if (lock.acquire(60, TimeUnit.SECONDS)) {
+                createDefault(curator, path, "");
+                String boundPorts = getStringData(curator, path);
                 if (boundPorts != null && !boundPorts.isEmpty()) {
                     for (String port : boundPorts.split(" ")) {
                         try {
@@ -247,8 +245,16 @@ public class ZookeeperPortService implements PortService {
         } catch (Exception ex) {
             throw new FabricException(ex);
         } finally {
-            lock.unlock();
+            release();
         }
         return ports;
+    }
+
+    private void release() {
+        try {
+            lock.release();
+        } catch (Exception e) {
+            //ignore?
+        }
     }
 }

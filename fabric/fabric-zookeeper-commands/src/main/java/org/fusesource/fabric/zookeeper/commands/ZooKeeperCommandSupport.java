@@ -22,25 +22,25 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 
 public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
 
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
     private long connectionRetryTime = 100L;
     
     @Override
     protected Object doExecute() throws Exception {
-        doExecute(zooKeeper);
+        doExecute(curator);
         return null;
     }
     
-    protected abstract void doExecute(IZKClient zk) throws Exception;
+    protected abstract void doExecute(CuratorFramework zk) throws Exception;
     
     protected static String getPermString(int perms) {
         StringBuilder p = new StringBuilder();
@@ -129,11 +129,11 @@ public abstract class ZooKeeperCommandSupport extends OsgiCommandSupport {
         this.connectionRetryTime = connectionRetryTime;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 }

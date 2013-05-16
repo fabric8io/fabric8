@@ -23,12 +23,10 @@ import org.apache.karaf.shell.console.Completer;
 import org.apache.karaf.shell.console.completer.StringsCompleter;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 public class VersionCompleter implements Completer {
 
     protected FabricService fabricService;
-    protected IZKClient zooKeeper;
 
 
     @Override
@@ -47,13 +45,5 @@ public class VersionCompleter implements Completer {
 
     public void setFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
-    }
-
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
-    }
-
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
     }
 }

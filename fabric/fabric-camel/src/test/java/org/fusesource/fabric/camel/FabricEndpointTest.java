@@ -44,6 +44,7 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
     // after each test case?  Not sure!
     @Autowired
     protected ZKServerFactoryBean zkServerBean;
+
     @After
     public void afterRun() throws Exception {
         lastServerBean = zkServerBean;

@@ -50,7 +50,6 @@ import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 public class ProfileEdit extends FabricCommand {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfileEdit.class);
-    private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     static final String FEATURE_PREFIX = "feature.";
     static final String REPOSITORY_PREFIX = "repository.";
@@ -266,7 +265,7 @@ public class ProfileEdit extends FabricCommand {
         ConsoleEditor editor = editorFactory.create(getTerminal());
         editor.setTitle("Profile");
         editor.setOpenEnabled(false);
-        editor.setContentManager(new ZookeeperContentManager(getZooKeeper()));
+        editor.setContentManager(new ZookeeperContentManager(getCurator()));
         editor.open(path, id + " " + version);
         editor.start();
     }

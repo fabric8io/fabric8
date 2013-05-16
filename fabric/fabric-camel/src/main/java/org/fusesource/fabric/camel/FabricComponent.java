@@ -108,12 +108,12 @@ public class FabricComponent extends ZKComponentSupport {
             if (params != null && params.size() > 0) {
                 childUri = childUri + "?" + URISupport.createQueryString(params);
             }
-            Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
+            Group group = ZooKeeperGroupFactory.create(getCurator(), fabricPath);
             return new FabricPublisherEndpoint(uri, this, group, childUri);
 
         } else {
             String fabricPath = getFabricPath(remaining);
-            Group group = ZooKeeperGroupFactory.create(getZkClient(), fabricPath);
+            Group group = ZooKeeperGroupFactory.create(getCurator(), fabricPath);
             return new FabricLocatorEndpoint(uri, this, group);
         }
     }

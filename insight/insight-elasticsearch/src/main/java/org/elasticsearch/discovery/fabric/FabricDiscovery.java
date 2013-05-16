@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;
@@ -63,7 +64,6 @@ import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -118,7 +118,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         this.discoveryNodeService = discoveryNodeService;
         this.publishClusterState = new PublishClusterStateAction(settings, transportService, this, this);
         this.context = FrameworkUtil.getBundle(getClass()).getBundleContext();
-        this.tracker = new ServiceTracker(context, IZKClient.class.getName(), this);
+        this.tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
         this.singleton = new ClusteredSingleton<ESNode>(ESNode.class);
         this.singleton.add(this);
     }
@@ -215,13 +215,13 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     public Object addingService(ServiceReference reference) {
-        IZKClient zk = (IZKClient) context.getService(reference);
-        group = ZooKeeperGroupFactory.create(zk, "/fabric/registry/clusters/elasticsearch/" + clusterName.value());
+        CuratorFramework curator = (CuratorFramework) context.getService(reference);
+        group = ZooKeeperGroupFactory.create(curator, "/fabric/registry/clusters/elasticsearch/" + clusterName.value());
         joined = false;
         singleton.start(group);
         joined = true;
         singleton.join(new ESNode(clusterName.value(), localNode, false));
-        return zk;
+        return curator;
     }
 
     @Override

@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.git.internal;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
@@ -26,9 +29,7 @@ import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.ClusteredSingletonWatcher;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,24 +38,15 @@ import java.io.IOException;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-public class FabricGitServiceImpl implements FabricGitService, LifecycleListener, ChangeListener {
+public class FabricGitServiceImpl implements FabricGitService, ConnectionStateListener, ChangeListener {
 
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
 	private Group group;
-	private IZKClient zookeeper;
+	private CuratorFramework curator;
 	ClusteredSingletonWatcher<GitNode> watcher = new ClusteredSingletonWatcher<GitNode>(GitNode.class);
-
-
-	public IZKClient getZookeeper() {
-		return zookeeper;
-	}
-
-	public void setZookeeper(IZKClient zookeeper) {
-		this.zookeeper = zookeeper;
-	}
 
     public void init() {
     }
@@ -96,7 +88,7 @@ public class FabricGitServiceImpl implements FabricGitService, LifecycleListener
 		try {
 			StoredConfig config = get().getRepository().getConfig();
             if (masterUrl != null) {
-                config.setString("remote", "origin", "url", getSubstitutedData(zookeeper, masters[0].getUrl()));
+                config.setString("remote", "origin", "url", getSubstitutedData(curator, masters[0].getUrl()));
                 config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
             } else {
                 config.unsetSection("remote", "origin");
@@ -117,14 +109,25 @@ public class FabricGitServiceImpl implements FabricGitService, LifecycleListener
 		changed();
 	}
 
-	@Override
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
 	public void onConnected() {
-		group = ZooKeeperGroupFactory.create(zookeeper, ZkPath.GIT.getPath());
+		group = ZooKeeperGroupFactory.create(curator, ZkPath.GIT.getPath());
 		group.add(this);
 		watcher.start(group);
 	}
 
-	@Override
 	public void onDisconnected() {
         watcher.stop();
 		group.close();

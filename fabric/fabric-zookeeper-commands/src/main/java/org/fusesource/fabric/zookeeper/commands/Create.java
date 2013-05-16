@@ -19,6 +19,7 @@ package org.fusesource.fabric.zookeeper.commands;
 import java.net.URL;
 import java.util.List;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -26,7 +27,6 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 @Command(name = "create", scope = "zk", description = "Create a znode", detailedDescription = "classpath:create.txt")
 public class Create extends ZooKeeperCommandSupport {
@@ -56,7 +56,7 @@ public class Create extends ZooKeeperCommandSupport {
     String data;
 
     @Override
-    protected void doExecute(IZKClient zk) throws Exception {
+    protected void doExecute(CuratorFramework curator) throws Exception {
         List<ACL> acls = acl == null ? ZooDefs.Ids.OPEN_ACL_UNSAFE : parseACLs(acl);
         CreateMode mode;
         if (ephemeral && sequential) {
@@ -77,13 +77,13 @@ public class Create extends ZooKeeperCommandSupport {
 
         try {
             if (recursive) {
-                zk.createWithParents(path, nodeData, acls, mode);
+                curator.create().creatingParentsIfNeeded().withMode(mode).withACL(acls).forPath(path, nodeData.getBytes());
             } else {
-                zk.create(path, nodeData, acls, mode);
+                curator.create().withMode(mode).withACL(acls).forPath(path, nodeData.getBytes());
             }
         } catch (KeeperException.NodeExistsException e) {
             if (overwrite) {
-                zk.setData(path, nodeData);
+                curator.setData().forPath(path, nodeData.getBytes());
             } else {
                 throw e;
             }

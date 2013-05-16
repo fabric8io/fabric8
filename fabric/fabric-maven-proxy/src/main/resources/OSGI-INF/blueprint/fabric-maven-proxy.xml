@@ -73,9 +73,6 @@
     </bean>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-    <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient">
-        <reference-listener ref="registrationHandler" bind-method="bindZooKeeper" unbind-method="unbindZooKeeper" />
-    </reference>
 
     <reference id="httpService" interface="org.osgi.service.http.HttpService" availability="optional">
         <reference-listener ref="registrationHandler" bind-method="bindHttpService" unbind-method="unbindHttpService" />
@@ -83,7 +80,7 @@
 
     <service ref="registrationHandler">
         <interfaces>
-            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.apache.curator.framework.state.ConnectionStateListener</value>
             <value>org.osgi.service.cm.ConfigurationListener</value>
         </interfaces>
     </service>

@@ -16,10 +16,11 @@
  */
 package org.fusesource.fabric.bridge.zk.internal;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanCreationException;
@@ -59,13 +60,13 @@ public class ZkServerSetupBean implements SmartLifecycle {
      */
     @Override
     public void start() {
-        IZKClient client = ((FabricServiceImpl)fabricService).getZooKeeper();
+        CuratorFramework client = ((FabricServiceImpl)fabricService).getCurator();
 
         // import ZK contents
         TestImport testImport = new TestImport();
         testImport.setSource("target/test-classes/zkexport");
         testImport.setNRegEx(new String[] {"dummy"});
-        testImport.setZooKeeper(client);
+        testImport.setCurator(client);
         try {
             testImport.doExecute(client);
         } catch (Exception e) {
@@ -80,18 +81,13 @@ public class ZkServerSetupBean implements SmartLifecycle {
     public void stop() {
         // clean up old ZK configuration
         try {
-            IZKClient client = ((FabricServiceImpl)fabricService).getZooKeeper();
-            client.deleteWithChildren(FABRIC_ROOT_PATH);
-        } catch (InterruptedException e) {
-            String msg = "Error cleaning up old ZK config: " + e.getMessage();
-            LOG.error(msg, e);
-            throw new BeanCreationException(msg, e);
-        } catch (KeeperException e) {
+            CuratorFramework client = ((FabricServiceImpl)fabricService).getCurator();
+            ZooKeeperUtils.deleteSafe(client, FABRIC_ROOT_PATH);
+        } catch (Exception e) {
             String msg = "Error cleaning up old ZK config: " + e.getMessage();
             LOG.error(msg, e);
             throw new BeanCreationException(msg, e);
         }
-
         running = false;
     }
 

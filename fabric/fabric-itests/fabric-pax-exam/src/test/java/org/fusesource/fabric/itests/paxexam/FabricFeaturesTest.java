@@ -22,7 +22,6 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Assert;
@@ -59,7 +58,6 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
      * @param expectedSymbolicNames
      */
     public void assertProvisionedFeature(Set<Container> containers, String featureNames, String profileName, String expectedSymbolicNames) throws Exception {
-        IZKClient zooKeeper = getZookeeper();
         StringBuilder sb = new StringBuilder();
         sb.append("[ ");
         for (Container container : containers) {
@@ -87,7 +85,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         for (Container container : containers) {
             //Test the modified profile.
             if (!defaultProfile.configurationEquals(targetProfile)) {
-                setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+                setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{targetProfile});
             //containerSetProfile(container.getId(), profileName, false);
@@ -111,7 +109,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
         for (Container container : containers) {
             //We set the container to default to clean up the profile.
             if (!defaultProfile.configurationEquals(targetProfile)) {
-                setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
+                setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(container.getId()), "switching profile");
             }
             container.setProfiles(new Profile[]{defaultProfile});
         }

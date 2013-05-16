@@ -16,12 +16,12 @@
  */
 package org.fusesource.fabric.boot.commands.support;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -34,7 +34,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData
 
 public abstract class FabricCommand extends OsgiCommandSupport {
 
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
     protected FabricService fabricService;
     protected ConfigurationAdmin configurationAdmin;
 
@@ -48,12 +48,12 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         this.fabricService = fabricService;
     }
 
-    public IZKClient getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {
@@ -126,8 +126,8 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         Container container = fabricService.getContainer(containerName);
         try {
             List<String> containerList = new ArrayList<String>();
-            String clusterId = getStringData(zooKeeper, ZkPath.CONFIG_ENSEMBLES.getPath());
-            String containers = getStringData(zooKeeper, ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
+            String clusterId = getStringData(curator, ZkPath.CONFIG_ENSEMBLES.getPath());
+            String containers = getStringData(curator, ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
             Collections.addAll(containerList, containers.split(","));
             result = containerList.contains(containerName);
         } catch (Throwable t) {

@@ -18,11 +18,11 @@ package org.fusesource.fabric.commands;
 
 import java.io.File;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 
 import static org.fusesource.fabric.zookeeper.utils.RegexSupport.merge;
@@ -60,7 +60,7 @@ public class Import extends FabricCommand {
     File ignore = new File(".fabricignore");
     File include = new File(".fabricinclude");
 
-    protected void doExecute(IZKClient zk) throws Exception {
+    protected void doExecute(CuratorFramework zk) throws Exception {
         if (ignore.exists() && ignore.isFile()) {
             nregex = merge(ignore, nregex);
         }
@@ -116,7 +116,7 @@ public class Import extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        doExecute(getZooKeeper());
+        doExecute(getCurator());
         return null;
     }
 }

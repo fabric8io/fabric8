@@ -37,8 +37,6 @@
         <property name="timeout" value="${timeout}"/>
     </bean>
 
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient">
-        <reference-listener ref="activator" bind-method="registerZooKeeper" unbind-method="unregisterZooKeeper"/>
-    </reference>
+    <service ref="activator" interface="org.apache.curator.framework.state.ConnectionStateListener"/>
 
 </blueprint>

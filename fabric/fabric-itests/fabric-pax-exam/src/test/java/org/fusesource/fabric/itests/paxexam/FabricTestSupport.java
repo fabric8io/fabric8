@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -26,7 +27,6 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.SshContainerBuilder;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
@@ -118,7 +118,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Thread.sleep(DEFAULT_WAIT);
             //We want to check if container exists before we actually delete them.
             //We need this because getContainer will create a container object if container doesn't exists.
-            if (exists(getZookeeper(), ZkPath.CONTAINER.getPath(name)) != null) {
+            if (exists(getCurator(), ZkPath.CONTAINER.getPath(name)) != null) {
                 Container container = getFabricService().getContainer(name);
                 //We want to go through container destroy method so that cleanup methods are properly invoked.
                 container.destroy();
@@ -215,7 +215,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
         if (!same && waitForProvision) {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
-            setData(getZookeeper(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
+            setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);
             waitForProvisionSuccess(container, PROVISION_TIMEOUT);
         }
@@ -242,10 +242,10 @@ public class FabricTestSupport extends FuseTestSupport {
         return fabricService;
     }
 
-    public IZKClient getZookeeper() {
-        IZKClient zookeeper = ServiceLocator.getOsgiService(IZKClient.class);
-        assertNotNull(zookeeper);
-        return zookeeper;
+    public CuratorFramework getCurator() {
+        CuratorFramework curator = ServiceLocator.getOsgiService(CuratorFramework.class);
+        assertNotNull(curator);
+        return curator;
     }
 
     protected void waitForFabricCommands() {

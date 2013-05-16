@@ -18,11 +18,11 @@ package org.fusesource.fabric.boot.commands.support;
 
 import java.io.IOException;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.shell.ShellUtils;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.ServiceReference;
 
 /**
@@ -39,7 +39,7 @@ public abstract class EnsembleCommandSupport extends OsgiCommandSupport {
     }
 
     protected void checkFabricAvailable() {
-        ServiceReference sr = getBundleContext().getServiceReference(IZKClient.class.getName());
+        ServiceReference sr = getBundleContext().getServiceReference(CuratorFramework.class.getName());
         if (sr == null) {
             throw new IllegalStateException("No Fabric available, please create one using fabric:create or fabric:join.");
         }

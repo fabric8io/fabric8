@@ -20,7 +20,7 @@
 
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
-  <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" />
+  <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
 
   <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
 
@@ -50,7 +50,7 @@
     <property name="realm" value="${realm}"/>
     <property name="configurationAdmin" ref="configurationAdmin"/>
     <property name="fabricService" ref="fabricService"/>
-    <property name="zooKeeper" ref="zooKeeper"/>
+    <property name="curator" ref="curator"/>
     <property name="zooKeeperClusterService" ref="zooKeeperClusterService"/>
     <property name="computeServiceListener" ref="computeServiceListener"/>
   </bean>

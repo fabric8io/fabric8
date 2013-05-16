@@ -8,7 +8,6 @@ import jline.Terminal;
 import jline.console.ConsoleReader;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
-import org.fusesource.jansi.Ansi;
 
 public class ShellUtils {
 

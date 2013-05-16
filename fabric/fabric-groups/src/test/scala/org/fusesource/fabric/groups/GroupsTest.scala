@@ -1,3 +1,4 @@
+
 /*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
@@ -19,8 +20,6 @@ package org.fusesource.fabric.groups
 import org.scalatest.matchers.ShouldMatchers
 import org.apache.zookeeper.server.{ZooKeeperServer, NIOServerCnxnFactory}
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog
-import org.fusesource.fabric.zookeeper.internal.ZKClient
-import org.linkedin.util.clock.Timespan
 import java.net.InetSocketAddress
 import scala.collection.immutable.List
 import java.io.File
@@ -29,6 +28,8 @@ import org.junit.runner.RunWith
 import org.scalatest.{BeforeAndAfterEach, BeforeAndAfterAll, FunSuite}
 import java.util.concurrent.TimeUnit
 import collection.JavaConversions._
+import org.apache.curator.framework.{CuratorFramework, CuratorFrameworkFactory}
+import org.apache.curator.retry.ExponentialBackoffRetry
 
 /**
  * <p>
@@ -74,25 +75,25 @@ abstract class ZooKeeperFunSuiteSupport extends FunSuite with BeforeAndAfterAll 
     }
   }
 
-  var zk_clients = List[ZKClient]()
+  var curators = List[CuratorFramework]()
 
   def create_zk_client() = {
-    val client = new ZKClient("localhost:"+connector.getLocalPort, Timespan.parse("30s"), null)
+    val client = CuratorFrameworkFactory.builder().connectString("localhost:"+connector.getLocalPort).retryPolicy(new ExponentialBackoffRetry(500, 5)).connectionTimeoutMs(30000).build();
     client.start
-    zk_clients ::= client
-    client.waitForConnected(Timespan.parse("30s"))
+    curators ::= client
+    client.getZookeeperClient.blockUntilConnectedOrTimedOut;
     client
   }
 
   override protected def afterEach(): Unit = {
-    zk_clients.foreach{ client=>
+    curators.foreach{ client=>
       try {
         client.close
       } catch {
         case _ =>
       }
     }
-    zk_clients = List()
+    curators = List()
   }
 
   private class BreakWithin(e:Throwable) extends RuntimeException(e)

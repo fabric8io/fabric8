@@ -16,32 +16,32 @@
 package org.fusesource.fabric.webui.zookeeper
 
 import javax.ws.rs.{PathParam, GET, Path}
-import org.fusesource.fabric.zookeeper.IZKClient
 import javax.xml.bind.annotation.{XmlElement, XmlAttribute, XmlRootElement}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.codehaus.jackson.annotate.JsonProperty
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils
+import org.apache.curator.framework.CuratorFramework
 
 @Path("/zookeeper")
-class ZooKeeperResource(val zookeeper: IZKClient, val path: String) extends BaseResource {
+class ZooKeeperResource(val curator: CuratorFramework, val path: String) extends BaseResource {
 
-  def this() = this(Services.zoo_keeper, "/")
+  def this() = this(Services.curator, "/")
 
   @JsonProperty
   def getPath = path
 
   @JsonProperty
-  def getValue = ZooKeeperUtils.getStringData(zookeeper, path)
+  def getValue = ZooKeeperUtils.getStringData(curator, path)
 
   @JsonProperty
-  def getChildren: Array[String] = ZooKeeperUtils.getChildren(zookeeper, path).toArray(new Array[String](0))
+  def getChildren: Array[String] = ZooKeeperUtils.getChildren(curator, path).toArray(new Array[String](0))
 
   @Path("{path:.*}")
   @GET
   def getChild(@PathParam("path") child: String): ZooKeeperResource = {
     val p = if (path.endsWith("/")) path else path + "/"
-    new ZooKeeperResource(zookeeper, p + child)
+    new ZooKeeperResource(curator, p + child)
   }
 
 }

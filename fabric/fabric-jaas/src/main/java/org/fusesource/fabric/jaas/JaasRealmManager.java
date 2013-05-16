@@ -18,7 +18,8 @@
 package org.fusesource.fabric.jaas;
 
 import java.util.Dictionary;
-import org.fusesource.fabric.zookeeper.IZKClient;
+
+import org.apache.curator.framework.CuratorFramework;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -37,7 +38,7 @@ public class JaasRealmManager {
     private static final String SSH_REALM = "sshRealm";
     private static final String JMX_REALM = "jmxRealm";
     private static final String ZOOKEEPER_REALM = "zookeeper";
-    private static final String ZOOKEEPER_CLIENT = "org.linkedin.zookeeper.client.IZKClient";
+    private static final String ZOOKEEPER_CLIENT = "org.apache.curator.framework.CuratorFramework";
 
     private BundleContext bundleContext;
     private ConfigurationAdmin configAdmin;
@@ -79,8 +80,8 @@ public class JaasRealmManager {
         try {
             serviceReference = bundleContext.getServiceReference(ZOOKEEPER_CLIENT);
             if (serviceReference != null) {
-                IZKClient client = (IZKClient) bundleContext.getService(serviceReference);
-                if (client != null && client.isConnected()) {
+                CuratorFramework client = (CuratorFramework) bundleContext.getService(serviceReference);
+                if (client != null && client.getZookeeperClient().isConnected()) {
                     available = true;
                 }
             }
@@ -131,7 +132,7 @@ public class JaasRealmManager {
         return realm;
     }
 
-    public void bind(IZKClient izkClient) {
+    public void bind(CuratorFramework curator) {
         if (isZookeeperAvailable() && !realmsUpdated) {
             updateRealm(KARAF_SHELL_PID, SSH_REALM,  ZOOKEEPER_REALM);
             updateRealm(KARAF_MANAGEMENT_PID, JMX_REALM, ZOOKEEPER_REALM);
@@ -139,7 +140,7 @@ public class JaasRealmManager {
         }
     }
 
-    public void unbind(IZKClient izkClient) {
+    public void unbind(CuratorFramework curator) {
         //We don't want to unset the realm just because the client is gone.
     }
 

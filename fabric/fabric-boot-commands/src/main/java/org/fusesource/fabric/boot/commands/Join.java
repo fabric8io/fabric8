@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.boot.commands;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -26,7 +29,6 @@ import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.utils.shell.ShellUtils;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.internal.ZKClient;
@@ -46,7 +48,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 public class Join extends OsgiCommandSupport implements org.fusesource.fabric.boot.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;
-    private IZKClient zooKeeper;
+    private CuratorFramework curator;
     private String version = ZkDefs.DEFAULT_VERSION;
     private BundleContext bundleContext;
 
@@ -164,21 +166,28 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
      */
     private boolean registerContainer(String name, String registryPassword, String profile, boolean force) throws Exception {
         boolean exists = false;
-        ZKClient zkClient = null;
+        CuratorFramework curator = null;
         try {
-            zkClient = new ZKClient(zookeeperUrl, Timespan.ONE_MINUTE, null);
+
+            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                    .connectString(zookeeperUrl)
+                    .retryPolicy(new RetryOneTime(1000))
+                    .connectionTimeoutMs(60000);
+
             if (registryPassword != null && !registryPassword.isEmpty()) {
-                zkClient.setPassword(registryPassword);
+                builder.authorization("digest", ("fabric:" + registryPassword).getBytes());
             }
-            zkClient.start();
-            zkClient.waitForConnected();
-            exists = exists(zkClient, ZkPath.CONTAINER.getPath(name)) != null;
+
+            curator = builder.build();
+            curator.start();
+            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+            exists = exists(curator, ZkPath.CONTAINER.getPath(name)) != null;
             if (!exists || force) {
-                ZkPath.createContainerPaths(zkClient, containerName, version, profile);
+                ZkPath.createContainerPaths(curator, containerName, version, profile);
             }
         } finally {
-            if (zkClient != null) {
-                zkClient.close();
+            if (curator != null) {
+                curator.close();
             }
         }
         return !exists || force;
@@ -249,8 +258,8 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     }
 
     @Override
-    public void setZooKeeper(IZKClient zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     @Override

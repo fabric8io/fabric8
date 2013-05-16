@@ -17,7 +17,7 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
     <reference id="imageCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=image)" availability="optional"/>
@@ -76,7 +76,7 @@
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceAdd">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <optional-completers>
                 <entry key="--provider" value-ref="availableComputeProviderCompleter"/>
@@ -87,7 +87,7 @@
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceRemove">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
             </action>
             <completers>
                 <ref component-id="computeServiceIdCompleter"/>
@@ -97,14 +97,14 @@
         <command name="fabric/cloud-service-list">
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceList">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
                 <property name="computeServices" ref="computeServices"/>
             </action>
         </command>
         <command name="fabric/cloud-firewall-edit">
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudFirewallEdit">
                 <property name="fabricService" ref="fabricService"/>
-                <property name="zooKeeper" ref="zooKeeper"/>
+                <property name="curator" ref="curator"/>
                 <property name="computeServices" ref="computeServices"/>
                 <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
             </action>
@@ -121,27 +121,27 @@
 
     <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
     <bean id="cloudContainerCompleter" class="org.fusesource.fabric.service.jclouds.commands.completers.CloudContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
 
     <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
     <bean id="zookeeperCredentialStore" class="org.fusesource.fabric.service.jclouds.modules.ZookeeperCredentialStore" init-method="init">
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
     </bean>
 
 
@@ -155,23 +155,23 @@
         <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
         <property name="credentialStore" ref="zookeeperCredentialStore"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
     <bean id="cloudProviderBridge" class="org.fusesource.fabric.service.jclouds.CloudProviderBridge">
-        <property name="zooKeeper" ref="zooKeeper"/>
+        <property name="curator" ref="curator"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
 
-    <service ref="cloudProviderBridge" interface="org.linkedin.zookeeper.client.LifecycleListener"/>
+    <service ref="cloudProviderBridge" interface="org.apache.curator.framework.state.ConnectionStateListener"/>
 
     <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport"/>
 
     <service ref="zookeeperCredentialStore">
         <interfaces>
             <value>org.jclouds.karaf.core.CredentialStore</value>
-            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.apache.curator.framework.state.ConnectionStateListener</value>
         </interfaces>
         <service-properties>
             <entry key="credential-store-type" value="zookeeper"/>

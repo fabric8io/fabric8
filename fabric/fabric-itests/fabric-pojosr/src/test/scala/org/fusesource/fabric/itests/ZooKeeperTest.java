@@ -21,8 +21,8 @@ import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.server.ServerStats;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Before;
@@ -113,10 +113,10 @@ public class ZooKeeperTest {
         ServerStats.Provider server = getOsgiService(ServerStats.Provider.class);
         assertNotNull(server);
 
-        IZKClient client = getOsgiService(IZKClient.class);
+        CuratorFramework client = getOsgiService(CuratorFramework.class);
         assertNotNull(client);
 
-        client.waitForConnected();
+        client.getZookeeperClient().blockUntilConnectedOrTimedOut();
         Thread.sleep(500);
 
         assertNotNull(exists(client, ZkPath.CONTAINER_ALIVE.getPath(System.getProperty("karaf.name"))));

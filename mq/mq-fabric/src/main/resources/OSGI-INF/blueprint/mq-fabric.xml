@@ -18,11 +18,11 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-  <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient" availability="optional"/>
+  <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
 
   <bean id="activeMQServiceFactory" class="org.fusesource.mq.fabric.ActiveMQServiceFactory" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
-    <property name="zooKeeper" ref="zooKeeper"/>
+    <property name="curator" ref="curator"/>
   </bean>
 
   <service ref="activeMQServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">

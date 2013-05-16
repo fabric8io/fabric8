@@ -32,6 +32,7 @@
 
     <properties>
         <fuse.osgi.export>
+            org.apache.curator*;version=${curator.version};-noimport:=true,
             org.fusesource.fabric.zookeeper*;version=${fuse.osgi.version};-noimport:=true,
             org.fusesource.fabric.zookeeper.internal*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
@@ -46,6 +47,8 @@
             org.apache.log4j*;version="[1.2,2)"
         </fuse.osgi.import.additional>
         <fuse.osgi.services.export>
+            org.apache.curator.framework.CuratorFramework,
+            org.fusesource.fabric.zookeeper.ACLManager,
             org.linkedin.zookeeper.client.IZKClient,
             org.fusesource.fabric.zookeeper.IZKClient,
             org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
@@ -57,9 +60,22 @@
     </properties>
 
     <dependencies>
+
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-linkedin-zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>${curator.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>${curator.version}</version>
         </dependency>
 
          <dependency>

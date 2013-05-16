@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
 
 import java.util.List;
 
@@ -73,5 +73,5 @@ public interface ZooKeeperClusterService {
 
     void clean();
 
-    IZKClient getZooKeeper();
+    CuratorFramework getCurator();
 }

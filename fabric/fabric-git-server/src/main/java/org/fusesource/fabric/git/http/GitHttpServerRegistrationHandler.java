@@ -17,6 +17,9 @@
 
 package org.fusesource.fabric.git.http;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.ChangeListener;
@@ -24,10 +27,7 @@ import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.linkedin.zookeeper.client.LifecycleListener;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -40,19 +40,20 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 
-public class GitHttpServerRegistrationHandler implements LifecycleListener, ConfigurationListener, ChangeListener {
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+
+public class GitHttpServerRegistrationHandler implements ConnectionStateListener, ConfigurationListener, ChangeListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
 
     private final ClusteredSingleton<GitNode> singleton = new ClusteredSingleton<GitNode>(GitNode.class);
-    private IZKClient zookeeper = null;
+    private CuratorFramework curator = null;
     private boolean connected = false;
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
@@ -131,11 +132,22 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
         this.httpService = null;
     }
 
-
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                this.curator = client;
+                onConnected();
+                break;
+            default:
+                onDisconnected();
+        }
+    }
+
     public synchronized void onConnected() {
         connected = true;
-        group = ZooKeeperGroupFactory.create(zookeeper, ZkPath.GIT.getPath());
+        group = ZooKeeperGroupFactory.create(curator, ZkPath.GIT.getPath());
         singleton.start(group);
 
         if (httpService != null) {
@@ -143,7 +155,6 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
         }
     }
 
-    @Override
     public synchronized void onDisconnected() {
         connected = false;
         try {
@@ -178,7 +189,7 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
 
             String url = state.getUrl();
             try {
-                String actualUrl = ZooKeeperUtils.getSubstitutedData(zookeeper, url);
+                String actualUrl = getSubstitutedData(curator, url);
                 if (actualUrl != null && (this.gitRemoteUrl == null || !this.gitRemoteUrl.equals(actualUrl))) {
                     // lets notify listeners
                     this.gitRemoteUrl = actualUrl;
@@ -311,11 +322,12 @@ public class GitHttpServerRegistrationHandler implements LifecycleListener, Conf
         this.configurationAdmin = configurationAdmin;
     }
 
-    public IZKClient getZookeeper() {
-        return zookeeper;
+
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZookeeper(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 }

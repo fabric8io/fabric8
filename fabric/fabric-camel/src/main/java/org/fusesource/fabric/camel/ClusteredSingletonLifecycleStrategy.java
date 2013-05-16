@@ -33,15 +33,15 @@ import org.apache.camel.spi.LifecycleStrategy;
 import org.apache.camel.spi.RouteContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.retry.RetryOneTime;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
-import org.fusesource.fabric.zookeeper.IZKClient;
-import org.fusesource.fabric.zookeeper.internal.ZKClient;
-import org.linkedin.util.clock.Timespan;
 
 /**
  *
@@ -59,7 +59,7 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     volatile CamelContext camelContext;
     final AtomicBoolean started = new AtomicBoolean();
 
-    IZKClient zkClient;
+    CuratorFramework curator;
     boolean managedZkClient;
     ClusteredSingleton<CamelNode> singleton = new ClusteredSingleton<CamelNode>(CamelNode.class);
 
@@ -97,17 +97,30 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
 
     public void start() throws Exception {
 
-        if (zkClient == null) {
+        if (curator == null) {
             managedZkClient = true;
-            ZKClient client = new ZKClient(System.getProperty("zookeeper.url", "localhost:2181"), Timespan.parse("10s"), null);
+            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+            String password = System.getProperty("zookeeper.password");
+
+            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                    .connectString(connectString)
+                    .retryPolicy(new RetryOneTime(1000))
+                    .connectionTimeoutMs(10000);
+
+            if (password != null && !password.isEmpty()) {
+                builder.authorization("digest", ("fabric:"+password).getBytes());
+            }
+
+            CuratorFramework client = builder.build();
+            LOG.debug("Starting curator " + curator);
             client.start();
-            client.waitForConnected();
-            zkClient = client;
+            client.getZookeeperClient().blockUntilConnectedOrTimedOut();
+            curator = client;
         } else {
             managedZkClient = false;
         }
 
-        group = ZooKeeperGroupFactory.create(zkClient, "/fabric/camel-clusters/" + groupName);
+        group = ZooKeeperGroupFactory.create(curator, "/fabric/camel-clusters/" + groupName);
         singleton.start(group);
         singleton.join(createState());
 
@@ -157,11 +170,11 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
         }
         if (managedZkClient) {
             try {
-                zkClient.close();
+                curator.close();
             } catch (Throwable ignore) {
                 // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
             }
-            zkClient = null;
+            curator = null;
         }
     }
 
@@ -230,10 +243,10 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     public void setId(String id) {
         this.id = id;
     }
-    public IZKClient getZkClient() {
-        return zkClient;
+    public CuratorFramework getCurator() {
+        return curator;
     }
-    public void setZkClient(IZKClient zkClient) {
-        this.zkClient = zkClient;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 }

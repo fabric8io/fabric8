@@ -16,9 +16,9 @@
  */
 package org.fusesource.fabric.api;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
 
 public interface LockService {
 
-    Lock getLock(String path);
+    InterProcessLock getLock(String path);
 }

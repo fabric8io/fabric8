@@ -1,3 +1,4 @@
+
 <!--
   Copyright (C) FuseSource, Inc.
   http://fusesource.com
@@ -39,7 +40,7 @@
 
     <jaas:config name="karaf" rank="1">
         <jaas:module className="org.fusesource.fabric.jaas.ZookeeperLoginModule" flags="required">
-            path = fabric/authentication/users
+            path = /fabric/authentication/users
             encryption.name = ${encryption.name}
             encryption.enabled = ${encryption.enabled}
             encryption.prefix = ${encryption.prefix}

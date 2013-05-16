@@ -16,6 +16,10 @@
  */
 package org.fusesource.fabric.dosgi.impl;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.dosgi.api.Dispatched;
@@ -29,13 +33,8 @@ import org.fusesource.fabric.dosgi.tcp.ServerInvokerImpl;
 import org.fusesource.fabric.dosgi.util.AriesFrameworkUtil;
 import org.fusesource.fabric.dosgi.util.Utils;
 import org.fusesource.fabric.dosgi.util.UuidGenerator;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.hawtdispatch.Dispatch;
 import org.fusesource.hawtdispatch.DispatchQueue;
-import org.linkedin.zookeeper.tracker.NodeEvent;
-import org.linkedin.zookeeper.tracker.NodeEventsListener;
-import org.linkedin.zookeeper.tracker.ZKStringDataReader;
-import org.linkedin.zookeeper.tracker.ZooKeeperTreeTracker;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -51,6 +50,7 @@ import org.osgi.service.remoteserviceadmin.RemoteConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.net.URI;
@@ -77,7 +77,7 @@ import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_EXPORT
 import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_IMPORTED;
 import static org.osgi.service.remoteserviceadmin.RemoteConstants.SERVICE_IMPORTED_CONFIGS;
 
-public class Manager implements ServiceListener, ListenerHook, EventHook, FindHook, NodeEventsListener<String>, Dispatched {
+public class Manager implements ServiceListener, ListenerHook, EventHook, FindHook, PathChildrenCacheListener, Dispatched {
 
     public static final String CONFIG = "fabric-dosgi";
 
@@ -94,9 +94,9 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
     //
 
     // The zookeeper client
-    private final IZKClient zooKeeper;
+    private final CuratorFramework curator;
     // The tracked zookeeper tree
-    private ZooKeeperTreeTracker<String> tree;
+    private TreeCache tree;
     // Remote endpoints
     private final CapabilitySet<EndpointDescription> remoteEndpoints;
 
@@ -126,11 +126,11 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     private ServerInvoker server;
 
-    public Manager(BundleContext context, IZKClient zooKeeper) throws Exception {
-        this(context, zooKeeper, "tcp://0.0.0.0:2543", null, TimeUnit.MINUTES.toMillis(5));
+    public Manager(BundleContext context, CuratorFramework curator) throws Exception {
+        this(context, curator, "tcp://0.0.0.0:2543", null, TimeUnit.MINUTES.toMillis(5));
     }
 
-    public Manager(BundleContext context, IZKClient zooKeeper, String uri, String exportedAddress, long timeout) throws Exception {
+    public Manager(BundleContext context, CuratorFramework curator, String uri, String exportedAddress, long timeout) throws Exception {
         this.queue = Dispatch.createQueue();
         this.importedServices = new ConcurrentHashMap<EndpointDescription, Map<Long, ImportRegistration>>();
         this.exportedServices = new ConcurrentHashMap<ServiceReference, ExportRegistration>();
@@ -139,7 +139,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.remoteEndpoints = new CapabilitySet<EndpointDescription>(
                 Arrays.asList(Constants.OBJECTCLASS, ENDPOINT_FRAMEWORK_UUID), false);
         this.bundleContext = context;
-        this.zooKeeper = zooKeeper;
+        this.curator = curator;
         this.uri = uri;
         this.exportedAddress = exportedAddress;
         this.timeout = timeout;
@@ -153,12 +153,13 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         this.server.start();
         // ZooKeeper tracking
         try {
-            create(zooKeeper, DOSGI_REGISTRY, CreateMode.PERSISTENT);
+            create(curator, DOSGI_REGISTRY, CreateMode.PERSISTENT);
         } catch (KeeperException.NodeExistsException e) {
             // The node already exists, that's fine
         }
-        this.tree = new ZooKeeperTreeTracker<String>(this.zooKeeper, new ZKStringDataReader(), DOSGI_REGISTRY);
-        this.tree.track(this);
+        this.tree = new TreeCache(curator,  DOSGI_REGISTRY, false);
+        this.tree.getListenable().addListener(this);
+        this.tree.start();
         // UUID
         this.uuid = Utils.getUUID(this.bundleContext);
         // Service listener filter
@@ -176,7 +177,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         }
     }
 
-    public void destroy() {
+    public void destroy() throws IOException {
         for (Map<Long, ImportRegistration> registrations : this.importedServices.values()) {
             for (ImportRegistration registration : registrations.values()) {
                 registration.getImportedService().unregister();
@@ -187,7 +188,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         }
         this.server.stop();
         this.client.stop();
-        this.tree.destroy();
+        this.tree.close();
         if (registration != null) {
             this.registration.unregister();
         }
@@ -301,56 +302,6 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
 
     //
-    // NodeEventsListener
-    //
-
-    public void onEvents(final Collection<NodeEvent<String>> nodeEvents) {
-        try {
-            for (NodeEvent<String> event : nodeEvents) {
-                if (event.getDepth() == 0) {
-                    continue;
-                }
-                switch (event.getEventType()) {
-                    case ADDED: {
-                        EndpointDescription endpoint = Utils.getEndpointDescription(event.getData());
-                        remoteEndpoints.addCapability(endpoint);
-                        // Check existing listeners
-                        for (Map.Entry<ListenerInfo, SimpleFilter> entry : listeners.entrySet()) {
-                            if (CapabilitySet.matches(endpoint, entry.getValue())) {
-                                doImportService(endpoint, entry.getKey());
-                            }
-                        }
-                    }
-                    break;
-                    case UPDATED: {
-                        EndpointDescription endpoint = Utils.getEndpointDescription(event.getData());
-                        Map<Long, ImportRegistration> registrations = importedServices.get(endpoint);
-                        if (registrations != null) {
-                            for (ImportRegistration reg : registrations.values()) {
-                                reg.importedService.setProperties(new Hashtable<String, Object>(endpoint.getProperties()));
-                            }
-                        }
-                    }
-                    break;
-                    case DELETED: {
-                        EndpointDescription endpoint = Utils.getEndpointDescription(event.getData());
-                        remoteEndpoints.removeCapability(endpoint);
-                        Map<Long, ImportRegistration> registrations = importedServices.remove(endpoint);
-                        if (registrations != null) {
-                            for (ImportRegistration reg : registrations.values()) {
-                                reg.getImportedService().unregister();
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.info("Error when handling zookeeper events", e);
-        }
-    }
-
-    //
     // Export logic
     //
 
@@ -385,7 +336,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
             ExportRegistration registration = exportedServices.remove(reference);
             if (registration != null) {
                 server.unregisterService(registration.getExportedEndpoint().getId());
-                delete(zooKeeper, registration.getZooKeeperNode());
+                delete(curator, registration.getZooKeeperNode());
             }
         } catch (Exception e) {
             LOGGER.info("Error when unexporting endpoint", e);
@@ -438,7 +389,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
         String descStr = Utils.getEndpointDescriptionXML(description);
         // Publish in ZooKeeper
-        final String nodePath = create(zooKeeper, DOSGI_REGISTRY + "/" + uuid, descStr, CreateMode.EPHEMERAL);
+        final String nodePath = create(curator, DOSGI_REGISTRY + "/" + uuid, descStr, CreateMode.EPHEMERAL);
         // Return
         return new ExportRegistration(reference, description, nodePath);
     }
@@ -470,6 +421,45 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
 
     public DispatchQueue queue() {
         return queue;
+    }
+
+    @Override
+    public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent event) throws Exception {
+        switch (event.getType()) {
+            case CHILD_ADDED: {
+
+                EndpointDescription endpoint = Utils.getEndpointDescription(new String(event.getData().getData()));
+                remoteEndpoints.addCapability(endpoint);
+                // Check existing listeners
+                for (Map.Entry<ListenerInfo, SimpleFilter> entry : listeners.entrySet()) {
+                    if (CapabilitySet.matches(endpoint, entry.getValue())) {
+                        doImportService(endpoint, entry.getKey());
+                    }
+                }
+            }
+            break;
+            case CHILD_UPDATED: {
+                EndpointDescription endpoint = Utils.getEndpointDescription(new String(event.getData().getData()));
+                Map<Long, ImportRegistration> registrations = importedServices.get(endpoint);
+                if (registrations != null) {
+                    for (ImportRegistration reg : registrations.values()) {
+                        reg.importedService.setProperties(new Hashtable<String, Object>(endpoint.getProperties()));
+                    }
+                }
+            }
+            break;
+            case CHILD_REMOVED: {
+                EndpointDescription endpoint = Utils.getEndpointDescription(new String(event.getData().getData()));
+                remoteEndpoints.removeCapability(endpoint);
+                Map<Long, ImportRegistration> registrations = importedServices.remove(endpoint);
+                if (registrations != null) {
+                    for (ImportRegistration reg : registrations.values()) {
+                        reg.getImportedService().unregister();
+                    }
+                }
+            }
+            break;
+        }
     }
 
     class Factory implements ServiceFactory {

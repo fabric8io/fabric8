@@ -27,10 +27,9 @@ import de.kalpatec.pojosr.framework.launch.BundleDescriptor;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -97,8 +96,8 @@ public class EmbeddedFabricService {
 
         createZooKeeperCluster();
 
-        IZKClient client = getZooKeeperClient();
-        ((OsgiZkClient) client).waitForConnected();
+        CuratorFramework client = getZooKeeperClient();
+        client.getZookeeperClient().blockUntilConnectedOrTimedOut();
         getFabricService();
 
         dumpBundles();
@@ -211,7 +210,7 @@ public class EmbeddedFabricService {
         return service;
     }
 
-    public IZKClient getZooKeeperClient() throws Exception {
-        return getService(IZKClient.class, getRegistry());
+    public CuratorFramework getZooKeeperClient() throws Exception {
+        return getService(CuratorFramework.class, getRegistry());
     }
 }

@@ -16,26 +16,26 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
 
 import java.util.concurrent.Callable;
 
 public class WaitForZookeeperUrlChange implements Callable<String> {
 
-    private final IZKClient zookeeper;
+    private final CuratorFramework curator;
     private final String url;
     private boolean keepRunning = true;
 
-    public WaitForZookeeperUrlChange(IZKClient zookeeper, String url) {
-        this.zookeeper = zookeeper;
+    public WaitForZookeeperUrlChange(CuratorFramework curator, String url) {
+        this.curator = curator;
         this.url = url;
     }
 
     @Override
     public String call() {
         while (keepRunning) {
-            if (!url.equals(zookeeper.getConnectString())) {
-                return zookeeper.getConnectString();
+            if (!url.equals(curator.getZookeeperClient().getCurrentConnectionString())) {
+                return curator.getZookeeperClient().getCurrentConnectionString();
             } else {
                 try {
                     Thread.sleep(1000L);

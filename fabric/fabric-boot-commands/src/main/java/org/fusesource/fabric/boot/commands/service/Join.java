@@ -1,7 +1,7 @@
 package org.fusesource.fabric.boot.commands.service;
 
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 /**
@@ -13,7 +13,7 @@ public interface Join {
 
     void setConfigurationAdmin(ConfigurationAdmin configurationAdmin);
 
-    void setZooKeeper(IZKClient zooKeeper);
+    void setCurator(CuratorFramework zooKeeper);
 
     String getVersion();
 

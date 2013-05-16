@@ -19,17 +19,17 @@
 
 
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-    <reference id="zooKeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
     <bean id="registrationHandler" class="org.fusesource.fabric.web.FabricWebRegistrationHandler">
          <property name="fabricService" ref="fabricService"/>
-         <property name="zooKeeper" ref="zooKeeper"/>
+         <property name="curator" ref="curator"/>
     </bean>
 
     <service ref="registrationHandler">
         <interfaces>
             <value>org.ops4j.pax.web.service.spi.WebListener</value>
-            <value>org.linkedin.zookeeper.client.LifecycleListener</value>
+            <value>org.apache.curator.framework.state.ConnectionStateListener</value>
         </interfaces>
     </service>
 

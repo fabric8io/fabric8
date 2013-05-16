@@ -20,6 +20,8 @@
 
   <ext:property-placeholder/>
 
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
+
   <service id="fabricBridgeService" ref="fabricBridgeServiceFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
     <service-properties>
       <entry key="service.pid" value="org.fusesource.fabric.bridge"/>
@@ -31,9 +33,7 @@
         destroy-method="destroy">
     <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
-    <property name="zooKeeper">
-      <reference interface="org.fusesource.fabric.zookeeper.IZKClient"/>
-    </property>
+    <property name="curator" ref="curator"/>
     <property name="fabricService">
       <reference interface="org.fusesource.fabric.api.FabricService"/>
     </property>
@@ -50,9 +50,7 @@
         destroy-method="destroy">
     <!--<property name="containerName" value="${karaf.name}"/>-->
     <property name="bundleContext" ref="blueprintBundleContext"/>
-    <property name="zooKeeper">
-      <reference interface="org.fusesource.fabric.zookeeper.IZKClient"/>
-    </property>
+      <property name="curator" ref="curator"/>
     <property name="fabricService">
       <reference interface="org.fusesource.fabric.api.FabricService"/>
     </property>

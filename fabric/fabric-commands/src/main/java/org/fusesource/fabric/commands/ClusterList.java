@@ -18,20 +18,17 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.apache.zookeeper.KeeperException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @Command(name = "cluster-list", scope = "fabric", description = "Lists all ActiveMQ message brokers in the fabric, enabling you to see which brokers are grouped into clusters.")
@@ -57,16 +54,16 @@ public class ClusterList extends FabricCommand {
         return null;
     }
 
-    protected void printCluster(String dir, PrintStream out) throws InterruptedException, KeeperException, IOException, URISyntaxException {
+    protected void printCluster(String dir, PrintStream out) throws Exception {
         // do we have any clusters at all?
-        if (exists(getZooKeeper(), dir) == null) {
+        if (exists(getCurator(), dir) == null) {
             return;
         }
-        List<String> children = getAllChildren(getZooKeeper(), dir);
+        List<String> children = getChildren(getCurator(), dir);
         HashMap<String, HashMap<String,ClusterNode>> clusters = new HashMap<String, HashMap<String,ClusterNode>>();
         for (String child : children) {
             String childDir = dir + "/" + child;
-            byte[] data = getZooKeeper().getData(childDir);
+            byte[] data = getCurator().getData().forPath(childDir);
             if (data != null && data.length > 0) {
                 String text = new String(data).trim();
                 if (!text.isEmpty()) {
@@ -96,7 +93,7 @@ public class ClusterList extends FabricCommand {
                         if (services != null) {
                             if (!services.isEmpty()) {
                                 for (Object service : services) {
-                                    node.services.add(getSubstitutedData(getZooKeeper(), service.toString()));
+                                    node.services.add(getSubstitutedData(getCurator(), service.toString()));
                                 }
 
                                 node.masters.add(agent);

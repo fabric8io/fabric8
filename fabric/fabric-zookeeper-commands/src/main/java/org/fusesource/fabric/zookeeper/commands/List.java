@@ -16,10 +16,10 @@
  */
 package org.fusesource.fabric.zookeeper.commands;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.zookeeper.IZKClient;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
@@ -39,11 +39,11 @@ public class List extends ZooKeeperCommandSupport {
     //TODO - Be good to also have an option to show other ZK attributes for a node similar to ls -la
 
     @Override
-    protected void doExecute(IZKClient zk) throws Exception {
+    protected void doExecute(CuratorFramework zk) throws Exception {
         display(zk, path);
     }
 
-    private java.util.List<String> getPaths(IZKClient zk) throws Exception {
+    private java.util.List<String> getPaths(CuratorFramework zk) throws Exception {
         if (recursive) {
             return getAllChildren(zk, path);
         } else {
@@ -51,18 +51,18 @@ public class List extends ZooKeeperCommandSupport {
         }
     }
 
-    protected void display(IZKClient zk, String path) throws Exception {
+    protected void display(CuratorFramework curator, String path) throws Exception {
         if (!path.endsWith("/")) {
             path = path + "/";
         }
         if (!path.startsWith("/")) {
             path = "/" + path;
         }
-        java.util.List<String> paths = getPaths(zk);
+        java.util.List<String> paths = getPaths(curator);
 
         for(String p : paths) {
             if (display) {
-                byte[] data = zk.getData(path + p);
+                byte[] data = curator.getData().forPath(path + p);
                 if (data != null) {
                     System.out.printf("%s = %s\n", p, new String(data));
                 } else {

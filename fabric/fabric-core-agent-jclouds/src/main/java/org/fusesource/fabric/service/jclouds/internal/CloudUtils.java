@@ -17,7 +17,7 @@
 
 package org.fusesource.fabric.service.jclouds.internal;
 
-import org.fusesource.fabric.zookeeper.IZKClient;
+import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.karaf.core.Constants;
@@ -71,7 +71,7 @@ public class CloudUtils {
         return providerOptions;
     }
 
-    public static void registerProvider(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String name, final String provider, final String identity, final String credential, final Map<String, String> props) throws Exception {
+    public static void registerProvider(final CuratorFramework curator, final ConfigurationAdmin configurationAdmin, final String name, final String provider, final String identity, final String credential, final Map<String, String> props) throws Exception {
         Runnable registrationTask = new Runnable() {
             @Override
             public void run() {
@@ -102,23 +102,23 @@ public class CloudUtils {
 
                         configuration.update(dictionary);
 
-                        if (zooKeeper.isConnected()) {
-                            if (exists(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
+                        if (curator.getZookeeperClient().isConnected()) {
+                            if (exists(curator, ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(curator, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
 							Enumeration keys = dictionary.keys();
 							while (keys.hasMoreElements()) {
 								Object key = keys.nextElement();
 								Object value = dictionary.get(key);
 								if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-									setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
+									setData(curator, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
 								}
 							}
 							for (Map.Entry<String, String> entry : props.entrySet()) {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
                                 if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                    setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                    setData(curator, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                 }
                             }
                         } else {
@@ -134,7 +134,7 @@ public class CloudUtils {
     }
 
 
-    public static void registerApi(final IZKClient zooKeeper, final ConfigurationAdmin configurationAdmin, final String name, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
+    public static void registerApi(final CuratorFramework curator, final ConfigurationAdmin configurationAdmin, final String name, final String api, final String endpoint, final String identity, final String credential, final Map<String, String> props) throws Exception {
         Runnable registrationTask = new Runnable() {
             @Override
             public void run() {
@@ -166,9 +166,9 @@ public class CloudUtils {
 
                         configuration.update(dictionary);
 
-                        if (zooKeeper.isConnected()) {
-                            if (exists(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                create(zooKeeper, ZkPath.CLOUD_SERVICE.getPath(name));
+                        if (curator.getZookeeperClient().isConnected()) {
+                            if (exists(curator, ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(curator, ZkPath.CLOUD_SERVICE.getPath(name));
                             }
 
 							Enumeration keys = dictionary.keys();
@@ -176,7 +176,7 @@ public class CloudUtils {
 								Object key = keys.nextElement();
 								Object value = dictionary.get(key);
 								if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-									setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
+									setData(curator, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, String.valueOf(key)), String.valueOf(value));
 								}
 							}
 
@@ -184,7 +184,7 @@ public class CloudUtils {
                                 String key = entry.getKey();
                                 String value = entry.getValue();
                                 if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                    setData(zooKeeper, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                    setData(curator, ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                 }
                             }
                         } else {

@@ -17,9 +17,7 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -31,7 +29,6 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import javax.inject.Inject;
 import java.util.Dictionary;
 
 import static junit.framework.Assert.assertEquals;
