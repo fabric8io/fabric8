@@ -622,7 +622,7 @@ public class TreeCache implements Closeable
                         }
                 ));
 
-        Set<String> removedNodes = removedNodes = Sets.filter(Sets.newHashSet(currentData.keySet()), new Predicate<String>() {
+        Set<String> removedNodes = Sets.filter(Sets.newHashSet(currentData.keySet()), new Predicate<String>() {
             @Override
             public boolean apply(String input) {
                 if (input.matches(String.format(CHILD_OF_ZNODE_PATTERN, path))) {

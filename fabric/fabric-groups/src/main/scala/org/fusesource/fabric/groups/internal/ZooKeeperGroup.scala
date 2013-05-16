@@ -64,6 +64,7 @@ class ZooKeeperGroup(val curator: CuratorFramework, val root: String) extends Gr
   //val tree = new ZooKeeperTreeTracker[Array[Byte]](curator, new ZKByteArrayDataReader, root, 1)
   val tree = new TreeCache(curator, root, true)
   val joins = HashMap[String, Int]()
+  val values = HashMap[String,Array[Byte]]()
 
   var members = new LinkedHashMap[String, Array[Byte]]
 
@@ -109,14 +110,18 @@ class ZooKeeperGroup(val curator: CuratorFramework, val root: String) extends Gr
   def join(data:Array[Byte]=null): String = this.synchronized {
     val id = ZooKeeperUtils.create(curator, member_path_prefix, data, CreateMode.EPHEMERAL_SEQUENTIAL).stripPrefix(member_path_prefix)
     joins.put(id, 0)
+    values.put(id, data)
     id
   }
 
   def update(path:String, data:Array[Byte]=null): Unit = this.synchronized {
     joins.get(path) match {
-      case Some(ver) =>
-        val stat = curator.setData().withVersion(ver).forPath(member_path_prefix+path, data)
-        joins.put(path, stat.getVersion)
+      case Some(ver) =>  {
+        if (values.contains(path) && java.util.Arrays.equals(values.get(path).get, data)) {
+          val stat = curator.setData().forPath(member_path_prefix + path, data)
+          joins.put(path, stat.getVersion)
+        }
+      }
       case None => throw new IllegalArgumentException("Has not joined locally: "+path)
     }
   }

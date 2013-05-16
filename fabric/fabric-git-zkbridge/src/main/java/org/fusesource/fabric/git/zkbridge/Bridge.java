@@ -594,4 +594,12 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
         }
         return os.toByteArray();
     }
+
+    public long getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(long period) {
+        this.period = period;
+    }
 }

@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -59,15 +60,14 @@ public class ClusterList extends FabricCommand {
         if (exists(getCurator(), dir) == null) {
             return;
         }
-        List<String> children = getChildren(getCurator(), dir);
+        List<String> children = getAllChildren(getCurator(), dir);
         HashMap<String, HashMap<String,ClusterNode>> clusters = new HashMap<String, HashMap<String,ClusterNode>>();
         for (String child : children) {
-            String childDir = dir + "/" + child;
-            byte[] data = getCurator().getData().forPath(childDir);
+            byte[] data = getCurator().getData().forPath(child);
             if (data != null && data.length > 0) {
                 String text = new String(data).trim();
                 if (!text.isEmpty()) {
-                    String clusterName = getClusterName(dir, childDir);
+                    String clusterName = getClusterName(dir, child);
                     HashMap<String, ClusterNode> cluster = clusters.get(clusterName);
                     if (cluster == null) {
                         cluster = new HashMap<String, ClusterNode>();
