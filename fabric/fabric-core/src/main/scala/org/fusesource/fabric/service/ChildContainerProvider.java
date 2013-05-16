@@ -30,7 +30,7 @@ import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,8 +82,11 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                 }
 
                 Profile defaultProfile = parent.getVersion().getProfile("default");
-                String featuresUrls = listAsString(defaultProfile.getRepositories());
-                String features = listAsString(defaultProfile.getFeatures());
+                String featuresUrls = collectionAsString(defaultProfile.getRepositories());
+                Set<String> features = new LinkedHashSet<String>();
+                //TODO: This is a temporary fix till we address the url handlers in the deployment agent.
+                features.add("war");
+                features.addAll(defaultProfile.getFeatures());
 
                 String originalName = options.getName();
 
@@ -139,7 +142,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                         adminService.createInstance(containerName,
                                 sshPort,
                                 rmiServerPort,
-                                rmiRegistryPort, null, jvmOptsBuilder.toString(), features, featuresUrls);
+                                rmiRegistryPort, null, jvmOptsBuilder.toString(), collectionAsString(features), featuresUrls);
                         adminService.startInstance(containerName, null);
                     } catch (Throwable t) {
                         metadata.setFailure(t);
@@ -227,7 +230,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
         setData(curator, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
     }
 
-    private static String listAsString(List<String> value) {
+    private static String collectionAsString(Collection<String> value) {
         StringBuilder sb = new StringBuilder();
         boolean first = true;
         if (value != null) {
