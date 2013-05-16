@@ -18,19 +18,34 @@ package org.fusesource.fabric.git.hawtio;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Dictionary;
 
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.hawt.git.GitFacade;
+import io.hawt.util.Strings;
 
 /**
+ * A Fabric specific extension to hawtio-git which provides a JMX MBean to browsing/editing the configuration
+ * which uses a separate git clone of the Fabric's git repo so that it can be viewed/editted by tools such as
+ * <a href="http://hawt.io/">hawtio</a> without interfering with the git repo used by the fabric agent.
+ *
+ * So this watches the global master git repo URL and updates the hawtio mbean to use it. It should also do frequent
+ * pulls to keep in sync and it also stores the git clone within the karaf data directory.
  */
-public class FabricGitFacade extends GitFacade implements ManagedService {
+public class FabricGitFacade extends GitFacade implements ConfigurationListener {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGitFacade.class);
+    public static final String FABRIC_GIT_PID = "org.fusesource.fabric.git";
+    private ConfigurationAdmin configurationAdmin;
+    private boolean initialised;
+    private boolean initCalled;
 
     public boolean isCloneRemoteRepoOnStartup() {
         return true;
@@ -38,6 +53,14 @@ public class FabricGitFacade extends GitFacade implements ManagedService {
 
     public boolean isPullOnStartup() {
         return true;
+    }
+
+    public ConfigurationAdmin getConfigurationAdmin() {
+        return configurationAdmin;
+    }
+
+    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
     }
 
     public void init() throws Exception {
@@ -50,16 +73,57 @@ public class FabricGitFacade extends GitFacade implements ManagedService {
         }
         setConfigDirectory(fabricRoot);
 
-        super.init();
+        // TODO where should we get these from?
+        String username = "admin";
+        String password = "admin";
+        setCredentials(new UsernamePasswordCredentialsProvider(username, password));
+
+        initCalled = true;
+        updateConfiguration();
+        initCheck();
     }
 
-    /**
-     * Allows OSGi Config Admin to update the properties
-     */
-    public void updated(Dictionary<String, ?> values) throws ConfigurationException {
-        System.out.println("Config Admin properties updated: " + values);
-        LOG.info("Config Admin properties updated: " + values);
+    public void setRemoteRepository(String remoteRepository) {
+        super.setRemoteRepository(remoteRepository);
+        initCheck();
     }
 
+    protected void initCheck() {
+        String url = getRemoteRepository();
+        if (initCalled && !initialised && Strings.isNotBlank(url)) {
+            initialised = true;
+            try {
+                super.init();
+            } catch (Exception e) {
+                LOG.warn("Failed to initialise with remote repository: " + url + ". " + e, e);
+            }
+        }
+    }
 
+    public void configurationEvent(ConfigurationEvent event) {
+        String pid = event.getPid();
+        if (configurationAdmin != null && (FABRIC_GIT_PID.equals(pid) || FABRIC_GIT_PID.equals(event.getFactoryPid()))) {
+            updateConfiguration();
+        }
+    }
+
+    protected void updateConfiguration() {
+        Configuration config = null;
+        try {
+            config = configurationAdmin.getConfiguration(FABRIC_GIT_PID);
+        } catch (IOException e) {
+            LOG.warn("Could not get configuration for " + FABRIC_GIT_PID + ". " + e, e);
+        }
+        if (config != null) {
+            Dictionary<String, Object> values = config.getProperties();
+            if (values != null) {
+                Object url = values.get("fabric.git.url");
+                if (url instanceof String) {
+                    String fabricUrl = url.toString();
+                    LOG.info("GitFacade setting the hawtio remote git url to: " + fabricUrl);
+                    setRemoteRepository(fabricUrl);
+                }
+            }
+        }
+    }
 }

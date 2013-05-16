@@ -9,9 +9,19 @@
         </cm:default-properties>
     </cm:property-placeholder>
 
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
+
     <bean id="gitFacade" class="org.fusesource.fabric.git.hawtio.FabricGitFacade" init-method="init"
           destroy-method="destroy">
+        <cm:managed-properties persistent-id="org.fusesource.fabric.git" update-strategy="component-managed" update-method="updated"/>
         <property name="remoteRepository" value="${fabric.git.url}"/>
+        <property name="configurationAdmin" ref="configurationAdmin"/>
     </bean>
+
+    <service ref="gitFacade">
+        <interfaces>
+            <value>org.osgi.service.cm.ConfigurationListener</value>
+        </interfaces>
+    </service>
 </blueprint>
 
