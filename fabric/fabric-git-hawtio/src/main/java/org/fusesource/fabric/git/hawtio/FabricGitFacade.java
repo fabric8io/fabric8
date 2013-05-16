@@ -59,6 +59,18 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         return true;
     }
 
+    public boolean isCloneAllBranches() {
+        return true;
+    }
+
+    public boolean isPullBeforeOperation() {
+        return true;
+    }
+
+    public boolean isPushOnCommit() {
+        return true;
+    }
+
     public IZKClient getZookeeper() {
         return zookeeper;
     }
@@ -75,6 +87,19 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         this.configurationAdmin = configurationAdmin;
     }
 
+    public CredentialsProvider getCredentials() {
+        try {
+            String container = System.getProperty("karaf.name");
+            String login = ZooKeeperUtils.getContainerLogin(container);
+            String token = ZooKeeperUtils.generateContainerToken(zookeeper, container);
+            CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
+            setCredentials(cp);
+        } catch (Exception e) {
+            LOG.warn("Failed to get container credentials " + e, e);
+        }
+        return super.getCredentials();
+    }
+
     public void init() throws Exception {
         // default the directory to inside the karaf data directory
         String basePath = System.getProperty("karaf.data", "karaf/data") + File.separator + "git"
@@ -86,12 +111,10 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         }
         setConfigDirectory(fabricRoot);
         setCloneAllBranches(true);
-
-        String container = System.getProperty("karaf.name");
-        String login = ZooKeeperUtils.getContainerLogin(container);
-        String token = ZooKeeperUtils.generateContainerToken(zookeeper, container);
-        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
-        setCredentials(cp);
+        setCloneRemoteRepoOnStartup(true);
+        setPullBeforeOperation(true);
+        setPushOnCommit(true);
+        setPullOnStartup(true);
 
         initCalled = true;
         updateConfiguration();

@@ -5,12 +5,18 @@
     <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
+    <cm:property-placeholder id="git" persistent-id="org.fusesource.fabric.git.hawtio"
+                             placeholder-prefix="${" placeholder-suffix="}" update-strategy="reload">
+        <cm:default-properties>
+            <cm:property name="pullTimePeriod" value="2000"/>
+        </cm:default-properties>
+    </cm:property-placeholder>
+
     <bean id="gitFacade" class="org.fusesource.fabric.git.hawtio.FabricGitFacade" init-method="init"
           destroy-method="destroy">
-        <cm:managed-properties persistent-id="org.fusesource.fabric.git" update-strategy="component-managed"
-                               update-method="updated"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
         <property name="zookeeper" ref="zookeeper"/>
+        <property name="pullTimePeriod" value="${pullTimePeriod}"/>
     </bean>
 
     <service ref="gitFacade">
