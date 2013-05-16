@@ -426,16 +426,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 	}
 
     public String getZooKeeperUrl() {
-        try {
-            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
-            final String zooKeeperUrl = (String) config.getProperties().get("zookeeper.url");
-            if (zooKeeperUrl == null) {
-                throw new IllegalStateException("Unable to find the zookeeper url");
-            }
-            return zooKeeperUrl;
-        } catch (Exception e) {
-            throw new FabricException("Unable to load zookeeper current url", e);
-        }
+        return fabricService.getZookeeperUrl();
     }
 
     public void createCluster(List<String> containers) {
