@@ -21,9 +21,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Dictionary;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -49,7 +49,7 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
     private ConfigurationAdmin configurationAdmin;
     private boolean initialised;
     private boolean initCalled;
-    private IZKClient zookeeper;
+    private CuratorFramework curator;
 
     public boolean isCloneRemoteRepoOnStartup() {
         return true;
@@ -71,12 +71,12 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         return true;
     }
 
-    public IZKClient getZookeeper() {
-        return zookeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZookeeper(IZKClient zookeeper) {
-        this.zookeeper = zookeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {
@@ -91,7 +91,7 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         try {
             String container = System.getProperty("karaf.name");
             String login = ZooKeeperUtils.getContainerLogin(container);
-            String token = ZooKeeperUtils.generateContainerToken(zookeeper, container);
+            String token = ZooKeeperUtils.generateContainerToken(curator, container);
             CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
             setCredentials(cp);
         } catch (Exception e) {
