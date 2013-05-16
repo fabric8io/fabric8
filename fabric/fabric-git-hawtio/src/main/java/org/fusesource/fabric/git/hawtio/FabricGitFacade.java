@@ -21,7 +21,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Dictionary;
 
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.fusesource.fabric.zookeeper.IZKClient;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
@@ -36,7 +39,7 @@ import io.hawt.util.Strings;
  * A Fabric specific extension to hawtio-git which provides a JMX MBean to browsing/editing the configuration
  * which uses a separate git clone of the Fabric's git repo so that it can be viewed/editted by tools such as
  * <a href="http://hawt.io/">hawtio</a> without interfering with the git repo used by the fabric agent.
- *
+ * <p/>
  * So this watches the global master git repo URL and updates the hawtio mbean to use it. It should also do frequent
  * pulls to keep in sync and it also stores the git clone within the karaf data directory.
  */
@@ -46,6 +49,7 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
     private ConfigurationAdmin configurationAdmin;
     private boolean initialised;
     private boolean initCalled;
+    private IZKClient zookeeper;
 
     public boolean isCloneRemoteRepoOnStartup() {
         return true;
@@ -53,6 +57,14 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
 
     public boolean isPullOnStartup() {
         return true;
+    }
+
+    public IZKClient getZookeeper() {
+        return zookeeper;
+    }
+
+    public void setZookeeper(IZKClient zookeeper) {
+        this.zookeeper = zookeeper;
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {
@@ -65,7 +77,8 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
 
     public void init() throws Exception {
         // default the directory to inside the karaf data directory
-        String basePath = System.getProperty("karaf.data", "karaf/data") + File.separator + "git" + File.separator;
+        String basePath = System.getProperty("karaf.data", "karaf/data") + File.separator + "git"
+                + File.separator;
         String fabricGitPath = basePath + "fabric-edit";
         File fabricRoot = new File(fabricGitPath);
         if (!fabricRoot.exists() && !fabricRoot.mkdirs()) {
@@ -73,10 +86,11 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         }
         setConfigDirectory(fabricRoot);
 
-        // TODO where should we get these from?
-        String username = "admin";
-        String password = "admin";
-        setCredentials(new UsernamePasswordCredentialsProvider(username, password));
+        String container = System.getProperty("karaf.name");
+        String login = ZooKeeperUtils.getContainerLogin(container);
+        String token = ZooKeeperUtils.generateContainerToken(zookeeper, container);
+        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
+        setCredentials(cp);
 
         initCalled = true;
         updateConfiguration();
@@ -102,7 +116,8 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
 
     public void configurationEvent(ConfigurationEvent event) {
         String pid = event.getPid();
-        if (configurationAdmin != null && (FABRIC_GIT_PID.equals(pid) || FABRIC_GIT_PID.equals(event.getFactoryPid()))) {
+        if (configurationAdmin != null && (FABRIC_GIT_PID.equals(pid) || FABRIC_GIT_PID
+                .equals(event.getFactoryPid()))) {
             updateConfiguration();
         }
     }

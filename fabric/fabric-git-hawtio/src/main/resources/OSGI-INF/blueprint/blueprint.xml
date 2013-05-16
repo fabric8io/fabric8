@@ -2,20 +2,15 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <cm:property-placeholder id="org.fusesource.fabric.git" persistent-id="org.fusesource.fabric.git.server"
-                             placeholder-prefix="${" placeholder-suffix="}" update-strategy="reload">
-        <cm:default-properties>
-          <cm:property name="fabric.git.url" value="" />
-        </cm:default-properties>
-    </cm:property-placeholder>
-
+    <reference id="zookeeper" interface="org.fusesource.fabric.zookeeper.IZKClient"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <bean id="gitFacade" class="org.fusesource.fabric.git.hawtio.FabricGitFacade" init-method="init"
           destroy-method="destroy">
-        <cm:managed-properties persistent-id="org.fusesource.fabric.git" update-strategy="component-managed" update-method="updated"/>
-        <property name="remoteRepository" value="${fabric.git.url}"/>
+        <cm:managed-properties persistent-id="org.fusesource.fabric.git" update-strategy="component-managed"
+                               update-method="updated"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
+        <property name="zookeeper" ref="zookeeper"/>
     </bean>
 
     <service ref="gitFacade">
