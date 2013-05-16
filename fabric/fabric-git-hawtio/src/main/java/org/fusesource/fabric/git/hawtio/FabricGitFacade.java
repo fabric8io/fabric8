@@ -85,6 +85,7 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
             throw new FileNotFoundException("Could not found git root:" + basePath);
         }
         setConfigDirectory(fabricRoot);
+        setCloneAllBranches(true);
 
         String container = System.getProperty("karaf.name");
         String login = ZooKeeperUtils.getContainerLogin(container);
