@@ -55,6 +55,11 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
         setDefaultRemoteRepository(null);
     }
 
+    @Override
+    protected String getDefaultObjectName() {
+        return "io.hawt.git:type=GitFacade,repo=fabric";
+    }
+
     public boolean isCloneRemoteRepoOnStartup() {
         return true;
     }
