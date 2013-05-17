@@ -51,6 +51,10 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
     private boolean initCalled;
     private CuratorFramework curator;
 
+    public FabricGitFacade() {
+        setDefaultRemoteRepository(null);
+    }
+
     public boolean isCloneRemoteRepoOnStartup() {
         return true;
     }
