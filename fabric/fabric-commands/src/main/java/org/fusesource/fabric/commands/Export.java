@@ -73,7 +73,6 @@ public class Export extends FabricCommand {
             regex = merge(include, regex);
         }
         export(curator, topLevel);
-        System.out.printf("Export to %s completed successfully\n", target);
     }
 
     private void delete(File parent) throws Exception {
@@ -104,10 +103,12 @@ public class Export extends FabricCommand {
         SortedSet<File> directories = new TreeSet<File>();
         Map<File, String> settings = new HashMap<File, String>();
 
+        boolean founMatch = false;
         for(String p : paths) {
             if (!matches(include, p, true) || matches(exclude, p, false) || matches(profile,p,false)) {
                 continue;
             }
+            founMatch = true;
             byte[] data = curator.getData().forPath(p);
             if (data != null && data.length > 0) {
                 String name = p;
@@ -135,6 +136,11 @@ public class Export extends FabricCommand {
             } else {
                 directories.add(new File(target + File.separator + p));
             }
+        }
+
+        if (!founMatch) {
+            System.out.println("No entry matched the criteria.");
+            return;
         }
 
         if (delete) {
@@ -193,6 +199,8 @@ public class Export extends FabricCommand {
                 System.out.printf("Writing value \"%s\" to file : %s\n", settings.get(f), f);
             }
         }
+
+        System.out.printf("Export to %s completed successfully\n", target);
     }
 
     @Override
