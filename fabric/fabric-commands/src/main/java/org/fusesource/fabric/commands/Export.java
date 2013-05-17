@@ -128,7 +128,7 @@ public class Export extends FabricCommand {
                 if(matches(containerProperties,p,false)) {
                   byte[] parentData = curator.getData().forPath(p.substring(0,p.lastIndexOf("/")));
                     if (parentData != null) {
-                        String parentValue = "parents=" + new String(parentData);
+                        String parentValue = new String(parentData);
                         value += "\n" + parentValue;
                     }
                 }

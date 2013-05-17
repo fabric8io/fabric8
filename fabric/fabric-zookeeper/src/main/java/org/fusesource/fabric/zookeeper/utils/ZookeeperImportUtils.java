@@ -47,7 +47,7 @@ public class ZookeeperImportUtils {
     public static void importFromFileSystem(CuratorFramework curator, String source, String target, String includeRegex[], String excludeRegex[], boolean delete, boolean dryRun, boolean verbose) throws Exception {
         Map<String, String> settings = new TreeMap<String, String>();
         File s = new File(source);
-        getCandidates(curator, s, s, settings, target);
+        getCandidates(s, s, settings, target);
         List<Pattern> include = getPatterns(includeRegex);
         List<Pattern> exclude = getPatterns(excludeRegex);
 
@@ -118,13 +118,13 @@ public class ZookeeperImportUtils {
     }
 
 
-    private static void getCandidates(CuratorFramework curator, File parent, File current, Map<String, String> settings, String target) throws Exception {
+    private static void getCandidates(File parent, File current, Map<String, String> settings, String target) throws Exception {
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
         List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
         List<Pattern> attributes = getPatterns(new String[]{RegexSupport.PROFILE_ATTRIBUTES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
-                getCandidates(curator, parent, child, settings, target);
+                getCandidates(parent, child, settings, target);
             }
             String p = buildZKPath(parent, current).replaceFirst("/", "");
             if (!matches(profile, "/" + p, false)) {
