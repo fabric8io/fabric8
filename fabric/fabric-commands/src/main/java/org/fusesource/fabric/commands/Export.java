@@ -105,12 +105,11 @@ public class Export extends FabricCommand {
         Map<File, String> settings = new HashMap<File, String>();
 
         for(String p : paths) {
-            p = path + p;
             if (!matches(include, p, true) || matches(exclude, p, false) || matches(profile,p,false)) {
                 continue;
             }
             byte[] data = curator.getData().forPath(p);
-            if (data != null) {
+            if (data != null && data.length > 0) {
                 String name = p;
                 //Znodes that translate into folders and also have data need to change their name to avoid a collision.
                 if (!p.contains(".") || p.endsWith("fabric-ensemble")) {
