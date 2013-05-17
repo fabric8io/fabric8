@@ -20,6 +20,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -52,6 +53,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
@@ -536,6 +538,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         try {
             String path = ZkProfiles.getPath(version, profile);
             create(curator, path);
+            createDefault(curator, ZKPaths.makePath(path, "org.fusesource.fabric.agent.properties"), "#Profile:" + profile);
         } catch (Exception e) {
             throw new FabricException(e);
         }
