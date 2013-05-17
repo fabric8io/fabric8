@@ -154,6 +154,14 @@ object Services {
     session
   }
 
+  def invalidate_session(request: HttpServletRequest): Boolean = {
+    val session: HttpSession = request.getSession(false)
+    if (session != null) {
+      session.invalidate()
+    }
+    true
+  }
+
   def jmx_username(request:HttpServletRequest) = get_session(request).getAttribute("username").asInstanceOf[String]
 
   def jmx_password(request:HttpServletRequest) = get_session(request).getAttribute("password").asInstanceOf[String]

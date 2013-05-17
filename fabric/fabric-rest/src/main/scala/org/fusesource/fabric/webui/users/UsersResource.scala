@@ -23,6 +23,7 @@ import core.Context
 import org.apache.karaf.jaas.boot.principal.{UserPrincipal, RolePrincipal}
 import com.sun.jersey.api.core.ResourceContext
 import org.fusesource.fabric.webui.system.Authenticator
+import javax.servlet.http.HttpServletRequest
 
 class CreateUserDTO {
   @JsonProperty
@@ -53,7 +54,7 @@ class RoleResource(@Context rc: ResourceContext, self: RolePrincipal, user: Stri
 
 }
 
-class UserResource(@Context rc: ResourceContext) extends BaseResource {
+class UserResource(@Context rc: ResourceContext, val request:HttpServletRequest) extends BaseResource {
 
   val backing_engine = rc.getResource(classOf[Authenticator]).auth_backing_engine
 
@@ -68,11 +69,19 @@ class UserResource(@Context rc: ResourceContext) extends BaseResource {
   @DELETE
   def delete: Unit = {
     backing_engine.deleteUser(id)
+    if (id.equals(Services.jmx_username(request))) {
+      Services.invalidate_session(request)
+    }
   }
 
   @PUT
   def create(user: CreateUserDTO) = {
     backing_engine.addUser(id, user.password)
+    if (id.equals(Services.jmx_username(request))) {
+      val session = Services.get_session(request);
+      session.setAttribute("password", user.password);
+      Services.jmx_template.clear();
+    }
   }
 
   @Path("roles/{role}")
@@ -88,11 +97,14 @@ class UsersResource(@Context rc: ResourceContext) extends BaseResource {
 
   val backing_engine = rc.getResource(classOf[Authenticator]).auth_backing_engine
 
+  @Context
+  var request:HttpServletRequest = null
+
   @GET
   override def get(): Array[UserResource] = {
     iter(backing_engine.listUsers()).map {
       principal =>
-        val user = new UserResource(rc)
+        val user = new UserResource(rc, request)
         user.id = principal.getName
         user
     }.toArray
@@ -100,7 +112,7 @@ class UsersResource(@Context rc: ResourceContext) extends BaseResource {
 
   @Path("{id}")
   def assigned(@PathParam("id") id: String): UserResource = {
-    val user = new UserResource(rc)
+    val user = new UserResource(rc, request)
     user.id = id
     user
   }

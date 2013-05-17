@@ -74,7 +74,7 @@ define [
 
       @dialog.bind "shown", =>
         @body.find("input[type='text']:first").focus()
-        $("input").keypress (event) =>
+        $("input").keypress (e) =>
           if e.which == 13
             if !$(e.eventTarget).hasClass("no-submit")
               false

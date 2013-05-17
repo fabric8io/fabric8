@@ -112,12 +112,10 @@ class SystemResource extends BaseResource {
   @GET
   @Path("logout")
   def logout(@Context request: HttpServletRequest): Boolean = {
-    val session: HttpSession = request.getSession(false)
-    if (session != null) {
-      session.invalidate()
-    }
-    true
+    Services.invalidate_session(request)
   }
+
+
 
   @GET
   @Path("whoami")
