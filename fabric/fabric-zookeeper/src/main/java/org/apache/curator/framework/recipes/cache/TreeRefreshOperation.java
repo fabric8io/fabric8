@@ -18,6 +18,8 @@
  */
 package org.apache.curator.framework.recipes.cache;
 
+import com.google.common.base.Preconditions;
+
 class TreeRefreshOperation implements Operation
 {
     private final TreeCache cache;
@@ -26,9 +28,9 @@ class TreeRefreshOperation implements Operation
 
     TreeRefreshOperation(TreeCache cache, String path, TreeCache.RefreshMode mode)
     {
-        this.cache = cache;
-        this.path = path;
-        this.mode = mode;
+        this.cache = Preconditions.checkNotNull(cache,"cache");
+        this.path = Preconditions.checkNotNull(path,"path");
+        this.mode = Preconditions.checkNotNull(mode,"mode");
     }
 
     @Override

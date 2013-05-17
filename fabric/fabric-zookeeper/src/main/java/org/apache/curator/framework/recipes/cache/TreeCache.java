@@ -88,7 +88,12 @@ public class TreeCache implements Closeable
         @Override
         public void process(WatchedEvent event)
         {
-            offerOperation(new TreeRefreshOperation(TreeCache.this, event.getPath(), RefreshMode.STANDARD));
+            switch (event.getType()) {
+                case None:
+                    break;
+                default:
+                offerOperation(new TreeRefreshOperation(TreeCache.this, event.getPath(), RefreshMode.STANDARD));
+            }
         }
     };
 
