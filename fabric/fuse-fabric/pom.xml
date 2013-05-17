@@ -30,6 +30,10 @@
     <name>Fuse Fabric :: Binary Distribution</name>
     <description>Fuse Fabric :: Binary Distribution</description>
 
+    <properties>
+        <developerUserPassword></developerUserPassword>
+    </properties>
+
        <prerequisites>
            <maven>3.0.2</maven>
        </prerequisites>
@@ -502,4 +506,16 @@
            	</plugins>
            </pluginManagement>
        </build>
+
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <developerUserPassword>admin=admin,admin</developerUserPassword>
+            </properties>
+        </profile>
+    </profiles>
    </project>
