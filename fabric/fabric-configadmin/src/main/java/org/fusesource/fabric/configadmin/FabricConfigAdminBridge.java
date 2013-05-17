@@ -106,7 +106,9 @@ public class FabricConfigAdminBridge implements Runnable {
                     }
                     config.update(c);
                 } else {
-                    LOGGER.info("Ignoring configuration {} (no changes)", config.getPid());
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Ignoring configuration {} (no changes)", config.getPid());
+                    }
                 }
             }
             for (Configuration config : configs) {
