@@ -194,9 +194,13 @@ public class ProfileImpl implements Profile {
     }
 
     public void setParents(Profile[] parents) {
-        if (isLocked()) {
+        if (parents == null) {
+            setAttribute(PARENTS, null);
+            return;
+        } else if (isLocked()) {
             throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
         }
+
         try {
             StringBuilder sb = new StringBuilder();
             for (Profile parent : parents) {
