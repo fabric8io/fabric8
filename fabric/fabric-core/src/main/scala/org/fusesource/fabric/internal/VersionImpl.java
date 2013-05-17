@@ -116,6 +116,11 @@ public class VersionImpl implements Version {
     }
 
     @Override
+    public boolean hasProfile(String profileId) {
+        return service.getDataStore().hasProfile(id, profileId);
+    }
+
+    @Override
     public void delete() {
         service.getDataStore().deleteVersion(id);
     }

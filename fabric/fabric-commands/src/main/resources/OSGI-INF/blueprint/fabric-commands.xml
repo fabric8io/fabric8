@@ -293,6 +293,34 @@
                 <entry key="--version" value-ref="versionCompleter"/>
             </optional-completers>
         </command>
+        <command name="fabric/profile-copy">
+            <action class="org.fusesource.fabric.commands.ProfileCopy">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="curator" ref="curator"/>
+            </action>
+            <completers>
+                <ref component-id="profileCompleter"/>
+                <ref component-id="profileCompleter"/>
+                <null/>
+            </completers>
+            <optional-completers>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
+        </command>
+        <command name="fabric/profile-rename">
+            <action class="org.fusesource.fabric.commands.ProfileRename">
+                <property name="fabricService" ref="fabricService"/>
+                <property name="curator" ref="curator"/>
+            </action>
+            <completers>
+                <ref component-id="profileCompleter"/>
+                <ref component-id="profileCompleter"/>
+                <null/>
+            </completers>
+            <optional-completers>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
+        </command>
         <command name="fabric/profile-delete">
             <action class="org.fusesource.fabric.commands.ProfileDelete">
                 <property name="fabricService" ref="fabricService"/>

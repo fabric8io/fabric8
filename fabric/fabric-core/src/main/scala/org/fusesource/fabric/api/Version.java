@@ -66,6 +66,8 @@ public interface Version extends Comparable<Version>, HasId {
 
     Profile createProfile(String profileId);
 
+    boolean hasProfile(String profileId);
+
     void delete();
 
 }
