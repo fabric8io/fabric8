@@ -31,8 +31,8 @@
     <property name="fabricService" ref="fabricservice"/>
   </bean>
 
-  <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.ZKClientFactoryBean">
-    <property name="timeoutText" value="30s"/>
+  <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean">
+    <property name="timeout" value="30000"/>
     <property name="connectString" value="localhost:2181"/>
   </bean>
 

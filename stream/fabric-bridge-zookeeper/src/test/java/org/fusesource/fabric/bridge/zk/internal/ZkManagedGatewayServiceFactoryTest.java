@@ -103,7 +103,7 @@ public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSup
     @Before
     public void setUp() {
         serviceFactory = new ZkManagedGatewayServiceFactory();
-        serviceFactory.setZooKeeper(((FabricServiceImpl)fabricService).getZooKeeper());
+        serviceFactory.setZooKeeper(((FabricServiceImpl)fabricService).getCurator());
         serviceFactory.setFabricService(fabricService);
         serviceFactory.setBundleContext(bundleContext);
     }

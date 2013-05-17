@@ -116,7 +116,7 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
     @Before
     public void setUp() {
         serviceFactory = new ZkManagedBridgeServiceFactory();
-        serviceFactory.setZooKeeper(((FabricServiceImpl)fabricService).getZooKeeper());
+        serviceFactory.setZooKeeper(((FabricServiceImpl)fabricService).getCurator());
         serviceFactory.setFabricService(fabricService);
         serviceFactory.setBundleContext(bundleContext);
     }
