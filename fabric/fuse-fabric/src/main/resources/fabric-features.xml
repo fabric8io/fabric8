@@ -22,6 +22,7 @@
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
     <repository>mvn:org.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
+    <repository>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</repository>
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
