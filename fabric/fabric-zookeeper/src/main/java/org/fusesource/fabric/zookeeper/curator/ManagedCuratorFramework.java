@@ -55,7 +55,6 @@ import static org.fusesource.fabric.zookeeper.curator.Constants.CONNECTION_TIMEO
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_MAX_SLEEP_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
-import static org.fusesource.fabric.zookeeper.curator.Constants.ENSEMBLE_ID;
 import static org.fusesource.fabric.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
 import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_BASE_SLEEP_TIME_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_MAX_RETRIES;
@@ -73,7 +72,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     private final BundleContext bundleContext;
     private final Map<String, ACLProvider> aclProviders = new HashMap<String, ACLProvider>();
     private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
     private CuratorFramework curatorFramework;
     private ServiceRegistration registration;
