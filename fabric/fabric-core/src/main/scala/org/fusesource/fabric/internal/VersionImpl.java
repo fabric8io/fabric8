@@ -16,15 +16,10 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.api.VersionSequence;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class VersionImpl implements Version {
 
@@ -119,6 +114,62 @@ public class VersionImpl implements Version {
     public boolean hasProfile(String profileId) {
         return service.getDataStore().hasProfile(id, profileId);
     }
+
+    @Override
+    public void copyProfile(String sourceId, String targetId, boolean force) {
+
+        maybeDeleteProfile(targetId, force);
+
+        for (Profile profile : this.getProfiles()) {
+            if (sourceId.equals(profile.getId())) {
+                Profile targetProfile = this.createProfile(targetId);
+                targetProfile.setParents(profile.getParents());
+                targetProfile.setConfigurations(profile.getConfigurations());
+                for (Map.Entry<String, String> entry : profile.getAttributes().entrySet()) {
+                    targetProfile.setAttribute(entry.getKey(), entry.getValue());
+                }
+                return;
+            }
+        }
+    }
+
+    private void maybeDeleteProfile(String targetId, boolean force) {
+        if (force) {
+            Profile p = this.getProfile(targetId);
+
+            if (p != null) {
+                p.delete();
+            }
+        }
+    }
+
+    @Override
+    public void renameProfile(String profileId, String newId, boolean force) {
+
+        maybeDeleteProfile(newId, force);
+
+        for (Profile profile : this.getProfiles()) {
+            if (profileId.equals(profile.getId())) {
+                Profile targetProfile = this.createProfile(newId);
+                targetProfile.setParents(profile.getParents());
+                targetProfile.setConfigurations(profile.getConfigurations());
+                for (Map.Entry<String, String> entry : profile.getAttributes().entrySet()) {
+                    targetProfile.setAttribute(entry.getKey(), entry.getValue());
+                }
+
+                for (Container container : profile.getAssociatedContainers()) {
+                    Profile[] containerProfiles = container.getProfiles();
+                    Set<Profile> profileSet = new HashSet<Profile>(Arrays.asList(containerProfiles));
+                    profileSet.remove(profile);
+                    profileSet.add(targetProfile);
+                    container.setProfiles(profileSet.toArray(new Profile[profileSet.size()]));
+                }
+                maybeDeleteProfile(profileId, true);
+                return;
+            }
+        }
+    }
+
 
     @Override
     public void delete() {

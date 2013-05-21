@@ -577,6 +577,22 @@ public class FabricManager implements FabricManagerMBean {
 
     }
 
+    @Override
+    public void copyProfile(String versionId, String sourceId, String targetId, boolean force) {
+        Version v = getFabricService().getVersion(versionId);
+        if (v != null) {
+            v.copyProfile(sourceId, targetId, force);
+        }
+    }
+
+    @Override
+    public void renameProfile(String versionId, String profileId, String newId, boolean force) {
+        Version v = getFabricService().getVersion(versionId);
+        if (v != null) {
+            v.renameProfile(profileId, newId, force);
+        }
+    }
+
 /*
     public IZKClient getCurator() {
         return getFabricService().getCurator();

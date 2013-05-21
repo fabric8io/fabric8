@@ -66,6 +66,10 @@ public interface Version extends Comparable<Version>, HasId {
 
     Profile createProfile(String profileId);
 
+    void copyProfile(String sourceId, String targetId, boolean force);
+
+    void renameProfile(String sourceId, String targetId, boolean force);
+
     boolean hasProfile(String profileId);
 
     void delete();

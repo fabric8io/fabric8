@@ -4,15 +4,8 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
@@ -47,29 +40,10 @@ public class ProfileRename extends FabricCommand {
             if (!force) {
                 System.out.println("New name " + newName + " already exists. Use --force if you want to overwrite.");
                 return null;
-            } else {
-
-            }   ver.getProfile(newName).delete();
-        }
-
-        for (Profile profile : ver.getProfiles()) {
-            if (profileName.equals(profile.getId())) {
-                Profile targetProfile = ver.createProfile(newName);
-                targetProfile.setParents(profile.getParents());
-                targetProfile.setConfigurations(profile.getConfigurations());
-                for (Map.Entry<String, String> entry : profile.getAttributes().entrySet()) {
-                    targetProfile.setAttribute(entry.getKey(), entry.getValue());
-                }
-
-                for (Container container : profile.getAssociatedContainers()) {
-                    Profile[] containerProfiles = container.getProfiles();
-                    Set<Profile> profileSet = new HashSet<Profile>(Arrays.asList(containerProfiles));
-                    profileSet.remove(profile);
-                    profileSet.add(targetProfile);
-                    container.setProfiles(profileSet.toArray(new Profile[profileSet.size()]));
-                }
             }
         }
+
+        ver.renameProfile(profileName, newName, force);
         return null;
     }
 

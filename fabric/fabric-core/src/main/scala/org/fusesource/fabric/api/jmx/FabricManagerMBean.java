@@ -145,6 +145,10 @@ public interface FabricManagerMBean {
 
     List<Map<String, Object>> versions(List<String> fields);
 
+    void copyProfile(String versionId, String sourceId, String targetId, boolean force);
+
+    void renameProfile(String versionId, String profileId, String newId, boolean force);
+
     String getZookeeperInfo(String name);
 
     String getZookeeperUrl();
