@@ -17,6 +17,8 @@
 package org.fusesource.fabric.zookeeper.utils;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -129,6 +131,25 @@ public final class ZooKeeperUtils {
             allChildren.addAll(getAllChildren(curator, fullPath));
         }
         return allChildren;
+    }
+
+
+    public static byte[] getByteData(TreeCache cache, String path) throws Exception {
+        ChildData cacheData = cache.getCurrentData(path);
+        if (cacheData != null) {
+            return cacheData.getData();
+        } else {
+            return null;
+        }
+    }
+
+    public static String getStringData(TreeCache cache, String path) throws Exception {
+        byte[] data = getByteData(cache, path);
+        if (data == null) {
+            return null;
+        } else {
+            return new String(data, UTF_8);
+        }
     }
 
     public static String getStringData(CuratorFramework curator, String path) throws Exception {

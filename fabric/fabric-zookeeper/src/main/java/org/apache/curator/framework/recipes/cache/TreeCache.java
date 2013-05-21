@@ -22,6 +22,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -48,8 +51,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Exchanger;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -77,7 +80,20 @@ public class TreeCache implements Closeable
     private final EnsurePath ensurePath;
     private final BlockingQueue<Operation> operations = new LinkedBlockingQueue<Operation>();
     private final ListenerContainer<PathChildrenCacheListener> listeners = new ListenerContainer<PathChildrenCacheListener>();
-    private final ConcurrentMap<String, ChildData> currentData = Maps.newConcurrentMap();
+
+    private final LoadingCache<String, ChildData> currentData = CacheBuilder.newBuilder().build(new CacheLoader<String, ChildData>() {
+        @Override
+        public ChildData load(String key) throws Exception {
+            Stat stat = client.checkExists().forPath(key);
+            if (stat!= null) {
+                byte[] bytes = dataIsCompressed ? client.getData().decompressed().forPath(key) : client.getData().forPath(key);
+                return  new ChildData(key, stat, bytes);
+            } else {
+                return null;
+            }
+        }
+    });
+
     private final AtomicReference<Map<String, ChildData>> initialSet = new AtomicReference<Map<String, ChildData>>();
 
     private static final ChildData NULL_CHILD_DATA = new ChildData(null, null, null);
@@ -372,7 +388,7 @@ public class TreeCache implements Closeable
      */
     public List<ChildData> getCurrentData()
     {
-        return ImmutableList.copyOf(Sets.<ChildData>newTreeSet(currentData.values()));
+        return ImmutableList.copyOf(Sets.<ChildData>newTreeSet(currentData.asMap().values()));
     }
 
     /**
@@ -385,7 +401,38 @@ public class TreeCache implements Closeable
      */
     public ChildData getCurrentData(String fullPath)
     {
-        return currentData.get(fullPath);
+        try {
+            return currentData.get(fullPath);
+        } catch (ExecutionException e) {
+            return null;
+        } catch (CacheLoader.InvalidCacheLoadException e) {
+            return null;
+        }
+    }
+
+
+    public List<ChildData> getChildren(String fullPath)
+    {
+        List<ChildData> children = Lists.newArrayList();
+        for (Map.Entry<String, ChildData> entry : currentData.asMap().entrySet()) {
+            String path = entry.getKey();
+            if (path.matches(fullPath+"/[^ /]+")) {
+                children.add(entry.getValue());
+            }
+        }
+        return children;
+    }
+
+    public List<String> getChildrenNames(String fullPath)
+    {
+        List<String> children = Lists.newArrayList();
+        for (Map.Entry<String, ChildData> entry : currentData.asMap().entrySet()) {
+            String path = entry.getKey();
+            if (path.matches(fullPath+"/[^ /]+")) {
+                children.add(path.substring(fullPath.length() + 1));
+            }
+        }
+        return children;
     }
 
     /**
@@ -409,7 +456,7 @@ public class TreeCache implements Closeable
      */
     public boolean clearDataBytes(String fullPath, int ifVersion)
     {
-        ChildData data = currentData.get(fullPath);
+        ChildData data = currentData.getIfPresent(fullPath);
         if ( data != null )
         {
             if ( (ifVersion < 0) || (ifVersion == data.getStat().getVersion()) )
@@ -428,7 +475,7 @@ public class TreeCache implements Closeable
      */
     public void clearAndRefresh() throws Exception
     {
-        currentData.clear();
+        currentData.invalidateAll();
         offerOperation(new TreeRefreshOperation(this, path, RefreshMode.STANDARD));
     }
 
@@ -438,7 +485,7 @@ public class TreeCache implements Closeable
      */
     public void clear()
     {
-        currentData.clear();
+        currentData.invalidateAll();
     }
 
     enum RefreshMode
@@ -537,12 +584,12 @@ public class TreeCache implements Closeable
     @VisibleForTesting
     protected void remove(String fullPath)
     {
-        ChildData data = currentData.remove(fullPath);
+        ChildData data = currentData.getIfPresent(fullPath);
         if ( data != null )
         {
+            currentData.invalidate(fullPath);
             offerOperation(new TreeEventOperation(this, new PathChildrenCacheEvent(PathChildrenCacheEvent.Type.CHILD_REMOVED, data)));
         }
-
         Map<String, ChildData> localInitialSet = initialSet.get();
         if ( localInitialSet != null )
         {
@@ -564,7 +611,7 @@ public class TreeCache implements Closeable
             catch ( KeeperException.NoNodeException ignore )
             {
                 // node no longer exists - remove it
-                currentData.remove(fullPath);
+                currentData.invalidate(fullPath);
             }
         }
         else
@@ -577,7 +624,7 @@ public class TreeCache implements Closeable
             else
             {
                 // node no longer exists - remove it
-                currentData.remove(fullPath);
+                currentData.invalidate(fullPath);
             }
         }
     }
@@ -627,7 +674,7 @@ public class TreeCache implements Closeable
                         }
                 ));
 
-        Set<String> removedNodes = Sets.filter(Sets.newHashSet(currentData.keySet()), new Predicate<String>() {
+        Set<String> removedNodes = Sets.filter(Sets.newHashSet(currentData.asMap().keySet()), new Predicate<String>() {
             @Override
             public boolean apply(String input) {
                 if (input.matches(String.format(CHILD_OF_ZNODE_PATTERN, path))) {
@@ -649,11 +696,11 @@ public class TreeCache implements Closeable
         {
             String fullPath = ZKPaths.makePath(path, name);
 
-            if ( (mode == RefreshMode.FORCE_GET_DATA_AND_STAT) || !currentData.containsKey(fullPath) )
+            if ( (mode == RefreshMode.FORCE_GET_DATA_AND_STAT) || currentData.getIfPresent(fullPath) == null )
             {
                 getDataAndStat(fullPath);
             }
-            updateInitialSet(name, NULL_CHILD_DATA);
+            updateInitialSet(fullPath, NULL_CHILD_DATA);
             offerOperation(new TreeRefreshOperation(this, fullPath, mode));
         }
         maybeOfferInitializedEvent(initialSet.get());
@@ -664,7 +711,13 @@ public class TreeCache implements Closeable
         if ( resultCode == KeeperException.Code.OK.intValue() ) // otherwise - node must have dropped or something - we should be getting another event
         {
             ChildData data = new ChildData(fullPath, stat, bytes);
-            ChildData previousData = currentData.put(fullPath, data);
+            ChildData previousData = null;
+
+            synchronized (this) {
+                previousData = currentData.getIfPresent(fullPath);
+                currentData.put(fullPath, data);
+            }
+
             if ( previousData == null ) // i.e. new
             {
                 offerOperation(new TreeEventOperation(this, new PathChildrenCacheEvent(PathChildrenCacheEvent.Type.CHILD_ADDED, data)));
