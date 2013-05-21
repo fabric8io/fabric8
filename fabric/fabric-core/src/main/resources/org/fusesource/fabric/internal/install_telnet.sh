@@ -1,7 +1,7 @@
 function install_telnet() {
   echo "Checking if telnet is present."
   if which telnet &> /dev/null; then
-    sudo echo "Telnet is already installed."
+    echo "Telnet is already installed."
   else
     echo "Installing telnet."
     if which dpkg &> /dev/null; then
