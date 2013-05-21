@@ -40,37 +40,28 @@ class TreeRefreshOperation implements Operation
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if ( this == o )
-        {
-            return true;
-        }
-        if ( o == null || getClass() != o.getClass() )
-        {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
-        TreeRefreshOperation that = (TreeRefreshOperation)o;
+        TreeRefreshOperation that = (TreeRefreshOperation) o;
 
-        //noinspection RedundantIfStatement
-        if ( mode != that.mode )
-        {
-            return false;
-        }
+        if (mode != that.mode) return false;
+        if (path != null ? !path.equals(that.path) : that.path != null) return false;
 
         return true;
     }
 
     @Override
-    public int hashCode()
-    {
-        return mode.hashCode();
+    public int hashCode() {
+        int result = path != null ? path.hashCode() : 0;
+        result = 31 * result + (mode != null ? mode.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString()
     {
-        return "RefreshOperation(" + mode + "){}";
+        return "RefreshOperation(" + path + "," + mode + "){}";
     }
 }
