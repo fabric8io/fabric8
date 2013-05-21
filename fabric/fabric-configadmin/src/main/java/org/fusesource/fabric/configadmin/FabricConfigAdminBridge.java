@@ -68,7 +68,11 @@ public class FabricConfigAdminBridge implements Runnable {
     @Override
     public void run() {
         this.fabricService.trackConfiguration(this);
-        update();
+        try {
+            update();
+        } catch (Exception ex) {
+          //do not propagate exception back.
+        }
     }
 
     protected void update() {

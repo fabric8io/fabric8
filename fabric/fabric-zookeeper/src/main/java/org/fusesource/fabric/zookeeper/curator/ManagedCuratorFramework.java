@@ -177,7 +177,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      * @return
      */
     CuratorFramework buildCuratorFramework(Dictionary properties) {
-        String connectionString = readString(properties, ZOOKEEPER_URL, "");
+        String connectionString = readString(properties, ZOOKEEPER_URL, System.getProperty(ZOOKEEPER_URL, ""));
         ensembleProvider.update(connectionString);
         String aclProviderId = readString(properties, ACL_PROVIDER, "");
         int sessionTimeoutMs = readInt(properties, SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT_MS);
@@ -191,7 +191,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
 
         if (isAuthorizationConfigured(properties)) {
             String scheme = "digest";
-            String password = readString(properties, ZOOKEEPER_PASSWORD, "");
+            String password = readString(properties, ZOOKEEPER_PASSWORD, System.getProperty(ZOOKEEPER_PASSWORD,""));
             byte[] auth = ("fabric:" + password).getBytes();
             builder = builder.authorization(scheme, auth);
         }

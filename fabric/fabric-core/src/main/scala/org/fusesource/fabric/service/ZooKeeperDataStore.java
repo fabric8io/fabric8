@@ -56,6 +56,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
@@ -69,7 +70,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 /**
  * @author Stan Lewis
  */
-public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore ,PathChildrenCacheListener {
+public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore,  PathChildrenCacheListener {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
@@ -78,6 +79,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     private final List<Runnable> callbacks = new ArrayList<Runnable>();
     private TreeCache treeCache;
     private final AtomicInteger pendingEvents = new AtomicInteger(0);
+
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
@@ -89,6 +91,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
 
     public void destroy() {
         if (treeCache != null) {
+            treeCache.getListenable().removeListener(this);
             Closeables.closeQuitely(treeCache);
         }
     }
@@ -102,35 +105,49 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         }
     }
 
-    public void bind(CuratorFramework curator) throws Exception {
-        String connectionString = curator.getZookeeperClient().getCurrentConnectionString();
-        if (connectionString != null && !connectionString.isEmpty()) {
+    private synchronized void createCacheIfNeeded(CuratorFramework curator) throws Exception {
+        if (treeCache == null) {
             treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true);
             treeCache.start(TreeCache.StartMode.BUILD_INITIAL_CACHE);
             treeCache.getListenable().addListener(this);
-            childEvent(curator, new PathChildrenCacheEvent(PathChildrenCacheEvent.Type.INITIALIZED, null));
+        }
+    }
+
+    public void bind(CuratorFramework curator) throws Exception {
+        unbind(curator);
+        String connectionString = curator.getZookeeperClient().getCurrentConnectionString();
+        if (connectionString != null && !connectionString.isEmpty()) {
+            createCacheIfNeeded(curator);
         }
     }
 
     public void unbind(CuratorFramework curator) throws IOException {
-        Closeables.closeQuitely(treeCache);
+        if (treeCache != null) {
+            treeCache.getListenable().removeListener(this);
+            Closeables.closeQuitely(treeCache);
+        }
     }
 
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-        if (pendingEvents.incrementAndGet() == 1) {
+        switch (event.getType()) {
+            case CHILD_ADDED:
+            case CHILD_REMOVED:
+            case CHILD_UPDATED:
+            case INITIALIZED:
+                runCallbacks();
+                break;
+        }
+    }
+
+    private void runCallbacks() {
+        List<Runnable> copyOfCallbacks = new ArrayList<Runnable>(callbacks);
+        callbacks.clear();
+        for (Runnable callback : copyOfCallbacks) {
             try {
-                List<Runnable> copyOfCallbacks = new ArrayList<Runnable>(callbacks);
-                callbacks.clear();
-                for (Runnable callback : copyOfCallbacks) {
-                    try {
-                        callback.run();
-                    } catch (Throwable t) {
-                        //ignore
-                    }
-                }
-            } finally {
-                pendingEvents.set(0);
+                callback.run();
+            } catch (Throwable t) {
+                //ignore
             }
         }
     }
@@ -158,8 +175,6 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public String getContainerParent(String containerId) {
         try {
-            String parent = getStringData(curator, ZkPath.CONTAINER_PARENT.getPath(containerId));
-
             String parentName = getStringData(curator, ZkPath.CONTAINER_PARENT.getPath(containerId));
             return parentName != null ? parentName.trim() : "";
         } catch (KeeperException.NoNodeException e) {
@@ -243,7 +258,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public CreateContainerMetadata getContainerMetadata(String containerId) {
         try {
-            byte[] encoded = curator.getData().forPath(ZkPath.CONTAINER_METADATA.getPath(containerId));
+            byte[] encoded = getByteData(treeCache, ZkPath.CONTAINER_METADATA.getPath(containerId));
             byte[] decoded = Base64Encoder.decode(encoded);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
             return (CreateContainerMetadata) ois.readObject();
@@ -257,7 +272,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public String getContainerVersion(String containerId) {
         try {
-            return getStringData(curator, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            return getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -319,7 +334,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted) {
         if (attribute == ContainerAttribute.Domains) {
             try {
-                List<String> list = getChildren(curator, ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+                List<String> list = treeCache.getChildrenNames(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
                 Collections.sort(list);
                 StringBuilder sb = new StringBuilder();
                 for (String l : list) {
@@ -424,8 +439,8 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public String getDefaultVersion() {
         try {
             String version = null;
-            if (exists(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
-                version = getStringData(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
+            if (treeCache.getCurrentData(ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
+                version = getStringData(treeCache, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
             }
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
@@ -478,7 +493,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public List<String> getVersions() {
         try {
-            return getChildren(curator, ZkPath.CONFIG_VERSIONS.getPath());
+            return treeCache.getChildrenNames(ZkPath.CONFIG_VERSIONS.getPath());
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -487,7 +502,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public boolean hasVersion(String name) {
         try {
-            if (curator != null && curator.getZookeeperClient().isConnected() && exists(curator, ZkPath.CONFIG_VERSION.getPath(name)) == null) {
+            if (curator != null && curator.getZookeeperClient().isConnected() && treeCache.getCurrentData(ZkPath.CONFIG_VERSION.getPath(name)) == null) {
                 return false;
             }
             return true;
@@ -502,8 +517,8 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public List<String> getProfiles(String version) {
         try {
             List<String> profiles = new ArrayList<String>();
-            profiles.addAll(getChildren(curator, ZkPath.CONFIG_ENSEMBLE_PROFILES.getPath()));
-            profiles.addAll(getChildren(curator, ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version)));
+            profiles.addAll(treeCache.getChildrenNames(ZkPath.CONFIG_ENSEMBLE_PROFILES.getPath()));
+            profiles.addAll(treeCache.getChildrenNames(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version)));
             return profiles;
         } catch (Exception e) {
             throw new FabricException(e);
@@ -514,7 +529,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public String getProfile(String version, String profile, boolean create) {
         try {
             String path = ZkProfiles.getPath(version, profile);
-            if (exists(curator, path) == null) {
+            if (treeCache.getCurrentData(path) == null) {
                 if (!create) {
                     return null;
                 } else {
@@ -621,7 +636,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         try {
             Map<String, byte[]> configurations = new HashMap<String, byte[]>();
             String path = ZkProfiles.getPath(version, profile);
-            List<String> pids = getChildren(curator, path);
+            List<String> pids = treeCache.getChildrenNames(path);
             for (String pid : pids) {
                 configurations.put(pid, getFileConfiguration(version, profile, pid));
             }
@@ -635,19 +650,19 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public byte[] getFileConfiguration(String version, String profile, String pid) {
         try {
             String path = ZkProfiles.getPath(version, profile) + "/" + pid;
-            if (exists(curator, path) == null) {
+            if (treeCache.getCurrentData(path) == null) {
                 return null;
             }
-            if (curator.getData().forPath(path) == null) {
-                List<String> children = getChildren(curator, path);
+            if (treeCache.getCurrentData(path).getData() == null) {
+                List<String> children = treeCache.getChildrenNames(path);
                 StringBuilder buf = new StringBuilder();
                 for (String child : children) {
-                    String value = getStringData(curator, path + "/" + child);
+                    String value = new String(treeCache.getCurrentData(path + "/" + child).getData(), "UTF-8");
                     buf.append(String.format("%s = %s\n", child, value));
                 }
                 return buf.toString().getBytes();
             } else {
-                return curator.getData().forPath(path);
+                return getByteData(treeCache, path);
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -731,10 +746,10 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
         try {
             String path = ZkProfiles.getPath(version, profile) + "/" + pid + ".properties";
-            if (exists(curator, path) == null) {
+            if (treeCache.getCurrentData(path) == null) {
                 return null;
             }
-            byte[] data = curator.getData().forPath(path);
+            byte[] data = getByteData(treeCache, path);
             return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
         } catch (Exception e) {
             throw new FabricException(e);
@@ -784,7 +799,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public String getDefaultJvmOptions() {
         try {
             if (curator.getZookeeperClient().isConnected() && exists(curator, JVM_OPTIONS_PATH) != null) {
-                return getStringData(curator, JVM_OPTIONS_PATH);
+                return getStringData(treeCache, JVM_OPTIONS_PATH);
             } else {
                 return "";
             }
@@ -807,8 +822,8 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public FabricRequirements getRequirements() {
         try {
             FabricRequirements answer = null;
-            if (exists(curator, REQUIREMENTS_JSON_PATH) != null) {
-                String json = getStringData(curator, REQUIREMENTS_JSON_PATH);
+            if (treeCache.getCurrentData(REQUIREMENTS_JSON_PATH) != null) {
+                String json = getStringData(treeCache, REQUIREMENTS_JSON_PATH);
                 answer = RequirementsJson.fromJSON(json);
             }
             if (answer == null) {

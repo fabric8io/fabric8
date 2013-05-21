@@ -20,6 +20,7 @@ package org.apache.curator.framework.recipes.cache;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.cache.CacheBuilder;
@@ -81,13 +82,14 @@ public class TreeCache implements Closeable
     private final BlockingQueue<Operation> operations = new LinkedBlockingQueue<Operation>();
     private final ListenerContainer<PathChildrenCacheListener> listeners = new ListenerContainer<PathChildrenCacheListener>();
 
-    private final LoadingCache<String, ChildData> currentData = CacheBuilder.newBuilder().build(new CacheLoader<String, ChildData>() {
+    private final LoadingCache<String, TreeData> currentData = CacheBuilder.newBuilder().build(new CacheLoader<String, TreeData>() {
         @Override
-        public ChildData load(String key) throws Exception {
+        public TreeData load(String key) throws Exception {
             Stat stat = client.checkExists().forPath(key);
             if (stat!= null) {
                 byte[] bytes = dataIsCompressed ? client.getData().decompressed().forPath(key) : client.getData().forPath(key);
-                return  new ChildData(key, stat, bytes);
+                List<String> children = client.getChildren().forPath(key);
+                return  new TreeData(key, stat, bytes, children);
             } else {
                 return null;
             }
@@ -386,9 +388,9 @@ public class TreeCache implements Closeable
      *
      * @return list of children and data
      */
-    public List<ChildData> getCurrentData()
+    public List<TreeData> getCurrentData()
     {
-        return ImmutableList.copyOf(Sets.<ChildData>newTreeSet(currentData.asMap().values()));
+        return ImmutableList.copyOf(Sets.<TreeData>newTreeSet(currentData.asMap().values()));
     }
 
     /**
@@ -399,7 +401,7 @@ public class TreeCache implements Closeable
      * @param fullPath full path to the node to check
      * @return data or null
      */
-    public ChildData getCurrentData(String fullPath)
+    public TreeData getCurrentData(String fullPath)
     {
         try {
             return currentData.get(fullPath);
@@ -411,28 +413,23 @@ public class TreeCache implements Closeable
     }
 
 
-    public List<ChildData> getChildren(String fullPath)
+    public List<TreeData> getChildren(String fullPath)
     {
-        List<ChildData> children = Lists.newArrayList();
-        for (Map.Entry<String, ChildData> entry : currentData.asMap().entrySet()) {
-            String path = entry.getKey();
-            if (path.matches(fullPath+"/[^ /]+")) {
-                children.add(entry.getValue());
-            }
+        List<TreeData> children = Lists.newArrayList();
+        for (String child : getChildrenNames(fullPath)) {
+            String childFullPath = ZKPaths.makePath(fullPath, child);
+            children.add(getCurrentData(childFullPath));
         }
         return children;
     }
 
     public List<String> getChildrenNames(String fullPath)
     {
-        List<String> children = Lists.newArrayList();
-        for (Map.Entry<String, ChildData> entry : currentData.asMap().entrySet()) {
-            String path = entry.getKey();
-            if (path.matches(fullPath+"/[^ /]+")) {
-                children.add(path.substring(fullPath.length() + 1));
-            }
+        TreeData parentData = getCurrentData(fullPath);
+        if (parentData != null) {
+            return parentData.getChildren();
         }
-        return children;
+        return Lists.newArrayList();
     }
 
     /**
@@ -456,7 +453,7 @@ public class TreeCache implements Closeable
      */
     public boolean clearDataBytes(String fullPath, int ifVersion)
     {
-        ChildData data = currentData.getIfPresent(fullPath);
+        TreeData data = currentData.getIfPresent(fullPath);
         if ( data != null )
         {
             if ( (ifVersion < 0) || (ifVersion == data.getStat().getVersion()) )
@@ -536,12 +533,14 @@ public class TreeCache implements Closeable
 
     void getDataAndStat(final String fullPath) throws Exception
     {
+        final List<String> children = client.getChildren().forPath(fullPath);
+
         BackgroundCallback existsCallback = new BackgroundCallback()
         {
             @Override
             public void processResult(CuratorFramework client, CuratorEvent event) throws Exception
             {
-                applyNewData(fullPath, event.getResultCode(), event.getStat(), null);
+                applyNewData(fullPath, event.getResultCode(), event.getStat(), null, children);
             }
         };
 
@@ -550,7 +549,7 @@ public class TreeCache implements Closeable
             @Override
             public void processResult(CuratorFramework client, CuratorEvent event) throws Exception
             {
-                applyNewData(fullPath, event.getResultCode(), event.getStat(), event.getData());
+                applyNewData(fullPath, event.getResultCode(), event.getStat(), event.getData(), children);
             }
         };
 
@@ -584,7 +583,7 @@ public class TreeCache implements Closeable
     @VisibleForTesting
     protected void remove(String fullPath)
     {
-        ChildData data = currentData.getIfPresent(fullPath);
+        TreeData data = currentData.getIfPresent(fullPath);
         if ( data != null )
         {
             currentData.invalidate(fullPath);
@@ -606,7 +605,8 @@ public class TreeCache implements Closeable
             {
                 Stat stat = new Stat();
                 byte[] bytes = dataIsCompressed ? client.getData().decompressed().storingStatIn(stat).forPath(fullPath) : client.getData().storingStatIn(stat).forPath(fullPath);
-                currentData.put(fullPath, new ChildData(fullPath, stat, bytes));
+                List<String> children = client.getChildren().forPath(fullPath);
+                currentData.put(fullPath, new TreeData(fullPath, stat, bytes, children));
             }
             catch ( KeeperException.NoNodeException ignore )
             {
@@ -619,7 +619,8 @@ public class TreeCache implements Closeable
             Stat stat = client.checkExists().forPath(fullPath);
             if ( stat != null )
             {
-                currentData.put(fullPath, new ChildData(fullPath, stat, null));
+                List<String> children = client.getChildren().forPath(fullPath);
+                currentData.put(fullPath, new TreeData(fullPath, stat, null, children));
             }
             else
             {
@@ -706,16 +707,24 @@ public class TreeCache implements Closeable
         maybeOfferInitializedEvent(initialSet.get());
     }
 
-    private void applyNewData(String fullPath, int resultCode, Stat stat, byte[] bytes)
+    private void applyNewData(String fullPath, int resultCode, Stat stat, byte[] bytes, List<String> children)
     {
         if ( resultCode == KeeperException.Code.OK.intValue() ) // otherwise - node must have dropped or something - we should be getting another event
         {
-            ChildData data = new ChildData(fullPath, stat, bytes);
-            ChildData previousData = null;
+            TreeData data = new TreeData(fullPath, stat, bytes, children);
+            TreeData previousData = null;
+
+            Optional<String> parent = getParentOf(fullPath);
 
             synchronized (this) {
                 previousData = currentData.getIfPresent(fullPath);
                 currentData.put(fullPath, data);
+                if (parent.isPresent()) {
+                    TreeData parentData = currentData.getIfPresent(parent.get());
+                    if (parentData != null) {
+                        parentData.getChildren().add(ZKPaths.getNodeFromPath(fullPath));
+                    }
+                }
             }
 
             if ( previousData == null ) // i.e. new
@@ -806,5 +815,13 @@ public class TreeCache implements Closeable
     {
         operations.remove(operation);   // avoids herding for refresh operations
         operations.offer(operation);
+    }
+
+    private Optional<String> getParentOf(String path) {
+        if (path == null || path.equals("/")) {
+            return Optional.absent();
+        } else {
+            return Optional.of(path.substring(0, path.lastIndexOf("/")));
+        }
     }
 }
