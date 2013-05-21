@@ -28,10 +28,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  */
@@ -89,6 +86,15 @@ public class FabricManager implements FabricManagerMBean {
 
     // Management API
     //-------------------------------------------------------------------------
+    @Override
+    public List<String> getFields(String className) {
+        try {
+            return BeanUtils.getFields(Class.forName(className));
+        } catch (ClassNotFoundException e) {
+            throw new FabricException("Failed to load class " + className, e);
+        }
+    }
+
     @Override
     public ServiceStatusDTO getFabricServiceStatus() {
         ServiceStatusDTO rc = new ServiceStatusDTO();
@@ -165,37 +171,38 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public ProfileDTO createProfile(String version, String name) {
-        return ProfileDTO.newInstance(getFabricService(),
-                    getFabricService().getVersion(version).createProfile(name));
+    public Map<String, Object> createProfile(String versionId, String name) {
+        Profile p = getFabricService().getVersion(versionId).createProfile(name);
+        return getProfile(versionId, p.getId());
     }
 
     @Override
-    public ProfileDTO createProfile(String version, String name, List<String> parents) {
-        Profile p = getFabricService().getVersion(version).createProfile(name);
-        p.setParents(getProfiles(version, parents));
-        return ProfileDTO.newInstance(getFabricService(), p);
+    public Map<String, Object>  createProfile(String versionId, String name, List<String> parents) {
+        Profile p = getFabricService().getVersion(versionId).createProfile(name);
+        p.setParents(stringsToProfiles(versionId, parents));
+        return getProfile(versionId, p.getId());
     }
 
     @Override
-    public ProfileDTO changeProfileParents(String version, String name, List<String> parents) {
-        Profile p = getFabricService().getVersion(version).getProfile(name);
-        p.setParents(getProfiles(version, parents));
-        return ProfileDTO.newInstance(getFabricService(), p);
+    public Map<String, Object>  changeProfileParents(String versionId, String name, List<String> parents) {
+        Profile p = getFabricService().getVersion(versionId).getProfile(name);
+        p.setParents(stringsToProfiles(versionId, parents));
+        return getProfile(versionId, p.getId());
     }
 
     @Override
-    public VersionDTO createVersion(String parentVersionId, String toVersion) {
-        return VersionDTO.newInstance(getFabricService().createVersion(parentVersionId, toVersion));
+    public  Map<String, Object> createVersion(String parentVersionId, String toVersion) {
+        Version version = getFabricService().createVersion(parentVersionId, toVersion);
+        return BeanUtils.convertVersionToMap(getFabricService(), version, BeanUtils.getFields(Version.class));
     }
 
     @Override
-    public VersionDTO createVersion(String version) {
+    public  Map<String, Object> createVersion(String version) {
         return createVersion(getLatestVersion().getId(), version);
     }
 
     @Override
-    public VersionDTO createVersion() {
+    public  Map<String, Object> createVersion() {
         return createVersion(getLatestVersion().getSequence().next().getName());
     }
 
@@ -227,8 +234,14 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public ContainerDTO getContainer(String name) {
-        return ContainerDTO.newInstance(getFabricService().getContainer(name));
+    public Map<String, Object> getContainer(String name) {
+        return getContainer(name, BeanUtils.getFields(Container.class));
+    }
+
+    @Override
+    public Map<String, Object> getContainer(String name, List<String> fields) {
+        Container c = getFabricService().getContainer(name);
+        return BeanUtils.convertContainerToMap(getFabricService(), c, fields);
     }
 
     @Override
@@ -250,7 +263,7 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void applyProfilesToContainers(String version, List<String> profiles, List<String> containers) {
-        Profile[] p = getProfiles(version, profiles);
+        Profile[] p = stringsToProfiles(version, profiles);
         for (String container: containers) {
             getFabricService().getContainer(container).setProfiles(p);
         }
@@ -267,7 +280,7 @@ public class FabricManager implements FabricManagerMBean {
                 }
             }
         }
-        cont.setProfiles(getProfiles(cont.getVersion(), profiles));
+        cont.setProfiles(stringsToProfiles(cont.getVersion(), profiles));
     }
 
     @Override
@@ -282,13 +295,22 @@ public class FabricManager implements FabricManagerMBean {
                 }
             }
         }
-        cont.setProfiles(getProfiles(cont.getVersion(), updated));
+        cont.setProfiles(stringsToProfiles(cont.getVersion(), updated));
     }
 
 
     @Override
-    public List<ContainerDTO> containers() {
-        return ContainerDTO.newInstances(getFabricService().getContainers());
+    public List<Map<String, Object>> containers() {
+        return containers(BeanUtils.getFields(Container.class));
+    }
+
+    @Override
+    public List<Map<String, Object>> containers(List<String> fields) {
+        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
+        for (Container c : getFabricService().getContainers()) {
+            answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
+        }
+        return answer;
     }
     
     @Override
@@ -302,74 +324,64 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public List<String> containerIdsForProfile(String versionId, String profileId) {
-        Version version = getFabricService().getVersion(versionId);
-        Profile profile = version != null ? version.getProfile(profileId) : null;
-        List<String> rc = new ArrayList<String>();
-        if (profile != null) {
-            for (Container c : getFabricService().getContainers()) {
-                for (Profile p : c.getProfiles()) {
-                    if (p.equals(profile)) {
-                        rc.add(c.getId());
-                    }
-                }
-            }
-        }
-        return rc;
-
-
+        List<String> fields = new ArrayList<String>();
+        fields.add("id");
+        return BeanUtils.collapseToList(containersForProfile(versionId, profileId, fields), "id");
     }
 
     @Override
-    public List<ContainerDTO> containersForProfile(String versionId, String profileId) {
+    public List<Map<String, Object>> containersForProfile(String versionId, String profileId) {
+        return containersForProfile(versionId, profileId, BeanUtils.getFields(Container.class));
+    }
+
+    @Override
+    public List<Map<String, Object>> containersForProfile(String versionId, String profileId, List<String> fields) {
         Version version = getFabricService().getVersion(versionId);
         Profile profile = version != null ? version.getProfile(profileId) : null;
-        List<ContainerDTO> rc = new ArrayList<ContainerDTO>();
+        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
         if (profile != null) {
             for (Container c : getFabricService().getContainers()) {
                 for (Profile p : c.getProfiles()) {
                     if (p.equals(profile)) {
-                        rc.add(ContainerDTO.newInstance(c));
+                        answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
                     }
                 }
             }
         }
-        return rc;
+        return answer;
     }
 
     @Override
     public List<String> containerIdsForVersion(String versionId) {
-        Version version = getFabricService().getVersion(versionId);
-        List<String> rc = new ArrayList<String>();
-        if (version != null) {
-            for (Container c : getFabricService().getContainers()) {
-                if (c.getVersion().equals(version)) {
-                    rc.add(c.getId());
-                }
-            }
-        }
-        return rc;
-
+        List<String> fields = new ArrayList<String>();
+        fields.add("id");
+        return BeanUtils.collapseToList(containersForVersion(versionId, fields), "id");
     }
 
     @Override
-    public List<ContainerDTO> containersForVersion(String versionId) {
+    public List<Map<String, Object>> containersForVersion(String versionId) {
+        return containersForVersion(versionId, BeanUtils.getFields(Container.class));
+    }
+
+    @Override
+    public List<Map<String, Object>> containersForVersion(String versionId, List<String> fields) {
         Version version = getFabricService().getVersion(versionId);
-        List<ContainerDTO> rc = new ArrayList<ContainerDTO>();
+        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
         if (version != null) {
             for (Container c : getFabricService().getContainers()) {
                 if (c.getVersion().equals(version)) {
-                    rc.add(ContainerDTO.newInstance(c));
+                    answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
                 }
             }
         }
-        return rc;
+        return answer;
     }
 
-    protected Profile[] getProfiles(String version, List<String> names) {
-        return getProfiles(getFabricService().getVersion(version), names);
+    protected Profile[] stringsToProfiles(String version, List<String> names) {
+        return stringsToProfiles(getFabricService().getVersion(version), names);
     }
 
-    protected Profile[] getProfiles(Version version, List<String> names) {
+    protected Profile[] stringsToProfiles(Version version, List<String> names) {
         Profile[] allProfiles = version.getProfiles();
         List<Profile> profiles = new ArrayList<Profile>();
         if (names == null) {
@@ -402,8 +414,8 @@ public class FabricManager implements FabricManagerMBean {
 */
 
     @Override
-    public ContainerDTO currentContainer() {
-        return ContainerDTO.newInstance(getFabricService().getCurrentContainer());
+    public Map<String, Object> currentContainer() {
+        return BeanUtils.convertContainerToMap(getFabricService(), getFabricService().getCurrentContainer(), BeanUtils.getFields(Container.class));
     }
 
 
@@ -425,8 +437,8 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public VersionDTO defaultVersion() {
-        return VersionDTO.newInstance(getFabricService().getDefaultVersion());
+    public Map<String, Object> defaultVersion() {
+        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getDefaultVersion(), BeanUtils.getFields(Version.class));
     }
 
 
@@ -458,22 +470,37 @@ public class FabricManager implements FabricManagerMBean {
 
 
     @Override
-    public ProfileDTO getProfile(String versionId, String profileId) {
-        return ProfileDTO.newInstance(getFabricService(),
-                                      getFabricService().getVersion(versionId).getProfile(profileId));
+    public Map<String, Object> getProfile(String versionId, String profileId) {
+        return getProfile(versionId, profileId, BeanUtils.getFields(Profile.class));
     }
 
-
-    @Override
-    public List<ProfileDTO> getProfiles(String version) {
-        return ProfileDTO.newInstances(getFabricService(), getFabricService().getVersion(version).getProfiles());
+    public Map<String, Object> getProfile(String versionId, String profileId, List<String> fields) {
+        Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
+        return BeanUtils.convertProfileToMap(getFabricService(), profile, fields);
     }
 
     @Override
+    public List<Map<String, Object>> getProfiles(String versionId) {
+        return getProfiles(versionId, BeanUtils.getFields(Profile.class));
+    }
+
+    @Override
+    public List<Map<String, Object>> getProfiles(String versionId, List<String> fields) {
+        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
+
+        for (Profile p : getFabricService().getVersion(versionId).getProfiles()) {
+            answer.add(getProfile(versionId, p.getId(), fields));
+        }
+
+        return answer;
+    }
+
+    @Override
+    @Deprecated
     public List<String> getProfileIds(String version) {
         return Ids.getIds(getFabricService().getVersion(version).getProfiles());
     }
-    
+
     @Override
     public String getConfigurationFile(String versionId, String profileId, String fileName) {
         return Base64.encodeBase64String(getFabricService().getVersion(versionId).getProfile(profileId).getFileConfigurations().get(fileName));
@@ -524,25 +551,30 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public VersionDTO getVersion(String name) {
-        return VersionDTO.newInstance(getFabricService().getVersion(name));
+    public Map<String, Object>  getVersion(String versionId) {
+        return getVersion(versionId, BeanUtils.getFields(Version.class));
     }
 
     @Override
-    public List<VersionDTO> versions() {
-        String defaultVersionId = null;
-        Version defaultVersion = getFabricService().getDefaultVersion();
-        if (defaultVersion != null) {
-            defaultVersionId = defaultVersion.getId();
+    public Map<String, Object> getVersion(String versionId, List<String> fields) {
+        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getVersion(versionId), fields);
+    }
+
+    @Override
+    public List<Map<String, Object>> versions() {
+        return versions(BeanUtils.getFields(Version.class));
+    }
+
+    @Override
+    public List<Map<String, Object>> versions(List<String> fields) {
+        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
+
+        for (Version v : getFabricService().getVersions()) {
+            answer.add(getVersion(v.getId(), fields));
         }
-        List<VersionDTO> answer = VersionDTO.newInstances(getFabricService().getVersions());
-        for (VersionDTO versionDTO : answer) {
-            if (defaultVersionId == null || defaultVersionId.equals(versionDTO.getId())) {
-                versionDTO.setDefaultVersion(true);
-                break;
-            }
-        }
+
         return answer;
+
     }
 
 /*

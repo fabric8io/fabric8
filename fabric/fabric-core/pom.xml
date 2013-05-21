@@ -31,6 +31,9 @@
     <description>Fuse Fabric :: Core</description>
 
     <properties>
+        <fuse.osgi.import>
+          *
+        </fuse.osgi.import>
         <fuse.osgi.export>
           org.fusesource.fabric.api*;version=${project.version},
           org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
@@ -92,6 +95,12 @@
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>${commons-codec-version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils-core</artifactId>
+        <version>${commons-beanutils-version}</version>
       </dependency>
 
 <!--

@@ -31,19 +31,21 @@ import java.util.Map;
  */
 public interface FabricManagerMBean {
 
+    List<String> getFields(String className);
+
     ServiceStatusDTO getFabricServiceStatus();
 
     Map<String, String> createContainers(Map<String, String> options);
 
-    ProfileDTO createProfile(String version, String name);
+    Map<String, Object> createProfile(String version, String name);
 
-    ProfileDTO createProfile(String version, String name, List<String> parents);
+    Map<String, Object> createProfile(String version, String name, List<String> parents);
 
-    ProfileDTO changeProfileParents(String version, String name, List<String> parents);
+    Map<String, Object> changeProfileParents(String version, String name, List<String> parents);
 
-    VersionDTO createVersion();
-    VersionDTO createVersion(String version);
-    VersionDTO createVersion(String parentVersionId, String toVersion);
+    Map<String, Object> createVersion();
+    Map<String, Object> createVersion(String version);
+    Map<String, Object> createVersion(String parentVersionId, String toVersion);
 
     void deleteProfile(String versionId, String profileId);
 
@@ -51,7 +53,9 @@ public interface FabricManagerMBean {
 
     void destroyContainer(String containerId);
 
-    ContainerDTO getContainer(String name);
+    Map<String, Object> getContainer(String name);
+
+    Map<String, Object> getContainer(String name, List<String> fields);
 
     void addProfilesToContainer(String container, List<String> profiles);
 
@@ -61,24 +65,36 @@ public interface FabricManagerMBean {
 
     void applyProfilesToContainers(String version, List<String> profiles, List<String> containers);
 
+    @Deprecated
     List<String> getContainerProvisionList(String name);
 
-    List<ContainerDTO> containers();
-    
+    List<Map<String, Object>> containers();
+
+    List<Map<String, Object>> containers(List<String> fields);
+
+
+    @Deprecated
     String[] containerIds();
 
+    @Deprecated
     List<String> containerIdsForProfile(String versionId, String profileId);
 
-    List<ContainerDTO> containersForProfile(String versionId, String profileId);
+    List<Map<String, Object>> containersForProfile(String versionId, String profileId);
 
+    List<Map<String, Object>> containersForProfile(String versionId, String profileId, List<String> fields);
+
+    @Deprecated
     List<String> containerIdsForVersion(String versionId);
 
-    List<ContainerDTO> containersForVersion(String versionId);
+    List<Map<String, Object>> containersForVersion(String versionId);
+
+    List<Map<String, Object>> containersForVersion(String versionId, List<String> fields);
+
 /*
     ContainerTemplate getContainerTemplate(String containerId, String jmxUser, String jmxPassword);
 */
 
-    ContainerDTO currentContainer();
+    Map<String, Object> currentContainer();
 
     String getCurrentContainerName();
 
@@ -86,7 +102,7 @@ public interface FabricManagerMBean {
 
     String getDefaultRepo();
 
-    VersionDTO defaultVersion();
+    Map<String, Object> defaultVersion();
 
     FabricStatus fabricStatus();
 
@@ -94,12 +110,17 @@ public interface FabricManagerMBean {
 
     String getMavenRepoURI();
 
-    ProfileDTO getProfile(String versionId, String profileId);
+    Map<String, Object> getProfile(String versionId, String profileId);
 
+    Map<String, Object> getProfile(String versionId, String profileId, List<String> fields);
+
+    @Deprecated
     List<String> getProfileIds(String versionId);
 
-    List<ProfileDTO> getProfiles(String versionId);
-    
+    List<Map<String, Object>> getProfiles(String versionId);
+
+    List<Map<String, Object>> getProfiles(String versionId, List<String> fields);
+
     void deleteConfigurationFile(String versionId, String profileId, String fileName);
     
     String getConfigurationFile(String versionId, String profileId, String fileName);
@@ -116,9 +137,13 @@ public interface FabricManagerMBean {
 */
     FabricRequirements requirements();
 
-    VersionDTO getVersion(String name);
+    Map<String, Object> getVersion(String versionId);
 
-    List<VersionDTO> versions();
+    Map<String, Object> getVersion(String versionId, List<String> fields);
+
+    List<Map<String, Object>> versions();
+
+    List<Map<String, Object>> versions(List<String> fields);
 
     String getZookeeperInfo(String name);
 
