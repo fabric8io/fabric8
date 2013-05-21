@@ -121,23 +121,19 @@
 
     <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="curator" ref="curator"/>
     </bean>
 
     <bean id="cloudContainerCompleter" class="org.fusesource.fabric.service.jclouds.commands.completers.CloudContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="curator" ref="curator"/>
     </bean>
 
     <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="curator" ref="curator"/>
     </bean>
 
 
     <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
-        <property name="curator" ref="curator"/>
     </bean>
 
     <bean id="zookeeperCredentialStore" class="org.fusesource.fabric.service.jclouds.modules.ZookeeperCredentialStore" init-method="init">

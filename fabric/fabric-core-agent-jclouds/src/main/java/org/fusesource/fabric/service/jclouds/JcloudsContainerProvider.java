@@ -78,7 +78,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private FirewallManagerFactory firewallManagerFactory;
     private CredentialStore credentialStore;
     private ConfigurationAdmin configurationAdmin;
-    private CuratorFramework zooKeeper;
+    private CuratorFramework curator;
     private BundleContext bundleContext;
 
     private ServiceReference computeReference = null;
@@ -410,9 +410,9 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 Map<String, String> serviceOptions = options.getServiceOptions();
                 try {
                     if (options.getProviderName() != null) {
-                        CloudUtils.registerProvider(zooKeeper, configurationAdmin, options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerProvider(curator, configurationAdmin, options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
                     } else if (options.getApiName() != null) {
-                        CloudUtils.registerApi(zooKeeper, configurationAdmin, options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerApi(curator, configurationAdmin, options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
                     }
                     computeService = CloudUtils.waitForComputeService(bundleContext, options.getContextName());
                 } catch (Exception e) {
@@ -518,12 +518,12 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         this.configurationAdmin = configurationAdmin;
     }
 
-    public CuratorFramework getZooKeeper() {
-        return zooKeeper;
+    public CuratorFramework getCurator() {
+        return curator;
     }
 
-    public void setZooKeeper(CuratorFramework zooKeeper) {
-        this.zooKeeper = zooKeeper;
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
     }
 
     public BundleContext getBundleContext() {
