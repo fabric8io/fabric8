@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -77,6 +78,7 @@ public class TreeCache implements Closeable
     private final String path;
     private final ExecutorService executorService;
     private final boolean cacheData;
+    private final boolean diffData;
     private final boolean dataIsCompressed;
     private final EnsurePath ensurePath;
     private final BlockingQueue<Operation> operations = new LinkedBlockingQueue<Operation>();
@@ -174,6 +176,16 @@ public class TreeCache implements Closeable
     }
 
     /**
+     * @param client    the client
+     * @param path      path to watch
+     * @param cacheData if true, node contents are cached in addition to the stat
+     */
+    public TreeCache(CuratorFramework client, String path, boolean cacheData, boolean diffData)
+    {
+        this(client, path, cacheData, false, diffData, Executors.newSingleThreadExecutor(defaultThreadFactory));
+    }
+
+    /**
      * @param client        the client
      * @param path          path to watch
      * @param cacheData     if true, node contents are cached in addition to the stat
@@ -205,9 +217,22 @@ public class TreeCache implements Closeable
      */
     public TreeCache(CuratorFramework client, String path, boolean cacheData, boolean dataIsCompressed, final ExecutorService executorService)
     {
+        this(client, path, cacheData, dataIsCompressed, false, executorService);
+    }
+
+    /**
+     * @param client           the client
+     * @param path             path to watch
+     * @param cacheData        if true, node contents are cached in addition to the stat
+     * @param dataIsCompressed if true, data in the path is compressed
+     * @param executorService  ExecutorService to use for the PathChildrenCache's background thread
+     */
+    public TreeCache(CuratorFramework client, String path, boolean cacheData, boolean dataIsCompressed, boolean diffData, final ExecutorService executorService)
+    {
         this.client = client;
         this.path = path;
         this.cacheData = cacheData;
+        this.diffData = diffData;
         this.dataIsCompressed = dataIsCompressed;
         this.executorService = executorService;
         ensurePath = client.newNamespaceAwareEnsurePath(path);
@@ -511,24 +536,19 @@ public class TreeCache implements Closeable
     void callListeners(final PathChildrenCacheEvent event)
     {
         listeners.forEach
-            (
-                new Function<PathChildrenCacheListener, Void>()
-                {
-                    @Override
-                    public Void apply(PathChildrenCacheListener listener)
-                    {
-                        try
-                        {
-                            listener.childEvent(client, event);
+                (
+                        new Function<PathChildrenCacheListener, Void>() {
+                            @Override
+                            public Void apply(PathChildrenCacheListener listener) {
+                                try {
+                                    listener.childEvent(client, event);
+                                } catch (Exception e) {
+                                    handleException(e);
+                                }
+                                return null;
+                            }
                         }
-                        catch ( Exception e )
-                        {
-                            handleException(e);
-                        }
-                        return null;
-                    }
-                }
-            );
+                );
     }
 
     void getDataAndStat(final String fullPath) throws Exception
@@ -733,7 +753,9 @@ public class TreeCache implements Closeable
             }
             else if ( previousData.getStat().getVersion() != stat.getVersion() )
             {
-                offerOperation(new TreeEventOperation(this, new PathChildrenCacheEvent(PathChildrenCacheEvent.Type.CHILD_UPDATED, data)));
+                if (!diffData || !Arrays.equals(data.getData(), previousData.getData())) {
+                    offerOperation(new TreeEventOperation(this, new PathChildrenCacheEvent(PathChildrenCacheEvent.Type.CHILD_UPDATED, data)));
+                }
             }
             updateInitialSet(ZKPaths.getNodeFromPath(fullPath), data);
         }
