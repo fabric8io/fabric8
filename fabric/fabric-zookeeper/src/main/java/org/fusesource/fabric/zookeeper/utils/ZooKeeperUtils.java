@@ -358,7 +358,8 @@ public final class ZooKeeperUtils {
 
     private static String CONTAINERS_NODE = "/fabric/authentication/containers";
 
-    public static String getContainerLogin(String container) {
+    public static String getContainerLogin() {
+        String container = System.getProperty("karaf.name");
         return "container#" + container;
     }
 
@@ -374,9 +375,20 @@ public final class ZooKeeperUtils {
         return props;
     }
 
-    public static String generateContainerToken(CuratorFramework curator, String container) throws Exception {
-        String password = generatePassword();
-        setData(curator, CONTAINERS_NODE + "/" + container, password);
+    private static long lastTokenGenerationTime = 0;
+
+    public static String generateContainerToken(CuratorFramework curator) throws Exception {
+        String container = System.getProperty("karaf.name");
+        long time = System.currentTimeMillis();
+        String password = null;
+        if (time - lastTokenGenerationTime < 60 * 1000) {
+            password = getStringData(curator, CONTAINERS_NODE + "/" + container);
+        }
+        if (password == null) {
+            password = generatePassword();
+            setData(curator, CONTAINERS_NODE + "/" + container, password);
+            lastTokenGenerationTime = time;
+        }
         return password;
     }
 

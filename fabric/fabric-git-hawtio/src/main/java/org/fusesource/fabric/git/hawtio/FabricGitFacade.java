@@ -98,9 +98,8 @@ public class FabricGitFacade extends GitFacade implements ConfigurationListener 
 
     public CredentialsProvider getCredentials() {
         try {
-            String container = System.getProperty("karaf.name");
-            String login = ZooKeeperUtils.getContainerLogin(container);
-            String token = ZooKeeperUtils.generateContainerToken(curator, container);
+            String login = ZooKeeperUtils.getContainerLogin();
+            String token = ZooKeeperUtils.generateContainerToken(curator);
             CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
             setCredentials(cp);
         } catch (Exception e) {

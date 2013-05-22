@@ -88,14 +88,14 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
     private long period;
     private ScheduledExecutorService executors;
 
-    public void bindGitService(FabricGitService gitService) {
+    public synchronized void bindGitService(FabricGitService gitService) {
         this.gitService = gitService;
         if (connected) {
             singleton.join(createState());
         }
     }
 
-    public void unbindGitService(FabricGitService gitService) {
+    public synchronized void unbindGitService(FabricGitService gitService) {
         if (connected) {
             try {
                 singleton.leave();
@@ -182,9 +182,8 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
             public void run() {
                 try {
                     if (gitService != null) {
-                        String container = System.getProperty("karaf.name");
-                        String login = getContainerLogin(container);
-                        String token = generateContainerToken(curator, container);
+                        String login = getContainerLogin();
+                        String token = generateContainerToken(curator);
                         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
                         if (singleton.isMaster()) {
                             update(gitService.get(), curator, cp);
