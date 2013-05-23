@@ -35,14 +35,12 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
-public class FabricFeaturesServiceImpl implements FeaturesService, PathChildrenCacheListener, ConnectionStateListener {
+public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionStateListener, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
     private FabricService fabricService;
     private CuratorFramework curator;
-    private TreeCache profileTracker;
-
 
 
     private final Set<Repository> repositories = new HashSet<Repository>();
@@ -53,10 +51,6 @@ public class FabricFeaturesServiceImpl implements FeaturesService, PathChildrenC
     }
 
     public void destroy() throws Exception {
-        if (profileTracker != null) {
-            profileTracker.close();
-            profileTracker = null;
-        }
     }
 
 
@@ -74,23 +68,14 @@ public class FabricFeaturesServiceImpl implements FeaturesService, PathChildrenC
     }
 
     @Override
-    public void childEvent(CuratorFramework curatorFramework, PathChildrenCacheEvent event) throws Exception {
+    public void run() {
         repositories.clear();
         allfeatures.clear();
         installed.clear();
     }
 
     public void onConnected() {
-        if (profileTracker == null) {
-            profileTracker = new TreeCache(curator, ZkPath.CONFIG_VERSIONS.getPath(), false);
-
-        }
-        try {
-            profileTracker.start();
-            childEvent(curator, null);
-        } catch (Exception e) {
-            LOGGER.error("Error while setting tracker for Fabric Features Service.", e);
-        }
+        fabricService.trackConfiguration(this);
     }
 
     public void onDisconnected() {
