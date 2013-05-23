@@ -34,7 +34,6 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.commands.support.ZookeeperContentManager;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
@@ -111,7 +110,7 @@ public class ProfileEdit extends FabricCommand {
     private String profileName;
 
     @Argument(index = 1, name = "version", description = "The version of the profile to edit. Defaults to the current default version.", required = false, multiValued = false)
-    private String versionName = ZkDefs.DEFAULT_VERSION;
+    private String versionName;
 
     private EditorFactory editorFactory;
 
