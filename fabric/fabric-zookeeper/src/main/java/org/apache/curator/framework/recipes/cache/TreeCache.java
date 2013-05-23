@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -452,7 +453,7 @@ public class TreeCache implements Closeable
     {
         TreeData parentData = getCurrentData(fullPath);
         if (parentData != null) {
-            return parentData.getChildren();
+            return new ArrayList(parentData.getChildren());
         }
         return Lists.newArrayList();
     }

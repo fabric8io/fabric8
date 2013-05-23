@@ -4,12 +4,14 @@ import org.apache.zookeeper.data.Stat;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class TreeData extends ChildData {
 
-    private final CopyOnWriteArrayList<String> children = new CopyOnWriteArrayList<String>();
+    private final Set<String> children = new HashSet<String>();
 
    public TreeData(String path, Stat stat, byte[] data)
     {
@@ -21,7 +23,7 @@ public class TreeData extends ChildData {
         this.children.addAll(children);
     }
 
-    public List<String> getChildren() {
+    public Set<String> getChildren() {
         return children;
     }
 
