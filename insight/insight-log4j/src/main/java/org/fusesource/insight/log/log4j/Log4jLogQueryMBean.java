@@ -16,10 +16,13 @@
  */
 package org.fusesource.insight.log.log4j;
 
+import org.apache.log4j.spi.LoggingEvent;
+import org.fusesource.insight.log.log4j.Log4jLogQuery;
 import org.fusesource.insight.log.support.LogQuerySupportMBean;
 
 /**
  * The MBean operations for {@link Log4jLogQuery}
  */
 public interface Log4jLogQueryMBean extends LogQuerySupportMBean {
+	public void logMessage(LoggingEvent record);
 }

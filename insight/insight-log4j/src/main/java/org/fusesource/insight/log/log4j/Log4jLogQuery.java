@@ -82,10 +82,7 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
         if (appenderAttachable != null) {
             Appender appender = new AppenderSkeleton() {
                 protected void append(LoggingEvent loggingEvent) {
-                    if (addMavenCoordinates) {
-                        appendMavenCoordinates(loggingEvent);
-                    }
-                    getEvents().add(loggingEvent);
+                    logMessage(loggingEvent);
                 }
 
                 public void close() {
@@ -402,4 +399,12 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
     public void setResolver(AetherBasedResolver resolver) {
         this.resolver = resolver;
     }
+
+	@Override
+	public void logMessage(LoggingEvent record) {
+        if (addMavenCoordinates) {
+            appendMavenCoordinates(record);
+        }
+		getEvents().add(record);
+	}
 }
