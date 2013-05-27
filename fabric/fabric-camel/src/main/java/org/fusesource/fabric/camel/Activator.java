@@ -34,6 +34,5 @@ public class Activator implements BundleActivator {
     public void stop(BundleContext ctx) throws Exception {
         BUNDLE_CONTEXT.set(null);
     }
-
 }
 

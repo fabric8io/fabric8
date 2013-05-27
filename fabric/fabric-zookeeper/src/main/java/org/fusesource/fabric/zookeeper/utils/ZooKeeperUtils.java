@@ -181,7 +181,7 @@ public final class ZooKeeperUtils {
     }
 
     public static String create(CuratorFramework curator, String path, CreateMode createMode) throws Exception {
-        return curator.create().creatingParentsIfNeeded().withMode(createMode).forPath(path);
+        return create(curator, path, (byte[]) null, createMode);
     }
 
     public static String create(CuratorFramework curator, String path, String data, CreateMode createMode) throws Exception {

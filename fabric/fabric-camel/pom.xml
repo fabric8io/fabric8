@@ -68,8 +68,14 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-spring</artifactId>
             <version>${camel-version}</version>
-            <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.osgi</groupId>
+            <artifactId>spring-osgi-core</artifactId>
+            <version>${spring-osgi-version}</version>
+        </dependency>
+
 
         <!-- testing -->
         <!--

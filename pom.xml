@@ -64,6 +64,7 @@
         </fuse.osgi.import.strict.version>
         <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
         <fuse.osgi.import.defaults>
+            org.springframework.osgi.*;version="[1.2,2)",
             org.springframework.*;version="[3,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.10,3)",
@@ -881,6 +882,12 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-groups</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-partition</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
