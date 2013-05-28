@@ -1,0 +1,28 @@
+{
+  "host": "${host}",
+  "timestamp": @{toJson(timestamp)},
+  "event": "${event}",
+  "exchange": {
+    "id": "${exchange.exchangeId}",
+    "fromEndpoint": "${exchange.fromEndpoint.toString()}",
+    "routeId": "${exchange.fromRouteId}",
+    "pattern": "${exchange.pattern}",
+    @if{exchange.exception != null}
+    "exception": "${exchange.exception}",
+    @end{}
+    "in": {
+      "headers": @{toJson(exchange.in.headers)}
+      @if{exchange.in.body != null},
+      "body": "${exchange.in.body.toString()}"
+      @end{}
+    }
+    @if{exchange.hasOut() == true}
+    , "out": {
+      "headers": @{toJson(exchange.out.headers)}
+      @if{exchange.out.body != null},
+      "body": "${exchange.out.body.toString()}"
+      @end{}
+    }
+    @end{}
+  }
+}

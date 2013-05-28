@@ -120,7 +120,10 @@
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
         <brew-version>0.2.11</brew-version>
+        <!--
         <camel-version>2.10.0.redhat-60${perfectus-build}</camel-version>
+        -->
+        <camel-version>2.10.0.fuse-72-SNAPSHOT</camel-version>
         <coffeebar-version>0.2.11</coffeebar-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>

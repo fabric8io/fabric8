@@ -370,6 +370,12 @@
         <bundle>mvn:org.fusesource.insight/insight-log-storage/${project.version}</bundle>
     </feature>
 
+    <feature name="insight-camel" version="${project.version}" resolver="(obr)">
+        <feature>camel</feature>
+        <feature>insight-elasticsearch</feature>
+        <bundle>mvn:org.fusesource.insight/insight-camel/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-hadoop" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.fabric.hadoop">
             #
