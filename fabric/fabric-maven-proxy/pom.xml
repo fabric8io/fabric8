@@ -32,7 +32,7 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.maven;version=${project.version},
+            org.fusesource.fabric.maven*;version=${project.version},
         </fuse.osgi.export>
         <fuse.osgi.import>
             !org.cyberneko.html*,
@@ -47,7 +47,6 @@
         <fuse.osgi.private.pkg>
             com.google.common.collect,
             com.google.common.base,
-            org.fusesource.fabric.maven.impl,
             org.fusesource.fabric.utils,
             org.fusesource.fabric.utils.mvn,
             org.apache.commons.codec*,

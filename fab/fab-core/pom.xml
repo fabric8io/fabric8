@@ -36,6 +36,11 @@
         <artifactId>common-util</artifactId>
         <version>${project.version}</version>
     </dependency>
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-maven-proxy</artifactId>
+        <version>${project.version}</version>
+    </dependency>
 
     <!-- aether stuff -->
     <dependency>

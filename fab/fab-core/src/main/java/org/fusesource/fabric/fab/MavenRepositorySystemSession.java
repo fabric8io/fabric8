@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.fab;
 
+import org.fusesource.fabric.maven.impl.MavenUtils;
 import org.sonatype.aether.collection.DependencyGraphTransformer;
 import org.sonatype.aether.collection.DependencyManager;
 import org.sonatype.aether.collection.DependencySelector;
@@ -58,8 +59,7 @@ public class MavenRepositorySystemSession
     {
         setMirrorSelector( new DefaultMirrorSelector() );
         setAuthenticationSelector( new DefaultAuthenticationSelector() );
-        setProxySelector( new DefaultProxySelector() );
-
+        setProxySelector( MavenUtils.getProxySelector() );
         DependencyTraverser depTraverser = new FatArtifactTraverser();
         setDependencyTraverser( depTraverser );
 
