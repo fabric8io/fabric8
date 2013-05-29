@@ -52,6 +52,8 @@
             !org.apache.xerces.*,
             !org.codehaus.classworlds,
             !org.eclipse.osgi.*,
+            !org.fusesource.fabric.maven.impl,
+            !org.sonatype.plexus.components.sec.dispatcher,
             javax.*,
             org.w3c.*,
             org.xml.sax.*,
@@ -63,8 +65,6 @@
             org.slf4j.*,
             org.fusesource.fabric.api.*,
             org.apache.karaf.shell.osgi,
-            org.fusesource.fabric.maven.impl,
-            org.sonatype.plexus.components.sec.dispatcher
         </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
