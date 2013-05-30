@@ -475,8 +475,13 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public void createVersion(String parentVersionId, String toVersion) {
         try {
-            copy(curator, ZkPath.CONFIG_VERSION.getPath(parentVersionId), ZkPath.CONFIG_VERSION.getPath(toVersion));
-            treeCache.rebuildNode(ZkPath.CONFIG_VERSION.getPath(toVersion));
+            String sourcePath = ZkPath.CONFIG_VERSION.getPath(parentVersionId);
+            String targetPath = ZkPath.CONFIG_VERSION.getPath(toVersion);
+            copy(curator, sourcePath, targetPath);
+            //After copying a profile it takes a while before the cache is updated.
+            //To avoid confusion its best to rebuild that portion of the cache before returning.
+            //treeCache.getCurrentData(targetPath);
+            treeCache.rebuildNode(targetPath);
         } catch (Exception e) {
             throw new FabricException(e);
         }

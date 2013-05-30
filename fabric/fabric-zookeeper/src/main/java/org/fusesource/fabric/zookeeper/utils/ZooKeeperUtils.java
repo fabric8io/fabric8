@@ -203,7 +203,11 @@ public final class ZooKeeperUtils {
             for (String child : curator.getChildren().forPath(path)) {
                 deleteSafe(curator, path + "/" + child);
             }
-            curator.delete().forPath(path);
+            try {
+                curator.delete().forPath(path);
+            } catch (KeeperException.NotEmptyException ex) {
+                deleteSafe(curator, path);
+            }
         }
     }
 

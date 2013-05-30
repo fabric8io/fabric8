@@ -358,7 +358,7 @@ public class TreeCache implements Closeable
      */
     public void rebuildNode(String fullPath) throws Exception
     {
-        Preconditions.checkArgument(ZKPaths.getPathAndNode(fullPath).getPath().equals(path), "Node is not part of this cache: " + fullPath);
+        Preconditions.checkArgument(ZKPaths.getPathAndNode(fullPath).getPath().startsWith(path), "Node is not part of this cache: " + fullPath);
         Preconditions.checkState(!executorService.isShutdown(), "cache has been closed");
 
         ensurePath.ensure(client.getZookeeperClient());
@@ -618,11 +618,16 @@ public class TreeCache implements Closeable
                 byte[] bytes = dataIsCompressed ? client.getData().decompressed().storingStatIn(stat).forPath(fullPath) : client.getData().storingStatIn(stat).forPath(fullPath);
                 List<String> children = client.getChildren().forPath(fullPath);
                 currentData.put(fullPath, new TreeData(fullPath, stat, bytes, children));
+                for (String child : children) {
+                    String childPath = ZKPaths.makePath(fullPath, child);
+                    internalRebuildNode(childPath);
+                }
             }
             catch ( KeeperException.NoNodeException ignore )
             {
                 // node no longer exists - remove it
                 currentData.invalidate(fullPath);
+                removeFromParent(fullPath);
             }
         }
         else
@@ -632,11 +637,16 @@ public class TreeCache implements Closeable
             {
                 List<String> children = client.getChildren().forPath(fullPath);
                 currentData.put(fullPath, new TreeData(fullPath, stat, null, children));
+                for (String child : children) {
+                    String childPath = ZKPaths.makePath(fullPath, child);
+                    internalRebuildNode(childPath);
+                }
             }
             else
             {
                 // node no longer exists - remove it
                 currentData.invalidate(fullPath);
+                removeFromParent(fullPath);
             }
         }
     }
