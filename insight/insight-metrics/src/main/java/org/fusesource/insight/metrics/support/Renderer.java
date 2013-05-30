@@ -75,7 +75,7 @@ public class Renderer {
                 if (url != null) {
                     source = IoUtils.loadFully(url);
                 } else {
-                    throw new IllegalStateException("Coult not find default template");
+                    throw new IllegalStateException("Could not find default template");
                 }
             }
             sources.put(set, source);
