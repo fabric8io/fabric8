@@ -107,7 +107,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
 
     private synchronized void createCacheIfNeeded(CuratorFramework curator) throws Exception {
         if (treeCache == null) {
-            treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true);
+            treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, true);
             treeCache.start(TreeCache.StartMode.BUILD_INITIAL_CACHE);
             treeCache.getListenable().addListener(this);
         }
@@ -476,6 +476,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public void createVersion(String parentVersionId, String toVersion) {
         try {
             copy(curator, ZkPath.CONFIG_VERSION.getPath(parentVersionId), ZkPath.CONFIG_VERSION.getPath(toVersion));
+            treeCache.rebuildNode(ZkPath.CONFIG_VERSION.getPath(toVersion));
         } catch (Exception e) {
             throw new FabricException(e);
         }

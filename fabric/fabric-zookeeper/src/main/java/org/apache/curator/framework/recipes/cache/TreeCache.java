@@ -90,8 +90,8 @@ public class TreeCache implements Closeable
         public TreeData load(String key) throws Exception {
             Stat stat = client.checkExists().forPath(key);
             if (stat!= null) {
-                byte[] bytes = dataIsCompressed ? client.getData().decompressed().forPath(key) : client.getData().forPath(key);
-                List<String> children = client.getChildren().forPath(key);
+                byte[] bytes = dataIsCompressed ? client.getData().decompressed().usingWatcher(watcher).forPath(key) : client.getData().usingWatcher(watcher).forPath(key);
+                List<String> children = client.getChildren().usingWatcher(watcher).forPath(key);
                 return  new TreeData(key, stat, bytes, children);
             } else {
                 return null;
@@ -104,38 +104,23 @@ public class TreeCache implements Closeable
     private static final ChildData NULL_CHILD_DATA = new ChildData(null, null, null);
     private static final String CHILD_OF_ZNODE_PATTERN = "%s/[^ /]*";
 
-    private final Watcher childrenWatcher = new Watcher()
-    {
+    private final Watcher watcher = new Watcher() {
         @Override
-        public void process(WatchedEvent event)
-        {
-            switch (event.getType()) {
-                case None:
-                    break;
-                default:
-                offerOperation(new TreeRefreshOperation(TreeCache.this, event.getPath(), RefreshMode.STANDARD));
-            }
-        }
-    };
-
-    private final Watcher dataWatcher = new Watcher()
-    {
-        @Override
-        public void process(WatchedEvent event)
-        {
-            try
-            {
-                if ( event.getType() == Event.EventType.NodeDeleted )
-                {
-                    remove(event.getPath());
+        public void process(WatchedEvent event) {
+            try {
+                switch (event.getType()) {
+                    case None:
+                        break;
+                    case NodeDeleted:
+                        remove(event.getPath());
+                        break;
+                    case NodeDataChanged:
+                        offerOperation(new GetDataFromTreeOperation(TreeCache.this, event.getPath()));
+                        break;
+                    default:
+                        offerOperation(new TreeRefreshOperation(TreeCache.this, event.getPath(), RefreshMode.FORCE_GET_DATA_AND_STAT));
                 }
-                else if ( event.getType() == Event.EventType.NodeDataChanged )
-                {
-                    offerOperation(new GetDataFromTreeOperation(TreeCache.this, event.getPath()));
-                }
-            }
-            catch ( Exception e )
-            {
+            } catch (Exception e) {
                 handleException(e);
             }
         }
@@ -528,10 +513,10 @@ public class TreeCache implements Closeable
             public void processResult(CuratorFramework client, CuratorEvent event) throws Exception
             {
                 processChildren(path, event.getChildren(), mode);
+                updateIfNeeded(path, event.getStat());
             }
         };
-
-        client.getChildren().usingWatcher(childrenWatcher).inBackground(callback).forPath(path);
+        client.getChildren().usingWatcher(watcher).inBackground(callback).forPath(path);
     }
 
     void callListeners(final PathChildrenCacheEvent event)
@@ -554,7 +539,11 @@ public class TreeCache implements Closeable
 
     void getDataAndStat(final String fullPath) throws Exception
     {
-        final List<String> children = client.getChildren().forPath(fullPath);
+        if (client.checkExists().forPath(fullPath) == null) {
+            return;
+        }
+
+        final List<String> children = client.getChildren().usingWatcher(watcher).forPath(fullPath);
 
         BackgroundCallback existsCallback = new BackgroundCallback()
         {
@@ -578,16 +567,16 @@ public class TreeCache implements Closeable
         {
             if ( dataIsCompressed )
             {
-                client.getData().decompressed().usingWatcher(dataWatcher).inBackground(getDataCallback).forPath(fullPath);
+                client.getData().decompressed().usingWatcher(watcher).inBackground(getDataCallback).forPath(fullPath);
             }
             else
             {
-                client.getData().usingWatcher(dataWatcher).inBackground(getDataCallback).forPath(fullPath);
+                client.getData().usingWatcher(watcher).inBackground(getDataCallback).forPath(fullPath);
             }
         }
         else
         {
-            client.checkExists().usingWatcher(dataWatcher).inBackground(existsCallback).forPath(fullPath);
+            client.checkExists().usingWatcher(watcher).inBackground(existsCallback).forPath(fullPath);
         }
     }
 
@@ -616,6 +605,7 @@ public class TreeCache implements Closeable
             localInitialSet.remove(fullPath);
             maybeOfferInitializedEvent(localInitialSet);
         }
+        removeFromParent(fullPath);
     }
 
     private void internalRebuildNode(String fullPath) throws Exception
@@ -728,6 +718,37 @@ public class TreeCache implements Closeable
         maybeOfferInitializedEvent(initialSet.get());
     }
 
+    private void updateIfNeeded(String path, Stat stat) throws ExecutionException {
+        TreeData data = currentData.getIfPresent(path);
+        if (data != null && stat != null) {
+            long cachedId = getZkTxId(data.getStat());
+            long currentId = getZkTxId(stat);
+            if (currentId > cachedId) {
+                offerOperation(new TreeRefreshOperation(this, path, RefreshMode.FORCE_GET_DATA_AND_STAT));
+            }
+        }
+    }
+
+    private synchronized void addToParent(String fullPath) {
+        Optional<String> parent = getParentOf(fullPath);
+        if (parent.isPresent()) {
+            TreeData parentData = currentData.getIfPresent(parent.get());
+            if (parentData != null) {
+                parentData.getChildren().add(ZKPaths.getNodeFromPath(fullPath));
+            }
+        }
+    }
+
+    private synchronized void removeFromParent(String fullPath) {
+        Optional<String> parent = getParentOf(fullPath);
+        if (parent.isPresent()) {
+            TreeData parentData = currentData.getIfPresent(parent.get());
+            if (parentData != null) {
+                parentData.getChildren().remove(ZKPaths.getNodeFromPath(fullPath));
+            }
+        }
+    }
+
     private void applyNewData(String fullPath, int resultCode, Stat stat, byte[] bytes, List<String> children)
     {
         if ( resultCode == KeeperException.Code.OK.intValue() ) // otherwise - node must have dropped or something - we should be getting another event
@@ -735,17 +756,10 @@ public class TreeCache implements Closeable
             TreeData data = new TreeData(fullPath, stat, bytes, children);
             TreeData previousData = null;
 
-            Optional<String> parent = getParentOf(fullPath);
-
             synchronized (this) {
                 previousData = currentData.getIfPresent(fullPath);
                 currentData.put(fullPath, data);
-                if (parent.isPresent()) {
-                    TreeData parentData = currentData.getIfPresent(parent.get());
-                    if (parentData != null) {
-                        parentData.getChildren().add(ZKPaths.getNodeFromPath(fullPath));
-                    }
-                }
+                addToParent(fullPath);
             }
 
             if ( previousData == null ) // i.e. new
@@ -846,5 +860,9 @@ public class TreeCache implements Closeable
         } else {
             return Optional.of(path.substring(0, path.lastIndexOf("/")));
         }
+    }
+
+    private static long getZkTxId(Stat stat) {
+        return Math.max(stat.getMzxid(), stat.getPzxid());
     }
 }

@@ -134,7 +134,7 @@ public class VersionImpl implements Version {
     }
 
     private void maybeDeleteProfile(String targetId, boolean force) {
-        if (force) {
+        if (force && hasProfile(targetId)) {
             Profile p = this.getProfile(targetId);
 
             if (p != null) {
