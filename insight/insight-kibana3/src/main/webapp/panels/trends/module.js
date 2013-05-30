@@ -31,15 +31,15 @@ angular.module('kibana.trends', [])
   }
   _.defaults($scope.panel,_d)
 
+  $scope.filter = "";
+
   $scope.init = function () {
     $scope.hits = 0;
     eventBus.register($scope,'time', function(event,time){
       set_time(time)
     });
     eventBus.register($scope,'query', function(event, query) {
-      $scope.panel.query = _.map(query,function(q) {
-        return {query: q, label: q};
-      })
+	  $scope.filter = _.isArray(query) ? query[0] : query;
       $scope.get_data();
     });
     // Now that we're all setup, request the time from our group
@@ -51,7 +51,7 @@ angular.module('kibana.trends', [])
     $scope.panel.loading = true;
 
     // Make sure we have everything for the request to complete
-    if(_.isUndefined($scope.index) || _.isUndefined($scope.time))
+    if(_.isUndefined($scope.index) || _.isUndefined($scope.time) || _.isUndefined($scope.types))
       return
 
     $scope.old_time = {
@@ -60,13 +60,17 @@ angular.module('kibana.trends', [])
     }
 
     var _segment = _.isUndefined(segment) ? 0 : segment
-    var request = $scope.ejs.Request().types(config.types);
+    var request = $scope.ejs.Request().types($scope.types);
 
     // Build the question part of the query
     var queries = [];
     _.each($scope.panel.query, function(v) {
+      var query1 = v.query || "*";
+	  var query2 = $scope.filter || "*";
+	  var querystr = (query1 == "*" ? query2 : (query2 == "*" ? query1 : "(" + query1 + ") AND (" + query2 + ")"));
+
       queries.push($scope.ejs.FilteredQuery(
-        ejs.QueryStringQuery(v.query || '*'),
+        ejs.QueryStringQuery(querystr),
         ejs.RangeFilter($scope.time.field)
           .from($scope.time.from)
           .to($scope.time.to))
@@ -203,6 +207,7 @@ angular.module('kibana.trends', [])
   function set_time(time) {
     $scope.time = time;
     $scope.index = time.index || $scope.index
+    $scope.types = time.types;
     $scope.get_data();
   }
 

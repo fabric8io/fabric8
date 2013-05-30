@@ -37,6 +37,7 @@ angular.module('kibana.timepicker', [])
     timespan      : '15m',
     timefield     : '@timestamp',
     index         : '_all',
+    types         : config.types,
     defaultindex  : "_all",
     index_interval: "none",
     timeformat    : "",
@@ -78,6 +79,7 @@ angular.module('kibana.timepicker', [])
         }
         break;
     }
+    $scope.types = $scope.panel.types;
     $scope.time.field = $scope.panel.timefield;
     $scope.time_apply();
 
@@ -200,8 +202,10 @@ angular.module('kibana.timepicker', [])
     };
   }
 
-  $scope.time_apply = function() {      
+  $scope.time_apply = function() {   
+    $scope.panel.error = "";   
     // Update internal time object
+    $scope.types = $scope.panel.types;
     $scope.time = $scope.time_calc();
     $scope.time.field = $scope.panel.timefield
 
@@ -213,8 +217,12 @@ angular.module('kibana.timepicker', [])
         $scope.panel.index,
         $scope.panel.index_interval
       ).then(function (p) {
-        $scope.time.index = p;
-        eventBus.broadcast($scope.$id,$scope.panel.group,'time',compile_time($scope.time))
+        if(p.length > 0) {
+          $scope.time.index = p;
+          eventBus.broadcast($scope.$id,$scope.panel.group,'time',compile_time($scope.time))
+        } else {
+          $scope.panel.error = "Could not match index pattern to any ElasticSearch indices"
+        }
       });
     } else {
       $scope.time.index = [$scope.panel.index];
@@ -242,7 +250,8 @@ angular.module('kibana.timepicker', [])
     time.from = time.from.toDate()
     time.to   = time.to.toDate()
     time.interval = $scope.panel.index_interval
-    time.pattern = $scope.panel.index 
+    time.pattern = $scope.panel.index
+    time.types = $scope.panel.types
     return time;
   }
 

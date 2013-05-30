@@ -3,7 +3,6 @@
 var Settings = function (s) {
   var _d = {
     elasticsearch : 'localhost:9200',
-    timeformat    : 'mm/dd HH:MM:ss',
     modules       : [],
     types         : [],
     kibana_index  : 'kibana-int',

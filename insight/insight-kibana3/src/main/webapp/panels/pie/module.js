@@ -50,11 +50,12 @@ angular.module('kibana.pie', [])
     spyable : true,
   }
   _.defaults($scope.panel,_d)
+  $scope.filter = "";
 
   $scope.init = function() {
     eventBus.register($scope,'time', function(event,time){set_time(time)});
     eventBus.register($scope,'query', function(event, query) {
-      $scope.panel.query.query = _.isArray(query) ? query[0] : query;
+	  $scope.filter = _.isArray(query) ? query[0] : query;
       $scope.get_data();
     });
     // Now that we're all setup, request the time from our group
@@ -93,11 +94,15 @@ angular.module('kibana.pie', [])
 
   $scope.get_data = function() {
     // Make sure we have everything for the request to complete
-    if(_.isUndefined($scope.index) || _.isUndefined($scope.time))
+    if(_.isUndefined($scope.index) || _.isUndefined($scope.time) || _.isUndefined($scope.types))
       return
 
     $scope.panel.loading = true;
-    var request = $scope.ejs.Request().indices($scope.index).types(config.types);
+    var request = $scope.ejs.Request().indices($scope.index).types($scope.types);
+
+    var query1 = $scope.panel.query.query || "*";
+    var query2 = $scope.filter || "*";
+    var querystr = (query1 == "*" ? query2 : (query2 == "*" ? query1 : "(" + query1 + ") AND (" + query2 + ")"));
 
     // Terms mode
     if ($scope.panel.mode == "terms") {
@@ -108,7 +113,7 @@ angular.module('kibana.pie', [])
           .exclude($scope.panel.exclude)
           .facetFilter(ejs.QueryFilter(
             ejs.FilteredQuery(
-              ejs.QueryStringQuery($scope.panel.query.query || '*'),
+              ejs.QueryStringQuery(querystr),
               ejs.RangeFilter($scope.time.field)
                 .from($scope.time.from)
                 .to($scope.time.to)
@@ -183,6 +188,7 @@ angular.module('kibana.pie', [])
   function set_time(time) {
     $scope.time = time;
     $scope.index = _.isUndefined(time.index) ? $scope.index : time.index
+    $scope.types = time.types;
     $scope.get_data();
   }
   
@@ -206,7 +212,7 @@ angular.module('kibana.pie', [])
 
       // Function for rendering panel
       function render_panel() {
-        var scripts = $LAB.script("common/lib/panels/jquery.flot.js")
+        var scripts = $LAB.script("common/lib/panels/jquery.flot.js").wait()
                         .script("common/lib/panels/jquery.flot.pie.js")
 
         if(scope.panel.mode === 'goal')
