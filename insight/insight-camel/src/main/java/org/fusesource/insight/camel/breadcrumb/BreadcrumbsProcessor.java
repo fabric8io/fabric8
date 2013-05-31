@@ -58,7 +58,7 @@ public class BreadcrumbsProcessor extends DelegateAsyncProcessor {
     public boolean process(Exchange exchange, AsyncCallback callback) {
         if (breadcrumbs.isEnabled(exchange)) {
             Set<String> breadcrumbs = Breadcrumbs.getBreadcrumbs(exchange);
-            breadcrumbs.add((String) exchange.getIn().getHeader(Exchange.BREADCRUMB_ID));
+            breadcrumbs.add(exchange.getExchangeId());
         }
         return processor.process(exchange, callback);
     }
