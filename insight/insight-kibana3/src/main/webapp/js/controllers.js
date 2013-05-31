@@ -23,7 +23,7 @@ angular.module('kibana.controllers', [])
     $scope.reset_row();
     $scope.clear_all_alerts();
 
-    // Load dashboard by event 
+    // Load dashboard by event
     eventBus.register($scope,'dashboard', function(event,dashboard){
       $scope.dashboards = dashboard.dashboard;
       $scope.dashboards.last = dashboard.last;
@@ -36,6 +36,15 @@ angular.module('kibana.controllers', [])
     });
 
     var ejs = $scope.ejs = ejsResource(config.elasticsearch);  
+  }
+
+  $scope.topLevelDashboards = function() {
+    return config.dashboards;
+  }
+
+  $scope.isActive = function (nav) {
+    var hash = window.location.hash;
+    return hash.substring(0, nav.length) == nav;
   }
 
   $scope.add_row = function(dashboards,row) {
@@ -84,6 +93,10 @@ angular.module('kibana.controllers', [])
   $scope.parse_error = function(data) {
     var _error = data.match("nested: (.*?);")
     return _.isNull(_error) ? data : _error[1];
+  }
+
+  $scope.topLevelTabs = function() {
+
   }
 
   $scope.init();

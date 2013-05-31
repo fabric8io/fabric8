@@ -18,15 +18,26 @@ var config = new Settings(
   // elasticsearch installed on. You probably want to set it to the FQDN of your
   // elasticsearch host
   elasticsearch:    "es",
-  types:            ['log'],
+  types:            [],
   // elasticsearch: 'http://localhost:9200',
   kibana_index:     "kibana-int", 
   modules:          ['histogram','map','pie','table','stringquery','sort',
                     'timepicker','text','fields','hits','dashcontrol',
                     'column','derivequeries','trends'],
-  formatValue:      doFormatValue
-
+  formatValue:      doFormatValue,
+  dashboards:       [ {
+    content:   "Log",
+    title:     "Search in log events",
+    file:      "log",
+    isVisible: function() { return true; }
+  }, {
+    content:   "Camel",
+    title:     "Search in camel exchanges",
+    file:      "camel",
+    isVisible: function() { return true; }
+  }]
 });
+
 
 function doFormatValue(source, key, obj) {
     if (key == 'exception') {

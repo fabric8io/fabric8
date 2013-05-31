@@ -6,7 +6,8 @@ var Settings = function (s) {
     modules       : [],
     types         : [],
     kibana_index  : 'kibana-int',
-    formatValue   : format_value
+    formatValue   : format_value,
+    dashboards    : []
   }
 
   // This initializes a new hash on purpose, to avoid adding parameters to 
