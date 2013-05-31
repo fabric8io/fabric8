@@ -32,30 +32,52 @@ public final class RegexSupport {
     public static final String PROFILE_CONTAINER_PROPERTIES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/org.fusesource.fabric.agent.properties";
     public static final String PROFILE_ATTRIBUTES_REGEX = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/[\\w\\.\\-]*/attributes.properties";
     public static final String PARENTS_REGEX = "parents=[[\\w\\-\\.]*[ \\t]]*";
+    public static final String PROFILE_REGEX_FORMAT = "/fabric/configs/versions/[\\w\\.\\-]*/profiles/%s/[^ ]*";
+    public static final String VERSION_REGEX_FORMAT = "/fabric/configs/versions/%s/[^ ]*";
+    public static final String VERSION_PROFILE_REGEX_FORMAT = "/fabric/configs/versions/%s/profiles/%s/[^ ]*";
 
     private RegexSupport() {
         //Utility Class
     }
 
-    public static String[] merge(File ignore, String[] regex) throws Exception {
+    public static String[] merge(File file, String[] regex, String[] versions, String[] profiles) throws Exception {
         ArrayList<String> list = new ArrayList<String>();
         if (regex != null) {
             for(String r : regex) {
                 list.add(r);
             }
         }
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(new FileReader(ignore));
-            String s = reader.readLine();
-            while (s != null) {
-                list.add(s);
-                s = reader.readLine();
+
+        if (versions != null && profiles != null) {
+            for(String v : versions) {
+                for (String p : profiles) {
+                  list.add(String.format(VERSION_PROFILE_REGEX_FORMAT, v, p));
+                }
             }
-        } catch (Exception e) {
-            throw new RuntimeException("Error reading from " + ignore + " : " + e);
-        } finally {
-            Closeables.closeQuitely(reader);
+        } else if (versions != null) {
+            for(String v : versions) {
+                list.add(String.format(VERSION_REGEX_FORMAT, v));
+            }
+        } else if (profiles != null) {
+            for(String p : profiles) {
+                list.add(String.format(PROFILE_REGEX_FORMAT, p));
+            }
+        }
+
+        if (file.exists() && file.isFile()) {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new FileReader(file));
+                String s = reader.readLine();
+                while (s != null) {
+                    list.add(s);
+                    s = reader.readLine();
+                }
+            } catch (Exception e) {
+                throw new RuntimeException("Error reading from " + file + " : " + e);
+            } finally {
+                Closeables.closeQuitely(reader);
+            }
         }
 
         String rc[] = new String[list.size()];

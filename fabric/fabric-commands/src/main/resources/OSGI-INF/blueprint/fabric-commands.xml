@@ -425,11 +425,19 @@
             <action class="org.fusesource.fabric.commands.Import">
                 <property name="curator" ref="curator"/>
             </action>
+            <optional-completers>
+                <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
         </command>
         <command name="fabric/export">
             <action class="org.fusesource.fabric.commands.Export">
                 <property name="curator" ref="curator"/>
             </action>
+            <optional-completers>
+                <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
         </command>
 
         <!--

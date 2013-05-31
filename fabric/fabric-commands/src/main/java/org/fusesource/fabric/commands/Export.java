@@ -50,6 +50,12 @@ public class Export extends FabricCommand {
     @Option(name="-rf", aliases={"--reverse-regex"}, description="Specifies a regular expression that matches the znode paths you want to exclude from the export. For multiple exclude expressions, specify this option multiple times. The regular expression syntax is defined by the java.util.regex package.", multiValued=true)
     String nregex[];
 
+    @Option(name="-p", aliases={"--profile"}, multiValued = true, description="Export the specified profile")
+    String[] profiles;
+
+    @Option(name="-v", aliases={"--version"}, multiValued = true, description="Export the specified version")
+    String[] versions;
+
     @Option(name="-p", aliases={"--path"}, description="Top level znode to export")
     String topLevel = "/";
 
@@ -66,12 +72,8 @@ public class Export extends FabricCommand {
     File include = new File(".fabricinclude");
 
     protected void doExecute(CuratorFramework curator) throws Exception {
-        if (ignore.exists() && ignore.isFile()) {
-            nregex = merge(ignore, nregex);
-        }
-        if (include.exists() && include.isFile()) {
-            regex = merge(include, regex);
-        }
+        nregex = merge(ignore, nregex, null, null);
+        regex = merge(include, regex, versions, profiles);
         export(curator, topLevel);
     }
 
