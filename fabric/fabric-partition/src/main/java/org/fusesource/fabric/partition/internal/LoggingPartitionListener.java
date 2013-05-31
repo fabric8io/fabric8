@@ -35,6 +35,16 @@ public class LoggingPartitionListener implements PartitionListener {
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
+
+    @Override
     public void start(String taskId, String workBase, Set<Partition> partitions) {
         for (Partition partition : partitions) {
             LOGGER.info("Start taskId: {}, partition: {}.", taskId, partition.getId());

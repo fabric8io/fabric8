@@ -22,8 +22,30 @@ public interface PartitionListener {
 
     String getType();
 
+    /**
+     * Initialize.
+     */
+    void init();
+
+    /**
+     * Destroy.
+     */
+    void destroy();
+
+    /**
+     * Start processing the assigned {@link Partition} items of the specified task.
+     * @param taskId
+     * @param taskDefinition
+     * @param partitions
+     */
     void start(String taskId, String taskDefinition, Set<Partition> partitions);
 
+    /**
+     * Stop processing the assigned {@link Partition} items of the specified task.
+     * @param taskId
+     * @param taskDefinition
+     * @param partitions
+     */
     void stop(String taskId, String taskDefinition, Set<Partition> partitions);
 
 }

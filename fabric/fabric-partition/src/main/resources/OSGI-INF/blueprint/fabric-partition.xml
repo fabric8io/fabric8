@@ -18,7 +18,9 @@
 
 
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService">
+        <reference-listener ref="profilePartitionListener" bind-method="bind" unbind-method="unbind"/>
+    </reference>
 
     <reference-list interface="org.fusesource.fabric.partition.BalancingPolicy" availability="optional">
         <reference-listener ref="taskManagerFactory" bind-method="bindPolicy" unbind-method="unbindPolicy"/>
@@ -38,8 +40,9 @@
     </bean>
 
     <bean id="loggingPartitionListener" class="org.fusesource.fabric.partition.internal.LoggingPartitionListener"/>
-    <bean id="profilePartitionListener" class="org.fusesource.fabric.partition.internal.profile.ProfileParitionListener">
-        <property name="fabricService" ref="fabricService"/>
+
+    <bean id="profilePartitionListener" class="org.fusesource.fabric.partition.internal.profile.ProfileParitionListener" init-method="init" destroy-method="destroy">
+        <argument ref="blueprintBundleContext"/>
     </bean>
 
     <service ref="taskManagerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
@@ -57,12 +60,6 @@
     <service ref="loggingPartitionListener" interface="org.fusesource.fabric.partition.PartitionListener">
         <service-properties>
             <entry key="type" value="logging"/>
-        </service-properties>
-    </service>
-
-    <service ref="profilePartitionListener" interface="org.fusesource.fabric.partition.PartitionListener">
-        <service-properties>
-            <entry key="type" value="profile-template"/>
         </service-properties>
     </service>
 

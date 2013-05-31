@@ -118,7 +118,7 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
         Closeables.closeQuitely(workerCache);
         executorService.shutdown();
         group.close();
-        partitionListener.stop(taskId, taskDefinition, assignedPartitions);
+        partitionListener.destroy();
         assignedPartitions.clear();
         node = null;
     }
