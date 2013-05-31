@@ -1,5 +1,6 @@
 package org.fusesource.fabric.features;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
@@ -135,9 +136,13 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
 
             for (String uri : repositoryUris) {
                 try {
-                    repositories.add(new RepositoryImpl(new URI(uri)));
+                    RepositoryImpl r = new RepositoryImpl(new URI(uri));
+                    r.load();
+                    repositories.add(r);
                 } catch (URISyntaxException e) {
                     LOGGER.debug("Error while adding repository with uri {}.", uri);
+                } catch (IOException e) {
+                    LOGGER.debug("Error while loading repository with uri {}.", uri);
                 }
             }
         }
