@@ -33,8 +33,10 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     protected String providerType;
     protected boolean ensembleServer;
     protected String preferredAddress;
+    protected String bindAddress;
     //The default value is null, so that we know if the user explicitly specified a resolver.
     protected String resolver = null;
+    protected String manualIp;
     protected Integer minimumPort = Ports.MIN_PORT_NUMBER;
     protected Integer maximumPort = Ports.MAX_PORT_NUMBER;
     protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
@@ -54,8 +56,18 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return (T) this;
     }
 
+    public T bindAddress(final String bindAddress) {
+        this.setBindAddress(bindAddress);
+        return (T) this;
+    }
+
     public T resolver(final String resolver) {
         this.setResolver(resolver);
+        return (T) this;
+    }
+
+    public T manualIp(final String manualIp) {
+        this.setManualIp(manualIp);
         return (T) this;
     }
 
@@ -181,12 +193,32 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.preferredAddress = preferredAddress;
     }
 
+    @Override
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    @Override
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
+    }
+
     public String getResolver() {
         return resolver;
     }
 
     public void setResolver(String resolver) {
         this.resolver = resolver;
+    }
+
+    @Override
+    public String getManualIp() {
+        return manualIp;
+    }
+
+    @Override
+    public void setManualIp(String manualIp) {
+        this.manualIp = manualIp;
     }
 
     @Override

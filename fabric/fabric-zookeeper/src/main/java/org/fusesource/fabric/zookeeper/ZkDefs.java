@@ -34,6 +34,7 @@ public interface ZkDefs {
 
     String GLOBAL_RESOLVER_PROPERTY = "global.resolver";
     String LOCAL_RESOLVER_PROPERTY = "local.resolver";
+    String BIND_ADDRESS = "bind.address";
     String DEFAULT_RESOLVER = LOCAL_HOSTNAME;
     String[] VALID_RESOLVERS = new String[]{LOCAL_HOSTNAME,LOCAL_IP,PUBLIC_IP,PUBLIC_HOSTNAME, MANUAL_IP};
 

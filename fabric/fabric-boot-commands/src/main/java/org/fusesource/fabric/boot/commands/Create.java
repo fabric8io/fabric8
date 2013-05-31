@@ -49,6 +49,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     String resolver;
     @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
     String manualIp;
+    @Option(name = "-b", aliases = {"--bind-address"}, description = "The default bind address.")
+    String bindAddress;
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
@@ -99,6 +101,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
         if (manualIp != null) {
             System.setProperty(ZkDefs.MANUAL_IP, manualIp);
+        }
+
+        if (bindAddress != null) {
+            System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
         }
 
         if (profile != null) {

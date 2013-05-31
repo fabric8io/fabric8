@@ -107,7 +107,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
 
         CreateJCloudsContainerOptions args = CreateContainerOptionsBuilder.jclouds()
         .name(name)
+        .bindAddress(bindAddress)
         .resolver(resolver)
+        .manualIp(manualIp)
         .ensembleServer(isEnsembleServer)
         .credential(credential)
         .group(group)

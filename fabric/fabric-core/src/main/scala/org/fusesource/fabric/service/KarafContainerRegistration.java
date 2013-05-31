@@ -58,6 +58,7 @@ import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_GEOLOCATION;
@@ -174,6 +175,7 @@ public class
                 deleteSafe(curator, domainsNode);
             }
 
+            createDefault(curator, CONTAINER_BINDADDRESS.getPath(name), System.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0"));
             createDefault(curator, CONTAINER_RESOLVER.getPath(name), getContainerResolutionPolicy(curator, name));
             setData(curator, CONTAINER_LOCAL_HOSTNAME.getPath(name), HostUtils.getLocalHostName());
             setData(curator, CONTAINER_LOCAL_IP.getPath(name), HostUtils.getLocalIp());

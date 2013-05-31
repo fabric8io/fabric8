@@ -80,6 +80,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         CreateSshContainerOptions options = CreateContainerOptionsBuilder.ssh()
         .name(name)
         .resolver(resolver)
+        .bindAddress(bindAddress)
+        .manualIp(manualIp)
         .ensembleServer(isEnsembleServer)
         .number(number)
         .host(host)

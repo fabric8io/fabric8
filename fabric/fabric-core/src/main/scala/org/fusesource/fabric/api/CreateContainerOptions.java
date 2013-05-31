@@ -41,10 +41,16 @@ public interface CreateContainerOptions extends Serializable, Cloneable {
     String getResolver();
     void setResolver(String resolver);
 
+    String getManualIp();
+    void setManualIp(String manualIp);
+
     Map<String,Properties> getSystemProperties();
 
     String getPreferredAddress();
     void setPreferredAddress(String preferredAddress);
+
+    String getBindAddress();
+    void setBindAddress(String bindAddress);
 
     int getMinimumPort();
     void setMinimumPort(int port);

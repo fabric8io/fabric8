@@ -37,8 +37,11 @@ import java.util.Set;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_MANUAL_IP;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 
@@ -79,6 +82,18 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
 
                 if (options.getJvmOpts() != null && !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
                     jvmOptsBuilder.append(" -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
+                }
+
+                if (options.getBindAddress() != null && !options.getBindAddress().isEmpty()) {
+                    jvmOptsBuilder.append(" -D" + ZkDefs.BIND_ADDRESS + "=" + options.getBindAddress());
+                }
+
+                if (options.getResolver() != null && !options.getResolver().isEmpty()) {
+                    jvmOptsBuilder.append(" -D" + ZkDefs.LOCAL_RESOLVER_PROPERTY + "=" + options.getResolver());
+                }
+
+                if (options.getManualIp() != null && !options.getManualIp().isEmpty()) {
+                    jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
                 }
 
                 Profile defaultProfile = parent.getVersion().getProfile("default");
@@ -215,19 +230,29 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
      * @throws InterruptedException
      */
     private void inheritAddresses(CuratorFramework curator, String parent, String name, CreateContainerChildOptions options) throws Exception {
+        if (options.getManualIp() != null) {
+            createDefault(curator, CONTAINER_MANUAL_IP.getPath(name), options.getManualIp());
+        }
+
         //Link to the addresses from the parent container.
         for (String resolver : ZkDefs.VALID_RESOLVERS) {
-            setData(curator, CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}");
+            createDefault(curator, CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}");
         }
 
         if (options.getResolver() != null) {
-            setData(curator, CONTAINER_RESOLVER.getPath(name), options.getResolver());
+            createDefault(curator, CONTAINER_RESOLVER.getPath(name), options.getResolver());
         } else {
-            setData(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
+            createDefault(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
         }
 
-        setData(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
-        setData(curator, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
+        if (options.getBindAddress() != null) {
+            createDefault(curator, CONTAINER_BINDADDRESS.getPath(name), options.getBindAddress());
+        } else {
+            createDefault(curator, CONTAINER_BINDADDRESS.getPath(name), "${zk:" + parent + "/bindaddress}");
+        }
+
+        createDefault(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
+        createDefault(curator, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
     }
 
     private static String collectionAsString(Collection<String> value) {

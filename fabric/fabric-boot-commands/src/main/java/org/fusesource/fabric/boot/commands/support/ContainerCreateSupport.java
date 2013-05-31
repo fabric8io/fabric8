@@ -38,6 +38,10 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected List<String> profiles;
     @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver policy for this container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip. Defaults to the fabric's default resolver policy.")
     protected String resolver;
+    @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
+    protected String manualIp;
+    @Option(name = "-b", aliases = {"--bind-address"}, description = "The default bind address.")
+    protected String bindAddress;
     @Option(name = "--ensemble-server", multiValued = false, required = false, description = "Whether the new container should be a fabric ensemble server (ZooKeeper ensemble server).")
     protected Boolean isEnsembleServer = Boolean.FALSE;
     @Option(name = "--zookeeper-password", multiValued = false, description = "The ensemble password to use (one will be generated if not given)")

@@ -73,6 +73,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Option(name = "-r", aliases = {"--resolver"}, description = "The resolver policy. Possible values are: localip, localhostname, publicip, publichostname, manualip. Default is localhostname.")
     String resolver;
 
+    @Option(name = "-b", aliases = {"--bind-address"}, description = "The default bind address.")
+    String bindAddress;
+
     @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
     String manualIp;
 
@@ -96,6 +99,10 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
         if (manualIp != null) {
             System.setProperty(ZkDefs.MANUAL_IP, manualIp);
+        }
+
+        if (bindAddress != null) {
+            System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
         }
 
         zookeeperPassword = zookeeperPassword != null ? zookeeperPassword : ShellUtils.retrieveFabricZookeeperPassword(session);

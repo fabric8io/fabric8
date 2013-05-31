@@ -20,7 +20,6 @@ package org.fusesource.fabric.internal;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.ObjectUtils;
@@ -124,6 +123,12 @@ public final class ContainerProviderUtils {
         List<String> lines = new ArrayList<String>();
         String globalResolver = options.getResolver() != null ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
         lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + globalResolver);
+        if (options.getBindAddress() != null && !options.getBindAddress().isEmpty()) {
+            lines.add(ZkDefs.BIND_ADDRESS + "=" + options.getBindAddress());
+        }
+        if (options.getManualIp() != null && !options.getManualIp().isEmpty()) {
+            lines.add(ZkDefs.MANUAL_IP + "=" + options.getManualIp());
+        }
         appendFile(sb, "etc/system.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
         //Apply port range

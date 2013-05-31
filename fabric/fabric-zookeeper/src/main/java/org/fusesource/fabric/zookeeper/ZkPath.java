@@ -89,6 +89,7 @@ public enum ZkPath {
     CONTAINER_PUBLIC_IP            ("/fabric/registry/containers/config/{container}/publicip"),
     CONTAINER_PUBLIC_HOSTNAME      ("/fabric/registry/containers/config/{container}/publichostname"),
     CONTAINER_MANUAL_IP            ("/fabric/registry/containers/config/{container}/manualip"),
+    CONTAINER_BINDADDRESS          ("/fabric/registry/containers/config/{container}/bindaddress"),
     CONTAINER_PARENT               ("/fabric/registry/containers/config/{container}/parent"),
     CONTAINER_JMX                  ("/fabric/registry/containers/config/{container}/jmx"),
     CONTAINER_JOLOKIA              ("/fabric/registry/containers/config/{container}/jolokia"),

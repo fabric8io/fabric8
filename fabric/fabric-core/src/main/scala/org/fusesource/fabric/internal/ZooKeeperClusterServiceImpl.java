@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -179,6 +180,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             String karafName = System.getProperty(SystemProperties.KARAF_NAME);
             String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
+            String bindAddress = System.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0");
+
             int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
 
             if (options.getZookeeperPassword() != null) {
@@ -203,7 +206,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 					"mvn:org.fusesource.fabric/fabric-maven-proxy/" + FabricConstants.FABRIC_VERSION);
 
 			// Create configuration
-			String connectionUrl = HostUtils.getLocalHostName() + ":" + Integer.toString(mappedPort);
+			String connectionUrl = getConnectionAddress() + ":" + Integer.toString(mappedPort);
 
 			String autoImportFrom = System.getProperty(SystemProperties.PROFILES_AUTOIMPORT_PATH);
 
@@ -217,6 +220,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			properties.put("syncLimit", "5");
 			properties.put("dataDir", "data/zookeeper/0000");
 			properties.put("clientPort", Integer.toString(mappedPort));
+            properties.put("clientPortAddress", bindAddress);
 			properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper.server-0000");
 			config.setBundleLocation(null);
 			config.update(properties);
@@ -285,6 +289,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             getDataStore().setProfileAttribute(version, ensembleServerProfile, "parents", ensembleProfile);
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
+            serverProps.put("clientPortAddress", bindAddress);
             getDataStore().setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(serverProps));
 
 			setData(client, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
@@ -527,6 +532,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 				String minimumPort = String.valueOf(Ports.MIN_PORT_NUMBER);
 				String maximumPort = String.valueOf(Ports.MAX_PORT_NUMBER);
+                String bindAddress = "0.0.0.0";
 
 				if (exists(curator, ZkPath.CONTAINER_PORT_MIN.getPath(container)) != null) {
 					minimumPort = getSubstitutedPath(curator, ZkPath.CONTAINER_PORT_MIN.getPath(container));
@@ -535,6 +541,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				if (exists(curator, ZkPath.CONTAINER_PORT_MAX.getPath(container)) != null) {
 					maximumPort = getSubstitutedPath(curator, ZkPath.CONTAINER_PORT_MAX.getPath(container));
 				}
+
+                if (exists(curator, ZkPath.CONTAINER_BINDADDRESS.getPath(container)) != null) {
+                    bindAddress= getSubstitutedPath(curator, ZkPath.CONTAINER_BINDADDRESS.getPath(container));
+                }
 
                 String ensembleMemberPid = "org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties ensembleMemberProperties = new Properties();
@@ -552,6 +562,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     ensembleMemberProperties.put("server.id", Integer.toString(index));
                 }
                 ensembleMemberProperties.put("clientPort", port1);
+                ensembleMemberProperties.put("clientPortAddress", bindAddress);
 
                 getDataStore().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberPid, DataStoreHelpers.toBytes(ensembleMemberProperties));
 
@@ -770,5 +781,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         }
         String allUsers = sb.toString();
         createDefault(curator, "/fabric/authentication/users", allUsers);
+    }
+
+    private String getConnectionAddress() throws UnknownHostException {
+        String resolver = System.getProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, System.getProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, ZkDefs.LOCAL_HOSTNAME));
+        if (resolver.equals(ZkDefs.LOCAL_HOSTNAME)) {
+            return HostUtils.getLocalHostName();
+        } else if (resolver.equals(ZkDefs.LOCAL_IP)) {
+            return HostUtils.getLocalIp();
+        } else if (resolver.equals(ZkDefs.MANUAL_IP) && System.getProperty(ZkDefs.MANUAL_IP) != null) {
+            return System.getProperty(ZkDefs.MANUAL_IP);
+        }  else return HostUtils.getLocalHostName();
     }
 }
