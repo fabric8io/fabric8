@@ -36,7 +36,7 @@ The task.definition is defines the task. It can be any value the PartitionListen
 As mentioned above, fabric-partition module provides an implementation of the PartitionListener that creates profiles "on the fly" based on a template + partition data.
 
 **The template profile**
-The template profile is a profile which contains mvel templates as resources. The ProfileParitionListener will search for resources with the mvel extentition and will render them using the key/value pairs stored inside the assigned partition.
+The template profile is a profile which contains mvel templates as resources. The ProfilePartitionListener will search for resources with the mvel extentition and will render them using the key/value pairs stored inside the assigned partition.
 
 **Example Template Profile**
 
@@ -52,7 +52,7 @@ So give a partition item that contains the following json:
 
     { "name" : "cool-feature" }
 
-The ProfileParitionListener will render the file as follows:
+The ProfilePartitionListener will render the file as follows:
 
     feature.cool-feature=cool-feature
 
@@ -64,7 +64,7 @@ Then it will create a new profile and assign it to local container.
 Out of the box the example-camel-partition & example-camel-template profiles are provided. The example-camel-partition is a template profile that contains a templated camel route.
 The route contains a variable consumer endpoint which sends messages to log. This allows you to generate profiles with different consumer endpoint and distribute them to containers.
 
-The example-camel-partition contains the configuration of the task. Each container that uses this profile will register a ProfileParitionListener and will wait for partition assignment.
+The example-camel-partition contains the configuration of the task. Each container that uses this profile will register a ProfilePartitionListener and will wait for partition assignment.
 The task configuration looks like this:
 
     id=example

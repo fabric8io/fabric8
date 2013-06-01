@@ -41,7 +41,7 @@
 
     <bean id="loggingPartitionListener" class="org.fusesource.fabric.partition.internal.LoggingPartitionListener"/>
 
-    <bean id="profilePartitionListener" class="org.fusesource.fabric.partition.internal.profile.ProfileParitionListener" init-method="init" destroy-method="destroy">
+    <bean id="profilePartitionListener" class="org.fusesource.fabric.partition.internal.profile.ProfilePartitionListener" init-method="init" destroy-method="destroy">
         <argument ref="blueprintBundleContext"/>
     </bean>
 

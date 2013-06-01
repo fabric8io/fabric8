@@ -45,7 +45,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class ProfileParitionListener implements PartitionListener {
+public class ProfilePartitionListener implements PartitionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);
 
@@ -63,7 +63,7 @@ public class ProfileParitionListener implements PartitionListener {
     private ServiceRegistration registration;
     private FabricService fabricService;
 
-    public ProfileParitionListener(BundleContext bundleContext) {
+    public ProfilePartitionListener(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         this.properties.put("type", TYPE);
     }
