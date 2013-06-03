@@ -54,9 +54,69 @@ charts or filled areas).
             return res;
         }
         
+		var accumulated = { };
+
         function stackData(plot, s, datapoints) {
             if (s.stack == null)
                 return;
+
+			if (accumulated[s.stack] == null) {
+				accumulated[s.stack] = { }
+				_.each(plot.getData(), function(sr) {
+					if (s.stack == sr.stack) {
+						for (var i = 0; i < sr.datapoints.points.length; i += sr.datapoints.pointsize) {
+							if (sr.datapoints.points[i] != null) {
+								accumulated[sr.stack][sr.datapoints.points[i + (sr.bars.horizontal ? 1 : 0)]] = 0;
+							}
+						}
+					}
+				});
+			}
+			var ps = datapoints.pointsize,
+                points = datapoints.points,
+                keyOffset = horizontal ? 1 : 0,
+                accumulateOffset = horizontal ? 0 : 1,
+                horizontal = s.bars.horizontal,
+				withlines = s.lines.show,
+                withsteps = withlines && s.lines.steps;
+			if (true | withlines) {
+				var newpoints = [];
+				var newacc = { }
+				for (var key in accumulated[s.stack]) {
+					newacc[key] = accumulated[s.stack][key];
+				}
+				for (var i = 0; i < points.length; i += ps) {
+					if (points[i] != null) {
+						newacc[points[i + keyOffset]] += points[i + accumulateOffset];
+					}
+				}
+				for (var key in accumulated[s.stack]) {
+					if (withlines || newacc[key] != accumulated[s.stack][key]) {
+						var l = newpoints.length;
+						for (var m = 0; m < ps; m++) {
+							newpoints.push(0);
+						}
+						newpoints[l + keyOffset] += parseInt(key);
+						newpoints[l + accumulateOffset] += newacc[key];
+						newpoints[l + 2] += accumulated[s.stack][key];
+					} else {
+						for (var m = 0; m < ps; m++) {
+							newpoints.push(null);
+						}
+					}
+				}
+				accumulated[s.stack] = newacc;
+	            datapoints.points = newpoints;
+			} else {
+				for (var i = 0; i < points.length; i += ps) {
+					if (points[i] != null) {
+						points[i + accumulateOffset] += accumulated[s.stack][points[i + keyOffset]];
+						points[i + 2] += accumulated[s.stack][points[i + keyOffset]];
+						accumulated[s.stack][points[i + keyOffset]] = points[i + accumulateOffset];
+					}
+				}
+			}
+			return;
 
             var other = findMatchingSeries(s, plot.getData());
             if (!other)
