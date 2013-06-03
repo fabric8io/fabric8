@@ -136,6 +136,8 @@ angular.module('kibana.pie', [])
             && _.isArray($scope.panel.colors)
             && $scope.panel.colors.length > 0) {
             slice.color = $scope.panel.colors[k%$scope.panel.colors.length];
+          } else {
+            slice.color = config.getSerieColor(v.term, k);
           } 
           $scope.data.push(slice)
           k = k + 1;

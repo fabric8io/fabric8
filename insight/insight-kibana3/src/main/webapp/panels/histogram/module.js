@@ -216,7 +216,10 @@ angular.module('kibana.histogram', [])
 
           if (!(_.isUndefined($scope.panel.query[i].color)))
             series.data.color = $scope.panel.query[i].color;
-          
+          if (_.isUndefined(series.data.color)) {
+            series.data.color = config.getSerieColor(series.data.label, parseInt(i));
+          }
+
           $scope.data[i] = series.data
 
           i++;

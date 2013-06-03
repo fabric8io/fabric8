@@ -25,6 +25,7 @@ var config = new Settings(
                     'timepicker','text','fields','hits','dashcontrol',
                     'column','derivequeries','trends'],
   formatValue:      doFormatValue,
+  getSerieColor:    doGetSerieColor,
   dashboards:       [ {
     content:   "Log",
     title:     "Search in log events",
@@ -38,6 +39,18 @@ var config = new Settings(
   }]
 });
 
+function doGetSerieColor(label, index) {
+  var colors = ['#86B22D','#BF6730','#1D7373','#BFB930','#BF3030','#77207D'];
+  if (label == "info") {
+    return colors[0];
+  } else if (label == "warn") {
+    return colors[1];
+  } else if (label == "error") {
+    return colors[4];
+  } else {
+    return colors[index % colors.length];
+  }
+}
 
 function doFormatValue(source, key, obj) {
     if (key == 'exception') {

@@ -77,15 +77,15 @@
           "query": [
             {
               "query": "level:\"INFO\"",
-              "label": "infos"
+              "label": "info"
             },
             {
               "query": "level:\"WARN\"",
-              "label": "warnings"
+              "label": "warn"
             },
             {
               "query": "level:\"ERROR\"",
-              "label": "errors"
+              "label": "error"
             }
           ],
           "interval": "5m",
@@ -167,15 +167,15 @@
               "query": [
                 {
                   "query": "level:\"ERROR\"",
-                  "label": "errors"
+                  "label": "error"
                 },
                 {
                   "query": "level:\"WARN\"",
-                  "label": "warnings"
+                  "label": "warn"
                 },
                 {
                   "query": "level:\"INFO\"",
-                  "label": "infos"
+                  "label": "info"
                 }
               ],
               "style": {
@@ -196,15 +196,15 @@
               "query": [
                 {
                   "query": "level:\"ERROR\"",
-                  "label": "errors"
+                  "label": "error"
                 },
                 {
                   "query": "level:\"WARN\"",
-                  "label": "warnings"
+                  "label": "warn"
                 },
                 {
                   "query": "level:\"INFO\"",
-                  "label": "infos"
+                  "label": "info"
                 }
               ],
               "style": {
@@ -242,7 +242,7 @@
             "timestamp",
             "desc"
           ],
-          "query": "NOT logger:\"fabric-cbr-out\" AND NOT logger:\"org.fusesource.fabric.internal.ContainerImpl\""
+          "query": ""
         },
         {
           "loading": false,
@@ -253,7 +253,7 @@
             "default"
           ],
           "type": "table",
-          "query": "NOT logger:\"fabric-cbr-out\" AND NOT logger:\"org.fusesource.fabric.internal.ContainerImpl\"",
+          "query": "",
           "interval": "1y",
           "show": [
             "bars",

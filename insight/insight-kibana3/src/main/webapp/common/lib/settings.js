@@ -7,6 +7,7 @@ var Settings = function (s) {
     types         : [],
     kibana_index  : 'kibana-int',
     formatValue   : format_value,
+    getSerieColor : get_serie_color,
     dashboards    : []
   }
 
@@ -20,6 +21,11 @@ var Settings = function (s) {
   return _s;
 
 };
+
+function get_serie_color(label, index) {
+  var colors = ['#86B22D','#BF6730','#1D7373','#BFB930','#BF3030','#77207D'];
+  return colors[index % colors.length];
+}
 
 function format_value(source, key, obj) {
   if(typeof obj == 'object' && _.isArray(obj)) {
