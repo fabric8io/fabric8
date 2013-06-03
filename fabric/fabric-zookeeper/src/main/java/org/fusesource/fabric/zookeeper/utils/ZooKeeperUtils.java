@@ -373,8 +373,10 @@ public final class ZooKeeperUtils {
 
     public static Properties getContainerTokens(CuratorFramework curator) throws Exception {
         Properties props = new Properties();
-        for (String key : getChildren(curator, CONTAINERS_NODE)) {
-            props.setProperty("container#" + key, getStringData(curator, CONTAINERS_NODE + "/" + key));
+        if (exists(curator, CONTAINERS_NODE) != null) {
+            for (String key : getChildren(curator, CONTAINERS_NODE)) {
+                props.setProperty("container#" + key, getStringData(curator, CONTAINERS_NODE + "/" + key));
+            }
         }
         return props;
     }
