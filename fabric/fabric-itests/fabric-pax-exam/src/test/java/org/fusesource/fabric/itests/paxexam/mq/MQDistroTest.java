@@ -32,7 +32,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
@@ -44,7 +44,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.*;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 

@@ -48,8 +48,8 @@ import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.debugConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)

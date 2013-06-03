@@ -36,6 +36,7 @@ import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -94,7 +95,7 @@ public class CreateChildContainerTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005",false)
+                debugConfiguration("5005",false)
         };
     }
 }

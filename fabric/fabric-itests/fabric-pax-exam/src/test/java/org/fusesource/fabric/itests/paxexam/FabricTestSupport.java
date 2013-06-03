@@ -30,7 +30,7 @@ import org.fusesource.fabric.itests.paxexam.support.SshContainerBuilder;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.osgi.service.blueprint.container.BlueprintContainer;
@@ -51,11 +51,11 @@ import static junit.framework.Assert.assertNotNull;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 import static org.ops4j.pax.exam.CoreOptions.maven;
 
 public class FabricTestSupport extends FuseTestSupport {
