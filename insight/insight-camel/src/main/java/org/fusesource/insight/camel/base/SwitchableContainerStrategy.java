@@ -20,43 +20,101 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Route;
 import org.apache.camel.api.management.ManagedAttribute;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 
+import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  */
 public abstract class SwitchableContainerStrategy implements ContainerStrategy, SwitchableContainerStrategyMBean {
 
-    private boolean enabled = true;
-    private final Map<String, Boolean> perContext = new HashMap<String, Boolean>();
-    private final Map<String, Boolean> perRoute = new HashMap<String, Boolean>();
+    private Map<String, String> properties;
+    private final boolean defaultEnable;
+    private final AtomicBoolean enabled;
+    private final Map<String, Boolean> perContext = new ConcurrentHashMap<String, Boolean>();
+    private final Map<String, Boolean> perRoute = new ConcurrentHashMap<String, Boolean>();
+
+    protected SwitchableContainerStrategy() {
+        this(true);
+    }
+
+    protected SwitchableContainerStrategy(boolean defaultEnable) {
+        this.defaultEnable = defaultEnable;
+        this.enabled = new AtomicBoolean(defaultEnable);
+    }
+
+    public void update(Map<String, String> properties) {
+        doUpdate(properties);
+        this.properties = properties;
+    }
+
+    private void doUpdate(Map<String, String> properties) {
+        boolean enabled = defaultEnable;
+        Map<String, Boolean> perContext = new HashMap<String, Boolean>();
+        Map<String, Boolean> perRoute = new HashMap<String, Boolean>();
+        if (properties != null) {
+            for (String key : properties.keySet()) {
+                String val = properties.get(key);
+                if ("enabled".equals(key)) {
+                    enabled = Boolean.parseBoolean(val);
+                } else if (key.startsWith("context.")) {
+                    perContext.put(key.substring("context.".length()), Boolean.parseBoolean(val));
+                } else if (key.startsWith("route.")) {
+                    perRoute.put(key.substring("route.".length()), Boolean.parseBoolean(val));
+                }
+            }
+        }
+        this.enabled.set(enabled);
+        updateMap(this.perContext, perContext);
+        updateMap(this.perRoute, perRoute);
+    }
+
+    public Map<String, ?> getProperties() {
+        return properties;
+    }
+
+    private void updateMap(Map<String, Boolean> oldMap, Map<String, Boolean> newMap) {
+        oldMap.putAll(newMap);
+        for (Iterator<String> it = oldMap.keySet().iterator(); it.hasNext();) {
+            String key = it.next();
+            if (!newMap.containsKey(key)) {
+                it.remove();
+            }
+        }
+    }
 
     public void reset() {
-        enabled = true;
+        enabled.set(defaultEnable);
         perContext.clear();
         perRoute.clear();
     }
 
     public void enable() {
-        enabled = true;
+        enabled.set(true);
     }
 
     public void disable() {
-        enabled = false;
+        enabled.set(false);
     }
 
     @Override
     @ManagedAttribute(description = "Is service enabled")
     public boolean isEnabled() {
-        return enabled;
+        return enabled.get();
     }
 
     @Override
     @ManagedAttribute(description = "Is service enabled")
     public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+        this.enabled.set(enabled);
     }
 
     @Override
@@ -118,7 +176,7 @@ public abstract class SwitchableContainerStrategy implements ContainerStrategy, 
         if (b == null) {
             b = isContextEnabled(exchange);
         }
-        return (b == null) ? enabled : b;
+        return (b == null) ? enabled.get() : b;
     }
 
     public Boolean isRouteEnabled(Exchange exchange) {
@@ -130,7 +188,7 @@ public abstract class SwitchableContainerStrategy implements ContainerStrategy, 
     }
 
     public Boolean isContextEnabled(Exchange exchange) {
-        return perRoute.get(exchange.getContext().getName());
+        return perContext.get(exchange.getContext().getName());
     }
 
 }

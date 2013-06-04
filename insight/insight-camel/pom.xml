@@ -66,6 +66,10 @@
           <artifactId>camel-core</artifactId>
           <version>2.12-SNAPSHOT</version>
       </dependency>
+      <dependency>
+          <groupId>org.apache.karaf.shell</groupId>
+          <artifactId>org.apache.karaf.shell.console</artifactId>
+      </dependency>
 
       <dependency>
           <groupId>org.mvel</groupId>

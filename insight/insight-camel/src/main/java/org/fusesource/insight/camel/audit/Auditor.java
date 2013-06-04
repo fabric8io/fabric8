@@ -70,8 +70,8 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
     }
 
     public Auditor(StorageService storage) {
+        super(false);
         this.storage = storage;
-        disable();
         context = new ParserContext();
         try {
             context.addImport("toJson", ScriptUtils.class.getMethod("toJson", Object.class));

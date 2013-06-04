@@ -14,16 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.insight.camel.base;
+package org.fusesource.insight.camel.commands;
 
-import org.apache.camel.CamelContext;
+import org.apache.felix.gogo.commands.Command;
+import org.fusesource.insight.camel.base.Activator;
 
-import java.util.Map;
+@Command(scope = "camel", name = "breadcrumbs")
+public class BreadcrumbsCommand extends BaseCommand {
 
-public interface ContainerStrategy {
-
-    void update(Map<String, String> properties);
-
-    void manage(CamelContext context) throws Exception;
+    @Override
+    public String getStrategy() {
+        return Activator.BREADCRUMBS;
+    }
 
 }
