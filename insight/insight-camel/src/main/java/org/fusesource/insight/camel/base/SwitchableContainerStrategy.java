@@ -20,14 +20,27 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.Route;
 import org.apache.camel.api.management.ManagedAttribute;
+import org.fusesource.insight.camel.commands.BaseCommand;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -46,13 +59,22 @@ public abstract class SwitchableContainerStrategy implements ContainerStrategy, 
         this(true);
     }
 
+    public String getStrategy() {
+        return getClass().getSimpleName().toLowerCase();
+    }
+
     protected SwitchableContainerStrategy(boolean defaultEnable) {
         this.defaultEnable = defaultEnable;
         this.enabled = new AtomicBoolean(defaultEnable);
     }
 
     public void update(Map<String, String> properties) {
-        doUpdate(properties);
+        if (properties == null) {
+            properties = new HashMap<String, String>();
+        }
+        if (this.properties == null || !this.properties.equals(properties)) {
+            doUpdate(properties);
+        }
         this.properties = properties;
     }
 
@@ -88,6 +110,57 @@ public abstract class SwitchableContainerStrategy implements ContainerStrategy, 
             if (!newMap.containsKey(key)) {
                 it.remove();
             }
+        }
+    }
+
+    @Override
+    public String getConfiguration() {
+        Properties props = new Properties();
+        if (properties != null) {
+            props.putAll(properties);
+        }
+        StringWriter sw = new StringWriter();
+        try {
+            props.store(sw, null);
+        } catch (IOException e) {
+            return null;
+        }
+        return sw.toString();
+    }
+
+    @Override
+    public void setConfiguration(String configuration) {
+        try {
+            Properties props = new Properties();
+            props.load(new StringReader(configuration));
+
+            String strategy = getStrategy();
+            BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+            ServiceReference<ConfigurationAdmin> sr = bundleContext.getServiceReference(ConfigurationAdmin.class);
+            ConfigurationAdmin ca = bundleContext.getService(sr);
+            if (ca != null) {
+                Configuration config = ca.getConfiguration(Activator.INSIGHT_CAMEL_PID);
+                Dictionary<String, Object> dic = config.getProperties();
+                if (dic == null) {
+                    dic = new Hashtable<String, Object>();
+                }
+                Set<String> s = new HashSet<String>();
+                for (Enumeration<String> keyEnum = dic.keys(); keyEnum.hasMoreElements();) {
+                    String key = keyEnum.nextElement();
+                    if (key.startsWith(strategy + ".")) {
+                        s.add(key);
+                    }
+                }
+                for (String key : s) {
+                    dic.remove(key);
+                }
+                for (String key : props.stringPropertyNames()) {
+                    dic.put(strategy + "." + key, props.getProperty(key));
+                }
+                config.update(dic);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

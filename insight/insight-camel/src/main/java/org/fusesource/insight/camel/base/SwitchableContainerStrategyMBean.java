@@ -24,6 +24,10 @@ public interface SwitchableContainerStrategyMBean {
 
     void setEnabled(boolean enabled);
 
+    String getConfiguration();
+
+    void setConfiguration(String configuration);
+
     void enableForContext(String context);
 
     void disableForContext(String context);
