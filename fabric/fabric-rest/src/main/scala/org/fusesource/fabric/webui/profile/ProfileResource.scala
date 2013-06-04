@@ -90,9 +90,11 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
     configs.foreach {
       case (key: String, data: Array[Byte]) =>
         val entry = new ZipArchiveEntry(id + File.separator + key)
+        entry.setSize(data.length)
         Services.LOG.debug("Adding file {}", entry)
         zip.putArchiveEntry(entry)
         zip.write(data)
+        zip.flush()
         zip.closeArchiveEntry()
     }
 
@@ -107,9 +109,10 @@ class ProfileResource(val self: Profile, val container:Container = null ) extend
     val temp = File.createTempFile("exp", "zip")
     val zip = new ZipArchiveOutputStream(temp)
     write_to_zip(zip)
+    zip.flush()
     zip.close()
 
-    val in = new FileInputStream(temp)
+    val in = new BufferedInputStream(new FileInputStream(temp))
     IOUtils.copy(in, out)
     in.close
     temp.delete

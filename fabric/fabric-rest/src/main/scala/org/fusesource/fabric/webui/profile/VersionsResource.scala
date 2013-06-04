@@ -27,6 +27,7 @@ import java.io.{FileOutputStream, File, InputStream}
 import com.sun.jersey.core.header.FormDataContentDisposition
 import scala.Some
 import java.util
+import java.io._
 import org.apache.commons.io.IOUtils
 import org.apache.commons.compress.archivers.zip.ZipFile
 import scala.Some
@@ -113,8 +114,9 @@ class VersionsResource extends BaseResource {
         Services.LOG.debug("Found entry profile: {}, property: {}", profile, property_name)
         Services.LOG.debug("Entry is (supposedly) {} bytes", x.getSize)
 
-        val buffer = new Array[Byte](x.getSize.toInt)
-        zip.getInputStream(x).read(buffer)
+        val in = new BufferedInputStream(zip.getInputStream(x))
+        val buffer = IOUtils.toByteArray(in);
+        in.close()
 
         Services.LOG.debug("Read {} bytes", buffer.length)
         profiles.get(profile).put(property_name, buffer)
