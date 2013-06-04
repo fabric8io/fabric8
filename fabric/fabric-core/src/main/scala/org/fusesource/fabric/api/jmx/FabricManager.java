@@ -112,19 +112,26 @@ public class FabricManager implements FabricManagerMBean {
                 }
             } catch(Throwable t) {
                 rc.setClientConnected(false);
-
             }
-        }
-        try {
-            rc.setManaged(getFabricService().getCurrentContainer().isManaged());
-        } catch (Throwable t) {
+
+            if (rc.isClientValid() && rc.isClientConnected()) {
+
+                Container c = getFabricService().getCurrentContainer();
+
+                try {
+                    rc.setManaged(c.isManaged());
+                } catch (Throwable t) {
+
+                }
+                try {
+                    rc.setProvisionComplete(c.isProvisioningComplete());
+                } catch (Throwable t) {
+
+                }
+            }
 
         }
-        try {
-            rc.setProvisionComplete(getFabricService().getCurrentContainer().isProvisioningComplete());
-        } catch (Throwable t) {
 
-        }
         return rc;
     }
 
