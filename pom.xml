@@ -584,6 +584,17 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
+        <repository>
+            <id>fusesource.61</id>
+            <name>FuseSource Community Early Access 61 Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
 <!--        <repository>
             <id>fusesource-nexus-staging</id>
             <name>FuseSource Release Proxy</name>
