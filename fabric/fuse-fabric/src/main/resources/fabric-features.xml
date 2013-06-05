@@ -372,6 +372,7 @@
     <feature name="insight-camel" version="${project.version}" resolver="(obr)">
         <feature>camel</feature>
         <feature>insight-elasticsearch</feature>
+        <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-camel/${project.version}</bundle>
     </feature>
 
