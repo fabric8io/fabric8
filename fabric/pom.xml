@@ -62,8 +62,12 @@
 
         <module>fabric-cxf</module>
         <module>fabric-camel</module>
+<!--
+        TODO disabled until they work in 2.12 of camel
+
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
+-->
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
         <module>fabric-groups</module>
