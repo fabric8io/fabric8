@@ -133,7 +133,7 @@
         <!--
         <camel-version>2.12.0.fuse-72-SNAPSHOT</camel-version>
         -->
-        <camel-version>2.12.0.redhat-60${perfectus-build}</camel-version>
+        <camel-version>2.12.0.redhat-${full-perfectus-build}</camel-version>
         <coffeebar-version>0.2.11</coffeebar-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>
@@ -583,7 +583,7 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </repository>
+        </repository> 
         <repository>
             <id>fusesource.61</id>
             <name>FuseSource Community Early Access 61 Repository</name>
@@ -750,7 +750,6 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-
          <pluginRepository>
             <id>fusesource.ea</id>
             <name>FuseSource Community Early Access Release Repository</name>
