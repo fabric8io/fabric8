@@ -143,7 +143,7 @@
         <commons-lang-version>2.6</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
-        <cxf-version>2.6.0.redhat-${full-perfectus-build}</cxf-version>
+        <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
         <curator.version>2.0.0-incubating</curator.version>
         <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
         <drools-version>5.5.0.Final</drools-version>
@@ -226,7 +226,7 @@
         <servicemix-components-version>2012.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
         <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
         <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.0.0.redhat-${full-perfectus-build}</servicemix-specs-version>
+        <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
         <servicemix-utils-version>1.5.1.redhat-${full-perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
@@ -750,6 +750,19 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
+
+        <pluginRepository>
+            <id>fusesource.61</id>
+            <name>FuseSource Community Early Access 61 Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+
          <pluginRepository>
             <id>fusesource.ea</id>
             <name>FuseSource Community Early Access Release Repository</name>
