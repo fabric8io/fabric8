@@ -494,6 +494,12 @@
         <bundle>mvn:org.fusesource.fabric/fabric-git/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-git-server/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-git-zkbridge/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-git</feature>
+        <feature version="${hawtio-version}">hawtio</feature>
+        <feature version="${karaf-version}">http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-git-hawtio/${project.version}</bundle>
     </feature>
 
