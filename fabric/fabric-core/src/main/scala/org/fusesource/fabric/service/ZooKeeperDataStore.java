@@ -125,6 +125,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         if (treeCache != null) {
             treeCache.getListenable().removeListener(this);
             Closeables.closeQuitely(treeCache);
+            treeCache = null;
         }
     }
 
@@ -259,6 +260,9 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public CreateContainerMetadata getContainerMetadata(String containerId) {
         try {
             byte[] encoded = getByteData(treeCache, ZkPath.CONTAINER_METADATA.getPath(containerId));
+            if (encoded == null) {
+                return null;
+            }
             byte[] decoded = Base64Encoder.decode(encoded);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
             return (CreateContainerMetadata) ois.readObject();
