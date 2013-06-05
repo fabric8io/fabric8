@@ -29,7 +29,6 @@ TODO disabled for now until we figure out how to work nicely with the updated ca
 
 import org.apache.camel.fabric.FabricTracerEventMessage;
 */
-import org.apache.camel.fabric.FabricTracerEventMessage;
 import org.apache.camel.impl.DefaultCamelContext;
 import org.apache.camel.spi.BrowsableEndpoint;
 import org.apache.camel.test.junit4.CamelTestSupport;

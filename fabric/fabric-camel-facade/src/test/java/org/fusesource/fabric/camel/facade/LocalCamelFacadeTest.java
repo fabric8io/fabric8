@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.camel.fabric.FabricTracerEventMessage;
 import org.fusesource.fabric.camel.facade.mbean.CamelBrowsableEndpointMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelComponentMBean;
 import org.fusesource.fabric.camel.facade.mbean.CamelConsumerMBean;
