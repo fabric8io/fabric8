@@ -48,7 +48,14 @@
             <artifactId>jboss-a-mq</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.activemq</groupId>
+                    <artifactId>activemq-osgi</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
 
         <!-- Internal Dependencies -->
         <dependency>
@@ -118,6 +125,11 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-linkedin-zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
         </dependency>
 
         <dependency>
