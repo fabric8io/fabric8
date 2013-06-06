@@ -10,8 +10,8 @@
       "panels": [
         {
           "loading": false,
-          "error": false,
-          "span": 5,
+          "error": "",
+          "span": 4,
           "editable": true,
           "group": [
             "default"
@@ -33,64 +33,27 @@
           "index": "[insight-]YYYY.MM.DD",
           "defaultindex": "NOINDEX",
           "index_interval": "day",
-          "types": [ "camel" ],
+          "types": [
+            "camel"
+          ],
           "refresh": {
             "enable": false,
             "interval": 30,
             "min": 3
-          }
+          },
+          "timeformat": ""
         },
         {
           "loading": false,
           "error": false,
-          "span": 3,
-          "editable": true,
-          "group": [
-            "default"
-          ],
-          "type": "dashcontrol",
-          "save": {
-            "gist": false,
-            "elasticsearch": true,
-            "local": true,
-            "default": true
-          },
-          "load": {
-            "gist": true,
-            "elasticsearch": true,
-            "local": true
-          },
-          "hide_control": false,
-          "elasticsearch_size": 20,
-          "elasticsearch_saveto": "kibana-int",
-          "temp": true,
-          "temp_ttl": "30d"
-        }
-      ]
-    },
-    {
-      "title": "Query",
-      "height": "50px",
-      "editable": true,
-      "collapse": false,
-      "collapsable": true,
-      "panels": [
-        {
-          "loading": false,
-          "error": false,
-          "span": 12,
+          "span": 7,
           "editable": true,
           "group": [
             "default"
           ],
           "type": "stringquery",
           "label": "Search",
-          "query": "*",
-          "size": 100,
-          "sort": [
-            "_score",
-            "desc"
-          ],
+          "query": "",
           "multi": false,
           "multi_arrange": "horizontal"
         }
@@ -98,7 +61,7 @@
     },
     {
       "title": "Graph",
-      "height": "350px",
+      "height": "250px",
       "editable": true,
       "collapse": false,
       "collapsable": true,
@@ -136,30 +99,13 @@
           "lines": false,
           "legend": true,
           "x-axis": true,
-          "y-axis": true
-        },
-        {
-          "loading": false,
-          "span": 0,
-          "editable": true,
-          "group": [
-            "default"
-          ],
-          "type": "hits",
-          "query": [
-            {
-              "query": "*",
-              "label": "*"
-            }
-          ],
-          "style": {
-            "font-size": "9pt"
-          },
-          "aggregate": false,
-          "arrangement": "horizontal",
-          "chart": true,
-          "counters": true,
-          "count_pos": "above"
+          "y-axis": true,
+          "mode": "count",
+          "value_field": null,
+          "auto_int": true,
+          "resolution": 100,
+          "percentage": false,
+          "interactive": true
         }
       ]
     },
@@ -186,7 +132,7 @@
             "timestamp",
             "desc"
           ],
-          "query": "*"
+          "query": ""
         },
         {
           "loading": false,
@@ -197,7 +143,7 @@
             "default"
           ],
           "type": "table",
-          "query": "*",
+          "query": "",
           "interval": "1y",
           "show": [
             "bars",
@@ -228,10 +174,14 @@
             "exchange.fromEndpoint",
             "exchange.id"
           ],
-          "sortable": true
+          "sortable": true,
+          "highlight": [],
+          "header": true,
+          "paging": true
         }
       ]
     }
   ],
-  "editable": true
+  "editable": true,
+  "last": null
 }
