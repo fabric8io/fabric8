@@ -23,6 +23,12 @@ import org.fusesource.fabric.webui.{Services, BaseResource}
 
 object BaseUpgradeResource {
 
+  def last_version_id = {
+    val versions = Services.fabric_service.getVersions.sortWith((a, b) => a.getSequence.compareTo(b.getSequence) < 0).iterator.toList
+    versions.last.getName
+
+  }
+
   def next_version_id = {
     val versions = Services.fabric_service.getVersions.sortWith((a, b) => a.getSequence.compareTo(b.getSequence) < 0).iterator.toList
     versions.last.getSequence.next.getName

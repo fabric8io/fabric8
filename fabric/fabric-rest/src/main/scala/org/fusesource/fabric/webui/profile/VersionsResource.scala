@@ -127,7 +127,7 @@ class VersionsResource extends BaseResource {
     tmp.delete
 
     val version = if (target_name.equals("")) {
-      val rc = BaseUpgradeResource.create_version
+      val rc = BaseUpgradeResource.create_version(BaseUpgradeResource.last_version_id)
       Services.LOG.info("Creating new version {}", rc.getId());
       rc
     } else {
@@ -138,14 +138,17 @@ class VersionsResource extends BaseResource {
             rc
           case None =>
             Services.LOG.info("Creating new emtpy version {}", target_name);
-            fabric_service.createVersion(target_name);
+            BaseUpgradeResource.create_version(BaseUpgradeResource.last_version_id)
         }
       } catch {
         case _ =>
           Services.LOG.info("Creating new emtpy version {}", target_name);
-          fabric_service.createVersion(target_name);
+          BaseUpgradeResource.create_version(BaseUpgradeResource.last_version_id)
       }
     }
+
+    val ps = version.getProfiles
+    ps.foreach(_.delete)
 
     profiles.keySet.foreach( (p) =>
       try {
