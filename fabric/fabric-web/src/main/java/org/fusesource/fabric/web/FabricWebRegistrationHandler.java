@@ -19,6 +19,7 @@ package org.fusesource.fabric.web;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -79,7 +80,7 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
             setData(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
-                    webEvent.getBundle().getVersion().toString(), id), json);
+                    webEvent.getBundle().getVersion().toString(), id), json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register webapp {}.", webEvent.getContextPath(), e);
         }

@@ -176,6 +176,17 @@ public final class ZooKeeperUtils {
         curator.setData().forPath(path, value != null ? value : null);
     }
 
+    public static void setData(CuratorFramework curator, String path, String value, CreateMode createMode) throws Exception {
+        setData(curator, path, value != null ? value.getBytes(UTF_8) : null, createMode);
+    }
+
+    public static void setData(CuratorFramework curator, String path, byte[] value, CreateMode createMode) throws Exception {
+        if (curator.checkExists().forPath(path) == null) {
+            curator.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, value != null ? value : null);
+        }
+        curator.setData().forPath(path, value != null ? value : null);
+    }
+
     public static void create(CuratorFramework curator, String path) throws Exception {
         create(curator, path, CreateMode.PERSISTENT);
     }
