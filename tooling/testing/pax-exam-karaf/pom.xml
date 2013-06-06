@@ -57,6 +57,11 @@
             <artifactId>org.apache.karaf.features.core</artifactId>
             <version>${karaf-version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.karaf.tooling.exam</groupId>
+            <artifactId>org.apache.karaf.tooling.exam.options</artifactId>
+            <version>${karaf-version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openengsb.labs.paxexam.karaf</groupId>
