@@ -12,8 +12,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class TreeData extends ChildData {
 
     private final Set<String> children = new HashSet<String>();
+    private volatile boolean invalidated;
 
-   public TreeData(String path, Stat stat, byte[] data)
+    public TreeData(String path, Stat stat, byte[] data)
     {
         super(path, stat, data);
     }
@@ -21,6 +22,14 @@ public class TreeData extends ChildData {
     public TreeData(String path, Stat stat, byte[] data, Collection<String> children) {
         super(path, stat, data);
         this.children.addAll(children);
+    }
+
+    public boolean isInvalidated() {
+        return invalidated;
+    }
+
+    public void invalidate() {
+        this.invalidated = true;
     }
 
     public Set<String> getChildren() {

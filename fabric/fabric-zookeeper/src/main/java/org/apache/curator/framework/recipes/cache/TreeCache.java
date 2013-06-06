@@ -106,6 +106,7 @@ public class TreeCache implements Closeable
         @Override
         public void process(WatchedEvent event) {
             try {
+                TreeData data;
                 switch (event.getType()) {
                     case None:
                         break;
@@ -115,11 +116,17 @@ public class TreeCache implements Closeable
                         remove(event.getPath());
                         break;
                     case NodeDataChanged:
-                        currentData.invalidate(event.getPath());
+                        data = currentData.getIfPresent(event.getPath());
+                        if (data != null) {
+                            data.invalidate();
+                        }
                         offerOperation(new GetDataFromTreeOperation(TreeCache.this, event.getPath()));
                         break;
                     case NodeChildrenChanged:
-                        currentData.invalidate(event.getPath());
+                        data = currentData.getIfPresent(event.getPath());
+                        if (data != null) {
+                            data.invalidate();
+                        }
                         offerOperation(new TreeRefreshOperation(TreeCache.this, event.getPath(), RefreshMode.FORCE_GET_DATA_AND_STAT));
                 }
             } catch (Exception e) {
@@ -417,7 +424,14 @@ public class TreeCache implements Closeable
     public TreeData getCurrentData(String fullPath)
     {
         try {
-            return currentData.get(fullPath);
+            while (true) {
+                TreeData data = currentData.get(fullPath);
+                if (data.isInvalidated()) {
+                    currentData.invalidate(fullPath);
+                } else {
+                    return data;
+                }
+            }
         } catch (ExecutionException e) {
             return null;
         } catch (CacheLoader.InvalidCacheLoadException e) {
@@ -743,7 +757,7 @@ public class TreeCache implements Closeable
         if ( resultCode == KeeperException.Code.OK.intValue() ) // otherwise - node must have dropped or something - we should be getting another event
         {
             TreeData data = new TreeData(fullPath, stat, bytes, children);
-            TreeData previousData = null;
+            TreeData previousData;
 
             synchronized (this) {
                 previousData = currentData.getIfPresent(fullPath);
