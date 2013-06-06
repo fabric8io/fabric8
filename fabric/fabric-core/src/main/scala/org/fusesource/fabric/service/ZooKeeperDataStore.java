@@ -49,7 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
@@ -78,7 +77,6 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     private CuratorFramework curator;
     private final List<Runnable> callbacks = new ArrayList<Runnable>();
     private TreeCache treeCache;
-    private final AtomicInteger pendingEvents = new AtomicInteger(0);
 
 
     public void setCurator(CuratorFramework curator) {
@@ -338,7 +336,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted) {
         if (attribute == ContainerAttribute.Domains) {
             try {
-                List<String> list = treeCache.getChildrenNames(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+                List<String> list = curator.getChildren().forPath(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
                 Collections.sort(list);
                 StringBuilder sb = new StringBuilder();
                 for (String l : list) {
@@ -583,7 +581,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public Map<String, String> getVersionAttributes(String version) {
         try {
             String node = ZkPath.CONFIG_VERSION.getPath(version);
-            return getPropertiesAsMap(curator, node);
+            return getPropertiesAsMap(treeCache, node);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -610,7 +608,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public Map<String, String> getProfileAttributes(String version, String profile) {
         try {
             String path = ZkProfiles.getPath(version, profile);
-            return getPropertiesAsMap(curator, path);
+            return getPropertiesAsMap(treeCache, path);
         } catch (Exception e) {
             throw new FabricException(e);
         }
