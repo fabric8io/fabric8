@@ -64,85 +64,11 @@
         </dependency>
 
         <dependency>
-            <groupId>org.openengsb.labs.paxexam.karaf</groupId>
-            <artifactId>paxexam-karaf-container</artifactId>
-            <version>0.5.1</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam-spi</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam-container-rbc</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam-container-rbc-client</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam-container-remote</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam-invoker-junit</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.ops4j.pax.exam</groupId>
-                    <artifactId>pax-exam</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.apache.karaf.tooling.exam</groupId>
+            <artifactId>org.apache.karaf.tooling.exam.container</artifactId>
+            <version>${karaf.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-spi</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-rbc</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-rbc-client</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-remote</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-extender-service</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-inject</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-invoker-junit</artifactId>
-            <version>${pax-exam-version}</version>
-        </dependency>
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-junit4</artifactId>
