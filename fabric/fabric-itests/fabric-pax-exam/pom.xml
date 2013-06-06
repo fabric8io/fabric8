@@ -128,11 +128,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.fusesource.examples</groupId>
             <artifactId>fabric-cxf-demo-client</artifactId>
             <version>${project.version}</version>
