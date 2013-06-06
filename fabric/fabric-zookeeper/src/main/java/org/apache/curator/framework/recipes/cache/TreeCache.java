@@ -728,12 +728,13 @@ public class TreeCache implements Closeable
         maybeOfferInitializedEvent(initialSet.get());
     }
 
-    private void updateIfNeeded(String path, Stat stat) throws ExecutionException {
+    private void updateIfNeeded(String path, Stat stat) throws Exception {
         TreeData data = currentData.getIfPresent(path);
         if (data != null && stat != null) {
             long cachedId = getZkTxId(data.getStat());
             long currentId = getZkTxId(stat);
             if (currentId > cachedId) {
+                getDataAndStat(path);
                 offerOperation(new TreeRefreshOperation(this, path, RefreshMode.FORCE_GET_DATA_AND_STAT));
             }
         }
