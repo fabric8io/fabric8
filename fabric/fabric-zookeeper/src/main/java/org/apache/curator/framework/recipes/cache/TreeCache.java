@@ -109,13 +109,17 @@ public class TreeCache implements Closeable
                 switch (event.getType()) {
                     case None:
                         break;
+                    case NodeCreated:
+                        break;
                     case NodeDeleted:
                         remove(event.getPath());
                         break;
                     case NodeDataChanged:
+                        currentData.invalidate(event.getPath());
                         offerOperation(new GetDataFromTreeOperation(TreeCache.this, event.getPath()));
                         break;
-                    default:
+                    case NodeChildrenChanged:
+                        currentData.invalidate(event.getPath());
                         offerOperation(new TreeRefreshOperation(TreeCache.this, event.getPath(), RefreshMode.FORCE_GET_DATA_AND_STAT));
                 }
             } catch (Exception e) {
