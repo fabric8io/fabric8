@@ -31,13 +31,13 @@ public class EcaComponent extends SedaComponent {
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
         int consumers = getAndRemoveParameter(parameters, "concurrentConsumers", Integer.class, 1);
         boolean limitConcurrentConsumers = getAndRemoveParameter(parameters, "limitConcurrentConsumers", Boolean.class, true);
-        Integer size = getAndRemoveParameter(parameters, "size", Integer.class);
         if (limitConcurrentConsumers && consumers > maxConcurrentConsumers) {
             throw new IllegalArgumentException("The limitConcurrentConsumers flag in set to true. ConcurrentConsumers cannot be set at a value greater than "
                     + maxConcurrentConsumers + " was " + consumers);
         }
 
-        EcaEndpoint answer = new EcaEndpoint(uri, this, getOrCreateQueue(uri, size), consumers);
+        // defer creating queue till endpoint is started, so we pass in null
+        EcaEndpoint answer = new EcaEndpoint(uri, this, null, consumers);
         answer.setCepRouteId(remaining);
         answer.configureProperties(parameters);
         return answer;
