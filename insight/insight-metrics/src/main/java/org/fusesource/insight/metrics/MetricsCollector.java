@@ -434,7 +434,7 @@ public class MetricsCollector implements MetricsCollectorMBean {
                 query.lastResultSent = true;
                 query.lastSent = qrs.getTimestamp().getTime();
                 renderAndSend(svc, qrs);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOG.debug("Error sending metrics", e);
             }
         }
