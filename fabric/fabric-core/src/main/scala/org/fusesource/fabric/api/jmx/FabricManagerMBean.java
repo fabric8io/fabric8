@@ -43,6 +43,16 @@ public interface FabricManagerMBean {
 
     Map<String, Object> changeProfileParents(String version, String name, List<String> parents);
 
+    /**
+     * Returns the web app URL of the given webAppId, profile and version
+     */
+    String profileWebAppURL(String webAppId, String profileId, String versionId);
+
+    /**
+     * Returns the web app URL of the given given webAppId and container name
+     */
+    String containerWebAppURL(String webAppId, String containerName);
+
     Map<String, Object> createVersion();
     Map<String, Object> createVersion(String version);
     Map<String, Object> createVersion(String parentVersionId, String toVersion);

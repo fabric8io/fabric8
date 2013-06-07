@@ -198,6 +198,29 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public String profileWebAppURL(String webAppId, String profileId, String versionId) {
+        FabricServiceImpl service = getFabricService();
+        Profile p = service.getVersion(versionId).getProfile(profileId);
+        if (p != null) {
+            List<String> ids = containerIdsForProfile(versionId, profileId);
+            for (String id : ids) {
+                String url = containerWebAppURL(webAppId, id);
+                if (url != null && url.length() > 0) {
+                    return url;
+                }
+            }
+        }
+        return null;
+    }
+
+
+    @Override
+    public String containerWebAppURL(String webAppId, String name) {
+        return getFabricService().containerWebAppURL(webAppId, name);
+    }
+
+
+    @Override
     public  Map<String, Object> createVersion(String parentVersionId, String toVersion) {
         Version version = getFabricService().createVersion(parentVersionId, toVersion);
         return BeanUtils.convertVersionToMap(getFabricService(), version, BeanUtils.getFields(Version.class));
@@ -636,7 +659,8 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public Map<String, Object> getVersion(String versionId, List<String> fields) {
-        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getVersion(versionId), fields);
+        return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getVersion(versionId),
+                fields);
     }
 
     @Override
