@@ -62,7 +62,7 @@ public class List extends ZooKeeperCommandSupport {
 
         for(String p : paths) {
             if (display) {
-                byte[] data = curator.getData().forPath(path + p);
+                byte[] data = curator.getData().forPath(recursive ? p : path + p);
                 if (data != null) {
                     System.out.printf("%s = %s\n", p, new String(data));
                 } else {
