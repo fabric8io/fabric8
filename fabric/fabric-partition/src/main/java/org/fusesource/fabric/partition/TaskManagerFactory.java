@@ -180,9 +180,11 @@ public class TaskManagerFactory implements ManagedServiceFactory {
     }
 
     public synchronized void unbindPolicy(ServiceReference<BalancingPolicy> reference) {
-        String type = (String) reference.getProperty("type");
-        balancingPolicies.remove(type);
-        stopWorkManagerWithBalancingPolicy(taksManagers.values(), type);
+        if (reference != null) {
+            String type = (String) reference.getProperty("type");
+            balancingPolicies.remove(type);
+            stopWorkManagerWithBalancingPolicy(taksManagers.values(), type);
+        }
     }
 
     public synchronized void bindWorkListener(ServiceReference<PartitionListener> reference) {
@@ -200,9 +202,11 @@ public class TaskManagerFactory implements ManagedServiceFactory {
     }
 
     public synchronized void unbindWorkListener(ServiceReference<PartitionListener> reference) {
-        String type = (String) reference.getProperty("type");
-        partitionListeners.remove(type);
-        stopWorkManagerWithListener(taksManagers.values(), type);
+        if (reference != null) {
+            String type = (String) reference.getProperty("type");
+            partitionListeners.remove(type);
+            stopWorkManagerWithListener(taksManagers.values(), type);
+        }
     }
 
     public CuratorFramework getCurator() {
