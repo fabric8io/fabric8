@@ -117,6 +117,8 @@ public interface FabricManagerMBean {
     @Deprecated
     List<String> getProfileIds(String versionId);
 
+    Map<String, Object> getProfileFeatures(String versionId, String profileId);
+
     List<Map<String, Object>> getProfiles(String versionId);
 
     List<Map<String, Object>> getProfiles(String versionId, List<String> fields);
@@ -166,6 +168,10 @@ public interface FabricManagerMBean {
     void requirements(FabricRequirements requirements) throws IOException;
 
     void startContainer(String containerId);
+
+    List<Map<String, Object>> startContainers(List<String> containerIds);
+
+    List<Map<String, Object>> stopContainers(List<String> containerIds);
 
     void stopContainer(String containerId);
 

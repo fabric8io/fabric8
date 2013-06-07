@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.IOException;
-import java.net.URI;
+import java.io.*;
+import java.net.*;
 import java.util.*;
 
 /**
@@ -475,6 +475,78 @@ public class FabricManager implements FabricManagerMBean {
     }
 */
 
+    @Override
+    public Map<String, Object> getProfileFeatures(String versionId, String profileId) {
+        Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
+        Profile overlay = profile.getOverlay();
+
+        Map<String, Boolean> isParentFeature = new HashMap<String, Boolean>();
+
+        for (String feature : profile.getFeatures()) {
+            isParentFeature.put(feature, Boolean.FALSE);
+        }
+
+        for (String feature : overlay.getFeatures()) {
+            if (isParentFeature.get(feature) == null) {
+                isParentFeature.put(feature, Boolean.TRUE);
+            }
+        }
+
+        Map<String, Object> rc = new HashMap<String, Object>();
+
+        List<Map<String, Object>> featureDefs = new ArrayList<Map<String, Object>>();
+
+        for (String feature : isParentFeature.keySet()) {
+            Map<String, Object> featureDef = new HashMap<String, Object>();
+            featureDef.put("id", feature);
+            featureDef.put("isParentFeature", isParentFeature.get(feature));
+            featureDefs.add(featureDef);
+        }
+
+        rc.put("featureDefinitions", featureDefs);
+
+        List<Map<String, Object>> repositoryDefs = new ArrayList<Map<String, Object>>();
+        for (String repo : overlay.getRepositories()) {
+            Map<String, Object> repoDef = new HashMap<String, Object>();
+
+            repoDef.put("id", repo);
+            InputStream is = null;
+            try {
+                URL url = new URL(repo);
+                is = new BufferedInputStream(url.openStream());
+                char[] buffer = new char[8192];
+                StringBuilder data = new StringBuilder();
+
+                Reader in = new InputStreamReader(is, "UTF-8");
+                for (;;) {
+                    int stat = in.read(buffer, 0, buffer.length);
+                    if (stat < 0) {
+                        break;
+                    }
+                    data.append(buffer, 0, stat);
+                }
+                repoDef.put("data", data.toString());
+            } catch (Throwable t) {
+                repoDef.put("error", t.getMessage());
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                } catch (Throwable t) {
+                    // whatevs, I tried
+                }
+            }
+
+            repositoryDefs.add(repoDef);
+        }
+
+        rc.put("repositoryDefinitions", repositoryDefs);
+
+        return rc;
+
+    }
+
 
     @Override
     public Map<String, Object> getProfile(String versionId, String profileId) {
@@ -660,10 +732,48 @@ public class FabricManager implements FabricManagerMBean {
         getFabricService().startContainer(containerId);
     }
 
+
+    @Override
+    public List<Map<String, Object>> startContainers(List<String> containerIds) {
+        List<Map<String, Object>> rc = new ArrayList<Map<String, Object>>();
+        for (String containerId : containerIds) {
+            Map<String, Object> status = new HashMap<String, Object>();
+            status.put("id", containerId);
+            try {
+                startContainer(containerId);
+                status.put("success", true);
+            } catch (Throwable t) {
+                status.put("error", t);
+                status.put("errorMessage", t.getMessage());
+            }
+            rc.add(status);
+        }
+        return rc;
+    }
+
     @Override
     public void stopContainer(String containerId) {
         getFabricService().stopContainer(containerId);
     }
+
+    @Override
+    public List<Map<String, Object>> stopContainers(List<String> containerIds) {
+        List<Map<String, Object>> rc = new ArrayList<Map<String, Object>>();
+        for (String containerId : containerIds) {
+            Map<String, Object> status = new HashMap<String, Object>();
+            status.put("id", containerId);
+            try {
+                stopContainer(containerId);
+                status.put("success", true);
+            } catch (Throwable t) {
+                status.put("error", t);
+                status.put("errorMessage", t.getMessage());
+            }
+            rc.add(status);
+        }
+        return rc;
+    }
+
 
     @Override
     public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {
