@@ -73,6 +73,7 @@ public class Breadcrumbs extends SwitchableContainerStrategy implements Breadcru
             return (BreadcrumbSet) val;
         }
         breadcrumbs = new BreadcrumbSet();
+        exchange.getIn().setHeader(BREADCRUMB, breadcrumbs);
         if (val instanceof Iterable) {
             for (Object o : ((Iterable) val)) {
                 if (o != null) {
