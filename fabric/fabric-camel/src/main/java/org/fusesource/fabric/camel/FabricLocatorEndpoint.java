@@ -29,8 +29,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.groups.ChangeListener;
 import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -97,11 +100,12 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
                     try {
                         String key = entry.getKey();
                         if (!processors.containsKey(key)) {
-                            Processor p = getProcessor(new String(entry.getValue(), "UTF-8"));
+                            Processor p = getProcessor(new String(entry.getValue(), Charset.forName("UTF-8")));
                             processors.put(key, p);
                             loadBalancer.addProcessor(p);
                         }
-                    } catch (UnsupportedEncodingException ignore) {
+                    } catch (URISyntaxException e) {
+                        LOG.warn("Unable to add endpoint " + new String(entry.getValue(), Charset.forName("UTF-8")), e);
                     }
                 }
 
@@ -128,7 +132,9 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
         group.close();
     }
 
-    public Processor getProcessor(String uri) {
+    public Processor getProcessor(String uri) throws URISyntaxException {
+        uri = ZooKeeperUtils.getSubstitutedData(component.getCurator(), uri);
+        LOG.info("Creating endpoint for " + uri);
         final Endpoint endpoint = getCamelContext().getEndpoint(uri);
         return new Processor() {
 
