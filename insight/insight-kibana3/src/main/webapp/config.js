@@ -30,6 +30,7 @@ var config = new Settings(
     content:   "Log",
     title:     "Search in log events",
     file:      "log",
+    default:   true,
     isVisible: function() { return true; }
   }, {
     content:   "Camel",

@@ -77,7 +77,11 @@ angular.module('kibana.dashcontrol', [])
 
       // No dashboard in the URL
       } else {
-        // Check if browser supports localstorage, and if there's a dashboard 
+       var hash = window.location.hash;
+       if (hash.substring(0, "#/dashboard/file/".length) == "#/dashboard/file/") {
+          $scope.file_load(hash.substring("#/dashboard/file/".length));
+       } else {
+        // Check if browser supports localstorage, and if there's a dashboard
         if (Modernizr.localstorage && 
           !(_.isUndefined(localStorage['dashboard'])) &&
           localStorage['dashboard'] !== ''
@@ -87,9 +91,16 @@ angular.module('kibana.dashcontrol', [])
           $scope.dash_load(JSON.stringify(dashboard))
         // No? Ok, grab default.json, its all we have now
         } else {
-          $scope.file_load('default')
+          var file = 'default';
+          for (var i in config.dashboards) {
+            var d = config.dashboards[i];
+            if (d.default) {
+              file = d.file;
+            }
+          }
+          $scope.file_load(file)
         }
-        
+       }
       }
     }
 

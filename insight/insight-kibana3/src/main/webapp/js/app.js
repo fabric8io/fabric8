@@ -56,7 +56,7 @@ labjs.wait(function(){
           templateUrl: 'partials/dashboard.html'
         })
         .otherwise({
-          redirectTo: 'dashboard'
+          redirectTo: 'dashboard/file/log'
         });
     }]);
   angular.element(document).ready(function() {
