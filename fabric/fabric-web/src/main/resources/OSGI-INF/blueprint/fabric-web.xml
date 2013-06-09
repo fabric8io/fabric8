@@ -29,6 +29,7 @@
     <service ref="registrationHandler">
         <interfaces>
             <value>org.ops4j.pax.web.service.spi.WebListener</value>
+            <value>org.ops4j.pax.web.service.spi.ServletListener</value>
             <value>org.apache.curator.framework.state.ConnectionStateListener</value>
         </interfaces>
     </service>

@@ -23,6 +23,8 @@ import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.ops4j.pax.web.service.spi.ServletEvent;
+import org.ops4j.pax.web.service.spi.ServletListener;
 import org.ops4j.pax.web.service.spi.WebEvent;
 import org.ops4j.pax.web.service.spi.WebListener;
 import org.osgi.framework.Bundle;
@@ -30,22 +32,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-public class FabricWebRegistrationHandler implements WebListener, ConnectionStateListener {
+public class FabricWebRegistrationHandler implements WebListener, ConnectionStateListener, ServletListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
-    private final Map<Bundle, WebEvent> bundleEvents = new HashMap<Bundle, WebEvent>();
+    private final Map<Bundle, WebEvent> webEvents = new HashMap<Bundle, WebEvent>();
+    private final Map<Bundle, Map<String, ServletEvent>> servletEvents = new HashMap<Bundle, Map<String, ServletEvent>>();
     private FabricService fabricService;
     private CuratorFramework curator;
 
     @Override
     public void webEvent(WebEvent webEvent) {
-        bundleEvents.put(webEvent.getBundle(), webEvent);
+        webEvents.put(webEvent.getBundle(), webEvent);
         switch (webEvent.getType()) {
             case WebEvent.DEPLOYING:
                 break;
@@ -54,6 +58,65 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
                 break;
             default:
                 unRegisterWebapp(fabricService.getCurrentContainer(), webEvent);
+        }
+    }
+
+    @Override
+    public void servletEvent(ServletEvent servletEvent) {
+        WebEvent webEvent = webEvents.get(servletEvent.getBundle());
+        if (webEvent != null || servletEvent.getAlias() == null) {
+            // this servlet is part of a web application, ignore it
+            return;
+        }
+        Map<String, ServletEvent> events = servletEvents.get(servletEvent.getBundle());
+        if (events == null) {
+            events = new HashMap<String, ServletEvent>();
+            servletEvents.put(servletEvent.getBundle(), events);
+        }
+        events.put(servletEvent.getAlias(), servletEvent);
+        switch (servletEvent.getType()) {
+            case ServletEvent.DEPLOYING:
+                break;
+            case ServletEvent.DEPLOYED:
+                registerServlet(fabricService.getCurrentContainer(), servletEvent);
+                break;
+            default:
+                unregisterServlet(fabricService.getCurrentContainer(), servletEvent);
+                break;
+        }
+    }
+
+    void registerServlet(Container container, ServletEvent servletEvent) {
+        String id = container.getId();
+        String url = container.getHttpUrl() + servletEvent.getAlias();
+        if (!url.startsWith("http")) {
+            url = "http://" + url;
+        }
+
+        String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
+        try {
+            String path = "/fabric/registry/clusters/servlets/"
+                    + servletEvent.getBundle().getSymbolicName() + "/"
+                    + servletEvent.getBundle().getVersion().toString()
+                    + servletEvent.getAlias() + "/"
+                    + id;
+            setData(curator, path, json, CreateMode.EPHEMERAL);
+        } catch (Exception e) {
+            LOGGER.error("Failed to register servlet {}.", servletEvent.getAlias(), e);
+        }
+    }
+
+    void unregisterServlet(Container container, ServletEvent servletEvent) {
+        try {
+            String id = container.getId();
+            String path = "/fabric/registry/clusters/servlets/"
+                    + servletEvent.getBundle().getSymbolicName() + "/"
+                    + servletEvent.getBundle().getVersion().toString()
+                    + servletEvent.getAlias() + "/"
+                    + id;
+            delete(curator, path);
+        } catch (Exception e) {
+            LOGGER.error("Failed to unregister servlet {}.", servletEvent.getAlias(), e);
         }
     }
 
@@ -121,7 +184,7 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
     }
 
     public void onConnected() {
-        for (Map.Entry<Bundle, WebEvent> entry : bundleEvents.entrySet()) {
+        for (Map.Entry<Bundle, WebEvent> entry : webEvents.entrySet()) {
             webEvent(entry.getValue());
         }
     }
