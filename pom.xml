@@ -103,9 +103,7 @@
         <perfectus-build>024</perfectus-build>
         <full-perfectus-build>60${perfectus-build}</full-perfectus-build>
 -->
-        <perfectus-build>0001</perfectus-build>
-<!--
--->
+        <perfectus-build>0003</perfectus-build>
         <full-perfectus-build>61${perfectus-build}</full-perfectus-build>
 
 
@@ -132,6 +130,7 @@
         <brew-version>0.2.11</brew-version>
         <!--
         <camel-version>2.12.0.fuse-72-SNAPSHOT</camel-version>
+        <camel-version>2.12-SNAPSHOT</camel-version>
         -->
         <camel-version>2.12.0.redhat-${full-perfectus-build}</camel-version>
         <coffeebar-version>0.2.11</coffeebar-version>
@@ -160,7 +159,8 @@
         <hadoop-version>1.0.3</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.12</hawtdispatch-version>
-        <hawtio-version>1.2-M1</hawtio-version>
+        <!----><hawtio-version>1.2-M1</hawtio-version>
+        <hawtio-version>1.2-SNAPSHOT</hawtio-version>
         <jackson-version>1.9.10</jackson-version>
         <jasypt-version>1.9.0</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
@@ -558,6 +558,17 @@
 
     <repositories>
         <repository>
+            <id>fusesource.61</id>
+            <name>FuseSource Community Early Access 61 Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
             <id>repo1.maven</id>
             <name>Maven Central Repo</name>
             <url>http://repo1.maven.org/maven2/</url>
@@ -584,17 +595,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository> 
-        <repository>
-            <id>fusesource.61</id>
-            <name>FuseSource Community Early Access 61 Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
 <!--        <repository>
             <id>fusesource-nexus-staging</id>
             <name>FuseSource Release Proxy</name>
