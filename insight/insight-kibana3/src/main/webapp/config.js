@@ -41,11 +41,11 @@ var config = new Settings(
 
 function doGetSerieColor(label, index) {
   var colors = ['#86B22D','#BF6730','#1D7373','#BFB930','#BF3030','#77207D'];
-  if (label == "info") {
+  if (label == "info" || label == "completed") {
     return colors[0];
   } else if (label == "warn") {
     return colors[1];
-  } else if (label == "error") {
+  } else if (label == "error" || label == "failed") {
     return colors[4];
   } else {
     return colors[index % colors.length];
