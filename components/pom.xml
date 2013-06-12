@@ -7,9 +7,10 @@
   </parent>
   <artifactId>components</artifactId>
   <packaging>pom</packaging>
-  <name>Components</name>
-  <description>Fuse Camel Components</description>
+  <name>Camel Components Parent</name>
+  <description>Builds Fuse Camel Components</description>
   <modules>
   	<module>camel-sap</module>
   </modules>
+  <url>http://www.fusesource.org</url>
 </project>
