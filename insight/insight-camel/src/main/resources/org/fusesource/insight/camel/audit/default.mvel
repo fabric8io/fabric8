@@ -4,8 +4,9 @@
   "event": "${event}",
   "exchange": {
     "id": "${exchange.exchangeId}",
-    "fromEndpoint": "${exchange.fromEndpoint.toString()}",
     "routeId": "${exchange.fromRouteId}",
+    "contextId": "${exchange.context.name}",
+    "fromEndpoint": "${exchange.fromEndpoint.toString()}",
     "pattern": "${exchange.pattern}",
     @if{exchange.exception != null}
     "exception": "${exchange.exception}",

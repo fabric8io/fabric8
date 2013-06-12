@@ -2,8 +2,10 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
+import org.fusesource.fabric.itests.paxexam.support.WaitForConfigurationChange;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Test;
@@ -16,6 +18,7 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.junit.Assert.assertFalse;
@@ -49,7 +52,13 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
+
+        //Make sure that the profile change has been applied before changing the version
+        CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
+        latch.await();
+
+        System.out.println(executeCommand("fabric:profile-display --version 1.1 camel"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Provision.assertSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
@@ -84,7 +93,10 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:create -n"));
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
+        //Make sure that the profile change has been applied before changing the version
+        CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
+        latch.await();
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Provision.assertSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));

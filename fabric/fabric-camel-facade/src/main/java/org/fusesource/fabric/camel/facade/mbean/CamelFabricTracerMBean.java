@@ -19,7 +19,12 @@ package org.fusesource.fabric.camel.facade.mbean;
 import java.util.List;
 import java.util.Map;
 
+/*
+TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
+
 import org.apache.camel.fabric.FabricTracerEventMessage;
+*/
+
 
 /**
  *
@@ -40,9 +45,13 @@ public interface CamelFabricTracerMBean {
 
     void resetTraceCounter();
 
+/*
+TODO disabled for now until we figure out how to work nicely with the updated camel 2.12 API
+
     List<FabricTracerEventMessage> dumpTracedMessages(String nodeId);
 
     List<FabricTracerEventMessage> dumpAllTracedMessages();
+*/
 
     String dumpAllTracedMessagesAsXml();
 

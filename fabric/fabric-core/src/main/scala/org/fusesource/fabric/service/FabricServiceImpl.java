@@ -400,6 +400,45 @@ public class FabricServiceImpl implements FabricService {
         return uri;
     }
 
+    public String containerWebAppURL(String webAppId, String name) {
+        String answer = null;
+        try {
+            String versionsPath = ZkPath.WEBAPPS_CLUSTER.getPath(webAppId);
+            if (curator != null && exists(curator, versionsPath) != null) {
+                List<String> children = getChildren(curator, versionsPath);
+                if (children != null && !children.isEmpty()) {
+                    for (String child : children) {
+                        String containerPath = versionsPath + "/" + child + "/" + name;
+                        if (curator.checkExists().forPath(containerPath) != null) {
+                            byte[] bytes = ZkPath.loadURL(curator, containerPath);
+                            String text = new String(bytes);
+                            // NOTE this is a bit naughty, we should probably be doing
+                            // Jackson parsing here; but we only need 1 String and
+                            // this avoids the jackson runtime dependency - its just a bit brittle
+                            // only finding http endpoints and all
+                            int idx = text.indexOf("\"http");
+                            answer = text;
+                            if (idx > 0) {
+                                int endIdx = text.indexOf('\"', idx + 5);
+                                if (endIdx > 0) {
+                                    answer = text.substring(idx + 1, endIdx);
+                                    if (answer.length() > 0) {
+                                        return answer;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to find container Jolokia URL " + e, e);
+        }
+        return answer;
+
+
+    }
+
     public void registerProvider(String scheme, ContainerProvider provider) {
         providers.put(scheme, provider);
     }

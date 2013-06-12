@@ -176,6 +176,17 @@ public final class ZooKeeperUtils {
         curator.setData().forPath(path, value != null ? value : null);
     }
 
+    public static void setData(CuratorFramework curator, String path, String value, CreateMode createMode) throws Exception {
+        setData(curator, path, value != null ? value.getBytes(UTF_8) : null, createMode);
+    }
+
+    public static void setData(CuratorFramework curator, String path, byte[] value, CreateMode createMode) throws Exception {
+        if (curator.checkExists().forPath(path) == null) {
+            curator.create().creatingParentsIfNeeded().withMode(createMode).forPath(path, value != null ? value : null);
+        }
+        curator.setData().forPath(path, value != null ? value : null);
+    }
+
     public static void create(CuratorFramework curator, String path) throws Exception {
         create(curator, path, CreateMode.PERSISTENT);
     }
@@ -241,8 +252,29 @@ public final class ZooKeeperUtils {
         return map;
     }
 
+    public static Map<String, String> getPropertiesAsMap(TreeCache cache, String path) throws Exception {
+        Properties properties = getProperties(cache, path);
+        Map<String, String> map = new HashMap<String, String>();
+        for (String key : properties.stringPropertyNames()) {
+            map.put(key, properties.getProperty(key));
+        }
+        return map;
+    }
+
     public static Properties getProperties(CuratorFramework curator, String path) throws Exception {
         String value = getStringData(curator, path);
+        Properties properties = new Properties();
+        if (value != null) {
+            try {
+                properties.load(new StringReader(value));
+            } catch (IOException ignore) {
+            }
+        }
+        return properties;
+    }
+
+    public static Properties getProperties(TreeCache cace, String path) throws Exception {
+        String value = getStringData(cace, path);
         Properties properties = new Properties();
         if (value != null) {
             try {

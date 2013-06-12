@@ -222,7 +222,7 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
             return;
         }
 
-        // Handle versions in git and not in zookeeper
+        // Get local and remote branches
         Map<String, Ref> localBranches = new HashMap<String, Ref>();
         Map<String, Ref> remoteBranches = new HashMap<String, Ref>();
         Set<String> gitVersions = new HashSet<String>();
@@ -244,14 +244,24 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
 
         // Check git commmits
         for (String version : gitVersions) {
-            String localCommit = localBranches.get(version).getObjectId().getName();
-            String remoteCommit = remoteBranches.get(version).getObjectId().getName();
-            if (!localCommit.equals(remoteCommit)) {
-                git.clean().setCleanDirectories(true).call();
-                git.checkout().setName("HEAD").setForce(true).call();
-                git.checkout().setName(version).setForce(true).call();
-                MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
-                // TODO: handle conflicts
+            // Delete unneeded local branches
+            if (!remoteBranches.containsKey(version)) {
+                git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+            }
+            // Create new local branches
+            else if (!localBranches.containsKey(version)) {
+                git.branchCreate().setName(version).call();
+                git.reset().setMode(ResetCommand.ResetType.HARD).setRef(remoteBranches.get(version).getName()).call();
+            } else {
+                String localCommit = localBranches.get(version).getObjectId().getName();
+                String remoteCommit = remoteBranches.get(version).getObjectId().getName();
+                if (!localCommit.equals(remoteCommit)) {
+                    git.clean().setCleanDirectories(true).call();
+                    git.checkout().setName("HEAD").setForce(true).call();
+                    git.checkout().setName(version).setForce(true).call();
+                    MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
+                    // TODO: handle conflicts
+                }
             }
         }
     }

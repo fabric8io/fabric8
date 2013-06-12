@@ -182,7 +182,7 @@
           "arrange": "vertical",
           "micropanel_position": "right",
           "sort": [
-            "@timestamp",
+            "timestamp",
             "desc"
           ],
           "query": "*"
@@ -213,15 +213,15 @@
           "pages": 10,
           "offset": 0,
           "sort": [
-            "@timestamp",
+            "timestamp",
             "desc"
           ],
           "style": {
             "font-size": "9pt"
           },
           "fields": [
-            "@timestamp",
-            "@message"
+            "timestamp",
+            "message"
           ],
           "sortable": true
         }

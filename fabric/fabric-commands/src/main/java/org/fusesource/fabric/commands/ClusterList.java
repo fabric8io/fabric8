@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
@@ -61,16 +62,16 @@ public class ClusterList extends FabricCommand {
             return;
         }
         List<String> children = getAllChildren(getCurator(), dir);
-        HashMap<String, HashMap<String,ClusterNode>> clusters = new HashMap<String, HashMap<String,ClusterNode>>();
+        Map<String, Map<String,ClusterNode>> clusters = new TreeMap<String, Map<String,ClusterNode>>();
         for (String child : children) {
             byte[] data = getCurator().getData().forPath(child);
             if (data != null && data.length > 0) {
                 String text = new String(data).trim();
                 if (!text.isEmpty()) {
                     String clusterName = getClusterName(dir, child);
-                    HashMap<String, ClusterNode> cluster = clusters.get(clusterName);
+                    Map<String, ClusterNode> cluster = clusters.get(clusterName);
                     if (cluster == null) {
-                        cluster = new HashMap<String, ClusterNode>();
+                        cluster = new TreeMap<String, ClusterNode>();
                         clusters.put(clusterName, cluster);
                     }
 
@@ -111,7 +112,7 @@ public class ClusterList extends FabricCommand {
         out.println(String.format("%-30s %-30s %-30s %s", "[cluster]", "[masters]", "[slaves]", "[services]"));
 
         for (String clusterName : clusters.keySet()) {
-            HashMap<String, ClusterNode> nodes = clusters.get(clusterName);
+            Map<String, ClusterNode> nodes = clusters.get(clusterName);
             out.println(String.format("%-30s %-30s %-30s %s", clusterName, "", "", "", ""));
             for (String nodeName : nodes.keySet()) {
                 ClusterNode node = nodes.get(nodeName);

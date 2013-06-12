@@ -43,6 +43,16 @@ public interface FabricManagerMBean {
 
     Map<String, Object> changeProfileParents(String version, String name, List<String> parents);
 
+    /**
+     * Returns the web app URL of the given webAppId, profile and version
+     */
+    String profileWebAppURL(String webAppId, String profileId, String versionId);
+
+    /**
+     * Returns the web app URL of the given given webAppId and container name
+     */
+    String containerWebAppURL(String webAppId, String containerName);
+
     Map<String, Object> createVersion();
     Map<String, Object> createVersion(String version);
     Map<String, Object> createVersion(String parentVersionId, String toVersion);
@@ -117,6 +127,8 @@ public interface FabricManagerMBean {
     @Deprecated
     List<String> getProfileIds(String versionId);
 
+    Map<String, Object> getProfileFeatures(String versionId, String profileId);
+
     List<Map<String, Object>> getProfiles(String versionId);
 
     List<Map<String, Object>> getProfiles(String versionId, List<String> fields);
@@ -166,6 +178,10 @@ public interface FabricManagerMBean {
     void requirements(FabricRequirements requirements) throws IOException;
 
     void startContainer(String containerId);
+
+    List<Map<String, Object>> startContainers(List<String> containerIds);
+
+    List<Map<String, Object>> stopContainers(List<String> containerIds);
 
     void stopContainer(String containerId);
 

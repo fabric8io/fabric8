@@ -58,20 +58,18 @@ object VersionResource {
 
     Option(configs.get("org.fusesource.fabric.agent.properties")) match {
       case Some(agent_properties_bytes) =>
-        configs.get("org.fusesource.fabric.agent.properties")
         val agent_properties = new Properties()
-        agent_properties.load(new ByteArrayInputStream(agent_properties_bytes))
-        parents = agent_properties.remove("parents").asInstanceOf[String]
-        val out = new ByteArrayOutputStream
-        agent_properties.store(out, "Imported on " + new Date)
-        configs.put("org.fusesource.fabric.agent.properties", out.toByteArray)
+        val in = new BufferedInputStream(new ByteArrayInputStream(agent_properties_bytes))
+        agent_properties.load(in)
+        in.close();
+        parents = agent_properties.getProperty("parents").asInstanceOf[String]
       case None =>
     }
 
     val attributes:Properties = Option(configs.remove("attributes.properties")) match {
       case Some(attributes_bytes) =>
         val rc = new Properties
-        rc.load(new ByteArrayInputStream(attributes_bytes));
+        rc.load(new BufferedInputStream(new ByteArrayInputStream(attributes_bytes)));
         rc
       case None =>
         new Properties
@@ -87,6 +85,7 @@ object VersionResource {
     }
 
     profile.setFileConfigurations(configs)
+
     Option[String](parents)  match {
       case Some(parents) =>
         profile.setParents(parents.split(" ").map(self.getProfile(_)))
@@ -181,9 +180,10 @@ LightweightProfileResource(_)).sortWith(ByID(_, _))
     val temp = File.createTempFile("exp", "zip")
     val zip = new ZipArchiveOutputStream(temp)
     full_profiles.foreach(_.write_to_zip(zip))
+    zip.flush()
     zip.close()
 
-    val in = new FileInputStream(temp)
+    val in = new BufferedInputStream(new FileInputStream(temp))
     IOUtils.copy(in, out)
     in.close
     temp.delete
@@ -229,28 +229,30 @@ LightweightProfileResource(_)).sortWith(ByID(_, _))
 
     val tmp = File.createTempFile("imp", ".zip")
     tmp.deleteOnExit()
-    val fout = new FileOutputStream(tmp)
-    IOUtils.copy(file, fout)
+    val fout = new BufferedOutputStream(new FileOutputStream(tmp))
+    val fin = new BufferedInputStream(file)
+    IOUtils.copy(fin, fout)
+    fin.close
     fout.close
 
     val zip = new ZipFile(tmp)
 
     val configs = new util.HashMap[String, Array[Byte]]
 
-    import collection.JavaConverters._
+    val entries = zip.getEntries
 
-    zip.getEntries.asScala.foreach((x) => {
+    while (entries.hasMoreElements) {
+      val x = entries.nextElement
 
       if (!x.isDirectory()) {
         val prop_name = x.getName.substring(x.getName.lastIndexOf("/") + 1).replace("/", "")
-        val baos = new ByteArrayOutputStream()
 
         Services.LOG.debug("Found entry {}", prop_name)
         Services.LOG.debug("Entry is (supposedly) {} bytes", x.getSize)
 
-        IOUtils.copy(zip.getInputStream(x), baos);
-
-        val buffer = baos.toByteArray();
+        val in = new BufferedInputStream(zip.getInputStream(x))
+        val buffer = IOUtils.toByteArray(in);
+        in.close()
 
         Services.LOG.debug("Read {} bytes", buffer.length)
 
@@ -259,7 +261,7 @@ LightweightProfileResource(_)).sortWith(ByID(_, _))
         name = x.getName.replace("/", "")
       }
 
-    })
+    }
 
     zip.close
     tmp.delete

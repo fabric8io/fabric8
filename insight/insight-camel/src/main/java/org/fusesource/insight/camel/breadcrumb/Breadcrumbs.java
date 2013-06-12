@@ -67,22 +67,30 @@ public class Breadcrumbs extends SwitchableContainerStrategy implements Breadcru
     }
 
     public static Set<String> getBreadcrumbs(Exchange exchange) {
-        Set<String> breadcrumbs = (Set<String>) exchange.getIn().getHeader(BREADCRUMB);
-        if (breadcrumbs == null) {
-            breadcrumbs = new HashSet<String>();
-            exchange.getIn().setHeader(BREADCRUMB, breadcrumbs);
+        Object val = exchange.getIn().getHeader(BREADCRUMB);
+        Set<String> breadcrumbs;
+        if (val instanceof BreadcrumbSet) {
+            return (BreadcrumbSet) val;
+        }
+        breadcrumbs = new BreadcrumbSet();
+        exchange.getIn().setHeader(BREADCRUMB, breadcrumbs);
+        if (val instanceof Iterable) {
+            for (Object o : ((Iterable) val)) {
+                if (o != null) {
+                    breadcrumbs.add(o.toString());
+                }
+            }
+        } else if (val != null) {
+            breadcrumbs.add(val.toString());
         }
         return breadcrumbs;
     }
 
     public static Set<String> getBreadcrumbs(Exchange... exchanges) {
-        Set<String> breadcrumbs = new HashSet<String>();
+        Set<String> breadcrumbs = new BreadcrumbSet();
         for (Exchange exchange : exchanges) {
             if (exchange != null) {
-                Set<String> breadcrumb = (Set<String>) exchange.getIn().getHeader(BREADCRUMB);
-                if (breadcrumb != null) {
-                    breadcrumbs.addAll(breadcrumb);
-                }
+                breadcrumbs.addAll(getBreadcrumbs(exchange));
             }
         }
         return breadcrumbs;
@@ -91,4 +99,9 @@ public class Breadcrumbs extends SwitchableContainerStrategy implements Breadcru
     public static void setBreadcrumbs(Exchange exchange, Set<String> breadcrumbs) {
         exchange.getIn().setHeader(BREADCRUMB, breadcrumbs);
     }
+
+    private static class BreadcrumbSet extends HashSet<String> {
+
+    }
+
 }

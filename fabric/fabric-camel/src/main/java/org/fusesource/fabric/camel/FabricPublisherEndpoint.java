@@ -18,9 +18,14 @@ package org.fusesource.fabric.camel;
 
 import org.apache.camel.*;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.apache.camel.util.IntrospectionSupport;
+import org.apache.camel.util.URISupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.fusesource.fabric.groups.Group;
+
+import java.net.URI;
+import java.util.Map;
 
 /**
  * Creates an endpoint which uses FABRIC to map a logical name to physical endpoint names
@@ -31,12 +36,39 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
     private final FabricComponent component;
     private final Group group;
     private final String child;
+    private final String consumer;
 
-    public FabricPublisherEndpoint(String uri, FabricComponent component, Group group, String child) {
+    public FabricPublisherEndpoint(String uri, FabricComponent component, Group group, String child) throws Exception {
         super(uri, component);
         this.component = component;
         this.group = group;
+
+        String path = child;
+        int idx = path.indexOf('?');
+        if (idx > -1) {
+            path = path.substring(0, idx);
+        }
+        Map<String, Object> params = URISupport.parseParameters(new URI(child));
+        String consumer = params != null ? (String) params.remove("consumer") : null;
+        if (consumer != null) {
+            Map<String, Object> properties = IntrospectionSupport.extractProperties(params, "consumer.");
+            if (properties != null && properties.size() > 0) {
+                consumer = consumer + "?" + URISupport.createQueryString(properties);
+                for (String k : properties.keySet()) {
+                    params.remove(k);
+                }
+            }
+            child = path;
+            if (params.size() > 0) {
+                child = child + "?" + URISupport.createQueryString(params);
+            }
+        } else {
+            consumer = child;
+        }
+        LOG.info("Child: " + child);
+        LOG.info("Consumer: " + consumer);
         this.child = child;
+        this.consumer = consumer;
     }
 
     public Producer createProducer() throws Exception {
@@ -60,7 +92,7 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
     @Override
     public void start() throws Exception {
         super.start();
-        group.join(child.getBytes("UTF-8"));
+        group.join(consumer.getBytes("UTF-8"));
     }
 
     @Override

@@ -103,9 +103,7 @@
         <perfectus-build>024</perfectus-build>
         <full-perfectus-build>60${perfectus-build}</full-perfectus-build>
 -->
-        <perfectus-build>0001</perfectus-build>
-<!--
--->
+        <perfectus-build>0003</perfectus-build>
         <full-perfectus-build>61${perfectus-build}</full-perfectus-build>
 
 
@@ -132,8 +130,9 @@
         <brew-version>0.2.11</brew-version>
         <!--
         <camel-version>2.12.0.fuse-72-SNAPSHOT</camel-version>
+        <camel-version>2.12-SNAPSHOT</camel-version>
         -->
-        <camel-version>2.12.0.redhat-60${perfectus-build}</camel-version>
+        <camel-version>2.12.0.redhat-${full-perfectus-build}</camel-version>
         <coffeebar-version>0.2.11</coffeebar-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
         <commons-codec-version>1.6</commons-codec-version>
@@ -143,7 +142,7 @@
         <commons-lang-version>2.6</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
-        <cxf-version>2.6.0.redhat-${full-perfectus-build}</cxf-version>
+        <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
         <curator.version>2.0.0-incubating</curator.version>
         <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
         <drools-version>5.5.0.Final</drools-version>
@@ -160,6 +159,7 @@
         <hadoop-version>1.0.3</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.12</hawtdispatch-version>
+        <!----><hawtio-version>1.2-M1</hawtio-version>
         <hawtio-version>1.2-SNAPSHOT</hawtio-version>
         <jackson-version>1.9.10</jackson-version>
         <jasypt-version>1.9.0</jasypt-version>
@@ -226,7 +226,7 @@
         <servicemix-components-version>2012.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
         <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
         <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.0.0.redhat-${full-perfectus-build}</servicemix-specs-version>
+        <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
         <servicemix-utils-version>1.5.1.redhat-${full-perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
@@ -558,6 +558,17 @@
 
     <repositories>
         <repository>
+            <id>fusesource.61</id>
+            <name>FuseSource Community Early Access 61 Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
             <id>repo1.maven</id>
             <name>Maven Central Repo</name>
             <url>http://repo1.maven.org/maven2/</url>
@@ -583,7 +594,7 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
-        </repository>
+        </repository> 
 <!--        <repository>
             <id>fusesource-nexus-staging</id>
             <name>FuseSource Release Proxy</name>
@@ -732,6 +743,18 @@
             <id>fusesource.m2</id>
             <name>FuseSource Community Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+
+        <pluginRepository>
+            <id>fusesource.61</id>
+            <name>FuseSource Community Early Access 61 Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -1575,6 +1598,7 @@
             <enabled>true</enabled>
           </releases>
         </repository>
+<!--
         <repository>
           <id>fusesource-nexus-staging</id>
           <name>FuseSource Community Release Repository</name>
@@ -1586,6 +1610,7 @@
             <enabled>true</enabled>
           </releases>
         </repository>
+-->
 
         <repository>
           <id>fusesource.m2-snapshot</id>

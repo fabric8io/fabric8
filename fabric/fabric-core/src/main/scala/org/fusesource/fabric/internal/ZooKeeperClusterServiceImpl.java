@@ -601,9 +601,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				try {
 					dst.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
-					copy(curator, dst, "/fabric/registry");
-					copy(curator, dst, "/fabric/authentication");
-					copy(curator, dst, "/fabric/configs");
+					copy(curator, dst, "/fabric");
 
 					//Make sure that the alive zndoe is deleted for each container.
 					for (String container : containers) {
