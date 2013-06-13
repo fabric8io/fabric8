@@ -16,18 +16,22 @@ Here's a Demo
 Creating a Fabric
 -----------------
 
-Build the project with maven then try this:
+
+You can try a [download of the Fuse Fabric code](http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x/org/fusesource/fabric/fuse-fabric/) or build the project with maven via:
 
     cd fabric/fuse-fabric/target
     tar xf fuse-fabric-99-master-SNAPSHOT.tar.gz
     cd fuse-fabric-99-master-SNAPSHOT
+
+From the distro, start up the Fuse container via:
+
     bin/fusefabric
 
-Once the container starts up, create a fabric:
+Once the container starts up, create a Fabric:
 
     fabric:create -r manualip -m localhost --new-user admin --new-user-password admin
 
-then to enable the hawtio console:
+then to enable the [hawtio console](http://hawt.io/):
 
     container-add-profile root hawtio
 
