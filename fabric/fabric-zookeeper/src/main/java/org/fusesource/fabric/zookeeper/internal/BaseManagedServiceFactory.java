@@ -146,7 +146,9 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
                     throw throwable1;
                 }
             } catch (Throwable throwable) {
-                LOGGER.warn("Error creating service for ManagedServiceFactory " + getName(), throwable);
+                if (!destroyed.get()) {
+                    LOGGER.warn("Error creating service for ManagedServiceFactory " + getName(), throwable);
+                }
             }
         }
     }

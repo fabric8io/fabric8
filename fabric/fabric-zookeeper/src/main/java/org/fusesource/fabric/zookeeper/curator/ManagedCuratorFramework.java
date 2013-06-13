@@ -78,7 +78,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     private ServiceRegistration registration;
 
     private ServiceTracker connectionStateListenerTracker;
-    private ServiceTracker aclProviderTracker;
+    private ServiceTracker<ACLProvider, ACLProvider> aclProviderTracker;
     private Dictionary oldProperties;
 
     public ManagedCuratorFramework(BundleContext bundleContext) {
@@ -148,8 +148,8 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     void registerConnectionStateListenerTracker() {
         try {
             closeQuietly(connectionStateListenerTracker);
-            this.connectionStateListenerTracker = new ServiceTracker(bundleContext,
-                    ConnectionStateListener.class.getName(),
+            this.connectionStateListenerTracker = new ServiceTracker<ConnectionStateListener, ConnectionStateListener>(bundleContext,
+                    ConnectionStateListener.class,
                     new CuratorStateChangeListenerTracker(bundleContext,
                             curatorFramework, executor));
             this.connectionStateListenerTracker.open();
@@ -161,8 +161,8 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     void registerAclProviderTracker() {
         try {
             closeQuietly(aclProviderTracker);
-            this.aclProviderTracker = new ServiceTracker(bundleContext,
-                    ACLProvider.class.getName(),
+            this.aclProviderTracker = new ServiceTracker<ACLProvider, ACLProvider>(bundleContext,
+                    ACLProvider.class,
                     new ACLProviderTracker(bundleContext, aclProviders));
             this.aclProviderTracker.open();
         } catch (Exception ex) {
@@ -348,10 +348,10 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
 
     @Override
     public void close() throws IOException {
+        registration.unregister();
         closeQuietly(connectionStateListenerTracker);
         closeQuietly(aclProviderTracker);
         Closeables.close(curatorFramework, true);
-        registration.unregister();
         executor.shutdownNow();
     }
 }
