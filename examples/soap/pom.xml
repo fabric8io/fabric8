@@ -37,10 +37,12 @@
     <description>SOAP example using JAXWS</description>
 
     <dependencies>
-        <!--
-            For coding the example, we don't actually depend on any CXF classes - we only use the JAX-WS
-            standard annotations
-        -->
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-bundle</artifactId>
+            <version>${cxf-version}</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>

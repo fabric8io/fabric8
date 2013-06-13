@@ -51,6 +51,10 @@
     -->
     <jaxws:endpoint id="helloWorld"
                     implementor="org.jboss.fuse.examples.cxf.jaxws.HelloWorldImpl"
-                    address="/HelloWorld"/>
+                    address="/HelloWorld">
+        <jaxws:outInterceptors>
+            <bean class="org.jboss.fuse.examples.cxf.jaxws.EnableCORSInterceptor"/>
+        </jaxws:outInterceptors>
+    </jaxws:endpoint>
        
 </blueprint>
