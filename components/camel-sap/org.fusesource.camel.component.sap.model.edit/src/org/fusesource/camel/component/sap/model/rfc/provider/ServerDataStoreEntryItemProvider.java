@@ -20,12 +20,11 @@ package org.fusesource.camel.component.sap.model.rfc.provider;
 import java.util.Collection;
 import java.util.List;
 
+import java.util.Map;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
 
 import org.eclipse.emf.common.util.ResourceLocator;
-
-import org.eclipse.emf.ecore.EStructuralFeature;
 
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
@@ -38,17 +37,16 @@ import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
 
-import org.fusesource.camel.component.sap.model.rfc.Group;
-import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
+import org.fusesource.camel.component.sap.model.rfc.ServerDataStoreEntry;
 
 /**
- * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Group} object.
+ * This is the item provider adapter for a {@link java.util.Map.Entry} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class GroupItemProvider
+public class ServerDataStoreEntryItemProvider
 	extends ItemProviderAdapter
 	implements
 		IEditingDomainItemProvider,
@@ -62,7 +60,7 @@ public class GroupItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public GroupItemProvider(AdapterFactory adapterFactory) {
+	public ServerDataStoreEntryItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -77,26 +75,26 @@ public class GroupItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addNamePropertyDescriptor(object);
-			addDescriptionPropertyDescriptor(object);
+			addKeyPropertyDescriptor(object);
+			addValuePropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
 
 	/**
-	 * This adds a property descriptor for the Name feature.
+	 * This adds a property descriptor for the Key feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addNamePropertyDescriptor(Object object) {
+	protected void addKeyPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Group_name_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Group_name_feature", "_UI_Group_type"),
-				 RfcPackage.Literals.GROUP__NAME,
+				 getString("_UI_ServerDataStoreEntry_key_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ServerDataStoreEntry_key_feature", "_UI_ServerDataStoreEntry_type"),
+				 RfcPackage.Literals.SERVER_DATA_STORE_ENTRY__KEY,
 				 true,
 				 false,
 				 false,
@@ -106,66 +104,36 @@ public class GroupItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Description feature.
+	 * This adds a property descriptor for the Value feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addDescriptionPropertyDescriptor(Object object) {
+	protected void addValuePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Group_description_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Group_description_feature", "_UI_Group_type"),
-				 RfcPackage.Literals.GROUP__DESCRIPTION,
+				 getString("_UI_ServerDataStoreEntry_value_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ServerDataStoreEntry_value_feature", "_UI_ServerDataStoreEntry_type"),
+				 RfcPackage.Literals.SERVER_DATA_STORE_ENTRY__VALUE,
 				 true,
 				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 true,
+				 null,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
-	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
-	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
-		if (childrenFeatures == null) {
-			super.getChildrenFeatures(object);
-			childrenFeatures.add(RfcPackage.Literals.GROUP__FUNCTIONS);
-		}
-		return childrenFeatures;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	protected EStructuralFeature getChildFeature(Object object, Object child) {
-		// Check the type of the specified child object and return the proper feature to use for
-		// adding (see {@link AddCommand}) it as a child.
-
-		return super.getChildFeature(object, child);
-	}
-
-	/**
-	 * This returns Group.gif.
+	 * This returns ServerDataStoreEntry.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/Group"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/ServerDataStoreEntry"));
 	}
 
 	/**
@@ -176,10 +144,8 @@ public class GroupItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((Group)object).getName();
-		return label == null || label.length() == 0 ?
-			getString("_UI_Group_type") :
-			getString("_UI_Group_type") + " " + label;
+		Map.Entry<?, ?> serverDataStoreEntry = (Map.Entry<?, ?>)object;
+		return "" + serverDataStoreEntry.getKey() + " -> " + serverDataStoreEntry.getValue();
 	}
 
 	/**
@@ -193,13 +159,9 @@ public class GroupItemProvider
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
 
-		switch (notification.getFeatureID(Group.class)) {
-			case RfcPackage.GROUP__NAME:
-			case RfcPackage.GROUP__DESCRIPTION:
+		switch (notification.getFeatureID(Map.Entry.class)) {
+			case RfcPackage.SERVER_DATA_STORE_ENTRY__KEY:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-				return;
-			case RfcPackage.GROUP__FUNCTIONS:
-				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
 		super.notifyChanged(notification);
@@ -215,11 +177,6 @@ public class GroupItemProvider
 	@Override
 	protected void collectNewChildDescriptors(Collection<Object> newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
-
-		newChildDescriptors.add
-			(createChildParameter
-				(RfcPackage.Literals.GROUP__FUNCTIONS,
-				 RfcFactory.eINSTANCE.createFunction()));
 	}
 
 	/**

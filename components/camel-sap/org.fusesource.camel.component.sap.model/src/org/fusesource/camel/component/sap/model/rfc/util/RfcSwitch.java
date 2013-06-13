@@ -16,6 +16,7 @@
  */
 package org.fusesource.camel.component.sap.model.rfc.util;
 
+import java.util.Map;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 
@@ -80,21 +81,15 @@ public class RfcSwitch<T> extends Switch<T> {
 	@Override
 	protected T doSwitch(int classifierID, EObject theEObject) {
 		switch (classifierID) {
-			case RfcPackage.REPOSITORY: {
-				Repository repository = (Repository)theEObject;
-				T result = caseRepository(repository);
+			case RfcPackage.DESTINATION: {
+				Destination destination = (Destination)theEObject;
+				T result = caseDestination(destination);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
-			case RfcPackage.GROUP: {
-				Group group = (Group)theEObject;
-				T result = caseGroup(group);
-				if (result == null) result = defaultCase(theEObject);
-				return result;
-			}
-			case RfcPackage.FUNCTION: {
-				Function function = (Function)theEObject;
-				T result = caseFunction(function);
+			case RfcPackage.RFC: {
+				RFC rfc = (RFC)theEObject;
+				T result = caseRFC(rfc);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -110,52 +105,85 @@ public class RfcSwitch<T> extends Switch<T> {
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
+			case RfcPackage.DESTINATION_DATA_ENTRY: {
+				@SuppressWarnings("unchecked") Map.Entry<String, String> destinationDataEntry = (Map.Entry<String, String>)theEObject;
+				T result = caseDestinationDataEntry(destinationDataEntry);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.DESTINATION_DATA: {
+				DestinationData destinationData = (DestinationData)theEObject;
+				T result = caseDestinationData(destinationData);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.DESTINATION_DATA_STORE_ENTRY: {
+				@SuppressWarnings("unchecked") Map.Entry<String, DestinationData> destinationDataStoreEntry = (Map.Entry<String, DestinationData>)theEObject;
+				T result = caseDestinationDataStoreEntry(destinationDataStoreEntry);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.DESTINATION_DATA_STORE: {
+				DestinationDataStore destinationDataStore = (DestinationDataStore)theEObject;
+				T result = caseDestinationDataStore(destinationDataStore);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.SERVER_DATA_ENTRY: {
+				@SuppressWarnings("unchecked") Map.Entry<String, String> serverDataEntry = (Map.Entry<String, String>)theEObject;
+				T result = caseServerDataEntry(serverDataEntry);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.SERVER_DATA: {
+				ServerData serverData = (ServerData)theEObject;
+				T result = caseServerData(serverData);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.SERVER_DATA_STORE_ENTRY: {
+				@SuppressWarnings("unchecked") Map.Entry<String, ServerData> serverDataStoreEntry = (Map.Entry<String, ServerData>)theEObject;
+				T result = caseServerDataStoreEntry(serverDataStoreEntry);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.SERVER_DATA_STORE: {
+				ServerDataStore serverDataStore = (ServerDataStore)theEObject;
+				T result = caseServerDataStore(serverDataStore);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
 			default: return defaultCase(theEObject);
 		}
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Repository</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>Destination</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Repository</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>Destination</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseRepository(Repository object) {
+	public T caseDestination(Destination object) {
 		return null;
 	}
 
 	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Group</em>'.
+	 * Returns the result of interpreting the object as an instance of '<em>RFC</em>'.
 	 * <!-- begin-user-doc -->
 	 * This implementation returns null;
 	 * returning a non-null result will terminate the switch.
 	 * <!-- end-user-doc -->
 	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Group</em>'.
+	 * @return the result of interpreting the object as an instance of '<em>RFC</em>'.
 	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
 	 * @generated
 	 */
-	public T caseGroup(Group object) {
-		return null;
-	}
-
-	/**
-	 * Returns the result of interpreting the object as an instance of '<em>Function</em>'.
-	 * <!-- begin-user-doc -->
-	 * This implementation returns null;
-	 * returning a non-null result will terminate the switch.
-	 * <!-- end-user-doc -->
-	 * @param object the target of the switch.
-	 * @return the result of interpreting the object as an instance of '<em>Function</em>'.
-	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
-	 * @generated
-	 */
-	public T caseFunction(Function object) {
+	public T caseRFC(RFC object) {
 		return null;
 	}
 
@@ -186,6 +214,126 @@ public class RfcSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseStructure(Structure object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Destination Data Entry</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Destination Data Entry</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseDestinationDataEntry(Map.Entry<String, String> object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Destination Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Destination Data</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseDestinationData(DestinationData object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Destination Data Store Entry</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Destination Data Store Entry</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseDestinationDataStoreEntry(Map.Entry<String, DestinationData> object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Destination Data Store</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Destination Data Store</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseDestinationDataStore(DestinationDataStore object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Server Data Entry</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Server Data Entry</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseServerDataEntry(Map.Entry<String, String> object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Server Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Server Data</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseServerData(ServerData object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Server Data Store Entry</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Server Data Store Entry</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseServerDataStoreEntry(Map.Entry<String, ServerData> object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Server Data Store</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Server Data Store</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseServerDataStore(ServerDataStore object) {
 		return null;
 	}
 

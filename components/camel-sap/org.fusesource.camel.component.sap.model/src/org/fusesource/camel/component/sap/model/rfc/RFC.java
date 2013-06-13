@@ -20,25 +20,25 @@ import org.eclipse.emf.ecore.EObject;
 
 /**
  * <!-- begin-user-doc -->
- * A representation of the model object '<em><b>Function</b></em>'.
+ * A representation of the model object '<em><b>RFC</b></em>'.
  * <!-- end-user-doc -->
  *
  * <p>
  * The following features are supported:
  * <ul>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Function#getName <em>Name</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Function#getDescription <em>Description</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Function#getGroup <em>Group</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Function#getRequest <em>Request</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Function#getResponse <em>Response</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getName <em>Name</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getDescription <em>Description</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getRequest <em>Request</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getResponse <em>Response</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getDestination <em>Destination</em>}</li>
  * </ul>
  * </p>
  *
- * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunction()
+ * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC()
  * @model
  * @generated
  */
-public interface Function extends EObject {
+public interface RFC extends EObject {
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
 	 * <!-- begin-user-doc -->
@@ -49,14 +49,14 @@ public interface Function extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Name</em>' attribute.
 	 * @see #setName(String)
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunction_Name()
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC_Name()
 	 * @model
 	 * @generated
 	 */
 	String getName();
 
 	/**
-	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.Function#getName <em>Name</em>}' attribute.
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getName <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Name</em>' attribute.
@@ -75,14 +75,14 @@ public interface Function extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Description</em>' attribute.
 	 * @see #setDescription(String)
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunction_Description()
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC_Description()
 	 * @model
 	 * @generated
 	 */
 	String getDescription();
 
 	/**
-	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.Function#getDescription <em>Description</em>}' attribute.
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getDescription <em>Description</em>}' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Description</em>' attribute.
@@ -90,34 +90,6 @@ public interface Function extends EObject {
 	 * @generated
 	 */
 	void setDescription(String value);
-
-	/**
-	 * Returns the value of the '<em><b>Group</b></em>' container reference.
-	 * It is bidirectional and its opposite is '{@link org.fusesource.camel.component.sap.model.rfc.Group#getFunctions <em>Functions</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Group</em>' container reference isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Group</em>' container reference.
-	 * @see #setGroup(Group)
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunction_Group()
-	 * @see org.fusesource.camel.component.sap.model.rfc.Group#getFunctions
-	 * @model opposite="functions" transient="false"
-	 * @generated
-	 */
-	Group getGroup();
-
-	/**
-	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.Function#getGroup <em>Group</em>}' container reference.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Group</em>' container reference.
-	 * @see #getGroup()
-	 * @generated
-	 */
-	void setGroup(Group value);
 
 	/**
 	 * Returns the value of the '<em><b>Request</b></em>' containment reference.
@@ -129,14 +101,14 @@ public interface Function extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Request</em>' containment reference.
 	 * @see #setRequest(Structure)
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunction_Request()
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC_Request()
 	 * @model containment="true"
 	 * @generated
 	 */
 	Structure getRequest();
 
 	/**
-	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.Function#getRequest <em>Request</em>}' containment reference.
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getRequest <em>Request</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Request</em>' containment reference.
@@ -155,14 +127,14 @@ public interface Function extends EObject {
 	 * <!-- end-user-doc -->
 	 * @return the value of the '<em>Response</em>' containment reference.
 	 * @see #setResponse(Structure)
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunction_Response()
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC_Response()
 	 * @model containment="true"
 	 * @generated
 	 */
 	Structure getResponse();
 
 	/**
-	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.Function#getResponse <em>Response</em>}' containment reference.
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getResponse <em>Response</em>}' containment reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @param value the new value of the '<em>Response</em>' containment reference.
@@ -171,4 +143,32 @@ public interface Function extends EObject {
 	 */
 	void setResponse(Structure value);
 
-} // Function
+	/**
+	 * Returns the value of the '<em><b>Destination</b></em>' container reference.
+	 * It is bidirectional and its opposite is '{@link org.fusesource.camel.component.sap.model.rfc.Destination#getRfcs <em>Rfcs</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Destination</em>' container reference isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Destination</em>' container reference.
+	 * @see #setDestination(Destination)
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC_Destination()
+	 * @see org.fusesource.camel.component.sap.model.rfc.Destination#getRfcs
+	 * @model opposite="rfcs" transient="false"
+	 * @generated
+	 */
+	Destination getDestination();
+
+	/**
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getDestination <em>Destination</em>}' container reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Destination</em>' container reference.
+	 * @see #getDestination()
+	 * @generated
+	 */
+	void setDestination(Destination value);
+
+} // RFC

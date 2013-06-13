@@ -36,31 +36,22 @@ public interface RfcFactory extends EFactory {
 	RfcFactory eINSTANCE = org.fusesource.camel.component.sap.model.rfc.impl.RfcFactoryImpl.init();
 
 	/**
-	 * Returns a new object of class '<em>Repository</em>'.
+	 * Returns a new object of class '<em>Destination</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Repository</em>'.
+	 * @return a new object of class '<em>Destination</em>'.
 	 * @generated
 	 */
-	Repository createRepository();
+	Destination createDestination();
 
 	/**
-	 * Returns a new object of class '<em>Group</em>'.
+	 * Returns a new object of class '<em>RFC</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Group</em>'.
+	 * @return a new object of class '<em>RFC</em>'.
 	 * @generated
 	 */
-	Group createGroup();
-
-	/**
-	 * Returns a new object of class '<em>Function</em>'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return a new object of class '<em>Function</em>'.
-	 * @generated
-	 */
-	Function createFunction();
+	RFC createRFC();
 
 	/**
 	 * Returns a new object of class '<em>Table</em>'.
@@ -79,6 +70,42 @@ public interface RfcFactory extends EFactory {
 	 * @generated
 	 */
 	Structure createStructure();
+
+	/**
+	 * Returns a new object of class '<em>Destination Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Destination Data</em>'.
+	 * @generated
+	 */
+	DestinationData createDestinationData();
+
+	/**
+	 * Returns a new object of class '<em>Destination Data Store</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Destination Data Store</em>'.
+	 * @generated
+	 */
+	DestinationDataStore createDestinationDataStore();
+
+	/**
+	 * Returns a new object of class '<em>Server Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Server Data</em>'.
+	 * @generated
+	 */
+	ServerData createServerData();
+
+	/**
+	 * Returns a new object of class '<em>Server Data Store</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Server Data Store</em>'.
+	 * @generated
+	 */
+	ServerDataStore createServerDataStore();
 
 	/**
 	 * Returns the package supported by this factory.

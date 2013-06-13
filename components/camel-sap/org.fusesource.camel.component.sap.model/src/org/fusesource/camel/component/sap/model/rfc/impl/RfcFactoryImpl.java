@@ -16,6 +16,7 @@
  */
 package org.fusesource.camel.component.sap.model.rfc.impl;
 
+import java.util.Map;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
@@ -70,11 +71,18 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 	@Override
 	public EObject create(EClass eClass) {
 		switch (eClass.getClassifierID()) {
-			case RfcPackage.REPOSITORY: return createRepository();
-			case RfcPackage.GROUP: return createGroup();
-			case RfcPackage.FUNCTION: return createFunction();
+			case RfcPackage.DESTINATION: return createDestination();
+			case RfcPackage.RFC: return createRFC();
 			case RfcPackage.TABLE: return createTable();
 			case RfcPackage.STRUCTURE: return createStructure();
+			case RfcPackage.DESTINATION_DATA_ENTRY: return (EObject)createDestinationDataEntry();
+			case RfcPackage.DESTINATION_DATA: return createDestinationData();
+			case RfcPackage.DESTINATION_DATA_STORE_ENTRY: return (EObject)createDestinationDataStoreEntry();
+			case RfcPackage.DESTINATION_DATA_STORE: return createDestinationDataStore();
+			case RfcPackage.SERVER_DATA_ENTRY: return (EObject)createServerDataEntry();
+			case RfcPackage.SERVER_DATA: return createServerData();
+			case RfcPackage.SERVER_DATA_STORE_ENTRY: return (EObject)createServerDataStoreEntry();
+			case RfcPackage.SERVER_DATA_STORE: return createServerDataStore();
 			default:
 				throw new IllegalArgumentException("The class '" + eClass.getName() + "' is not a valid classifier");
 		}
@@ -85,9 +93,9 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Repository createRepository() {
-		RepositoryImpl repository = new RepositoryImpl();
-		return repository;
+	public Destination createDestination() {
+		DestinationImpl destination = new DestinationImpl();
+		return destination;
 	}
 
 	/**
@@ -95,19 +103,9 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public Group createGroup() {
-		GroupImpl group = new GroupImpl();
-		return group;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Function createFunction() {
-		FunctionImpl function = new FunctionImpl();
-		return function;
+	public RFC createRFC() {
+		RFCImpl rfc = new RFCImpl();
+		return rfc;
 	}
 
 	/**
@@ -128,6 +126,86 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 	public Structure createStructure() {
 		StructureImpl structure = new StructureImpl();
 		return structure;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Map.Entry<String, String> createDestinationDataEntry() {
+		DestinationDataEntryImpl destinationDataEntry = new DestinationDataEntryImpl();
+		return destinationDataEntry;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public DestinationData createDestinationData() {
+		DestinationDataImpl destinationData = new DestinationDataImpl();
+		return destinationData;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Map.Entry<String, DestinationData> createDestinationDataStoreEntry() {
+		DestinationDataStoreEntryImpl destinationDataStoreEntry = new DestinationDataStoreEntryImpl();
+		return destinationDataStoreEntry;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public DestinationDataStore createDestinationDataStore() {
+		DestinationDataStoreImpl destinationDataStore = new DestinationDataStoreImpl();
+		return destinationDataStore;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Map.Entry<String, String> createServerDataEntry() {
+		ServerDataEntryImpl serverDataEntry = new ServerDataEntryImpl();
+		return serverDataEntry;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ServerData createServerData() {
+		ServerDataImpl serverData = new ServerDataImpl();
+		return serverData;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Map.Entry<String, ServerData> createServerDataStoreEntry() {
+		ServerDataStoreEntryImpl serverDataStoreEntry = new ServerDataStoreEntryImpl();
+		return serverDataStoreEntry;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ServerDataStore createServerDataStore() {
+		ServerDataStoreImpl serverDataStore = new ServerDataStoreImpl();
+		return serverDataStore;
 	}
 
 	/**

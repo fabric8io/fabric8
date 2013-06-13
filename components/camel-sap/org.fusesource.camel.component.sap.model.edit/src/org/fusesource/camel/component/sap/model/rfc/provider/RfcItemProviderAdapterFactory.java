@@ -86,72 +86,49 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 	}
 
 	/**
-	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.Repository} instances.
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.Destination} instances.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected RepositoryItemProvider repositoryItemProvider;
+	protected DestinationItemProvider destinationItemProvider;
 
 	/**
-	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Repository}.
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Destination}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
-	public Adapter createRepositoryAdapter() {
-		if (repositoryItemProvider == null) {
-			repositoryItemProvider = new RepositoryItemProvider(this);
+	public Adapter createDestinationAdapter() {
+		if (destinationItemProvider == null) {
+			destinationItemProvider = new DestinationItemProvider(this);
 		}
 
-		return repositoryItemProvider;
+		return destinationItemProvider;
 	}
 
 	/**
-	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.Group} instances.
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.RFC} instances.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected GroupItemProvider groupItemProvider;
+	protected RFCItemProvider rfcItemProvider;
 
 	/**
-	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Group}.
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RFC}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
-	public Adapter createGroupAdapter() {
-		if (groupItemProvider == null) {
-			groupItemProvider = new GroupItemProvider(this);
+	public Adapter createRFCAdapter() {
+		if (rfcItemProvider == null) {
+			rfcItemProvider = new RFCItemProvider(this);
 		}
 
-		return groupItemProvider;
-	}
-
-	/**
-	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.Function} instances.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected FunctionItemProvider functionItemProvider;
-
-	/**
-	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Function}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Adapter createFunctionAdapter() {
-		if (functionItemProvider == null) {
-			functionItemProvider = new FunctionItemProvider(this);
-		}
-
-		return functionItemProvider;
+		return rfcItemProvider;
 	}
 
 	/**
@@ -198,6 +175,190 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 		}
 
 		return structureItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected DestinationDataEntryItemProvider destinationDataEntryItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link java.util.Map.Entry}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createDestinationDataEntryAdapter() {
+		if (destinationDataEntryItemProvider == null) {
+			destinationDataEntryItemProvider = new DestinationDataEntryItemProvider(this);
+		}
+
+		return destinationDataEntryItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.DestinationData} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected DestinationDataItemProvider destinationDataItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.DestinationData}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createDestinationDataAdapter() {
+		if (destinationDataItemProvider == null) {
+			destinationDataItemProvider = new DestinationDataItemProvider(this);
+		}
+
+		return destinationDataItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected DestinationDataStoreEntryItemProvider destinationDataStoreEntryItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link java.util.Map.Entry}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createDestinationDataStoreEntryAdapter() {
+		if (destinationDataStoreEntryItemProvider == null) {
+			destinationDataStoreEntryItemProvider = new DestinationDataStoreEntryItemProvider(this);
+		}
+
+		return destinationDataStoreEntryItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.DestinationDataStore} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected DestinationDataStoreItemProvider destinationDataStoreItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.DestinationDataStore}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createDestinationDataStoreAdapter() {
+		if (destinationDataStoreItemProvider == null) {
+			destinationDataStoreItemProvider = new DestinationDataStoreItemProvider(this);
+		}
+
+		return destinationDataStoreItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ServerDataEntryItemProvider serverDataEntryItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link java.util.Map.Entry}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createServerDataEntryAdapter() {
+		if (serverDataEntryItemProvider == null) {
+			serverDataEntryItemProvider = new ServerDataEntryItemProvider(this);
+		}
+
+		return serverDataEntryItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.ServerData} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ServerDataItemProvider serverDataItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.ServerData}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createServerDataAdapter() {
+		if (serverDataItemProvider == null) {
+			serverDataItemProvider = new ServerDataItemProvider(this);
+		}
+
+		return serverDataItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ServerDataStoreEntryItemProvider serverDataStoreEntryItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link java.util.Map.Entry}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createServerDataStoreEntryAdapter() {
+		if (serverDataStoreEntryItemProvider == null) {
+			serverDataStoreEntryItemProvider = new ServerDataStoreEntryItemProvider(this);
+		}
+
+		return serverDataStoreEntryItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.ServerDataStore} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ServerDataStoreItemProvider serverDataStoreItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.ServerDataStore}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createServerDataStoreAdapter() {
+		if (serverDataStoreItemProvider == null) {
+			serverDataStoreItemProvider = new ServerDataStoreItemProvider(this);
+		}
+
+		return serverDataStoreItemProvider;
 	}
 
 	/**
@@ -299,11 +460,18 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 	 * @generated
 	 */
 	public void dispose() {
-		if (repositoryItemProvider != null) repositoryItemProvider.dispose();
-		if (groupItemProvider != null) groupItemProvider.dispose();
-		if (functionItemProvider != null) functionItemProvider.dispose();
+		if (destinationItemProvider != null) destinationItemProvider.dispose();
+		if (rfcItemProvider != null) rfcItemProvider.dispose();
 		if (tableItemProvider != null) tableItemProvider.dispose();
 		if (structureItemProvider != null) structureItemProvider.dispose();
+		if (destinationDataEntryItemProvider != null) destinationDataEntryItemProvider.dispose();
+		if (destinationDataItemProvider != null) destinationDataItemProvider.dispose();
+		if (destinationDataStoreEntryItemProvider != null) destinationDataStoreEntryItemProvider.dispose();
+		if (destinationDataStoreItemProvider != null) destinationDataStoreItemProvider.dispose();
+		if (serverDataEntryItemProvider != null) serverDataEntryItemProvider.dispose();
+		if (serverDataItemProvider != null) serverDataItemProvider.dispose();
+		if (serverDataStoreEntryItemProvider != null) serverDataStoreEntryItemProvider.dispose();
+		if (serverDataStoreItemProvider != null) serverDataStoreItemProvider.dispose();
 	}
 
 }

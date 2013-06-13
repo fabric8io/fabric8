@@ -27,29 +27,29 @@ import org.eclipse.emf.ecore.impl.EObjectImpl;
 
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-import org.fusesource.camel.component.sap.model.rfc.Function;
-import org.fusesource.camel.component.sap.model.rfc.Group;
+import org.fusesource.camel.component.sap.model.rfc.Destination;
+import org.fusesource.camel.component.sap.model.rfc.RFC;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 
 /**
  * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Function</b></em>'.
+ * An implementation of the model object '<em><b>RFC</b></em>'.
  * <!-- end-user-doc -->
  * <p>
  * The following features are implemented:
  * <ul>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionImpl#getName <em>Name</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionImpl#getDescription <em>Description</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionImpl#getGroup <em>Group</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionImpl#getRequest <em>Request</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionImpl#getResponse <em>Response</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getName <em>Name</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getDescription <em>Description</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getRequest <em>Request</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getResponse <em>Response</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getDestination <em>Destination</em>}</li>
  * </ul>
  * </p>
  *
  * @generated
  */
-public class FunctionImpl extends EObjectImpl implements Function {
+public class RFCImpl extends EObjectImpl implements RFC {
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
 	 * <!-- begin-user-doc -->
@@ -115,7 +115,7 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected FunctionImpl() {
+	protected RFCImpl() {
 		super();
 	}
 
@@ -126,7 +126,7 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	 */
 	@Override
 	protected EClass eStaticClass() {
-		return RfcPackage.Literals.FUNCTION;
+		return RfcPackage.Literals.RFC;
 	}
 
 	/**
@@ -147,7 +147,7 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		String oldName = name;
 		name = newName;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__NAME, oldName, name));
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__NAME, oldName, name));
 	}
 
 	/**
@@ -168,48 +168,7 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		String oldDescription = description;
 		description = newDescription;
 		if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__DESCRIPTION, oldDescription, description));
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public Group getGroup() {
-		if (eContainerFeatureID() != RfcPackage.FUNCTION__GROUP) return null;
-		return (Group)eContainer();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public NotificationChain basicSetGroup(Group newGroup, NotificationChain msgs) {
-		msgs = eBasicSetContainer((InternalEObject)newGroup, RfcPackage.FUNCTION__GROUP, msgs);
-		return msgs;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setGroup(Group newGroup) {
-		if (newGroup != eInternalContainer() || (eContainerFeatureID() != RfcPackage.FUNCTION__GROUP && newGroup != null)) {
-			if (EcoreUtil.isAncestor(this, newGroup))
-				throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
-			NotificationChain msgs = null;
-			if (eInternalContainer() != null)
-				msgs = eBasicRemoveFromContainer(msgs);
-			if (newGroup != null)
-				msgs = ((InternalEObject)newGroup).eInverseAdd(this, RfcPackage.GROUP__FUNCTIONS, Group.class, msgs);
-			msgs = basicSetGroup(newGroup, msgs);
-			if (msgs != null) msgs.dispatch();
-		}
-		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__GROUP, newGroup, newGroup));
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__DESCRIPTION, oldDescription, description));
 	}
 
 	/**
@@ -230,7 +189,7 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		Structure oldRequest = request;
 		request = newRequest;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__REQUEST, oldRequest, newRequest);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__REQUEST, oldRequest, newRequest);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
@@ -245,14 +204,14 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		if (newRequest != request) {
 			NotificationChain msgs = null;
 			if (request != null)
-				msgs = ((InternalEObject)request).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RfcPackage.FUNCTION__REQUEST, null, msgs);
+				msgs = ((InternalEObject)request).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RfcPackage.RFC__REQUEST, null, msgs);
 			if (newRequest != null)
-				msgs = ((InternalEObject)newRequest).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - RfcPackage.FUNCTION__REQUEST, null, msgs);
+				msgs = ((InternalEObject)newRequest).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - RfcPackage.RFC__REQUEST, null, msgs);
 			msgs = basicSetRequest(newRequest, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
 		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__REQUEST, newRequest, newRequest));
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__REQUEST, newRequest, newRequest));
 	}
 
 	/**
@@ -273,7 +232,7 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		Structure oldResponse = response;
 		response = newResponse;
 		if (eNotificationRequired()) {
-			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__RESPONSE, oldResponse, newResponse);
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__RESPONSE, oldResponse, newResponse);
 			if (msgs == null) msgs = notification; else msgs.add(notification);
 		}
 		return msgs;
@@ -288,14 +247,55 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		if (newResponse != response) {
 			NotificationChain msgs = null;
 			if (response != null)
-				msgs = ((InternalEObject)response).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RfcPackage.FUNCTION__RESPONSE, null, msgs);
+				msgs = ((InternalEObject)response).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - RfcPackage.RFC__RESPONSE, null, msgs);
 			if (newResponse != null)
-				msgs = ((InternalEObject)newResponse).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - RfcPackage.FUNCTION__RESPONSE, null, msgs);
+				msgs = ((InternalEObject)newResponse).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - RfcPackage.RFC__RESPONSE, null, msgs);
 			msgs = basicSetResponse(newResponse, msgs);
 			if (msgs != null) msgs.dispatch();
 		}
 		else if (eNotificationRequired())
-			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.FUNCTION__RESPONSE, newResponse, newResponse));
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__RESPONSE, newResponse, newResponse));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Destination getDestination() {
+		if (eContainerFeatureID() != RfcPackage.RFC__DESTINATION) return null;
+		return (Destination)eContainer();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetDestination(Destination newDestination, NotificationChain msgs) {
+		msgs = eBasicSetContainer((InternalEObject)newDestination, RfcPackage.RFC__DESTINATION, msgs);
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setDestination(Destination newDestination) {
+		if (newDestination != eInternalContainer() || (eContainerFeatureID() != RfcPackage.RFC__DESTINATION && newDestination != null)) {
+			if (EcoreUtil.isAncestor(this, newDestination))
+				throw new IllegalArgumentException("Recursive containment not allowed for " + toString());
+			NotificationChain msgs = null;
+			if (eInternalContainer() != null)
+				msgs = eBasicRemoveFromContainer(msgs);
+			if (newDestination != null)
+				msgs = ((InternalEObject)newDestination).eInverseAdd(this, RfcPackage.DESTINATION__RFCS, Destination.class, msgs);
+			msgs = basicSetDestination(newDestination, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__DESTINATION, newDestination, newDestination));
 	}
 
 	/**
@@ -306,10 +306,10 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public NotificationChain eInverseAdd(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case RfcPackage.FUNCTION__GROUP:
+			case RfcPackage.RFC__DESTINATION:
 				if (eInternalContainer() != null)
 					msgs = eBasicRemoveFromContainer(msgs);
-				return basicSetGroup((Group)otherEnd, msgs);
+				return basicSetDestination((Destination)otherEnd, msgs);
 		}
 		return super.eInverseAdd(otherEnd, featureID, msgs);
 	}
@@ -322,12 +322,12 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case RfcPackage.FUNCTION__GROUP:
-				return basicSetGroup(null, msgs);
-			case RfcPackage.FUNCTION__REQUEST:
+			case RfcPackage.RFC__REQUEST:
 				return basicSetRequest(null, msgs);
-			case RfcPackage.FUNCTION__RESPONSE:
+			case RfcPackage.RFC__RESPONSE:
 				return basicSetResponse(null, msgs);
+			case RfcPackage.RFC__DESTINATION:
+				return basicSetDestination(null, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -340,8 +340,8 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public NotificationChain eBasicRemoveFromContainerFeature(NotificationChain msgs) {
 		switch (eContainerFeatureID()) {
-			case RfcPackage.FUNCTION__GROUP:
-				return eInternalContainer().eInverseRemove(this, RfcPackage.GROUP__FUNCTIONS, Group.class, msgs);
+			case RfcPackage.RFC__DESTINATION:
+				return eInternalContainer().eInverseRemove(this, RfcPackage.DESTINATION__RFCS, Destination.class, msgs);
 		}
 		return super.eBasicRemoveFromContainerFeature(msgs);
 	}
@@ -354,16 +354,16 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case RfcPackage.FUNCTION__NAME:
+			case RfcPackage.RFC__NAME:
 				return getName();
-			case RfcPackage.FUNCTION__DESCRIPTION:
+			case RfcPackage.RFC__DESCRIPTION:
 				return getDescription();
-			case RfcPackage.FUNCTION__GROUP:
-				return getGroup();
-			case RfcPackage.FUNCTION__REQUEST:
+			case RfcPackage.RFC__REQUEST:
 				return getRequest();
-			case RfcPackage.FUNCTION__RESPONSE:
+			case RfcPackage.RFC__RESPONSE:
 				return getResponse();
+			case RfcPackage.RFC__DESTINATION:
+				return getDestination();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -376,20 +376,20 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case RfcPackage.FUNCTION__NAME:
+			case RfcPackage.RFC__NAME:
 				setName((String)newValue);
 				return;
-			case RfcPackage.FUNCTION__DESCRIPTION:
+			case RfcPackage.RFC__DESCRIPTION:
 				setDescription((String)newValue);
 				return;
-			case RfcPackage.FUNCTION__GROUP:
-				setGroup((Group)newValue);
-				return;
-			case RfcPackage.FUNCTION__REQUEST:
+			case RfcPackage.RFC__REQUEST:
 				setRequest((Structure)newValue);
 				return;
-			case RfcPackage.FUNCTION__RESPONSE:
+			case RfcPackage.RFC__RESPONSE:
 				setResponse((Structure)newValue);
+				return;
+			case RfcPackage.RFC__DESTINATION:
+				setDestination((Destination)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -403,20 +403,20 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case RfcPackage.FUNCTION__NAME:
+			case RfcPackage.RFC__NAME:
 				setName(NAME_EDEFAULT);
 				return;
-			case RfcPackage.FUNCTION__DESCRIPTION:
+			case RfcPackage.RFC__DESCRIPTION:
 				setDescription(DESCRIPTION_EDEFAULT);
 				return;
-			case RfcPackage.FUNCTION__GROUP:
-				setGroup((Group)null);
-				return;
-			case RfcPackage.FUNCTION__REQUEST:
+			case RfcPackage.RFC__REQUEST:
 				setRequest((Structure)null);
 				return;
-			case RfcPackage.FUNCTION__RESPONSE:
+			case RfcPackage.RFC__RESPONSE:
 				setResponse((Structure)null);
+				return;
+			case RfcPackage.RFC__DESTINATION:
+				setDestination((Destination)null);
 				return;
 		}
 		super.eUnset(featureID);
@@ -430,16 +430,16 @@ public class FunctionImpl extends EObjectImpl implements Function {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case RfcPackage.FUNCTION__NAME:
+			case RfcPackage.RFC__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
-			case RfcPackage.FUNCTION__DESCRIPTION:
+			case RfcPackage.RFC__DESCRIPTION:
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
-			case RfcPackage.FUNCTION__GROUP:
-				return getGroup() != null;
-			case RfcPackage.FUNCTION__REQUEST:
+			case RfcPackage.RFC__REQUEST:
 				return request != null;
-			case RfcPackage.FUNCTION__RESPONSE:
+			case RfcPackage.RFC__RESPONSE:
 				return response != null;
+			case RfcPackage.RFC__DESTINATION:
+				return getDestination() != null;
 		}
 		return super.eIsSet(featureID);
 	}
@@ -462,4 +462,4 @@ public class FunctionImpl extends EObjectImpl implements Function {
 		return result.toString();
 	}
 
-} //FunctionImpl
+} //RFCImpl

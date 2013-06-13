@@ -16,6 +16,7 @@
  */
 package org.fusesource.camel.component.sap.model.rfc.util;
 
+import java.util.Map;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
 
@@ -82,16 +83,12 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 	protected RfcSwitch<Adapter> modelSwitch =
 		new RfcSwitch<Adapter>() {
 			@Override
-			public Adapter caseRepository(Repository object) {
-				return createRepositoryAdapter();
+			public Adapter caseDestination(Destination object) {
+				return createDestinationAdapter();
 			}
 			@Override
-			public Adapter caseGroup(Group object) {
-				return createGroupAdapter();
-			}
-			@Override
-			public Adapter caseFunction(Function object) {
-				return createFunctionAdapter();
+			public Adapter caseRFC(RFC object) {
+				return createRFCAdapter();
 			}
 			@Override
 			public <S extends Structure> Adapter caseTable(Table<S> object) {
@@ -100,6 +97,38 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 			@Override
 			public Adapter caseStructure(Structure object) {
 				return createStructureAdapter();
+			}
+			@Override
+			public Adapter caseDestinationDataEntry(Map.Entry<String, String> object) {
+				return createDestinationDataEntryAdapter();
+			}
+			@Override
+			public Adapter caseDestinationData(DestinationData object) {
+				return createDestinationDataAdapter();
+			}
+			@Override
+			public Adapter caseDestinationDataStoreEntry(Map.Entry<String, DestinationData> object) {
+				return createDestinationDataStoreEntryAdapter();
+			}
+			@Override
+			public Adapter caseDestinationDataStore(DestinationDataStore object) {
+				return createDestinationDataStoreAdapter();
+			}
+			@Override
+			public Adapter caseServerDataEntry(Map.Entry<String, String> object) {
+				return createServerDataEntryAdapter();
+			}
+			@Override
+			public Adapter caseServerData(ServerData object) {
+				return createServerDataAdapter();
+			}
+			@Override
+			public Adapter caseServerDataStoreEntry(Map.Entry<String, ServerData> object) {
+				return createServerDataStoreEntryAdapter();
+			}
+			@Override
+			public Adapter caseServerDataStore(ServerDataStore object) {
+				return createServerDataStoreAdapter();
 			}
 			@Override
 			public Adapter defaultCase(EObject object) {
@@ -122,44 +151,30 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 
 
 	/**
-	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.Repository <em>Repository</em>}'.
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.Destination <em>Destination</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see org.fusesource.camel.component.sap.model.rfc.Repository
+	 * @see org.fusesource.camel.component.sap.model.rfc.Destination
 	 * @generated
 	 */
-	public Adapter createRepositoryAdapter() {
+	public Adapter createDestinationAdapter() {
 		return null;
 	}
 
 	/**
-	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.Group <em>Group</em>}'.
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.RFC <em>RFC</em>}'.
 	 * <!-- begin-user-doc -->
 	 * This default implementation returns null so that we can easily ignore cases;
 	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
 	 * <!-- end-user-doc -->
 	 * @return the new adapter.
-	 * @see org.fusesource.camel.component.sap.model.rfc.Group
+	 * @see org.fusesource.camel.component.sap.model.rfc.RFC
 	 * @generated
 	 */
-	public Adapter createGroupAdapter() {
-		return null;
-	}
-
-	/**
-	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.Function <em>Function</em>}'.
-	 * <!-- begin-user-doc -->
-	 * This default implementation returns null so that we can easily ignore cases;
-	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
-	 * <!-- end-user-doc -->
-	 * @return the new adapter.
-	 * @see org.fusesource.camel.component.sap.model.rfc.Function
-	 * @generated
-	 */
-	public Adapter createFunctionAdapter() {
+	public Adapter createRFCAdapter() {
 		return null;
 	}
 
@@ -188,6 +203,118 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createStructureAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link java.util.Map.Entry <em>Destination Data Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see java.util.Map.Entry
+	 * @generated
+	 */
+	public Adapter createDestinationDataEntryAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.DestinationData <em>Destination Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.DestinationData
+	 * @generated
+	 */
+	public Adapter createDestinationDataAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link java.util.Map.Entry <em>Destination Data Store Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see java.util.Map.Entry
+	 * @generated
+	 */
+	public Adapter createDestinationDataStoreEntryAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.DestinationDataStore <em>Destination Data Store</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.DestinationDataStore
+	 * @generated
+	 */
+	public Adapter createDestinationDataStoreAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link java.util.Map.Entry <em>Server Data Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see java.util.Map.Entry
+	 * @generated
+	 */
+	public Adapter createServerDataEntryAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.ServerData <em>Server Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ServerData
+	 * @generated
+	 */
+	public Adapter createServerDataAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link java.util.Map.Entry <em>Server Data Store Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see java.util.Map.Entry
+	 * @generated
+	 */
+	public Adapter createServerDataStoreEntryAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.ServerDataStore <em>Server Data Store</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ServerDataStore
+	 * @generated
+	 */
+	public Adapter createServerDataStoreAdapter() {
 		return null;
 	}
 

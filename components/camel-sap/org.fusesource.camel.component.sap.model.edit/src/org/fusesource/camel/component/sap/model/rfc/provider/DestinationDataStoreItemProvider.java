@@ -27,28 +27,26 @@ import org.eclipse.emf.common.util.ResourceLocator;
 
 import org.eclipse.emf.ecore.EStructuralFeature;
 
-import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
-import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
 
-import org.fusesource.camel.component.sap.model.rfc.Function;
+import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 
 /**
- * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Function} object.
+ * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.DestinationDataStore} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class FunctionItemProvider
+public class DestinationDataStoreItemProvider
 	extends ItemProviderAdapter
 	implements
 		IEditingDomainItemProvider,
@@ -62,7 +60,7 @@ public class FunctionItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public FunctionItemProvider(AdapterFactory adapterFactory) {
+	public DestinationDataStoreItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -77,54 +75,8 @@ public class FunctionItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addNamePropertyDescriptor(object);
-			addDescriptionPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
-	}
-
-	/**
-	 * This adds a property descriptor for the Name feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addNamePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Function_name_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Function_name_feature", "_UI_Function_type"),
-				 RfcPackage.Literals.FUNCTION__NAME,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Description feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addDescriptionPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Function_description_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Function_description_feature", "_UI_Function_type"),
-				 RfcPackage.Literals.FUNCTION__DESCRIPTION,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
 	}
 
 	/**
@@ -139,8 +91,7 @@ public class FunctionItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(RfcPackage.Literals.FUNCTION__REQUEST);
-			childrenFeatures.add(RfcPackage.Literals.FUNCTION__RESPONSE);
+			childrenFeatures.add(RfcPackage.Literals.DESTINATION_DATA_STORE__ENTRIES);
 		}
 		return childrenFeatures;
 	}
@@ -159,14 +110,14 @@ public class FunctionItemProvider
 	}
 
 	/**
-	 * This returns Function.gif.
+	 * This returns DestinationDataStore.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/Function"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/DestinationDataStore"));
 	}
 
 	/**
@@ -177,10 +128,7 @@ public class FunctionItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((Function)object).getName();
-		return label == null || label.length() == 0 ?
-			getString("_UI_Function_type") :
-			getString("_UI_Function_type") + " " + label;
+		return getString("_UI_DestinationDataStore_type");
 	}
 
 	/**
@@ -194,13 +142,8 @@ public class FunctionItemProvider
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
 
-		switch (notification.getFeatureID(Function.class)) {
-			case RfcPackage.FUNCTION__NAME:
-			case RfcPackage.FUNCTION__DESCRIPTION:
-				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-				return;
-			case RfcPackage.FUNCTION__REQUEST:
-			case RfcPackage.FUNCTION__RESPONSE:
+		switch (notification.getFeatureID(DestinationDataStore.class)) {
+			case RfcPackage.DESTINATION_DATA_STORE__ENTRIES:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -220,36 +163,8 @@ public class FunctionItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(RfcPackage.Literals.FUNCTION__REQUEST,
-				 RfcFactory.eINSTANCE.createStructure()));
-
-		newChildDescriptors.add
-			(createChildParameter
-				(RfcPackage.Literals.FUNCTION__RESPONSE,
-				 RfcFactory.eINSTANCE.createStructure()));
-	}
-
-	/**
-	 * This returns the label text for {@link org.eclipse.emf.edit.command.CreateChildCommand}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public String getCreateChildText(Object owner, Object feature, Object child, Collection<?> selection) {
-		Object childFeature = feature;
-		Object childObject = child;
-
-		boolean qualify =
-			childFeature == RfcPackage.Literals.FUNCTION__REQUEST ||
-			childFeature == RfcPackage.Literals.FUNCTION__RESPONSE;
-
-		if (qualify) {
-			return getString
-				("_UI_CreateChild_text2",
-				 new Object[] { getTypeText(childObject), getFeatureText(childFeature), getTypeText(owner) });
-		}
-		return super.getCreateChildText(owner, feature, child, selection);
+				(RfcPackage.Literals.DESTINATION_DATA_STORE__ENTRIES,
+				 RfcFactory.eINSTANCE.create(RfcPackage.Literals.DESTINATION_DATA_STORE_ENTRY)));
 	}
 
 	/**
