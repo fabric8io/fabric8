@@ -17,13 +17,12 @@
             <setBody>
                 <simple>Hello from Fabric based Camel route!</simple>
             </setBody>
-            <log message=">>> Local: ${body} : ${header.karaf.name}"/>
             <to uri="fabric:myep"/>
+            <log message=">>> ${body} : ${header.karaf.name}"/>
         </route>
 
         <route id="fabric-export">
             <from uri="fabric:myep:servlet:/hello?consumer=jetty:${zk:[[karaf.name]]/http}/camel/services/hello"/>
-            <log message=">>> Export: ${body} : ${header.karaf.name}"/>
             <setHeader headerName="karaf.name">
                 <simple>${sys.karaf.name}</simple>
             </setHeader>
@@ -38,12 +37,5 @@
     <bean id="servlet" class="org.apache.camel.component.servlet.ServletComponent">
         <property name="httpRegistry" ref="httpRegistry"/>
     </bean>
-
-    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-
-    <bean id="fabric" class="org.fusesource.fabric.camel.FabricComponent">
-        <property name="curator" ref="curator"/>
-    </bean>
-
 
 </blueprint>
