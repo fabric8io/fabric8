@@ -164,6 +164,7 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
 
     public void stop() {
         try {
+            singleton.stop();
             group.close();
         } catch (Throwable ignore) {
             // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed

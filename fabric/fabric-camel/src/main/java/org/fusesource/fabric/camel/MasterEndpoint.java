@@ -23,9 +23,6 @@ import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups.ClusteredSingleton;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.TextNodeState;
 
 /**
  * Represents an endpoint which only becomes active when it obtains the master lock
@@ -35,18 +32,18 @@ public class MasterEndpoint extends DefaultEndpoint {
 
     private final MasterComponent component;
     private final String singletonId;
-    private final Group group;
     private final String child;
-    private final ClusteredSingleton<TextNodeState> cluster;
 
 
-    public MasterEndpoint(String uri, MasterComponent component, String singletonId, Group group, String child) {
+    public MasterEndpoint(String uri, MasterComponent component, String singletonId, String child) {
         super(uri, component);
         this.component = component;
         this.singletonId = singletonId;
-        this.group = group;
         this.child = child;
-        this.cluster = new ClusteredSingleton<TextNodeState>(TextNodeState.class);
+    }
+
+    public String getSingletonId() {
+        return singletonId;
     }
 
     @Override
@@ -68,38 +65,14 @@ public class MasterEndpoint extends DefaultEndpoint {
         return true;
     }
 
-    @Override
-    protected void doStop() throws Exception {
-        getCluster().stop();
-        super.doStop();
-    }
-
-    @Override
-    protected void doStart() throws Exception {
-        getCluster().start(group);
-        super.doStart();
-    }
-
     // Properties
     //-------------------------------------------------------------------------
     public MasterComponent getComponent() {
         return component;
     }
 
-    public Group getGroup() {
-        return group;
-    }
-
-    public ClusteredSingleton<TextNodeState> getCluster() {
-        return cluster;
-    }
-
     public String getChild() {
         return child;
-    }
-
-    public String getSingletonId() {
-        return singletonId;
     }
 
     // Implementation methods

@@ -19,8 +19,6 @@ package org.fusesource.fabric.camel;
 import org.apache.camel.Endpoint;
 import org.apache.camel.util.ObjectHelper;
 import org.apache.camel.util.URISupport;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 
 import java.util.Map;
 
@@ -52,15 +50,12 @@ public class MasterComponent extends ZKComponentSupport {
         }
         // we are registering a regular endpoint
         String name = remaining.substring(0, idx);
-        String fabricPath = getFabricPath(name);
         String childUri = remaining.substring(idx + 1);
         // we need to apply the params here
         if (params != null && params.size() > 0) {
             childUri = childUri + "?" + URISupport.createQueryString(params);
         }
-
-        Group group = ZooKeeperGroupFactory.create(getCurator(), fabricPath);
-        return new MasterEndpoint(uri, this, name, group, childUri);
+        return new MasterEndpoint(uri, this, name, childUri);
     }
 
     protected String getFabricPath(String name) {

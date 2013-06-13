@@ -23,8 +23,6 @@ import org.apache.camel.util.ServiceHelper;
 import org.apache.camel.util.URISupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -101,20 +99,16 @@ public class FabricComponent extends ZKComponentSupport {
         if (idx > 0) {
             // we are registering a regular endpoint
             String name = remaining.substring(0, idx);
-            String fabricPath = getFabricPath(name);
             // need to replace the "0.0.0.0" with the host and port
             String childUri = replaceAnyIpAddress(remaining.substring(idx + 1));
             // we need to apply the params here
             if (params != null && params.size() > 0) {
                 childUri = childUri + "?" + URISupport.createQueryString(params);
             }
-            Group group = ZooKeeperGroupFactory.create(getCurator(), fabricPath);
-            return new FabricPublisherEndpoint(uri, this, group, childUri);
+            return new FabricPublisherEndpoint(uri, this, name, childUri);
 
         } else {
-            String fabricPath = getFabricPath(remaining);
-            Group group = ZooKeeperGroupFactory.create(getCurator(), fabricPath);
-            return new FabricLocatorEndpoint(uri, this, group);
+            return new FabricLocatorEndpoint(uri, this, remaining);
         }
     }
 
