@@ -22,10 +22,9 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
-import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups2.GroupListener;
+import org.fusesource.fabric.groups2.Group;
+import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.Constants;
@@ -40,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
@@ -48,16 +48,15 @@ import java.util.List;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-public class GitHttpServerRegistrationHandler implements ConnectionStateListener, ConfigurationListener, ChangeListener {
+public class GitHttpServerRegistrationHandler implements ConnectionStateListener, ConfigurationListener, GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
 
-    private final ClusteredSingleton<GitNode> singleton = new ClusteredSingleton<GitNode>(GitNode.class);
     private CuratorFramework curator = null;
     private boolean connected = false;
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
-    private Group group;
+    private Group<GitNode> group;
 
     private HttpService httpService;
     private GitServlet gitServlet;
@@ -71,7 +70,6 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
     private String gitRemoteUrl;
 
     public GitHttpServerRegistrationHandler() {
-        singleton.add(this);
     }
 
 
@@ -111,7 +109,7 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
             httpService.registerServlet("/git", gitServlet, initParams, secure);
 
             if (connected) {
-                singleton.join(createState());
+                group.update(createState());
             }
         } catch (Exception e) {
             LOGGER.error("Error while registering git servlet", e);
@@ -122,7 +120,11 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
         try {
             if (httpService != null) {
                 if (connected) {
-                    singleton.leave();
+                    try {
+                        group.close();
+                    } catch (IOException e) {
+                        // ignore
+                    }
                 }
                 httpService.unregister("/git");
             }
@@ -147,12 +149,12 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
 
     public synchronized void onConnected() {
         connected = true;
-        group = ZooKeeperGroupFactory.create(curator, ZkPath.GIT.getPath());
-        singleton.start(group);
-
+        group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
+        group.add(this);
         if (httpService != null) {
-            singleton.join(createState());
+            group.update(createState());
         }
+        group.start();
     }
 
     public synchronized void onDisconnected() {
@@ -167,25 +169,15 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
     }
 
     @Override
-    public void connected() {
-        changed();
-    }
-
-    @Override
-    public void disconnected() {
-        changed();
-    }
-
-    @Override
-    public void changed() {
-        if (singleton.isMaster()) {
+    public void groupEvent(Group<GitNode> group, GroupEvent event) {
+        if (group.isMaster()) {
             LOGGER.info("Git repo is the master");
         } else {
             LOGGER.info("Git repo is not the master");
         }
         try {
             GitNode state = createState();
-            singleton.update(state);
+            group.update(state);
 
             String url = state.getUrl();
             try {
@@ -196,7 +188,7 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
                     fireGitRemoteUrlChanged(actualUrl);
                 }
 
-                if (singleton.isMaster()) {
+                if (group.isMaster()) {
                     // lets register the current URL to ConfigAdmin
                     String pid = "org.fusesource.fabric.git";
                     try {
@@ -242,7 +234,7 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
         if (event.getPid().equals("org.ops4j.pax.web") && event.getType() == ConfigurationEvent.CM_UPDATED) {
             this.port = getPortFromConfig();
             if (httpService != null && connected) {
-                singleton.update(createState());
+                group.update(createState());
             }
         }
     }
@@ -253,7 +245,7 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
         state.setAgent(name);
-        if (singleton.isMaster()) {
+        if (group.isMaster()) {
             state.setServices(new String[] { "git" });
         }
         return state;

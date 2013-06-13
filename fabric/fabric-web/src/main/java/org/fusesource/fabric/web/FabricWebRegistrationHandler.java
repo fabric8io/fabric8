@@ -20,6 +20,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -50,14 +51,16 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
     @Override
     public void webEvent(WebEvent webEvent) {
         webEvents.put(webEvent.getBundle(), webEvent);
-        switch (webEvent.getType()) {
-            case WebEvent.DEPLOYING:
-                break;
-            case WebEvent.DEPLOYED:
-                registerWebapp(fabricService.getCurrentContainer(), webEvent);
-                break;
-            default:
-                unRegisterWebapp(fabricService.getCurrentContainer(), webEvent);
+        if (curator != null && curator.getZookeeperClient().isConnected()) {
+            switch (webEvent.getType()) {
+                case WebEvent.DEPLOYING:
+                    break;
+                case WebEvent.DEPLOYED:
+                    registerWebapp(fabricService.getCurrentContainer(), webEvent);
+                    break;
+                default:
+                    unRegisterWebapp(fabricService.getCurrentContainer(), webEvent);
+            }
         }
     }
 
@@ -74,15 +77,17 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
             servletEvents.put(servletEvent.getBundle(), events);
         }
         events.put(servletEvent.getAlias(), servletEvent);
-        switch (servletEvent.getType()) {
-            case ServletEvent.DEPLOYING:
-                break;
-            case ServletEvent.DEPLOYED:
-                registerServlet(fabricService.getCurrentContainer(), servletEvent);
-                break;
-            default:
-                unregisterServlet(fabricService.getCurrentContainer(), servletEvent);
-                break;
+        if (curator != null && curator.getZookeeperClient().isConnected()) {
+            switch (servletEvent.getType()) {
+                case ServletEvent.DEPLOYING:
+                    break;
+                case ServletEvent.DEPLOYED:
+                    registerServlet(fabricService.getCurrentContainer(), servletEvent);
+                    break;
+                default:
+                    unregisterServlet(fabricService.getCurrentContainer(), servletEvent);
+                    break;
+            }
         }
     }
 
@@ -115,6 +120,8 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
                     + servletEvent.getAlias() + "/"
                     + id;
             delete(curator, path);
+        } catch (KeeperException.NoNodeException e) {
+            // If the node does not exists, ignore the exception
         } catch (Exception e) {
             LOGGER.error("Failed to unregister servlet {}.", servletEvent.getAlias(), e);
         }
@@ -165,6 +172,8 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
 
             delete(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
                     webEvent.getBundle().getVersion().toString(), container.getId()));
+        } catch (KeeperException.NoNodeException e) {
+            // If the node does not exists, ignore the exception
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
         }
@@ -180,12 +189,19 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
                 break;
             default:
                 onDisconnected();
+                this.curator = null;
+                break;
         }
     }
 
     public void onConnected() {
-        for (Map.Entry<Bundle, WebEvent> entry : webEvents.entrySet()) {
-            webEvent(entry.getValue());
+        for (WebEvent event : webEvents.values()) {
+            webEvent(event);
+        }
+        for (Map<String, ServletEvent> map : servletEvents.values()) {
+            for (ServletEvent event : map.values()) {
+                servletEvent(event);
+            }
         }
     }
 

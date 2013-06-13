@@ -77,7 +77,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     private CuratorFramework curatorFramework;
     private ServiceRegistration registration;
 
-    private ServiceTracker connectionStateListenerTracker;
+    private ServiceTracker<ConnectionStateListener, ConnectionStateListener> connectionStateListenerTracker;
     private ServiceTracker<ACLProvider, ACLProvider> aclProviderTracker;
     private Dictionary oldProperties;
 
@@ -113,6 +113,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      */
     void updateService(CuratorFramework framework) {
         if (registration != null) {
+            closeQuietly(connectionStateListenerTracker);
             registration.unregister();
             try {
                 Closeables.close(curatorFramework, true);
@@ -248,7 +249,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      * @return
      */
     boolean isRestartRequired(Dictionary oldProperties, Dictionary properties) {
-        if (oldProperties == null) {
+        if (oldProperties == null || properties == null) {
             return true;
         } else if (oldProperties.equals(properties)) {
             return false;
@@ -270,12 +271,10 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     }
 
     private boolean propertyEquals(Dictionary left, Dictionary right, String name) {
-        if (left.get(name) == null && right.get(name) == null) {
-            return true;
-        } else if (left.get(name) != null && left.get(name).equals(right.get(name))) {
-            return true;
+        if (left == null || right == null || left.get(name) == null || right.get(name) == null) {
+            return (left == null || left.get(name) == null) && (right == null || right.get(name) == null);
         } else {
-            return false;
+            return left.get(name).equals(right.get(name));
         }
     }
 

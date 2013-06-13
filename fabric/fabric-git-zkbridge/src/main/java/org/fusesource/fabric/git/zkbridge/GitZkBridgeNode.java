@@ -17,7 +17,7 @@
 package org.fusesource.fabric.git.zkbridge;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups2.NodeState;
 
 public class GitZkBridgeNode implements NodeState {
     @JsonProperty
