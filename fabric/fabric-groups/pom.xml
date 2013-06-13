@@ -35,7 +35,8 @@
 
   <properties>
     <fuse.osgi.export>
-      org.fusesource.fabric.groups*;version=${project.version},
+        org.fusesource.fabric.groups*;version=${project.version},
+        org.fusesource.fabric.groups2*;version=${project.version},
     </fuse.osgi.export>
   </properties>
 
