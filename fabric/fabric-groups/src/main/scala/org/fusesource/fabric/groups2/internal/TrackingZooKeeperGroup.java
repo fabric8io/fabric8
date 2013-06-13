@@ -23,8 +23,6 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
-import java.io.IOException;
-
 /**
  *
  */
@@ -57,12 +55,12 @@ public class TrackingZooKeeperGroup<T extends NodeState> extends DelegateZooKeep
     }
 
     @Override
-    public void start() {
+    protected void doStart() {
         tracker.open();
     }
 
     @Override
-    public void close() throws IOException {
+    protected void doStop() {
         tracker.close();
     }
 

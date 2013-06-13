@@ -16,16 +16,12 @@
  */
 package org.fusesource.fabric.groups2.internal;
 
-import com.google.common.io.Closeables;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.groups2.Group;
 import org.fusesource.fabric.groups2.GroupListener;
 import org.fusesource.fabric.groups2.NodeState;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -54,9 +50,7 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
     public void useCurator(CuratorFramework curator) {
         Group<T> group = this.group;
         if (group != null) {
-            if (started.get()) {
-                Closeables.closeQuietly(group);
-            }
+            closeQuietly(group);
         }
         if (curator != null) {
             group = new ZooKeeperGroup<T>(curator, path, clazz);
@@ -102,17 +96,25 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
     @Override
     public void start() {
         if (started.compareAndSet(false, true)) {
-            if (group != null) {
-                group.start();
-            }
+            doStart();
+        }
+    }
+
+    protected void doStart() {
+        if (group != null) {
+            group.start();
         }
     }
 
     @Override
     public void close() throws IOException {
         if (started.compareAndSet(true, false)) {
-            Closeables.closeQuietly(group);
+            doStop();
         }
+    }
+
+    protected void doStop() throws IOException {
+        closeQuietly(group);
     }
 
     @Override
@@ -161,6 +163,15 @@ public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
             return group.slaves();
         } else {
             return Collections.emptyList();
+        }
+    }
+
+    public static void closeQuietly(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
+            }
         }
     }
 }
