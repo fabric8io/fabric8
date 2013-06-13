@@ -65,7 +65,6 @@ public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode>
         ExtendedInternalNode node = new ExtendedInternalNode(new InternalNode(builder.build(), false));
         try {
             node.start();
-            node.client().admin().cluster().prepareHealth().setWaitForGreenStatus().execute().actionGet();
         } catch (RuntimeException t) {
             doDestroy(node);
             throw t;
