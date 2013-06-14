@@ -14,20 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.fusesource.fabric.cxf;
 
-/**
- * Always return the first physical address from the locator
- */
-public class FirstOneLoadBalanceStrategy extends FabricLoadBalanceStrategySupport {
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.fabric.groups2.NodeState;
+
+public class CxfNodeState implements NodeState {
+
+    @JsonProperty
+    String id;
+
+    @JsonProperty
+    String agent;
+
+    @JsonProperty
+    String[] services;
 
     @Override
-    public String getNextAlternateAddress() {
-        if (alternateAddressList.size() > 0) {
-            return alternateAddressList.get(0);
-        } else {
-            throw new IllegalArgumentException("The AlternateAddressList is empty, please fresh the list shortly.");
-        }
+    public String id() {
+        return id;
     }
 }

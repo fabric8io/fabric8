@@ -27,11 +27,12 @@
   <!-- Since this is a test case lets run a local ZK server -->
   <bean id="zkServer" class="org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean">
     <property name="purge" value="true"/>
+    <property name="port" value="2182"/>
   </bean>
 
   <bean id="curator" class="org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean" depends-on="zkServer">
     <property name="timeout" value="3000"/>
-    <property name="connectString" value="localhost:2181"/>
+    <property name="connectString" value="localhost:2182"/>
   </bean>
 
   <bean id="fabicLoadBalancerFeature" class="org.fusesource.fabric.cxf.FabricLoadBalancerFeature">

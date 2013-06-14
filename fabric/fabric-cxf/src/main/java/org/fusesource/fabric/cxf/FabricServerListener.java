@@ -20,20 +20,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleListener;
-import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups2.Group;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FabricServerListener implements ServerLifeCycleListener {
     private static final transient Log LOG = LogFactory.getLog(FabricServerListener.class);
-    private final Group group;
-    private String eid;
+    private final Group<CxfNodeState> group;
     private ServerAddressResolver addressResolver;
+    private final List<String> services = new ArrayList<String>();
 
-    public FabricServerListener(Group group, ServerAddressResolver addressResolver) {
+    public FabricServerListener(Group<CxfNodeState> group, ServerAddressResolver addressResolver) {
         this.group = group;
         this.addressResolver = addressResolver;
     }
 
-    public FabricServerListener(Group group) {
+    public FabricServerListener(Group<CxfNodeState> group) {
         this(group, null);
     }
 
@@ -43,11 +46,8 @@ public class FabricServerListener implements ServerLifeCycleListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("The CXF server is start with address " + address);
         }
-        try {
-            eid = group.join(address.getBytes("UTF-8"));
-        } catch (Exception ex) {
-            LOG.warn("Cannot bind the address " + address + " to the group, due to ", ex);
-        }
+        services.add(address);
+        group.update(createState());
     }
 
     public void stopServer(Server server) {
@@ -56,7 +56,16 @@ public class FabricServerListener implements ServerLifeCycleListener {
         if (LOG.isDebugEnabled()) {
             LOG.debug("The CXF server is stopped with address " + address);
         }
-        group.leave(eid);
+        services.remove(address);
+        group.update(createState());
+    }
+
+    private CxfNodeState createState() {
+        CxfNodeState state = new CxfNodeState();
+        state.id = "cxf";
+        state.agent = System.getProperty("karaf.name");
+        state.services = services.toArray(new String[services.size()]);
+        return state;
     }
 
     public String getFullAddress(String address) {
