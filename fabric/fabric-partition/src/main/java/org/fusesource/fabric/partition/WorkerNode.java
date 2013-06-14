@@ -17,7 +17,7 @@
 package org.fusesource.fabric.partition;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups2.NodeState;
 
 public class WorkerNode implements NodeState {
 
