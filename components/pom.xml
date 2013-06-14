@@ -10,7 +10,9 @@
   <name>Camel Components Parent</name>
   <description>Builds Fuse Camel Components</description>
   <modules>
+  	<!-- 
   	<module>camel-sap</module>
+	 -->
   </modules>
   <url>http://www.fusesource.org</url>
 </project>

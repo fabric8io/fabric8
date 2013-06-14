@@ -74,6 +74,8 @@
 		</pluginManagement>
 	</build>
 	<modules>
+		<module>com.sap.conn.jco</module>
+		<module>com.sap.conn.jco.linux.x86_64</module>
 		<module>org.fusesource.camel.component.sap.model</module>
 		<module>org.fusesource.camel.component.sap.model.edit</module>
 	</modules>
