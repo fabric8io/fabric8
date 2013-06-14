@@ -37,12 +37,12 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.actors.threadpool.Arrays;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -97,12 +97,11 @@ public class Activator implements BundleActivator, Container, ManagedService {
         Hashtable<String, Object> props = new Hashtable<String, Object>();
         props.put(Constants.SERVICE_PID, INSIGHT_CAMEL_PID);
         registration = bundleContext.registerService(ManagedService.class, this, props);
-        commandRegistrations = Arrays.asList(new ServiceRegistration[]{
+        commandRegistrations = Arrays.asList(
                 SimpleCommand.export(bundleContext, AuditorCommand.class),
                 SimpleCommand.export(bundleContext, BreadcrumbsCommand.class),
                 SimpleCommand.export(bundleContext, ProfilerCommand.class),
-                SimpleCommand.export(bundleContext, TracerCommand.class)
-        });
+                SimpleCommand.export(bundleContext, TracerCommand.class));
     }
 
     @Override

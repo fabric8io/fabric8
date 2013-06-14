@@ -59,17 +59,18 @@ import org.elasticsearch.node.service.NodeService;
 import org.elasticsearch.node.settings.NodeSettingsService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
-import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.GroupFactory;
 import org.fusesource.fabric.groups.NodeState;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroupFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
-import scala.collection.JavaConversions$;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.elasticsearch.cluster.ClusterState.newClusterStateBuilder;
 import static org.elasticsearch.cluster.node.DiscoveryNodes.newNodesBuilder;
@@ -77,9 +78,11 @@ import static org.elasticsearch.cluster.node.DiscoveryNodes.newNodesBuilder;
 public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         implements Discovery,
                    DiscoveryNodesProvider,
-                   ServiceTrackerCustomizer,
+                   ServiceTrackerCustomizer<CuratorFramework, CuratorFramework>,
                    PublishClusterStateAction.NewClusterStateListener,
-                   ChangeListener {
+        GroupListener<FabricDiscovery.ESNode> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FabricDiscovery.class);
 
     protected final ClusterName clusterName;
     protected final ThreadPool threadPool;
@@ -88,7 +91,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     protected final NodeSettingsService nodeSettingsService;
     protected final DiscoveryNodeService discoveryNodeService;
     protected final BundleContext context;
-    protected final ServiceTracker tracker;
+    protected final ServiceTracker<CuratorFramework, CuratorFramework> tracker;
 
     private DiscoveryNode localNode;
     private final CopyOnWriteArrayList<InitialStateDiscoveryListener> initialStateListeners = new CopyOnWriteArrayList<InitialStateDiscoveryListener>();
@@ -96,10 +99,8 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
     private AllocationService allocationService;
     private volatile DiscoveryNodes latestDiscoNodes;
     private final PublishClusterStateAction publishClusterState;
-    private volatile Group group;
-    private final ClusteredSingleton<ESNode> singleton;
+    private volatile Group<ESNode> singleton;
     private final AtomicBoolean initialStateSent = new AtomicBoolean();
-    private boolean joined;
 
     @Inject
     public FabricDiscovery(Settings settings,
@@ -118,9 +119,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         this.discoveryNodeService = discoveryNodeService;
         this.publishClusterState = new PublishClusterStateAction(settings, transportService, this, this);
         this.context = FrameworkUtil.getBundle(getClass()).getBundleContext();
-        this.tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
-        this.singleton = new ClusteredSingleton<ESNode>(ESNode.class);
-        this.singleton.add(this);
+        this.tracker = new ServiceTracker<CuratorFramework, CuratorFramework>(context, CuratorFramework.class.getName(), this);
     }
 
     @Override
@@ -134,21 +133,6 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @Override
     protected void doStop() throws ElasticSearchException {
-        try {
-            singleton.leave();
-        } catch (Throwable t) {
-            // Ignore
-        }
-        try {
-            singleton.stop();
-        } catch (Throwable t) {
-            // Ignore
-        }
-        try {
-            group.close();
-        } catch (Throwable t) {
-            // Ignore
-        }
         tracker.close();
         initialStateSent.set(false);
     }
@@ -214,28 +198,36 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
 
     @Override
-    public Object addingService(ServiceReference reference) {
-        CuratorFramework curator = (CuratorFramework) context.getService(reference);
-        group = ZooKeeperGroupFactory.create(curator, "/fabric/registry/clusters/elasticsearch/" + clusterName.value());
-        joined = false;
-        singleton.start(group);
-        joined = true;
-        singleton.join(new ESNode(clusterName.value(), localNode, false));
+    public CuratorFramework addingService(ServiceReference<CuratorFramework> reference) {
+        CuratorFramework curator = context.getService(reference);
+        try {
+            GroupFactory factory = new ZooKeeperGroupFactory(curator);
+            singleton = factory.createGroup("/fabric/registry/clusters/elasticsearch/" + clusterName.value(), ESNode.class);
+            singleton.add(this);
+            singleton.update(new ESNode(clusterName.value(), localNode, false));
+            singleton.start();
+        } catch (Exception e) {
+            LOG.error("Error starting group", e);
+        }
         return curator;
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {
+    public void modifiedService(ServiceReference<CuratorFramework> reference, CuratorFramework service) {
     }
 
     @Override
-    public void removedService(ServiceReference reference, Object service) {
+    public void removedService(ServiceReference<CuratorFramework> reference, CuratorFramework service) {
+        try {
+            singleton.close();
+        } catch (IOException e) {
+            LOG.error("Error stopping group", e);
+        }
         context.ungetService(reference);
-        group.close();
     }
 
     @Override
-    public void changed() {
+    public void groupEvent(Group<ESNode> group, GroupEvent event) {
         // We need to set the TCCL because elasticsearch Settings will grab the wrong classloader if not
         ClassLoader tccl = Thread.currentThread().getContextClassLoader();
         try {
@@ -261,10 +253,10 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                     // Rebuild nodes
                     DiscoveryNodes.Builder nodesBuilder = newNodesBuilder()
                             .localNodeId(localNode.id())
-                            .masterNodeId(singleton.master().get().node().id())
-                            .put(singleton.master().get().node);
-                    for (ESNode node : JavaConversions$.MODULE$.<ESNode>asJavaCollection(singleton.slaves())) {
-                        nodesBuilder.put(node.node());
+                            .masterNodeId(singleton.master().getNode().id())
+                            .put(singleton.master().getNode());
+                    for (ESNode node : singleton.slaves()) {
+                        nodesBuilder.put(node.getNode());
                     }
                     latestDiscoNodes = nodesBuilder.build();
                     stateBuilder.nodes(latestDiscoNodes);
@@ -286,8 +278,8 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                     sendInitialStateEventIfNeeded();
                 }
             });
-        } else if (joined && singleton.master().isDefined()) {
-            DiscoveryNode masterNode = singleton.master().get().node();
+        } else if (singleton.master() != null) {
+            DiscoveryNode masterNode = singleton.master().getNode();
             try {
                 // first, make sure we can connect to the master
                 transportService.connectToNode(masterNode);
@@ -296,16 +288,6 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
             }
         }
 
-    }
-
-    @Override
-    public void connected() {
-        changed();
-    }
-
-    @Override
-    public void disconnected() {
-        changed();
     }
 
     @Override
@@ -365,23 +347,18 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @JsonSerialize(using = NodeSerializer.class)
     @JsonDeserialize(using = NodeDeserializer.class)
-    static class ESNode implements NodeState {
-        private final String id;
+    static class ESNode extends NodeState {
         private final DiscoveryNode node;
         private final boolean master;
 
         ESNode(String id, DiscoveryNode node, boolean master) {
             this.id = id;
+            this.container = node.getName();
             this.node = node;
             this.master = master;
         }
 
-        @Override
-        public String id() {
-            return id;
-        }
-
-        public DiscoveryNode node() {
+        public DiscoveryNode getNode() {
             return node;
         }
 
@@ -394,24 +371,24 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         @Override
         public void serialize(ESNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeStringField("id", value.id());
+            jgen.writeStringField("id", value.getId());
             jgen.writeStringField("agent", System.getProperty("karaf.name"));
             if (value.isMaster()) {
                 jgen.writeArrayFieldStart("services");
                 jgen.writeString("elasticsearch");
                 jgen.writeEndArray();
             }
-            jgen.writeStringField("nodeName", value.node().name());
-            jgen.writeStringField("nodeId", value.node().id());
-            jgen.writeStringField("address", value.node().address().toString());
-            jgen.writeStringField("version", value.node().version().toString());
+            jgen.writeStringField("nodeName", value.getNode().name());
+            jgen.writeStringField("nodeId", value.getNode().id());
+            jgen.writeStringField("address", value.getNode().address().toString());
+            jgen.writeStringField("version", value.getNode().version().toString());
             jgen.writeFieldName("attributes");
             jgen.writeStartObject();
-            for (Map.Entry<String, String> entry : value.node().attributes().entrySet()) {
+            for (Map.Entry<String, String> entry : value.getNode().attributes().entrySet()) {
                 jgen.writeStringField(entry.getKey(), entry.getValue());
             }
             jgen.writeEndObject();
-            jgen.writeStringField("binary", Base64.encodeObject(value.node()));
+            jgen.writeStringField("binary", Base64.encodeObject(value.getNode()));
             jgen.writeEndObject();
         }
     }

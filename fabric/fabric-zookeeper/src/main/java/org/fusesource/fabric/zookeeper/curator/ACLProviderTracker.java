@@ -28,7 +28,7 @@ import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.curator.Constants.ACL_PROVIDER;
 
-public class ACLProviderTracker implements ServiceTrackerCustomizer {
+public class ACLProviderTracker implements ServiceTrackerCustomizer<ACLProvider, ACLProvider> {
 
     private final BundleContext bundleContext;
     private final Map<String, ACLProvider> providers;
@@ -40,29 +40,25 @@ public class ACLProviderTracker implements ServiceTrackerCustomizer {
 
 
     @Override
-    public Object addingService(ServiceReference reference) {
-        Object service = bundleContext.getService(reference);
+    public ACLProvider addingService(ServiceReference<ACLProvider> reference) {
+        ACLProvider service = bundleContext.getService(reference);
         modifiedService(reference, service);
         return service;
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {
-        if (ACLProvider.class.isAssignableFrom(service.getClass())) {
-            String id = (String) reference.getProperty(ACL_PROVIDER);
-            if (id != null && !id.isEmpty()) {
-                providers.put(id, (ACLProvider) service);
-            }
+    public void modifiedService(ServiceReference<ACLProvider> reference, ACLProvider service) {
+        String id = (String) reference.getProperty(ACL_PROVIDER);
+        if (id != null && !id.isEmpty()) {
+            providers.put(id, service);
         }
     }
 
     @Override
-    public void removedService(ServiceReference reference, Object service) {
-        if (ACLProvider.class.isAssignableFrom(service.getClass())) {
-            String id = (String) reference.getProperty(ACL_PROVIDER);
-            if (id != null && !id.isEmpty()) {
-                providers.put(id, (ACLProvider) service);
-            }
+    public void removedService(ServiceReference<ACLProvider> reference, ACLProvider service) {
+        String id = (String) reference.getProperty(ACL_PROVIDER);
+        if (id != null && !id.isEmpty()) {
+            providers.put(id, service);
         }
     }
 }

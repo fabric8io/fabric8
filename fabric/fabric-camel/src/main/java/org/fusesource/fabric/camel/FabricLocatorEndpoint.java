@@ -27,13 +27,12 @@ import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.processor.loadbalancer.LoadBalancer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups.ChangeListener;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -42,21 +41,63 @@ import java.util.Set;
 /**
  * Creates an endpoint which uses FABRIC to map a logical name to physical endpoint names
  */
-public class FabricLocatorEndpoint extends DefaultEndpoint {
+public class FabricLocatorEndpoint extends DefaultEndpoint implements GroupListener<CamelNodeState> {
     private static final transient Log LOG = LogFactory.getLog(FabricLocatorEndpoint.class);
 
     private final FabricComponent component;
-    private final Group group;
+    private final Group<CamelNodeState> group;
 
     private LoadBalancerFactory loadBalancerFactory;
     private LoadBalancer loadBalancer;
     private final Map<String, Processor> processors = new HashMap<String, Processor>();
 
 
-    public FabricLocatorEndpoint(String uri, FabricComponent component, Group group) {
+    public FabricLocatorEndpoint(String uri, FabricComponent component, String singletonId) {
         super(uri, component);
         this.component = component;
-        this.group = group;
+
+        String path = getComponent().getFabricPath(singletonId);
+        group = getComponent().createGroup(path);
+        group.add(this);
+    }
+
+    @Override
+    public synchronized void groupEvent(Group<CamelNodeState> group, GroupEvent event) {
+        Map<String, CamelNodeState> members;
+        if (event == GroupEvent.DISCONNECTED || !isStarted()) {
+            members = Collections.emptyMap();
+        } else {
+            members = group.members();
+        }
+        //Find what has been removed.
+        Set<String> removed = new LinkedHashSet<String>();
+
+        for (Map.Entry<String, Processor> entry : processors.entrySet()) {
+            String key = entry.getKey();
+            if (!members.containsKey(key)) {
+                removed.add(key);
+            }
+        }
+
+        //Add existing processors
+        for (Map.Entry<String, CamelNodeState> entry : members.entrySet()) {
+            try {
+                String key = entry.getKey();
+                if (!processors.containsKey(key)) {
+                    Processor p = getProcessor(entry.getValue().consumer);
+                    processors.put(key, p);
+                    loadBalancer.addProcessor(p);
+                }
+            } catch (URISyntaxException e) {
+                LOG.warn("Unable to add endpoint " + entry.getValue().consumer, e);
+            }
+        }
+
+        //Update the list by removing old and adding new.
+        for (String key : removed) {
+            Processor p = processors.remove(key);
+            loadBalancer.removeProcessor(p);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -83,47 +124,7 @@ public class FabricLocatorEndpoint extends DefaultEndpoint {
         if (loadBalancer == null) {
             loadBalancer = createLoadBalancer();
         }
-        group.add(new ChangeListener() {
-            public synchronized void changed() {
-                //Find what has been removed.
-                Set<String> removed = new LinkedHashSet<String>();
-
-                for (Map.Entry<String, Processor> entry : processors.entrySet()) {
-                    String key = entry.getKey();
-                    if (!group.members().containsKey(key)) {
-                        removed.add(key);
-                    }
-                }
-
-                //Add existing processors
-                for (Map.Entry<String,byte[]> entry : group.members().entrySet()) {
-                    try {
-                        String key = entry.getKey();
-                        if (!processors.containsKey(key)) {
-                            Processor p = getProcessor(new String(entry.getValue(), Charset.forName("UTF-8")));
-                            processors.put(key, p);
-                            loadBalancer.addProcessor(p);
-                        }
-                    } catch (URISyntaxException e) {
-                        LOG.warn("Unable to add endpoint " + new String(entry.getValue(), Charset.forName("UTF-8")), e);
-                    }
-                }
-
-                //Update the list by removing old and adding new.
-                for (String key : removed) {
-                    Processor p = processors.remove(key);
-                    loadBalancer.removeProcessor(p);
-                }
-            }
-
-            public void connected() {
-                changed();
-            }
-
-            public void disconnected() {
-                changed();
-            }
-        });
+        group.start();
     }
 
     @Override

@@ -19,16 +19,7 @@ package org.fusesource.fabric.partition;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.NodeState;
 
-public class WorkerNode implements NodeState {
-
-    @JsonProperty
-    String id;
-
-    @JsonProperty
-    String container;
-
-    @JsonProperty
-    String[] services;
+public class WorkerNode extends NodeState {
 
     @JsonProperty
     String[] partitions;
@@ -36,17 +27,11 @@ public class WorkerNode implements NodeState {
     @JsonProperty
     String url;
 
-    /**
-     * The id of the cluster node.  There can be multiple node with this ID,
-     * but only the first node in the cluster will be the master for for it.
-     */
-    @Override
-    public String id() {
-        return id;
+    public WorkerNode() {
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public WorkerNode(String id) {
+        super(id);
     }
 
     public String getUrl() {
@@ -55,22 +40,6 @@ public class WorkerNode implements NodeState {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getContainer() {
-        return container;
-    }
-
-    public void setContainer(String agent) {
-        this.container = agent;
-    }
-
-    public String[] getServices() {
-        return services;
-    }
-
-    public void setServices(String[] services) {
-        this.services = services;
     }
 
     public String[] getPartitions() {
@@ -83,10 +52,10 @@ public class WorkerNode implements NodeState {
 
     @Override
     public String toString() {
-        return "MemberNode{" +
+        return "WorkerNode{" +
                 "id='" + id + '\'' +
+                ", agent='" + container + '\'' +
                 ", url='" + url + '\'' +
-                ", container='" + container + '\'' +
                 ", partitions='" + partitions + '\'' +
                 '}';
     }

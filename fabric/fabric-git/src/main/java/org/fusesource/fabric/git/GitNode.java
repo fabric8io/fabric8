@@ -19,54 +19,16 @@ package org.fusesource.fabric.git;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.NodeState;
 
-public class GitNode implements NodeState {
-	@JsonProperty
-	String id;
-
-    @JsonProperty
-    String agent;
-
-    @JsonProperty
-    String[] services;
-
+public class GitNode extends NodeState {
 	@JsonProperty
 	String url;
 
-	/**
-	 * The id of the cluster node.  There can be multiple node with this ID,
-	 * but only the first node in the cluster will be the master for for it.
-	 */
-	@Override
-	public String id() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
-
-	public String getUrl() {
-		return url;
-	}
-
-	public void setUrl(String url) {
-		this.url = url;
-	}
-
-    public String getAgent() {
-        return agent;
+    public String getUrl() {
+        return url;
     }
 
-    public void setAgent(String agent) {
-        this.agent = agent;
-    }
-
-    public String[] getServices() {
-        return services;
-    }
-
-    public void setServices(String[] services) {
-        this.services = services;
+    public void setUrl(String url) {
+        this.url = url;
     }
 
     @Override

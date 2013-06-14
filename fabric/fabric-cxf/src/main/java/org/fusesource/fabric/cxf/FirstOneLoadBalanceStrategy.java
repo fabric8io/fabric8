@@ -17,8 +17,6 @@
 
 package org.fusesource.fabric.cxf;
 
-import org.fusesource.fabric.groups.Group;
-
 /**
  * Always return the first physical address from the locator
  */
@@ -26,6 +24,10 @@ public class FirstOneLoadBalanceStrategy extends FabricLoadBalanceStrategySuppor
 
     @Override
     public String getNextAlternateAddress() {
-        return alternateAddressList.get(0);
+        if (alternateAddressList.size() > 0) {
+            return alternateAddressList.get(0);
+        } else {
+            throw new IllegalArgumentException("The AlternateAddressList is empty, please fresh the list shortly.");
+        }
     }
 }

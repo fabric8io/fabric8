@@ -32,7 +32,6 @@ import java.beans.PropertyEditorManager
 import java.net.URI
 import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
-import org.fusesource.fabric.groups.ChangeListener
 import org.apache.activemq.util.IntrospectionSupport
 import org.apache.activemq.broker.{TransportConnector, BrokerService}
 import scala.collection.JavaConversions._
@@ -43,6 +42,9 @@ import org.apache.activemq.network.DiscoveryNetworkConnector
 import java.util
 import collection.mutable
 import org.apache.curator.framework.CuratorFramework
+import org.fusesource.mq.fabric.FabricDiscoveryAgent.ActiveMQNode
+import org.fusesource.fabric.groups.{Group, GroupListener}
+import GroupListener.GroupEvent
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -236,9 +238,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       discoveryAgent.setId(name)
       discoveryAgent.setGroupName(group)
       discoveryAgent.setCurator(curator)
-      discoveryAgent.singleton.add(new ChangeListener() {
-        def changed {
-          if (discoveryAgent.singleton.isMaster) {
+      discoveryAgent.group.add(new GroupListener[ActiveMQNode]() {
+        def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
+          if (discoveryAgent.group.isMaster) {
             if (started.compareAndSet(false, true)) {
               if (take_pool(ClusteredConfiguration.this)) {
                 info("Broker %s is now the master, starting the broker.", name)
@@ -256,9 +258,6 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
             }
           }
         }
-
-        def connected = changed
-        def disconnected = changed
       })
       update_pool_state
     }

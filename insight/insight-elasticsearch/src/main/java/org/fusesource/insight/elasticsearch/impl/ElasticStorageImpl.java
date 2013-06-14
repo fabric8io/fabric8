@@ -63,8 +63,10 @@ public class ElasticStorageImpl implements StorageService, Runnable {
 
     @Override
     public void store(String type, long timestamp, String jsonData) {
+        Date ts = new Date(timestamp);
+        Date utc = new Date(ts.getTime() + ts.getTimezoneOffset() * 60000);
         IndexRequest ir = new IndexRequest()
-                .index("insight-"+ indexFormat.format(new Date(timestamp)))
+                .index("insight-"+ indexFormat.format(utc))
                 .type(type)
                 .source(jsonData)
                 .create(true);

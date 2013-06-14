@@ -18,9 +18,11 @@ package org.fusesource.mq.fabric;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -32,13 +34,11 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.linkedin.util.clock.Timespan;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -54,7 +54,6 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
     private CuratorFramework curator;
     private boolean managedZkClient;
 
-    private Group group;
     private String groupName = "default";
 
     private AtomicBoolean running=new AtomicBoolean();
@@ -75,6 +74,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
 
     BundleContext context;
     ServiceTracker tracker;
+    Group<ActiveMQNode> group;
 
     List<String> services = new ArrayList<String>();
 
@@ -96,50 +96,25 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
     public void removedService(ServiceReference serviceReference, Object o) {
     }
 
-    static class ActiveMQNode implements NodeState {
+    static class ActiveMQNode extends NodeState {
         @JsonProperty
-        String id;
-        @JsonProperty
-        String services[];
-        @JsonProperty
-        String agent;
-
-        public String id() {
-            return id;
-        }
+        String[] services;
     }
     
     ActiveMQNode createState() {
         ActiveMQNode state = new ActiveMQNode();
         state.id = id;
-        state.agent = agent;
+        state.container = agent;
         state.services = services.toArray(new String[services.size()]);
         return state;
     }
     
-    ClusteredSingleton<ActiveMQNode> singleton = new ClusteredSingleton<ActiveMQNode>(ActiveMQNode.class);
-
     public FabricDiscoveryAgent() {
         if (FrameworkUtil.getBundle(getClass()) != null) {
             context = FrameworkUtil.getBundle(getClass()).getBundleContext();
             tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
             tracker.open();
         }
-
-        singleton.add(new ChangeListener(){
-            @Override
-            public void changed() {
-                update(singleton.masters());
-            }
-
-            @Override
-            public void connected() {
-                changed();
-            }
-            public void disconnected() {
-                changed();
-            }
-        });
     }
 
 
@@ -166,7 +141,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
         if (startCounter.get() > 0 ) {
             if( id==null )
                 throw new IllegalStateException("You must configure the id of the fabric discovery if you want to register services");
-            singleton.update(createState());
+            group.update(createState());
         }
     }
 
@@ -264,11 +239,23 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
                 managedZkClient = false;
             }
 
-            group = ZooKeeperGroupFactory.create(curator, "/fabric/registry/clusters/fusemq/" + groupName);
-            singleton.start(group);
+            group = new ZooKeeperGroup<ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+            group.add(new GroupListener<ActiveMQNode>() {
+                @Override
+                public void groupEvent(Group<ActiveMQNode> group, GroupEvent event) {
+                    Map<String, ActiveMQNode> masters = new HashMap<String, ActiveMQNode>();
+                    for (ActiveMQNode node : group.members().values()) {
+                        if (!masters.containsKey(node.id)) {
+                            masters.put(node.id, node);
+                        }
+                    }
+                    update(masters.values());
+                }
+            });
             if( id!=null ) {
-                singleton.join(createState());
+                group.update(createState());
             }
+            group.start();
         }
     }
 
@@ -295,7 +282,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
         }
     }
 
-    private void update(ActiveMQNode[] members) {
+    private void update(Collection<ActiveMQNode> members) {
 
         // Find new registered services...
         DiscoveryListener discoveryListener = this.discoveryListener.get();
@@ -368,10 +355,6 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
-    }
-
-    public ClusteredSingleton<ActiveMQNode> getSingleton() {
-        return singleton;
     }
 
     public String getAgent() {

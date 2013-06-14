@@ -21,8 +21,8 @@ import org.fusesource.fabric.groups.Group;
 import java.util.List;
 
 public interface LoadBalanceStrategy {
-    void setGroup(Group group);
-    Group getGroup();
+    void setGroup(Group<CxfNodeState> group);
+    Group<CxfNodeState> getGroup();
     List<String> getAlternateAddressList();
     String getNextAlternateAddress();
 }

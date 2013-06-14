@@ -22,14 +22,20 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactory;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactoryBuilder;
+
+import java.util.concurrent.Callable;
 
 /**
  */
-public abstract class ZKComponentSupport extends DefaultComponent {
+public abstract class ZKComponentSupport extends DefaultComponent implements Callable<CuratorFramework> {
     private static final transient Log LOG = LogFactory.getLog(MasterComponent.class);
     private static final String ZOOKEEPER_URL = "zookeeper.url";
     private static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
 
+    private ManagedGroupFactory managedGroupFactory;
     private CuratorFramework curator;
     private boolean shouldCloseZkClient = false;
     private int maximumConnectionTimeout = 10 * 1000;
@@ -37,8 +43,19 @@ public abstract class ZKComponentSupport extends DefaultComponent {
     private String zooKeeperPassword;
 
     public CuratorFramework getCurator() {
-        return curator;
+        if (managedGroupFactory == null) {
+            throw new IllegalStateException("Component is not started");
+        }
+        return managedGroupFactory.getCurator();
     }
+
+    public Group<CamelNodeState> createGroup(String path) {
+        if (managedGroupFactory == null) {
+            throw new IllegalStateException("Component is not started");
+        }
+        return managedGroupFactory.createGroup(path, CamelNodeState.class);
+    }
+
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
@@ -82,49 +99,48 @@ public abstract class ZKComponentSupport extends DefaultComponent {
         super.doStart();
         if (curator == null) {
             try {
-                curator = (CuratorFramework) getCamelContext().getRegistry().lookup("curator");
+                curator = (CuratorFramework) getCamelContext().getRegistry().lookupByName("curator");
+                if (curator != null) {
+                    LOG.debug("IZKClient found in camel registry. " + curator);
+                }
             } catch (Exception exception) {
-                // try to get the curator from the OSGi service registry
-                curator = (CuratorFramework) getCamelContext().getRegistry().lookup(CuratorFramework.class.getName());
-            }
-            if (curator != null) {
-                LOG.debug("IZKClient found in camel registry. " + curator);
             }
         }
-        if (curator == null) {
-            String connectString = getZooKeeperUrl();
-            if (connectString == null) {
-                connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
-            }
-            String password = getZooKeeperPassword();
-            if (password == null) {
-                System.getProperty(ZOOKEEPER_PASSWORD);
-            }
-            LOG.debug("CuratorFramework not find in camel registry, creating new with connection " + connectString);
-            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                                                                             .connectString(connectString)
-                                                                             .retryPolicy(new RetryOneTime(1000))
-                                                                             .connectionTimeoutMs(getMaximumConnectionTimeout());
+        managedGroupFactory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), this);
+    }
 
-            if (password != null && !password.isEmpty()) {
-                builder.authorization("digest", ("fabric:"+password).getBytes());
-            }
-
-            CuratorFramework client = builder.build();
-            LOG.debug("Starting curator " + curator);
-            client.start();
-            curator = client;
-            setShouldCloseZkClient(true);
+    public CuratorFramework call() throws Exception {
+        String connectString = getZooKeeperUrl();
+        if (connectString == null) {
+            connectString = System.getProperty(ZOOKEEPER_URL, "localhost:2181");
         }
-        // ensure we are started
-        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+        String password = getZooKeeperPassword();
+        if (password == null) {
+            System.getProperty(ZOOKEEPER_PASSWORD);
+        }
+        LOG.debug("CuratorFramework not found in camel registry, creating new with connection " + connectString);
+        CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                                                                         .connectString(connectString)
+                                                                         .retryPolicy(new RetryOneTime(1000))
+                                                                         .connectionTimeoutMs(getMaximumConnectionTimeout());
+
+        if (password != null && !password.isEmpty()) {
+            builder.authorization("digest", ("fabric:"+password).getBytes());
+        }
+
+        CuratorFramework client = builder.build();
+        LOG.debug("Starting curator " + curator);
+        client.start();
+        return curator;
     }
 
     @Override
     protected void doStop() throws Exception {
         super.doStop();
-        if (curator != null && isShouldCloseZkClient()) {
-            curator.close();
+        if (managedGroupFactory != null) {
+            managedGroupFactory.close();
+            managedGroupFactory = null;
         }
     }
+
 }

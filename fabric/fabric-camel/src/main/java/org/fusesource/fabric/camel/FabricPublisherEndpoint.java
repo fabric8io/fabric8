@@ -16,7 +16,9 @@
  */
 package org.fusesource.fabric.camel;
 
-import org.apache.camel.*;
+import org.apache.camel.Consumer;
+import org.apache.camel.Processor;
+import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
 import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.URISupport;
@@ -34,14 +36,16 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
     private static final transient Log LOG = LogFactory.getLog(FabricPublisherEndpoint.class);
 
     private final FabricComponent component;
-    private final Group group;
+    private final String singletonId;
     private final String child;
     private final String consumer;
+    private final Group<CamelNodeState> group;
+    private String joined;
 
-    public FabricPublisherEndpoint(String uri, FabricComponent component, Group group, String child) throws Exception {
+    public FabricPublisherEndpoint(String uri, FabricComponent component, String singletonId, String child) throws Exception {
         super(uri, component);
         this.component = component;
-        this.group = group;
+        this.singletonId = singletonId;
 
         String path = child;
         int idx = path.indexOf('?');
@@ -69,6 +73,14 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
         LOG.info("Consumer: " + consumer);
         this.child = child;
         this.consumer = consumer;
+
+        path = getComponent().getFabricPath(singletonId);
+        group = getComponent().createGroup(path);
+        CamelNodeState state = new CamelNodeState();
+        state.id = singletonId;
+        state.container = System.getProperty("karaf.name");
+        state.consumer = consumer;
+        group.update(state);
     }
 
     public Producer createProducer() throws Exception {
@@ -90,15 +102,15 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
     }
 
     @Override
-    public void start() throws Exception {
-        super.start();
-        group.join(consumer.getBytes("UTF-8"));
+    public void doStart() throws Exception {
+        super.doStart();
+        group.start();
     }
 
     @Override
-    public void stop() throws Exception {
+    public void doStop() throws Exception {
         group.close();
-        super.stop();
+        super.doStop();
     }
 
     // Properties

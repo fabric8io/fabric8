@@ -25,10 +25,9 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingletonWatcher;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,22 +37,25 @@ import java.io.IOException;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-public class FabricGitServiceImpl implements FabricGitService, ConnectionStateListener, ChangeListener {
+public class FabricGitServiceImpl implements FabricGitService, ConnectionStateListener, GroupListener<GitNode> {
 
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
-	private Group group;
+	private Group<GitNode> group;
 	private CuratorFramework curator;
-	ClusteredSingletonWatcher<GitNode> watcher = new ClusteredSingletonWatcher<GitNode>(GitNode.class);
 
     public void init() {
     }
 
     public void destroy() {
         if (group != null) {
-            group.close();
+            try {
+                group.close();
+            } catch (IOException e) {
+                // Ignore
+            }
         }
     }
 
@@ -77,18 +79,18 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
 	}
 
 
-	@Override
-	public void changed() {
+    @Override
+    public void groupEvent(Group<GitNode> group, GroupEvent event) {
         String masterUrl = null;
-		GitNode[] masters = watcher.masters();
-		if (masters != null && masters.length > 0
-                && !masters[0].getAgent().equals(System.getProperty("karaf.name"))) {
-            masterUrl = masters[0].getUrl();
+		GitNode master = group.master();
+		if (master != null
+                && !master.getContainer().equals(System.getProperty("karaf.name"))) {
+            masterUrl = master.getUrl();
         }
 		try {
 			StoredConfig config = get().getRepository().getConfig();
             if (masterUrl != null) {
-                config.setString("remote", "origin", "url", getSubstitutedData(curator, masters[0].getUrl()));
+                config.setString("remote", "origin", "url", getSubstitutedData(curator, masterUrl));
                 config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
             } else {
                 config.unsetSection("remote", "origin");
@@ -97,16 +99,6 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
 		} catch (Exception e) {
 			LOGGER.error("Failed to point origin to the new master.", e);
 		}
-	}
-
-	@Override
-	public void connected() {
-		changed();
-	}
-
-	@Override
-	public void disconnected() {
-		changed();
 	}
 
     @Override
@@ -123,13 +115,17 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
     }
 
 	public void onConnected() {
-		group = ZooKeeperGroupFactory.create(curator, ZkPath.GIT.getPath());
+		group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
 		group.add(this);
-		watcher.start(group);
+        group.start();
 	}
 
 	public void onDisconnected() {
-        watcher.stop();
-		group.close();
-	}
+        try {
+            group.close();
+        } catch (IOException e) {
+            // ignore
+        }
+        group = null;
+    }
 }

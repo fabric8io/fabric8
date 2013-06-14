@@ -89,6 +89,7 @@ public class ProfilePartitionListener implements PartitionListener {
 
         if (registration != null) {
             registration.unregister();
+            registration = null;
         }
     }
 

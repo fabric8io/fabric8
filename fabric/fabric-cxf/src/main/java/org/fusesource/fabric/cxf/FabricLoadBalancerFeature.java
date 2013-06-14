@@ -32,7 +32,7 @@ import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
 import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 
 
 public class FabricLoadBalancerFeature extends AbstractFeature implements BusLifeCycleListener {
@@ -131,12 +131,16 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
     
     public synchronized Group getGroup() throws Exception {
          if (group == null) {
-             group = ZooKeeperGroupFactory.create(getCurator(), zkRoot + fabricPath);
+             group = new ZooKeeperGroup<CxfNodeState>(getCurator(), zkRoot + fabricPath, CxfNodeState.class);
+             group.start();
          }
         return group;
     }
 
     public void destroy() throws Exception {
+        if (group != null) {
+            group.close();
+        }
         if (curator != null && isShouldCloseZkClient()) {
             curator.close();
         }
@@ -177,13 +181,6 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
             setShouldCloseZkClient(true);
         }
 
-        // ensure we are started
-        if (curator instanceof CuratorFramework) {
-            if (!curator.getZookeeperClient().isConnected()) {
-                LOG.debug("Staring IZKClient " + curator);
-                ((CuratorFramework) curator).start();
-            }
-        }
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
         return curator;
     }

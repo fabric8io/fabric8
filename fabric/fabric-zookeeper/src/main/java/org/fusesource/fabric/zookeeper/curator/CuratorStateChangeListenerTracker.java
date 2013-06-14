@@ -20,7 +20,6 @@
 package org.fusesource.fabric.zookeeper.curator;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.listen.Listenable;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.osgi.framework.BundleContext;
@@ -28,9 +27,8 @@ import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTrackerCustomizer;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-public class CuratorStateChangeListenerTracker implements ServiceTrackerCustomizer {
+public class CuratorStateChangeListenerTracker implements ServiceTrackerCustomizer<ConnectionStateListener, ConnectionStateListener> {
 
 
     private final BundleContext bundleContext;
@@ -44,36 +42,24 @@ public class CuratorStateChangeListenerTracker implements ServiceTrackerCustomiz
     }
 
     @Override
-    public Object addingService(ServiceReference reference) {
-        Object service = bundleContext.getService(reference);
-
-        if (ConnectionStateListener.class.isAssignableFrom(service.getClass())) {
-            final ConnectionStateListener listener = (ConnectionStateListener) service;
-            if (curator.getZookeeperClient().isConnected()) {
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.stateChanged(curator, ConnectionState.CONNECTED);
-                    }
-                });
-            }
-            curator.getConnectionStateListenable().addListener(listener, executor);
-
+    public ConnectionStateListener addingService(ServiceReference<ConnectionStateListener> reference) {
+        final ConnectionStateListener listener = bundleContext.getService(reference);
+        if (curator.getZookeeperClient().isConnected()) {
+            listener.stateChanged(curator, ConnectionState.CONNECTED);
         }
-        return service;
+        curator.getConnectionStateListenable().addListener(listener, executor);
+        return listener;
     }
 
     @Override
-    public void modifiedService(ServiceReference reference, Object service) {
-        if (ConnectionStateListener.class.isAssignableFrom(service.getClass())) {
-            curator.getConnectionStateListenable().addListener((ConnectionStateListener) service, executor);
-        }
+    public void modifiedService(ServiceReference<ConnectionStateListener> reference, ConnectionStateListener service) {
     }
 
     @Override
-    public void removedService(ServiceReference reference, Object service) {
-        if (ConnectionStateListener.class.isAssignableFrom(service.getClass())) {
-            curator.getConnectionStateListenable().removeListener((ConnectionStateListener) service);
+    public void removedService(ServiceReference<ConnectionStateListener> reference, final ConnectionStateListener service) {
+        if (curator.getZookeeperClient().isConnected()) {
+            service.stateChanged(curator, ConnectionState.LOST);
         }
+        curator.getConnectionStateListenable().removeListener(service);
     }
 }

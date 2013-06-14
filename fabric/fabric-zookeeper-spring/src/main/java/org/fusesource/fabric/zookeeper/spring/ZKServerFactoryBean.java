@@ -95,6 +95,11 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
     protected void shutdown() {
         if (connectionFactory != null) {
             connectionFactory.shutdown();
+            try {
+                connectionFactory.join();
+            } catch (InterruptedException e) {
+                // Ignore
+            }
             connectionFactory = null;
         }
         if(zooKeeperServer!=null) {
@@ -142,6 +147,9 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
         return maxSessionTimeout;
     }
 
+    public int getPort() {
+        return port;
+    }
 
     public InetSocketAddress getClientPortAddress() {
         if (clientPortAddress == null) {
@@ -152,6 +160,10 @@ public class ZKServerFactoryBean implements FactoryBean<ZooKeeperServer>, Initia
 
     public int getMaxClientConnections() {
         return maxClientConnections;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     public void setClientPortAddress(InetSocketAddress clientPortAddress) {

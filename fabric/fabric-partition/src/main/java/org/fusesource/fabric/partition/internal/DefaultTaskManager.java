@@ -29,11 +29,11 @@ import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.partition.BalancingPolicy;
 import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
@@ -57,22 +57,22 @@ import java.util.concurrent.Executors;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 
-public class DefaultTaskManager implements TaskManager, ChangeListener, PathChildrenCacheListener, NodeCacheListener {
+public class DefaultTaskManager implements TaskManager, GroupListener<WorkerNode>, PathChildrenCacheListener, NodeCacheListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultTaskManager.class);
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
-    private final ClusteredSingleton<WorkerNode> singleton = new ClusteredSingleton<WorkerNode>(WorkerNode.class);
+    private final Group<WorkerNode> group;
     private final ExecutorService executorService = Executors.newFixedThreadPool(2);
 
     private final String taskId;
     private final String taskDefinition;
     private final String partitionPath;
     private final CuratorFramework curator;
-    private final Group group;
     private final PathChildrenCache partitionCache;
     private final PartitionListener partitionListener;
     private final BalancingPolicy balancingPolicy;
+    private final ObjectMapper mapper = new ObjectMapper();
     private final TypeReference<HashMap<String, String>> partitionTypeRef = new TypeReference<HashMap<String, String>>() {
     };
 
@@ -88,14 +88,15 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
         this.partitionPath = checkNotNull(partitionPath);
         this.partitionListener = partitionListener;
         this.balancingPolicy = balancingPolicy;
-        this.group = ZooKeeperGroupFactory.create(curator, ZkPath.TASK.getPath(taskId));
         this.partitionCache = new PathChildrenCache(curator, partitionPath, true, false, executorService);
+        this.group = new ZooKeeperGroup<WorkerNode>(curator, ZkPath.TASK.getPath(taskId), WorkerNode.class);
+        this.group.add(this);
     }
 
     public void start() {
         node = createNode();
         try {
-            workerCache = createWorkerCache(node);
+            workerCache = createWorkerCache();
             workerCache.getListenable().addListener(this);
             workerCache.start(true);
             ZooKeeperUtils.createDefault(curator, partitionPath, null);
@@ -105,19 +106,18 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
             partitionCache.rebuild();
             workerCache.rebuild();
         } catch (Exception e) {
-            Throwables.propagate(e);
+            throw Throwables.propagate(e);
         }
 
-        singleton.add(this);
-        singleton.start(group);
-        singleton.join(node);
+        group.update(node);
+        group.start();
     }
 
     public void stop() {
         Closeables.closeQuitely(partitionCache);
         Closeables.closeQuitely(workerCache);
         executorService.shutdown();
-        group.close();
+        Closeables.closeQuitely(group);
         partitionListener.destroy();
         assignedPartitions.clear();
         node = null;
@@ -125,54 +125,42 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
 
 
     @Override
-    public void changed() {
-        executorService.submit(new RebalanceTask());
-    }
-
-    @Override
-    public void connected() {
-        changed();
-    }
-
-    @Override
-    public void disconnected() {
-        changed();
+    public void groupEvent(Group<WorkerNode> group, GroupEvent event) {
+        if (group.isConnected()) {
+            group.update(createNode());
+            if (group.isMaster()) {
+                executorService.submit(new RebalanceTask());
+            }
+        }
     }
 
     WorkerNode createNode() {
-        WorkerNode state = new WorkerNode();
-        state.setId(name);
+        WorkerNode state = new WorkerNode(name);
         state.setUrl(taskDefinition);
-        state.setContainer(name);
         return state;
     }
 
     /**
      * Creates a {@link NodeCache} for caching the current {@link WorkerNode}
-     *
-     * @param node
-     * @return
-     * @throws Exception
      */
-    NodeCache createWorkerCache(WorkerNode node) throws Exception {
+    NodeCache createWorkerCache() throws Exception {
         String fullPath = ZkPath.TASK_MEMBER_PARTITIONS.getPath(name, taskId);
         ZooKeeperUtils.createDefault(curator, fullPath, null);
-        NodeCache cache = new NodeCache(curator, fullPath);
-        return cache;
+        return new NodeCache(curator, fullPath);
     }
 
     WorkerNode readWorkerNode() {
-        WorkerNode node = null;
+        WorkerNode node;
         String fullPath = ZkPath.TASK_MEMBER_PARTITIONS.getPath(name, taskId);
         try {
             byte[] bytes = curator.getData().forPath(fullPath);
             if (bytes != null) {
-                node = singleton.mapper().readValue(bytes, WorkerNode.class);
+                node = mapper.readValue(bytes, WorkerNode.class);
             } else {
                 node = createNode();
             }
         } catch (Exception e) {
-            Throwables.propagate(e);
+            throw Throwables.propagate(e);
         }
         return node;
     }
@@ -191,7 +179,7 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
         List<ChildData> childData = partitionCache.getCurrentData();
         int totalItems = childData.size();
         String[] partitions = Lists.transform(childData, ChildDataToPath.INSTANCE).toArray(new String[totalItems]);
-        Map<String, byte[]> groupMembers = group.members();
+        Map<String, WorkerNode> groupMembers = group.members();
         int totalMembers = groupMembers.size();
         String[] members = groupMembers.keySet().toArray(new String[totalMembers]);
         balancingPolicy.rebalance(taskId, partitions, members);
@@ -215,7 +203,7 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
             @Override
             public Partition apply(String input) {
                 try {
-                    return new PartitionImpl(input, (Map<String, String>) singleton.mapper().readValue(curator.getData().forPath(input), partitionTypeRef));
+                    return new PartitionImpl(input, (Map<String, String>) mapper.readValue(curator.getData().forPath(input), partitionTypeRef));
                 } catch (Exception e) {
                     LOGGER.warn("Failed to read partition data, using empty configuration instead.");
                     return new PartitionImpl(input, Maps.<String, String>newHashMap());
@@ -238,17 +226,14 @@ public class DefaultTaskManager implements TaskManager, ChangeListener, PathChil
 
     @Override
     public synchronized void nodeChanged() throws Exception {
-        WorkerNode updated = readWorkerNode();
-        this.node = updated;
+        this.node = readWorkerNode();
         updated(node);
     }
 
     private class RebalanceTask implements Runnable {
         @Override
         public void run() {
-            if (singleton.isMaster()) {
-                rebalance();
-            }
+            rebalance();
         }
     }
 }

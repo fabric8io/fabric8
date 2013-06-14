@@ -20,12 +20,10 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.utils.properties.Properties;
-import org.apache.zookeeper.KeeperException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.MergeStrategy;
@@ -33,10 +31,9 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.git.FabricGitService;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -72,15 +69,14 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
-public class Bridge implements ConnectionStateListener, ChangeListener {
+public class Bridge implements ConnectionStateListener, GroupListener<GitZkBridgeNode> {
 
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
     public static final String METADATA = ".metadata";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);
 
-    private final ClusteredSingleton<GitZkBridgeNode> singleton = new ClusteredSingleton<GitZkBridgeNode>(GitZkBridgeNode.class);
-    private Group group;
+    private Group<GitZkBridgeNode> group;
     private boolean connected = false;
 
     private FabricGitService gitService;
@@ -91,15 +87,15 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
     public synchronized void bindGitService(FabricGitService gitService) {
         this.gitService = gitService;
         if (connected) {
-            singleton.join(createState());
+            group.update(createState());
         }
     }
 
     public synchronized void unbindGitService(FabricGitService gitService) {
         if (connected) {
             try {
-                singleton.leave();
-            } catch (IllegalStateException e) {
+                group.close();
+            } catch (IOException e) {
                 // Ignore
             }
         }
@@ -121,12 +117,12 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
 
     public synchronized void onConnected() {
         connected = true;
-        group = ZooKeeperGroupFactory.create(curator, "/fabric/registry/clusters/gitzkbridge");
-        singleton.start(group);
-
+        group = new ZooKeeperGroup<GitZkBridgeNode>(curator, "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
+        group.add(this);
         if (gitService != null) {
-            singleton.join(createState());
+            group.update(createState());
         }
+        group.start();
     }
 
     public synchronized void onDisconnected() {
@@ -141,24 +137,14 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
     }
 
     @Override
-    public void connected() {
-        changed();
-    }
-
-    @Override
-    public void disconnected() {
-        changed();
-    }
-
-    @Override
-    public void changed() {
-        if (singleton.isMaster()) {
+    public void groupEvent(Group<GitZkBridgeNode> group, GroupEvent event) {
+        if (group.isMaster()) {
             LOGGER.info("Git/zk bridge is active");
         } else {
             LOGGER.info("Git/zk bridge is inactive");
         }
         try {
-            singleton.update(createState());
+            group.update(createState());
         } catch (IllegalStateException e) {
             // Ignore
         }
@@ -167,25 +153,21 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
     GitZkBridgeNode createState() {
         GitZkBridgeNode state = new GitZkBridgeNode();
         state.setId("bridge");
-        state.setAgent(System.getProperty("karaf.name"));
-        if (singleton.isMaster()) {
-            state.setServices(new String[] { "bridge" });
-        }
+        state.setContainer(System.getProperty("karaf.name"));
         return state;
     }
 
     public void init() {
-        singleton.add(this);
         executors = Executors.newSingleThreadScheduledExecutor();
         executors.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
                 try {
-                    if (gitService != null) {
+                    if (gitService != null && connected) {
                         String login = getContainerLogin();
                         String token = generateContainerToken(curator);
                         CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
-                        if (singleton.isMaster()) {
+                        if (group.isMaster()) {
                             update(gitService.get(), curator, cp);
                         } else {
                             updateLocal(gitService.get(), curator, cp);
@@ -205,11 +187,10 @@ public class Bridge implements ConnectionStateListener, ChangeListener {
     public void destroy() {
         executors.shutdown();
         try {
-            singleton.leave();
-        } catch (IllegalStateException e) {
+            group.close();
+        } catch (IOException e) {
             // Ignore
         }
-        group.close();
     }
 
     public static void updateLocal(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {

@@ -16,10 +16,6 @@
  */
 package org.fusesource.fabric.camel;
 
-import java.util.Collection;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.Component;
 import org.apache.camel.Endpoint;
@@ -36,32 +32,33 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
-import org.fusesource.fabric.groups.NodeState;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactory;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactoryBuilder;
+
+import java.util.Collection;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  *
  */
-public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
+public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy, GroupListener<CamelNodeState>, Callable<CuratorFramework> {
 
     // TODO: Work in progress
 
     public static Log LOG = LogFactory.getLog(ClusteredSingletonLifecycleStrategy.class);
 
-    Group group;
+    Group<CamelNodeState> group;
     String groupName;
-    String id;
 
     volatile CamelContext camelContext;
     final AtomicBoolean started = new AtomicBoolean();
 
     CuratorFramework curator;
-    boolean managedZkClient;
-    ClusteredSingleton<CamelNode> singleton = new ClusteredSingleton<CamelNode>(CamelNode.class);
+    ManagedGroupFactory factory;
 
     static void info(String msg, Object... args) {
         if(LOG.isInfoEnabled()) {
@@ -69,115 +66,73 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
         }
     }
 
-    static class CamelNode implements NodeState {
-        @JsonProperty
-        String id;
-        // We could advertise information about our camel context.
-        //        @JsonProperty
-        //        String services[];
-        @JsonProperty
-        String container;
-        @JsonProperty
-        Boolean started;
-
-        public String id() {
-            return id;
-        }
-    }
-
-    CamelNode createState() {
-        CamelNode state = new CamelNode();
-        state.id = id;
-        state.container = System.getProperty("karaf.name");
+    CamelNodeState createState() {
+        CamelNodeState state = new CamelNodeState(groupName);
         state.started = started.get();
-//        state.services = services.toArray(new String[services.size()]);
         return state;
     }
 
 
     public void start() throws Exception {
+        factory = ManagedGroupFactoryBuilder.create(curator, getClass().getClassLoader(), this);
+        group = factory.createGroup("/fabric/camel-clusters/" + groupName, CamelNodeState.class);
+        group.update(createState());
+        group.add(this);
+        group.start();
+        info("Camel context %s is waiting to become the master", groupName);
+    }
 
-        if (curator == null) {
-            managedZkClient = true;
-            String connectString = System.getProperty("zookeeper.url", "localhost:2181");
-            String password = System.getProperty("zookeeper.password");
+    public CuratorFramework call() throws Exception {
+        String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+        String password = System.getProperty("zookeeper.password");
 
-            CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
-                    .connectString(connectString)
-                    .retryPolicy(new RetryOneTime(1000))
-                    .connectionTimeoutMs(10000);
+        CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
+                .connectString(connectString)
+                .retryPolicy(new RetryOneTime(1000))
+                .connectionTimeoutMs(10000);
 
-            if (password != null && !password.isEmpty()) {
-                builder.authorization("digest", ("fabric:"+password).getBytes());
-            }
-
-            CuratorFramework client = builder.build();
-            LOG.debug("Starting curator " + curator);
-            client.start();
-            client.getZookeeperClient().blockUntilConnectedOrTimedOut();
-            curator = client;
-        } else {
-            managedZkClient = false;
+        if (password != null && !password.isEmpty()) {
+            builder.authorization("digest", ("fabric:"+password).getBytes());
         }
 
-        group = ZooKeeperGroupFactory.create(curator, "/fabric/camel-clusters/" + groupName);
-        singleton.start(group);
-        singleton.join(createState());
-
-        info("Camel context %s is waiting to become the master", id);
-
-        singleton.add(new ChangeListener() {
-            @Override
-            public void changed() {
-                if (singleton.isMaster()) {
-                    if (started.compareAndSet(false, true)) {
-                        info("Camel context %s is now the master, starting the context.", id);
-                        try {
-                            camelContext.start();
-                            // Update the state of the master since he is now running.
-                            singleton.update(createState());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                } else {
-                    if (started.compareAndSet(true, false)) {
-                        info("Camel context %s is now a slave, stopping the context.", id);
-                        try {
-                            camelContext.stop();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-
-            public void connected() {
-                this.changed();
-            }
-
-            public void disconnected() {
-                this.changed();
-            }
-        });
+        CuratorFramework client = builder.build();
+        LOG.debug("Starting curator " + curator);
+        client.start();
+        return client;
     }
 
     public void stop() {
         try {
-            group.close();
+            factory.close();
         } catch (Throwable ignore) {
-            // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
-        }
-        if (managedZkClient) {
-            try {
-                curator.close();
-            } catch (Throwable ignore) {
-                // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
-            }
-            curator = null;
         }
     }
 
+
+    @Override
+    public void groupEvent(Group<CamelNodeState> group, GroupEvent event) {
+        if (group.isMaster()) {
+            if (started.compareAndSet(false, true)) {
+                info("Camel context %s is now the master, starting the context.", groupName);
+                try {
+                    camelContext.start();
+                    // Update the state of the master since he is now running.
+                    group.update(createState());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            if (started.compareAndSet(true, false)) {
+                info("Camel context %s is now a slave, stopping the context.", groupName);
+                try {
+                    camelContext.stop();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
 
     ///////////////////////////////////////////////////////////////////
     // LifecycleStrategy interface impl.
@@ -236,12 +191,6 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy {
     }
     public void setGroupName(String groupName) {
         this.groupName = groupName;
-    }
-    public String getId() {
-        return id;
-    }
-    public void setId(String id) {
-        this.id = id;
     }
     public CuratorFramework getCurator() {
         return curator;

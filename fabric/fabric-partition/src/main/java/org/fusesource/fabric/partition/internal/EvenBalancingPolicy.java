@@ -58,8 +58,7 @@ public class EvenBalancingPolicy implements BalancingPolicy {
         //Second pass - assignment
         for (String member : members) {
             try {
-                String fullPath = ZkPath.TAKS_MEMBERS.getPath(workId, member);
-                WorkerNode node = mapper.readValue(curator.getData().forPath(fullPath), WorkerNode.class);
+                WorkerNode node = mapper.readValue(curator.getData().forPath(member), WorkerNode.class);
                 Collection<String> assignedItems = distribution.get(member);
 
                 if (assignedItems != null) {

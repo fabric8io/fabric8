@@ -18,17 +18,15 @@
 package org.fusesource.insight.metrics;
 
 
-import org.apache.curator.framework.CuratorFramework;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.groups.ChangeListener;
-import org.fusesource.fabric.groups.ClusteredSingleton;
 import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.NodeState;
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.TrackingZooKeeperGroup;
 import org.fusesource.insight.metrics.model.MBeanAttrs;
 import org.fusesource.insight.metrics.model.MBeanOpers;
 import org.fusesource.insight.metrics.model.Query;
@@ -96,7 +94,6 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     private BundleContext bundleContext;
     private FabricService fabricService;
-    private CuratorFramework curator;
 
     private ScheduledThreadPoolExecutor executor;
     private Map<Query, QueryState> queries = new ConcurrentHashMap<Query, QueryState>();
@@ -104,10 +101,6 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     private ServiceTracker<MBeanServer, MBeanServer> mbeanServer;
     private ServiceTracker<StorageService, StorageService> storage;
-
-    // Locks management
-    private Group globalGroup;
-    private Group hostGroup;
 
     private int defaultDelay = 60;
     private int threadPoolSize = 5;
@@ -121,37 +114,32 @@ public class MetricsCollector implements MetricsCollectorMBean {
         boolean lastResultSent;
         long lastSent;
         Map metadata;
-        ClusteredSingleton<QueryNodeState> lock;
+        Group<QueryNodeState> lock;
 
         public void close() {
             future.cancel(false);
             if (lock != null) {
-                lock.leave();
+                try {
+                    lock.close();
+                } catch (IOException e) {
+                    // Ignore
+                }
             }
         }
     }
 
-    static class QueryNodeState implements NodeState {
-        @JsonProperty
-        String id;
-        @JsonProperty
-        String agent;
+    static class QueryNodeState extends NodeState {
         @JsonProperty
         String[] services;
 
         QueryNodeState() {
         }
 
-        QueryNodeState(String id, String agent, String[] services) {
-            this.id = id;
-            this.agent = agent;
+        QueryNodeState(String id, String container, String[] services) {
+            super(id, container);
             this.services = services;
         }
 
-        @Override
-        public String id() {
-            return id;
-        }
     }
 
     public void setObjectName(ObjectName objectName) {
@@ -176,10 +164,6 @@ public class MetricsCollector implements MetricsCollectorMBean {
 
     public void setFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
     }
 
     @Override
@@ -253,12 +237,6 @@ public class MetricsCollector implements MetricsCollectorMBean {
         for (QueryState q : queries.values()) {
             q.close();
         }
-        if (globalGroup != null) {
-            globalGroup.close();
-        }
-        if (hostGroup != null) {
-            hostGroup.close();
-        }
     }
 
 
@@ -292,10 +270,10 @@ public class MetricsCollector implements MetricsCollectorMBean {
                     // Clustered stats ?
 
                     if (q.getLock() != null) {
-                        state.lock = new ClusteredSingleton<QueryNodeState>(QueryNodeState.class);
-                        state.lock.add(new ChangeListener() {
+                        state.lock = new TrackingZooKeeperGroup<QueryNodeState>(bundleContext, getGroupPath(q), QueryNodeState.class);
+                        state.lock.add(new GroupListener<QueryNodeState>() {
                             @Override
-                            public void changed() {
+                            public void groupEvent(Group<QueryNodeState> group, GroupEvent event) {
                                 try {
                                     state.lock.update(new QueryNodeState(queryName, containerName,
                                             state.lock.isMaster() ? new String[] { "stat" } : null));
@@ -303,15 +281,9 @@ public class MetricsCollector implements MetricsCollectorMBean {
                                     // not joined ? ignore
                                 }
                             }
-                            @Override
-                            public void connected() {
-                            }
-                            @Override
-                            public void disconnected() {
-                            }
                         });
-                        state.lock.start(startGroup(q.getLock()));
-                        state.lock.join(new QueryNodeState(queryName, containerName, null));
+                        state.lock.update(new QueryNodeState(queryName, containerName, null));
+                        state.lock.start();
                     }
 
                     long delay = q.getPeriod() > 0 ? q.getPeriod() : defaultDelay;
@@ -330,27 +302,19 @@ public class MetricsCollector implements MetricsCollectorMBean {
         }
     }
 
-    protected synchronized Group startGroup(String lock) {
-        if (LOCK_GLOBAL.equals(lock)) {
-            if (globalGroup == null) {
-                globalGroup = ZooKeeperGroupFactory.create(curator,
-                                "/fabric/registry/clusters/insight-metrics/global");
+    protected synchronized String getGroupPath(Query q) {
+        if (LOCK_GLOBAL.equals(q.getLock())) {
+            return "/fabric/registry/clusters/insight-metrics/global/" + q.getName();
+        } else if (LOCK_HOST.equals(q.getLock())) {
+            String host;
+            try {
+                host = InetAddress.getLocalHost().getHostName();
+            } catch (UnknownHostException e) {
+                throw new IllegalStateException("Unable to retrieve host name", e);
             }
-            return globalGroup;
-        } else if (LOCK_HOST.equals(lock)) {
-            if (hostGroup == null) {
-                String host;
-                try {
-                    host = InetAddress.getLocalHost().getHostName();
-                } catch (UnknownHostException e) {
-                    throw new IllegalStateException("Unable to retrieve host name", e);
-                }
-                hostGroup = ZooKeeperGroupFactory.create(curator,
-                                "/fabric/registry/clusters/insight-metrics/host-" + host);
-            }
-            return hostGroup;
+            return "/fabric/registry/clusters/insight-metrics/host-" + host + "/" + q.getName();
         } else {
-            throw new IllegalArgumentException("Unknown lock type: " + lock);
+            throw new IllegalArgumentException("Unknown lock type: " + q.getLock());
         }
     }
 

@@ -23,7 +23,11 @@ import org.apache.cxf.jaxrs.JAXRSServerFactoryBean;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Test;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
@@ -36,6 +40,13 @@ public class CxfRsLoadBalanceClientServerTest extends AbstractJUnit4SpringContex
     protected FabricLoadBalancerFeature feature;
 
 
+    @After
+    public void shutdown() throws Exception {
+        if (applicationContext instanceof DisposableBean) {
+            ((DisposableBean) applicationContext).destroy();
+        }
+    }
+
     @Test
     public void testClientServer() throws Exception {
         assertNotNull(bus);
@@ -46,6 +57,14 @@ public class CxfRsLoadBalanceClientServerTest extends AbstractJUnit4SpringContex
         factory.setAddress("http://localhost:9000/simple/server");
         factory.setBus(bus);
         factory.create();
+
+        // sleep a while to let the service be published
+        for (int i = 0; i < 100; i++) {
+            if (!feature.getLoadBalanceStrategy().getAlternateAddressList().isEmpty()) {
+                break;
+            }
+            Thread.sleep(100);
+        }
 
         // create the JAXRS client
         JAXRSClientFactoryBean clientFactory = new JAXRSClientFactoryBean();

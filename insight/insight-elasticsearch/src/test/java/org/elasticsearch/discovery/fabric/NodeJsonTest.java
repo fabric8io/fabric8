@@ -16,12 +16,14 @@
  */
 package org.elasticsearch.discovery.fabric;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
-import org.fusesource.fabric.groups.ClusteredSupport$;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -35,9 +37,9 @@ public class NodeJsonTest {
         DiscoveryNode n = new DiscoveryNode("thename", "theid", new InetSocketTransportAddress("thehost", 3234), attr);
         FabricDiscovery.ESNode node = new FabricDiscovery.ESNode("thecluster", n, false);
 
-        byte[] data = ClusteredSupport$.MODULE$.encode(node, ClusteredSupport$.MODULE$.DEFAULT_MAPPER());
+        byte[] data = encode(node);
         System.err.println(new String(data));
-        FabricDiscovery.ESNode newNode = ClusteredSupport$.MODULE$.decode(FabricDiscovery.ESNode.class, data, ClusteredSupport$.MODULE$.DEFAULT_MAPPER());
+        FabricDiscovery.ESNode newNode = decode(data);
 
         assertEquals(node.id(), newNode.id());
         assertEquals(node.node().id(), newNode.node().id());
@@ -47,4 +49,23 @@ public class NodeJsonTest {
         assertEquals(node.node().version().toString(), newNode.node().version().toString());
     }
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    private byte[] encode(FabricDiscovery.ESNode state) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            mapper.writeValue(baos, state);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to decode data", e);
+        }
+    }
+
+    private FabricDiscovery.ESNode decode(byte[] data) {
+        try {
+            return mapper.readValue(data, FabricDiscovery.ESNode.class);
+        } catch (IOException e) {
+            throw new IllegalStateException("Unable to decode data", e);
+        }
+    }
 }
