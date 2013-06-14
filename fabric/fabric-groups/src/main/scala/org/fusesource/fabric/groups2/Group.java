@@ -43,13 +43,14 @@ public interface Group<T extends NodeState> extends Closeable {
     void close() throws IOException;
 
     /**
-     * Registers a change listener which will be called
-     * when the cluster membership changes.
+     * Registers a listener which will be called
+     * when the cluster membership changes or
+     * the group is connected or disconnected.
      */
     void add(GroupListener<T> listener);
 
     /**
-     * Removes a previously added change listener.
+     * Removes a previously added listener.
      */
     void remove(GroupListener<T> listener);
 
@@ -57,16 +58,32 @@ public interface Group<T extends NodeState> extends Closeable {
      * Update the state of this group member.
      * If the state is null, the member will leave the group.
      *
+     * This method can be called even if the group is not started,
+     * in which case the state will be stored and updated
+     * when the group becomes started.
+     *
      * @param state the new state of this group member
      */
     void update(T state);
 
+    /**
+     * Get the list of members connected to this group.
+     */
     Map<String, T> members();
 
+    /**
+     * Check if we are the master.
+     */
     boolean isMaster();
 
+    /**
+     * Retrieve the master node.
+     */
     T master();
 
+    /**
+     * Retrieve the list of slaves.
+     */
     List<T> slaves();
 
 }
