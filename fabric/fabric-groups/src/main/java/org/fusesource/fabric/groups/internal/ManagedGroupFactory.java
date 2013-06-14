@@ -14,21 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.cxf;
+package org.fusesource.fabric.groups.internal;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.fabric.groups.GroupFactory;
 
-public class CxfNodeState extends NodeState {
+/**
+ *
+ */
+public interface ManagedGroupFactory extends GroupFactory {
 
-    public CxfNodeState() {
-    }
+    CuratorFramework getCurator();
 
-    public CxfNodeState(String id) {
-        super(id);
-    }
+    void close();
 
-    @JsonProperty
-    String[] services;
 
 }

@@ -23,10 +23,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.NodeState;
-import org.fusesource.fabric.groups2.internal.TrackingZooKeeperGroup;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups.internal.TrackingZooKeeperGroup;
 import org.fusesource.insight.metrics.model.MBeanAttrs;
 import org.fusesource.insight.metrics.model.MBeanOpers;
 import org.fusesource.insight.metrics.model.Query;
@@ -128,27 +128,18 @@ public class MetricsCollector implements MetricsCollectorMBean {
         }
     }
 
-    static class QueryNodeState implements NodeState {
-        @JsonProperty
-        String id;
-        @JsonProperty
-        String agent;
+    static class QueryNodeState extends NodeState {
         @JsonProperty
         String[] services;
 
         QueryNodeState() {
         }
 
-        QueryNodeState(String id, String agent, String[] services) {
-            this.id = id;
-            this.agent = agent;
+        QueryNodeState(String id, String container, String[] services) {
+            super(id, container);
             this.services = services;
         }
 
-        @Override
-        public String id() {
-            return id;
-        }
     }
 
     public void setObjectName(ObjectName objectName) {

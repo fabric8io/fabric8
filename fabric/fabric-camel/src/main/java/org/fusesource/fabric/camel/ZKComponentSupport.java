@@ -22,9 +22,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ManagedGroupFactory;
-import org.fusesource.fabric.groups2.internal.ManagedGroupFactoryBuilder;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactory;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactoryBuilder;
 
 import java.util.concurrent.Callable;
 

@@ -22,9 +22,9 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.Constants;
@@ -43,8 +43,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -244,10 +246,7 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
         GitNode state = new GitNode();
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
-        state.setAgent(name);
-        if (group.isMaster()) {
-            state.setServices(new String[] { "git" });
-        }
+        state.setContainer(name);
         return state;
     }
 

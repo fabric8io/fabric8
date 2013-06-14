@@ -25,10 +25,9 @@ import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +84,7 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
         String masterUrl = null;
 		GitNode master = group.master();
 		if (master != null
-                && !master.getAgent().equals(System.getProperty("karaf.name"))) {
+                && !master.getContainer().equals(System.getProperty("karaf.name"))) {
             masterUrl = master.getUrl();
         }
 		try {

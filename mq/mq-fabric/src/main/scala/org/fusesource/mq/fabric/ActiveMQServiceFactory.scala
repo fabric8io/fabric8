@@ -42,9 +42,9 @@ import org.apache.activemq.network.DiscoveryNetworkConnector
 import java.util
 import collection.mutable
 import org.apache.curator.framework.CuratorFramework
-import org.fusesource.fabric.groups2.{Group, GroupListener}
 import org.fusesource.mq.fabric.FabricDiscoveryAgent.ActiveMQNode
-import org.fusesource.fabric.groups2.GroupListener.GroupEvent
+import org.fusesource.fabric.groups.{Group, GroupListener}
+import GroupListener.GroupEvent
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])

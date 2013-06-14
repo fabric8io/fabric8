@@ -14,21 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.cxf;
+package org.fusesource.fabric.groups;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
+/**
+ * <p>
+ *   Callback interface used to get notifications of changes
+ *   to a cluster group.
+ * </p>
+ *
+ * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ */
+public interface GroupListener<T> {
 
-public class CxfNodeState extends NodeState {
-
-    public CxfNodeState() {
+    enum GroupEvent {
+        CONNECTED,
+        CHANGED,
+        DISCONNECTED
     }
 
-    public CxfNodeState(String id) {
-        super(id);
-    }
-
-    @JsonProperty
-    String[] services;
+    void groupEvent(Group<T> group, GroupEvent event);
 
 }

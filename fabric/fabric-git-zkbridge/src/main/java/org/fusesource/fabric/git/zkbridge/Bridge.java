@@ -20,12 +20,10 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.utils.properties.Properties;
-import org.apache.zookeeper.KeeperException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.merge.MergeStrategy;
@@ -33,9 +31,9 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.git.FabricGitService;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -155,10 +153,7 @@ public class Bridge implements ConnectionStateListener, GroupListener<GitZkBridg
     GitZkBridgeNode createState() {
         GitZkBridgeNode state = new GitZkBridgeNode();
         state.setId("bridge");
-        state.setAgent(System.getProperty("karaf.name"));
-        if (group.isMaster()) {
-            state.setServices(new String[] { "bridge" });
-        }
+        state.setContainer(System.getProperty("karaf.name"));
         return state;
     }
 

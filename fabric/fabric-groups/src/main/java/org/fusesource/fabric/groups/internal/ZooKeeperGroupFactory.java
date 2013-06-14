@@ -14,21 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.cxf;
+package org.fusesource.fabric.groups.internal;
 
-import org.codehaus.jackson.annotate.JsonProperty;
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupFactory;
 import org.fusesource.fabric.groups.NodeState;
 
-public class CxfNodeState extends NodeState {
+/**
+ */
+public class ZooKeeperGroupFactory implements GroupFactory {
 
-    public CxfNodeState() {
+    private CuratorFramework curator;
+
+    public ZooKeeperGroupFactory(CuratorFramework curator) {
+        this.curator = curator;
     }
 
-    public CxfNodeState(String id) {
-        super(id);
+    @Override
+    public <T> Group<T> createGroup(String path, Class<T> clazz) {
+        return new ZooKeeperGroup<T>(curator, path, clazz);
     }
-
-    @JsonProperty
-    String[] services;
 
 }

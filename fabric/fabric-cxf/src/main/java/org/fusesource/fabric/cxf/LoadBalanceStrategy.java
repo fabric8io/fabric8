@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.cxf;
 
-import org.fusesource.fabric.groups2.Group;
+import org.fusesource.fabric.groups.Group;
 
 import java.util.List;
 

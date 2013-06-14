@@ -27,8 +27,8 @@ import org.apache.camel.impl.ProducerCache;
 import org.apache.camel.processor.loadbalancer.LoadBalancer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.Group;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 
 import java.net.URISyntaxException;

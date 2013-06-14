@@ -24,7 +24,7 @@ import org.apache.camel.util.IntrospectionSupport;
 import org.apache.camel.util.URISupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups2.Group;
+import org.fusesource.fabric.groups.Group;
 
 import java.net.URI;
 import java.util.Map;
@@ -78,7 +78,7 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
         group = getComponent().createGroup(path);
         CamelNodeState state = new CamelNodeState();
         state.id = singletonId;
-        state.agent = System.getProperty("karaf.name");
+        state.container = System.getProperty("karaf.name");
         state.consumer = consumer;
         group.update(state);
     }

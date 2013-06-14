@@ -22,9 +22,9 @@
 
   <parent>
     <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-scala</artifactId>
+    <artifactId>fabric-project</artifactId>
     <version>99-master-SNAPSHOT</version>
-    <relativePath>../fabric-scala</relativePath>
+    <relativePath>..</relativePath>
   </parent>
 
   <artifactId>fabric-groups</artifactId>
@@ -36,7 +36,6 @@
   <properties>
     <fuse.osgi.export>
         org.fusesource.fabric.groups*;version=${project.version},
-        org.fusesource.fabric.groups2*;version=${project.version},
     </fuse.osgi.export>
   </properties>
 
@@ -75,13 +74,6 @@
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.scalatest</groupId>
-      <artifactId>scalatest_2.9.1</artifactId>
-      <version>${scalatest-version}</version>
-      <scope>test</scope>
     </dependency>
 
   </dependencies>

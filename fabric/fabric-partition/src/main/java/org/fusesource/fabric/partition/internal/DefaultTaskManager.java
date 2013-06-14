@@ -31,9 +31,9 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.partition.BalancingPolicy;
 import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
@@ -135,11 +135,8 @@ public class DefaultTaskManager implements TaskManager, GroupListener<WorkerNode
     }
 
     WorkerNode createNode() {
-        WorkerNode state = new WorkerNode();
-        state.setId(name);
+        WorkerNode state = new WorkerNode(name);
         state.setUrl(taskDefinition);
-        state.setContainer(name);
-        state.setServices(group.isMaster() ? new String[] { "task:" + name } : new String[0]);
         return state;
     }
 

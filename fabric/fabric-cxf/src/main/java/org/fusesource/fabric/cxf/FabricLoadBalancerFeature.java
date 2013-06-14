@@ -31,8 +31,8 @@ import org.apache.cxf.endpoint.ConduitSelectorHolder;
 import org.apache.cxf.endpoint.ServerLifeCycleManager;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 
 
 public class FabricLoadBalancerFeature extends AbstractFeature implements BusLifeCycleListener {

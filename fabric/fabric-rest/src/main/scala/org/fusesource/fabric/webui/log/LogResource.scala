@@ -19,13 +19,13 @@ import javax.servlet.http.{HttpServletRequest, HttpServletResponse}
 import javax.servlet.ServletContext
 import javax.ws.rs._
 import core.{MediaType, Response, Context}
-import org.fusesource.fabric.groups.ZooKeeperGroupFactory
 import java.net.{URI, HttpURLConnection, URL}
-import org.fusesource.fabric.webui.{BaseResource, Services}
 import org.fusesource.fabric.webui.{BaseResource, Services}
 import java.io._
 import scala.Array._
 import org.apache.zookeeper.KeeperException.NoNodeException
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup
+import org.fusesource.fabric.groups.NodeState
 
 @Path("/log")
 class LogResource extends BaseResource {
@@ -70,16 +70,21 @@ class LogResource extends BaseResource {
     }
 
     val base = try {
+      /*
       import collection.JavaConversions
-      val urls = ZooKeeperGroupFactory.members(Services.curator, "/fabric/registry/clusters/elastic-search").values().toList.flatMap {
-        data =>
+      var members : List[NodeState] = ZooKeeperGroup.members[NodeState](Services.curator, "/fabric/registry/clusters/elastic-search", Class[NodeState]).values().toList
+      val urls = members.flatMap(node => node.services)
+
+        /*
           try {
             Some(new URI(new String(data, "UTF-8")).toString)
           } catch {
             case _ => None // Perhaps it was not a URL.
           }
-      }
+          */
       urls.headOption.getOrElse(not_found)
+      */
+      "elasticsearch"
     } catch {
       case e: NoNodeException => not_found
     }

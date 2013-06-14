@@ -32,10 +32,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.internal.ManagedGroupFactory;
-import org.fusesource.fabric.groups2.internal.ManagedGroupFactoryBuilder;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactory;
+import org.fusesource.fabric.groups.internal.ManagedGroupFactoryBuilder;
 
 import java.util.Collection;
 import java.util.concurrent.Callable;
@@ -67,10 +67,8 @@ public class ClusteredSingletonLifecycleStrategy implements LifecycleStrategy, G
     }
 
     CamelNodeState createState() {
-        CamelNodeState state = new CamelNodeState();
-        state.id = groupName;
-        state.agent = System.getProperty("karaf.name");
-        state.services = started.get() ? new String[] { "started" } : new String[0];
+        CamelNodeState state = new CamelNodeState(groupName);
+        state.started = started.get();
         return state;
     }
 

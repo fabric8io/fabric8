@@ -59,11 +59,11 @@ import org.elasticsearch.node.service.NodeService;
 import org.elasticsearch.node.settings.NodeSettingsService;
 import org.elasticsearch.threadpool.ThreadPool;
 import org.elasticsearch.transport.TransportService;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.GroupFactory;
-import org.fusesource.fabric.groups2.NodeState;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.GroupFactory;
+import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroupFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
@@ -253,10 +253,10 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                     // Rebuild nodes
                     DiscoveryNodes.Builder nodesBuilder = newNodesBuilder()
                             .localNodeId(localNode.id())
-                            .masterNodeId(singleton.master().node().id())
-                            .put(singleton.master().node);
+                            .masterNodeId(singleton.master().getNode().id())
+                            .put(singleton.master().getNode());
                     for (ESNode node : singleton.slaves()) {
-                        nodesBuilder.put(node.node());
+                        nodesBuilder.put(node.getNode());
                     }
                     latestDiscoNodes = nodesBuilder.build();
                     stateBuilder.nodes(latestDiscoNodes);
@@ -279,7 +279,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
                 }
             });
         } else if (singleton.master() != null) {
-            DiscoveryNode masterNode = singleton.master().node();
+            DiscoveryNode masterNode = singleton.master().getNode();
             try {
                 // first, make sure we can connect to the master
                 transportService.connectToNode(masterNode);
@@ -347,23 +347,18 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
 
     @JsonSerialize(using = NodeSerializer.class)
     @JsonDeserialize(using = NodeDeserializer.class)
-    static class ESNode implements NodeState {
-        private final String id;
+    static class ESNode extends NodeState {
         private final DiscoveryNode node;
         private final boolean master;
 
         ESNode(String id, DiscoveryNode node, boolean master) {
             this.id = id;
+            this.container = node.getName();
             this.node = node;
             this.master = master;
         }
 
-        @Override
-        public String id() {
-            return id;
-        }
-
-        public DiscoveryNode node() {
+        public DiscoveryNode getNode() {
             return node;
         }
 
@@ -376,24 +371,24 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         @Override
         public void serialize(ESNode value, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeStringField("id", value.id());
+            jgen.writeStringField("id", value.getId());
             jgen.writeStringField("agent", System.getProperty("karaf.name"));
             if (value.isMaster()) {
                 jgen.writeArrayFieldStart("services");
                 jgen.writeString("elasticsearch");
                 jgen.writeEndArray();
             }
-            jgen.writeStringField("nodeName", value.node().name());
-            jgen.writeStringField("nodeId", value.node().id());
-            jgen.writeStringField("address", value.node().address().toString());
-            jgen.writeStringField("version", value.node().version().toString());
+            jgen.writeStringField("nodeName", value.getNode().name());
+            jgen.writeStringField("nodeId", value.getNode().id());
+            jgen.writeStringField("address", value.getNode().address().toString());
+            jgen.writeStringField("version", value.getNode().version().toString());
             jgen.writeFieldName("attributes");
             jgen.writeStartObject();
-            for (Map.Entry<String, String> entry : value.node().attributes().entrySet()) {
+            for (Map.Entry<String, String> entry : value.getNode().attributes().entrySet()) {
                 jgen.writeStringField(entry.getKey(), entry.getValue());
             }
             jgen.writeEndObject();
-            jgen.writeStringField("binary", Base64.encodeObject(value.node()));
+            jgen.writeStringField("binary", Base64.encodeObject(value.getNode()));
             jgen.writeEndObject();
         }
     }

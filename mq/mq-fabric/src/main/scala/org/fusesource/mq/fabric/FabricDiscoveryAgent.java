@@ -34,10 +34,10 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups2.GroupListener;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.NodeState;
-import org.fusesource.fabric.groups2.internal.ZooKeeperGroup;
+import org.fusesource.fabric.groups.GroupListener;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.NodeState;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -96,23 +96,15 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
     public void removedService(ServiceReference serviceReference, Object o) {
     }
 
-    static class ActiveMQNode implements NodeState {
+    static class ActiveMQNode extends NodeState {
         @JsonProperty
-        String id;
-        @JsonProperty
-        String services[];
-        @JsonProperty
-        String agent;
-
-        public String id() {
-            return id;
-        }
+        String[] services;
     }
     
     ActiveMQNode createState() {
         ActiveMQNode state = new ActiveMQNode();
         state.id = id;
-        state.agent = agent;
+        state.container = agent;
         state.services = services.toArray(new String[services.size()]);
         return state;
     }
@@ -253,9 +245,8 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
                 public void groupEvent(Group<ActiveMQNode> group, GroupEvent event) {
                     Map<String, ActiveMQNode> masters = new HashMap<String, ActiveMQNode>();
                     for (ActiveMQNode node : group.members().values()) {
-                        String id = node.id();
-                        if (!masters.containsKey(id)) {
-                            masters.put(id, node);
+                        if (!masters.containsKey(node.id)) {
+                            masters.put(node.id, node);
                         }
                     }
                     update(masters.values());

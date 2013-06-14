@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.endpoint.ServerLifeCycleListener;
-import org.fusesource.fabric.groups2.Group;
+import org.fusesource.fabric.groups.Group;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,9 +61,7 @@ public class FabricServerListener implements ServerLifeCycleListener {
     }
 
     private CxfNodeState createState() {
-        CxfNodeState state = new CxfNodeState();
-        state.id = "cxf";
-        state.agent = System.getProperty("karaf.name");
+        CxfNodeState state = new CxfNodeState("cxf");
         state.services = services.toArray(new String[services.size()]);
         return state;
     }

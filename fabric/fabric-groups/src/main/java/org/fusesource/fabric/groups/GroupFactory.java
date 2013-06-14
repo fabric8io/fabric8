@@ -14,21 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.cxf;
+package org.fusesource.fabric.groups;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
+public interface GroupFactory {
 
-public class CxfNodeState extends NodeState {
-
-    public CxfNodeState() {
-    }
-
-    public CxfNodeState(String id) {
-        super(id);
-    }
-
-    @JsonProperty
-    String[] services;
+    <T> Group<T> createGroup(String path, Class<T> clazz);
 
 }

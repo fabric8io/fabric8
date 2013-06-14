@@ -14,24 +14,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.camel;
+package org.fusesource.fabric.groups;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-import org.fusesource.fabric.groups.NodeState;
 
-public class CamelNodeState extends NodeState {
+/**
+ * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ */
+public class NodeState {
 
     @JsonProperty
-    String consumer;
+    public String id;
 
     @JsonProperty
-    boolean started;
+    public String container;
 
-    public CamelNodeState() {
+    public NodeState() {
     }
 
-    public CamelNodeState(String id) {
-        super(id);
+    public NodeState(String id) {
+        this(id, System.getProperty("karaf.name"));
+    }
+
+    public NodeState(String id, String container) {
+        this.id = id;
+        this.container = container;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getContainer() {
+        return container;
+    }
+
+    public void setContainer(String container) {
+        this.container = container;
     }
 
 }

@@ -18,11 +18,10 @@ package org.fusesource.fabric.cxf;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.fusesource.fabric.groups2.Group;
-import org.fusesource.fabric.groups2.GroupListener;
+import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
