@@ -41,12 +41,12 @@ public class NodeJsonTest {
         System.err.println(new String(data));
         FabricDiscovery.ESNode newNode = decode(data);
 
-        assertEquals(node.id(), newNode.id());
-        assertEquals(node.node().id(), newNode.node().id());
-        assertEquals(node.node().name(), newNode.node().name());
-        assertEquals(node.node().address(), newNode.node().address());
-        assertEquals(node.node().attributes(), newNode.node().attributes());
-        assertEquals(node.node().version().toString(), newNode.node().version().toString());
+        assertEquals(node.getId(), newNode.getId());
+        assertEquals(node.getNode().id(), newNode.getNode().id());
+        assertEquals(node.getNode().name(), newNode.getNode().name());
+        assertEquals(node.getNode().address(), newNode.getNode().address());
+        assertEquals(node.getNode().attributes(), newNode.getNode().attributes());
+        assertEquals(node.getNode().version().toString(), newNode.getNode().version().toString());
     }
 
     private final ObjectMapper mapper = new ObjectMapper();
