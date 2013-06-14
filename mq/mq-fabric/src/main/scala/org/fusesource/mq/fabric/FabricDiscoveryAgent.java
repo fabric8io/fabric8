@@ -54,7 +54,6 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
     private CuratorFramework curator;
     private boolean managedZkClient;
 
-    private Group<ActiveMQNode> group;
     private String groupName = "default";
 
     private AtomicBoolean running=new AtomicBoolean();
@@ -75,6 +74,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
 
     BundleContext context;
     ServiceTracker tracker;
+    Group<ActiveMQNode> group;
 
     List<String> services = new ArrayList<String>();
 
