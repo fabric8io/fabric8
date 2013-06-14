@@ -53,6 +53,7 @@ import java.util.concurrent.Executors;
 import static org.fusesource.fabric.zookeeper.curator.Constants.ACL_PROVIDER;
 import static org.fusesource.fabric.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_BASE_SLEEP_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_MAX_SLEEP_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
@@ -224,7 +225,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      */
     RetryPolicy buildRetryPolicy(Dictionary properties) {
         int maxRetries = readInt(properties, RETRY_POLICY_MAX_RETRIES, MAX_RETRIES_LIMIT);
-        int baseSleepTimeMS = readInt(properties, RETRY_POLICY_BASE_SLEEP_TIME_MS, DEFAULT_MAX_SLEEP_MS);
+        int baseSleepTimeMS = readInt(properties, RETRY_POLICY_BASE_SLEEP_TIME_MS, DEFAULT_BASE_SLEEP_MS);
         int maxSleepTimeMS = readInt(properties, RETRY_POLICY_MAX_SLEEP_TIME_MS, DEFAULT_MAX_SLEEP_MS);
         return new ExponentialBackoffRetry(baseSleepTimeMS, maxRetries, maxSleepTimeMS);
     }

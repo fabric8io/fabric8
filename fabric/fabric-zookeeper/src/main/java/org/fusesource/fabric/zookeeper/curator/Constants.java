@@ -35,6 +35,7 @@ public class Constants {
     public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 15000;
     public static final int DEFAULT_SESSION_TIMEOUT_MS = 60000;
     public static final int MAX_RETRIES_LIMIT = 10;
+    public static final int DEFAULT_BASE_SLEEP_MS = 100;
     public static final int DEFAULT_MAX_SLEEP_MS = 1000;
 
 
