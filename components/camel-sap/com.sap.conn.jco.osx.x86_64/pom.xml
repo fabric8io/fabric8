@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.conn.jco</groupId>
-	<artifactId>com.sap.conn.jco.linux.x86_64</artifactId>
+	<artifactId>com.sap.conn.jco.osx.x86_64</artifactId>
 	<version>3.0.8-SNAPSHOT</version>
 	<packaging>eclipse-plugin</packaging>
 	<parent>
@@ -10,15 +10,15 @@
 		<artifactId>camel-sap</artifactId>
 		<version>99-master-SNAPSHOT</version>
 	</parent>
-	
-	<dependencies>
-		<dependency>
-			<groupId>com.sap.conn.jco</groupId>
-			<artifactId>com.sap.conn.jco</artifactId>
-			<version>3.0.8-SNAPSHOT</version>
-		</dependency>
-	</dependencies>
-	
+
+	<name>SAP Java Connector v3 - Native Library for OS X (64-bit x86) Plugin</name>
+	<url>http://www.fusesource.org</url>
+	<description>Builds Plugin Fragment exporting the Java Connector v3 Native Library for OS X (64-bit x86) </description>
+	<organization>
+		<name>Red Hat, Inc.</name>
+		<url>http://www.redhat.com</url>
+	</organization>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -33,7 +33,7 @@
 					<pomDependencies>consider</pomDependencies>
 					<environments>
 						<environment>
-							<os>linux</os>
+							<os>macosx</os>
 							<arch>x86_64</arch>
 						</environment>
 					</environments>
@@ -57,9 +57,9 @@
 									<groupId>com.sap.conn.jco</groupId>
 									<artifactId>sapjco3</artifactId>
 									<version>3.0.8</version>
-									<type>so</type>
+									<type>jnilib</type>
 									<overWrite>true</overWrite>
-									<destFileName>libsapjco3.so</destFileName>
+									<destFileName>libsapjco3.jnilib</destFileName>
 								</artifactItem>
 							</artifactItems>
 						</configuration>
@@ -103,11 +103,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<name>SAP Java Connector v3 - Native Library for Linux (64-bit x86) Plugin</name>
-	<url>http://www.fusesource.org</url>
-	<description>Builds Plugin Fragment exporting the Java Connector v3 Native Library for Linux (64-bit x86) </description>
-	<organization>
-		<name>Red Hat, Inc.</name>
-		<url>http://www.redhat.com</url>
-	</organization>
 </project>

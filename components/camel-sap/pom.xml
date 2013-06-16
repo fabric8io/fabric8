@@ -20,6 +20,33 @@
 		<tycho-version>0.18.0</tycho-version>
 	</properties>
 
+	<profiles>
+		<profile>
+			<id>linux-x86_64</id>
+			<activation>
+				<os>
+					<name>linux</name>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<modules>
+				<module>com.sap.conn.jco.linux.x86_64</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>macosx-x86_64</id>
+			<activation>
+				<os>
+					<name>mac os x</name>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<modules>
+				<module>com.sap.conn.jco.osx.x86_64</module>
+			</modules>
+		</profile>
+	</profiles>
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -75,7 +102,6 @@
 	</build>
 	<modules>
 		<module>com.sap.conn.jco</module>
-		<module>com.sap.conn.jco.linux.x86_64</module>
 		<module>org.fusesource.camel.component.sap.model</module>
 		<module>org.fusesource.camel.component.sap.model.edit</module>
 	</modules>
