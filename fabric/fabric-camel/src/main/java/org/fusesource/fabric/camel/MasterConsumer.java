@@ -52,7 +52,7 @@ public class MasterConsumer extends DefaultConsumer implements GroupListener {
     protected void doStart() throws Exception {
         super.doStart();
         singleton.start();
-        CamelNodeState state = new CamelNodeState(endpoint.getSingletonId(), System.getProperty("karaf.name"));
+        CamelNodeState state = new CamelNodeState(endpoint.getSingletonId());
         LOG.debug("Attempting to become master for endpoint: " + endpoint + " in " + endpoint.getCamelContext() + " with singletonID: " + endpoint.getSingletonId());
         singleton.update(state);
     }
