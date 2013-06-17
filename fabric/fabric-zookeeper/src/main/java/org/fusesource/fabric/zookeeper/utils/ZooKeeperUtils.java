@@ -107,7 +107,7 @@ public final class ZooKeeperUtils {
             if (changed) {
                 sb.delete(0, sb.length());
                 for (String part : parts) {
-                    if (data.length() > 0) {
+                    if (sb.length() > 0) {
                         sb.append(" ");
                     }
                     sb.append(part);
@@ -124,7 +124,7 @@ public final class ZooKeeperUtils {
 
     public static List<String> getAllChildren(CuratorFramework curator, String path) throws Exception {
         List<String> children = getChildren(curator, path);
-        List<String> allChildren = new ArrayList();
+        List<String> allChildren = new ArrayList<String>();
         for (String child : children) {
             String fullPath = ZKPaths.makePath(path, child);
             allChildren.add(fullPath);
