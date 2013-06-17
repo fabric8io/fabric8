@@ -89,13 +89,22 @@ public interface RfcPackage extends EPackage {
 	int DESTINATION__NAME = 0;
 
 	/**
+	 * The feature id for the '<em><b>Repository Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DESTINATION__REPOSITORY_NAME = 1;
+
+	/**
 	 * The feature id for the '<em><b>Rfcs</b></em>' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int DESTINATION__RFCS = 1;
+	int DESTINATION__RFCS = 2;
 
 	/**
 	 * The number of structural features of the '<em>Destination</em>' class.
@@ -104,7 +113,7 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int DESTINATION_FEATURE_COUNT = 2;
+	int DESTINATION_FEATURE_COUNT = 3;
 
 	/**
 	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl <em>RFC</em>}' class.
@@ -126,13 +135,22 @@ public interface RfcPackage extends EPackage {
 	int RFC__NAME = 0;
 
 	/**
+	 * The feature id for the '<em><b>Group</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RFC__GROUP = 1;
+
+	/**
 	 * The feature id for the '<em><b>Description</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int RFC__DESCRIPTION = 1;
+	int RFC__DESCRIPTION = 2;
 
 	/**
 	 * The feature id for the '<em><b>Request</b></em>' containment reference.
@@ -141,7 +159,7 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RFC__REQUEST = 2;
+	int RFC__REQUEST = 3;
 
 	/**
 	 * The feature id for the '<em><b>Response</b></em>' containment reference.
@@ -150,7 +168,7 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RFC__RESPONSE = 3;
+	int RFC__RESPONSE = 4;
 
 	/**
 	 * The feature id for the '<em><b>Destination</b></em>' container reference.
@@ -159,7 +177,7 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RFC__DESTINATION = 4;
+	int RFC__DESTINATION = 5;
 
 	/**
 	 * The number of structural features of the '<em>RFC</em>' class.
@@ -168,7 +186,7 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int RFC_FEATURE_COUNT = 5;
+	int RFC_FEATURE_COUNT = 6;
 
 	/**
 	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.TableImpl <em>Table</em>}' class.
@@ -772,6 +790,34 @@ public interface RfcPackage extends EPackage {
 	int DESTINATION_DATA_STORE_FEATURE_COUNT = 1;
 
 	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ServerImpl <em>Server</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.ServerImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getServer()
+	 * @generated
+	 */
+	int SERVER = 8;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERVER__NAME = 0;
+
+	/**
+	 * The number of structural features of the '<em>Server</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERVER_FEATURE_COUNT = 1;
+
+	/**
 	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ServerDataEntryImpl <em>Server Data Entry</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -779,7 +825,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getServerDataEntry()
 	 * @generated
 	 */
-	int SERVER_DATA_ENTRY = 8;
+	int SERVER_DATA_ENTRY = 9;
 
 	/**
 	 * The feature id for the '<em><b>Key</b></em>' attribute.
@@ -816,7 +862,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getServerData()
 	 * @generated
 	 */
-	int SERVER_DATA = 9;
+	int SERVER_DATA = 10;
 
 	/**
 	 * The feature id for the '<em><b>Entries</b></em>' map.
@@ -979,7 +1025,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getServerDataStoreEntry()
 	 * @generated
 	 */
-	int SERVER_DATA_STORE_ENTRY = 10;
+	int SERVER_DATA_STORE_ENTRY = 11;
 
 	/**
 	 * The feature id for the '<em><b>Key</b></em>' attribute.
@@ -1016,7 +1062,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getServerDataStore()
 	 * @generated
 	 */
-	int SERVER_DATA_STORE = 11;
+	int SERVER_DATA_STORE = 12;
 
 	/**
 	 * The feature id for the '<em><b>Entries</b></em>' map.
@@ -1059,6 +1105,17 @@ public interface RfcPackage extends EPackage {
 	EAttribute getDestination_Name();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.Destination#getRepositoryName <em>Repository Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Repository Name</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.Destination#getRepositoryName()
+	 * @see #getDestination()
+	 * @generated
+	 */
+	EAttribute getDestination_RepositoryName();
+
+	/**
 	 * Returns the meta object for the containment reference list '{@link org.fusesource.camel.component.sap.model.rfc.Destination#getRfcs <em>Rfcs</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1089,6 +1146,17 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 */
 	EAttribute getRFC_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getGroup <em>Group</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Group</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RFC#getGroup()
+	 * @see #getRFC()
+	 * @generated
+	 */
+	EAttribute getRFC_Group();
 
 	/**
 	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getDescription <em>Description</em>}'.
@@ -1793,6 +1861,27 @@ public interface RfcPackage extends EPackage {
 	EReference getDestinationDataStore_Entries();
 
 	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.Server <em>Server</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Server</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.Server
+	 * @generated
+	 */
+	EClass getServer();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.Server#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.Server#getName()
+	 * @see #getServer()
+	 * @generated
+	 */
+	EAttribute getServer_Name();
+
+	/**
 	 * Returns the meta object for class '{@link java.util.Map.Entry <em>Server Data Entry</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2108,6 +2197,14 @@ public interface RfcPackage extends EPackage {
 		EAttribute DESTINATION__NAME = eINSTANCE.getDestination_Name();
 
 		/**
+		 * The meta object literal for the '<em><b>Repository Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute DESTINATION__REPOSITORY_NAME = eINSTANCE.getDestination_RepositoryName();
+
+		/**
 		 * The meta object literal for the '<em><b>Rfcs</b></em>' containment reference list feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -2132,6 +2229,14 @@ public interface RfcPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute RFC__NAME = eINSTANCE.getRFC_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Group</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RFC__GROUP = eINSTANCE.getRFC_Group();
 
 		/**
 		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
@@ -2656,6 +2761,24 @@ public interface RfcPackage extends EPackage {
 		 * @generated
 		 */
 		EReference DESTINATION_DATA_STORE__ENTRIES = eINSTANCE.getDestinationDataStore_Entries();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ServerImpl <em>Server</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.ServerImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getServer()
+		 * @generated
+		 */
+		EClass SERVER = eINSTANCE.getServer();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute SERVER__NAME = eINSTANCE.getServer_Name();
 
 		/**
 		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ServerDataEntryImpl <em>Server Data Entry</em>}' class.

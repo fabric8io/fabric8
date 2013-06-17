@@ -270,6 +270,29 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 	}
 
 	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.Server} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ServerItemProvider serverItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Server}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createServerAdapter() {
+		if (serverItemProvider == null) {
+			serverItemProvider = new ServerItemProvider(this);
+		}
+
+		return serverItemProvider;
+	}
+
+	/**
 	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -468,6 +491,7 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 		if (destinationDataItemProvider != null) destinationDataItemProvider.dispose();
 		if (destinationDataStoreEntryItemProvider != null) destinationDataStoreEntryItemProvider.dispose();
 		if (destinationDataStoreItemProvider != null) destinationDataStoreItemProvider.dispose();
+		if (serverItemProvider != null) serverItemProvider.dispose();
 		if (serverDataEntryItemProvider != null) serverDataEntryItemProvider.dispose();
 		if (serverDataItemProvider != null) serverDataItemProvider.dispose();
 		if (serverDataStoreEntryItemProvider != null) serverDataStoreEntryItemProvider.dispose();

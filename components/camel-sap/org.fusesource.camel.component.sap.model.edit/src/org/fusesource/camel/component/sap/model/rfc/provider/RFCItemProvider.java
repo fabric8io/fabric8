@@ -78,6 +78,7 @@ public class RFCItemProvider
 			super.getPropertyDescriptors(object);
 
 			addNamePropertyDescriptor(object);
+			addGroupPropertyDescriptor(object);
 			addDescriptionPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
@@ -97,6 +98,28 @@ public class RFCItemProvider
 				 getString("_UI_RFC_name_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_RFC_name_feature", "_UI_RFC_type"),
 				 RfcPackage.Literals.RFC__NAME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Group feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addGroupPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RFC_group_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_RFC_group_feature", "_UI_RFC_type"),
+				 RfcPackage.Literals.RFC__GROUP,
 				 true,
 				 false,
 				 false,
@@ -196,6 +219,7 @@ public class RFCItemProvider
 
 		switch (notification.getFeatureID(RFC.class)) {
 			case RfcPackage.RFC__NAME:
+			case RfcPackage.RFC__GROUP:
 			case RfcPackage.RFC__DESCRIPTION:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;

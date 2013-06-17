@@ -40,6 +40,7 @@ import org.fusesource.camel.component.sap.model.rfc.Structure;
  * The following features are implemented:
  * <ul>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getName <em>Name</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getGroup <em>Group</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getDescription <em>Description</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getRequest <em>Request</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.RFCImpl#getResponse <em>Response</em>}</li>
@@ -69,6 +70,26 @@ public class RFCImpl extends EObjectImpl implements RFC {
 	 * @ordered
 	 */
 	protected String name = NAME_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getGroup() <em>Group</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getGroup()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String GROUP_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getGroup() <em>Group</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getGroup()
+	 * @generated
+	 * @ordered
+	 */
+	protected String group = GROUP_EDEFAULT;
 
 	/**
 	 * The default value of the '{@link #getDescription() <em>Description</em>}' attribute.
@@ -148,6 +169,27 @@ public class RFCImpl extends EObjectImpl implements RFC {
 		name = newName;
 		if (eNotificationRequired())
 			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__NAME, oldName, name));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getGroup() {
+		return group;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setGroup(String newGroup) {
+		String oldGroup = group;
+		group = newGroup;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.RFC__GROUP, oldGroup, group));
 	}
 
 	/**
@@ -356,6 +398,8 @@ public class RFCImpl extends EObjectImpl implements RFC {
 		switch (featureID) {
 			case RfcPackage.RFC__NAME:
 				return getName();
+			case RfcPackage.RFC__GROUP:
+				return getGroup();
 			case RfcPackage.RFC__DESCRIPTION:
 				return getDescription();
 			case RfcPackage.RFC__REQUEST:
@@ -378,6 +422,9 @@ public class RFCImpl extends EObjectImpl implements RFC {
 		switch (featureID) {
 			case RfcPackage.RFC__NAME:
 				setName((String)newValue);
+				return;
+			case RfcPackage.RFC__GROUP:
+				setGroup((String)newValue);
 				return;
 			case RfcPackage.RFC__DESCRIPTION:
 				setDescription((String)newValue);
@@ -406,6 +453,9 @@ public class RFCImpl extends EObjectImpl implements RFC {
 			case RfcPackage.RFC__NAME:
 				setName(NAME_EDEFAULT);
 				return;
+			case RfcPackage.RFC__GROUP:
+				setGroup(GROUP_EDEFAULT);
+				return;
 			case RfcPackage.RFC__DESCRIPTION:
 				setDescription(DESCRIPTION_EDEFAULT);
 				return;
@@ -432,6 +482,8 @@ public class RFCImpl extends EObjectImpl implements RFC {
 		switch (featureID) {
 			case RfcPackage.RFC__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case RfcPackage.RFC__GROUP:
+				return GROUP_EDEFAULT == null ? group != null : !GROUP_EDEFAULT.equals(group);
 			case RfcPackage.RFC__DESCRIPTION:
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
 			case RfcPackage.RFC__REQUEST:
@@ -456,6 +508,8 @@ public class RFCImpl extends EObjectImpl implements RFC {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (name: ");
 		result.append(name);
+		result.append(", group: ");
+		result.append(group);
 		result.append(", description: ");
 		result.append(description);
 		result.append(')');

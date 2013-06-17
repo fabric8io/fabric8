@@ -90,6 +90,15 @@ public interface RfcFactory extends EFactory {
 	DestinationDataStore createDestinationDataStore();
 
 	/**
+	 * Returns a new object of class '<em>Server</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Server</em>'.
+	 * @generated
+	 */
+	Server createServer();
+
+	/**
 	 * Returns a new object of class '<em>Server Data</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

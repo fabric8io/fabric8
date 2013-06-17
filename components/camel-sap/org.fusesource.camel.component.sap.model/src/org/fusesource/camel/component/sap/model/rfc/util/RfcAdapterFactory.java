@@ -115,6 +115,10 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 				return createDestinationDataStoreAdapter();
 			}
 			@Override
+			public Adapter caseServer(Server object) {
+				return createServerAdapter();
+			}
+			@Override
 			public Adapter caseServerDataEntry(Map.Entry<String, String> object) {
 				return createServerDataEntryAdapter();
 			}
@@ -259,6 +263,20 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createDestinationDataStoreAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.Server <em>Server</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.Server
+	 * @generated
+	 */
+	public Adapter createServerAdapter() {
 		return null;
 	}
 

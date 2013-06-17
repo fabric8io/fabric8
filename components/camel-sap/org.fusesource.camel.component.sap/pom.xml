@@ -1,0 +1,37 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.fusesource.camel.component.sap</artifactId>
+	<version>1.0.0-SNAPSHOT</version>
+
+	<parent>
+		<groupId>org.fusesource</groupId>
+		<artifactId>camel-sap</artifactId>
+		<version>99-master-SNAPSHOT</version>
+	</parent>
+
+	<packaging>eclipse-plugin</packaging>
+	<name>Camel SAP Component Plugin</name>
+	<description>Builds Camel SAP Plugin</description>
+
+	<organization>
+		<name>Red Hat, Inc.</name>
+		<url>http://www.redhat.com</url>
+	</organization>
+
+	<build>
+		<sourceDirectory>src</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

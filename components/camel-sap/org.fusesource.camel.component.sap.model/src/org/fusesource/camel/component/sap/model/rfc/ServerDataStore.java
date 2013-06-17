@@ -17,8 +17,6 @@
 package org.fusesource.camel.component.sap.model.rfc;
 
 import org.eclipse.emf.common.util.EMap;
-import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EObject;
 
 /**

@@ -28,12 +28,11 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.fusesource.camel.component.sap.model.rfc.Destination;
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
 import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
-import org.fusesource.camel.component.sap.model.rfc.DestinationDataStoreEntry;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
+import org.fusesource.camel.component.sap.model.rfc.Server;
 import org.fusesource.camel.component.sap.model.rfc.ServerData;
 import org.fusesource.camel.component.sap.model.rfc.ServerDataStore;
-import org.fusesource.camel.component.sap.model.rfc.ServerDataStoreEntry;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
 
@@ -99,6 +98,13 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * @generated
 	 */
 	private EClass destinationDataStoreEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass serverEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -212,8 +218,17 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EAttribute getDestination_RepositoryName() {
+		return (EAttribute)destinationEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EReference getDestination_Rfcs() {
-		return (EReference)destinationEClass.getEStructuralFeatures().get(1);
+		return (EReference)destinationEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -239,7 +254,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getRFC_Description() {
+	public EAttribute getRFC_Group() {
 		return (EAttribute)rfcEClass.getEStructuralFeatures().get(1);
 	}
 
@@ -248,8 +263,8 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getRFC_Request() {
-		return (EReference)rfcEClass.getEStructuralFeatures().get(2);
+	public EAttribute getRFC_Description() {
+		return (EAttribute)rfcEClass.getEStructuralFeatures().get(2);
 	}
 
 	/**
@@ -257,7 +272,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getRFC_Response() {
+	public EReference getRFC_Request() {
 		return (EReference)rfcEClass.getEStructuralFeatures().get(3);
 	}
 
@@ -266,8 +281,17 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EReference getRFC_Destination() {
+	public EReference getRFC_Response() {
 		return (EReference)rfcEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRFC_Destination() {
+		return (EReference)rfcEClass.getEStructuralFeatures().get(5);
 	}
 
 	/**
@@ -815,6 +839,24 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getServer() {
+		return serverEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getServer_Name() {
+		return (EAttribute)serverEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getServerDataEntry() {
 		return serverDataEntryEClass;
 	}
@@ -1065,10 +1107,12 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		// Create classes and their features
 		destinationEClass = createEClass(DESTINATION);
 		createEAttribute(destinationEClass, DESTINATION__NAME);
+		createEAttribute(destinationEClass, DESTINATION__REPOSITORY_NAME);
 		createEReference(destinationEClass, DESTINATION__RFCS);
 
 		rfcEClass = createEClass(RFC);
 		createEAttribute(rfcEClass, RFC__NAME);
+		createEAttribute(rfcEClass, RFC__GROUP);
 		createEAttribute(rfcEClass, RFC__DESCRIPTION);
 		createEReference(rfcEClass, RFC__REQUEST);
 		createEReference(rfcEClass, RFC__RESPONSE);
@@ -1140,6 +1184,9 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		destinationDataStoreEClass = createEClass(DESTINATION_DATA_STORE);
 		createEReference(destinationDataStoreEClass, DESTINATION_DATA_STORE__ENTRIES);
 
+		serverEClass = createEClass(SERVER);
+		createEAttribute(serverEClass, SERVER__NAME);
+
 		serverDataEntryEClass = createEClass(SERVER_DATA_ENTRY);
 		createEAttribute(serverDataEntryEClass, SERVER_DATA_ENTRY__KEY);
 		createEAttribute(serverDataEntryEClass, SERVER_DATA_ENTRY__VALUE);
@@ -1205,10 +1252,12 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		// Initialize classes and features; add operations and parameters
 		initEClass(destinationEClass, Destination.class, "Destination", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getDestination_Name(), ecorePackage.getEString(), "name", null, 0, 1, Destination.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getDestination_RepositoryName(), ecorePackage.getEString(), "repositoryName", null, 0, 1, Destination.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getDestination_Rfcs(), this.getRFC(), this.getRFC_Destination(), "rfcs", null, 0, -1, Destination.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(rfcEClass, org.fusesource.camel.component.sap.model.rfc.RFC.class, "RFC", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getRFC_Name(), ecorePackage.getEString(), "name", null, 0, 1, org.fusesource.camel.component.sap.model.rfc.RFC.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRFC_Group(), ecorePackage.getEString(), "group", null, 0, 1, org.fusesource.camel.component.sap.model.rfc.RFC.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getRFC_Description(), ecorePackage.getEString(), "description", null, 0, 1, org.fusesource.camel.component.sap.model.rfc.RFC.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getRFC_Request(), this.getStructure(), null, "request", null, 0, 1, org.fusesource.camel.component.sap.model.rfc.RFC.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEReference(getRFC_Response(), this.getStructure(), null, "response", null, 0, 1, org.fusesource.camel.component.sap.model.rfc.RFC.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -1280,6 +1329,9 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 
 		initEClass(destinationDataStoreEClass, DestinationDataStore.class, "DestinationDataStore", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getDestinationDataStore_Entries(), this.getDestinationDataStoreEntry(), null, "entries", null, 0, -1, DestinationDataStore.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(serverEClass, Server.class, "Server", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getServer_Name(), ecorePackage.getEString(), "name", null, 0, 1, Server.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(serverDataEntryEClass, Map.Entry.class, "ServerDataEntry", !IS_ABSTRACT, !IS_INTERFACE, !IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getServerDataEntry_Key(), ecorePackage.getEString(), "key", null, 1, 1, Map.Entry.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);

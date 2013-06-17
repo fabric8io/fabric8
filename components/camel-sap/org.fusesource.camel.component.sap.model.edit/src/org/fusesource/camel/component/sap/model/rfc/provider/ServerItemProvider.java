@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
+ * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  * 
  */
@@ -25,8 +25,6 @@ import org.eclipse.emf.common.notify.Notification;
 
 import org.eclipse.emf.common.util.ResourceLocator;
 
-import org.eclipse.emf.ecore.EStructuralFeature;
-
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
@@ -38,17 +36,16 @@ import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
 
-import org.fusesource.camel.component.sap.model.rfc.Destination;
-import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
+import org.fusesource.camel.component.sap.model.rfc.Server;
 
 /**
- * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Destination} object.
+ * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.Server} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class DestinationItemProvider
+public class ServerItemProvider
 	extends ItemProviderAdapter
 	implements
 		IEditingDomainItemProvider,
@@ -62,7 +59,7 @@ public class DestinationItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public DestinationItemProvider(AdapterFactory adapterFactory) {
+	public ServerItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -78,7 +75,6 @@ public class DestinationItemProvider
 			super.getPropertyDescriptors(object);
 
 			addNamePropertyDescriptor(object);
-			addRepositoryNamePropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -94,9 +90,9 @@ public class DestinationItemProvider
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_Destination_name_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Destination_name_feature", "_UI_Destination_type"),
-				 RfcPackage.Literals.DESTINATION__NAME,
+				 getString("_UI_Server_name_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Server_name_feature", "_UI_Server_type"),
+				 RfcPackage.Literals.SERVER__NAME,
 				 true,
 				 false,
 				 false,
@@ -106,66 +102,14 @@ public class DestinationItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Repository Name feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addRepositoryNamePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_Destination_repositoryName_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_Destination_repositoryName_feature", "_UI_Destination_type"),
-				 RfcPackage.Literals.DESTINATION__REPOSITORY_NAME,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
-	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
-	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
-		if (childrenFeatures == null) {
-			super.getChildrenFeatures(object);
-			childrenFeatures.add(RfcPackage.Literals.DESTINATION__RFCS);
-		}
-		return childrenFeatures;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	protected EStructuralFeature getChildFeature(Object object, Object child) {
-		// Check the type of the specified child object and return the proper feature to use for
-		// adding (see {@link AddCommand}) it as a child.
-
-		return super.getChildFeature(object, child);
-	}
-
-	/**
-	 * This returns Destination.gif.
+	 * This returns Server.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/Destination"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/Server"));
 	}
 
 	/**
@@ -176,10 +120,10 @@ public class DestinationItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((Destination)object).getName();
+		String label = ((Server)object).getName();
 		return label == null || label.length() == 0 ?
-			getString("_UI_Destination_type") :
-			getString("_UI_Destination_type") + " " + label;
+			getString("_UI_Server_type") :
+			getString("_UI_Server_type") + " " + label;
 	}
 
 	/**
@@ -193,13 +137,9 @@ public class DestinationItemProvider
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
 
-		switch (notification.getFeatureID(Destination.class)) {
-			case RfcPackage.DESTINATION__NAME:
-			case RfcPackage.DESTINATION__REPOSITORY_NAME:
+		switch (notification.getFeatureID(Server.class)) {
+			case RfcPackage.SERVER__NAME:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
-				return;
-			case RfcPackage.DESTINATION__RFCS:
-				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
 		super.notifyChanged(notification);
@@ -215,11 +155,6 @@ public class DestinationItemProvider
 	@Override
 	protected void collectNewChildDescriptors(Collection<Object> newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
-
-		newChildDescriptors.add
-			(createChildParameter
-				(RfcPackage.Literals.DESTINATION__RFCS,
-				 RfcFactory.eINSTANCE.createRFC()));
 	}
 
 	/**

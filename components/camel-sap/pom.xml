@@ -116,6 +116,7 @@
 		<module>com.sap.conn.jco</module>
 		<module>org.fusesource.camel.component.sap.model</module>
 		<module>org.fusesource.camel.component.sap.model.edit</module>
+		<module>org.fusesource.camel.component.sap</module>
 	</modules>
 	<repositories>
 		<repository>

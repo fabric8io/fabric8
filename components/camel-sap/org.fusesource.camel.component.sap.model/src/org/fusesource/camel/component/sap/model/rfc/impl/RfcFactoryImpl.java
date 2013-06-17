@@ -79,6 +79,7 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 			case RfcPackage.DESTINATION_DATA: return createDestinationData();
 			case RfcPackage.DESTINATION_DATA_STORE_ENTRY: return (EObject)createDestinationDataStoreEntry();
 			case RfcPackage.DESTINATION_DATA_STORE: return createDestinationDataStore();
+			case RfcPackage.SERVER: return createServer();
 			case RfcPackage.SERVER_DATA_ENTRY: return (EObject)createServerDataEntry();
 			case RfcPackage.SERVER_DATA: return createServerData();
 			case RfcPackage.SERVER_DATA_STORE_ENTRY: return (EObject)createServerDataStoreEntry();
@@ -166,6 +167,16 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 	public DestinationDataStore createDestinationDataStore() {
 		DestinationDataStoreImpl destinationDataStore = new DestinationDataStoreImpl();
 		return destinationDataStore;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Server createServer() {
+		ServerImpl server = new ServerImpl();
+		return server;
 	}
 
 	/**

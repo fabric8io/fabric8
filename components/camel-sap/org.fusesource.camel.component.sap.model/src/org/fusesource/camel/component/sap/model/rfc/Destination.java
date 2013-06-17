@@ -29,6 +29,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Destination#getName <em>Name</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Destination#getRepositoryName <em>Repository Name</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Destination#getRfcs <em>Rfcs</em>}</li>
  * </ul>
  * </p>
@@ -63,6 +64,32 @@ public interface Destination extends EObject {
 	 * @generated
 	 */
 	void setName(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Repository Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Repository Name</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Repository Name</em>' attribute.
+	 * @see #setRepositoryName(String)
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getDestination_RepositoryName()
+	 * @model
+	 * @generated
+	 */
+	String getRepositoryName();
+
+	/**
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.Destination#getRepositoryName <em>Repository Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Repository Name</em>' attribute.
+	 * @see #getRepositoryName()
+	 * @generated
+	 */
+	void setRepositoryName(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Rfcs</b></em>' containment reference list.

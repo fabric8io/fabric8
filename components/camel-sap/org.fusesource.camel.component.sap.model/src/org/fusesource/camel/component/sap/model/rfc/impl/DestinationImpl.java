@@ -44,6 +44,7 @@ import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
  * The following features are implemented:
  * <ul>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.DestinationImpl#getName <em>Name</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.DestinationImpl#getRepositoryName <em>Repository Name</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.DestinationImpl#getRfcs <em>Rfcs</em>}</li>
  * </ul>
  * </p>
@@ -70,6 +71,26 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 	 * @ordered
 	 */
 	protected String name = NAME_EDEFAULT;
+
+	/**
+	 * The default value of the '{@link #getRepositoryName() <em>Repository Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRepositoryName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String REPOSITORY_NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getRepositoryName() <em>Repository Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRepositoryName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String repositoryName = REPOSITORY_NAME_EDEFAULT;
 
 	/**
 	 * The cached value of the '{@link #getRfcs() <em>Rfcs</em>}' containment reference list.
@@ -126,6 +147,27 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public String getRepositoryName() {
+		return repositoryName;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setRepositoryName(String newRepositoryName) {
+		String oldRepositoryName = repositoryName;
+		repositoryName = newRepositoryName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.DESTINATION__REPOSITORY_NAME, oldRepositoryName, repositoryName));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EList<RFC> getRfcs() {
 		if (rfcs == null) {
 			rfcs = new EObjectContainmentWithInverseEList<RFC>(RFC.class, this, RfcPackage.DESTINATION__RFCS, RfcPackage.RFC__DESTINATION);
@@ -172,6 +214,8 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 		switch (featureID) {
 			case RfcPackage.DESTINATION__NAME:
 				return getName();
+			case RfcPackage.DESTINATION__REPOSITORY_NAME:
+				return getRepositoryName();
 			case RfcPackage.DESTINATION__RFCS:
 				return getRfcs();
 		}
@@ -189,6 +233,9 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 		switch (featureID) {
 			case RfcPackage.DESTINATION__NAME:
 				setName((String)newValue);
+				return;
+			case RfcPackage.DESTINATION__REPOSITORY_NAME:
+				setRepositoryName((String)newValue);
 				return;
 			case RfcPackage.DESTINATION__RFCS:
 				getRfcs().clear();
@@ -209,6 +256,9 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 			case RfcPackage.DESTINATION__NAME:
 				setName(NAME_EDEFAULT);
 				return;
+			case RfcPackage.DESTINATION__REPOSITORY_NAME:
+				setRepositoryName(REPOSITORY_NAME_EDEFAULT);
+				return;
 			case RfcPackage.DESTINATION__RFCS:
 				getRfcs().clear();
 				return;
@@ -226,6 +276,8 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 		switch (featureID) {
 			case RfcPackage.DESTINATION__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case RfcPackage.DESTINATION__REPOSITORY_NAME:
+				return REPOSITORY_NAME_EDEFAULT == null ? repositoryName != null : !REPOSITORY_NAME_EDEFAULT.equals(repositoryName);
 			case RfcPackage.DESTINATION__RFCS:
 				return rfcs != null && !rfcs.isEmpty();
 		}
@@ -244,6 +296,8 @@ public class DestinationImpl extends EObjectImpl implements Destination {
 		StringBuffer result = new StringBuffer(super.toString());
 		result.append(" (name: ");
 		result.append(name);
+		result.append(", repositoryName: ");
+		result.append(repositoryName);
 		result.append(')');
 		return result.toString();
 	}

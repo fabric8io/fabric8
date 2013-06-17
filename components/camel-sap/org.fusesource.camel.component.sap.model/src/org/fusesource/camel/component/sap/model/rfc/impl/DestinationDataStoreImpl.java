@@ -16,26 +16,16 @@
  */
 package org.fusesource.camel.component.sap.model.rfc.impl;
 
-import java.util.Collection;
-
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EMap;
-import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.eclipse.emf.ecore.util.EcoreEMap;
-import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
 import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
-import org.fusesource.camel.component.sap.model.rfc.DestinationDataStoreEntry;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 
 /**
@@ -127,7 +117,6 @@ public class DestinationDataStoreImpl extends EObjectImpl implements Destination
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {

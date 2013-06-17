@@ -27,6 +27,7 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * <ul>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getName <em>Name</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getGroup <em>Group</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getDescription <em>Description</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getRequest <em>Request</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.RFC#getResponse <em>Response</em>}</li>
@@ -64,6 +65,32 @@ public interface RFC extends EObject {
 	 * @generated
 	 */
 	void setName(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Group</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Group</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Group</em>' attribute.
+	 * @see #setGroup(String)
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getRFC_Group()
+	 * @model
+	 * @generated
+	 */
+	String getGroup();
+
+	/**
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.RFC#getGroup <em>Group</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Group</em>' attribute.
+	 * @see #getGroup()
+	 * @generated
+	 */
+	void setGroup(String value);
 
 	/**
 	 * Returns the value of the '<em><b>Description</b></em>' attribute.
