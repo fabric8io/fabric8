@@ -238,9 +238,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       discoveryAgent.setId(name)
       discoveryAgent.setGroupName(group)
       discoveryAgent.setCurator(curator)
-      discoveryAgent.group.add(new GroupListener[ActiveMQNode]() {
+      discoveryAgent.getGroup.add(new GroupListener[ActiveMQNode]() {
         def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
-          if (discoveryAgent.group.isMaster) {
+          if (discoveryAgent.getGroup.isMaster) {
             if (started.compareAndSet(false, true)) {
               if (take_pool(ClusteredConfiguration.this)) {
                 info("Broker %s is now the master, starting the broker.", name)

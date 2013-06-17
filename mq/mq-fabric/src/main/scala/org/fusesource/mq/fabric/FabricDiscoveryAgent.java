@@ -141,7 +141,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
         if (startCounter.get() > 0 ) {
             if( id==null )
                 throw new IllegalStateException("You must configure the id of the fabric discovery if you want to register services");
-            group.update(createState());
+            getGroup().update(createState());
         }
     }
 
@@ -239,8 +239,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
                 managedZkClient = false;
             }
 
-            group = new ZooKeeperGroup<ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
-            group.add(new GroupListener<ActiveMQNode>() {
+            getGroup().add(new GroupListener<ActiveMQNode>() {
                 @Override
                 public void groupEvent(Group<ActiveMQNode> group, GroupEvent event) {
                     Map<String, ActiveMQNode> masters = new HashMap<String, ActiveMQNode>();
@@ -253,9 +252,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
                 }
             });
             if( id!=null ) {
-                group.update(createState());
+                getGroup().update(createState());
             }
-            group.start();
+            getGroup().start();
         }
     }
 
@@ -263,7 +262,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
         if( startCounter.decrementAndGet()==0 ) {
             running.set(false);
             try {
-                group.close();
+                getGroup().close();
             } catch (Throwable ignore) {
                 // Most likely a ServiceUnavailableException: The Blueprint container is being or has been destroyed
             }
@@ -347,6 +346,14 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
             this.services.add(s);
         }
         updateClusterState();
+    }
+
+    public Group<ActiveMQNode> getGroup() {
+        if (group == null) {
+            group = new ZooKeeperGroup<ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+        }
+
+        return group;
     }
 
     public CuratorFramework getCurator() {

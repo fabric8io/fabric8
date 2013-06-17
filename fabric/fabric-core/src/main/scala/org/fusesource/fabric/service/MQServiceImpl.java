@@ -39,14 +39,15 @@ public class MQServiceImpl implements MQService {
         String pidName = "org.fusesource.mq.fabric.server-" + brokerName;
         Profile result = parentProfile;
         if (brokerName != null) {
-            result = version.getProfile(brokerName);
+
             // create a profile if it doesn't exist
             Map config = null;
 
-            if (result == null) {
+            if (!version.hasProfile(brokerName)) {
                 result = version.createProfile(brokerName);
                 result.setParents(new Profile[]{parentProfile});
             } else {
+                result = version.getProfile(brokerName);
                 config = result.getConfigurations().get(pidName);
             }
             
