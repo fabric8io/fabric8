@@ -374,7 +374,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         // TODO: something like ${zk:container/${zk:container/resolver}}
         if (attribute == ContainerAttribute.Resolver) {
             try {
-                setData(curator, ZkPath.CONTAINER_IP.getPath(containerId), "${curator:" + containerId + "/" + value + "}");
+                setData(curator, ZkPath.CONTAINER_IP.getPath(containerId), "${zk:" + containerId + "/" + value + "}");
                 setData(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId), value);
             } catch (Exception e) {
                 throw new FabricException(e);
