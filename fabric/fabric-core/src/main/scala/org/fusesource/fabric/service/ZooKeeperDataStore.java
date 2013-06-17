@@ -296,8 +296,8 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public List<String> getContainerProfiles(String containerId) {
         try {
-            String versionId = getStringData(curator, ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            String str = getStringData(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+            String versionId = getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            String str = getStringData(treeCache, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
             return str == null || str.isEmpty() ? Collections.<String>emptyList() : Arrays.asList(str.trim().split(" +"));
         } catch (Exception e) {
             throw new FabricException(e);
