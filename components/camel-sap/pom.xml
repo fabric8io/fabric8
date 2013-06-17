@@ -22,6 +22,18 @@
 
 	<profiles>
 		<profile>
+			<id>linux-amd64</id>
+			<activation>
+				<os>
+					<name>linux</name>
+					<arch>amd64</arch>
+				</os>
+			</activation>
+			<modules>
+				<module>com.sap.conn.jco.linux.x86_64</module>
+			</modules>
+		</profile>
+		<profile>
 			<id>linux-x86_64</id>
 			<activation>
 				<os>
