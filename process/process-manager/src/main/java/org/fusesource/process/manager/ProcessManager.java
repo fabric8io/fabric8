@@ -36,8 +36,9 @@ public interface ProcessManager {
 
     /**
      * Installs a process with an optional URL of the controller JSON
+     * together with an optional install step
      */
-    Installation install(String url, URL controllerJson) throws Exception;
+    Installation install(String url, URL controllerJson, InstallTask postInstall) throws Exception;
 
     /**
      * Installs an executable jar as a new managed process

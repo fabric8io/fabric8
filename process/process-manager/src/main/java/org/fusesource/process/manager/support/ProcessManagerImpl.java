@@ -25,6 +25,8 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
+import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.JarInstallParameters;
 import org.fusesource.process.manager.ProcessController;
@@ -104,22 +106,25 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public Installation install(final String url, URL controllerJson) throws Exception {
-        InstallScript installScript = new InstallScript() {
+    public Installation install(final String url, URL controllerJson, final InstallTask postInstall) throws Exception {
+        InstallTask installTask = new InstallTask() {
             @Override
-            public void doInstall(ProcessConfig config, int id, File installDir) throws Exception {
+            public void install(ProcessConfig config, int id, File installDir) throws Exception {
                 config.setName(url);
                 untarTarball(url, installDir);
+                if (postInstall != null) {
+                    postInstall.install(config, id, installDir);
+                }
             }
         };
-        return installViaScript(controllerJson, installScript);
+        return installViaScript(controllerJson, installTask);
     }
 
     @Override
     public Installation installJar(final JarInstallParameters parameters) throws Exception {
-        InstallScript installScript = new InstallScript() {
+        InstallTask installTask = new InstallTask() {
             @Override
-            public void doInstall(ProcessConfig config, int id, File installDir) throws Exception {
+            public void install(ProcessConfig config, int id, File installDir) throws Exception {
                 String name = parameters.getGroupId() + ":" + parameters.getArtifactId();
                 String version = parameters.getVersion();
                 if (!Strings.isNullOrEmpty(version)) {
@@ -150,7 +155,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 installer.unpackJarProcess(config, id, installDir, parameters);
             }
         };
-        return installViaScript(parameters.getControllerJson(), installScript);
+        return installViaScript(parameters.getControllerJson(), installTask);
     }
 
     // Properties
@@ -174,13 +179,13 @@ public class ProcessManagerImpl implements ProcessManager {
     // Implementation
     //-------------------------------------------------------------------------
 
-    protected Installation installViaScript(URL controllerJson, InstallScript installScript) throws Exception {
+    protected Installation installViaScript(URL controllerJson, InstallTask installTask) throws Exception {
         int id = createNextId();
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
         ProcessConfig config = loadControllerJson(controllerJson);
-        installScript.doInstall(config, id, installDir);
+        installTask.install(config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
 
         Installation installation = createInstallation(id, installDir, config);

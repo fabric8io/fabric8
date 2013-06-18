@@ -18,6 +18,8 @@
 package org.fusesource.process.manager.service;
 
 import com.google.common.base.Preconditions;
+
+import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
@@ -178,11 +180,12 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
     }
 
     private Installation installProcess(String pid, InstallParameters parameters, Map<String, String> env) throws ConfigurationException {
-
         try {
+            // allow bundles / features which could be specified
+            InstallTask postInstall = null;
 
             // TODO add support for jar install parameters
-            Installation installation = processManager.install(parameters.url, parameters.controllerUrl);
+            Installation installation = processManager.install(parameters.url, parameters.controllerUrl, postInstall);
 
             // add environment variables from properties
             installation.getEnvironment().putAll(env);

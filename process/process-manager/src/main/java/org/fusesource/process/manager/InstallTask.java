@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.process.manager.support;
+package org.fusesource.process.manager;
 
 import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.support.command.CommandFailedException;
@@ -23,8 +23,9 @@ import java.io.File;
 import java.io.IOException;
 
 /**
+ * Performs an installation step given the process configuration, id and install directory
  */
-public interface InstallScript {
+public interface InstallTask {
 
-    public void doInstall(ProcessConfig config, int id, File installDir) throws Exception;
+    public void install(ProcessConfig config, int id, File installDir) throws Exception;
 }
