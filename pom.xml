@@ -93,6 +93,7 @@
         <fuse.osgi.resource>{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.services.export />
         <fuse.osgi.embed.dependency>!*</fuse.osgi.embed.dependency>
+        <fuse.osgi.embed.transitive>false</fuse.osgi.embed.transitive>
         <fuse.osgi.require.bundle />
 
         <fmc-port>8107</fmc-port>
@@ -358,6 +359,7 @@
                             <_failok>${fuse.osgi.failok}</_failok>
                             <Export-Service>${fuse.osgi.services.export}</Export-Service>
                             <Embed-Dependency>${fuse.osgi.embed.dependency}</Embed-Dependency>
+                            <Embed-Transitive>${fuse.osgi.embed.transitive}</Embed-Transitive>
                             <Require-Bundle>${fuse.osgi.require.bundle}</Require-Bundle>
                         </instructions>
                     </configuration>
