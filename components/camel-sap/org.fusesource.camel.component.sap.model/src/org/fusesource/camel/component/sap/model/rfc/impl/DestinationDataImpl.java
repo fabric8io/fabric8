@@ -17,20 +17,17 @@
 package org.fusesource.camel.component.sap.model.rfc.impl;
 
 import org.eclipse.emf.common.notify.NotificationChain;
-
 import org.eclipse.emf.common.util.EMap;
-
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.eclipse.emf.ecore.util.EcoreEMap;
 import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
+
+import com.sap.conn.jco.ext.DestinationDataProvider;
 
 /**
  * <!-- begin-user-doc -->
@@ -93,6 +90,12 @@ import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
  * @generated
  */
 public class DestinationDataImpl extends EObjectImpl implements DestinationData {
+	/**
+	 * Name of Connection Spec/Connection Request Info parameter specifying whether Managed Connection will ping the connected SAP instance when created. Default is <code>false</code>.
+	 * @generated NOT 
+	 */
+	public static final String JSJC_PING_ON_CREATE = "jsjc.mc.poc";
+
 	/**
 	 * The cached value of the '{@link #getEntries() <em>Entries</em>}' map.
 	 * <!-- begin-user-doc -->
@@ -606,1036 +609,1134 @@ public class DestinationDataImpl extends EObjectImpl implements DestinationData 
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getAliasUser() {
-		// TODO: implement this method to return the 'Alias User' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_ALIAS_USER);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setAliasUser(String newAliasUser) {
-		// TODO: implement this method to set the 'Alias User' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getAshost() {
-		// TODO: implement this method to return the 'Ashost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_ASHOST);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setAshost(String newAshost) {
-		// TODO: implement this method to set the 'Ashost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getAuthType() {
-		// TODO: implement this method to return the 'Auth Type' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		String value = getEntries().get(DestinationDataProvider.JCO_AUTH_TYPE);
+		return (value == null) ? DestinationDataProvider.JCO_AUTH_TYPE_CONFIGURED_USER : value;
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setAuthType(String newAuthType) {
-		// TODO: implement this method to set the 'Auth Type' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getClient() {
-		// TODO: implement this method to return the 'Client' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_CLIENT);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setClient(String newClient) {
-		// TODO: implement this method to set the 'Client' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getCodepage() {
-		// TODO: implement this method to return the 'Codepage' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_CODEPAGE);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCodepage(String newCodepage) {
-		// TODO: implement this method to set the 'Codepage' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getCpicTrace() {
-		// TODO: implement this method to return the 'Cpic Trace' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_CPIC_TRACE);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setCpicTrace(String newCpicTrace) {
-		// TODO: implement this method to set the 'Cpic Trace' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getDenyInitialPassword() {
-		// TODO: implement this method to return the 'Deny Initial Password' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		String value = getEntries().get(DestinationDataProvider.JCO_DENY_INITIAL_PASSWORD);
+		return (value == null) ? "0" : value;
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setDenyInitialPassword(String newDenyInitialPassword) {
-		// TODO: implement this method to set the 'Deny Initial Password' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getExpirationPeriod() {
-		// TODO: implement this method to return the 'Expiration Period' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_EXPIRATION_PERIOD);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setExpirationPeriod(String newExpirationPeriod) {
-		// TODO: implement this method to set the 'Expiration Period' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getExpirationTime() {
-		// TODO: implement this method to return the 'Expiration Time' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_EXPIRATION_TIME);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setExpirationTime(String newExpirationTime) {
-		// TODO: implement this method to set the 'Expiration Time' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getGetsso2() {
-		// TODO: implement this method to return the 'Getsso2' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_GETSSO2);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setGetsso2(String newGetsso2) {
-		// TODO: implement this method to set the 'Getsso2' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getGroup() {
-		// TODO: implement this method to return the 'Group' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_GROUP);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setGroup(String newGroup) {
-		// TODO: implement this method to set the 'Group' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getGwhost() {
-		// TODO: implement this method to return the 'Gwhost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_GWHOST);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setGwhost(String newGwhost) {
-		// TODO: implement this method to set the 'Gwhost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getGwserv() {
-		// TODO: implement this method to return the 'Gwserv' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_GWSERV);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setGwserv(String newGwserv) {
-		// TODO: implement this method to set the 'Gwserv' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getLang() {
-		// TODO: implement this method to return the 'Lang' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_LANG);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setLang(String newLang) {
-		// TODO: implement this method to set the 'Lang' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getLcheck() {
-		// TODO: implement this method to return the 'Lcheck' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_LCHECK);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setLcheck(String newLcheck) {
-		// TODO: implement this method to set the 'Lcheck' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getMaxGetTime() {
-		// TODO: implement this method to return the 'Max Get Time' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_MAX_GET_TIME);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setMaxGetTime(String newMaxGetTime) {
-		// TODO: implement this method to set the 'Max Get Time' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getMshost() {
-		// TODO: implement this method to return the 'Mshost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_MSHOST);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setMshost(String newMshost) {
-		// TODO: implement this method to set the 'Mshost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getMsserv() {
-		// TODO: implement this method to return the 'Msserv' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_MSSERV);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setMsserv(String newMsserv) {
-		// TODO: implement this method to set the 'Msserv' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getMysapsso2() {
-		// TODO: implement this method to return the 'Mysapsso2' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_MYSAPSSO2);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setMysapsso2(String newMysapsso2) {
-		// TODO: implement this method to set the 'Mysapsso2' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public String getPasswd() {
-		// TODO: implement this method to return the 'Passwd' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setPasswd(String newPasswd) {
-		// TODO: implement this method to set the 'Passwd' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getPassword() {
-		// TODO: implement this method to return the 'Password' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_PASSWD);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
-	public void setPassword(String newPassword) {
-		// TODO: implement this method to set the 'Password' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+	public String getPasswd() {
+		return getEntries().get(DestinationDataProvider.JCO_PASSWD);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getPcs() {
-		// TODO: implement this method to return the 'Pcs' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_PCS);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setPcs(String newPcs) {
-		// TODO: implement this method to set the 'Pcs' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getPeakLimit() {
-		// TODO: implement this method to return the 'Peak Limit' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_PEAK_LIMIT);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setPeakLimit(String newPeakLimit) {
-		// TODO: implement this method to set the 'Peak Limit' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getPingOnCreate() {
-		// TODO: implement this method to return the 'Ping On Create' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		String value = getEntries().get(JSJC_PING_ON_CREATE);
+		return (value == null) ? "false" : value;
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setPingOnCreate(String newPingOnCreate) {
-		// TODO: implement this method to set the 'Ping On Create' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getPoolCapacity() {
-		// TODO: implement this method to return the 'Pool Capacity' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		String value = getEntries().get(DestinationDataProvider.JCO_POOL_CAPACITY);
+		return (value == null) ? "1" : value;
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setPoolCapacity(String newPoolCapacity) {
-		// TODO: implement this method to set the 'Pool Capacity' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getR3name() {
-		// TODO: implement this method to return the 'R3name' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_R3NAME);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setR3name(String newR3name) {
-		// TODO: implement this method to set the 'R3name' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getRepositoryDest() {
-		// TODO: implement this method to return the 'Repository Dest' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_REPOSITORY_DEST);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setRepositoryDest(String newRepositoryDest) {
-		// TODO: implement this method to set the 'Repository Dest' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getRepositoryPasswd() {
-		// TODO: implement this method to return the 'Repository Passwd' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_REPOSITORY_PASSWD);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setRepositoryPasswd(String newRepositoryPasswd) {
-		// TODO: implement this method to set the 'Repository Passwd' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getRepositoryRoundtripOptimization() {
-		// TODO: implement this method to return the 'Repository Roundtrip Optimization' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_REPOSITORY_ROUNDTRIP_OPTIMIZATION);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setRepositoryRoundtripOptimization(String newRepositoryRoundtripOptimization) {
-		// TODO: implement this method to set the 'Repository Roundtrip Optimization' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getRepositorySnc() {
-		// TODO: implement this method to return the 'Repository Snc' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_REPOSITORY_SNC);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setRepositorySnc(String newRepositorySnc) {
-		// TODO: implement this method to set the 'Repository Snc' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getRepositoryUser() {
-		// TODO: implement this method to return the 'Repository User' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_REPOSITORY_USER);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setRepositoryUser(String newRepositoryUser) {
-		// TODO: implement this method to set the 'Repository User' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSaprouter() {
-		// TODO: implement this method to return the 'Saprouter' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SAPROUTER);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSaprouter(String newSaprouter) {
-		// TODO: implement this method to set the 'Saprouter' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSncLibrary() {
-		// TODO: implement this method to return the 'Snc Library' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SNC_LIBRARY);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSncLibrary(String newSncLibrary) {
-		// TODO: implement this method to set the 'Snc Library' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSncMode() {
-		// TODO: implement this method to return the 'Snc Mode' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SNC_MODE);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSncMode(String newSncMode) {
-		// TODO: implement this method to set the 'Snc Mode' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSncMyname() {
-		// TODO: implement this method to return the 'Snc Myname' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SNC_MYNAME);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSncMyname(String newSncMyname) {
-		// TODO: implement this method to set the 'Snc Myname' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSncPartnername() {
-		// TODO: implement this method to return the 'Snc Partnername' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SNC_PARTNERNAME);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSncPartnername(String newSncPartnername) {
-		// TODO: implement this method to set the 'Snc Partnername' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSncQop() {
-		// TODO: implement this method to return the 'Snc Qop' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SNC_QOP);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSncQop(String newSncQop) {
-		// TODO: implement this method to set the 'Snc Qop' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getSysnr() {
-		// TODO: implement this method to return the 'Sysnr' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_SYSNR);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setSysnr(String newSysnr) {
-		// TODO: implement this method to set the 'Sysnr' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getTphost() {
-		// TODO: implement this method to return the 'Tphost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_TPHOST);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setTphost(String newTphost) {
-		// TODO: implement this method to set the 'Tphost' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getTpname() {
-		// TODO: implement this method to return the 'Tpname' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_TPNAME);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setTpname(String newTpname) {
-		// TODO: implement this method to set the 'Tpname' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getTrace() {
-		// TODO: implement this method to return the 'Trace' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_TRACE);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setTrace(String newTrace) {
-		// TODO: implement this method to set the 'Trace' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getType() {
-		// TODO: implement this method to return the 'Type' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_TYPE);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setType(String newType) {
-		// TODO: implement this method to set the 'Type' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getUserName() {
-		// TODO: implement this method to return the 'User Name' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_USER);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setUserName(String newUserName) {
-		// TODO: implement this method to set the 'User Name' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getUser() {
-		// TODO: implement this method to return the 'User' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_USER);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setUser(String newUser) {
-		// TODO: implement this method to set the 'User' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getUserId() {
-		// TODO: implement this method to return the 'User Id' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_USER_ID);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setUserId(String newUserId) {
-		// TODO: implement this method to set the 'User Id' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getUseSapgui() {
-		// TODO: implement this method to return the 'Use Sapgui' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_USE_SAPGUI);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public void setUseSapgui(String newUseSapgui) {
-		// TODO: implement this method to set the 'Use Sapgui' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
 	public String getX509cert() {
-		// TODO: implement this method to return the 'X50 9cert' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+		return getEntries().get(DestinationDataProvider.JCO_X509CERT);
 	}
 
 	/**
 	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
 	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT
 	 */
-	public void setX509cert(String newX509cert) {
-		// TODO: implement this method to set the 'X50 9cert' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+	public void setAliasUser(String user) {
+		getEntries().put(DestinationDataProvider.JCO_ALIAS_USER, user);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setAshost(String ashost) {
+		getEntries().put(DestinationDataProvider.JCO_ASHOST, ashost);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setAuthType(String authType) {
+		getEntries().put(DestinationDataProvider.JCO_AUTH_TYPE, authType);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setClient(String client) {
+		getEntries().put(DestinationDataProvider.JCO_CLIENT, client);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setCodepage(String codepage) {
+		getEntries().put(DestinationDataProvider.JCO_CODEPAGE, codepage);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setCpicTrace(String cpicTrace) {
+		getEntries().put(DestinationDataProvider.JCO_CPIC_TRACE, cpicTrace);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setDenyInitialPassword(String denyInitialPassword) {
+		getEntries().put(DestinationDataProvider.JCO_DENY_INITIAL_PASSWORD, denyInitialPassword);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setExpirationPeriod(String expirationPeriod) {
+		getEntries().put(DestinationDataProvider.JCO_EXPIRATION_PERIOD, expirationPeriod);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setExpirationTime(String expirationTime) {
+		getEntries().put(DestinationDataProvider.JCO_EXPIRATION_TIME, expirationTime);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setGetsso2(String getsso2) {
+		getEntries().put(DestinationDataProvider.JCO_GETSSO2, getsso2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setGroup(String group) {
+		getEntries().put(DestinationDataProvider.JCO_GROUP, group);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setGwhost(String gwhost) {
+		getEntries().put(DestinationDataProvider.JCO_GWHOST, gwhost);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setGwserv(String gwserv) {
+		getEntries().put(DestinationDataProvider.JCO_GWSERV, gwserv);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setLang(String lang) {
+		getEntries().put(DestinationDataProvider.JCO_LANG, lang);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setLcheck(String lcheck) {
+		getEntries().put(DestinationDataProvider.JCO_LCHECK, lcheck);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setMaxGetTime(String maxGetTime) {
+		getEntries().put(DestinationDataProvider.JCO_MAX_GET_TIME, maxGetTime);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setMshost(String mshost) {
+		getEntries().put(DestinationDataProvider.JCO_MSHOST, mshost);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setMsserv(String msserv) {
+		getEntries().put(DestinationDataProvider.JCO_MSSERV, msserv);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setMysapsso2(String mysapsso2) {
+		getEntries().put(DestinationDataProvider.JCO_MYSAPSSO2, mysapsso2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setPassword(String password) {
+		getEntries().put(DestinationDataProvider.JCO_PASSWD, password);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setPasswd(String passwd) {
+		getEntries().put(DestinationDataProvider.JCO_PASSWD, passwd);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setPcs(String pcs) {
+		getEntries().put(DestinationDataProvider.JCO_PCS, pcs);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setPeakLimit(String peakLimit) {
+		getEntries().put(DestinationDataProvider.JCO_PEAK_LIMIT, peakLimit);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setPingOnCreate(String pingOnCreate) {
+		getEntries().put(DestinationDataImpl.JSJC_PING_ON_CREATE, pingOnCreate);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setPoolCapacity(String poolCapacity) {
+		getEntries().put(DestinationDataProvider.JCO_POOL_CAPACITY, poolCapacity);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setR3name(String r3name) {
+		getEntries().put(DestinationDataProvider.JCO_R3NAME, r3name);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setRepositoryDest(String repositoryDest) {
+		getEntries().put(DestinationDataProvider.JCO_REPOSITORY_DEST, repositoryDest);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setRepositoryPasswd(String repositoryPasswd) {
+		getEntries().put(DestinationDataProvider.JCO_REPOSITORY_PASSWD, repositoryPasswd);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setRepositoryRoundtripOptimization(String repositoryRoundtripOptimization) {
+		getEntries().put(DestinationDataProvider.JCO_REPOSITORY_ROUNDTRIP_OPTIMIZATION, repositoryRoundtripOptimization);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setRepositorySnc(String repositorySnc) {
+		getEntries().put(DestinationDataProvider.JCO_REPOSITORY_SNC, repositorySnc);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setRepositoryUser(String repositoryUser) {
+		getEntries().put(DestinationDataProvider.JCO_REPOSITORY_USER, repositoryUser);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSaprouter(String saprouter) {
+		getEntries().put(DestinationDataProvider.JCO_SAPROUTER, saprouter);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSncLibrary(String sncLibrary) {
+		getEntries().put(DestinationDataProvider.JCO_SNC_LIBRARY, sncLibrary);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSncMode(String sncMode) {
+		getEntries().put(DestinationDataProvider.JCO_SNC_MODE, sncMode);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSncMyname(String sncMyname) {
+		getEntries().put(DestinationDataProvider.JCO_SNC_MYNAME, sncMyname);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSncPartnername(String sncPartnername) {
+		getEntries().put(DestinationDataProvider.JCO_SNC_PARTNERNAME, sncPartnername);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSncQop(String sncQop) {
+		getEntries().put(DestinationDataProvider.JCO_SNC_QOP, sncQop);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setSysnr(String sysnr) {
+		getEntries().put(DestinationDataProvider.JCO_SYSNR, sysnr);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setTphost(String tphost) {
+		getEntries().put(DestinationDataProvider.JCO_TPHOST, tphost);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setTpname(String tpname) {
+		getEntries().put(DestinationDataProvider.JCO_TPNAME, tpname);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setTrace(String trace) {
+		getEntries().put(DestinationDataProvider.JCO_TRACE, trace);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setType(String type) {
+		getEntries().put(DestinationDataProvider.JCO_TYPE, type);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setUserName(String userName) {
+		getEntries().put(DestinationDataProvider.JCO_USER, userName);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setUser(String user) {
+		getEntries().put(DestinationDataProvider.JCO_USER, user);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setUserId(String userId) {
+		getEntries().put(DestinationDataProvider.JCO_USER_ID, userId);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setUseSapgui(String useSapgui) {
+		getEntries().put(DestinationDataProvider.JCO_USE_SAPGUI, useSapgui);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * {@inheritDoc}
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setX509cert(String x509cert) {
+		getEntries().put(DestinationDataProvider.JCO_X509CERT, x509cert);
 	}
 
 	/**

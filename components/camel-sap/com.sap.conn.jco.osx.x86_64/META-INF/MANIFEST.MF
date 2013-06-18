@@ -7,4 +7,5 @@ Bundle-Vendor: Red Hat, Inc.
 Fragment-Host: com.sap.conn.jco;bundle-version="3.0.8.qualifier"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-NativeCode: libsapjco3.jnilib
+Bundle-ClassPath: .
 Eclipse-PlatformFilter: (& (osgi.os=macosx) (osgi.arch=x86_64))
