@@ -25,7 +25,6 @@ import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.linkedin.zookeeper.client.ZKData;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -51,8 +50,9 @@ public final class ZooKeeperUtils {
 
     public static void copy(CuratorFramework source, CuratorFramework dest, String path) throws Exception {
         for (String child : source.getChildren().forPath(path)) {
-            child = path + "/" + child;
-            if (dest.checkExists().forPath(child) == null) {
+            child = ZKPaths.makePath(path, child);
+            Stat stat = source.checkExists().forPath(child);
+            if (stat.getEphemeralOwner() == 0 &&  dest.checkExists().forPath(child) == null) {
                 byte[] data = source.getData().forPath(child);
                 setData(dest, child, data);
                 copy(source, dest, child);
