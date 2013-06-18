@@ -41,6 +41,9 @@ public class ProcessConfig {
     private Map<String,String> environment;
     private List<String> installCommands;
 
+    private String deployPath;
+    private String sharedLibraryPath;
+
     public String getName() {
         return name;
     }
@@ -127,6 +130,22 @@ public class ProcessConfig {
 
     public void setConfigureCommand(String configureCommand) {
         this.configureCommand = configureCommand;
+    }
+
+    public String getDeployPath() {
+        return deployPath;
+    }
+
+    public void setDeployPath(String deployPath) {
+        this.deployPath = deployPath;
+    }
+
+    public String getSharedLibraryPath() {
+        return sharedLibraryPath;
+    }
+
+    public void setSharedLibraryPath(String sharedLibraryPath) {
+        this.sharedLibraryPath = sharedLibraryPath;
     }
 
     public int runCommand(Executor executor, File baseDir, String... arguments) throws IOException, InterruptedException, CommandFailedException {

@@ -6,6 +6,9 @@
     "killCommand": "",
     "configureCommand": "",
 
+    "deployPath": "webapps",
+    "sharedLibraryPath": "lib",
+
     "environment": {
         "CATALINA_PID": "work/catalina.pid"
     }
