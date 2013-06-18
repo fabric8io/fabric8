@@ -370,6 +370,13 @@ public class RfcUtil {
 		request.execute(jcoDestination);
 		JCoContext.end(jcoDestination);
 	}
+	
+	public static Object getValue(EObject object, String featureName) {
+		EStructuralFeature feature = object.eClass().getEStructuralFeature(featureName);
+		if (feature == null)
+			return null;
+		return getValue(object, feature);
+	}
 
 	public static Object getValue(EObject object, EStructuralFeature feature) {
 		try {
@@ -385,6 +392,13 @@ public class RfcUtil {
 		}
 	}
 
+	public static boolean setValue(EObject object, String featureName, Object value) {
+		EStructuralFeature feature = object.eClass().getEStructuralFeature(featureName);
+		if (feature == null)
+			return false;
+		return setValue(object, feature, value);
+	}
+	
 	public static boolean setValue(EObject object, EStructuralFeature feature, Object value) {
 		try {
 			EditingDomain editingDomain = AdapterFactoryEditingDomain.getEditingDomainFor(object);
