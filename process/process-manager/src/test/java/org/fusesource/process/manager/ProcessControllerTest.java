@@ -33,9 +33,11 @@ public class ProcessControllerTest {
     public void startStopCamelSample() throws Exception {
         processManager.init();
 
+        InstallTask postInstall = null;
+
         // TODO warning - hard coded version!!!
         String version = "99-master-SNAPSHOT";
-        Installation install = processManager.install("mvn:org.fusesource.process.samples/process-sample-camel-spring/" + version + "/tar.gz", null);
+        Installation install = processManager.install("mvn:org.fusesource.process.samples/process-sample-camel-spring/" + version + "/tar.gz", null, postInstall);
 
         int id = install.getId();
         assertTrue("ID should be > 0 but was " + id, id > 0);

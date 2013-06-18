@@ -2,6 +2,9 @@
     "launchScript": "bin/init.d/jboss-as-standalone.sh",
     "pidFile": "var/run/jboss.pid",
 
+    "deployPath": "standalone/deployments",
+    "sharedLibraryPath": "standalone/lib/ext",
+
     "environment": {
         "JBOSS_PIDFILE": "var/run/jboss.pid",
         "JBOSS_HOME": ".",

@@ -19,6 +19,7 @@ package org.fusesource.process.manager.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.commands.support.InstallSupport;
 import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
@@ -39,7 +40,10 @@ public class Install extends InstallSupport {
     protected Object doExecute() throws Exception {
         checkRequirements();
         URL controllerUrl = getControllerURL();
-        Installation install = getProcessManager().install(url, controllerUrl);
+
+        // allow a post install step to be specified - e.g. specifying jars/wars?
+        InstallTask postInstall = null;
+        Installation install = getProcessManager().install(url, controllerUrl, postInstall);
 
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;
