@@ -36,7 +36,7 @@
   </build>
   <parent>
   	<groupId>org.fusesource</groupId>
-  	<artifactId>camel-sap</artifactId>
+  	<artifactId>camel-sap-parent</artifactId>
   	<version>99-master-SNAPSHOT</version>
   </parent>
   <url>http://www.fusesource.org</url>
