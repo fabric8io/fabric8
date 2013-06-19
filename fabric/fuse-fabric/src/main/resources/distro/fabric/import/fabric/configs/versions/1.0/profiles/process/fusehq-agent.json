@@ -1,0 +1,8 @@
+{
+    "launchScript": "bin/hq-agent.sh",
+    "pidFile": "wrapper/hq-agent.pid",
+    "restartCommand": "",
+    "statusCommand": "bin/version.sh",
+    "killCommand": "",
+    "configureCommand": ""
+}

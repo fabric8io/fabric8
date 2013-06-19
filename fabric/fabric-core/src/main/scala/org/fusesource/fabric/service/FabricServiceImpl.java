@@ -176,6 +176,11 @@ public class FabricServiceImpl implements FabricService {
         getDataStore().trackConfiguration(callback);
     }
 
+    @Override
+    public void unTrackConfiguration(Runnable callback) {
+        getDataStore().unTrackConfiguration(callback);
+    }
+
     public Container[] getContainers() {
         Map<String, Container> containers = new HashMap<String, Container>();
         List<String> containerIds = getDataStore().getContainers();

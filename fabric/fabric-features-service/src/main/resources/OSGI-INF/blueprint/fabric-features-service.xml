@@ -19,7 +19,7 @@
     <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
     <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
 
-    <bean id="fabricFeatureService" class="org.fusesource.fabric.features.FabricFeaturesServiceImpl">
+    <bean id="fabricFeatureService" class="org.fusesource.fabric.features.FabricFeaturesServiceImpl" destroy-method="destroy">
         <property name="fabricService" ref="fabricService"/>
         <property name="curator" ref="curator"/>
     </bean>

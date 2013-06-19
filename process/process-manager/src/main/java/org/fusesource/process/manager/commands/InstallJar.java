@@ -21,8 +21,8 @@ import com.google.common.base.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.JarInstallParameters;
 import org.fusesource.process.manager.commands.support.InstallSupport;
 
 import java.net.URL;
@@ -36,7 +36,7 @@ public class InstallJar extends InstallSupport {
     @Option(name="-c", aliases={"--classifier"}, required = false, description = "The maven jar classifier")
     protected String classifier;
     @Option(name="-e", aliases={"--extension"}, required = false, description = "The maven extension (defaults to jar)")
-    protected String extension;
+    protected String extension = "jar";
     @Option(name="-o", aliases={"--offline"}, required = false, description = "Whether to use offline mode when resolving dependencies")
     protected boolean offline;
     @Option(name="-opt", aliases={"--optional"}, required = false, multiValued = true, description = "List of patterns of optional dependencies to include. Of the form group[:artifact] with * allowed as wildard")
@@ -57,28 +57,21 @@ public class InstallJar extends InstallSupport {
     protected Object doExecute() throws Exception {
         checkRequirements();
         URL controllerUrl = getControllerURL();
-        JarInstallParameters parameters = new JarInstallParameters();
-        parameters.setControllerJson(controllerUrl);
-        parameters.setGroupId(groupId);
-        parameters.setArtifactId(artifactId);
-        parameters.setVersion(version);
-        parameters.setClassifier(classifier);
-        if (!Strings.isNullOrEmpty(extension)) {
-            parameters.setExtension(extension);
-        }
-        parameters.setOffline(offline);
-        if (optionalDependencyPatterns != null) {
-            parameters.setOptionalDependencyPatterns(optionalDependencyPatterns);
-        }
-        if (excludeDependencyPatterns != null) {
-            parameters.setExcludeDependencyFilterPatterns(excludeDependencyPatterns);
-        }
-        if (mainClass != null) {
-            parameters.setMainClass(mainClass);
-        }
+        InstallOptions options = InstallOptions.builder()
+                                                  .controllerUrl(controllerUrl)
+                                                  .groupId(groupId)
+                                                  .artifactId(artifactId)
+                                                  .version(version)
+                                                  .classifier(classifier)
+                                                  .extension(extension)
+                                                  .offline(offline)
+                                                  .optionalDependencyPatterns(optionalDependencyPatterns)
+                                                  .excludeDependencyFilterPatterns(excludeDependencyPatterns)
+                                                  .mainClass(mainClass)
+                                                  .build();
 
-        Installation install = getProcessManager().installJar(parameters);
 
+        Installation install = getProcessManager().installJar(options);
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;
     }

@@ -1,0 +1,15 @@
+{
+    "launchScript": "bin/catalina.sh",
+    "pidFile": "work/catalina.pid",
+    "restartCommand": "",
+    "statusCommand": "bin/version.sh",
+    "killCommand": "",
+    "configureCommand": "",
+
+    "deployPath": "webapps",
+    "sharedLibraryPath": "lib",
+
+    "environment": {
+        "CATALINA_PID": "work/catalina.pid"
+    }
+}

@@ -17,15 +17,14 @@
 package org.fusesource.process.manager;
 
 import org.fusesource.process.manager.config.ProcessConfig;
-import org.fusesource.process.manager.support.command.CommandFailedException;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Performs an installation step given the process configuration, id and install directory
  */
-public interface InstallTask {
+public interface InstallTask extends Serializable {
 
     public void install(ProcessConfig config, int id, File installDir) throws Exception;
 }

@@ -603,11 +603,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 					copy(curator, dst, "/fabric");
 
-					//Make sure that the alive zndoe is deleted for each container.
-					for (String container : containers) {
-                        deleteSafe(dst, "/fabric/registry/containers/alive/" + container);
-					}
-
 					setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
 

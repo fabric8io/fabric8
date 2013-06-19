@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>process-project</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <version>99-master-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>process-fabric</artifactId>
+    <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
+    <description>Fuse Process :: Fabric</description>
+
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.process.fabric*;version=${project.version};-noimport:=true,
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+            org.fusesource.process.manager.utils,
+            org.fusesource.fabric.boot.commands.support,
+            org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.utils.shell
+        </fuse.osgi.private.pkg>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-commands</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>process-manager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+
+</project>

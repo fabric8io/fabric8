@@ -108,6 +108,11 @@
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
+    <feature name="process-fabric" version="${project.version}" resolver="(obr)">
+        <feature>process-manager</feature>
+        <bundle>mvn:org.fusesource.fabric/process-fabric/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>

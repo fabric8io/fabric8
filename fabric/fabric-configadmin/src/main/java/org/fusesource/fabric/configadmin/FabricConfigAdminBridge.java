@@ -63,6 +63,7 @@ public class FabricConfigAdminBridge implements Runnable {
     }
 
     public void destroy() {
+        this.fabricService.unTrackConfiguration(this);
     }
 
     @Override

@@ -19,13 +19,11 @@ package org.fusesource.process.manager.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.commands.support.InstallSupport;
-import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 
 /**
  * Installs a new process
@@ -33,17 +31,20 @@ import java.net.URL;
 @Command(name = "install", scope = "process", description = "Installs a managed process into this container.")
 public class Install extends InstallSupport {
 
-    @Argument(index = 0, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
+    @Argument(index = 0, required = true, name = "name", description = "The name of the process to add")
+    protected String name;
+
+    @Argument(index = 1, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
     protected String url;
 
     @Override
     protected Object doExecute() throws Exception {
         checkRequirements();
-        URL controllerUrl = getControllerURL();
+        InstallOptions options = InstallOptions.builder().name(name).url(url).controllerUrl(getControllerURL()).build();
 
         // allow a post install step to be specified - e.g. specifying jars/wars?
         InstallTask postInstall = null;
-        Installation install = getProcessManager().install(url, controllerUrl, postInstall);
+        Installation install = getProcessManager().install(options, postInstall);
 
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
         return null;

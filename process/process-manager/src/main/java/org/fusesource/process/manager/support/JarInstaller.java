@@ -17,12 +17,15 @@
 package org.fusesource.process.manager.support;
 
 import aQute.lib.osgi.Jar;
+import com.google.common.base.Throwables;
+import com.google.common.io.Closeables;
 import com.google.common.io.Files;
+import com.google.common.io.Resources;
 import org.fusesource.fabric.fab.DependencyFilters;
 import org.fusesource.fabric.fab.DependencyTreeResult;
 import org.fusesource.fabric.fab.MavenResolverImpl;
 import org.fusesource.common.util.Filter;
-import org.fusesource.process.manager.JarInstallParameters;
+import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.config.ProcessConfig;
 import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
@@ -30,7 +33,9 @@ import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.resolution.ArtifactResolutionException;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -49,17 +54,13 @@ public class JarInstaller {
         this.executor = executor;
     }
 
-    public void unpackJarProcess(ProcessConfig config, int id, File installDir, JarInstallParameters parameters) throws Exception {
+    public void unpackJarProcess(ProcessConfig config, int id, File installDir, InstallOptions parameters) throws Exception {
         // lets unpack the launcher
 
         // now lets download the executable jar as main.jar and all its dependencies...
         Filter<Dependency> optionalFilter = DependencyFilters.parseExcludeOptionalFilter(join(Arrays.asList(parameters.getOptionalDependencyPatterns()), " "));
         Filter<Dependency> excludeFilter = DependencyFilters.parseExcludeFilter(join(Arrays.asList(parameters.getExcludeDependencyFilterPatterns()), " "), optionalFilter);
-        DependencyTreeResult result = mavenResolver.collectDependencies(parameters.getGroupId(),
-                parameters.getArtifactId(),
-                parameters.getVersion(),
-                parameters.getExtension(),
-                parameters.getClassifier(),
+        DependencyTreeResult result = mavenResolver.collectDependencies(getArtifactFile(parameters.getUrl()),
                 parameters.isOffline(),
                 excludeFilter);
 
@@ -80,6 +81,20 @@ public class JarInstaller {
         }
 
         copyDependencies(mainJarDependency, libDir);
+    }
+
+    private File getArtifactFile(URL url) throws IOException {
+        File tmpFile = File.createTempFile("artifact",".jar");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(tmpFile);
+            Resources.copy(url, fos);
+        } catch (Exception ex) {
+            Throwables.propagate(ex);
+        } finally {
+            Closeables.closeQuietly(fos);
+        }
+        return tmpFile;
     }
 
     /**

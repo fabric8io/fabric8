@@ -44,6 +44,7 @@
         <module>process-launcher</module>
         <module>process-packaging</module>
         <module>process-manager</module>
+        <module>process-fabric</module>
         <module>samples</module>
     </modules>
 

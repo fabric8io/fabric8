@@ -19,12 +19,16 @@ package org.fusesource.process.manager;
 import org.fusesource.process.manager.config.ProcessConfig;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.Map;
 
 /**
  * Represents a locally installed managed process.
  */
-public class Installation {
+public class Installation implements Serializable {
+
+    private static final long serialVersionUID = 5127636210465637719L;
+
     private final int id;
     private final File installDir;
     private final ProcessController controller;

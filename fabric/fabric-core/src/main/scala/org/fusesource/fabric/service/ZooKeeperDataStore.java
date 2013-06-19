@@ -158,6 +158,13 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     }
 
     @Override
+    public void unTrackConfiguration(Runnable callback) {
+        synchronized (callbacks) {
+            callbacks.remove(callback);
+        }
+    }
+
+    @Override
     public List<String> getContainers() {
         try {
             return getChildren(curator, ZkPath.CONFIGS_CONTAINERS.getPath());

@@ -18,7 +18,8 @@
 package org.fusesource.process.manager.service;
 
 import com.google.common.base.Preconditions;
-
+import com.google.common.base.Throwables;
+import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.ProcessController;
@@ -29,11 +30,15 @@ import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.URL;
-import java.util.*;
+import java.net.MalformedURLException;
+import java.util.Dictionary;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 
 /**
- *
  * A {@link ManagedServiceFactory} for managing processes using {@link org.fusesource.process.manager.ProcessManager ProcessManager}.
  *
  * @author Dhiraj Bokde
@@ -80,33 +85,36 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
     @Override
     public void updated(String pid, Dictionary incoming) throws ConfigurationException {
 
-        // get process install parameters,
-        // note that service.pid and service.factoryPid are added too
-        Map<String, String> env = new HashMap<String, String>();
-        InstallParameters parameters = getInstallParameters(incoming, env);
+        try {
+            // get process install parameters,
+            // note that service.pid and service.factoryPid are added too
+            Map<String, String> env = new HashMap<String, String>();
+            InstallOptions options = getInstallOptions(incoming, env);
 
-        final Installation installation = installationMap.get(pid);
-        if (null != installation) {
+            final Installation installation = installationMap.get(pid);
+            if (null != installation) {
 
-            // TODO only environment updates are supported, process installation parameters cannot be updated,
-            // for that a process should be deleted and created again
-            // refresh environment variables and reconfigure
-            LOG.info("Refreshing Process " + pid);
-            updateConfig(pid, installation, env);
+                // TODO only environment updates are supported, process installation parameters cannot be updated,
+                // for that a process should be deleted and created again
+                // refresh environment variables and reconfigure
+                LOG.info("Refreshing Process " + pid);
+                updateConfig(pid, installation, env);
 
-        } else {
+            } else {
 
-            // create and add bridge connector
-            installationMap.put(pid, installProcess(pid, parameters, env));
-            LOG.info("Started Process " + pid);
+                // create and add bridge connector
+                installationMap.put(pid, installProcess(pid, options, env));
+                LOG.info("Started Process " + pid);
 
+            }
+        } catch (Exception ex) {
+            Throwables.propagate(ex);
         }
-
     }
 
-    private InstallParameters getInstallParameters(Dictionary incoming, Map<String, String> env) throws ConfigurationException {
+    private InstallOptions getInstallOptions(Dictionary incoming, Map<String, String> env) throws ConfigurationException, MalformedURLException {
 
-        InstallParameters parameters = new InstallParameters();
+        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder();
         for (Enumeration keys = incoming.keys(); keys.hasMoreElements(); ) {
 
             String key = (String) keys.nextElement();
@@ -118,22 +126,16 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
                 if ("url".equals(key)) {
                     Preconditions.checkNotNull(value, "Null url property");
                     Preconditions.checkArgument(!value.trim().isEmpty(), "Empty url property");
-                    parameters.url = value.trim();
+                    builder.url(value.trim());
                 } else if ("controllerUrl".equals(key)) {
                     Preconditions.checkNotNull(value, "Null controllerUrl property");
                     Preconditions.checkArgument(!value.trim().isEmpty(), "Empty controllerUrl property");
-                    parameters.controllerUrl = new URL(value.trim());
+                    builder.controllerUrl(value.trim());
                 } else if ("kind".equals(key)) {
                     Preconditions.checkNotNull(value, "Null kind property");
                     Preconditions.checkArgument(!value.trim().isEmpty(), "Empty kind property");
-
                     String name = value.trim() + ".json";
-                    parameters.controllerUrl = bundleContext.getBundle().getResource(name);
-                    if (parameters.controllerUrl == null) {
-                        String msg = "Cannot find controller kind " + name + " on the classpath";
-                        throw new IllegalArgumentException(msg);
-                    }
-
+                    builder.controllerUrl(bundleContext.getBundle().getResource(name));
                 } else {
                     // the remaining properties become environment properties
                     env.put(key, (String) incoming.get(key));
@@ -146,7 +148,7 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
             }
         }
 
-        return parameters;
+        return builder.build();
     }
 
     private void updateConfig(String pid, Installation installation, Map<String, String> env) throws ConfigurationException {
@@ -179,13 +181,13 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
         }
     }
 
-    private Installation installProcess(String pid, InstallParameters parameters, Map<String, String> env) throws ConfigurationException {
+    private Installation installProcess(String pid, InstallOptions options, Map<String, String> env) throws ConfigurationException {
         try {
             // allow bundles / features which could be specified
             InstallTask postInstall = null;
 
             // TODO add support for jar install parameters
-            Installation installation = processManager.install(parameters.url, parameters.controllerUrl, postInstall);
+            Installation installation = processManager.install(options, postInstall);
 
             // add environment variables from properties
             installation.getEnvironment().putAll(env);
@@ -245,11 +247,6 @@ public class ProcessServiceFactory implements ManagedServiceFactory {
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-    }
-
-    private class InstallParameters {
-        String url;
-        URL controllerUrl;
     }
 
 }

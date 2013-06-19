@@ -38,6 +38,7 @@ public interface DataStore {
     //
 
     void trackConfiguration(Runnable callback);
+    void unTrackConfiguration(Runnable callback);
 
     //
     // Container management

@@ -52,6 +52,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
     }
 
     public void destroy() throws Exception {
+        fabricService.unTrackConfiguration(this);
     }
 
 
