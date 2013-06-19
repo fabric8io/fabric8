@@ -16,9 +16,13 @@
  */
 package org.fusesource.process.fabric.child;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.StringTokenizer;
+
+import com.google.common.base.Strings;
 
 import org.fusesource.common.util.Objects;
 import org.fusesource.fabric.api.Container;
@@ -65,11 +69,11 @@ public class ChildProcessManager {
         Map<String, String> map = configurations
                 .get("org.fusesource.process.fabric.child");
 
-        System.out.println("child map: " + map);
         if (map != null) {
             // lets lets build a model for all the containers we think we should have
             Map<String, ContainerRequirements> containerRequirements = loadContainerRequiremnets(map);
 
+            System.out.println("Require containers: " + containerRequirements);
 
             // now for each container, lets either create it if its not already created,
             // or modify its configuration if its created (stopping it first for any removals
@@ -88,7 +92,39 @@ public class ChildProcessManager {
             String value = entry.getValue();
 
             // lets build up the model of the containers
+            String[] split = key.split("\\.");
+            if (split != null && split.length > 1) {
+                String containerId = split[0];
+                String propertyName = split[1];
 
+                ContainerRequirements container = answer.get(containerId);
+                if (container == null){
+                    container = new ContainerRequirements(containerId);
+                    answer.put(containerId, container);
+                }
+
+                if (split.length == 2) {
+                    if ("kind".equals(propertyName)) {
+                        container.setKind(value);
+                    } else if ("url".equals(propertyName)) {
+                        container.setUrl(value);
+                    } else {
+                        LOG.warn("Unknown property " + propertyName + " for container process " + containerId);
+                    }
+                } else if (split.length == 3 && "profile".equals(propertyName)) {
+                    StringTokenizer iter = new StringTokenizer(value);
+                    while (iter.hasMoreElements()) {
+                        String token = iter.nextToken();
+                        if (!Strings.isNullOrEmpty(token)) {
+                            container.addProfile(value);
+                        }
+                    }
+                } else {
+                    LOG.warn("Ignored invalid entry " + key + " = " + value);
+                }
+            } else {
+                LOG.warn("Ignored invalid entry " + key + " = " + value);
+            }
             // TODO make the containers...
         }
 

@@ -23,5 +23,52 @@ import java.util.List;
  */
 public class ContainerRequirements {
     private String id;
+    private String kind;
+    private String url;
     private List<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
+    private List<String> profiles = new ArrayList<String>();
+
+    public ContainerRequirements(String id) {
+        this.id = id;
+    }
+
+    public String toString() {
+        return "Container(" + id  + " " + kind + " " + url + " profiles: " + profiles + ")";
+    }
+
+    public List<DeploymentInfo> getDeployments() {
+        return deployments;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void addProfile(String profile) {
+        profiles.add(profile);
+    }
+
+    public List<String> getProfiles() {
+        return profiles;
+    }
+
+    public void setProfiles(List<String> profiles) {
+        this.profiles = profiles;
+    }
 }
