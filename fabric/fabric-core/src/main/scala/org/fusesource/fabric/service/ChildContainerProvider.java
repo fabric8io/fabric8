@@ -156,8 +156,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     try {
                         adminService.createInstance(containerName,
                                 sshPort,
-                                rmiServerPort,
-                                rmiRegistryPort, null, jvmOptsBuilder.toString(), collectionAsString(features), featuresUrls);
+                                rmiRegistryPort,
+                                rmiServerPort, null, jvmOptsBuilder.toString(), collectionAsString(features), featuresUrls);
                         adminService.startInstance(containerName, null);
                     } catch (Throwable t) {
                         metadata.setFailure(t);
