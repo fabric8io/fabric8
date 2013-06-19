@@ -15,9 +15,8 @@
  * limitations under the License.
  */
 
-package org.fusesource.process.manager.commands;
+package org.fusesource.process.fabric.commands;
 
-import com.google.common.base.Strings;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;

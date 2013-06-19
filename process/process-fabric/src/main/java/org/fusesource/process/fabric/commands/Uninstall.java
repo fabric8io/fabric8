@@ -14,17 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.process.manager;
 
-import org.fusesource.process.manager.config.ProcessConfig;
+package org.fusesource.process.fabric.commands;
 
-import java.io.File;
-import java.io.Serializable;
+import org.apache.felix.gogo.commands.Command;
+import org.fusesource.process.manager.Installation;
+import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
- * Performs an installation step given the process configuration, id and install directory
  */
-public interface InstallTask extends Serializable {
-
-    public void install(ProcessConfig config, int id, File installDir) throws Exception;
+@Command(name = "unstall", scope = "process", description = "Uninstalls a managed process from this container.")
+public class Uninstall extends ProcessControlCommandSupport {
+    @Override
+    protected void doControlCommand(Installation installation) throws Exception {
+        installation.getController().uninstall();
+    }
 }

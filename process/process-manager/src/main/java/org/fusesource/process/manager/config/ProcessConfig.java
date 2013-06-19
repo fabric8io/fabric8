@@ -21,6 +21,7 @@ import org.fusesource.process.manager.support.command.CommandFailedException;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -28,7 +29,10 @@ import java.util.concurrent.Executor;
 /**
  * The configuration DTO stored as JSON so that the system can be restarted and remember how to run & control a managed process
  */
-public class ProcessConfig {
+public class ProcessConfig implements Serializable {
+
+    private static final long serialVersionUID = -2472076539312397232L;
+
     private String name = "<unknown>";
     private String launchScript;
     private String startCommand;

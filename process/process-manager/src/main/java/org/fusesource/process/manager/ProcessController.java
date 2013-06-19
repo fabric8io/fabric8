@@ -19,11 +19,12 @@ package org.fusesource.process.manager;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * Controls a process
  */
-public interface ProcessController {
+public interface ProcessController extends Serializable {
     int install() throws InterruptedException, IOException, CommandFailedException;
     int uninstall();
 

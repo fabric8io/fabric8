@@ -93,11 +93,6 @@
         </command>
     </command-bundle>
 
-
-    <bean id="processManager" class="org.fusesource.process.manager.support.ProcessManagerImpl" init-method="init">
-        <property name="storageLocation" value="${karaf.processes}" />
-    </bean>
-
     <bean id="processNumberCompleter" class="org.fusesource.process.manager.commands.ProcessNumberCompleter">
         <property name="processManager" ref="processManager"/>
     </bean>

@@ -16,28 +16,43 @@
  */
 package org.fusesource.process.manager;
 
-import org.fusesource.process.manager.support.DefaultProcessController;
-import org.fusesource.process.manager.support.ProcessManagerImpl;
+import org.fusesource.fabric.internal.FabricConstants;
+import org.fusesource.process.manager.service.ProcessManagerService;
+import org.junit.Before;
 import org.junit.Test;
+import org.ops4j.pax.url.mvn.Handler;
 
+import javax.management.MalformedObjectNameException;
 import java.io.File;
+import java.net.URL;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 public class ProcessControllerTest {
-    protected ProcessManagerImpl processManager = new ProcessManagerImpl(new File("target/processes"));
+    protected ProcessManagerService processManager;
+
+    @Before
+    public void setUp() throws MalformedObjectNameException {
+        processManager = new ProcessManagerService(new File("target/processes"));
+    }
 
     @Test
     public void startStopCamelSample() throws Exception {
+        System.setProperty("java.protocol.handler.pkgs", "org.ops4j.pax.url.mvn");
         processManager.init();
 
         InstallTask postInstall = null;
 
-        // TODO warning - hard coded version!!!
-        String version = "99-master-SNAPSHOT";
-        Installation install = processManager.install("mvn:org.fusesource.process.samples/process-sample-camel-spring/" + version + "/tar.gz", null, postInstall);
+        String version = FabricConstants.FABRIC_VERSION;
+
+        InstallOptions options = InstallOptions.builder()
+                                               .name("camel-sample")
+                                               .url(new URL(null, "mvn:org.fusesource.fabric.samples/process-sample-camel-spring/" + version + "/tar.gz", new Handler()))
+                                               .build();
+
+        Installation install = processManager.install(options, postInstall);
 
         int id = install.getId();
         assertTrue("ID should be > 0 but was " + id, id > 0);

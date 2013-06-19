@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.process.manager.support;
+package org.fusesource.process.manager.service;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
@@ -26,16 +26,23 @@ import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
+import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.JarInstallParameters;
 import org.fusesource.process.manager.ProcessController;
-import org.fusesource.process.manager.ProcessManager;
 import org.fusesource.process.manager.config.JsonHelper;
 import org.fusesource.process.manager.config.ProcessConfig;
+import org.fusesource.process.manager.support.DefaultProcessController;
+import org.fusesource.process.manager.support.FileUtils;
+import org.fusesource.process.manager.support.JarInstaller;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.fusesource.process.manager.support.command.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,18 +51,64 @@ import java.util.SortedMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public class ProcessManagerImpl implements ProcessManager {
+public class ProcessManagerService implements ProcessManagerServiceMBean {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManagerService.class);
+
     private Executor executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-manager-%s").build());
     private File storageLocation;
     private int lastId = 0;
     private final Duration untarTimeout = Duration.valueOf("1h");
     private SortedMap<Integer, Installation> installations = Maps.newTreeMap();
+    private final ObjectName objectName;
 
-    public ProcessManagerImpl() {
+    private MBeanServer mbeanServer;
+
+    public ProcessManagerService() throws MalformedObjectNameException {
+        this(new File(System.getProperty("karaf.processes"), System.getProperty("karaf.base") + File.separatorChar + "processes"));
     }
 
-    public ProcessManagerImpl(File storageLocation) {
+    public ProcessManagerService(File storageLocation) throws MalformedObjectNameException {
         this.storageLocation = storageLocation;
+        this.objectName = new ObjectName("org.fusesource.fabric:type=LocalProcesses");
+    }
+
+    public void bindMBeanServer(MBeanServer mbeanServer) {
+        unbindMBeanServer(this.mbeanServer);
+        this.mbeanServer = mbeanServer;
+        if (mbeanServer != null) {
+             registerMBeanServer(mbeanServer);
+        }
+    }
+
+    public void unbindMBeanServer(MBeanServer mbeanServer) {
+        if (mbeanServer != null) {
+            unregisterMBeanServer(mbeanServer);
+            this.mbeanServer = null;
+        }
+    }
+
+    public void registerMBeanServer(MBeanServer mbeanServer) {
+        try {
+            if (!mbeanServer.isRegistered(objectName)) {
+                mbeanServer.registerMBean(this, objectName);
+            }
+        } catch (Exception e) {
+            LOGGER.warn("An error occured during mbean server registration: " + e, e);
+        }
+    }
+
+    public void unregisterMBeanServer(MBeanServer mbeanServer) {
+        if (mbeanServer != null) {
+            try {
+                ObjectName name = objectName;
+                if (mbeanServer.isRegistered(name)) {
+                    mbeanServer.unregisterMBean(name);
+                }
+            } catch (Exception e) {
+                LOGGER.warn("An error occured during mbean server registration: " + e, e);
+            }
+        }
     }
 
     public void init() throws Exception {
@@ -106,32 +159,26 @@ public class ProcessManagerImpl implements ProcessManager {
     }
 
     @Override
-    public Installation install(final String url, URL controllerJson, final InstallTask postInstall) throws Exception {
+    public Installation install(final InstallOptions options, final InstallTask postInstall) throws Exception {
         InstallTask installTask = new InstallTask() {
             @Override
             public void install(ProcessConfig config, int id, File installDir) throws Exception {
-                config.setName(url);
-                untarTarball(url, installDir);
+                config.setName(options.getName());
+                untarTarball(options.getUrl(), installDir);
                 if (postInstall != null) {
                     postInstall.install(config, id, installDir);
                 }
             }
         };
-        return installViaScript(controllerJson, installTask);
+        return installViaScript(options.getControllerUrl(), installTask);
     }
 
     @Override
-    public Installation installJar(final JarInstallParameters parameters) throws Exception {
+    public Installation installJar(final InstallOptions parameters) throws Exception {
         InstallTask installTask = new InstallTask() {
             @Override
             public void install(ProcessConfig config, int id, File installDir) throws Exception {
-                String name = parameters.getGroupId() + ":" + parameters.getArtifactId();
-                String version = parameters.getVersion();
-                if (!Strings.isNullOrEmpty(version)) {
-                    name += ":" + version;
-                }
-                config.setName(name);
-
+                config.setName(parameters.getName());
                 // lets untar the process launcher
                 String resourceName = "process-launcher.tar.gz";
                 final InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName);
@@ -155,7 +202,7 @@ public class ProcessManagerImpl implements ProcessManager {
                 installer.unpackJarProcess(config, id, installDir, parameters);
             }
         };
-        return installViaScript(parameters.getControllerJson(), installTask);
+        return installViaScript(parameters.getControllerUrl(), installTask);
     }
 
     // Properties
@@ -179,12 +226,12 @@ public class ProcessManagerImpl implements ProcessManager {
     // Implementation
     //-------------------------------------------------------------------------
 
-    protected Installation installViaScript(URL controllerJson, InstallTask installTask) throws Exception {
+    protected Installation installViaScript(URL controllerUrl, InstallTask installTask) throws Exception {
         int id = createNextId();
         File installDir = createInstallDir(id);
         installDir.mkdirs();
 
-        ProcessConfig config = loadControllerJson(controllerJson);
+        ProcessConfig config = loadControllerJson(controllerUrl);
         installTask.install(config, id, installDir);
         JsonHelper.saveProcessConfig(config, installDir);
 
@@ -193,14 +240,14 @@ public class ProcessManagerImpl implements ProcessManager {
         return installation;
     }
 
-    protected void untarTarball(final String url, File installDir) throws IOException, CommandFailedException {
+    protected void untarTarball(final URL url, File installDir) throws IOException, CommandFailedException {
         // copy the URL to the install dir
         // TODO should we use a temp file?
         File tarball = new File(installDir, "install.tar.gz");
         Files.copy(new InputSupplier<InputStream>() {
             @Override
             public InputStream getInput() throws IOException {
-                return new URL(url).openStream();
+                return url.openStream();
             }
         }, tarball);
 

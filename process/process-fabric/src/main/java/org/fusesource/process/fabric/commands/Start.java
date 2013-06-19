@@ -14,17 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.process.manager;
+package org.fusesource.process.fabric.commands;
 
-import org.fusesource.process.manager.config.ProcessConfig;
-
-import java.io.File;
-import java.io.Serializable;
+import org.apache.felix.gogo.commands.Command;
+import org.fusesource.process.manager.Installation;
+import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
- * Performs an installation step given the process configuration, id and install directory
  */
-public interface InstallTask extends Serializable {
-
-    public void install(ProcessConfig config, int id, File installDir) throws Exception;
+@Command(name = "start", scope = "process", description = "Starts a managed process")
+public class Start extends ProcessControlCommandSupport {
+    @Override
+    protected void doControlCommand(Installation installation) throws Exception {
+        installation.getController().start();
+    }
 }
