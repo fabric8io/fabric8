@@ -1,0 +1,19 @@
+{
+    "launchScript": "bin/jetty.sh",
+    "pidFile": "work/jetty.pid",
+    "restartCommand": "",
+    "statusCommand": "bin/jetty.sh check",
+    "killCommand": "",
+    "configureCommand": "",
+
+    "deployPath": "webapps",
+    "sharedLibraryPath": "lib/ext",
+
+    "environment": {
+        "JETTY_RUN": "work"
+    },
+
+    "installCommands": [
+        "mkdir work"
+    ]
+}
