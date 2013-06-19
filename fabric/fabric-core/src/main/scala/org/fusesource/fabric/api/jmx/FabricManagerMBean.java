@@ -93,6 +93,8 @@ public interface FabricManagerMBean {
 
     List<Map<String, Object>> containersForProfile(String versionId, String profileId, List<String> fields);
 
+    void setContainerProperty(String containerId, String property, Object value);
+
     @Deprecated
     List<String> containerIdsForVersion(String versionId);
 

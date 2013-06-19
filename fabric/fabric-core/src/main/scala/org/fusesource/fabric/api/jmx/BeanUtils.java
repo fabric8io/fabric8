@@ -45,6 +45,14 @@ public class BeanUtils {
         return answer;
     }
 
+    public static void setValue(Object instance, String property, Object value) {
+        try {
+            org.apache.commons.beanutils.BeanUtils.setProperty(instance, property, value);
+        } catch (Throwable t) {
+            throw new RuntimeException("Failed to set property " + property + " on " + instance.getClass().getName(), t);
+        }
+    }
+
     public static Map<String, Object> convertProfileToMap(FabricService service, Profile profile, List<String> fields) {
 
         Map<String, Object> answer = new HashMap<String, Object>();

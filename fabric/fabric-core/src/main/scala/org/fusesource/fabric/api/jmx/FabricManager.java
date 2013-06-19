@@ -410,6 +410,12 @@ public class FabricManager implements FabricManagerMBean {
         return answer;
     }
 
+    @Override
+    public void setContainerProperty(String containerId, String property, Object value) {
+        Container container = getFabricService().getContainer(containerId);
+        BeanUtils.setValue(container, property, value);
+    }
+
     protected Profile[] stringsToProfiles(String version, List<String> names) {
         return stringsToProfiles(getFabricService().getVersion(version), names);
     }
