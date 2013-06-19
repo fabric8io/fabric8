@@ -20,6 +20,9 @@
             org.fusesource.process.fabric*;version=${project.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
+            org.fusesource.process.manager,
+            org.fusesource.process.manager.support,
+            org.fusesource.process.manager.config,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>

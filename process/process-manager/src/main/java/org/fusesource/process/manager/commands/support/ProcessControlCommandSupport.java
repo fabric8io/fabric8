@@ -16,17 +16,15 @@
  */
 package org.fusesource.process.manager.commands.support;
 
-import com.google.common.collect.Maps;
 import org.apache.felix.gogo.commands.Argument;
 import org.fusesource.process.manager.Installation;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
  */
 public abstract class ProcessControlCommandSupport extends ProcessCommandSupport {
+
     @Argument(index = 0, required = true, multiValued = true, name = "id", description = "The id of the managed processes to control")
     protected int[] ids;
 

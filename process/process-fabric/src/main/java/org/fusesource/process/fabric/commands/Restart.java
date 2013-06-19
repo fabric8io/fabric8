@@ -19,12 +19,11 @@ package org.fusesource.process.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  */
 @Command(name = "restart", scope = "process", description = "Restarts a managed process")
-public class Restart extends ProcessControlCommandSupport {
+public class Restart extends ContainerProcessControllerSupport {
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().restart();

@@ -18,12 +18,11 @@ package org.fusesource.process.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  */
-@Command(name = "start", scope = "process", description = "Starts a managed process")
-public class Start extends ProcessControlCommandSupport {
+@Command(name = "process-start", scope = "fabric", description = "Starts a managed process")
+public class Start extends ContainerProcessControllerSupport {
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().start();

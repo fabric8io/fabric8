@@ -19,12 +19,12 @@ package org.fusesource.process.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  */
-@Command(name = "status", scope = "process", description = "Status report of a managed process")
-public class Status extends ProcessControlCommandSupport {
+@Command(name = "process-status", scope = "fabric", description = "Status report of a managed process")
+public class Status extends ContainerProcessControllerSupport {
+
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().status();

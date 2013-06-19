@@ -22,6 +22,8 @@ import org.fusesource.process.manager.support.command.CommandFailedException;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -42,8 +44,8 @@ public class ProcessConfig implements Serializable {
     private String killCommand;
     private String configureCommand;
     private String pidFile;
-    private Map<String,String> environment;
-    private List<String> installCommands;
+    private final Map<String,String> environment = new HashMap<String, String>();
+    private final List<String> installCommands = new ArrayList<String>();
 
     private String deployPath;
     private String sharedLibraryPath;
@@ -116,16 +118,8 @@ public class ProcessConfig implements Serializable {
         return environment;
     }
 
-    public void setEnvironment(Map<String, String> environment) {
-        this.environment = environment;
-    }
-
     public List<String> getInstallCommands() {
         return installCommands;
-    }
-
-    public void setInstallCommands(List<String> installCommands) {
-        this.installCommands = installCommands;
     }
 
     public String getConfigureCommand() {

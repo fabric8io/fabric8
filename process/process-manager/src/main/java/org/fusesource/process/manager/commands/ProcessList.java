@@ -52,6 +52,4 @@ public class ProcessList extends ProcessCommandSupport {
             out.println(String.format(FORMAT, "" + id, (pid != null) ? pid.toString() : "", installation.getName()));
         }
     }
-
-
 }

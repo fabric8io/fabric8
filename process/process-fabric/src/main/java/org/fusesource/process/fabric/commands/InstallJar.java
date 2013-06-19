@@ -20,17 +20,16 @@ package org.fusesource.process.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.process.manager.InstallOptions;
+import org.fusesource.fabric.utils.shell.ShellUtils;
+import org.fusesource.process.fabric.ContainerInstallOptions;
+import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.commands.support.InstallSupport;
-
-import java.net.URL;
 
 /**
  * Installs a new process
  */
-@Command(name = "install-jar", scope = "process", description = "Installs a jar as managed process into this container.")
-public class InstallJar extends InstallSupport {
+@Command(name = "process-install-jar", scope = "fabric:", description = "Installs a jar as managed process into this container.")
+public class InstallJar extends ContainerInstallSupport {
 
     @Option(name="-c", aliases={"--classifier"}, required = false, description = "The maven jar classifier")
     protected String classifier;
@@ -52,26 +51,29 @@ public class InstallJar extends InstallSupport {
     @Argument(index = 2, required = false, name = "version", description = "The maven version Id of the jar")
     protected String version;
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkRequirements();
-        URL controllerUrl = getControllerURL();
-        InstallOptions options = InstallOptions.builder()
-                                                  .controllerUrl(controllerUrl)
-                                                  .groupId(groupId)
-                                                  .artifactId(artifactId)
-                                                  .version(version)
-                                                  .classifier(classifier)
-                                                  .extension(extension)
-                                                  .offline(offline)
-                                                  .optionalDependencyPatterns(optionalDependencyPatterns)
-                                                  .excludeDependencyFilterPatterns(excludeDependencyPatterns)
-                                                  .mainClass(mainClass)
-                                                  .build();
 
+    void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
+        ContainerInstallOptions options = ContainerInstallOptions.builder()
+                .container(container)
+                .user(jmxUser)
+                .password(jmxPassword)
+                .controllerUrl(getControllerURL())
+                .groupId(groupId)
+                .artifactId(artifactId)
+                .version(version)
+                .classifier(classifier)
+                .extension(extension)
+                .offline(offline)
+                .optionalDependencyPatterns(optionalDependencyPatterns)
+                .excludeDependencyFilterPatterns(excludeDependencyPatterns)
+                .mainClass(mainClass)
+                .controllerUrl(getControllerURL())
+                .build();
+        // allow a post install step to be specified - e.g. specifying jars/wars?
+        InstallTask postInstall = null;
 
-        Installation install = getProcessManager().installJar(options);
+        Installation install = getContainerProcessManager().installJar(options);
+        ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
-        return null;
     }
 }

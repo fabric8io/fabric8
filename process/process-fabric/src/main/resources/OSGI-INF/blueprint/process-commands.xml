@@ -33,6 +33,78 @@
                 <entry key="--kind" value-ref="kindCompleter"/>
             </optional-completers>
         </command>
+        <command name="fabric/process-install-jar">
+            <action class="org.fusesource.process.fabric.commands.InstallJar">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+            <optional-completers>
+                <entry key="--kind" value-ref="kindCompleter"/>
+                <entry key="--main" value-ref="mainClassCompleter"/>
+            </optional-completers>
+        </command>
+        <command name="fabric/process-list">
+            <action class="org.fusesource.process.fabric.commands.ProcessList">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+        </command>
+        <command name="fabric/process-start">
+            <action class="org.fusesource.process.fabric.commands.Start">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/process-stop">
+            <action class="org.fusesource.process.fabric.commands.Stop">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/process-restart">
+            <action class="org.fusesource.process.fabric.commands.Restart">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/process-status">
+            <action class="org.fusesource.process.fabric.commands.Status">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/process-kill">
+            <action class="org.fusesource.process.fabric.commands.Kill">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+        </command>
+        <command name="fabric/process-uninstall">
+            <action class="org.fusesource.process.fabric.commands.Uninstall">
+                <property name="containerProcessManager" ref="containerProcessManager"/>
+            </action>
+            <completers>
+                <ref component-id="aliveContainerCompleter"/>
+                <null/>
+            </completers>
+        </command>
     </command-bundle>
 
     <bean id="aliveContainerCompleter" class="org.fusesource.fabric.commands.support.StartedContainerCompleter">

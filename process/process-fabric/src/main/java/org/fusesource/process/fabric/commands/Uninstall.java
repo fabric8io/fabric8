@@ -19,12 +19,11 @@ package org.fusesource.process.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.commands.support.ProcessControlCommandSupport;
 
 /**
  */
-@Command(name = "unstall", scope = "process", description = "Uninstalls a managed process from this container.")
-public class Uninstall extends ProcessControlCommandSupport {
+@Command(name = "process-unstall", scope = "fabric", description = "Uninstalls a managed process from this container.")
+public class Uninstall extends ContainerProcessControllerSupport {
     @Override
     protected void doControlCommand(Installation installation) throws Exception {
         installation.getController().uninstall();

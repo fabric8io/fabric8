@@ -18,7 +18,6 @@ package org.fusesource.process.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
-import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.process.fabric.ContainerInstallOptions;
 import org.fusesource.process.manager.InstallTask;
@@ -37,26 +36,7 @@ public class Install extends ContainerInstallSupport {
     @Argument(index = 2, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
     protected String url;
 
-    @Override
-    protected Object doExecute() throws Exception {
-        checkRequirements();
-        String jmxUser = user != null ? user : ShellUtils.retrieveFabricUser(session);
-        String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
-        try {
-            doInstall(jmxUser, jmxPassword);
-        } catch (FabricAuthenticationException ex) {
-            //If authentication fails, prompts for credentials and try again.
-            user = null;
-            password = null;
-            promptForJmxCredentialsIfNeeded();
-            doInstall(user, password);
-            ShellUtils.storeFabricCredentials(session, user, password);
-        }
-
-        return null;
-    }
-
-    private void doInstall(String jmxUser, String jmxPassword) throws Exception {
+    void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
         ContainerInstallOptions options = ContainerInstallOptions.builder()
                 .container(container)
                 .user(jmxUser)

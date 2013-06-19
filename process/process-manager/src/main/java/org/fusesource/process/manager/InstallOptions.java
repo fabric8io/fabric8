@@ -197,7 +197,7 @@ public class InstallOptions implements Serializable {
             }
 
             if (invalid) {
-                throw new IllegalStateException("A url or maven coordinates need to be specified.");
+                return null;
             }
 
             return new URL(sb.toString());
@@ -209,7 +209,7 @@ public class InstallOptions implements Serializable {
             } else if (!Strings.isNullOrEmpty(groupId) && !Strings.isNullOrEmpty(artifactId) && !Strings.isNullOrEmpty(version)) {
                 return groupId + ":" + artifactId + ":" + version;
             } else {
-                throw new IllegalStateException("A name or maven coordinates need to be specified");
+                return null;
             }
 
         }

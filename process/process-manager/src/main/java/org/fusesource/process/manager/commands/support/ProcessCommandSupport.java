@@ -23,6 +23,7 @@ import org.fusesource.process.manager.ProcessManager;
 /**
  */
 public abstract class ProcessCommandSupport extends OsgiCommandSupport {
+
     private ProcessManager processManager;
 
     public ProcessManager getProcessManager() {

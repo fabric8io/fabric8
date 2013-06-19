@@ -18,25 +18,29 @@
 package org.fusesource.process.fabric.commands;
 
 import org.apache.felix.gogo.commands.Command;
+import org.fusesource.process.fabric.ContainerInstallOptions;
 import org.fusesource.process.manager.Installation;
-import org.fusesource.process.manager.commands.support.ProcessCommandSupport;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 
 @Command(name = "ps", scope = "process", description = "Lists the currently installed managed processes.")
-public class ProcessList extends ProcessCommandSupport {
+public class ProcessList extends ContainerProcessCommandSupport {
+
     static final String[] HEADERS = {"[id]", "[pid]", "[name]"};
     static final String FORMAT = "%7s %9s %s";
 
     @Override
-    protected Object doExecute() throws Exception {
-        checkRequirements();
-        List<Installation> installations = getProcessManager().listInstallations();
+    void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
+        ContainerInstallOptions options = ContainerInstallOptions.builder()
+                .container(container)
+                .user(jmxUser)
+                .password(jmxPassword)
+                .build();
 
+        List<Installation> installations = getContainerProcessManager().listInstallations(options);
         printInstallations(installations, System.out);
-        return null;
     }
 
     protected void printInstallations(List<Installation> installations, PrintStream out) {
@@ -52,6 +56,4 @@ public class ProcessList extends ProcessCommandSupport {
             out.println(String.format(FORMAT, "" + id, (pid != null) ? pid.toString() : "", installation.getName()));
         }
     }
-
-
 }

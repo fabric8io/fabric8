@@ -41,7 +41,7 @@ public class DefaultProcessController implements ProcessController
     private final int id;
     private final File baseDir;
     private final ProcessConfig config;
-    private final Executor executor;
+    private transient final Executor executor;
 
 
     public DefaultProcessController(int id, ProcessConfig config, Executor executor, File baseDir) {

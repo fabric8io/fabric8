@@ -15,12 +15,18 @@ public class ProcessManagerJmxTemplate extends ContainerTemplate {
     }
 
     public <T> T execute(final ProcessManagerCallback<T> callback) {
-        return getJmxTemplate().execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
-            public T doWithJmxConnector(JMXConnector connector) throws Exception {
-                String[] bean = new String[]{"type", "LocalProcesses"};
-                return callback.doWithProcessManager(getJmxTemplate().getMBean(connector, ProcessManagerServiceMBean.class, "org.fusesource.fabric", bean));
-            }
-        });
+        ClassLoader original = Thread.currentThread().getContextClassLoader();
+        try {
+            Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+            return getJmxTemplate().execute(new JmxTemplateSupport.JmxConnectorCallback<T>() {
+                public T doWithJmxConnector(JMXConnector connector) throws Exception {
+                    String[] bean = new String[]{"type", "LocalProcesses"};
+                    return callback.doWithProcessManager(getJmxTemplate().getMBean(connector, ProcessManagerServiceMBean.class, "org.fusesource.fabric", bean));
+                }
+            });
+        } finally {
+            Thread.currentThread().setContextClassLoader(original);
+        }
     }
 
 }
