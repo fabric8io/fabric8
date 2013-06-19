@@ -20,20 +20,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Describes the requirements of a child process
  */
-public class ContainerRequirements {
+public class ProcessRequirements {
     private String id;
     private String kind;
     private String url;
     private List<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
     private List<String> profiles = new ArrayList<String>();
 
-    public ContainerRequirements(String id) {
+    public ProcessRequirements(String id) {
         this.id = id;
     }
 
     public String toString() {
-        return "Container(" + id  + " " + kind + " " + url + " profiles: " + profiles + ")";
+        return "Process(" + id  + " " + kind + " " + url + " profiles: " + profiles + ")";
     }
 
     public List<DeploymentInfo> getDeployments() {

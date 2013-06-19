@@ -16,7 +16,6 @@
  */
 package org.fusesource.process.fabric.child;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -71,20 +70,24 @@ public class ChildProcessManager {
 
         if (map != null) {
             // lets lets build a model for all the containers we think we should have
-            Map<String, ContainerRequirements> containerRequirements = loadContainerRequiremnets(map);
+            Map<String, ProcessRequirements> requirementsMap = loadProcessRequirements(map);
 
-            System.out.println("Require containers: " + containerRequirements);
+            System.out.println("Require containers: " + requirementsMap);
 
             // now for each container, lets either create it if its not already created,
             // or modify its configuration if its created (stopping it first for any removals
             // or changes ot the shared libraries
 
             // TODO
+
+            for (ProcessRequirements requirements : requirementsMap.values()) {
+
+            }
         }
     }
 
-    private Map<String, ContainerRequirements> loadContainerRequiremnets(Map<String, String> properties) {
-        Map<String,ContainerRequirements> answer = new HashMap<String, ContainerRequirements>();
+    private Map<String, ProcessRequirements> loadProcessRequirements(Map<String, String> properties) {
+        Map<String,ProcessRequirements> answer = new HashMap<String, ProcessRequirements>();
 
         Set<Map.Entry<String,String>> entries = properties.entrySet();
         for (Map.Entry<String, String> entry : entries) {
@@ -97,9 +100,9 @@ public class ChildProcessManager {
                 String containerId = split[0];
                 String propertyName = split[1];
 
-                ContainerRequirements container = answer.get(containerId);
+                ProcessRequirements container = answer.get(containerId);
                 if (container == null){
-                    container = new ContainerRequirements(containerId);
+                    container = new ProcessRequirements(containerId);
                     answer.put(containerId, container);
                 }
 
