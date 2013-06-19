@@ -27,6 +27,7 @@ import org.fusesource.common.util.Objects;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.process.manager.ProcessManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +37,8 @@ public class ChildProcessManager {
     private static final transient Logger LOG = LoggerFactory.getLogger(ChildProcessManager.class);
 
     private FabricService fabricService;
+    private ProcessManager processManager;
+
     private Runnable checkConfigurations = new Runnable() {
         public void run() {
             checkChildProcessConfigurationsChanged();
@@ -43,11 +46,13 @@ public class ChildProcessManager {
     };
 
     public void init() throws Exception {
+        Objects.notNull(processManager, "processManager");
         Objects.notNull(fabricService, "fabricService");
         fabricService.trackConfiguration(checkConfigurations);
     }
 
     public void destroy() throws Exception {
+        Objects.notNull(processManager, "processManager");
         Objects.notNull(fabricService, "fabricService");
         fabricService.unTrackConfiguration(checkConfigurations);
     }
@@ -58,6 +63,14 @@ public class ChildProcessManager {
 
     public void setFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
+    }
+
+    public ProcessManager getProcessManager() {
+        return processManager;
+    }
+
+    public void setProcessManager(ProcessManager processManager) {
+        this.processManager = processManager;
     }
 
     protected void checkChildProcessConfigurationsChanged() {
@@ -72,7 +85,7 @@ public class ChildProcessManager {
             // lets lets build a model for all the containers we think we should have
             Map<String, ProcessRequirements> requirementsMap = loadProcessRequirements(map);
 
-            System.out.println("Require containers: " + requirementsMap);
+            System.out.println("Require containers: " + requirementsMap + " for processManager " + processManager);
 
             // now for each container, lets either create it if its not already created,
             // or modify its configuration if its created (stopping it first for any removals

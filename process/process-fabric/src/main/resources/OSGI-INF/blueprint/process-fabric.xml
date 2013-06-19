@@ -29,7 +29,10 @@
 
     <bean id="childProcessManager" class="org.fusesource.process.fabric.child.ChildProcessManager" init-method="init" destroy-method="destroy">
         <property name="fabricService" ref="fabricService"/>
+        <property name="processManager" ref="processManager"/>
     </bean>
+
+    <reference id="processManager" interface="org.fusesource.process.manager.ProcessManager" availability="mandatory"/>
 
     <service ref="containerProcessManager" interface="org.fusesource.process.fabric.ContainerProcessManager"/>
 </blueprint>
