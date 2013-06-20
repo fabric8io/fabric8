@@ -18,6 +18,13 @@ package org.fusesource.process.fabric.child;
 
 import com.google.common.collect.Maps;
 import org.fusesource.common.util.Objects;
+import org.fusesource.fabric.agent.download.DownloadManager;
+import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
+import org.fusesource.fabric.agent.mvn.MavenConfiguration;
+import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
+import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
+import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
+import org.fusesource.fabric.agent.utils.AgentUtils;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -26,25 +33,35 @@ import org.fusesource.process.fabric.child.support.ByteToStringValues;
 import org.fusesource.process.fabric.child.support.LayOutPredicate;
 import org.fusesource.process.fabric.child.tasks.ApplyConfigurationTask;
 import org.fusesource.process.fabric.child.tasks.CompositeTask;
+import org.fusesource.process.fabric.child.tasks.DeploymentTask;
 import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  */
 public class ChildProcessManager {
     private static final transient Logger LOG = LoggerFactory.getLogger(ChildProcessManager.class);
 
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private FabricService fabricService;
     private ProcessManager processManager;
+
+    public void destroy() {
+        executorService.shutdown();
+    }
 
 
     public FabricService getFabricService() {
@@ -71,8 +88,11 @@ public class ChildProcessManager {
         InstallOptions installOptions = requirements.createInstallOptions();
         Profile processProfile = getProcessProfile(requirements);
         Map<String, String> configuration = getProcessLayout(processProfile, requirements.getLayout());
+
+        DownloadManager downloadManager = createDownloadManager(fabricService, processProfile, executorService);
         InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
-        InstallTask compositeTask = new CompositeTask(applyConfiguration);
+        InstallTask applyProfile = new DeploymentTask(downloadManager, processProfile);
+        InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
         Installation installation = processManager.install(installOptions, compositeTask);
         if (installation != null) {
             installation.getController().start();
@@ -119,5 +139,49 @@ public class ChildProcessManager {
         return null;
     }
 
+
+    /**
+     * Creates a {@link org.fusesource.fabric.agent.mvn.MavenConfiguration} based on the specified {@link Properties}.
+     *
+     * @param properties
+     * @return
+     */
+    private static MavenConfiguration createMavenConfiguration(FabricService fabricService, Properties properties) {
+        AgentUtils.addMavenProxies(properties, fabricService);
+        PropertiesPropertyResolver propertiesPropertyResolver = new PropertiesPropertyResolver(System.getProperties());
+        DictionaryPropertyResolver dictionaryPropertyResolver = new DictionaryPropertyResolver(properties, propertiesPropertyResolver);
+        MavenConfigurationImpl config = new MavenConfigurationImpl(dictionaryPropertyResolver, "org.ops4j.pax.url.mvn");
+        config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
+        return config;
+    }
+
+    /**
+     * Creates a DownloadManager
+     *
+     * @param fabricService
+     * @param profile
+     * @param downloadExecutor
+     * @return
+     * @throws MalformedURLException
+     */
+    private static DownloadManager createDownloadManager(FabricService fabricService, Profile profile, ExecutorService downloadExecutor) throws MalformedURLException {
+        MavenConfiguration mavenConfiguration = createMavenConfiguration(fabricService, mapToProperties(profile.getConfigurations().get("org.fusesource.fabric.agent")));
+        return new DownloadManager(mavenConfiguration, downloadExecutor);
+    }
+
+    /**
+     * Utility method for converting a {@link Map} into {@link java.util.Properties}
+     *
+     * @param map
+     * @return
+     */
+    private static Properties mapToProperties(Map<String, String> map) {
+        Properties p = new Properties();
+        Set<Map.Entry<String, String>> set = map.entrySet();
+        for (Map.Entry<String, String> entry : set) {
+            p.put(entry.getKey(), entry.getValue());
+        }
+        return p;
+    }
 
 }

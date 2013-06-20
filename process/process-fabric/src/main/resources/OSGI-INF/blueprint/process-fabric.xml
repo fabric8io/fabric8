@@ -27,7 +27,7 @@
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="childProcessManager" class="org.fusesource.process.fabric.child.ChildProcessManager">
+    <bean id="childProcessManager" class="org.fusesource.process.fabric.child.ChildProcessManager" destroy-method="destroy">
         <property name="fabricService" ref="fabricService"/>
         <property name="processManager" ref="processManager"/>
     </bean>

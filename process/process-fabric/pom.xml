@@ -23,12 +23,20 @@
             org.fusesource.process.manager,
             org.fusesource.process.manager.support,
             org.fusesource.process.manager.config,
+            org.osgi.service.event*;resolution:=optional,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
             org.fusesource.process.manager.utils,
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.agent.mvn,
+            org.fusesource.fabric.agent.download,
+            org.fusesource.fabric.agent.utils,
+            org.fusesource.fabric.utils.features,
+            org.apache.karaf.features.*,
+            org.apache.karaf.util.collections.*,
+            org.apache.felix.utils.*,
             org.fusesource.fabric.utils.shell
         </fuse.osgi.private.pkg>
     </properties>
@@ -47,6 +55,11 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>process-manager</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-agent</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

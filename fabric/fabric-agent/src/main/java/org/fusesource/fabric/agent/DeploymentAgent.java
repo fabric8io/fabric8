@@ -100,10 +100,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.utils.features.FeatureUtils.search;
+import static org.fusesource.fabric.agent.utils.AgentUtils.addRepository;
+import static org.fusesource.fabric.agent.utils.AgentUtils.downloadBundles;
+import static org.fusesource.fabric.agent.utils.AgentUtils.addMavenProxies;
+import static org.fusesource.fabric.agent.utils.AgentUtils.FAB_PROTOCOL;
 
 public class DeploymentAgent implements ManagedService, FrameworkListener {
 
-    public static final String FAB_PROTOCOL = "fab:";
+
     private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
@@ -297,7 +301,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         // Adding the maven proxy URL to the list of repositories.
-        addMavenProxies(props);
+        addMavenProxies(props, fabricService.waitForService(0));
 
         updateStatus("analyzing", null);
 
@@ -361,7 +365,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 }
                 if (url != null && url.length() > 0) {
                     URI uri = URI.create(url);
-                    addRepository(repositories, uri);
+                    addRepository(manager, repositories, uri);
                 }
             }
         }
@@ -433,53 +437,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return true;
     }
 
-    private void addMavenProxies(Dictionary props) {
-        try {
-            FabricService fs = fabricService.waitForService(0);
-            if (fs != null) {
-                StringBuilder sb = new StringBuilder();
-                for (URI uri : fs.getMavenRepoURIs()) {
-                    String mavenRepo = uri.toString();
-                    if (!mavenRepo.endsWith("/")) {
-                        mavenRepo += "/";
-                    }
-                    if (sb.length() > 0) {
-                        sb.append(",");
-                    }
-                    sb.append(mavenRepo);
-                    sb.append("@snapshots");
-                }
-                String existingRepos = (String) props.get("org.ops4j.pax.url.mvn.repositories");
-                if (existingRepos != null) {
-                    if (sb.length() > 0) {
-                        sb.append(",");
-                    }
-                    sb.append(existingRepos);
-                }
-                props.put("org.ops4j.pax.url.mvn.repositories", sb.toString());
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Unable to retrieve maven proxy urls: " + e.getMessage());
-            LOGGER.debug("Unable to retrieve maven proxy urls: " + e.getMessage(), e);
-        }
-    }
-
-    private void addRepository(Map<URI, Repository> repositories, URI uri) throws Exception {
-        if (!repositories.containsKey(uri)) {
-            File file = manager.download(uri.toString()).await().getFile();
-            FeatureValidationUtil.validate(file.toURI());
-            //We are using the file uri instead of the maven url, because we want to make sure, that the repo can load.
-            //If we used the maven uri instead then we would have to make sure that the download location is added to
-            //the ops4j pax url configuration. Using the first is a lot safer and less prone to misconfigurations.
-            RepositoryImpl repo = new RepositoryImpl(file.toURI());
-            repositories.put(uri, repo);
-            repo.load();
-            for (URI ref : repo.getRepositories()) {
-                addRepository(repositories, ref);
-            }
-        }
-    }
-
 
 
     private Set<Feature> addFeatures(Collection<Feature> features, Collection<Repository> repositories) {
@@ -510,7 +467,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                                   Set<String> overrides) throws Exception {
 
 		updateStatus("downloading", null);
-		Map<String, File> fabDownloads = downloadBundles(Collections.<Feature>emptySet(), fabs, Collections.<String>emptySet());
+		Map<String, File> fabDownloads = downloadBundles(manager, Collections.<Feature>emptySet(), fabs, Collections.<String>emptySet());
 
 		updateStatus("resolving", null);
         Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
@@ -551,7 +508,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
 
         updateStatus("downloading", null);
-        Map<String, File> downloads = downloadBundles(allFeatures, bundles, overrides);
+        Map<String, File> downloads = downloadBundles(manager, allFeatures, bundles, overrides);
         updateStatus("resolving", null);
         List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos, overrides, downloads);
 
@@ -983,44 +940,6 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             return true;
         }
         return false;
-    }
-
-    protected Map<String, File> downloadBundles(Set<Feature> features, Set<String> bundles, Set<String> overrides) throws Exception {
-        Set<String> locations = new HashSet<String>();
-        for (Feature feature : features) {
-            for (BundleInfo bundle : feature.getBundles()) {
-                locations.add(bundle.getLocation());
-            }
-        }
-        for (String bundle : bundles) {
-            locations.add(bundle);
-        }
-        for (String override : overrides) {
-            locations.add(override);
-        }
-        final CountDownLatch latch = new CountDownLatch(locations.size());
-        final Map<String, File> downloads = new ConcurrentHashMap<String, File>();
-        final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
-        for (final String location : locations) {
-            final String strippedLocation = location.startsWith(FAB_PROTOCOL) ? location.substring(FAB_PROTOCOL.length()) : location;
-            //The Fab URL Handler may not be present so we strip the fab protocol before downloading.
-            manager.download(strippedLocation).addListener(new FutureListener<DownloadFuture>() {
-                public void operationComplete(DownloadFuture future) {
-                    try {
-                        downloads.put(strippedLocation, future.getFile());
-                    } catch (Throwable e) {
-                        errors.add(e);
-                    } finally {
-                        latch.countDown();
-                    }
-                }
-            });
-        }
-        latch.await();
-        if (!errors.isEmpty()) {
-            throw new MultiException("Error while downloading bundles", errors);
-        }
-        return downloads;
     }
 
     public void frameworkEvent(FrameworkEvent event) {
