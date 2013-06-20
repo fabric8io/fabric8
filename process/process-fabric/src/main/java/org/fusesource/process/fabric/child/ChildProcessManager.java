@@ -56,6 +56,7 @@ public class ChildProcessManager {
         Objects.notNull(processManager, "processManager");
         Objects.notNull(fabricService, "fabricService");
         fabricService.trackConfiguration(checkConfigurations);
+        checkConfigurations.run();
     }
 
     public void destroy() throws Exception {
