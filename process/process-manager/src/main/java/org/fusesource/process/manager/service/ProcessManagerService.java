@@ -35,6 +35,7 @@ import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.support.DefaultProcessController;
 import org.fusesource.process.manager.support.FileUtils;
 import org.fusesource.process.manager.support.JarInstaller;
+import org.fusesource.process.manager.support.ProcessUtils;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.fusesource.process.manager.support.command.Duration;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     private MBeanServer mbeanServer;
 
     public ProcessManagerService() throws MalformedObjectNameException {
-        this(new File(System.getProperty("karaf.processes"), System.getProperty("karaf.base") + File.separatorChar + "processes"));
+        this(new File(System.getProperty("karaf.processes", System.getProperty("karaf.base") + File.separatorChar + "processes")));
     }
 
     public ProcessManagerService(File storageLocation) throws MalformedObjectNameException {
@@ -130,7 +131,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
                                 String url = "TODO";
                                 ProcessConfig config = JsonHelper.loadProcessConfig(file);
-                                createInstallation(id, findInstallDir(file), config);
+                                createInstallation(id, ProcessUtils.findInstallDir(file), config);
                             }
                         } catch (NumberFormatException e) {
                             // should never happen :)
@@ -287,7 +288,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         // we could maybe discover a descriptor file to describe how to control the process?
         // or generate this file on installation time?
 
-        File installDir = findInstallDir(rootDir);
+        File installDir = ProcessUtils.findInstallDir(rootDir);
         ProcessController controller = createController(id, config, rootDir, installDir);
         // TODO need to read the URL from somewhere...
         Installation installation = new Installation(id, installDir, controller, config);
@@ -299,29 +300,5 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         return new DefaultProcessController(id, config, executor, installDir);
     }
 
-    /**
-     * Lets find the install dir, which may be the root dir or could be a child directory (as typically untarring will create a new child directory)
-     */
-    protected File findInstallDir(File rootDir) {
-        if (installExists(rootDir)) {
-            return rootDir;
-        }
-        File[] files = rootDir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (installExists(file)) {
-                    return file;
-                }
-            }
-        }
-        return rootDir;
-    }
 
-    protected boolean installExists(File file) {
-        if (file.isDirectory()) {
-            File binDir = new File(file, "bin");
-            return binDir.exists() && binDir.isDirectory();
-        }
-        return false;
-    }
 }

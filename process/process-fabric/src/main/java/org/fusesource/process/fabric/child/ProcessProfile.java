@@ -40,6 +40,7 @@ public class ProcessProfile extends ProfileImpl {
     public Profile[] getParents() {
         List<String> parents = requirements.getProfiles();
         List<Profile> profiles = new LinkedList<Profile>();
+        profiles.add(container.getOverlayProfile());
         for (String parent : parents) {
             Profile p = container.getVersion().getProfile(parent);
             profiles.add(p);

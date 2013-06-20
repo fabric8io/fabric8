@@ -656,8 +656,10 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
             List<String> children = getAllChildren(treeCache, path);
             for (String child : children) {
                 TreeData data = treeCache.getCurrentData(child);
-                String relativePath = child.substring(path.length() + 1);
-                configurations.put(relativePath, getFileConfiguration(version, profile, relativePath));
+                if (data.getData() != null && data.getData().length != 0) {
+                    String relativePath = child.substring(path.length() + 1);
+                    configurations.put(relativePath, getFileConfiguration(version, profile, relativePath));
+                }
             }
             return configurations;
         } catch (Exception e) {

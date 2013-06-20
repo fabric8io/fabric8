@@ -31,12 +31,10 @@ import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
-import org.fusesource.process.manager.config.ProcessConfig;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -102,7 +100,7 @@ public class ChildProcessManager {
 
     protected Profile getProcessProfile(ProcessRequirements requirements) {
         Container container = fabricService.getCurrentContainer();
-        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService));
+        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService), true, fabricService.getDataStore());
         return processProfile;
     }
 
