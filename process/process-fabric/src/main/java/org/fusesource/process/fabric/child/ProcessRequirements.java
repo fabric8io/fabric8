@@ -18,7 +18,9 @@ package org.fusesource.process.fabric.child;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.fusesource.process.manager.InstallOptions;
 
@@ -29,8 +31,10 @@ public class ProcessRequirements {
     private String id;
     private String kind;
     private String url;
+    private String layout;
     private List<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
     private List<String> profiles = new ArrayList<String>();
+    private Map<String, Object> properties = new HashMap<String, Object>();
 
     public ProcessRequirements(String id) {
         this.id = id;
@@ -64,6 +68,14 @@ public class ProcessRequirements {
         this.url = url;
     }
 
+    public String getLayout() {
+        return layout;
+    }
+
+    public void setLayout(String layout) {
+        this.layout = layout;
+    }
+
     public void addProfile(String profile) {
         profiles.add(profile);
     }
@@ -76,11 +88,15 @@ public class ProcessRequirements {
         this.profiles = profiles;
     }
 
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
     /**
      * Creates the installation options for the process given the requirements
      */
     public InstallOptions createInstallOptions() throws MalformedURLException {
-        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder().name(id);
+        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder().properties(properties).name(id);
         if (url != null) {
             builder = builder.url(url);
         }

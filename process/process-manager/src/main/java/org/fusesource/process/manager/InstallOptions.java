@@ -22,6 +22,8 @@ import com.google.common.base.Strings;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * The parameters used to install a jar process
@@ -45,6 +47,7 @@ public class InstallOptions implements Serializable {
         private String[] optionalDependencyPatterns = {};
         private String[] excludeDependencyFilterPatterns = {};
         private String mainClass;
+        private Map<String, Object> properties = new HashMap<String , Object>();
 
         public T name(final String name) {
             this.name = name;
@@ -160,6 +163,16 @@ public class InstallOptions implements Serializable {
             return mainClass;
         }
 
+        public Map<String, Object> getProperties() {
+            return properties;
+        }
+
+        public InstallOptionsBuilder properties(final Map<String, Object> properties) {
+            this.properties = properties;
+            return this;
+        }
+
+
         public URL getUrl() throws MalformedURLException {
             if (url != null) {
                 return url;
@@ -211,11 +224,10 @@ public class InstallOptions implements Serializable {
             } else {
                 return null;
             }
-
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(getName(), url, controllerUrl, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass);
+                return new InstallOptions(getName(), url, controllerUrl, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
         }
     }
 
@@ -230,8 +242,9 @@ public class InstallOptions implements Serializable {
     private final String[] optionalDependencyPatterns;
     private final String[] excludeDependencyFilterPatterns;
     private final String mainClass;
+    private final Map<String, Object> properties;
 
-    public InstallOptions(String name, URL url, URL controllerUrl, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass) {
+    public InstallOptions(String name, URL url, URL controllerUrl, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
@@ -239,6 +252,7 @@ public class InstallOptions implements Serializable {
         this.optionalDependencyPatterns = optionalDependencyPatterns;
         this.excludeDependencyFilterPatterns = excludeDependencyFilterPatterns;
         this.mainClass = mainClass;
+        this.properties = properties;
     }
 
     public String getName() {
@@ -267,5 +281,9 @@ public class InstallOptions implements Serializable {
 
     public String getMainClass() {
         return mainClass;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
     }
 }

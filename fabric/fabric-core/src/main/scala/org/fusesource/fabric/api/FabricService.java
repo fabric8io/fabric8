@@ -51,6 +51,19 @@ public interface FabricService {
      */
     Container getContainer(String name);
 
+    public void startContainer(String containerId);
+
+    public void startContainer(final Container container);
+
+    public void stopContainer(String containerId);
+
+    public void stopContainer(final Container container);
+
+
+    public void destroyContainer(String containerId);
+
+    public void destroyContainer(Container container);
+
     /**
      * Creates one or more new {@link Container}s with the specified {@link CreateContainerOptions}.
      * @param options   The options for the creation of the {@link Container}.
@@ -198,6 +211,13 @@ public interface FabricService {
      * @return
      */
     PortService getPortService();
+
+
+    /**
+     * Get the {@link DataStore}
+      * @return
+     */
+    DataStore getDataStore();
 
     /**
      * Get the default JVM options used when creating containers

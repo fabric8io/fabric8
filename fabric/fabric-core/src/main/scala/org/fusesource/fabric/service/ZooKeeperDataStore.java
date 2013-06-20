@@ -20,6 +20,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeData;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -55,6 +56,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
@@ -69,7 +71,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 /**
  * @author Stan Lewis
  */
-public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore,  PathChildrenCacheListener {
+public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore, PathChildrenCacheListener {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
@@ -651,9 +653,11 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         try {
             Map<String, byte[]> configurations = new HashMap<String, byte[]>();
             String path = ZkProfiles.getPath(version, profile);
-            List<String> pids = treeCache.getChildrenNames(path);
-            for (String pid : pids) {
-                configurations.put(pid, getFileConfiguration(version, profile, pid));
+            List<String> children = getAllChildren(treeCache, path);
+            for (String child : children) {
+                TreeData data = treeCache.getCurrentData(child);
+                String relativePath = child.substring(path.length() + 1);
+                configurations.put(relativePath, getFileConfiguration(version, profile, relativePath));
             }
             return configurations;
         } catch (Exception e) {
@@ -733,7 +737,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
                     }
                 }
             } else {
-               setData(curator, configPath, configuration);
+                setData(curator, configPath, configuration);
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -859,6 +863,31 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    @Override
+    public String getClusterId() {
+        try {
+            return getStringData(curator, ZkPath.CONFIG_ENSEMBLES.getPath());
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public List<String> getEnsembleContainers() {
+        List<String> containers = new ArrayList<String>();
+        try {
+            String ensemble = getStringData(curator, ZkPath.CONFIG_ENSEMBLE.getPath(getClusterId()));
+            if (ensemble != null) {
+                for (String name : ensemble.trim().split(",")) {
+                    containers.add(name);
+                }
+            }
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+        return containers;
     }
 
     private static String substituteZookeeperUrl(String key, CuratorFramework curator) {
