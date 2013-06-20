@@ -27,12 +27,23 @@
         <property name="fabricService" ref="fabricService"/>
     </bean>
 
-    <bean id="childProcessManager" class="org.fusesource.process.fabric.child.ChildProcessManager" init-method="init" destroy-method="destroy">
+    <bean id="childProcessManager" class="org.fusesource.process.fabric.child.ChildProcessManager">
         <property name="fabricService" ref="fabricService"/>
         <property name="processManager" ref="processManager"/>
+    </bean>
+
+    <bean id="childProcessManagerFactory" class="org.fusesource.process.fabric.child.ChildProcessFactory">
+        <property name="childProcessManager" ref="childProcessManager"/>
     </bean>
 
     <reference id="processManager" interface="org.fusesource.process.manager.ProcessManager" availability="mandatory"/>
 
     <service ref="containerProcessManager" interface="org.fusesource.process.fabric.ContainerProcessManager"/>
+
+    <service ref="childProcessManagerFactory" interface="org.osgi.service.cm.ManagedServiceFactory">
+        <service-properties>
+            <entry key="service.pid" value="org.fusesource.process.fabric.child"/>
+        </service-properties>
+    </service>
+
 </blueprint>
