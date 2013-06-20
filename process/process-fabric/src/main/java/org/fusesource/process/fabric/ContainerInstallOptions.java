@@ -4,6 +4,7 @@ import org.fusesource.process.manager.InstallOptions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 
 public class ContainerInstallOptions extends InstallOptions {
 
@@ -29,7 +30,7 @@ public class ContainerInstallOptions extends InstallOptions {
         }
 
         public ContainerInstallOptions build() throws MalformedURLException {
-                return new ContainerInstallOptions(container, user, password, getName(), getUrl(), getControllerUrl(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass());
+                return new ContainerInstallOptions(container, user, password, getName(), getUrl(), getControllerUrl(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties());
 
         }
     }
@@ -42,8 +43,8 @@ public class ContainerInstallOptions extends InstallOptions {
         return new ContainerInstallOptionsBuilder();
     }
 
-    public ContainerInstallOptions(String container, String user, String password, String name, URL url, URL controllerUrl, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass) {
-        super(name, url, controllerUrl, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass);
+    public ContainerInstallOptions(String container, String user, String password, String name, URL url, URL controllerUrl, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
+        super(name, url, controllerUrl, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
         this.container = container;
         this.user = user;
         this.password = password;
@@ -62,6 +63,6 @@ public class ContainerInstallOptions extends InstallOptions {
     }
 
     public InstallOptions asInstallOptions() {
-        return new InstallOptions(getName(), getUrl(), getControllerUrl(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass());
+        return new InstallOptions(getName(), getUrl(), getControllerUrl(), isOffline(), getOptionalDependencyPatterns(), getExcludeDependencyFilterPatterns(), getMainClass(), getProperties());
     }
 }

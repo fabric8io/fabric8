@@ -16,8 +16,16 @@
  */
 package org.fusesource.process.fabric.child;
 
+import com.google.common.collect.Maps;
 import org.fusesource.common.util.Objects;
+import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.internal.ProfileOverlayImpl;
+import org.fusesource.process.fabric.child.support.ByteToStringValues;
+import org.fusesource.process.fabric.child.support.LayOutPredicate;
+import org.fusesource.process.fabric.child.tasks.ApplyConfigurationTask;
+import org.fusesource.process.fabric.child.tasks.CompositeTask;
 import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
@@ -28,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  */
@@ -61,12 +71,11 @@ public class ChildProcessManager {
 
         String id = requirements.getId();
         InstallOptions installOptions = requirements.createInstallOptions();
-        InstallTask copyFiles = new InstallTask() {
-            public void install(ProcessConfig config, int id, File installDir) throws Exception {
-                // install the deploy or shared library files...
-            }
-        };
-        Installation installation = processManager.install(installOptions, copyFiles);
+        Profile processProfile = getProcessProfile(requirements);
+        Map<String, String> configuration = getProcessLayout(processProfile, requirements.getLayout());
+        InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
+        InstallTask compositeTask = new CompositeTask(applyConfiguration);
+        Installation installation = processManager.install(installOptions, compositeTask);
         if (installation != null) {
             installation.getController().start();
         }
@@ -89,6 +98,16 @@ public class ChildProcessManager {
             controller.uninstall();
             controller = null;
         }
+    }
+
+    protected Profile getProcessProfile(ProcessRequirements requirements) {
+        Container container = fabricService.getCurrentContainer();
+        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService));
+        return processProfile;
+    }
+
+    protected Map<String, String> getProcessLayout(Profile profile, String layoutPath) {
+        return ByteToStringValues.INSTANCE.apply(Maps.filterKeys(profile.getFileConfigurations(), new LayOutPredicate(layoutPath)));
     }
 
     protected Installation findProcessInstallation(String id) {

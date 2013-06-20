@@ -20,6 +20,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
@@ -54,10 +55,10 @@ public class ContainerImpl implements Container {
 
     private final Container parent;
     private final String id;
-    private final FabricServiceImpl service;
+    private final FabricService service;
     private CreateContainerMetadata<?> metadata;
 
-    public ContainerImpl(Container parent, String id, FabricServiceImpl service) {
+    public ContainerImpl(Container parent, String id, FabricService service) {
         this.parent = parent;
         this.id = id;
         this.service = service;
@@ -81,12 +82,10 @@ public class ContainerImpl implements Container {
 
     @Override
     public boolean isEnsembleServer() {
-        // TODO: how to abstract the ensemble set up ?
         try {
-            String clusterId = getStringData(service.getCurator(), ZkPath.CONFIG_ENSEMBLES.getPath());
-            String containers = getStringData(service.getCurator(), ZkPath.CONFIG_ENSEMBLE.getPath(clusterId));
-            for (String name : containers.split(",")) {
-                if (id.equals(name)) {
+            List<String> containers = service.getDataStore().getContainers();
+            for (String container : containers) {
+                if (id.equals(container)) {
                     return true;
                 }
             }

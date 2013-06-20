@@ -19,7 +19,7 @@ package org.fusesource.fabric.internal;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.api.FabricService;
 
 import java.io.IOException;
 import java.util.*;
@@ -30,9 +30,9 @@ public class ProfileImpl implements Profile {
 
     private final String id;
     private final String version;
-    private final FabricServiceImpl service;
+    private final FabricService service;
 
-    public ProfileImpl(String id, String version, FabricServiceImpl service) {
+    public ProfileImpl(String id, String version, FabricService service) {
         this.id = id;
         this.version = version;
         this.service = service;
@@ -56,7 +56,7 @@ public class ProfileImpl implements Profile {
         service.getDataStore().setProfileAttribute(version, id, key, value);
     }
 
-    public FabricServiceImpl getService() {
+    public FabricService getService() {
         return service;
     }
 

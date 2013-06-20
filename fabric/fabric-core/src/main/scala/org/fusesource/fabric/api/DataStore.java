@@ -170,4 +170,9 @@ public interface DataStore {
     FabricRequirements getRequirements();
     void setRequirements(FabricRequirements requirements) throws IOException;
 
+    //Ensemble
+    String getClusterId();
+    List<String> getEnsembleContainers();
+
+
 }

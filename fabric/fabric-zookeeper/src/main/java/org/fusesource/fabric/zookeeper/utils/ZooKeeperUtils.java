@@ -19,6 +19,7 @@ package org.fusesource.fabric.zookeeper.utils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.TreeCache;
+import org.apache.curator.framework.recipes.cache.TreeData;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
@@ -122,6 +123,10 @@ public final class ZooKeeperUtils {
         return curator.getChildren().forPath(path);
     }
 
+    public static List<String> getChildren(TreeCache cache, String path) throws Exception {
+        return cache.getChildrenNames(path);
+    }
+
     public static List<String> getAllChildren(CuratorFramework curator, String path) throws Exception {
         List<String> children = getChildren(curator, path);
         List<String> allChildren = new ArrayList<String>();
@@ -129,6 +134,17 @@ public final class ZooKeeperUtils {
             String fullPath = ZKPaths.makePath(path, child);
             allChildren.add(fullPath);
             allChildren.addAll(getAllChildren(curator, fullPath));
+        }
+        return allChildren;
+    }
+
+    public static List<String> getAllChildren(TreeCache cache, String path) throws Exception {
+        List<String> children = getChildren(cache, path);
+        List<String> allChildren = new ArrayList<String>();
+        for (String child : children) {
+            String fullPath = ZKPaths.makePath(path, child);
+            allChildren.add(fullPath);
+            allChildren.addAll(getAllChildren(cache, fullPath));
         }
         return allChildren;
     }

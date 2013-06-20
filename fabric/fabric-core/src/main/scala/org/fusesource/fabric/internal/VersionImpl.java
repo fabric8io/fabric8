@@ -24,10 +24,10 @@ import java.util.*;
 public class VersionImpl implements Version {
 
     private final String id;
-    private final FabricServiceImpl service;
+    private final FabricService service;
     private final VersionSequence sequence;
 
-    public VersionImpl(String id, FabricServiceImpl service) {
+    public VersionImpl(String id, FabricService service) {
         this.id = id;
         this.service = service;
         this.sequence = new VersionSequence(id);

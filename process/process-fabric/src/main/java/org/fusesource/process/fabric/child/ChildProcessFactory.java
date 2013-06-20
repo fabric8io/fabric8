@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Dictionary;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -34,6 +35,7 @@ public class ChildProcessFactory implements ManagedServiceFactory {
     private static final String KIND = "kind";
     private static final String URL = "url";
     private static final String PROFILES = "profiles";
+    private static final String LAYOUT = "layout";
 
     private static final String NAME = "Child Process Manager Factory";
 
@@ -80,12 +82,21 @@ public class ChildProcessFactory implements ManagedServiceFactory {
         String id = pid.substring(pid.indexOf("-") + 1);
         String kind = String.valueOf(properties.get(KIND));
         String url = String.valueOf(properties.get(URL));
+        String layout = String.valueOf(properties.get(LAYOUT));
         String[] profiles = String.valueOf(properties.get(PROFILES)).split(" ");
         ProcessRequirements processRequirements = new ProcessRequirements(id);
         processRequirements.setKind(kind);
         processRequirements.setUrl(url);
+        processRequirements.setLayout(layout);
         for (String profile : profiles) {
             processRequirements.addProfile(profile);
+        }
+
+        //Apply properties
+        for (Enumeration<String> e = properties.keys(); e.hasMoreElements(); ) {
+            String key = e.nextElement();
+            Object value = properties.get(key);
+            processRequirements.getProperties().put(key, value);
         }
         return processRequirements;
     }
