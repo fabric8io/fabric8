@@ -51,7 +51,8 @@ public class ApplyConfigurationTask implements InstallTask {
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
             String path = entry.getKey();
             String content = entry.getValue();
-            String resourcePath = path.substring(path.indexOf("/"));
+            int slashIndex = path.indexOf("/");
+            String resourcePath = slashIndex > 0 ? path.substring(slashIndex): path;
             copyToContent(installDir, resourcePath, content);
         }
     }
