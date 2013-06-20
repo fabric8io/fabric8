@@ -16,7 +16,9 @@
  */
 package org.fusesource.process.fabric.child;
 
+import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -27,7 +29,12 @@ import org.fusesource.common.util.Objects;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.process.manager.InstallOptions;
+import org.fusesource.process.manager.InstallTask;
+import org.fusesource.process.manager.Installation;
+import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.ProcessManager;
+import org.fusesource.process.manager.config.ProcessConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,10 +100,63 @@ public class ChildProcessManager {
 
             // TODO
 
+            if (processManager == null) {
+                LOG.warn("No ProcessManager so cannot provision the child processes");
+                return;
+            }
             for (ProcessRequirements requirements : requirementsMap.values()) {
-
+                try {
+                    provisionProcess(requirements);
+                } catch (Exception e) {
+                    LOG.error("Failed to provision process " + requirements + ". " + e, e);
+                }
             }
         }
+    }
+
+    protected Installation provisionProcess(ProcessRequirements requirements) throws Exception {
+        String id = requirements.getId();
+
+        Installation installation = findProcessInstallation(id);
+
+        // TODO check that the installation is the same
+        // for now lets remove it just in case! :)
+        if (installation != null) {
+            ProcessController controller = installation.getController();
+            try {
+                controller.stop();
+            } catch (Exception e) {
+                LOG.warn("Ignored exception while trying to stop process " + installation + " " + e);
+            }
+            controller.uninstall();
+            controller = null;
+        }
+
+        // TODO now build up a list of all the files.....
+
+
+        InstallOptions installOptions = requirements.createInstallOptions();
+        InstallTask copyFiles = new InstallTask() {
+            public void install(ProcessConfig config, int id, File installDir) throws Exception {
+                // install the deploy or shared library files...
+            }
+        };
+        installation = processManager.install(installOptions, copyFiles);
+        if (installation != null) {
+            installation.getController().start();
+        }
+        return installation;
+    }
+
+    protected Installation findProcessInstallation(String id) {
+        List<Installation> installations = processManager.listInstallations();
+        for (Installation installation : installations) {
+            String name = installation.getName();
+            if (Objects.equal(id, name)) {
+                return installation;
+            }
+        }
+        return null;
     }
 
     private Map<String, ProcessRequirements> loadProcessRequirements(Map<String, String> properties) {

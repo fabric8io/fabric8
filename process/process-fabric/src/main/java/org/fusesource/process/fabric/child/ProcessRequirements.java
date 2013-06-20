@@ -16,8 +16,11 @@
  */
 package org.fusesource.process.fabric.child;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.fusesource.process.manager.InstallOptions;
 
 /**
  * Describes the requirements of a child process
@@ -71,5 +74,22 @@ public class ProcessRequirements {
 
     public void setProfiles(List<String> profiles) {
         this.profiles = profiles;
+    }
+
+    /**
+     * Creates the installation options for the process given the requirements
+     */
+    public InstallOptions createInstallOptions() throws MalformedURLException {
+        InstallOptions.InstallOptionsBuilder builder = InstallOptions.builder().name(id);
+        if (url != null) {
+            builder = builder.url(url);
+        }
+        if (kind != null) {
+            if (kind.indexOf(':') < 0) {
+                kind = "profile:" + kind + ".json";
+            }
+            builder = builder.controllerUrl(kind);
+        }
+        return builder.build();
     }
 }
