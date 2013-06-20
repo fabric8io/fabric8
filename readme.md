@@ -43,7 +43,7 @@ to add kibana for ElasticSearch based search of logs, metrics & camel messages:
 
     container-add-profile root kibana
 
-the profile I used in the demo video is **exmaple-camel-fabric** or can be created via the console via:
+the profile I used in the demo video is **example-camel-fabric** or can be created via the console via:
 
     container-create-child  --profile example-camel-fabric root mycamel
 
