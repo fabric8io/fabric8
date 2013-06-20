@@ -6,7 +6,6 @@ import org.fusesource.camel.component.sap.model.rfc.DestinationData;
 import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
-import org.fusesource.camel.component.sap.model.rfc.util.ComponentDestinationDataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

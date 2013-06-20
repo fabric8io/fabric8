@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.camel.component.sap.model.rfc.util;
+package org.fusesource.camel.component.sap.util;
 
 import java.util.Collection;
 import java.util.HashSet;
