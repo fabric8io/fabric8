@@ -51,7 +51,8 @@ public class DeploymentTask implements InstallTask {
             String name = entry.getKey();
             File file = entry.getValue();
             String destPath;
-            if (name.startsWith("war:") || name.contains("/war/") || file.getName().toLowerCase()
+            String fileName = file.getName();
+            if (name.startsWith("war:") || name.contains("/war/") || fileName.toLowerCase()
                     .endsWith(".war")) {
                 destPath = config.getDeployPath();
             } else {
@@ -59,8 +60,9 @@ public class DeploymentTask implements InstallTask {
             }
 
             File destDir = new File(baseDir, destPath);
-            LOG.debug("Copying file " + file.getName() +  " to directory:  " + destDir.getCanonicalPath());
-            FileUtils.copyFile(file, destDir);
+            File destFile = new File(destDir, fileName);
+            LOG.debug("Copying file " + fileName + " to :  " + destFile.getCanonicalPath());
+            FileUtils.copyFile(file, destFile);
         }
     }
 
