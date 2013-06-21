@@ -34,7 +34,10 @@
     <modules>
         <module>camel-cxf-code-first-example</module>
         <module>camel-cxf-contract-first-example</module>
+<!--
+        TODO disabled the camel drools example for now until the code is migrated to drools / kie 6.x
         <module>camel-drools-example</module>
+-->
         <module>camel-webservice-example</module>
 <!--
         <module>camel-jbpm-example</module>
