@@ -14,7 +14,7 @@
 	<packaging>jar</packaging>
 
 	<name>Camel SAP Component</name>
-	<url>http://www.myorganization.org</url>
+	<url>http://fusesource.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -60,6 +60,21 @@
 		<dependency>
 			<groupId>org.apache.camel</groupId>
 			<artifactId>camel-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.fusesource</groupId>
+			<artifactId>org.fusesource.camel.component.sap</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.fusesource</groupId>
+			<artifactId>org.fusesource.camel.component.sap.model</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.camel</groupId>
+			<artifactId>camel-test-spring</artifactId>
+			<version>2.11.0</version>
+			<type>bundle</type>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

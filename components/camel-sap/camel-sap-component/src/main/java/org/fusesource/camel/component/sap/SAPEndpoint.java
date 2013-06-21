@@ -10,26 +10,67 @@ import org.apache.camel.impl.DefaultEndpoint;
  */
 public class SAPEndpoint extends DefaultEndpoint {
 
-    public SAPEndpoint() {
-    }
+	protected boolean isServer;
+	protected String destinationName;
+	protected String serverName;
+	protected String rfcName;
 
-    public SAPEndpoint(String uri, SAPComponent component) {
-        super(uri, component);
-    }
+	public SAPEndpoint() {
+	}
 
-    public SAPEndpoint(String endpointUri) {
-        super(endpointUri);
-    }
+	public SAPEndpoint(String uri, SAPComponent component) {
+		super(uri, component);
+	}
 
-    public Producer createProducer() throws Exception {
-        return new SAPProducer(this);
-    }
+	public Producer createProducer() throws Exception {
+		if (!isServer) {
+			return new SAPProducer(this);
+		}
+		throw new UnsupportedOperationException(
+				"Server endpoints do not support producers");
+	}
 
-    public Consumer createConsumer(Processor processor) throws Exception {
-        return new SAPConsumer(this, processor);
-    }
+	public Consumer createConsumer(Processor processor) throws Exception {
+		if (isServer) {
+			return new SAPConsumer(this, processor);
+		}
+		throw new UnsupportedOperationException(
+				"Destination endpoints do not support consumers");
+	}
 
-    public boolean isSingleton() {
-        return true;
-    }
+	public boolean isSingleton() {
+		return false;
+	}
+
+	public boolean isServer() {
+		return isServer;
+	}
+
+	public void setServer(boolean isServer) {
+		this.isServer = isServer;
+	}
+
+	public String getDestinationName() {
+		return destinationName;
+	}
+
+	public void setDestinationName(String destinationName) {
+		this.destinationName = destinationName;
+	}
+
+	public String getServerName() {
+		return serverName;
+	}
+
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
+
+	public String getRfcName() {
+		return rfcName;
+	}
+
+	public void setRfcName(String rfcName) {
+		this.rfcName = rfcName;
+	}
 }
