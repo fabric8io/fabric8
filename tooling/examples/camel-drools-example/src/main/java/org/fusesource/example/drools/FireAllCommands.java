@@ -26,11 +26,13 @@ import org.drools.core.command.runtime.BatchExecutionCommandImpl;
 import org.drools.core.command.runtime.rule.FireAllRulesCommand;
 import org.drools.core.command.runtime.rule.InsertObjectCommand;
 
-/**
- * Class to help create wrapper Drools Expert Command for use with
- * org.drools/drools-camel component.
- */
-public class DroolsCommandHelper {
+public class FireAllCommands {
+
+    public void generateCommand(Exchange exchange) throws Exception {
+        System.out.println(">> We will fire all rules commands");
+        FireAllRulesCommand fireAllRulesCommand = new FireAllRulesCommand();
+        exchange.getIn().setBody(fireAllRulesCommand);
+    }
 
     public void insertAndFireAll(Exchange exchange) {
         final Message in = exchange.getIn();
@@ -43,5 +45,4 @@ public class DroolsCommandHelper {
 
         in.setBody(command);
     }
-
 }

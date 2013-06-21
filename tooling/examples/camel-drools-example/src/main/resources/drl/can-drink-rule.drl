@@ -18,7 +18,7 @@ package org.fusesource.example.drools;
 
 import org.fusesource.example.drools.Person;
 
-rule "Cheers"
+rule "CanDrink"
 when
     p : Person( age >= 21 )
 then

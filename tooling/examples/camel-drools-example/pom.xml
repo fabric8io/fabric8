@@ -30,12 +30,15 @@
   <packaging>bundle</packaging>
   <version>99-master-SNAPSHOT</version>
 
-  <name>Camel Drools Example</name>
-  <url>http://fusesource.org/</url>
+  <name>Camel Drools6 Example</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <drools.version>6.0.0.Beta3</drools.version>
+    <!-- kie-camel uses this version of camel -->
+    <camel.version>2.10.3</camel.version>
+    <springframework.version>3.1.3.RELEASE</springframework.version>
   </properties>
 
   <repositories>
@@ -51,21 +54,34 @@
       </releases>
     </repository>
     <repository>
-        <id>fusesource.ea</id>
-        <name>FuseSource Community Early Access Release Repository</name>
-        <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
+      <id>fusesource.ea</id>
+      <name>FuseSource Community Early Access Release Repository</name>
+      <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </repository>
     <repository>
       <id>jboss-public-repository-group</id>
       <name>JBoss Public Repository Group</name>
       <url>http://repository.jboss.org/nexus/content/groups/public/</url>
       <layout>default</layout>
+      <releases>
+        <enabled>true</enabled>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>daily</updatePolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>JBoss Releases</id>
+      <name>JBoss Releases Repository Group</name>
+      <url>https://repository.jboss.org/nexus/content/repositories/releases</url>
       <releases>
         <enabled>true</enabled>
         <updatePolicy>never</updatePolicy>
@@ -90,152 +106,136 @@
       </releases>
     </pluginRepository>
     <pluginRepository>
-        <id>fusesource.ea</id>
-        <name>FuseSource Community Early Access Release Repository</name>
-        <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <releases>
-            <enabled>true</enabled>
-        </releases>
+      <id>fusesource.ea</id>
+      <name>FuseSource Community Early Access Release Repository</name>
+      <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
     </pluginRepository>
   </pluginRepositories>
 
   <dependencies>
+    <!-- Drools -->
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-api</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-internal</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-core</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-compiler</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.drools</groupId>
+      <artifactId>drools-decisiontables</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-spring</artifactId>
+      <version>${drools.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kie</groupId>
+      <artifactId>kie-camel</artifactId>
+      <version>${drools.version}</version>
+      <!-- TODO : To be fixed in Drools as we get a dependency with lastest version
+           of camel-blueprint -->
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>camel-blueprint</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- POI - Excell -->
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>3.7</version>
+    </dependency>
+
+    <!-- Spring -->
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>${spring-version}</version>
+      <version>${springframework.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <version>${spring-version}</version>
+      <version>${springframework.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
-      <version>${spring-version}</version>
+      <version>${springframework.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${springframework.version}</version>
     </dependency>
 
+    <!-- Camel -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>${camel-version}</version>
+      <version>${camel.version}</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-spring</artifactId>
-      <version>${camel-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-jaxb</artifactId>
-      <version>${camel-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-xstream</artifactId>
-      <version>${camel-version}</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.camel</groupId>
-      <artifactId>camel-cxf</artifactId>
-      <version>${camel-version}</version>
-      <scope>provided</scope>
+      <version>${camel.version}</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-bundle-jaxrs</artifactId>
-      <version>${cxf-version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-core</artifactId>
-      <version>${drools-version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-spring</artifactId>
-      <version>${drools-version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>spring-core</artifactId>
-          <groupId>org.springframework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-beans</artifactId>
-          <groupId>org.springframework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-context</artifactId>
-          <groupId>org.springframework</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-camel</artifactId>
-      <version>${drools-version}</version>
-      <exclusions>
-        <exclusion>
-          <artifactId>spring-core</artifactId>
-          <groupId>org.springframework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>spring-aop</artifactId>
-          <groupId>org.springframework</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>cxf-rt-frontend-jaxws</artifactId>
-          <groupId>org.apache.cxf</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>org.apache.camel</artifactId>
-          <groupId>camel-test</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-
-    <!-- logging -->
+    <!-- Logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>${slf4j-version}</version>
+      <version>1.7.2</version>
     </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
-      <version>1.2.16</version>
-      <scope>runtime</scope>
+    <dependency><!-- For unit test logging: configure in src/test/resources/logback-test.xml -->
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.0.9</version>
     </dependency>
 
     <!-- testing -->
     <dependency>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-test-spring</artifactId>
-        <version>${camel-version}</version>
-        <scope>test</scope>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test-spring</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
     </dependency>
     <dependency>
-	  <groupId>org.apache.camel</groupId>
-	  <artifactId>camel-test</artifactId>
-	  <version>${camel-version}</version>
-	  <scope>test</scope>
-	</dependency>
-
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-test</artifactId>
+      <version>${camel.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <version>${springframework.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -245,6 +245,15 @@
       <resource>
         <directory>${project.basedir}/src/main/resources</directory>
         <filtering>true</filtering>
+      </resource>
+      <!-- Exclude to filter Excel, DRL files  -->
+      <resource>
+        <directory>${project.basedir}/src/main/resources</directory>
+        <filtering>false</filtering>
+        <excludes>
+          <exclude>data/*.xls</exclude>
+          <exclude>srl_sample/*.drl</exclude>
+        </excludes>
       </resource>
     </resources>
 
@@ -265,17 +274,55 @@
         <version>${maven-resources-plugin-version}</version>
       </plugin>
 
+      <!-- TO BE USED WHEN Drools, Kie 6.0.0.Beta4, RC1 will be OUT
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>2.3.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Import-Package>
+                            !org.drools.camel.example,
+                            org.apache.camel;version="[2.8,3)",
+                            org.drools.core;version="[6.0,7)",
+                            org.drools.core.command.runtime;version="[6.0,7)",
+                            org.drools.core.command.runtime.rule;version="[6.0,7)",
+                            org.drools.core.conflict;version="[6.0,7)",
+                            org.drools.compiler.rule.builder.dialect.mvel;version="[6.0,7)",
+                            org.kie.api,
+                            org.kie.spring,
+                            org.kie.internal,
+                            org.kie.camel.component;version="[6.0,7)",
+                        </Import-Package>
+                        <Dynamic-ImportPackage>
+                            org.drools.core,
+                            org.drools.Compiler
+                        </Dynamic-ImportPackage>
+                        <Private-Package>
+                            org.drools.camel.example
+                        </Private-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
+      -->
+
       <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
-        <version>${maven-bundle-plugin-version}</version>
+        <!-- 2.3.7 is required otherwise bnd generates an error for the resources excel -->
+        <version>2.3.7</version>
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <Import-Package>*;resolution:=optional</Import-Package>
-            <Embed-Dependency>*;scope=compile;artifactId=!slf4j*|spring*|camel*|commons-logging*</Embed-Dependency>
+            <Bundle-SymbolicName>drools-kie-camel-example</Bundle-SymbolicName>
+            <Bundle-Name>Drools6 Camel Example</Bundle-Name>
+            <Import-Package>
+              *;resolution:=optional
+            </Import-Package>
+            <Embed-Dependency>*;scope=compile;artifactId=!slf4j*|spring*|camel*|kie*|commons-logging*</Embed-Dependency>
             <Embed-Transitive>true</Embed-Transitive>
-            <_exportcontents>org.drools.*,org.jbpm.*,org.mvel2.*</_exportcontents>
+            <_exportcontents>org.kie.*,org.drools.*,org.jbpm.*,org.mvel2.*</_exportcontents>
           </instructions>
         </configuration>
       </plugin>
@@ -304,13 +351,61 @@
         </executions>
       </plugin>
 
-      <!-- allows the route to be ran via 'mvn camel:run' -->
+      <!-- Web -->
       <plugin>
-        <groupId>org.apache.camel</groupId>
-        <artifactId>camel-maven-plugin</artifactId>
-        <version>${camel-version}</version>
+        <groupId>org.mortbay.jetty</groupId>
+        <artifactId>jetty-maven-plugin</artifactId>
+        <version>8.1.9.v20130131</version>
+        <configuration>
+          <webAppConfig>
+            <contextPath>/</contextPath>
+          </webAppConfig>
+          <systemProperties>
+            <!-- enable easy JMX connection to JConsole -->
+            <systemProperty>
+              <name>com.sun.management.jmxremote</name>
+              <value/>
+            </systemProperty>
+          </systemProperties>
+          <scanIntervalSeconds>10</scanIntervalSeconds>
+        </configuration>
       </plugin>
+
     </plugins>
   </build>
+
+  <profiles>
+    <profile>
+      <id>simple</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-maven-plugin</artifactId>
+            <version>${camel.version}</version>
+            <configuration>
+              <applicationContextUri>META-INF/spring/camel-context.xml</applicationContextUri>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>decision-table</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-maven-plugin</artifactId>
+            <version>${camel.version}</version>
+            <configuration>
+              <applicationContextUri>META-INF/spring/camel-context-decision-table.xml
+              </applicationContextUri>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

@@ -14,40 +14,107 @@
  *    limitations under the License.
  */
 
+
 package org.fusesource.example.drools;
 
 public class Person {
-	private String name;
-	private int age;
-	private boolean canDrink = false;
 
-	public String getName() {
-		return name;
-	}
+    private String name;
+    private String likes;
+    private String status;
+    private int age;
+    private boolean canDrink = false;
+    private boolean alive;
+    private char sex;
+    private boolean happy;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public Person() {
 
-	public int getAge() {
-		return age;
-	}
+    }
+    public Person(final String name) {
+        this( name,
+                "",
+                0 );
+    }
 
-	public void setAge(int age) {
-		this.age = age;
-	}
+    public Person(final String name,
+            final String likes) {
+        this( name,
+                likes,
+                0 );
+    }
 
-	public boolean isCanDrink() {
-		return canDrink;
-	}
+    public Person(final String name,
+            final String likes,
+            final int age) {
+        this.name = name;
+        this.likes = likes;
+        this.age = age;
+    }
 
-	public void setCanDrink(boolean canDrink) {
-		this.canDrink = canDrink;
-	}
+    public String getName() {
+        return name;
+    }
 
-	@Override
-	public String toString() {
-		return "Person{" + "name='" + name + '\'' + ", age=" + age
-				+ ", canDrink=" + canDrink + '}';
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public boolean isCanDrink() {
+        return canDrink;
+    }
+
+    public void setCanDrink(boolean canDrink) {
+        this.canDrink = canDrink;
+    }
+
+    public String getStatus() {
+        return this.status;
+    }
+
+    public void setStatus(final String status) {
+        this.status = status;
+    }
+
+    public String getLikes() {
+        return this.likes;
+    }
+
+    public boolean isAlive() {
+        return this.alive;
+    }
+
+    public void setAlive(final boolean alive) {
+        this.alive = alive;
+    }
+
+    public char getSex() {
+        return this.sex;
+    }
+
+    public void setSex(final char sex) {
+        this.sex = sex;
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" + "name='" + name + '\'' + ", age=" + age
+                + ", canDrink=" + canDrink + '}';
+    }
+
+    public boolean isHappy() {
+        return happy;
+    }
+
+    public void setHappy(boolean happy) {
+        this.happy = happy;
+    }
 }

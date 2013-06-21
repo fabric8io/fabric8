@@ -1,5 +1,5 @@
-Drools-Camel Component Example
-==============================
+Drools & Decision Excel Table -Camel Component Example
+======================================================
 
 To build this project use
 
@@ -9,7 +9,13 @@ This project includes a unit test, ${package}.CamelContextXmlTest, that shows ca
 
 To run this project use
 
-    mvn camel:run
+    mvn camel:run -Psimple
+
+to start a Camel project with Drools component &
+
+    mvn camel:run -Pdecision-table
+
+to make a test with a Excel Decision Table
 
 To deploy this project into [Fuse ESB](http://fusesource.com/downloads)
 
@@ -25,3 +31,5 @@ In the Fuse ESB console, use the following
 To see the results tail the Fuse ESB log
 
     tail -f <Fuse ESB Home>/data/log/fuseesb.log
+
+

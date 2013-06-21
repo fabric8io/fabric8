@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kmodule xmlns="http://jboss.org/kie/6.0.0/kmodule">
+  <kbase name="drl">
+    <ksession name="ksession1" type="stateless"/>
+    <ksession name="ksession-dt-1" type="stateless"/>
+  </kbase>
+</kmodule>

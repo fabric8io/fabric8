@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:kie="http://drools.org/schema/kie-spring"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring       http://camel.apache.org/schema/spring/camel-spring.xsd
+       http://drools.org/schema/kie-spring         org/kie/spring/kie-spring-2.0.0.xsd">
+
+  <!-- Beans used by camel in the example -->
+  <bean id="cheeseHelper" class="org.fusesource.example.drools.CheeseHelper"/>
+  <bean id="droolsHelper" class="org.fusesource.example.drools.DroolsCommandHelper"/>
+
+  <kie:ksession-ref id="ksession-dt-1">
+    <kie:batch>
+      <kie:set-global identifier="list" >
+        <bean class="java.util.ArrayList" />
+      </kie:set-global>
+    </kie:batch>
+  </kie:ksession-ref>
+
+  <camelContext xmlns="http://camel.apache.org/schema/spring">
+
+    <route trace="false" id="testRouteDecisionTable">
+      <from uri="timer:testRouteDecisionTable?period=10s"/>
+      <bean method="createTestCheese" ref="cheeseHelper"/>
+      <to uri="kie:ksession-dt-1?action=insertBody" id="AgeVerification"/>
+      <choice>
+        <when id="CheeseType">
+          <simple>${body.type}</simple>
+          <log logName="Chilton" message="Cheese ${body.type} costs ${body.price} EUR."/>
+        </when>
+        <otherwise>
+          <log logName="Cheddar" message="Cheese ${body.type} costs ${body.price} EUR."/>
+        </otherwise>
+      </choice>
+    </route>
+
+    <route trace="false" id="ruleOnBodyDT">
+      <from uri="direct://ruleOnBodyDT"/>
+      <to uri="kie:ksession-dt-1?action=insertBody"/>
+    </route>
+
+    <route trace="false" id="ruleOnCommandDT">
+      <from uri="direct://ruleOnCommandDT"/>
+      <bean method="insertAndFireAll" ref="droolsHelper"/>
+      <to uri="kie:ksession-dt-1?action=execute"/>
+    </route>
+  </camelContext>
+
+</beans>
