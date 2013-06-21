@@ -109,7 +109,7 @@
     </dependency>
 
     <dependency>
-      <groupId>org.jclouds.karaf</groupId>
+      <groupId>org.apache.jclouds.karaf</groupId>
       <artifactId>services</artifactId>
       <version>${jclouds-karaf-version}</version>
       <scope>provided</scope>
@@ -117,14 +117,14 @@
 
 
     <dependency>
-      <groupId>org.jclouds</groupId>
+      <groupId>org.apache.jclouds</groupId>
       <artifactId>jclouds-core</artifactId>
       <version>${jclouds-version}</version>
       <scope>provided</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.jclouds</groupId>
+      <groupId>org.apache.jclouds</groupId>
       <artifactId>jclouds-compute</artifactId>
       <version>${jclouds-version}</version>
       <scope>provided</scope>

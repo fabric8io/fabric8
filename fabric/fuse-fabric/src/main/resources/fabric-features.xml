@@ -21,7 +21,7 @@
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
-    <repository>mvn:org.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
+    <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
     <repository>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</repository>
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
@@ -261,13 +261,8 @@
 
     <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
         <bundle dependency='true'>mvn:org.apache.servicemix.specs/org.apache.servicemix.specs.activation-api-1.1/${servicemix-specs-version}</bundle>
-        <feature version='${jclouds-karaf-version}'>jclouds</feature>
-        <feature version='${jclouds-karaf-version}'>jclouds-driver-sshj</feature>
-        <feature version='${jclouds-karaf-version}'>jclouds-driver-jsch</feature>
-        <feature version='${jclouds-karaf-version}'>jclouds-compute</feature>
         <feature version='${jclouds-karaf-version}'>jclouds-commands</feature>
-        <bundle dependency='true'>mvn:org.jclouds.api/ec2/${jclouds-version}</bundle>
-        <bundle dependency='true'>mvn:org.jclouds.common/aws-common/${jclouds-version}</bundle>
+        <feature version='${jclouds-karaf-version}'>jclouds-api-ec2</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-core-agent-jclouds/${project.version}</bundle>
     </feature>
 

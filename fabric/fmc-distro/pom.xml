@@ -188,7 +188,7 @@
                 <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                <descriptor>mvn:org.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</descriptor>
+                <descriptor>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</descriptor>
                 <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                 <descriptor>mvn:org.fusesource.examples/fabric-activemq-demo/${fabric.version}/xml/features</descriptor>
                 <descriptor>mvn:org.fusesource.examples/fabric-camel-demo/${fabric.version}/xml/features</descriptor>

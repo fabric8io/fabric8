@@ -103,50 +103,50 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds.karaf</groupId>
+            <groupId>org.apache.jclouds.karaf</groupId>
             <artifactId>services</artifactId>
             <version>${jclouds-karaf-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds.karaf</groupId>
+            <groupId>org.apache.jclouds.karaf</groupId>
             <artifactId>utils</artifactId>
             <version>${jclouds-karaf-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds</groupId>
+            <groupId>org.apache.jclouds</groupId>
             <artifactId>jclouds-core</artifactId>
             <version>${jclouds-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds</groupId>
+            <groupId>org.apache.jclouds</groupId>
             <artifactId>jclouds-blobstore</artifactId>
             <version>${jclouds-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds</groupId>
+            <groupId>org.apache.jclouds</groupId>
             <artifactId>jclouds-compute</artifactId>
             <version>${jclouds-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds.driver</groupId>
+            <groupId>org.apache.jclouds.driver</groupId>
             <artifactId>jclouds-sshj</artifactId>
             <version>${jclouds-version}</version>
         </dependency>
 
         <dependency>
-            <groupId>org.jclouds.driver</groupId>
+            <groupId>org.apache.jclouds.driver</groupId>
             <artifactId>jclouds-log4j</artifactId>
             <version>${jclouds-version}</version>
         </dependency>
 
 
         <dependency>
-             <groupId>org.jclouds.provider</groupId>
+             <groupId>org.apache.jclouds.provider</groupId>
              <artifactId>aws-ec2</artifactId>
             <optional>true</optional>
          </dependency>

@@ -75,7 +75,7 @@
     </fuse.osgi.import.additional>
     <fuse.osgi.services.export>
     </fuse.osgi.services.export>
-    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=org.jclouds.provider|org.jclouds|org.jclouds.api|net.schmizz|org.apache.servicemix.bundles|org.bouncycastle</fuse.osgi.embed.dependency>
+    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=org.apache.jclouds.provider|org.apache.jclouds|org.apache.jclouds.api|net.schmizz|org.apache.servicemix.bundles|org.bouncycastle</fuse.osgi.embed.dependency>
     <fuse.osgi.embed.transitive>true</fuse.osgi.embed.transitive>
   </properties>
 
@@ -98,7 +98,7 @@
           <version>${fabric-version}</version>
       </dependency>
       <dependency>
-          <groupId>org.jclouds</groupId>
+          <groupId>org.apache.jclouds</groupId>
           <artifactId>jclouds-all</artifactId>
           <version>${jclouds-version}</version>
       </dependency>

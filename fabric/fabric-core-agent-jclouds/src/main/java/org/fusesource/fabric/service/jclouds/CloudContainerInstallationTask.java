@@ -18,14 +18,12 @@
 package org.fusesource.fabric.service.jclouds;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import com.google.common.base.Strings;
-import org.apache.commons.io.IOUtils;
 import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
@@ -41,6 +39,7 @@ import org.jclouds.compute.options.TemplateOptions;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.rest.AuthorizationException;
 import org.jclouds.ssh.SshException;
+import org.jledit.utils.Resources;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -196,9 +195,7 @@ public class CloudContainerInstallationTask implements Runnable {
         String ip = null;
         try {
             URL url = new URL("http://checkip.amazonaws.com/");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.connect();
-            ip = IOUtils.toString(connection.getInputStream()).trim() + "/32";
+            ip = Resources.toString(url).trim() + "/32";
         } catch (Throwable t) {
             LOGGER.warn("Failed to lookup public ip of current container.");
         }

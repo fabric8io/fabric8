@@ -105,7 +105,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         @Override
         public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
+            EC2Client ec2Client = EC2Client.class.cast(service.getContext().unwrap().getProviderMetadata().getApiMetadata());
             String groupName = "jclouds#" + node.getGroup();
             for (int port : ports) {
                 try {
@@ -129,7 +129,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         @Override
         public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
+            EC2Client ec2Client = EC2Client.class.cast(service.getContext().unwrap().getProviderMetadata().getApiMetadata());
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
             for (int port : ports) {
                 try {
@@ -148,7 +148,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         @Override
         public void flush(ComputeService service, NodeMetadata node) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = EC2Client.class.cast(service.getContext().getProviderSpecificContext().getApi());
+            EC2Client ec2Client = EC2Client.class.cast(service.getContext().unwrap().getProviderMetadata().getApiMetadata());
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
             Set<SecurityGroup> matchedSecurityGroups = ec2Client.getSecurityGroupServices().describeSecurityGroupsInRegion(region, groupName);
             for (SecurityGroup securityGroup : matchedSecurityGroups) {

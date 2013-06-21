@@ -28,7 +28,6 @@ import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.NodeState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -132,7 +131,7 @@ public class FabricRackspaceContainerTest extends FabricTestSupport {
             @Override
             public boolean apply(ComputeMetadata metadata) {
                 NodeMetadata nodeMetadata = (NodeMetadata) metadata;
-                return nodeMetadata.getGroup().equals(group) && nodeMetadata.getState().equals(NodeState.RUNNING);
+                return nodeMetadata.getGroup().equals(group) && nodeMetadata.getStatus().equals(NodeMetadata.Status.RUNNING);
             }
         })) {
             NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;

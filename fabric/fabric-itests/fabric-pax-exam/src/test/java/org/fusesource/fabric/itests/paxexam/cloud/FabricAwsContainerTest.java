@@ -17,14 +17,11 @@
 
 package org.fusesource.fabric.itests.paxexam.cloud;
 
-import java.io.IOException;
-
 import com.google.common.base.Predicate;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.NodeState;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,13 +34,14 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.io.IOException;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFileExtend;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import static org.ops4j.pax.exam.CoreOptions.scanFeatures;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -141,7 +139,7 @@ public class FabricAwsContainerTest extends FabricTestSupport {
 			@Override
 			public boolean apply(ComputeMetadata metadata) {
 				NodeMetadata nodeMetadata = (NodeMetadata) metadata;
-				return nodeMetadata.getGroup().equals(group) && nodeMetadata.getState().equals(NodeState.RUNNING);
+				return nodeMetadata.getGroup().equals(group) && nodeMetadata.getStatus().equals(NodeMetadata.Status.RUNNING);
 			}
 		})) {
 			NodeMetadata nodeMetadata = (NodeMetadata) computeMetadata;
