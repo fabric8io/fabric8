@@ -123,15 +123,15 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-spring</artifactId>
+      <groupId>${drools-spring-groupId}</groupId>
+      <artifactId>${drools-spring-artifactId}</artifactId>
       <version>${drools-version}</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
-      <groupId>org.drools</groupId>
-      <artifactId>drools-camel</artifactId>
+      <groupId>${drools-camel-groupId}</groupId>
+      <artifactId>${drools-camel-artifactId}</artifactId>
       <version>${drools-version}</version>
       <scope>test</scope>
       <!-- Need to align Camel and CXF versions here or we have two 
