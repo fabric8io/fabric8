@@ -146,7 +146,10 @@
         <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
         <curator.version>2.0.0-incubating</curator.version>
         <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
+        <drools-version>6.0.0.Beta3</drools-version>
+<!--
         <drools-version>5.5.0.Final</drools-version>
+-->
         <equinox.version>3.7.1.R37x_v20110808-1106</equinox.version>
         <exec-maven-plugin-version>1.2.1</exec-maven-plugin-version>
         <fabric-version>${project.version}</fabric-version>
