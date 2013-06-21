@@ -86,12 +86,13 @@ public class ChildProcessManager {
 
         String id = requirements.getId();
         InstallOptions installOptions = requirements.createInstallOptions();
-        Profile processProfile = getProcessProfile(requirements);
+        Profile processProfile = getProcessProfile(requirements, true);
+        Profile deployProcessProfile = getProcessProfile(requirements, false);
         Map<String, String> configuration = getProcessLayout(processProfile, requirements.getLayout());
 
         DownloadManager downloadManager = createDownloadManager(fabricService, processProfile, executorService);
         InstallTask applyConfiguration = new ApplyConfigurationTask(configuration, installOptions.getProperties());
-        InstallTask applyProfile = new DeploymentTask(downloadManager, processProfile);
+        InstallTask applyProfile = new DeploymentTask(downloadManager, deployProcessProfile);
         InstallTask compositeTask = new CompositeTask(applyConfiguration, applyProfile);
         Installation installation = processManager.install(installOptions, compositeTask);
         if (installation != null) {
@@ -118,9 +119,9 @@ public class ChildProcessManager {
         }
     }
 
-    protected Profile getProcessProfile(ProcessRequirements requirements) {
+    protected Profile getProcessProfile(ProcessRequirements requirements, boolean includeController) {
         Container container = fabricService.getCurrentContainer();
-        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService), true, fabricService.getDataStore());
+        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService, includeController), true, fabricService.getDataStore());
         return processProfile;
     }
 

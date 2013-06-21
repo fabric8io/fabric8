@@ -14,11 +14,14 @@ public class ProcessProfile extends ProfileImpl {
 
     private final Container container;
     private final ProcessRequirements requirements;
+    private final boolean includeContainerProfile;
 
-    public ProcessProfile(Container container, ProcessRequirements requirements, FabricService fabricService) {
+    public ProcessProfile(Container container, ProcessRequirements requirements, FabricService fabricService,
+                          boolean includeContainerProfile) {
         super(requirements.getId(), container.getVersion().getId(), fabricService);
         this.container = container;
         this.requirements = requirements;
+        this.includeContainerProfile = includeContainerProfile;
     }
 
     @Override
@@ -40,7 +43,9 @@ public class ProcessProfile extends ProfileImpl {
     public Profile[] getParents() {
         List<String> parents = requirements.getProfiles();
         List<Profile> profiles = new LinkedList<Profile>();
-        profiles.add(container.getOverlayProfile());
+        if (includeContainerProfile) {
+            profiles.add(container.getOverlayProfile());
+        }
         for (String parent : parents) {
             Profile p = container.getVersion().getProfile(parent);
             profiles.add(p);

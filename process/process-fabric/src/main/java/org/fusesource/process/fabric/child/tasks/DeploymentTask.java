@@ -1,21 +1,6 @@
 package org.fusesource.process.fabric.child.tasks;
 
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
-import org.fusesource.fabric.agent.download.DownloadManager;
-import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
-import org.fusesource.fabric.agent.mvn.MavenConfiguration;
-import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
-import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
-import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
-import org.fusesource.fabric.agent.utils.AgentUtils;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.utils.features.FeatureUtils;
-import org.fusesource.process.manager.InstallTask;
-import org.fusesource.process.manager.config.ProcessConfig;
-
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
@@ -23,11 +8,23 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
-import java.util.concurrent.Executors;
+
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.Repository;
+import org.codehaus.plexus.util.FileUtils;
+import org.fusesource.fabric.agent.download.DownloadManager;
+import org.fusesource.fabric.agent.utils.AgentUtils;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.utils.features.FeatureUtils;
+import org.fusesource.process.manager.InstallTask;
+import org.fusesource.process.manager.config.ProcessConfig;
+import org.fusesource.process.manager.support.ProcessUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeploymentTask implements InstallTask {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DeploymentTask.class);
 
     private static String PAX_URL_MVN_PID = "org.ops4j.pax.url.mvn";
 
@@ -43,9 +40,28 @@ public class DeploymentTask implements InstallTask {
     @Override
 
     public void install(ProcessConfig config, int id, File installDir) throws Exception {
+        File baseDir = ProcessUtils.findInstallDir(installDir);
         Set<String> bundles = new LinkedHashSet<String>(profile.getBundles());
         Set<Feature> features = getFeatures(profile);
-        Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles, Collections.<String>emptySet());
+        LOG.info("Deploying into external container features " + features + " and bundles " + bundles);
+        Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
+                Collections.<String>emptySet());
+        Set<Map.Entry<String, File>> entries = files.entrySet();
+        for (Map.Entry<String, File> entry : entries) {
+            String name = entry.getKey();
+            File file = entry.getValue();
+            String destPath;
+            if (name.startsWith("war:") || name.contains("/war/") || file.getName().toLowerCase()
+                    .endsWith(".war")) {
+                destPath = config.getDeployPath();
+            } else {
+                destPath = config.getSharedLibraryPath();
+            }
+
+            File destDir = new File(baseDir, destPath);
+            LOG.debug("Copying file " + file.getName() +  " to directory:  " + destDir.getCanonicalPath());
+            FileUtils.copyFile(file, destDir);
+        }
     }
 
     /**
