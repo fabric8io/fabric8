@@ -106,6 +106,12 @@
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.karaf.admin</groupId>
+                    <artifactId>org.apache.karaf.admin.management</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -115,11 +121,19 @@
             <scope>runtime</scope>
         </dependency>
 
+<!--
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-utils</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.karaf.features</groupId>
+                    <artifactId>org.apache.karaf.features</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+-->
 
     </dependencies>
 
