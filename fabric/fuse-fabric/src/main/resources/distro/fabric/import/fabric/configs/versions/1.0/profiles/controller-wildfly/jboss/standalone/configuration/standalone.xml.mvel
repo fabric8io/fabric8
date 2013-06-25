@@ -26,6 +26,10 @@
         <extension module="org.wildfly.extension.io"/>
         <extension module="org.wildfly.extension.undertow"/>
     </extensions>
+    <system-properties>
+        <property name="zookeeper.url" value="@{zookeeperUrl}"/>
+        <property name="zookeeper.password" value="@{zookeeperPassword}"/>
+    </system-properties>
     <management>
         <security-realms>
             <security-realm name="ManagementRealm">

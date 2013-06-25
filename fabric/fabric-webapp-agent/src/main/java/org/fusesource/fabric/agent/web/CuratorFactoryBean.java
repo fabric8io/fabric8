@@ -28,8 +28,8 @@ public class CuratorFactoryBean {
 
     private static final transient Log LOG = LogFactory.getLog(CuratorFactoryBean.class);
 
-    private String connectString = "localhost:2181";
-    private String password;
+    private String connectString = System.getProperty("zookeeper.url", "localhost:2181");
+    private String password = System.getProperty("zookeeper.password", "");
     private int timeout = 30000;
     private Watcher watcher;
     protected CuratorFramework curator;
@@ -78,7 +78,7 @@ public class CuratorFactoryBean {
                 .connectionTimeoutMs(getTimeout());
 
         if (password != null && !password.isEmpty()) {
-            builder.authorization("digest", ("fabric:"+password).getBytes("UTF-8"));
+            builder.authorization("digest", ("fabric:" + password).getBytes("UTF-8"));
         }
 
         this.curator = builder.build();

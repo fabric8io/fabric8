@@ -27,7 +27,10 @@
         <extension module="org.jboss.as.webservices"/>
         <extension module="org.jboss.as.weld"/>
     </extensions>
-
+    <system-properties>
+        <property name="zookeeper.url" value="@{zookeeperUrl}"/>
+        <property name="zookeeper.password" value="@{zookeeperPassword}"/>
+    </system-properties>
     <management>
         <security-realms>
             <security-realm name="ManagementRealm">
