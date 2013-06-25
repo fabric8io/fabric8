@@ -55,6 +55,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.google.common.base.Strings;
+
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generatePassword;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
@@ -413,24 +415,22 @@ public class FabricServiceImpl implements FabricService {
                 List<String> children = getChildren(curator, versionsPath);
                 if (children != null && !children.isEmpty()) {
                     for (String child : children) {
-                        String containerPath = versionsPath + "/" + child + "/" + name;
-                        if (curator.checkExists().forPath(containerPath) != null) {
-                            byte[] bytes = ZkPath.loadURL(curator, containerPath);
-                            String text = new String(bytes);
-                            // NOTE this is a bit naughty, we should probably be doing
-                            // Jackson parsing here; but we only need 1 String and
-                            // this avoids the jackson runtime dependency - its just a bit brittle
-                            // only finding http endpoints and all
-                            int idx = text.indexOf("\"http");
-                            answer = text;
-                            if (idx > 0) {
-                                int endIdx = text.indexOf('\"', idx + 5);
-                                if (endIdx > 0) {
-                                    answer = text.substring(idx + 1, endIdx);
-                                    if (answer.length() > 0) {
-                                        return answer;
-                                    }
+                        if (Strings.isNullOrEmpty(name)) {
+                            // lets just use the first container we find
+                            String parentPath = versionsPath + "/" + child;
+                            List<String> grandChildren = getChildren(curator, parentPath);
+                            if (!grandChildren.isEmpty()) {
+                                String containerPath = parentPath + "/" + grandChildren.get(0);
+                                answer = getWebUrl(containerPath);
+                                if (!Strings.isNullOrEmpty(answer)) {
+                                    return answer;
                                 }
+                            }
+                        } else {
+                            String containerPath = versionsPath + "/" + child + "/" + name;
+                            answer = getWebUrl(containerPath);
+                            if (!Strings.isNullOrEmpty(answer)) {
+                                return answer;
                             }
                         }
                     }
@@ -442,6 +442,29 @@ public class FabricServiceImpl implements FabricService {
         return answer;
 
 
+    }
+
+    protected String getWebUrl(String containerPath) throws Exception {
+        if (curator.checkExists().forPath(containerPath) != null) {
+            byte[] bytes = ZkPath.loadURL(curator, containerPath);
+            String text = new String(bytes);
+            // NOTE this is a bit naughty, we should probably be doing
+            // Jackson parsing here; but we only need 1 String and
+            // this avoids the jackson runtime dependency - its just a bit brittle
+            // only finding http endpoints and all
+            int idx = text.indexOf("\"http");
+            String answer = text;
+            if (idx > 0) {
+                int endIdx = text.indexOf('\"', idx + 5);
+                if (endIdx > 0) {
+                    answer = text.substring(idx + 1, endIdx);
+                    if (answer.length() > 0) {
+                        return answer;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public void registerProvider(String scheme, ContainerProvider provider) {
