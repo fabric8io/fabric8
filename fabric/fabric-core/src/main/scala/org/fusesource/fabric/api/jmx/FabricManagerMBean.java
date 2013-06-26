@@ -191,4 +191,6 @@ public interface FabricManagerMBean {
 
     void unregisterProvider(String scheme);
 
+    void applyPatches(List<String> files, String targetVersionId, String newVersionId, String proxyUser, String proxyPassword);
+
 }

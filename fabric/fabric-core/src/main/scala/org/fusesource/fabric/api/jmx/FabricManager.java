@@ -817,4 +817,64 @@ public class FabricManager implements FabricManagerMBean {
     public void unregisterProvider(String scheme) {
         getFabricService().unregisterProvider(scheme);
     }
+
+    @Override
+    public void applyPatches(List<String> files, String targetVersionId, String newVersionId, String proxyUser, String proxyPassword) {
+
+        List<File> patchFiles = new ArrayList<File>();
+
+        for (String fileName : files) {
+            File file = new File(fileName);
+            if (file.exists()) {
+                patchFiles.add(file);
+            } else {
+                LOG.warn("Patch file does not exist, skipping: {}", fileName);
+            }
+        }
+
+        if (patchFiles.size() == 0) {
+            LOG.warn("No valid patches to apply");
+            throw new FabricException("No valid patches to apply");
+        }
+
+        Version version = getFabricService().getVersion(targetVersionId);
+        if (version == null) {
+            throw new FabricException("Version " + targetVersionId + " not found");
+        }
+
+        if (newVersionId == null || newVersionId.equals("")) {
+            newVersionId = getLatestVersion().getSequence().next().getName();
+        }
+
+        Version targetVersion = getFabricService().createVersion(version, newVersionId);
+
+        File currentPatchFile = null;
+
+        try {
+            for (File file : patchFiles) {
+                currentPatchFile = file;
+                if (!file.isFile()) {
+                    LOG.info("File is a directory, skipping: {}", file);
+                    continue;
+                }
+                LOG.info("Applying patch file {}", file);
+                getFabricService().getPatchService().applyFinePatch(targetVersion, file.toURI().toURL(), proxyUser, proxyPassword);
+                LOG.info("Successfully applied {}", file);
+            }
+        } catch (Throwable t) {
+            LOG.warn("Failed to apply patch file {}", currentPatchFile, t);
+            targetVersion.delete();
+            throw new FabricException("Failed to apply patch file " + currentPatchFile, t);
+        }
+
+        for (File file : patchFiles) {
+            try {
+                LOG.info("Deleting patch file {}", file);
+                file.delete();
+            } catch (Throwable t) {
+                LOG.warn("Failed to delete patch file {} due to {}", file, t);
+            }
+        }
+
+    }
 }
