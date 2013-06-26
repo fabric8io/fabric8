@@ -16,10 +16,7 @@
  */
 package org.fusesource.fabric.service;
 
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.MQService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 
 import java.util.Map;
 
@@ -35,7 +32,13 @@ public class MQServiceImpl implements MQService {
     @Override
     public Profile createMQProfile(String versionId, String brokerName, Map<String, String> configs) {
         Version version = fabricService.getVersion(versionId);
-        Profile parentProfile = version.getProfile(MQ_PROFILE_BASE);
+
+        String parentProfileName = MQ_PROFILE_BASE;
+        if( configs!=null && configs.containsKey("parent") ) {
+            parentProfileName = configs.remove("parent");
+        }
+
+        Profile parentProfile = version.getProfile(parentProfileName);
         String pidName = "org.fusesource.mq.fabric.server-" + brokerName;
         Profile result = parentProfile;
         if (brokerName != null) {

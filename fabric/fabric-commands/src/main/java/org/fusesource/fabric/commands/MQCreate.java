@@ -34,9 +34,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.*;
 
 @Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
 public class MQCreate extends FabricCommand {
@@ -44,6 +42,12 @@ public class MQCreate extends FabricCommand {
     @Argument(index=0, required = true, description = "Broker name")
     protected String name = null;
     
+    @Option(name = "--parent-profile", description = "The parent profile to extend")
+    protected String parentProfile;
+
+    @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile")
+    List<String> properties;
+
     @Option(name = "--config", description = "Configuration to use")
     protected String config;
 
@@ -88,6 +92,18 @@ public class MQCreate extends FabricCommand {
         MQService service = new MQServiceImpl(fabricService);
 
         HashMap<String, String> configuration = new HashMap<String, String>();
+
+        if( properties!=null ) {
+            for (String entry : properties) {
+                String []parts = entry.split("=", 2);
+                if( parts.length==2 ) {
+                    configuration.put(parts[0], parts[1]);
+                } else {
+                    configuration.put(parts[0], "");
+                }
+            }
+        }
+
         if (data == null) {
             data = System.getProperty("karaf.base") + System.getProperty("file.separator")+  "data" + System.getProperty("file.separator") + name;
         }
@@ -111,6 +127,10 @@ public class MQCreate extends FabricCommand {
 
         if (networksPassword != null) {
             configuration.put("network.password", networksPassword);
+        }
+
+        if( parentProfile !=null ) {
+            configuration.put("parent", parentProfile);
         }
 
         Profile profile = service.createMQProfile(version, name, configuration);
