@@ -2,7 +2,7 @@ package org.fusesource.fabric.itests.paxexam.mq;
 
 import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.itests.paxexam.FabricFeaturesTest;
+import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.junit.After;
 import org.junit.Test;
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class MQProfileTest extends FabricFeaturesTest {
+public class MQProfileTest extends FabricTestSupport {
 
     ArrayList<Container> containers = new ArrayList<Container>();
 

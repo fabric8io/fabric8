@@ -15,15 +15,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-      <groupId>org.fusesource.fabric.itests</groupId>
-      <artifactId>fabric-itests</artifactId>
-      <version>99-master-SNAPSHOT</version>
-      <relativePath>..</relativePath>
-  </parent>
+    <parent>
+        <groupId>org.fusesource.fabric.itests</groupId>
+        <artifactId>fabric-itests</artifactId>
+        <version>99-master-SNAPSHOT</version>
+        <relativePath>..</relativePath>
+    </parent>
 
     <artifactId>fabric-pax-exam</artifactId>
     <name>Fuse Fabric :: Integration Tests :: Pax Exam</name>
@@ -42,20 +43,6 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-
-        <dependency>
-            <groupId>org.jboss.amq</groupId>
-            <artifactId>jboss-a-mq</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.activemq</groupId>
-                    <artifactId>activemq-osgi</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
 
         <!-- Internal Dependencies -->
         <dependency>
@@ -108,18 +95,18 @@
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-zookeeper</artifactId>
-          <!-- Excluding this as it can cause issues with multiple versions of commons-logging -->
-          <exclusions>
-              <exclusion>
-                  <groupId>commons-logging</groupId>
-                  <artifactId>commons-logging</artifactId>
-              </exclusion>
-              <exclusion>
-                  <groupId>commons-logging</groupId>
-                  <artifactId>commons-logging-api</artifactId>
-              </exclusion>
-          </exclusions>
+            <artifactId>fabric-zookeeper</artifactId>
+            <!-- Excluding this as it can cause issues with multiple versions of commons-logging -->
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -138,6 +125,14 @@
                 </exclusion>
             </exclusions>
             <scope>test</scope>
+        </dependency>
+
+        <!-- Testing Dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit-version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -190,10 +185,13 @@
                         <perfectus-build>${perfectus-build}</perfectus-build>
                         <fabric.version>${fabric.version}</fabric.version>
                         <project-version>${project.version}</project-version>
-                        <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}</fabricitest.rackspace.identity>
-                        <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}</fabricitest.rackspace.credential>
+                        <fabricitest.rackspace.identity>${fabricitest.rackspace.identity}
+                        </fabricitest.rackspace.identity>
+                        <fabricitest.rackspace.credential>${fabricitest.rackspace.credential}
+                        </fabricitest.rackspace.credential>
                         <fabricitest.rackspace.image>${fabricitest.rackspace.image}</fabricitest.rackspace.image>
-                        <fabricitest.rackspace.location>${fabricitest.rackspace.location}</fabricitest.rackspace.location>
+                        <fabricitest.rackspace.location>${fabricitest.rackspace.location}
+                        </fabricitest.rackspace.location>
                         <fabricitest.rackspace.user>${fabricitest.rackspace.user}</fabricitest.rackspace.user>
 
                         <fabricitest.aws.identity>${fabricitest.aws.identity}</fabricitest.aws.identity>
@@ -212,6 +210,18 @@
                         <classpathDependencyExclude>org.slf4j:slf4j-log4j12</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -244,25 +254,25 @@
             </build>
         </profile>
     </profiles>
-  <!--
-    <repositories>
-        <repository>
-            <id>repo1.maven</id>
-            <name>Maven Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>fusesource.m2</id>
-            <name>FuseSource Community Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-    -->
+    <!--
+      <repositories>
+          <repository>
+              <id>repo1.maven</id>
+              <name>Maven Central Repo</name>
+              <url>http://repo1.maven.org/maven2/</url>
+          </repository>
+          <repository>
+              <id>fusesource.m2</id>
+              <name>FuseSource Community Release Repository</name>
+              <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
+              <snapshots>
+                  <enabled>false</enabled>
+              </snapshots>
+              <releases>
+                  <enabled>true</enabled>
+              </releases>
+          </repository>
+      </repositories>
+      -->
 
 </project>

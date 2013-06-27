@@ -42,6 +42,7 @@
     <module>mq-branding</module>
     <module>mq-web-console</module>
     <module>jboss-a-mq</module>
+      <module>mq-itests</module>
   </modules>
 
 </project>
