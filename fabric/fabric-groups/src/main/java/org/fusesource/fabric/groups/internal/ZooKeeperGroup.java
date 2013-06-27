@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -75,6 +76,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * when updating data to avoid overwriting another process' change.</p>
  */
 public class ZooKeeperGroup<T> implements Group<T> {
+
     private final Logger log = LoggerFactory.getLogger(getClass());
     private final ObjectMapper mapper = new ObjectMapper();
     private final Class<T> clazz;
@@ -86,6 +88,8 @@ public class ZooKeeperGroup<T> implements Group<T> {
     private final ListenerContainer<GroupListener<T>> listeners = new ListenerContainer<GroupListener<T>>();
     private final ConcurrentMap<String, ChildData<T>> currentData = Maps.newConcurrentMap();
     private final AtomicBoolean started = new AtomicBoolean();
+    private final SequenceComparator sequenceComparator = new SequenceComparator();
+
 
     private final Watcher childrenWatcher = new Watcher() {
         @Override
@@ -267,12 +271,14 @@ public class ZooKeeperGroup<T> implements Group<T> {
     @Override
     public boolean isMaster() {
         List<ChildData<T>> children = new ArrayList<ChildData<T>>(currentData.values());
+        Collections.sort(children, sequenceComparator);
         return (!children.isEmpty() && children.get(0).getPath().equals(id));
     }
 
     @Override
     public T master() {
         List<ChildData<T>> children = new ArrayList<ChildData<T>>(currentData.values());
+        Collections.sort(children, sequenceComparator);
         if (children.isEmpty()) {
             return null;
         }
@@ -282,6 +288,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
     @Override
     public List<T> slaves() {
         List<ChildData<T>> children = new ArrayList<ChildData<T>>(currentData.values());
+        Collections.sort(children, sequenceComparator);
         List<T> slaves = new ArrayList<T>();
         for (int i = 1; i < children.size(); i++) {
             slaves.add(children.get(i).getNode());
