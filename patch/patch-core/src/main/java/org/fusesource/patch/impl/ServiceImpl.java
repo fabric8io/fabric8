@@ -78,6 +78,7 @@ public class ServiceImpl implements Service {
     private static final String BUNDLES = "bundle";
     private static final String UPDATES = "update";
     private static final String COUNT = "count";
+    private static final String RANGE = "range";
     private static final String SYMBOLIC_NAME = "symbolic-name";
     private static final String NEW_VERSION = "new-version";
     private static final String NEW_LOCATION = "new-location";
@@ -213,18 +214,9 @@ public class ServiceImpl implements Service {
     }
 
     Patch load(File file) throws IOException {
-        Properties props = new Properties();
         FileInputStream is = new FileInputStream(file);
         try {
-            props.load(is);
-            String id = props.getProperty(ID);
-            String desc = props.getProperty(DESCRIPTION);
-            List<String> bundles = new ArrayList<String>();
-            int count = Integer.parseInt(props.getProperty(BUNDLES + "." + COUNT, "0"));
-            for (int i = 0; i < count; i++) {
-                bundles.add(props.getProperty(BUNDLES + "." + Integer.toString(i)));
-            }
-            PatchImpl patch = new PatchImpl(this, id, desc, bundles);
+            PatchImpl patch = doLoad(is);
             File fr = new File(file.getParent(), file.getName() + ".result");
             if (fr.isFile()) {
                 patch.setResult(loadResult(patch, fr));
@@ -233,6 +225,26 @@ public class ServiceImpl implements Service {
         } finally {
             close(is);
         }
+    }
+
+    protected PatchImpl doLoad(InputStream is) throws IOException {
+        Properties props = new Properties();
+        props.load(is);
+        String id = props.getProperty(ID);
+        String desc = props.getProperty(DESCRIPTION);
+        List<String> bundles = new ArrayList<String>();
+        Map<String, String> ranges = new HashMap<String, String>();
+        int count = Integer.parseInt(props.getProperty(BUNDLES + "." + COUNT, "0"));
+        for (int i = 0; i < count; i++) {
+            String key = BUNDLES + "." + Integer.toString(i);
+            String bundle = props.getProperty(key);
+            bundles.add(bundle);
+
+            if (props.containsKey(key + "." + RANGE)) {
+                ranges.put(bundle, props.getProperty(key + "." + RANGE));
+            }
+        }
+        return new PatchImpl(this, id, desc, bundles, ranges);
     }
 
     Result loadResult(Patch patch, File file) throws IOException {
@@ -358,10 +370,22 @@ public class ServiceImpl implements Service {
                         continue;
                     }
                     Version v = VersionTable.getVersion(vr);
-                    // We can't really upgrade with versions such as 2.1.0
-                    Version lower = new Version(v.getMajor(), v.getMinor(), 0);
-                    if (v.compareTo(lower) > 0) {
-                        VersionRange range = new VersionRange(false, lower, v, true);
+
+                    VersionRange range = null;
+
+                    if (patch.getVersionRange(url) == null) {
+                        // default version range starts with x.y.0 as the lower bound
+                        Version lower = new Version(v.getMajor(), v.getMinor(), 0);
+
+                        // We can't really upgrade with versions such as 2.1.0
+                        if (v.compareTo(lower) > 0) {
+                            range = new VersionRange(false, lower, v, true);
+                        }
+                    } else {
+                        range = new VersionRange(patch.getVersionRange(url));
+                    }
+
+                    if (range != null) {
                         for (Bundle bundle : allBundles) {
                             Version oldV = bundle.getVersion();
                             if (bundle.getBundleId() != 0 && stripSymbolicName(sn).equals(stripSymbolicName(bundle.getSymbolicName())) && range.contains(oldV)) {
@@ -381,6 +405,8 @@ public class ServiceImpl implements Service {
                                 }
                             }
                         }
+                    } else {
+                        System.err.printf("Skipping bundle %s - unable to process bundle without a version range configuration%n", url);
                     }
                 }
                 Result result = new ResultImpl(patch, simulate, System.currentTimeMillis(), updates);

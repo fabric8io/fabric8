@@ -26,6 +26,11 @@ public interface Patch {
 
     Collection<String> getBundles();
 
+    /**
+     * Get the version range specified for updating the bundle or <code>null</code> if no version range is specified explicitly.
+     */
+    String getVersionRange(String bundle);
+
     boolean isInstalled();
 
     Result getResult();

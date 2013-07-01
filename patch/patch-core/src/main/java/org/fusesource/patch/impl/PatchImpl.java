@@ -17,6 +17,7 @@
 package org.fusesource.patch.impl;
 
 import java.util.Collection;
+import java.util.Map;
 
 import org.fusesource.patch.Patch;
 import org.fusesource.patch.Result;
@@ -26,14 +27,16 @@ public class PatchImpl implements Patch {
     private final ServiceImpl service;
     private final String id;
     private final String description;
+    private final Map<String, String> versionRanges;
     private final Collection<String> bundles;
     private Result result;
 
-    public PatchImpl(ServiceImpl service, String id, String description, Collection<String> bundles) {
+    public PatchImpl(ServiceImpl service, String id, String description, Collection<String> bundles,  Map<String, String> versionRanges) {
         this.service = service;
         this.id = id;
         this.description = description;
         this.bundles = bundles;
+        this.versionRanges = versionRanges;
     }
 
     public String getId() {
@@ -46,6 +49,11 @@ public class PatchImpl implements Patch {
 
     public Collection<String> getBundles() {
         return bundles;
+    }
+
+    @Override
+    public String getVersionRange(String bundle) {
+        return versionRanges.get(bundle);
     }
 
     public boolean isInstalled() {

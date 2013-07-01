@@ -78,6 +78,55 @@ public class ServiceImplTest {
     }
 
     @Test
+    public void testLoadWithoutRanges() throws IOException {
+        BundleContext bundleContext = createMock(BundleContext.class);
+        Bundle sysBundle = createMock(Bundle.class);
+        BundleContext sysBundleContext = createMock(BundleContext.class);
+        Bundle bundle = createMock(Bundle.class);
+        Bundle bundle2 = createMock(Bundle.class);
+        FrameworkWiring wiring = createMock(FrameworkWiring.class);
+
+        //
+        // Create a new service, download a patch
+        //
+        expect(bundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
+        expect(sysBundleContext.getProperty("fuse.patch.location"))
+                .andReturn(storage.toString()).anyTimes();
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
+
+        ServiceImpl service = new ServiceImpl(bundleContext);
+
+        Patch patch = service.doLoad(getClass().getClassLoader().getResourceAsStream("test1.patch"));
+        assertEquals(2, patch.getBundles().size());
+    }
+
+    @Test
+    public void testLoadWithRanges() throws IOException {
+        BundleContext bundleContext = createMock(BundleContext.class);
+        Bundle sysBundle = createMock(Bundle.class);
+        BundleContext sysBundleContext = createMock(BundleContext.class);
+        Bundle bundle = createMock(Bundle.class);
+
+        //
+        // Create a new service, download a patch
+        //
+        expect(bundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
+        expect(sysBundleContext.getProperty("fuse.patch.location"))
+                .andReturn(storage.toString()).anyTimes();
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
+
+        ServiceImpl service = new ServiceImpl(bundleContext);
+
+        Patch patch = service.doLoad(getClass().getClassLoader().getResourceAsStream("test2.patch"));
+        assertEquals(2, patch.getBundles().size());
+        assertEquals("[1.0.0,2.0.0)", patch.getVersionRange("mvn:org.fusesource.test/test1/1.0.0"));
+        assertNull(patch.getVersionRange("mvn:org.fusesource.test/test2/1.0.0"));
+    }
+
+
+    @Test
     public void testSymbolicNameStrip() {
         Assert.assertEquals("my.bundle", stripSymbolicName("my.bundle"));
         Assert.assertEquals("my.bundle", stripSymbolicName("my.bundle;singleton:=true"));
@@ -87,7 +136,6 @@ public class ServiceImplTest {
     
     @Test
     public void testPatch() throws Exception {
-
         BundleContext bundleContext = createMock(BundleContext.class);
         Bundle sysBundle = createMock(Bundle.class);
         BundleContext sysBundleContext = createMock(BundleContext.class);
@@ -235,7 +283,58 @@ public class ServiceImplTest {
         assertEquals(bundlev132.toURI().toURL().toString(), itb.next());
         assertNotNull(patch.getResult());
         verify(sysBundleContext, sysBundle, bundleContext, bundle);
+    }
 
+    @Test
+    public void testPatchWithVersionRanges() throws Exception {
+        BundleContext bundleContext = createMock(BundleContext.class);
+        Bundle sysBundle = createMock(Bundle.class);
+        BundleContext sysBundleContext = createMock(BundleContext.class);
+        Bundle bundle = createMock(Bundle.class);
+        Bundle bundle2 = createMock(Bundle.class);
+        FrameworkWiring wiring = createMock(FrameworkWiring.class);
+
+        //
+        // Create a new service, download a patch
+        //
+        expect(bundleContext.getBundle(0)).andReturn(sysBundle);
+        expect(sysBundle.getBundleContext()).andReturn(sysBundleContext);
+        expect(sysBundleContext.getProperty("fuse.patch.location"))
+                .andReturn(storage.toString()).anyTimes();
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
+
+        ServiceImpl service = new ServiceImpl(bundleContext);
+        Iterable<Patch> patches = service.download(patch140.toURI().toURL());
+        assertNotNull(patches);
+        Iterator<Patch> it = patches.iterator();
+        assertTrue( it.hasNext() );
+        Patch patch = it.next();
+        assertNotNull( patch );
+        assertEquals("patch-1.4.0", patch.getId());
+        assertNotNull(patch.getBundles());
+        assertEquals(1, patch.getBundles().size());
+        Iterator<String> itb = patch.getBundles().iterator();
+        assertEquals(bundlev140.toURI().toURL().toString(), itb.next());
+        assertNull(patch.getResult());
+        verify(sysBundleContext, sysBundle, bundleContext, bundle);
+
+        //
+        // Simulate the patch
+        //
+        reset(sysBundleContext, sysBundle, bundleContext, bundle);
+
+        expect(sysBundleContext.getBundles()).andReturn(new Bundle[] { bundle });
+        expect(bundle.getSymbolicName()).andReturn("my-bsn").anyTimes();
+        expect(bundle.getVersion()).andReturn(new Version("1.3.1")).anyTimes();
+        expect(bundle.getLocation()).andReturn("location");
+        expect(bundle.getBundleId()).andReturn(123L);
+        replay(sysBundleContext, sysBundle, bundleContext, bundle);
+
+        Result result = patch.simulate();
+        assertNotNull( result );
+        assertNull( patch.getResult() );
+        assertEquals(1, result.getUpdates().size());
+        assertTrue(result.isSimulation());
     }
 
     private void generateData() throws Exception {
@@ -248,10 +347,14 @@ public class ServiceImplTest {
         bundlev140 = createBundle("my-bsn", "1.4.0");
 
         patch132 = createPatch("patch-1.3.2", bundlev132);
-        patch140 = createPatch("patch-1.4.0", bundlev140);
+        patch140 = createPatch("patch-1.4.0", bundlev140, "[1.3.0,1.5.0)");
     }
 
     private File createPatch(String id, File bundle) throws Exception {
+        return createPatch(id, bundle, null);
+    }
+
+    private File createPatch(String id, File bundle, String range) throws Exception {
         File patchFile = new File(storage, "temp/" + id + ".zip");
         File pd = new File(storage, "temp/" + id + "/" + id + ".patch");
         pd.getParentFile().mkdirs();
@@ -259,6 +362,9 @@ public class ServiceImplTest {
         props.put("id", id);
         props.put("bundle.count", "1");
         props.put("bundle.0", bundle.toURI().toURL().toString());
+        if (range != null) {
+            props.put("bundle.0.range", range);
+        }
         FileOutputStream fos = new FileOutputStream(pd);
         props.store(fos, null);
         fos.close();
