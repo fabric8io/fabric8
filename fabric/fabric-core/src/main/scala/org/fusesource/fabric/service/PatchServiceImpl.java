@@ -82,6 +82,7 @@ public class PatchServiceImpl implements PatchService {
     private static final String PATCH_DESCRIPTION = "description";
     private static final String PATCH_BUNDLES = "bundle";
     private static final String PATCH_COUNT = "count";
+    private static final String PATCH_RANGE = "range";
 
     public static final String ISSUE = "issue";
     public static final String ISSUE_KEY = "key";
@@ -878,6 +879,12 @@ public class PatchServiceImpl implements PatchService {
             int count = Integer.parseInt(properties.getProperty(PATCH_BUNDLES + "." + PATCH_COUNT, "0"));
             for (int i = 0; i < count; i++) {
                 String url = properties.getProperty(PATCH_BUNDLES + "." + Integer.toString(i));
+
+                String range = properties.getProperty(PATCH_BUNDLES + "." + Integer.toString(i) + "." + PATCH_RANGE);
+                if (range != null) {
+                    url = String.format("%s;range=%s", url, range);
+                }
+
                 this.bundles.add(url);
             }
         }

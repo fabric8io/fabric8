@@ -84,6 +84,7 @@
             org.apache.karaf.features.*,
             org.apache.karaf.util.collections.*,
             org.apache.felix.utils.*,
+            org.apache.felix.framework.*,
             org.apache.aries.util*,
             org.fusesource.fabric.fab.*,
             aQute.*,

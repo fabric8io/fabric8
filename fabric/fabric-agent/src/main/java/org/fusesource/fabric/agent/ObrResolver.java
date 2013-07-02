@@ -46,6 +46,7 @@ import org.apache.felix.bundlerepository.RepositoryAdmin;
 import org.apache.felix.bundlerepository.Requirement;
 import org.apache.felix.bundlerepository.Resource;
 import org.apache.felix.bundlerepository.impl.ResourceImpl;
+import org.apache.felix.framework.util.VersionRange;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.fusesource.fabric.fab.DependencyTree;
@@ -55,6 +56,9 @@ import org.osgi.framework.Version;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.agent.utils.AgentUtils.FAB_PROTOCOL;
+
+import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
+import static org.fusesource.fabric.utils.PatchUtils.extractVersionRange;
 
 public class ObrResolver {
 
@@ -150,8 +154,9 @@ public class ObrResolver {
         }
         for (String override : overrides) {
             Resource over = null;
+
             try {
-                over = createResource(override, downloads, fabs);
+                over = createResource(extractUrl(override), downloads, fabs);
             } catch (Exception e) {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.info("Ignoring patched resource: {}: {}", new Object[] { override, e.getMessage() }, e);
@@ -167,9 +172,19 @@ public class ObrResolver {
             boolean dependency = true;
             for (Resource res : new ArrayList<Resource>(ress)) {
                 if (res.getSymbolicName().equals(over.getSymbolicName())) {
-                    Version v1 = res.getVersion();
-                    Version v2 = new Version(v1.getMajor(), v1.getMinor() + 1, 0);
-                    if (compareFuseVersions(v1, over.getVersion()) < 0 && compareFuseVersions(over.getVersion(), v2) < 0) {
+                    VersionRange range;
+
+                    String vr = extractVersionRange(override);
+                    if (vr == null) {
+                        // default to micro version compatibility
+                        Version v1 = res.getVersion();
+                        Version v2 = new Version(v1.getMajor(), v1.getMinor() + 1, 0);
+                        range = new VersionRange(v1, true, v2, false);
+                    } else {
+                        range = VersionRange.parse(vr);
+                    }
+
+                    if (range.isInRange(res.getVersion())) {
                         ress.remove(res);
                         dependency &= infos.remove(res).isDependency();
                         add = true;

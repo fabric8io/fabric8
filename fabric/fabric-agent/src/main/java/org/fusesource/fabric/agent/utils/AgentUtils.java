@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 
+import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
+
 public class AgentUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
@@ -56,7 +58,7 @@ public class AgentUtils {
             locations.add(bundle);
         }
         for (String override : overrides) {
-            locations.add(override);
+            locations.add(extractUrl(override));
         }
         final CountDownLatch latch = new CountDownLatch(locations.size());
         final Map<String, File> downloads = new ConcurrentHashMap<String, File>();
