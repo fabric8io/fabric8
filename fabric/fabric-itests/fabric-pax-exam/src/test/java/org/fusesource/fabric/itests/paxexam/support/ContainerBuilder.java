@@ -247,4 +247,18 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
             }
         }
     }
+
+    /**
+     * Stop all containers.
+     * The container directory will not get deleted.
+     */
+    public static void stop() {
+        for (Container c : CONTAINERS) {
+            try {
+                c.stop();
+            } catch (Exception ex) {
+                //noop
+            }
+        }
+    }
 }
