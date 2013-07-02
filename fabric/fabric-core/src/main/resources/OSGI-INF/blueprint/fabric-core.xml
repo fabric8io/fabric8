@@ -131,6 +131,6 @@
 
     <service ref="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" />
 
-    <service ref="lockService" interface="org.fusesource.fabric.api.LockService"/>
+    <service ref="lockService" interface="org.fusesource.fabric.api.locks.LockService"/>
 
 </blueprint>

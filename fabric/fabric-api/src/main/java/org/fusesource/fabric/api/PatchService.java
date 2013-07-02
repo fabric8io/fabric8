@@ -27,7 +27,7 @@ public interface PatchService {
      * The url can be a complex url where the maven artifact is embedded, such as when
      * using wrap or war url handlers.
      *
-     * @param the url to get the maven artifact for
+     * @param url the url to get the maven artifact for
      * @return the maven artifact or <code>null</code> if the url isn't maven based
      */
     String getMavenArtifact(String url);

@@ -21,7 +21,6 @@ import org.apache.curator.framework.recipes.locks.InterProcessLock;
 import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.LockService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.zookeeper.ZkPath;
 

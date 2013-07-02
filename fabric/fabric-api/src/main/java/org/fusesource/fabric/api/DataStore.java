@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-import org.apache.zookeeper.KeeperException;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

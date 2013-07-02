@@ -26,13 +26,13 @@ import org.fusesource.fabric.api.CreateContainerChildOptions;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
@@ -73,7 +73,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     jvmOptsBuilder.append(" -Xmx512m");
                 }
                 if (options.isEnsembleServer()) {
-                    jvmOptsBuilder.append(" ").append(ENSEMBLE_SERVER_CONTAINER);
+                    jvmOptsBuilder.append(" ").append(Constants.ENSEMBLE_SERVER_CONTAINER);
                 }
 
                 if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {

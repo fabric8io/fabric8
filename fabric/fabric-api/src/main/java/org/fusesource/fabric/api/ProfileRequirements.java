@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -146,7 +144,7 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     /**
      * Returns true if these requirements are empty (and so do not need to be persisted)
      */
-    @JsonIgnore
+    //@JsonIgnore
     public boolean isEmpty() {
         return isEmpty(minimumInstances) && isEmpty(maximumInstances) && isEmpty(dependentProfiles);
     }

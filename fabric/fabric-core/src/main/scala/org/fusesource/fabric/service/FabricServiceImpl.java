@@ -37,6 +37,7 @@ import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
+import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
@@ -472,7 +473,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void registerProvider(ContainerProvider provider, Map<String, Object> properties) {
-        String scheme = (String) properties.get(ContainerProvider.PROTOCOL);
+        String scheme = (String) properties.get(Constants.PROTOCOL);
         registerProvider(scheme, provider);
     }
 
@@ -483,7 +484,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {
-        String scheme = (String) properties.get(ContainerProvider.PROTOCOL);
+        String scheme = (String) properties.get(Constants.PROTOCOL);
         unregisterProvider(scheme);
     }
 

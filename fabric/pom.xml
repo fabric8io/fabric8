@@ -44,6 +44,9 @@
         <module>fabric-camel-facade</module>
         <module>fabric-servicemix-facade</module>
 
+        <module>fabric-utils</module>
+        <module>fabric-api</module>
+
         <module>fabric-core</module>
         <module>fabric-linkedin-zookeeper</module>
         <module>fabric-zookeeper</module>
@@ -100,12 +103,11 @@
 
         <module>fabric-examples</module>
         <module>fabric-itests</module>
-        <module>fabric-utils</module>
-        
+
         <module>openshift</module>
-        <!--
-        <module>fmc-distro</module>
-        -->
+      <!--
+      <module>fmc-distro</module>
+      -->
 
 
     </modules>

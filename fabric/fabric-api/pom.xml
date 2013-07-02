@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <artifactId>fabric-project</artifactId>
+    <groupId>org.fusesource.fabric</groupId>
+    <version>99-master-SNAPSHOT</version>
+  </parent>
+  <packaging>bundle</packaging>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>fabric-api</artifactId>
+
+  <name>${project.artifactId}</name>
+  <description>Fuse Fabric :: API</description>
+
+  <properties>
+    <fuse.osgi.import>
+      org.fusesource.fabric.api*;version=${project.version}
+    </fuse.osgi.import>
+    <fuse.osgi.export>
+      org.fusesource.fabric.api*;version=${project.version}
+    </fuse.osgi.export>
+  </properties>
+
+
+</project>

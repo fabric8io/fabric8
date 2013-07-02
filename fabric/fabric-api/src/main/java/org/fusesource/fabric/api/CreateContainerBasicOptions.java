@@ -18,13 +18,7 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
-import org.fusesource.fabric.utils.Ports;
+import java.util.*;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions{
 
@@ -37,8 +31,13 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     //The default value is null, so that we know if the user explicitly specified a resolver.
     protected String resolver = null;
     protected String manualIp;
-    protected Integer minimumPort = Ports.MIN_PORT_NUMBER;
-    protected Integer maximumPort = Ports.MAX_PORT_NUMBER;
+
+    // let's try and avoid importing fabric-util
+    //protected Integer minimumPort = Ports.MIN_PORT_NUMBER;
+    //protected Integer maximumPort = Ports.MAX_PORT_NUMBER;
+    protected Integer minimumPort = 0;
+    protected Integer maximumPort = 65535;
+
     protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
     protected Integer number = 1;
     protected URI proxyUri;

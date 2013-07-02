@@ -65,6 +65,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-boot-commands</artifactId>
         </dependency>

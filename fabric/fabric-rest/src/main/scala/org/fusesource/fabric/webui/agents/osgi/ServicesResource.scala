@@ -18,10 +18,11 @@ package org.fusesource.fabric.webui.agents.osgi
 import javax.ws.rs.{Path, PathParam}
 import org.fusesource.fabric.api.Container
 import org.fusesource.fabric.webui.BaseResource
+import org.fusesource.fabric.internal.ContainerImpl
 
 class ServicesResource(val agent: Container, jmx_username: String, jmx_password: String) extends BaseResource {
 
-  private def services = agent.getServices(agent_template(agent, jmx_username, jmx_password))
+  private def services = agent.asInstanceOf[ContainerImpl].getServices(agent_template(agent, jmx_username, jmx_password))
 
   override def get: Array[ServiceResource] = services.map(new ServiceResource(_))
 
