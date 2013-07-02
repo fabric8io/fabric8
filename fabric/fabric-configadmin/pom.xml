@@ -31,6 +31,10 @@
     <description>Fuse Fabric :: ZooKeeper ConfigAdmin Bridge</description>
 
     <properties>
+        <fuse.osgi.import>
+          org.fusesource.fabric.api*,
+          *
+        </fuse.osgi.import>
         <fuse.osgi.export>
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
@@ -55,6 +59,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-api</artifactId>
         </dependency>
 
         <dependency>

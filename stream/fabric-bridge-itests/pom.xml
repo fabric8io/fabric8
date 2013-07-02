@@ -113,6 +113,12 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-api</artifactId>
+      <version>${project.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>

@@ -20,6 +20,7 @@
 
     <properties>
         <fuse.osgi.import>
+            org.fusesource.fabric.api*,
             org.osgi.service.event;resolution:=optional,
             *
         </fuse.osgi.import>
@@ -37,6 +38,12 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-api</artifactId>
+          <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>

@@ -90,7 +90,7 @@ public class FabricRequirements {
     public void removeEmptyRequirements() {
         Iterator<ProfileRequirements> iterator = profileRequirements.iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().isEmpty()) {
+            if (iterator.next().checkIsEmpty()) {
                 iterator.remove();
             }
         }

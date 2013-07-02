@@ -1273,6 +1273,11 @@
               <artifactId>easymock</artifactId>
               <version>2.4</version>
           </dependency>
+          <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymockclassextension</artifactId>
+            <version>2.4</version>
+          </dependency>
           <!-- JSCH -->
           <dependency>
               <groupId>org.apache.servicemix.bundles</groupId>

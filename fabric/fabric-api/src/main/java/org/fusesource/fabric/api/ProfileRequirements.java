@@ -145,7 +145,8 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
      * Returns true if these requirements are empty (and so do not need to be persisted)
      */
     //@JsonIgnore
-    public boolean isEmpty() {
+    // name this differently so it's not picked up as a property
+    public boolean checkIsEmpty() {
         return isEmpty(minimumInstances) && isEmpty(maximumInstances) && isEmpty(dependentProfiles);
     }
 

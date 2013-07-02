@@ -51,6 +51,10 @@
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core</artifactId>
     </dependency>
 

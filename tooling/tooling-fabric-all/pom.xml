@@ -64,6 +64,11 @@
   <dependencies>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core</artifactId>
       <version>${project.version}</version>
     </dependency>

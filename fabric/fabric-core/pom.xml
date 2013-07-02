@@ -35,7 +35,9 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.export>
-          org.fusesource.fabric.api*;version=${project.version},
+          org.fusesource.fabric.api.jmx;version=${project.version},
+          org.fusesource.fabric.api.locks;version=${project.version},
+          org.fusesource.fabric.api.monitor;version=${project.version},
           org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
           org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
         </fuse.osgi.export>
@@ -124,16 +126,16 @@
           <scope>provided</scope>
       </dependency>
 
-        <dependency>
-          <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-utils</artifactId>
-          <scope>provided</scope>
-      </dependency>
-
       <dependency>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-api</artifactId>
         <scope>provided</scope>
+      </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-utils</artifactId>
+          <scope>provided</scope>
       </dependency>
 
 
@@ -185,11 +187,23 @@
         </dependency>
 
 -->
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+          <groupId>org.easymock</groupId>
+          <artifactId>easymock</artifactId>
+          <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymockclassextension</artifactId>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>cglib</groupId>
+        <artifactId>cglib-nodep</artifactId>
+        <version>2.1</version>
+        <scope>test</scope>
+      </dependency>
+
 
     </dependencies>
 

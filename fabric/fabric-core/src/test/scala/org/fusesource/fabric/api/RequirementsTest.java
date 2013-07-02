@@ -16,7 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-import junit.framework.TestCase;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.junit.Test;
 
@@ -38,13 +37,13 @@ public class RequirementsTest {
         profiles.add(new ProfileRequirements("example-camel", 1, null, "mq"));
 
         // lets check we can make it empty
-        assertEquals(false, dummy.isEmpty());
+        assertEquals(false, dummy.checkIsEmpty());
 
         dummy.setDependentProfiles(null);
         dummy.setMinimumInstances(0);
-        assertEquals(true, dummy.isEmpty());
+        assertEquals(true, dummy.checkIsEmpty());
         dummy.setMinimumInstances(null);
-        assertEquals(true, dummy.isEmpty());
+        assertEquals(true, dummy.checkIsEmpty());
 
         FabricRequirements requirements = new FabricRequirements(profiles);
         requirements.removeEmptyRequirements();
