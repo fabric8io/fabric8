@@ -28,6 +28,7 @@ import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
+import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,12 +121,8 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
         group.start();
 	}
 
-	public void onDisconnected() {
-        try {
-            group.close();
-        } catch (IOException e) {
-            // ignore
-        }
+    public void onDisconnected() {
+        Closeables.closeQuitely(group);
         group = null;
     }
 }
