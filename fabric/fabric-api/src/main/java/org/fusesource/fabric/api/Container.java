@@ -49,6 +49,8 @@ public interface Container extends HasId {
 
     Profile[] getProfiles();
     void setProfiles(Profile[] profiles);
+    void addProfiles(Profile... profiles);
+    void removeProfiles(Profile... profiles);
 
     Profile getOverlayProfile();
 

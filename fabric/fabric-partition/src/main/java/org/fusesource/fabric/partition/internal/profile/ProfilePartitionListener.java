@@ -142,9 +142,7 @@ public class ProfilePartitionListener implements PartitionListener {
             }
 
             targetProfile.setFileConfigurations(configs);
-            Set<Profile> localProfiles = Sets.newHashSet(current.getProfiles());
-            localProfiles.add(targetProfile);
-            current.setProfiles(localProfiles.toArray(new Profile[localProfiles.size()]));
+            current.addProfiles(targetProfile);
             assignedPartitons.put(taskDefinition, partition);
         }
     }
@@ -159,9 +157,7 @@ public class ProfilePartitionListener implements PartitionListener {
         for (Partition partition : partitions) {
             String profileId = taskDefinition + "-" + ZKPaths.getNodeFromPath(partition.getId());
             Profile toBeRemoved = fabricService.getVersion(version.getId()).getProfile(profileId);
-            Set<Profile> localProfiles = Sets.newHashSet(current.getProfiles());
-            localProfiles.remove(toBeRemoved);
-            current.setProfiles(localProfiles.toArray(new Profile[localProfiles.size()]));
+            current.removeProfiles(toBeRemoved);
             assignedPartitons.remove(taskDefinition, partition);
             toBeRemoved.delete();
         }

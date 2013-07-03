@@ -305,30 +305,13 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public void addProfilesToContainer(String container, List<String> profiles) {
         Container cont = getFabricService().getContainer(container);
-        Profile[] existing = cont.getProfiles();
-        if (existing != null) {
-            for (Profile p : existing) {
-                if (!profiles.contains(p.getId())) {
-                    profiles.add(p.getId());
-                }
-            }
-        }
-        cont.setProfiles(stringsToProfiles(cont.getVersion(), profiles));
+        cont.addProfiles(stringsToProfiles(cont.getVersion(), profiles));
     }
 
     @Override
     public void removeProfilesFromContainer(String container, List<String> profiles) {
         Container cont = getFabricService().getContainer(container);
-        Profile[] existing = cont.getProfiles();
-        List<String> updated = new ArrayList<String>();
-        if (existing != null) {
-            for (Profile p : existing) {
-                if (!profiles.contains(p.getId())) {
-                    updated.add(p.getId());
-                }
-            }
-        }
-        cont.setProfiles(stringsToProfiles(cont.getVersion(), updated));
+        cont.removeProfiles(stringsToProfiles(cont.getVersion(), profiles));
     }
 
 

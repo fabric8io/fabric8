@@ -39,8 +39,10 @@ import javax.management.openmbean.TabularData;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
@@ -203,6 +205,34 @@ public class ContainerImpl implements Container {
         }
         service.getDataStore().setContainerProfiles(id, profileIds);
     }
+
+    @Override
+    public void addProfiles(Profile... profiles) {
+        List<Profile> addedProfiles = Arrays.asList(profiles);
+        List<Profile> updatedProfileList = new LinkedList<Profile>();
+        for (Profile p : getProfiles()) {
+            updatedProfileList.add(p);
+        }
+
+        for (Profile addedProfile : addedProfiles) {
+            if (!updatedProfileList.contains(addedProfile)) {
+                updatedProfileList.add(addedProfile);
+            }
+        }
+        setProfiles(updatedProfileList.toArray(new Profile[updatedProfileList.size()]));
+    }
+
+    @Override
+    public void removeProfiles(Profile... profiles) {
+        List<Profile> removedProfiles = Arrays.asList(profiles);
+        List<Profile> updatedProfileList = new LinkedList<Profile>();
+        for (Profile p : getProfiles()) {
+            if (!removedProfiles.contains(p))
+                updatedProfileList.add(p);
+        }
+        setProfiles(updatedProfileList.toArray(new Profile[updatedProfileList.size()]));
+    }
+
 
     public Profile getOverlayProfile() {
         return new ProfileOverlayImpl(new ContainerProfile(), true, service.getDataStore());

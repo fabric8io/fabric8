@@ -18,11 +18,13 @@ package org.fusesource.fabric.commands;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
@@ -42,19 +44,8 @@ public class ContainerRemoveProfile extends FabricCommand {
 
 
         Container cont = getContainer(container);
-        Profile[] existingProfiles = cont.getProfiles();
-        List<String> updatedProfiles = new LinkedList<String>();
-
-        if (existingProfiles != null) {
-            for (Profile existingProfile : existingProfiles) {
-                if (!profiles.contains(existingProfile.getId())) {
-                    updatedProfiles.add(existingProfile.getId());
-                }
-            }
-        }
-        Profile[] profs = getProfiles(cont.getVersion(), updatedProfiles);
-        cont.setProfiles(profs);
+        Profile[] profs = getProfiles(cont.getVersion(), profiles);
+        cont.removeProfiles(profs);
         return null;
     }
-
 }
