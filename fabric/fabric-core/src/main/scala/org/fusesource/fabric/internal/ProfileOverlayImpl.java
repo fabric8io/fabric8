@@ -174,6 +174,11 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public void delete(boolean force) {
+        throw new UnsupportedOperationException("Can not delete an overlay profile");
+    }
+
+    @Override
     public Profile getOverlay() {
         return this;
     }

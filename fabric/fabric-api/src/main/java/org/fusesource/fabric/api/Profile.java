@@ -124,6 +124,8 @@ public interface Profile extends Comparable<Profile>, HasId {
 
     void delete();
 
+    public void delete(boolean force);
+
     void setBundles(List<String> values);
 
     void setFabs(List<String> values);

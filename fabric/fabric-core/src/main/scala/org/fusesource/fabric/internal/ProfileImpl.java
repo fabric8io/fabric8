@@ -282,7 +282,28 @@ public class ProfileImpl implements Profile {
     }
 
     public void delete() {
-        service.deleteProfile(this);
+        delete(false);
+    }
+
+    public void delete(boolean force) {
+        Container[] containers = getAssociatedContainers();
+        if (containers.length == 0) {
+            service.getDataStore().deleteProfile(version, id);
+        } else if (force) {
+            for (Container container : containers) {
+                container.removeProfiles(this);
+            }
+            service.getDataStore().deleteProfile(version, id);
+        } else {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Cannot delete profile:").append(id).append(".");
+            sb.append("Profile has assigned ").append(containers.length).append(" container(s):");
+            for (Container c :containers) {
+                sb.append(" ").append(c.getId());
+            }
+            sb.append(". Use force option to also remove the profile from the containers.");
+            throw new FabricException(sb.toString());
+        }
     }
 
     public boolean configurationEquals(Profile other) {

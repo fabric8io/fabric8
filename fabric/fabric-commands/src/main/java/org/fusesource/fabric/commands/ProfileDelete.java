@@ -30,6 +30,8 @@ public class ProfileDelete extends FabricCommand {
 
     @Option(name = "--version", description = "The profile version to delete. Defaults to the current default version.")
     private String version;
+    @Option(name = "--force", description = "Force the removal of the profile from all assigned containers.")
+    private boolean force;
     @Argument(index = 0, required = true, name = "profile", description = "Name of the profile to delete.")
     @CompleterValues(index = 0)
     private String name;
@@ -42,7 +44,7 @@ public class ProfileDelete extends FabricCommand {
 
         for (Profile profile : ver.getProfiles()) {
             if (name.equals(profile.getId())) {
-                profile.delete();
+                profile.delete(force);
             }
         }
         return null;
