@@ -410,6 +410,8 @@ public class Bridge implements ConnectionStateListener, GroupListener<GitZkBridg
                 // Sync zookeeper
                 String zkNode = ZkPath.CONFIG_VERSION.getPath(version);
                 create(zookeeper, zkNode);
+                create(zookeeper, ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version));
+                create(zookeeper, ZkPath.CONFIG_VERSIONS_CONTAINERS.getPath(version));
                 syncVersionFromGitToZk(git, zookeeper, zkNode);
                 // Flag version as active
                 versionsMetadata.put(version, git.getRepository().getRef("HEAD").getObjectId().getName());

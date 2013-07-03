@@ -51,6 +51,7 @@ public enum ZkPath {
     CONFIG_VERSION                 ("/fabric/configs/versions/{version}"),
     CONFIG_VERSIONS_PROFILES       ("/fabric/configs/versions/{version}/profiles"),
     CONFIG_VERSIONS_PROFILE        ("/fabric/configs/versions/{version}/profiles/{profile}"),
+    CONFIG_VERSIONS_CONTAINERS     ("/fabric/configs/versions/{version}/containers"),
     CONFIG_VERSIONS_CONTAINER      ("/fabric/configs/versions/{version}/containers/{container}"),
 	CONFIG_ENSEMBLES               ("/fabric/configs/ensemble"),
 	CONFIG_ENSEMBLE_URL            ("/fabric/configs/ensemble/url"),
