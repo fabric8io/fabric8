@@ -30,6 +30,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class FabricConfigAdminBridge implements Runnable {
 
@@ -41,51 +43,58 @@ public class FabricConfigAdminBridge implements Runnable {
 
     private ConfigurationAdmin configAdmin;
     private FabricService fabricService;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public ConfigurationAdmin getConfigAdmin() {
-        return configAdmin;
-    }
-
-    public void setConfigAdmin(ConfigurationAdmin configAdmin) {
+    public synchronized void bindConfigAdmin(ConfigurationAdmin configAdmin) {
         this.configAdmin = configAdmin;
     }
 
-    public synchronized void init() {
-        run();
+    public synchronized void unbindConfigAdmin(ConfigurationAdmin configAdmin) {
+        this.configAdmin = null;
     }
 
-    public synchronized void destroy() {
-        if (fabricService != null) {
+    public synchronized void bindFabricService(FabricService fabricService) {
+        if (this.fabricService != null) {
             this.fabricService.unTrackConfiguration(this);
+        }
+        this.fabricService = fabricService;
+        if (this.fabricService != null) {
+            this.fabricService.trackConfiguration(this);
+            run();
         }
     }
 
-    public synchronized void bind(FabricService fabricService) {
-        this.fabricService = fabricService;
-        run();
+    public synchronized void unbindFabricService(FabricService fabricService) {
+        if (this.fabricService != null) {
+            this.fabricService.unTrackConfiguration(this);
+        }
+        this.fabricService = null;
     }
 
-    public synchronized void unbind(FabricService fabricService) {
-        this.fabricService = null;
+    public void init() {
+    }
+
+    public void destroy() {
     }
 
     @Override
     public void run() {
-        if (fabricService != null) {
-            this.fabricService.trackConfiguration(this);
-            try {
+        executor.submit(new Runnable() {
+            @Override
+            public void run() {
                 update();
-            } catch (Exception ex) {
-                //do not propagate exception back.
             }
-        }
+        });
     }
 
-    protected void update() {
+    protected synchronized void update() {
         try {
+            if (fabricService == null || configAdmin == null) {
+                return;
+            }
             Profile profile = fabricService.getCurrentContainer().getOverlayProfile();
             final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
-            List<Configuration> configs = asList(getConfigAdmin().listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
+            List<Configuration> configs = asList(configAdmin.listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
             for (String pid : pidProperties.keySet()) {
                 Hashtable<String, String> c = new Hashtable<String, String>();
                 c.putAll(pidProperties.get(pid));
@@ -126,7 +135,7 @@ public class FabricConfigAdminBridge implements Runnable {
                 fabricService.getPortService().unRegisterPort(fabricService.getCurrentContainer(), config.getPid());
                 config.delete();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
         }
     }
@@ -158,15 +167,15 @@ public class FabricConfigAdminBridge implements Runnable {
 
     Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid) throws Exception {
         String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
-        Configuration[] oldConfiguration = getConfigAdmin().listConfigurations(filter);
+        Configuration[] oldConfiguration = configAdmin.listConfigurations(filter);
         if (oldConfiguration != null && oldConfiguration.length > 0) {
             return oldConfiguration[0];
         } else {
             Configuration newConfiguration;
             if (factoryPid != null) {
-                newConfiguration = getConfigAdmin().createFactoryConfiguration(pid, null);
+                newConfiguration = configAdmin.createFactoryConfiguration(pid, null);
             } else {
-                newConfiguration = getConfigAdmin().getConfiguration(pid, null);
+                newConfiguration = configAdmin.getConfiguration(pid, null);
             }
             return newConfiguration;
         }

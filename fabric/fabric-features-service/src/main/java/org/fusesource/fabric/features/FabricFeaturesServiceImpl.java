@@ -36,49 +36,32 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
-public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionStateListener, Runnable {
+public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
     private FabricService fabricService;
-    private CuratorFramework curator;
-
 
     private final Set<Repository> repositories = new HashSet<Repository>();
     private final Set<Feature> allfeatures = new HashSet<Feature>();
     private final Set<Feature> installed = new HashSet<Feature>();
 
-    public synchronized void init() {
-        run();
-    }
-
-    public synchronized void destroy() {
-        if (fabricService != null) {
+    public synchronized void bindFabricService(FabricService fabricService) {
+        if (this.fabricService != null) {
             this.fabricService.unTrackConfiguration(this);
         }
-    }
-
-    public synchronized void bind(FabricService fabricService) {
         this.fabricService = fabricService;
-        run();
-    }
-
-    public synchronized void unbind(FabricService fabricService) {
-        this.fabricService = null;
-    }
-
-
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
+        if (this.fabricService != null) {
+            this.fabricService.trackConfiguration(this);
+            run();
         }
+    }
+
+    public synchronized void unbindFabricService(FabricService fabricService) {
+        if (this.fabricService != null) {
+            this.fabricService.unTrackConfiguration(this);
+        }
+        this.fabricService = null;
     }
 
     @Override
@@ -86,15 +69,6 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
         repositories.clear();
         allfeatures.clear();
         installed.clear();
-    }
-
-    public synchronized void onConnected() {
-        if (fabricService != null) {
-            fabricService.trackConfiguration(this);
-        }
-    }
-
-    public void onDisconnected() {
     }
 
     @Override
@@ -425,11 +399,4 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
         }
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
 }
