@@ -47,3 +47,18 @@ the profile I used in the demo video is **example-camel-fabric** or can be creat
 
     container-create-child  --profile example-camel-fabric root mycamel
 
+
+Running the drools workbench
+----------------------------
+
+To demonstrate the provisioning of Tomcat from inside Fuse Fabric along with registering all Tomcat's web apps with the Fabric registry (so we can do cross-application linking easily), try the following:
+
+    container-add-profile root drools-consoles-controller
+
+Now there should be a child Tomcat process running with the drools workbench installed inside it. You can then see it running (give it a minute or so to startup etc):
+
+    ps
+
+If it doens't appear at first, be patient; it takes a little while to download the tomcat & drools workbench distros and get them running (they are not currently pre-cached in the Fuse Fabric distro).
+
+If you run the hawtio application, you should see the Rules tab on the Fabric page; which links to the drools workbench web application running in the child Tomcat container.
