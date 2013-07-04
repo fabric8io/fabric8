@@ -105,6 +105,7 @@
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-api</artifactId>
           <version>${project.version}</version>
+          <scope>compile</scope>
         </dependency>
 
         <dependency>
