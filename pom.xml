@@ -241,7 +241,7 @@
         <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
         <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
         <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
-        <servicemix-utils-version>1.5.1.redhat-${full-perfectus-build}</servicemix-utils-version>
+        <servicemix-utils-version>1.6.0.redhat-${full-perfectus-build}</servicemix-utils-version>
         <servlet-api-version>2.5</servlet-api-version>
         <sigar-version>1.6.4</sigar-version>
         <slf4j-api-version>1.6.6</slf4j-api-version>
