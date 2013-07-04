@@ -171,7 +171,6 @@
                                    <feature>war</feature>
                                    <feature>mq-web-console</feature>
                                    <feature>patch</feature>
-                                   <feature>patch-client</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                                <repository>target/features-repo</repository>
