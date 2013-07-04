@@ -23,8 +23,4 @@
         <bundle>mvn:org.fusesource.patch/patch-commands/${project.version}</bundle>
     </feature>
 
-    <feature name="patch-client" version="${project.version}">
-        <bundle>mvn:org.fusesource.patch/patch-client/${project.version}</bundle>
-    </feature>
-
 </features>

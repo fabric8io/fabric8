@@ -74,7 +74,6 @@
                               <feature>camel-jdbc</feature>
                               <feature>camel-jms</feature>
                               <feature>patch</feature>
-                              <feature>patch-client</feature>
                             </features>
                         </configuration>
                     </execution>
