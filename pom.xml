@@ -237,7 +237,7 @@
         <scalamd-version>1.5</scalamd-version>
         <scalate-version>1.5.3</scalate-version>
         <scalatest-version>1.6.1</scalatest-version>
-        <servicemix-components-version>2012.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
+        <servicemix-components-version>2013.01.0.redhat-${full-perfectus-build}</servicemix-components-version>
         <servicemix-features-version>4.5.0.redhat-${full-perfectus-build}</servicemix-features-version>
         <servicemix-nmr-version>1.6.0.redhat-${full-perfectus-build}</servicemix-nmr-version>
         <servicemix-specs-version>2.3.0.redhat-${full-perfectus-build}</servicemix-specs-version>
