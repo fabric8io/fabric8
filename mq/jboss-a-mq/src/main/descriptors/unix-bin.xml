@@ -156,6 +156,11 @@
             <outputDirectory>extras</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
+        <file>
+            <source>${basedir}/target/dependencies/unix/qpid-amqp-1-0-client-jms-${qpid-jms-version}.jar</source>
+            <outputDirectory>extras</outputDirectory>
+            <fileMode>0644</fileMode>
+        </file>
     </files>
 
 

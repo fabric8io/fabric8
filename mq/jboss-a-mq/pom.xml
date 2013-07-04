@@ -243,6 +243,13 @@
                                     <type>zip</type>
                                     <outputDirectory>target/dependencies/unix</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>org.apache.qpid</groupId>
+                                    <artifactId>qpid-amqp-1-0-client-jms</artifactId>
+                                    <version>${qpid-jms-version}</version>
+                                    <type>jar</type>
+                                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
