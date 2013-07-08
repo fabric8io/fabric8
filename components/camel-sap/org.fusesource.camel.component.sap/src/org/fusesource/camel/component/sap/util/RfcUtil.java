@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
+ * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  * 
  */
@@ -18,6 +18,9 @@ package org.fusesource.camel.component.sap.util;
 
 import static org.fusesource.camel.component.sap.model.rfc.RfcPackage.eNS_URI;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +38,8 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.xmi.XMLResource;
+import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.emf.edit.command.SetCommand;
 import org.eclipse.emf.edit.domain.AdapterFactoryEditingDomain;
 import org.eclipse.emf.edit.domain.EditingDomain;
@@ -44,6 +49,7 @@ import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
+import org.xml.sax.InputSource;
 
 import com.sap.conn.jco.JCoContext;
 import com.sap.conn.jco.JCoDestination;
@@ -321,7 +327,7 @@ public class RfcUtil {
 
 		jcoFunction.execute(destination);
 
-		Structure response = getResponse(destination, functionName);
+		Structure response = getResponse(destination.getRepository(), functionName);
 		extractJCoParameterListsIntoResponse(jcoFunction, response);
 
 		return response;
@@ -348,6 +354,18 @@ public class RfcUtil {
 		fillJCoRecordFromStructure(request, jcoFunction.getTableParameterList());
 	}
 
+	public static void fillJCoParameterListsFromResponse(Structure response, JCoFunction jcoFunction) {
+		fillJCoRecordFromStructure(response, jcoFunction.getChangingParameterList());
+		fillJCoRecordFromStructure(response, jcoFunction.getTableParameterList());
+		fillJCoRecordFromStructure(response, jcoFunction.getExportParameterList());
+	}
+
+	public static void extractJCoParameterListsIntoRequest(JCoFunction jcoFunction, Structure request) {
+		extractJCoRecordIntoStructure(jcoFunction.getImportParameterList(), request);
+		extractJCoRecordIntoStructure(jcoFunction.getChangingParameterList(), request);
+		extractJCoRecordIntoStructure(jcoFunction.getTableParameterList(), request);
+	}
+
 	public static void extractJCoParameterListsIntoResponse(JCoFunction jcoFunction, Structure response) {
 		extractJCoRecordIntoStructure(jcoFunction.getChangingParameterList(), response);
 		extractJCoRecordIntoStructure(jcoFunction.getTableParameterList(), response);
@@ -370,7 +388,7 @@ public class RfcUtil {
 		request.execute(jcoDestination);
 		JCoContext.end(jcoDestination);
 	}
-	
+
 	public static Object getValue(EObject object, String featureName) {
 		EStructuralFeature feature = object.eClass().getEStructuralFeature(featureName);
 		if (feature == null)
@@ -398,7 +416,7 @@ public class RfcUtil {
 			return false;
 		return setValue(object, feature, value);
 	}
-	
+
 	public static boolean setValue(EObject object, EStructuralFeature feature, Object value) {
 		try {
 			EditingDomain editingDomain = AdapterFactoryEditingDomain.getEditingDomainFor(object);
@@ -498,47 +516,34 @@ public class RfcUtil {
 		}
 	}
 
-	public static Structure getRequest(JCoDestination destination, String functionModuleName) {
-		return (Structure) getInstance(destination, functionModuleName, "Request");
+	public static Structure getRequest(JCoRepository repository, String functionModuleName) {
+		return (Structure) getInstance(repository, functionModuleName, "Request");
 	}
 
-	public static Structure getResponse(JCoDestination destination, String functionModuleName) {
-		return (Structure) getInstance(destination, functionModuleName, "Response");
+	public static Structure getResponse(JCoRepository repository, String functionModuleName) {
+		return (Structure) getInstance(repository, functionModuleName, "Response");
 	}
 
-	public static EObject getInstance(JCoDestination destination, String functionModuleName, String eClassName) {
-		try {
-			JCoRepository repository = destination.getRepository();
-			String nsURI = eNS_URI + "/" + repository.getName() + "/" + functionModuleName;
+	public static EObject getInstance(JCoRepository repository, String functionModuleName, String eClassName) {
+		String nsURI = eNS_URI + "/" + repository.getName() + "/" + functionModuleName;
 
-			EPackage ePackage = getEPackage(destination, nsURI);
-			EClassifier classifier = ePackage.getEClassifier(eClassName);
-			if (!(classifier instanceof EClass))
-				return null;
-
-			EClass eClass = (EClass) classifier;
-			EObject eObject = ePackage.getEFactoryInstance().create(eClass);
-
-			return eObject;
-		} catch (JCoException e) {
+		EPackage ePackage = getEPackage(repository, nsURI);
+		EClassifier classifier = ePackage.getEClassifier(eClassName);
+		if (!(classifier instanceof EClass))
 			return null;
-		}
+
+		EClass eClass = (EClass) classifier;
+		EObject eObject = ePackage.getEFactoryInstance().create(eClass);
+
+		return eObject;
 	}
 
-	public static EPackage getEPackage(JCoDestination destination, String nsURI) {
+	public static EPackage getEPackage(JCoRepository repository, String nsURI) {
 
 		// Check whether the requested package has already been built.
 		EPackage ePackage = (EPackage) EPackage.Registry.INSTANCE.get(nsURI);
 		if (ePackage != null) {
 			return ePackage;
-		}
-
-		// Retrieve the destination's repository.
-		JCoRepository repository;
-		try {
-			repository = destination.getRepository();
-		} catch (JCoException e1) {
-			return null;
 		}
 
 		// Check whether the requested package is defined by the destination's
@@ -852,5 +857,20 @@ public class RfcUtil {
 		default:
 			return EcorePackage.Literals.EBYTE_ARRAY;
 		}
+	}
+
+	public static String marshal(EObject eObject) throws IOException {
+		XMLResource resource = new XMLResourceImpl();
+		resource.getContents().add(eObject);
+		StringWriter out = new StringWriter();
+		resource.save(out, null);
+		return out.toString();
+	}
+
+	public static EObject unmarshal(String string) throws IOException {
+		XMLResource resource = new XMLResourceImpl();
+		StringReader in = new StringReader(string);
+		resource.load(new InputSource(in), null);
+		return resource.getContents().get(0);
 	}
 }

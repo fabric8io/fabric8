@@ -44,7 +44,7 @@ public class RfcUtilTest {
 	public void test() throws JCoException {
 		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination"); 
 		
-		Structure request = RfcUtil.getRequest(jcoDestination, "STFC_CONNECTION");
+		Structure request = RfcUtil.getRequest(jcoDestination.getRepository(), "STFC_CONNECTION");
 		RfcUtil.setValue(request, "REQUTEXT", "Hello, SAP!");
 		
 		Structure response = RfcUtil.executeFunction(jcoDestination, "STFC_CONNECTION", request);

@@ -49,19 +49,19 @@
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.fusesource</groupId>
+				<groupId>com.sap.conn.jco</groupId>
 				<artifactId>com.sap.conn.jco</artifactId>
 				<version>3.0.8-SNAPSHOT</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.fusesource</groupId>
+				<groupId>com.sap.conn.jco</groupId>
 				<artifactId>com.sap.conn.jco.linux.x86_64</artifactId>
 				<version>3.0.8-SNAPSHOT</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.fusesource</groupId>
+				<groupId>com.sap.conn.jco</groupId>
 				<artifactId>com.sap.conn.jco.osx.x86_64</artifactId>
 				<version>3.0.8-SNAPSHOT</version>
 				<scope>compile</scope>
@@ -89,6 +89,18 @@
 				<artifactId>camel-test</artifactId>
 				<version>2.11.0</version>
 				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-test-spring</artifactId>
+				<version>2.11.0</version>
+				<type>bundle</type>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>com.sap.conn.jco</groupId>
+				<artifactId>sapjco3</artifactId>
+				<version>3.0.8</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
