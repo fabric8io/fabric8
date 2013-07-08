@@ -127,6 +127,7 @@
                                 <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel.version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf.version}/xml/features</descriptor>
+                                <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
                                 <descriptor>file:${basedir}/target/classes/features.xml</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
