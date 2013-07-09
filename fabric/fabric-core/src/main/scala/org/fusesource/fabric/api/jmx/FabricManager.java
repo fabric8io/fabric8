@@ -253,7 +253,14 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void deleteProfile(String versionId, String profileId) {
-        getFabricService().deleteProfile(versionId, profileId);
+        deleteProfile(versionId, profileId, true);
+    }
+
+    @Override
+    public void deleteProfile(String versionId, String profileId, boolean force) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile p = v.getProfile(profileId);
+        p.delete(force);
     }
 
     @Override
@@ -618,6 +625,41 @@ public class FabricManager implements FabricManagerMBean {
         } catch (Exception e) {
             throw new FabricException("Error setting config file: ", e);
         }
+    }
+
+    @Override
+    public void setProfileBundles(String versionId, String profileId, List<String> bundles) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setBundles(bundles);
+    }
+
+    @Override
+    public void setProfileFeatures(String versionId, String profileId, List<String> features) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setFeatures(features);
+    }
+
+    @Override
+    public void setProfileRepositories(String versionId, String profileId, List<String> repositories) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setRepositories(repositories);
+    }
+
+    @Override
+    public void setProfileFabs(String versionId, String profileId, List<String> fabs) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setFabs(fabs);
+    }
+
+    @Override
+    public void setProfileOverrides(String versionId, String profileId, List<String> overrides) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setOverrides(overrides);
     }
 
 
