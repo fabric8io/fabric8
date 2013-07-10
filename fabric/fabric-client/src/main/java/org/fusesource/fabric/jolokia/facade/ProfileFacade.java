@@ -1,0 +1,228 @@
+package org.fusesource.fabric.jolokia.facade;
+
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.HasId;
+import org.fusesource.fabric.api.Profile;
+import org.jolokia.client.J4pClient;
+import org.jolokia.client.exception.J4pException;
+import org.jolokia.client.request.J4pExecRequest;
+import org.jolokia.client.request.J4pExecResponse;
+
+import javax.management.MalformedObjectNameException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import static org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector.createExecRequest;
+
+/**
+ * @author Stan Lewis
+ */
+public class ProfileFacade implements Profile, HasId {
+
+    J4pClient j4p;
+    String id;
+    String versionId;
+
+    public ProfileFacade(J4pClient j4p, String versionId, String id) {
+        this.j4p = j4p;
+        this.versionId = versionId;
+        this.id = id;
+    }
+
+    private static <T extends Object> T getFieldValue(J4pClient j4p, String operation, String versionId, String id, String field) {
+        T rc = null;
+        try {
+            J4pExecRequest request = createExecRequest(operation, versionId, id, Helpers.toList(field));
+            J4pExecResponse response = j4p.execute(request);
+            Map<String, Object> value = response.getValue();
+            rc = (T)value.get(field);
+        } catch (MalformedObjectNameException e) {
+            throw new RuntimeException("Failed to get container field", e);
+        } catch (J4pException e) {
+            throw new RuntimeException("Failed to get container field", e);
+        }
+        return rc;
+    }
+
+    private <T extends Object> T getFieldValue(String field) {
+        return getFieldValue(j4p, "getProfile(java.lang.String, java.lang.String, java.util.List)", versionId, id, field);
+    }
+
+    @Override
+    public String getVersion() {
+        return versionId;
+    }
+
+    @Override
+    public Map<String, String> getAttributes() {
+        return getFieldValue("attributes");
+    }
+
+    @Override
+    public void setAttribute(String s, String s2) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public Profile[] getParents() {
+        String[] profiles = getFieldValue("parents");
+        if (profiles == null || profiles.length == 0) {
+            return new Profile[0];
+        }
+        List<Profile> answer = new ArrayList<Profile>();
+        for (String profile : profiles) {
+            answer.add(new ProfileFacade(j4p, versionId, profile));
+        }
+        return answer.toArray(new Profile[answer.size()]);
+    }
+
+    @Override
+    public void setParents(Profile[] profiles) {
+        List<String> parentIds = new ArrayList<String>();
+        for (Profile profile : profiles) {
+            parentIds.add(profile.getId());
+        }
+        Helpers.exec(j4p, "changeProfileParents(java.lang.String, java.lang.String, java.util.List)", versionId, id, parentIds);
+    }
+
+    @Override
+    public Container[] getAssociatedContainers() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public List<String> getBundles() {
+        return getFieldValue("bundles");
+    }
+
+    @Override
+    public List<String> getFabs() {
+        return getFieldValue("fabs");
+    }
+
+    @Override
+    public List<String> getFeatures() {
+        return getFieldValue("features");
+    }
+
+    @Override
+    public List<String> getRepositories() {
+        return getFieldValue("repositories");
+    }
+
+    @Override
+    public List<String> getOverrides() {
+        return getFieldValue("overrides");
+    }
+
+    @Override
+    public Map<String, byte[]> getFileConfigurations() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public void setFileConfigurations(Map<String, byte[]> stringMap) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public Map<String, Map<String, String>> getConfigurations() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public Map<String, String> getContainerConfiguration() {
+        return getFieldValue("containerConfiguration");
+    }
+
+    @Override
+    public void setConfigurations(Map<String, Map<String, String>> stringMapMap) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public Profile getOverlay() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public boolean isOverlay() {
+        return getFieldValue("overlay");
+    }
+
+    @Override
+    public void delete() {
+        Void v = Helpers.exec(j4p, "deleteProfile(java.lang.String, java.lang.String)", versionId, id);
+    }
+
+    @Override
+    public void delete(boolean b) {
+        Void v = Helpers.exec(j4p, "deleteProfile(java.lang.String, java.lang.String)", versionId, id);
+    }
+
+    @Override
+    public void setBundles(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileBundles(java.lang.String, java.lang.String, java.util.List)", id, strings);
+    }
+
+    @Override
+    public void setFabs(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileFabs(java.lang.String, java.lang.String, java.util.List)", id, strings);
+    }
+
+    @Override
+    public void setFeatures(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileFeatures(java.lang.String, java.lang.String, java.util.List)", id, strings);
+    }
+
+    @Override
+    public void setRepositories(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileRepositories(java.lang.String, java.lang.String, java.util.List)", id, strings);
+    }
+
+    @Override
+    public void setOverrides(List<String> strings) {
+        Void v = Helpers.exec(j4p, "setProfileOverrides(java.lang.String, java.lang.String, java.util.List)", id, strings);
+    }
+
+    @Override
+    public boolean configurationEquals(Profile profile) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public boolean agentConfigurationEquals(Profile profile) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public boolean isAbstract() {
+        return getFieldValue("abstract");
+    }
+
+    @Override
+    public boolean isLocked() {
+        return getFieldValue("locked");
+    }
+
+    @Override
+    public boolean isHidden() {
+        return getFieldValue("hidden");
+    }
+
+    @Override
+    public long getLastModified() {
+        return getFieldValue("lastModified");
+    }
+
+    @Override
+    public int compareTo(Profile profile) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+}
