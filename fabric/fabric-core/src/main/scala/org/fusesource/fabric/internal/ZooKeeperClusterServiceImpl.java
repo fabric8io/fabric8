@@ -122,10 +122,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         } catch (IOException e) {
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
-
-        String zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD);
-
-        CreateEnsembleOptions createOpts = CreateEnsembleOptions.builder().users(userProps).build();
+        CreateEnsembleOptions createOpts = CreateEnsembleOptions.builder().fromSystemProperties().users(userProps).build();
 
         createLocalServer(createOpts);
     }
@@ -384,7 +381,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createCluster(List<String> containers) {
-        createCluster(containers, CreateEnsembleOptions.builder().build());
+        createCluster(containers, CreateEnsembleOptions.builder().fromSystemProperties().build());
     }
 
     public void createCluster(List<String> containers, CreateEnsembleOptions options) {

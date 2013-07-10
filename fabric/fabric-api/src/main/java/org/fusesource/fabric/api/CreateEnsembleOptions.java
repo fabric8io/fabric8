@@ -23,8 +23,7 @@ import java.util.Map;
 
 public class CreateEnsembleOptions extends ContainerOptions {
 
-    public static String BIND_ADDRESS = "bind.address";
-    public static String BIND_PORT = "zookeeper.server.port";
+    public static String ZOOKEEPER_SERVER_PORT = "zookeeper.server.port";
     public static final String ROLE_DELIMITER = ",";
 
     public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
@@ -39,7 +38,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         @Override
         public B fromSystemProperties() {
             super.fromSystemProperties();
-            this.zooKeeperServerPort = Integer.parseInt(System.getProperty(BIND_PORT, "2181"));
+            this.zooKeeperServerPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_PORT, "2181"));
             return (B) this;
         }
 
