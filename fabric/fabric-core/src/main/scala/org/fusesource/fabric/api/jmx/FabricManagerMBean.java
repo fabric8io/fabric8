@@ -118,6 +118,8 @@ public interface FabricManagerMBean {
 
     Map<String, Object> defaultVersion();
 
+    String getDefaultVersion();
+
     FabricStatus fabricStatus();
 
     String getMavenRepoUploadURI();

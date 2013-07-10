@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api.jmx;
 
 import org.apache.commons.codec.binary.Base64;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
@@ -147,6 +148,7 @@ public class FabricManager implements FabricManagerMBean {
         CreateContainerBasicOptions.Builder builder = null;
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         if (providerType.equals("child")) {
             builder = mapper.convertValue(options, CreateChildContainerOptions.Builder.class);
@@ -470,6 +472,10 @@ public class FabricManager implements FabricManagerMBean {
         return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getDefaultVersion(), BeanUtils.getFields(Version.class));
     }
 
+    @Override
+    public String getDefaultVersion() {
+        return getFabricService().getDefaultVersion().getId();
+    }
 
     @Override
     public FabricStatus fabricStatus() {
