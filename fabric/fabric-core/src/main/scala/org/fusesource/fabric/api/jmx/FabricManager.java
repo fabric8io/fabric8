@@ -472,6 +472,10 @@ public class FabricManager implements FabricManagerMBean {
         return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getDefaultVersion(), BeanUtils.getFields(Version.class));
     }
 
+    @Override
+    public String getDefaultVersion() {
+        return getFabricService().getDefaultVersion().getId();
+    }
 
     @Override
     public FabricStatus fabricStatus() {
