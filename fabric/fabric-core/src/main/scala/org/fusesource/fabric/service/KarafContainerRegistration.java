@@ -290,8 +290,12 @@ public class
         int port = fabricService.getPortService().lookupPort(container, pid, key);
         if (port > 0) {
             return port;
-        } else if (config.getProperties() != null) {
-            port = Integer.parseInt((String) config.getProperties().get(key));
+        } else if (config.getProperties() != null && config.getProperties().get(key) != null) {
+            try {
+                port = Integer.parseInt((String) config.getProperties().get(key));
+            } catch (NumberFormatException ex) {
+                port = defaultValue;
+            }
         } else {
             port = defaultValue;
         }
