@@ -56,9 +56,8 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
             path = ZookeeperBackingEngine.USERS_NODE;
         }
         try {
-            ZookeeperProperties users = new ZookeeperProperties(path);
-            users.bind(((FabricServiceImpl)service).getCurator());
-
+            ZookeeperProperties users = new ZookeeperProperties(((FabricServiceImpl)service).getCurator(), path);
+            users.load();
             engine = new ZookeeperBackingEngine(users, encryptionSupport);
         } catch (Exception e) {
             LOGGER.warn("Cannot initialize engine", e);
