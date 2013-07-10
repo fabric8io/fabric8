@@ -27,65 +27,46 @@ import java.util.Properties;
 public interface CreateContainerOptions extends Serializable, Cloneable {
 
     String getName();
-    void setName(String name);
 
     String getParent();
-    void setParent(String parent);
 
     String getProviderType();
-    void setProviderType(String providerType);
 
     boolean isEnsembleServer();
-    void setEnsembleServer(boolean setEnsembleServer);
 
     String getResolver();
-    void setResolver(String resolver);
 
     String getManualIp();
-    void setManualIp(String manualIp);
 
-    Map<String,Properties> getSystemProperties();
+    Map<String, Properties> getSystemProperties();
 
     String getPreferredAddress();
-    void setPreferredAddress(String preferredAddress);
 
     String getBindAddress();
-    void setBindAddress(String bindAddress);
 
     int getMinimumPort();
-    void setMinimumPort(int port);
 
     int getMaximumPort();
-    void setMaximumPort(int port);
 
     Integer getNumber();
-    void setNumber(Integer number);
 
     URI getProxyUri();
-    void setProxyUri(URI proxyUri);
 
     String getZookeeperUrl();
-    void setZookeeperUrl(String zookeeperUrl);
 
     String getZookeeperPassword();
-    void setZookeeperPassword(String zookeeperPassword);
 
     String getJvmOpts();
-    void setJvmOpts(String jvmOpts);
 
 
     boolean isAdminAccess();
-    void setAdminAccess(boolean adminAccess);
 
-    void setCreationStateListener(CreationStateListener listener);
     CreationStateListener getCreationStateListener();
 
     Map<String, ? extends CreateContainerMetadata> getMetadataMap();
 
     List<String> getProfiles();
-    void setProfiles(List<String> profiles);
 
     String getVersion();
-    void setVersion(String version);
 
 }

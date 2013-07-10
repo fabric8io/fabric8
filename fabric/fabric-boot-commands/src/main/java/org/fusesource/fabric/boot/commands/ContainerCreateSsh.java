@@ -30,6 +30,7 @@ import org.fusesource.fabric.utils.shell.ShellUtils;
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
+import java.net.InetAddress;
 import java.net.URI;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
@@ -76,15 +77,16 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         preCreateContainer(name);
         validateProfileName(profiles);
 
-        CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
-        CreateSshContainerOptions options = CreateContainerOptionsBuilder.ssh()
+
+        CreateSshContainerOptions.Builder builder = CreateSshContainerOptions.builder()
         .name(name)
+        .ensembleServer(isEnsembleServer)
         .resolver(resolver)
         .bindAddress(bindAddress)
         .manualIp(manualIp)
-        .ensembleServer(isEnsembleServer)
         .number(number)
         .host(host)
+        .preferredAddress(InetAddress.getByName(host).getHostAddress())
         .username(user)
         .password(password)
         .privateKeyFile(privateKeyFile != null ? privateKeyFile : CreateSshContainerOptions.DEFAULT_PRIVATE_KEY_FILE)
@@ -97,17 +99,18 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
-        .jvmOpts(jvmOpts)
-        .createEnsembleOptions(ensembleOptions)
+        .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
+        .zookeeperPassword(zookeeperPassword)
+        .withUser(newUser, newUserPassword , newUserRole)
         .version(version)
         .profiles(profiles);
 
 
         if (path != null && !path.isEmpty()) {
-            options.setPath(path);
+            builder.path(path);
         }
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(options);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
 
         if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
             ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());

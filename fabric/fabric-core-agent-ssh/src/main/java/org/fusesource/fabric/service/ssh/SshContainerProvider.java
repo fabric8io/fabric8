@@ -58,7 +58,6 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             String path = options.getPath();
             String host = options.getHost();
             String ip = InetAddress.getByName(host).getHostAddress();
-            options.setPreferredAddress(ip);
             if (host == null) {
                 throw new IllegalArgumentException("Host name not specified.");
             }
@@ -78,7 +77,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
                 metadata.setCreateOptions(options);
                 metadata.setContainerName(containerName);
-                String script = buildInstallAndStartScript(options.name(containerName));
+                String script = buildInstallAndStartScript(containerName, options);
                 logger.debug("Running script on host {}:\n{}", host, script);
                 try {
                     runScriptOnHost(options,script);
@@ -104,7 +103,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
             try {
-                String script = buildStartScript(options.name(container.getId()));
+                String script = buildStartScript(container.getId(), options);
                 runScriptOnHost(options,script);
             } catch (Throwable t) {
                 logger.error("Failed to start container: "+container.getId(),t);
@@ -121,7 +120,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
             try {
-                String script = buildStopScript(options.name(container.getId()));
+                String script = buildStopScript(container.getId(), options);
                 runScriptOnHost(options,script);
             } catch (Throwable t) {
                 logger.error("Failed to stop container: " + container.getId(), t);
@@ -138,7 +137,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
             CreateSshContainerMetadata sshContainerMetadata = (CreateSshContainerMetadata) metadata;
             CreateSshContainerOptions options = sshContainerMetadata.getCreateOptions();
             try {
-                String script = buildUninstallScript(options.name(container.getId()));
+                String script = buildUninstallScript(container.getId(), options);
                 runScriptOnHost(options, script);
             } catch (Throwable t) {
                 logger.error("Failed to stop container: "+container.getId(),t);

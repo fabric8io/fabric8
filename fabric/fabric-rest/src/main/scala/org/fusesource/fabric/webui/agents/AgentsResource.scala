@@ -82,39 +82,39 @@ class AgentsResource extends BaseResource {
 
     val agents: Array[CreateContainerMetadata[_ <: CreateContainerOptions]] = if (providerType == "child") {
 
-      val value: CreateContainerChildOptions = mapper.convertValue(options, classOf[CreateContainerChildOptions])
-      require(value.getParent != null, "parent must be set")
-      value.setResolver(null)
-      value.setZookeeperUrl(fabric_service.getZookeeperUrl())
-      value.setZookeeperPassword(fabric_service.getZookeeperPassword())
-      value.setJmxUser(Services.jmx_username(request))
-      value.setJmxPassword(Services.jmx_password(request))
-      value.setVersion(version.getId)
-      value.setProfiles(profiles.map(_.getId).toList)
-      fabric_service.createContainers(value)
+      val builder: CreateChildContainerOptions.Builder = mapper.convertValue(options, classOf[CreateChildContainerOptions.Builder])
+      require(builder.getParent() != null, "parent must be set")
+      builder.resolver(null)
+      builder.zookeeperUrl(fabric_service.getZookeeperUrl())
+      builder.zookeeperPassword(fabric_service.getZookeeperPassword())
+      builder.jmxUser(Services.jmx_username(request))
+      builder.jmxPassword(Services.jmx_password(request))
+      builder.version(version.getId)
+      builder.profiles(profiles.map(_.getId).toList)
+      fabric_service.createContainers(builder.build())
 
     } else if (providerType == "ssh") {
 
-      val value: CreateSshContainerOptions = mapper.convertValue(options, classOf[CreateSshContainerOptions])
-      require(value.getHost != null, "host must be set")
-      value.setNumber(1)
-      value.setZookeeperUrl(fabric_service.getZookeeperUrl())
-      value.setZookeeperPassword(fabric_service.getZookeeperPassword())
-      value.setVersion(version.getId)
-      value.setProfiles(profiles.map(_.getId).toList)
-      fabric_service.createContainers(value)
+      val builder: CreateSshContainerOptions.Builder = mapper.convertValue(options, classOf[CreateSshContainerOptions.Builder])
+      require(builder.getHost != null, "host must be set")
+      builder.number(1)
+      builder.zookeeperUrl(fabric_service.getZookeeperUrl())
+      builder.zookeeperPassword(fabric_service.getZookeeperPassword())
+      builder.version(version.getId)
+      builder.profiles(profiles.map(_.getId).toList)
+      fabric_service.createContainers(builder.build())
 
     } else if (providerType == "jclouds") {
 
-      val value: CreateJCloudsContainerOptions = mapper.convertValue(options, classOf[CreateJCloudsContainerOptions])
-      require(value.getProviderName != null, "provider name must be set")
+      val builder: CreateJCloudsContainerOptions.Builder = mapper.convertValue(options, classOf[CreateJCloudsContainerOptions.Builder])
+      require(builder.getProviderName != null, "provider name must be set")
 
-      val name = value.getProviderName
+      val name = builder.getProviderName
 
       try {
         val Array(provider_name, context_name) = name.split(" - ")
-        value.setProviderName(provider_name)
-        value.setContextName(context_name)
+        builder.providerName(provider_name)
+        builder.contextName(context_name)
 
       } catch {
         case me:MatchError =>
@@ -122,11 +122,11 @@ class AgentsResource extends BaseResource {
 
       }
 
-      value.setZookeeperUrl(fabric_service.getZookeeperUrl())
-      value.setZookeeperPassword(fabric_service.getZookeeperPassword())
-      value.setVersion(version.getId)
-      value.setProfiles(profiles.map(_.getId).toList)
-      fabric_service.createContainers(value)
+      builder.zookeeperUrl(fabric_service.getZookeeperUrl())
+      builder.zookeeperPassword(fabric_service.getZookeeperPassword())
+      builder.version(version.getId)
+      builder.profiles(profiles.map(_.getId).toList)
+      fabric_service.createContainers(builder.build())
 
     } else {
       throw new RuntimeException("Unexpected container type, only \"child\", \"ssh\" and \"cloud\" are recognized")

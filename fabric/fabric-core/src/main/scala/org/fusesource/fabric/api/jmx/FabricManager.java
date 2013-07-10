@@ -144,27 +144,27 @@ public class FabricManager implements FabricManagerMBean {
             throw new RuntimeException("No providerType provided");
         }
 
-        CreateContainerOptions createContainerOptions = null;
+        CreateContainerBasicOptions.Builder builder = null;
 
         ObjectMapper mapper = new ObjectMapper();
 
         if (providerType.equals("child")) {
-            createContainerOptions = mapper.convertValue(options, CreateContainerChildOptions.class);
-            createContainerOptions.setResolver(null);
+            builder = mapper.convertValue(options, CreateChildContainerOptions.Builder.class);
+            builder.resolver(null);
         } else if (providerType.equals("ssh")) {
-            createContainerOptions = mapper.convertValue(options, CreateSshContainerOptions.class);
+            builder = mapper.convertValue(options, CreateSshContainerOptions.Builder.class);
         } else if (providerType.equals("jclouds")) {
-            createContainerOptions = mapper.convertValue(options, CreateJCloudsContainerOptions.class);
+            builder = mapper.convertValue(options, CreateJCloudsContainerOptions.Builder.class);
         }
 
-        if (createContainerOptions == null) {
+        if (builder == null) {
             throw new RuntimeException("Unknown provider type : " + providerType);
         }
 
-        createContainerOptions.setZookeeperPassword(getFabricService().getZookeeperPassword());
-        createContainerOptions.setZookeeperUrl(getFabricService().getZookeeperUrl());
+        builder.zookeeperPassword(getFabricService().getZookeeperPassword());
+        builder.zookeeperUrl(getFabricService().getZookeeperUrl());
 
-        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(createContainerOptions);
+        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(builder.build());
 
         Map<String, String> rc = new HashMap<String, String>();
 

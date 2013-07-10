@@ -17,11 +17,15 @@
 package org.fusesource.fabric.api;
 
 import java.io.File;
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 /**
  * Arguments for creating a new container via SSH
  */
-public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> implements CreateRemoteContainerOptions<CreateSshContainerOptions> {
+public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> implements CreateRemoteContainerOptions {
 
     private static final long serialVersionUID = -1171578973712670970L;
 
@@ -30,131 +34,195 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     static final int DEFAULT_SSH_RETRIES = 1;
     static final int DEFAULT_SSH_PORT = 22;
 
-    private String username;
-    private String password;
-    private String host;
-    private int port = DEFAULT_SSH_PORT;
-    private int sshRetries = DEFAULT_SSH_RETRIES;
-    private int retryDelay = 1;
-    private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
-    private String passPhrase;
-    private CreateEnsembleOptions createEnsembleOptions = CreateEnsembleOptions.build();
-    private String path = "~/containers/";
+    public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
 
-    public CreateSshContainerOptions() {
-        this.providerType = "ssh";
+        private String username;
+        private String password;
+        private String host;
+        private int port = DEFAULT_SSH_PORT;
+        private int sshRetries = DEFAULT_SSH_RETRIES;
+        private int retryDelay = 1;
+        private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
+        private String passPhrase;
+        private String path = "~/containers/";
+
+
+        public Builder username(final String username) {
+            this.username = username;
+            return this;
+        }
+
+        public Builder password(final String password) {
+            this.password = password;
+            return this;
+        }
+
+        public Builder host(final String host) {
+            this.host = host;
+            return this;
+        }
+
+        public Builder port(int port) {
+            this.port = port;
+            return this;
+        }
+
+        public Builder path(final String path) {
+            this.path = path;
+            return this;
+        }
+
+        public Builder sshRetries(int sshRetries) {
+            this.sshRetries = sshRetries;
+            return this;
+        }
+
+        public Builder retryDelay(int retryDelay) {
+            this.retryDelay = retryDelay;
+            return this;
+        }
+
+        public Builder privateKeyFile(final String privateKeyFile) {
+            this.privateKeyFile = privateKeyFile;
+            return this;
+        }
+
+        public Builder passPhrase(final String passPhrase) {
+            this.passPhrase = passPhrase;
+            return this;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getHost() {
+            return host;
+        }
+
+        public void setHost(String host) {
+            this.host = host;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public int getSshRetries() {
+            return sshRetries;
+        }
+
+        public void setSshRetries(int sshRetries) {
+            this.sshRetries = sshRetries;
+        }
+
+        public int getRetryDelay() {
+            return retryDelay;
+        }
+
+        public void setRetryDelay(int retryDelay) {
+            this.retryDelay = retryDelay;
+        }
+
+        public String getPrivateKeyFile() {
+            return privateKeyFile;
+        }
+
+        public void setPrivateKeyFile(String privateKeyFile) {
+            this.privateKeyFile = privateKeyFile;
+        }
+
+        public String getPassPhrase() {
+            return passPhrase;
+        }
+
+        public void setPassPhrase(String passPhrase) {
+            this.passPhrase = passPhrase;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public CreateSshContainerOptions build() {
+            return new CreateSshContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
+                    maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                    importPath, users, name, parent, "ssh", ensembleServer, preferredAddress, systemProperties,
+                    proxyUri, zookeeperUrl, jvmOpts, version, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path);
+        }
     }
 
-    @Override
-    public String toString() {
-        return "createSshContainer(" + getUsername() + "@" + getHost() + ":" + getPort() + " " + getPath() + ")";
-    }
 
+    private final String username;
+    private final String password;
+    private final String host;
+    private final int port;
+    private final int sshRetries;
+    private final int retryDelay;
+    private final String privateKeyFile;
+    private final String passPhrase;
+    private final String path;
 
-    public CreateSshContainerOptions username(final String username) {
+    public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, List<String> profiles, int getZooKeeperServerPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, URI proxyUri, String zookeeperUrl, String jvmOpts, String version, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, proxyUri, zookeeperUrl, jvmOpts, version);
         this.username = username;
-        return this;
-    }
-
-    public CreateSshContainerOptions password(final String password) {
         this.password = password;
-        return this;
-    }
-
-    public CreateSshContainerOptions host(final String host) {
         this.host = host;
-        return this;
-    }
-
-    public CreateSshContainerOptions port(int port) {
         this.port = port;
-        return this;
-    }
-
-    public CreateSshContainerOptions path(final String path) {
-        this.path = path;
-        return this;
-    }
-
-    public CreateSshContainerOptions sshRetries(int sshRetries) {
         this.sshRetries = sshRetries;
-        return this;
-    }
-
-    public CreateSshContainerOptions retryDelay(int retryDelay) {
         this.retryDelay = retryDelay;
-        return this;
-    }
-
-    public CreateSshContainerOptions privateKeyFile(final String privateKeyFile) {
         this.privateKeyFile = privateKeyFile;
-        return this;
-    }
-
-    public CreateSshContainerOptions passPhrase(final String passPhrase) {
         this.passPhrase = passPhrase;
-        return this;
+        this.path = path;
     }
 
-    public CreateSshContainerOptions createEnsembleOptions(final CreateEnsembleOptions createEnsembleOptions) {
-        this.createEnsembleOptions = createEnsembleOptions;
-        return this;
+    public static Builder builder() {
+        return new Builder();
     }
 
     public String getUsername() {
-       return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+        return username;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public String getHost() {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
 
     public int getPort() {
         return port;
-    }
-
-    public void setPort(int port) {
-        this.port = port;
     }
 
     public int getSshRetries() {
         return sshRetries;
     }
 
-    public void setSshRetries(int sshRetries) {
-        this.sshRetries = sshRetries;
-    }
-
     public String getPath() {
         return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public int getRetryDelay() {
-        return retryDelay;
-    }
-
-    public void setRetryDelay(int retryDelay) {
-        this.retryDelay = retryDelay;
     }
 
     public String getPrivateKeyFile() {
@@ -162,27 +230,16 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         return privateKeyFile;
     }
 
-    public void setPrivateKeyFile(String privateKeyFile) {
-        this.privateKeyFile = privateKeyFile;
-    }
-
     public String getPassPhrase() {
         return passPhrase;
     }
 
-    public void setPassPhrase(String passPhrase) {
-        this.passPhrase = passPhrase;
+    public CreateSshContainerOptions clone() throws CloneNotSupportedException {
+        return (CreateSshContainerOptions) super.clone();
     }
 
-    public CreateEnsembleOptions getCreateEnsembleOptions() {
-        return createEnsembleOptions;
+    @Override
+    public String toString() {
+        return "createSshContainer(" + getUsername() + "@" + getHost() + ":" + getPort() + " " + getPath() + ")";
     }
-
-    public void setCreateEnsembleOptions(CreateEnsembleOptions createEnsembleOptions) {
-        this.createEnsembleOptions = createEnsembleOptions;
-    }
-
-	public CreateSshContainerOptions clone() throws CloneNotSupportedException {
-		return (CreateSshContainerOptions) super.clone();
-	}
 }

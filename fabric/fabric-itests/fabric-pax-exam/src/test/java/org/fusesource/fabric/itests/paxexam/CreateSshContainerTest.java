@@ -87,7 +87,8 @@ public class CreateSshContainerTest extends FabricTestSupport {
                     .host(host)
                     .port(Integer.parseInt(port))
                     .username(username)
-                    .password(password);
+                    .password(password)
+                    .build();
             CreateContainerMetadata[] metadata = getFabricService().createContainers(options);
             assertNotNull(metadata);
             assertEquals(1, metadata.length);

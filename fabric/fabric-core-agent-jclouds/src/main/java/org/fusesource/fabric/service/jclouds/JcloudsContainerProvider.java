@@ -119,10 +119,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             options.getCreationStateListener().onStateChange("Looking up for compute service.");
             ComputeService computeService = getOrCreateComputeService(options);
 
-            if (Strings.isNullOrEmpty(options.getProviderName())) {
-                options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
-            }
-
             if (computeService == null) {
                 throw new IllegalStateException("Compute service could not be found or created.");
             }
@@ -281,7 +277,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     }
                 }
 
-                String script = buildStartScript(options.name(container.getId()));
+                String script = buildStartScript(container.getId(), options);
                 ExecResponse response = null;
                 if (credentials != null) {
                     response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
@@ -328,7 +324,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     }
                 }
 
-                String script = buildStopScript(options.name(container.getId()));
+                String script = buildStopScript(container.getId(), options);
                 ExecResponse response = null;
                 if (credentials != null) {
                     response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
@@ -422,14 +418,14 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         }
 
         //If a service has been found, make sure that the options are updated with provider id and api id.
-        if (computeService != null) {
-            if (Strings.isNullOrEmpty(options.getProviderName())) {
-                options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
-            }
-            if (Strings.isNullOrEmpty(options.getApiName())) {
-                options.setApiName(computeService.getContext().unwrap().getProviderMetadata().getApiMetadata().getId());
-            }
-        }
+        //if (computeService != null) {
+        //    if (Strings.isNullOrEmpty(options.getProviderName())) {
+        //        options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
+        //    }
+        //    if (Strings.isNullOrEmpty(options.getApiName())) {
+        //        options.setApiName(computeService.getContext().unwrap().getProviderMetadata().getApiMetadata().getId());
+        //    }
+        //}
         return computeService;
     }
 
@@ -482,18 +478,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             }
         }
     }
-
-    private void applyJavaRmiHostName(CreateJCloudsContainerOptions options, String publicAddress) {
-        if (!Strings.isNullOrEmpty(publicAddress)) {
-            if (ZkDefs.PUBLIC_IP.equals(options.getResolver())) {
-                String jvmOptions = Strings.isNullOrEmpty(options.getJvmOpts()) ? "" : options.getJvmOpts().trim() + " ";
-                jvmOptions += "-Djava.rmi.server.hostname=" + publicAddress;
-                options.setJvmOpts(jvmOptions);
-            }
-        }
-    }
-
-
     public FirewallManagerFactory getFirewallManagerFactory() {
         return firewallManagerFactory;
     }

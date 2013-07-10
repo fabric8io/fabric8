@@ -84,7 +84,7 @@ public final class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildInstallAndStartScript(CreateRemoteContainerOptions options) throws MalformedURLException, URISyntaxException {
+    public static String buildInstallAndStartScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException, URISyntaxException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
@@ -105,8 +105,8 @@ public final class ContainerProviderUtils {
         sb.append(WAIT_FOR_PORT).append("\n");
         sb.append("run mkdir -p ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
-        sb.append("run mkdir -p ").append(options.getName()).append("\n");
-        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run mkdir -p ").append(name).append("\n");
+        sb.append("run cd ").append(name).append("\n");
         //We need admin access to be able to install curl & java.
         if (options.isAdminAccess()) {
             //This is not really needed.
@@ -130,7 +130,7 @@ public final class ContainerProviderUtils {
             lines.add(ZkDefs.MANUAL_IP + "=" + options.getManualIp());
         }
         appendFile(sb, "etc/system.properties", lines);
-        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + options.getName());
+        replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + name);
         //Apply port range
 		sb.append("SSH_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
 		sb.append("RMI_REGISTRY_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
@@ -167,8 +167,8 @@ public final class ContainerProviderUtils {
             appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.ENSEMBLE_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
-            if (options.getCreateEnsembleOptions() != null && options.getCreateEnsembleOptions().getUsers() != null) {
-                for (Map.Entry<String, String> entry : options.getCreateEnsembleOptions().getUsers().entrySet()) {
+            if (options != null && options.getUsers() != null) {
+                for (Map.Entry<String, String> entry : options.getUsers().entrySet()) {
                     appendFile(sb, "etc/users.properties", Arrays.asList(entry.getKey() + "=" + entry.getValue()));
                 }
             }
@@ -185,11 +185,11 @@ public final class ContainerProviderUtils {
         }
         //Just for ensemble servers we want to copy their creation metadata for import.
         if (options.isEnsembleServer()) {
-            CreateContainerMetadata metadata = options.getMetadataMap().get(options.getName());
+            CreateContainerMetadata metadata = options.getMetadataMap().get(name);
             if (metadata != null) {
                 byte[] metadataPayload = ObjectUtils.toBytes(metadata);
                 if (metadataPayload != null && metadataPayload.length > 0) {
-                    sb.append("copy_node_metadata ").append(options.getName()).append(" ").append(new String(Base64Encoder.encode(metadataPayload))).append("\n");
+                    sb.append("copy_node_metadata ").append(name).append(" ").append(new String(Base64Encoder.encode(metadataPayload))).append("\n");
                 }
             }
         }
@@ -197,12 +197,14 @@ public final class ContainerProviderUtils {
 
             sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
         }
-        if (options.getJvmOpts() != null && !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
-            options.setJvmOpts(options.getJvmOpts() + " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
+        String jvmOptions = options.getJvmOpts();
+
+        if (jvmOptions == null ) {
+            jvmOptions =  "-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass";
+        } else if (!jvmOptions.contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
+            jvmOptions = jvmOptions +  " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass";
         }
-        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-            sb.append("export JAVA_OPTS=\"" + options.getJvmOpts()).append("\"\n");
-        }
+        sb.append("export JAVA_OPTS=\"" + jvmOptions).append("\"\n");
         sb.append("nohup bin/start &").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
         sb.append("wait_for_port $SSH_PORT").append("\n");
@@ -217,24 +219,28 @@ public final class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildStartScript(CreateRemoteContainerOptions options) throws MalformedURLException {
+    public static String buildStartScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
-        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run cd ").append(name).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         if (options instanceof CreateJCloudsContainerOptions) {
             sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
         }
-        if (options.getJvmOpts() != null && !options.getJvmOpts().contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
-            options.setJvmOpts(options.getJvmOpts() + " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass");
+
+        String jvmOptions = options.getJvmOpts();
+
+        if (jvmOptions == null ) {
+            jvmOptions =  "-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass";
+        } else if (!jvmOptions.contains("-XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass")) {
+            jvmOptions = jvmOptions +  " -XX:+UnlockDiagnosticVMOptions -XX:+UnsyncloadClass";
         }
-        if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {
-            sb.append("export JAVA_OPTS=\"" + options.getJvmOpts()).append("\"\n");
-        }
+        sb.append("export JAVA_OPTS=\"" + jvmOptions).append("\"\n");
+
         sb.append("nohup bin/start &").append("\n");
         sb.append("karaf_check `pwd`").append("\n");
         return sb.toString();
@@ -247,14 +253,14 @@ public final class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildStopScript(CreateRemoteContainerOptions options) throws MalformedURLException {
+    public static String buildStopScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
 
         sb.append("run cd ").append(options.getPath()).append("\n");
-        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run cd ").append(name).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("karaf_kill `pwd`").append("\n");
         return sb.toString();
@@ -267,16 +273,16 @@ public final class ContainerProviderUtils {
      * @return
      * @throws MalformedURLException
      */
-    public static String buildUninstallScript(CreateRemoteContainerOptions options) throws MalformedURLException {
+    public static String buildUninstallScript(String name,CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
-        sb.append("run cd ").append(options.getName()).append("\n");
+        sb.append("run cd ").append(name).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
         sb.append("karaf_kill `pwd`").append("\n");
         sb.append("run cd  ../..").append("\n");
-        sb.append("run rm -rf ").append(options.getName()).append("\n");
+        sb.append("run rm -rf ").append(name).append("\n");
         return sb.toString();
     }
 

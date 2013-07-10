@@ -225,7 +225,7 @@ public class Create extends OsgiCommandSupport {
     private Container createChild(String name) throws URISyntaxException {
         CreateContainerOptions options = CreateContainerOptionsBuilder.child()
                 .name(name)
-                .parent(service.getCurrentContainer().getId());
+                .parent(service.getCurrentContainer().getId()).build();
         CreateContainerMetadata[] metadatas = service.createContainers(options);
         Container container = metadatas[0].getContainer();
         return container;

@@ -55,12 +55,12 @@ public class EnsembleAdd extends EnsembleCommandSupport {
                 builder.append(" to the ensemble. This may take a while.");
                 System.out.println(builder.toString());
                 if (generateZookeeperPassword) {
-                    CreateEnsembleOptions options = CreateEnsembleOptions.build();
+                    CreateEnsembleOptions options = CreateEnsembleOptions.builder().build();
                     service.addToCluster(containers, options);
                 } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
                     service.addToCluster(containers);
                 } else {
-                    CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword);
+                    CreateEnsembleOptions options = CreateEnsembleOptions.builder().zookeeperPassword(zookeeperPassword).build();
                     service.addToCluster(containers, options);
                 }
             }

@@ -243,19 +243,21 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
             }
 
             // If no resolver specified but a resolver is already present in the registry, use the registry value
-            if (options.getResolver() == null && exists(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
-                options.setResolver(getStringData(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId)));
+            String resolver = metadata.getOverridenResolver() != null ? metadata.getOverridenResolver() : options.getResolver();
+
+            if (resolver == null && exists(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
+                resolver = getStringData(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId));
             } else if (options.getResolver() != null) {
                 // Use the resolver specified in the options and do nothing.
             } else if (exists(curator, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)) != null) {
                 // If there is a globlal resolver specified use it.
-                options.setResolver(getStringData(curator, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER)));
+                resolver = getStringData(curator, ZkPath.POLICIES.getPath(ZkDefs.RESOLVER));
             } else {
                 // Fallback to the default resolver
-                options.setResolver(ZkDefs.DEFAULT_RESOLVER);
+                resolver = ZkDefs.DEFAULT_RESOLVER;
             }
             // Set the resolver if not already set
-            setData(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId), options.getResolver());
+            setData(curator, ZkPath.CONTAINER_RESOLVER.getPath(containerId), resolver);
         } catch (FabricException e) {
             throw e;
         } catch (Exception e) {

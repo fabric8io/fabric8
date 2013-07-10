@@ -45,7 +45,11 @@ import java.util.regex.Pattern;
 
 import static org.fusesource.fabric.utils.BundleUtils.*;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static org.fusesource.fabric.zookeeper.ZkPath.POLICIES;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -111,12 +115,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createLocalServer() {
-        createLocalServer(Ports.DEFAULT_ZOOKEEPER_SERVER_PORT);
-    }
-
-    public void createLocalServer(int port) {
-        String newUser = null;
-        String newUserPassword = null;
         org.apache.felix.utils.properties.Properties userProps = null;
 
         try {
@@ -127,40 +125,23 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
         String zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD);
 
-        CreateEnsembleOptions createOpts = CreateEnsembleOptions.build();
+        CreateEnsembleOptions createOpts = CreateEnsembleOptions.builder().users(userProps).build();
 
-        if (userProps != null && !userProps.isEmpty()) {
-            newUser = (String) userProps.keySet().iterator().next();
-            newUserPassword = (String) userProps.get(newUser);
-            createOpts.user(newUser, newUserPassword);
-        }
-
-        if (zookeeperPassword != null && !zookeeperPassword.isEmpty()) {
-            createOpts.zookeeperPassword(zookeeperPassword);
-        }
-
-        createLocalServer(port, createOpts);
+        createLocalServer(createOpts);
     }
 
-    public void createLocalServer(int port, CreateEnsembleOptions options) {
+    public void createLocalServer(CreateEnsembleOptions options) {
         try {
             CuratorFramework client;
             Hashtable<String, Object> properties;
             String version = ZkDefs.DEFAULT_VERSION;
             String karafName = System.getProperty(SystemProperties.KARAF_NAME);
-            String minimumPort = System.getProperty(ZkDefs.MINIMUM_PORT);
-            String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
-            String bindAddress = System.getProperty(ZkDefs.BIND_ADDRESS, "0.0.0.0");
+            int minimumPort = options.getMinimumPort();
+            int maximumPort = options.getMaximumPort();
+            String zooKeeperServerHost = options.getBindAddress();
+            int zooKeeperServerPort = options.getZooKeeperServerPort();
 
-            int mappedPort = mapPortToRange(port, minimumPort, maximumPort);
-
-            if (options.getZookeeperPassword() != null) {
-                //do nothing
-            } else if (System.getProperties().containsKey(SystemProperties.ZOOKEEPER_PASSWORD)) {
-                options.setZookeeperPassword(System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD));
-            } else {
-                options.setZookeeperPassword(generatePassword());
-            }
+            int mappedPort = mapPortToRange(zooKeeperServerPort, minimumPort, maximumPort);
 
 			// Install or stop the fabric-configadmin bridge
 			Bundle bundleFabricAgent = findAndStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent");
@@ -178,19 +159,17 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			// Create configuration
 			String connectionUrl = getConnectionAddress() + ":" + Integer.toString(mappedPort);
 
-			String autoImportFrom = System.getProperty(SystemProperties.PROFILES_AUTOIMPORT_PATH);
-
 			Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
 			properties = new Hashtable<String, Object>();
-			if (autoImportFrom != null) {
-				loadPropertiesFrom(properties, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
+			if (options.isAutoImportEnabled()) {
+				loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
 			}
 			properties.put("tickTime", "2000");
 			properties.put("initLimit", "10");
 			properties.put("syncLimit", "5");
 			properties.put("dataDir", "data/zookeeper/0000");
 			properties.put("clientPort", Integer.toString(mappedPort));
-            properties.put("clientPortAddress", bindAddress);
+            properties.put("clientPortAddress", zooKeeperServerHost);
 			properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper.server-0000");
 			config.setBundleLocation(null);
 			config.update(properties);
@@ -198,8 +177,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			// Update the client configuration
 			config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
 			properties = new Hashtable<String, Object>();
-			if (autoImportFrom != null) {
-				loadPropertiesFrom(properties, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.properties");
+			if (options.isAutoImportEnabled()) {
+				loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.properties");
 			}
 			properties.put("zookeeper.url", connectionUrl);
 			properties.put("zookeeper.timeout", System.getProperties().containsKey("zookeeper.timeout") ? System.getProperties().getProperty("zookeeper.timeout") : "30000");
@@ -222,8 +201,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			client.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
 			// Import data into zookeeper
-			if (autoImportFrom != null) {
-                getDataStore().importFromFileSystem(autoImportFrom);
+			if (options.isAutoImportEnabled()) {
+                getDataStore().importFromFileSystem(options.getImportPath());
 			}
 
             getDataStore().setDefaultVersion(version);
@@ -250,7 +229,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             ensembleProps.put("syncLimit", "5");
             ensembleProps.put("dataDir", "data/zookeeper/0000");
 
-            loadPropertiesFrom(ensembleProps, autoImportFrom + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
+            loadPropertiesFrom(ensembleProps, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
             getDataStore().setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(ensembleProps));
 
             // configure this server in the ensemble
@@ -259,7 +238,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             getDataStore().setProfileAttribute(version, ensembleServerProfile, "parents", ensembleProfile);
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
-            serverProps.put("clientPortAddress", bindAddress);
+            serverProps.put("clientPortAddress", zooKeeperServerHost);
             getDataStore().setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(serverProps));
 
 			setData(client, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
@@ -312,7 +291,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 			bundleFabricMavenProxy.start();
 
 			//Check if the agent is configured to auto start.
-			if (!System.getProperties().containsKey(SystemProperties.AGENT_AUTOSTART) || Boolean.parseBoolean(System.getProperty(SystemProperties.AGENT_AUTOSTART))) {
+			if (options.isAgentEnabled()) {
 				bundleFabricAgent = findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent  ",
 						"mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
 				bundleFabricAgent.start();
@@ -405,19 +384,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createCluster(List<String> containers) {
-        createCluster(containers, CreateEnsembleOptions.build());
+        createCluster(containers, CreateEnsembleOptions.builder().build());
     }
 
     public void createCluster(List<String> containers, CreateEnsembleOptions options) {
         try {
-            if (options.getZookeeperPassword() != null) {
-                //do nothing
-            } else if (System.getProperties().containsKey(SystemProperties.ZOOKEEPER_PASSWORD)) {
-                options.setZookeeperPassword(System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD));
-            } else {
-                options.setZookeeperPassword(generatePassword());
-            }
-
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
             }
@@ -427,7 +398,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {
                     throw new FabricException("The first zookeeper cluster must be configured on this container only.");
                 }
-                createLocalServer(2181, options);
+                createLocalServer(options);
                 return;
             }
 
@@ -664,8 +635,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void addToCluster(List<String> containers) {
-		CreateEnsembleOptions options = CreateEnsembleOptions.build();
-		options.setZookeeperPassword(fabricService.getZookeeperPassword());
+
+        CreateEnsembleOptions options = CreateEnsembleOptions.builder()
+                .zookeeperPassword(fabricService.getZookeeperPassword())
+                .build();
 		addToCluster(containers, options);
 	}
 
@@ -686,8 +659,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 	}
 
 	public void removeFromCluster(List<String> containers) {
-		CreateEnsembleOptions options = CreateEnsembleOptions.build();
-		options.setZookeeperPassword(fabricService.getZookeeperPassword());
+		CreateEnsembleOptions options = CreateEnsembleOptions.builder()
+                                                             .zookeeperPassword(fabricService.getZookeeperPassword())
+                                                             .build();
 		removeFromCluster(containers, options);
 	}
 

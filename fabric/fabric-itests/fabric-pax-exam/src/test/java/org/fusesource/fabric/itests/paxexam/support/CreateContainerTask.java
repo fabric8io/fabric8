@@ -25,18 +25,18 @@ import java.util.concurrent.Callable;
 public class CreateContainerTask implements Callable<Set<Container>> {
 
     private final FabricService fabricService;
-    private final CreateContainerOptions createContainerOptions;
+    private final CreateContainerBasicOptions.Builder optionsBuilder;
 
 
-    public CreateContainerTask(FabricService fabricService, CreateContainerOptions createContainerOptions) {
+    public CreateContainerTask(FabricService fabricService, CreateContainerBasicOptions.Builder optionsBuilder) {
         this.fabricService = fabricService;
-        this.createContainerOptions = createContainerOptions;
+        this.optionsBuilder = optionsBuilder;
     }
 
     @Override
     public Set<Container> call() throws Exception {
         Set<Container> containers = new HashSet<Container>();
-        CreateContainerMetadata[] allMetadata = fabricService.createContainers(createContainerOptions);
+        CreateContainerMetadata[] allMetadata = fabricService.createContainers(optionsBuilder.build());
         if (allMetadata != null && allMetadata.length > 0) {
             for (CreateContainerMetadata metadata : allMetadata) {
                 Container container = metadata.getContainer();

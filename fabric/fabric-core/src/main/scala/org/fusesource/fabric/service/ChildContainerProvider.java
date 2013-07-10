@@ -21,8 +21,8 @@ import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerChildMetadata;
-import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.CreateChildContainerMetadata;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
@@ -45,7 +45,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 
-public class ChildContainerProvider implements ContainerProvider<CreateContainerChildOptions, CreateContainerChildMetadata> {
+public class ChildContainerProvider implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
 
 
     private final FabricServiceImpl service;
@@ -55,8 +55,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
     }
 
     @Override
-    public Set<CreateContainerChildMetadata> create(final CreateContainerChildOptions options) throws Exception {
-        final Set<CreateContainerChildMetadata> result = new LinkedHashSet<CreateContainerChildMetadata>();
+    public Set<CreateChildContainerMetadata> create(final CreateChildContainerOptions options) throws Exception {
+        final Set<CreateChildContainerMetadata> result = new LinkedHashSet<CreateChildContainerMetadata>();
         final String parentName = options.getParent();
         final Container parent = service.getContainer(parentName);
         ContainerTemplate containerTemplate = service.getContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword());
@@ -115,7 +115,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
                     } else {
                         containerName = originalName;
                     }
-                    CreateContainerChildMetadata metadata = new CreateContainerChildMetadata();
+                    CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
 
                     metadata.setCreateOptions(options);
                     metadata.setContainerName(containerName);
@@ -215,7 +215,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
      * @return
      */
     protected ContainerTemplate getContainerTemplateForChild(Container container) {
-        CreateContainerChildOptions options = (CreateContainerChildOptions) container.getMetadata().getCreateOptions();
+        CreateChildContainerOptions options = (CreateChildContainerOptions) container.getMetadata().getCreateOptions();
         return new ContainerTemplate(container.getParent(), options.getJmxUser(), options.getJmxPassword(), false);
     }
 
@@ -229,7 +229,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateContainer
      * @throws KeeperException
      * @throws InterruptedException
      */
-    private void inheritAddresses(CuratorFramework curator, String parent, String name, CreateContainerChildOptions options) throws Exception {
+    private void inheritAddresses(CuratorFramework curator, String parent, String name, CreateChildContainerOptions options) throws Exception {
         if (options.getManualIp() != null) {
             createDefault(curator, CONTAINER_MANUAL_IP.getPath(name), options.getManualIp());
         }

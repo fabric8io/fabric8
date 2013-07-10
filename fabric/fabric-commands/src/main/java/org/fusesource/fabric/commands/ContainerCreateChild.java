@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricAuthenticationException;
@@ -58,7 +58,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
         // okay create child container
         String url = "child://" + parent;
-        CreateContainerChildOptions options = CreateContainerOptionsBuilder.child()
+        CreateChildContainerOptions.Builder builder = CreateContainerOptionsBuilder.child()
                 .name(name)
                 .parent(parent)
                 .bindAddress(bindAddress)
@@ -75,16 +75,14 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .profiles(profiles);
 
         try {
-            metadatas = fabricService.createContainers(options);
+            metadatas = fabricService.createContainers(builder.build());
             ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         } catch (FabricAuthenticationException ex) {
             //If authentication fails, prompts for credentilas and try again.
             username = null;
             password = null;
             promptForJmxCredentialsIfNeeded();
-            options.setJmxUser(username);
-            options.setJmxPassword(password);
-            metadatas = fabricService.createContainers(options);
+            metadatas = fabricService.createContainers(builder.jmxUser(username).jmxPassword(password).build());
             ShellUtils.storeFabricCredentials(session, username, password);
         }
 

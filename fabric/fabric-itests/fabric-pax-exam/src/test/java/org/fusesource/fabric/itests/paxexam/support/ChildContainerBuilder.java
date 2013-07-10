@@ -16,39 +16,37 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
-import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 
-public class ChildContainerBuilder extends ContainerBuilder<ChildContainerBuilder, CreateContainerChildOptions> {
+public class ChildContainerBuilder extends ContainerBuilder<ChildContainerBuilder, CreateChildContainerOptions.Builder> {
 
 
-	protected ChildContainerBuilder(CreateContainerChildOptions createOptions) {
-		super(createOptions.parent("root").jmxUser("admin").jmxPassword("admin").zookeeperPassword("admin"));
+	protected ChildContainerBuilder(CreateChildContainerOptions.Builder optionsBuilder) {
+		super(optionsBuilder.parent("root").jmxUser("admin").jmxPassword("admin").zookeeperPassword("admin"));
 	}
 
 	public static ChildContainerBuilder child() {
 		return new ChildContainerBuilder(CreateContainerOptionsBuilder.child());
 	}
 
-
-
 	public ChildContainerBuilder ofParent(String parent) {
-		getCreateOptions().setParent(parent);
+		getOptionsBuilder().parent(parent);
 		return this;
 	}
 
 	public ChildContainerBuilder asEnsembleServer(boolean setEnsembleServer) {
-		getCreateOptions().setEnsembleServer(setEnsembleServer);
+		getOptionsBuilder().ensembleServer(setEnsembleServer);
 		return this;
 	}
 
     public ChildContainerBuilder usingJmxUser(String jmxUser) {
-        getCreateOptions().setJmxUser(jmxUser);
+        getOptionsBuilder().jmxUser(jmxUser);
         return this;
     }
 
     public ChildContainerBuilder usingJmxPassword(String jmxPassword) {
-        getCreateOptions().setJmxPassword(jmxPassword);
+        getOptionsBuilder().jmxPassword(jmxPassword);
         return this;
     }
 }

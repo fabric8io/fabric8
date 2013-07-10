@@ -26,7 +26,7 @@ import java.util.Set;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
-public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, CreateSshContainerOptions> {
+public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, CreateSshContainerOptions.Builder> {
 
     public static final String SSH_HOSTS_PROPERTY = "FABRIC_ITEST_SSH_HOSTS";
     public static final String SSH_USERS_PROPERTY = "FABRIC_ITEST_SSH_USERS";
@@ -37,15 +37,15 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
     /**
      * Creates an ssh based {@link ContainerBuilder} with the specified {@link CreateSshContainerOptions}.
      *
-     * @param createOptions
+     * @param builder
      */
-    protected SshContainerBuilder(CreateSshContainerOptions createOptions) {
-        super(createOptions.zookeeperPassword("admin"));
+    protected SshContainerBuilder(CreateSshContainerOptions.Builder builder) {
+        super(builder.zookeeperPassword("admin"));
     }
 
 
     public static CreateSshContainerOptions defaultOptions() {
-        CreateSshContainerOptions options = new CreateSshContainerOptions();
+        CreateSshContainerOptions options = CreateSshContainerOptions.builder().build();
         return options;
     }
 
@@ -56,10 +56,10 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
      */
     @Override
     public Set<Container> build() {
-        if (getCreateOptions().getHost() == null || getCreateOptions().getHost().isEmpty()) {
+        if (getOptionsBuilder().getHost() == null || getOptionsBuilder().getHost().isEmpty()) {
             Set<Container> containers = new HashSet<Container>();
             FabricService fabricService = getOsgiService(FabricService.class);
-            getCreateOptions().zookeeperUrl(fabricService.getZookeeperUrl()).zookeeperPassword("admin").proxyUri(fabricService.getMavenRepoURI());
+            getOptionsBuilder().zookeeperUrl(fabricService.getZookeeperUrl()).zookeeperPassword("admin").proxyUri(fabricService.getMavenRepoURI());
 
             String hostProperty = System.getProperty(SSH_HOSTS_PROPERTY);
             String userProperty = System.getProperty(SSH_USERS_PROPERTY);
@@ -90,10 +90,12 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
             int numberOfHosts = hosts.length;
             int containersPerHost = numberOfContainers > 1 ? numberOfContainers / numberOfHosts : 1;
 
-            List<CreateContainerOptions> optionsList = new ArrayList<CreateContainerOptions>();
+            List<CreateSshContainerOptions.Builder> optionsList = new ArrayList<CreateSshContainerOptions.Builder>();
+
             for (int i = 0; i < hosts.length; i++) {
                 try {
-                    CreateSshContainerOptions hostOpts = getCreateOptions().clone();
+                    CreateSshContainerOptions.Builder hostOpts = getOptionsBuilder().clone();
+
                     hostOpts.number(containersPerHost).host(hosts[i]);
                     if (hostOpts.getNumber() > 1) {
                         hostOpts.name(hostOpts.getName() + "-" + i + "-");

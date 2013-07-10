@@ -35,4 +35,5 @@ public interface CreateContainerMetadata<O extends CreateContainerOptions> exten
 
     O getCreateOptions();
 
+    String getOverridenResolver();
 }

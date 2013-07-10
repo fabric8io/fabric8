@@ -20,9 +20,8 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.MQService;
@@ -33,7 +32,6 @@ import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.*;
 
 @Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
@@ -169,7 +167,7 @@ public class MQCreate extends FabricCommand {
                 String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
                 String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
 
-                CreateContainerChildOptions args = CreateContainerOptionsBuilder.child()
+                CreateChildContainerOptions.Builder builder = CreateContainerOptionsBuilder.child()
                         .name(container)
                         .parent(parent)
                         .number(1)
@@ -182,14 +180,12 @@ public class MQCreate extends FabricCommand {
                         .jmxPassword(jmxPassword);
 
                 try {
-                    metadatas = fabricService.createContainers(args);
+                    metadatas = fabricService.createContainers(builder.build());
                     ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
                 } catch (FabricAuthenticationException fae) {
                     //If authentication fails, prompts for credentials and try again.
                     promptForJmxCredentialsIfNeeded();
-                    args.setJmxUser(username);
-                    args.setJmxPassword(password);
-                    metadatas = fabricService.createContainers(args);
+                    metadatas = fabricService.createContainers(builder.jmxUser(username).jmxPassword(jmxPassword).build());
                     ShellUtils.storeFabricCredentials(session, username, password);
                 }
 

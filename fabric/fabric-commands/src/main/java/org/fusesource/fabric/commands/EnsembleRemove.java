@@ -55,12 +55,12 @@ public class EnsembleRemove extends EnsembleCommandSupport {
             System.out.println(builder.toString());
 
             if (generateZookeeperPassword) {
-                CreateEnsembleOptions options = CreateEnsembleOptions.build();
+                CreateEnsembleOptions options = CreateEnsembleOptions.builder().build();
                 service.removeFromCluster(containers, options);
             } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
                 service.removeFromCluster(containers);
             } else {
-                CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword);
+                CreateEnsembleOptions options = CreateEnsembleOptions.builder().zookeeperPassword(zookeeperPassword).build();
                 service.removeFromCluster(containers, options);
             }
             System.out.println("Updated Zookeeper connection string: "+ service.getZooKeeperUrl());
