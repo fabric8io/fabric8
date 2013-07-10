@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.utils;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -28,7 +29,7 @@ public final class FabricValidations {
         //Utility Class
     }
 
-    public static void validateProfileName(List<String> profileNames) {
+    public static void validateProfileName(Collection<String> profileNames) {
         if (profileNames != null && !profileNames.isEmpty()) {
             for (String profileName : profileNames)
                 validateProfileName(profileName);

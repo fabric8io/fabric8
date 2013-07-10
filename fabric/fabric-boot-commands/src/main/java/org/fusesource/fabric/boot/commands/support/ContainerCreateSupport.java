@@ -19,7 +19,9 @@ package org.fusesource.fabric.boot.commands.support;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
@@ -35,7 +37,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--version", description = "The version of the new container (must be an existing version). Defaults to the current default version.")
     protected String version;
     @Option(name = "--profile", multiValued = true, required = false, description = "The profile IDs to associate with the new container(s). For multiple profiles, specify the flag multiple times. Defaults to the profile named, default.")
-    protected List<String> profiles;
+    protected Set<String> profiles;
     @Option(name = "--resolver", multiValued = false, required = false, description = "The resolver policy for this container(s). Possible values are: localip, localhostname, publicip, publichostname, manualip. Defaults to the fabric's default resolver policy.")
     protected String resolver;
     @Option(name = "-m", aliases = {"--manual-ip"}, description = "An address to use, when using the manualip resolver.")
@@ -49,10 +51,11 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
 
-    public List<String> getProfileNames() {
-        List<String> names = this.profiles;
+    public Set<String> getProfileNames() {
+        Set<String> names = this.profiles;
         if (names == null || names.isEmpty()) {
-            names = Collections.singletonList("default");
+            names = new LinkedHashSet<String>();
+            names.add("default");
         }
         return names;
     }
@@ -87,7 +90,7 @@ public abstract class ContainerCreateSupport extends FabricCommand {
             Profile[] profiles = ver.getProfiles();
 
             // validate profiles exists before creating a new container
-            List<String> names = getProfileNames();
+            Set<String> names = getProfileNames();
             for (String profile : names) {
                 Profile prof = getProfile(profiles, profile, ver);
                 if (prof == null) {

@@ -248,13 +248,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             getDataStore().setFileConfiguration(version, "fabric", "org.fusesource.fabric.agent.properties", DataStoreHelpers.toBytes(agentProps));
 
 			createDefault(client, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
-			String assignedProfile = System.getProperty(SystemProperties.PROFILE);
-			if (assignedProfile != null && !assignedProfile.isEmpty() && !"fabric".equals(assignedProfile)) {
-				createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "fabric fabric-ensemble-0000-1 " + assignedProfile);
-			} else {
-				createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), "fabric fabric-ensemble-0000-1");
-			}
 
+			
+            StringBuilder profilesBuilder = new StringBuilder();
+            Set<String> profiles = options.getProfiles();
+            profilesBuilder.append("fabric").append(" ").append("fabric-ensemble-0000-1");
+            for (String p : profiles) {
+                profilesBuilder.append(" ").append(p);
+            }
+
+		    createDefault(client, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), profilesBuilder.toString());
 
 			// add auth
             Map<String, String> configs = new HashMap<String, String>();

@@ -18,11 +18,14 @@ package org.fusesource.fabric.api;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 public class ContainerOptions implements Serializable {
 
     public static String BIND_ADDRESS = "bind.address";
+    public static String PROFILES = "profiles";
 
     public static class Builder<B extends Builder> implements Cloneable {
 
@@ -32,12 +35,13 @@ public class ContainerOptions implements Serializable {
         String manualIp;
         int minimumPort = 0;
         int maximumPort = 65535;
-        List<String> profiles = new ArrayList<String>();
+        Set<String> profiles = new LinkedHashSet<String>();
 
         public B fromSystemProperties() {
             this.bindAddress = System.getProperty(BIND_ADDRESS, "0.0.0.0");
             this.minimumPort = Integer.parseInt(System.getProperty("minimum.port", String.valueOf(minimumPort)));
             this.maximumPort = Integer.parseInt(System.getProperty("maximum.port", String.valueOf(maximumPort)));
+            this.profiles(System.getProperty(PROFILES, ""));
             return (B) this;
         }
 
@@ -72,8 +76,30 @@ public class ContainerOptions implements Serializable {
         }
 
 
-        public B profiles(final List<String> profiles) {
+        public B profiles(final Set<String> profiles) {
             this.profiles = profiles;
+            return (B) this;
+        }
+
+        public B profiles(final List<String> profiles) {
+            this.profiles = new LinkedHashSet<String>(profiles);
+            return (B) this;
+        }
+
+        public B profiles(final String... profiles) {
+            this.profiles.clear();
+            for (String p : profiles) {
+                this.profiles.add(p.trim());
+            }
+            return (B) this;
+        }
+
+        public B profiles(final String profiles) {
+            this.profiles.clear();
+            String[] allProfiles = profiles.trim().split(" +");
+            for (String p : allProfiles) {
+                this.profiles.add(p.trim());
+            }
             return (B) this;
         }
 
@@ -92,13 +118,13 @@ public class ContainerOptions implements Serializable {
     final String manualIp;
     final int minimumPort;
     final int maximumPort;
-    final List<String> profiles;
+    final Set<String> profiles;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, List<String> profiles) {
+    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles) {
         this.bindAddress = bindAddress;
         this.resolver = resolver;
         this.globalResolver = globalResolver;
@@ -133,7 +159,7 @@ public class ContainerOptions implements Serializable {
         return maximumPort;
     }
 
-    public List<String> getProfiles() {
+    public Set<String> getProfiles() {
         return profiles;
     }
 }

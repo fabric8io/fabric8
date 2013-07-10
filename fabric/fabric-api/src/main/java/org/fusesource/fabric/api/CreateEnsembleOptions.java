@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class CreateEnsembleOptions extends ContainerOptions {
 
@@ -116,7 +117,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder<Builder>();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, List<String> profiles, int zooKeeperServerPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int zooKeeperServerPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zookeeperPassword = zookeeperPassword;

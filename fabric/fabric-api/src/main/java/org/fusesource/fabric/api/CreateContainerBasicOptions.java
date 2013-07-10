@@ -187,7 +187,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     final transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
     public CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
-                                       int minimumPort, int maximumPort, List<String> profiles, int getZooKeeperServerPort,
+                                       int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort,
                                        String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled,
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
@@ -303,9 +303,5 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public String getVersion() {
         return version;
-    }
-
-    public List<String> getProfiles() {
-        return profiles;
     }
 }

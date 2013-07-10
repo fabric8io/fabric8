@@ -138,7 +138,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .jvmOpts(jvmOpts)
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
         .version(version)
-        .profiles(profiles);
+        .profiles(getProfileNames());
 
         if (path != null && !path.isEmpty()) {
             builder.path(path);

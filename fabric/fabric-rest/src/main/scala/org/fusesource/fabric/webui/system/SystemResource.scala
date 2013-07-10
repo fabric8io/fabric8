@@ -24,9 +24,10 @@ import com.sun.jersey.api.core.ResourceContext
 import org.fusesource.fabric.webui.{Services, BaseResource}
 import org.fusesource.fabric.boot.commands.service.Create
 import org.fusesource.fabric.boot.commands.service.Join
+import org.fusesource.fabric.zookeeper.ZkDefs
 import org.jclouds.compute.reference.ComputeServiceConstants
 import scala.concurrent.ops._
-import org.fusesource.fabric.zookeeper.ZkDefs
+import collection.JavaConversions._
 
 
 class Principal extends BaseResource {
@@ -228,7 +229,7 @@ class SystemResource extends BaseResource {
 
         val create = Services.get_service(classOf[Create])
         create.setClean(true)
-        create.setProfile(Services.profile_name)
+        create.setProfiles(Set(Services.profile_name))
         create.setGenerateZookeeperPassword(true)
         create.setZookeeperPassword(options.zk_password)
         create.setNewUser(options.username)

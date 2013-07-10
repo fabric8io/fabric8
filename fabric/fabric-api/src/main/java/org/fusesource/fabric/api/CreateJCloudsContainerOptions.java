@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Arguments for creating a new container via JClouds
@@ -307,7 +308,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private final String path;
 
     public CreateJCloudsContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
-                                         int minimumPort, int maximumPort, List<String> profiles, int getZooKeeperServerPort,
+                                         int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort,
                                          String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled,
                                          String importPath, Map<String, String> users, String name, String parent,
                                          String providerType, boolean ensembleServer, String preferredAddress,

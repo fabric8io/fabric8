@@ -30,6 +30,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.boot.commands.service.Create {
@@ -54,8 +55,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private boolean nonManaged;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
-    @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
-    private String profile = null;
+    @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container.")
+    private Set<String> profiles = null;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
@@ -120,8 +121,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             }
         }
 
-        if (profile != null) {
-            builder.profiles(Arrays.asList(profile));
+        if (profiles != null && profiles.size() > 0) {
+            builder.profiles(profiles);
         }
 
         if (nonManaged) {
@@ -199,6 +200,14 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Override
     public Object run() throws Exception {
         return doExecute();
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
     }
 
     @Override
@@ -321,13 +330,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         this.newUserRole = newUserRole;
     }
 
-    public String getProfile() {
-        return profile;
-
+    public Set<String> getProfiles() {
+        return profiles;
     }
 
-    public void setProfile(String profile) {
-        this.profile = profile;
+    public void setProfiles(Set<String> profiles) {
+        this.profiles = profiles;
     }
 
     public boolean isNonManaged() {

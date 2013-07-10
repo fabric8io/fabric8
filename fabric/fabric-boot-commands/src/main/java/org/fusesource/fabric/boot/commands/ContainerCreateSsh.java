@@ -103,7 +103,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .zookeeperPassword(zookeeperPassword)
         .withUser(newUser, newUserPassword , newUserRole)
         .version(version)
-        .profiles(profiles);
+        .profiles(getProfileNames());
 
 
         if (path != null && !path.isEmpty()) {

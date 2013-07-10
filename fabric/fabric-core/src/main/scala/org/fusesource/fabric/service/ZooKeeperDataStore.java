@@ -47,9 +47,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
@@ -216,9 +218,10 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
             String containerId = metadata.getContainerName();
             String parent = options.getParent();
             String versionId = options.getVersion() != null ? options.getVersion() : getDefaultVersion();
-            List<String> profileIds = options.getProfiles();
+            Set<String> profileIds = options.getProfiles();
             if (profileIds == null || profileIds.isEmpty()) {
-                profileIds = Collections.singletonList(ZkDefs.DEFAULT_PROFILE);
+                profileIds = new LinkedHashSet<String>();
+                profileIds.add("default");
             }
             StringBuilder sb = new StringBuilder();
             for (String profileId : profileIds) {

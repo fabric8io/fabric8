@@ -72,7 +72,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .jmxUser(jmxUser)
                 .jmxPassword(jmxPassword)
                 .version(version)
-                .profiles(profiles);
+                .profiles(getProfileNames());
 
         try {
             metadatas = fabricService.createContainers(builder.build());

@@ -21,6 +21,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  */
@@ -73,7 +74,7 @@ public interface CreateContainerOptions extends Serializable, Cloneable {
 
     Map<String, ? extends CreateContainerMetadata> getMetadataMap();
 
-    List<String> getProfiles();
+    Set<String> getProfiles();
 
     String getVersion();
 
