@@ -43,7 +43,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     @Argument(index = 1, required = true, description = "The name of the containers to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 2, required = false, description = "The number of containers that should be created")
-    protected int number = 1;
+    protected int number = 0;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -95,7 +95,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
         // validate number is not out of bounds
-        if (number < 1 || number > 99) {
+        if (number < 0 || number > 99) {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
         }
         if (isEnsembleServer && number > 1) {

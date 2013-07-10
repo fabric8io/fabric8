@@ -108,9 +108,10 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
                 PortService portService = service.getPortService();
                 Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
-                for (int i = 1; i <= options.getNumber(); i++) {
+                int number = Math.max(options.getNumber(), 1);
+                for (int i = 1; i <= number; i++) {
                     String containerName;
-                    if (options.getNumber() > 1) {
+                    if (options.getNumber() >= 1) {
                         containerName = originalName + i;
                     } else {
                         containerName = originalName;

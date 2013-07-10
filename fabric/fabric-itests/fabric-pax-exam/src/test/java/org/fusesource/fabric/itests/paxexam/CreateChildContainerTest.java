@@ -105,7 +105,7 @@ public class CreateChildContainerTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
         Thread.sleep(5000);
-
+        Container container = containers.iterator().next();
         System.err.println(
                 executeCommands(
                         "jaas:manage --realm karaf --module org.fusesource.fabric.jaas.ZookeeperLoginModule",
@@ -116,7 +116,7 @@ public class CreateChildContainerTest extends FabricTestSupport {
 
                 )
         );
-        System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword child"));
+        System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
         Provision.waitForContainerAlive(containers, false, 6 * DEFAULT_TIMEOUT);
     }
 

@@ -114,6 +114,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     }
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+        int number = Math.max(options.getNumber(), 1);
         final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
         try {
             options.getCreationStateListener().onStateChange("Looking up for compute service.");
@@ -149,7 +150,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             }
             StringBuilder overviewBuilder = new StringBuilder();
 
-            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", options.getNumber()));
+            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", number));
 
 
             //Define ImageId
@@ -205,7 +206,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             Set<? extends NodeMetadata> metadatas = null;
             overviewBuilder.append(" It may take a while ...");
             options.getCreationStateListener().onStateChange(overviewBuilder.toString());
-            metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
+            metadatas = computeService.createNodesInGroup(options.getGroup(), number, builder.build());
 
             if (metadatas != null) {
                 for (NodeMetadata metadata : metadatas) {
@@ -218,11 +219,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             int suffix = 1;
             if (metadatas != null) {
                 String originalName = new String(options.getName());
-                CountDownLatch countDownLatch = new CountDownLatch(options.getNumber());
+                CountDownLatch countDownLatch = new CountDownLatch(number);
 
                 for (NodeMetadata nodeMetadata : metadatas) {
                     String containerName;
-                    if (options.getNumber() > 1) {
+                    if (options.getNumber() >= 1) {
                         containerName = originalName + (suffix++);
                     } else {
                         containerName = originalName;
@@ -235,13 +236,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 countDownLatch.await(10, TimeUnit.MINUTES);
             }
         } catch (Throwable t) {
-            if (options != null && options.getNumber() > 0) {
-                for (int i = result.size(); i < options.getNumber(); i++) {
+                for (int i = result.size(); i < number; i++) {
                     CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
                     failureMetdata.setFailure(t);
                     result.add(failureMetdata);
                 }
-            }
         }
         return result;
     }

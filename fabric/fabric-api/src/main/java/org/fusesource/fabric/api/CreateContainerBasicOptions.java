@@ -31,7 +31,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         boolean ensembleServer;
         String preferredAddress;
         Map<String, Properties> systemProperties = new HashMap<String, Properties>();
-        Integer number = 1;
+        Integer number = 0;
         URI proxyUri;
         String zookeeperUrl;
         String jvmOpts;
@@ -166,7 +166,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    proxyUri, zookeeperUrl, jvmOpts, version);
+                    number, proxyUri, zookeeperUrl, jvmOpts, version);
         }
     }
 
@@ -177,7 +177,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     final boolean ensembleServer;
     final String preferredAddress;
     final Map<String, Properties> systemProperties;
-    final Integer number = 1;
+    final Integer number;
     final URI proxyUri;
     final String zookeeperUrl;
     final String jvmOpts;
@@ -191,7 +191,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
                                        String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled,
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
-                                       Map<String, Properties> systemProperties, URI proxyUri, String zookeeperUrl,
+                                       Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
                                        String jvmOpts, String version) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort,
@@ -203,6 +203,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.ensembleServer = ensembleServer;
         this.preferredAddress = preferredAddress;
         this.systemProperties = systemProperties;
+        this.number = number;
         this.proxyUri = proxyUri;
         this.zookeeperUrl = zookeeperUrl;
         this.jvmOpts = jvmOpts;
