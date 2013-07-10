@@ -46,6 +46,7 @@
 
         <module>fabric-utils</module>
         <module>fabric-api</module>
+	<module>fabric-client</module>
 
         <module>fabric-core</module>
         <module>fabric-linkedin-zookeeper</module>
