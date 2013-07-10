@@ -59,6 +59,8 @@ public interface FabricManagerMBean {
 
     void deleteProfile(String versionId, String profileId);
 
+    void deleteProfile(String versionId, String profileId, boolean force);
+
     void deleteVersion(String version);
 
     void destroyContainer(String containerId);
@@ -140,6 +142,16 @@ public interface FabricManagerMBean {
     String getConfigurationFile(String versionId, String profileId, String fileName);
     
     void setConfigurationFile(String versionId, String profileId, String fileName, String data);
+
+    void setProfileBundles(String versionId, String profileId, List<String> bundles);
+
+    void setProfileFeatures(String versionId, String profileId, List<String> features);
+
+    void setProfileRepositories(String versionId, String profileId, List<String> repositories);
+
+    void setProfileFabs(String versionId, String profileId, List<String> fabs);
+
+    void setProfileOverrides(String versionId, String profileId, List<String> overrides);
 
 /*
     ContainerProvider getProvider(String containerId);
