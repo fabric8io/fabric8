@@ -46,7 +46,6 @@
 
         <module>fabric-utils</module>
         <module>fabric-api</module>
-	<module>fabric-client</module>
 
         <module>fabric-core</module>
         <module>fabric-linkedin-zookeeper</module>
@@ -103,6 +102,9 @@
         <module>fuse-fabric</module>
 
         <module>fabric-examples</module>
+
+        <module>fabric-client</module>
+
         <module>fabric-itests</module>
 
         <module>openshift</module>
