@@ -196,6 +196,15 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         this.path = path;
     }
 
+    @Override
+    public CreateContainerOptions updateCredentials(String newUser, String newPassword) {
+        return new CreateSshContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
+                maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                importPath, users, name, parent, "ssh", ensembleServer, preferredAddress, systemProperties,
+                proxyUri, zookeeperUrl, jvmOpts, version, newUser != null ? newUser : username,
+                newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path);
+    }
+
     public static Builder builder() {
         return new Builder();
     }

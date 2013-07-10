@@ -74,6 +74,11 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
         return overridenResolver;
     }
 
+    @Override
+    public void updateCredentials(String user, String credential) {
+        this.createOptions = (O) createOptions.updateCredentials(user, credential);
+    }
+
     public void setOverridenResolver(String overridenResolver) {
         this.overridenResolver = overridenResolver;
     }

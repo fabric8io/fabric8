@@ -1,0 +1,14 @@
+Using alternate credentials
+---------------------------
+Each time a container is created Fabric stores the credentials used to create the container and will reuse them for all lifecycle operations (start, stop, delete).
+If the credentials have changed then the updated credentials need to be specified as options.
+Each container type (child, ssh, jclouds) uses different kind of credentials, as described below:
+
+Child Containers: Use the JMX credentials of the parent container.
+SSH Containers: Use the SSH credentials of the target host.
+JClouds Containers: Use the ssh credentials of the instance.
+
+Examples:
+fabric:container-stop --user <new jmx user of parent> --password <new jmx password of parent> child1
+fabric:container-stop --password <new ssh password of target host> ssh1
+fabric:container-stop --password <new ssh password of target host> cloud1

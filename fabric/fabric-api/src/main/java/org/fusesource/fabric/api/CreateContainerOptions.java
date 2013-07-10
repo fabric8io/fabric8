@@ -26,6 +26,14 @@ import java.util.Properties;
  */
 public interface CreateContainerOptions extends Serializable, Cloneable {
 
+    /**
+     * Creates a new instance of {@link CreateContainerOptions} with updated credentials.
+     * @param user
+     * @param credential
+     * @return
+     */
+    CreateContainerOptions updateCredentials(String user, String credential);
+
     String getName();
 
     String getParent();

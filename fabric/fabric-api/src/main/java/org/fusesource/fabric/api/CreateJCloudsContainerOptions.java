@@ -346,6 +346,18 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.path = path;
     }
 
+    @Override
+    public CreateContainerOptions updateCredentials(String newUser, String newPassword) {
+        return new CreateJCloudsContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
+                maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
+                proxyUri, zookeeperUrl, jvmOpts, version, osFamily, osVersion, imageId, hardwareId, locationId,
+                group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
+                contextName, providerName, apiName, endpoint, instanceType, identity, credential,
+                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path);
+    }
+
+
     public static Builder builder() {
         return new Builder();
     }

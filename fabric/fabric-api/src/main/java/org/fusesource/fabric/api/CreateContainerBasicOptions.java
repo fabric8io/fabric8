@@ -217,6 +217,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return providerType;
     }
 
+    @Override
+    public CreateContainerOptions updateCredentials(String user, String credential) {
+        throw new UnsupportedOperationException();
+    }
+
     public String getName() {
         return name;
     }

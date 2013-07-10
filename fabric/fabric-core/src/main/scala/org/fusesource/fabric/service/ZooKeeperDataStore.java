@@ -232,8 +232,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
             setData(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
             setData(curator, ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
 
-            //We encode the metadata so that they are more friendly to import/export.
-            setData(curator, ZkPath.CONTAINER_METADATA.getPath(containerId), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
+            setContainerMetadata(metadata);
 
             Map<String, String> configuration = metadata.getContainerConfiguration();
             for (Map.Entry<String, String> entry : configuration.entrySet()) {
@@ -277,6 +276,16 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
             return (CreateContainerMetadata) ois.readObject();
         } catch (KeeperException.NoNodeException e) {
             return null;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
+
+    @Override
+    public void setContainerMetadata(CreateContainerMetadata metadata) {
+        //We encode the metadata so that they are more friendly to import/export.
+        try {
+            setData(curator, ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
         } catch (Exception e) {
             throw new FabricException(e);
         }

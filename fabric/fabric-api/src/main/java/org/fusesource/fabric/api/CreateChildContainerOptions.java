@@ -63,6 +63,14 @@ public class CreateChildContainerOptions extends CreateContainerBasicOptions<Cre
         this.jmxPassword = jmxPassword;
     }
 
+    @Override
+    public CreateContainerOptions updateCredentials(String newJmxUser, String newJmxPassword) {
+        return new CreateChildContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
+                maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                importPath, users, name, parent, "child", ensembleServer, preferredAddress, systemProperties,
+                proxyUri, zookeeperUrl, jvmOpts, version, newJmxUser != null ? newJmxUser : jmxUser, newJmxPassword != null ? newJmxPassword : jmxPassword);
+    }
+
     public static Builder builder() {
         return new Builder();
     }

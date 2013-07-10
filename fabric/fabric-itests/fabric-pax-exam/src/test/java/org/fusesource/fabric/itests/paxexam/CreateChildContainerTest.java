@@ -21,8 +21,10 @@ import junit.framework.Assert;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -31,6 +33,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import scala.actors.threadpool.Arrays;
 
 import java.util.Set;
 
@@ -89,6 +92,32 @@ public class CreateChildContainerTest extends FabricTestSupport {
         Set<Container> containers = ContainerBuilder.child(1).withName("child").
                 withJvmOpts("-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008")
                 .assertProvisioningResult().build();
+    }
+
+    /**
+     * This is a test for regressions after adding:
+     * https://fusesource.com/issues/browse/FABRIC-482
+     * Even though the issue is specific to ssh containers the same principals apply to child.
+     * @throws Exception
+     */
+    @Test
+    public void testContainerWithPasswordChange() throws Exception {
+        System.err.println(executeCommand("fabric:create -n"));
+        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        Thread.sleep(5000);
+
+        System.err.println(
+                executeCommands(
+                        "jaas:manage --realm karaf --module org.fusesource.fabric.jaas.ZookeeperLoginModule",
+                        "jaas:userdel admin",
+                        "jaas:useradd admin newpassword",
+                        "jaas:roleadd admin admin",
+                        "jaas:update"
+
+                )
+        );
+        System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword child"));
+        Provision.waitForContainerAlive(containers, false, 6 * DEFAULT_TIMEOUT);
     }
 
     @Configuration

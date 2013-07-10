@@ -16,19 +16,14 @@
  */
 package org.fusesource.fabric.commands;
 
-import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
 @Command(name = "container-delete", scope = "fabric", description = "Stops and deletes an existing container", detailedDescription = "classpath:containerDelete.txt")
-public class ContainerDelete extends FabricCommand {
-
-    @Argument(index = 0, description = "The name of the container to delete.", multiValued = false, required = true)
-    private String name;
+public class ContainerDelete extends ContainerLifecycleCommand {
 
     @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
     protected Boolean recursive = Boolean.FALSE;
@@ -39,13 +34,14 @@ public class ContainerDelete extends FabricCommand {
     @Override
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
-        validateContainersName(name);
-        if (isPartOfEnsemble(name) && !force) {
+        validateContainersName(container);
+        if (isPartOfEnsemble(container) && !force) {
             System.out.println("Container is part of the ensemble. If you still want to delete it, please use -f option.");
             return null;
         }
 
-        Container found = getContainer(name);
+        Container found = getContainer(container);
+        applyUpdatedCredentials(found);
         if (recursive) {
             for (Container child : found.getChildren()) {
                 child.stop();

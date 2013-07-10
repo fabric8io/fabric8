@@ -239,10 +239,14 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Destroy all containers
      */
     public static void destroy() {
+        FabricService fabricService = getOsgiService(FabricService.class);
         for (Container c : CONTAINERS) {
             try {
-                c.destroy();
+                //We want to use the latest metadata
+                Container updated = fabricService.getContainer(c.getId());
+                updated.destroy();
             } catch (Exception ex) {
+                ex.printStackTrace(System.err);
                 //noop
             }
         }
@@ -253,10 +257,14 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * The container directory will not get deleted.
      */
     public static void stop() {
+        FabricService fabricService = getOsgiService(FabricService.class);
         for (Container c : CONTAINERS) {
             try {
-                c.stop();
+                //We want to use the latest metadata
+                Container updated = fabricService.getContainer(c.getId());
+                updated.stop();
             } catch (Exception ex) {
+                ex.printStackTrace(System.err);
                 //noop
             }
         }
