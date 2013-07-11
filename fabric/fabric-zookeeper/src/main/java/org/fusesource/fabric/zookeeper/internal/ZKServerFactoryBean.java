@@ -181,6 +181,11 @@ public class ZKServerFactoryBean extends BaseManagedServiceFactory<Object> {
         public String getState() {
             return server.getState();
         }
+
+        @Override
+        public int getNumAliveConnections() {
+            return server.getNumAliveConnections();
+        }
     }
 
     static class ClusteredServer implements Destroyable, QuorumStats.Provider {

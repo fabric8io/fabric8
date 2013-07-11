@@ -31,8 +31,6 @@ import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.internal.ZKClient;
-import org.linkedin.util.clock.Timespan;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;

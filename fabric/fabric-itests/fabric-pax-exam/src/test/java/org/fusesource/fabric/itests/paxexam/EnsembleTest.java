@@ -28,7 +28,6 @@ import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.linkedin.util.clock.Timespan;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
