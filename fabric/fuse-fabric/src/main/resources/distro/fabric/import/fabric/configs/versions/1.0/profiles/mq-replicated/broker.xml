@@ -50,10 +50,10 @@
 
         <persistenceAdapter>
             <replicatedLevelDB directory="${data}/leveldb/${karaf.name}"
-              replicas="2"
+              replicas="${replicas}"
               zkAddress="${zookeeper.url}"
               zkPassword="${zookeeper.password}"
-              zkPath="/activemq/leveldb-stores"
+              zkPath="/fabric/registry/clusters/fusemq-replication-elections/${group}"
               securityToken="${zookeeper.password}"
               />
         </persistenceAdapter>

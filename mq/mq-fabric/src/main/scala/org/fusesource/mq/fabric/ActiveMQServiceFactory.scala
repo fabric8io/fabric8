@@ -180,6 +180,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val group = Option(properties.getProperty("group")).getOrElse("default")
     val pool = Option(properties.getProperty("standby.pool")).getOrElse("default")
     val connectors = Option(properties.getProperty("connectors")).getOrElse("").split("""\s""")
+    val replicating:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("replicating")).getOrElse("false"))
     val standalone:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("standalone")).getOrElse("false"))
     val registerService:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("registerService")).getOrElse("true"))
 
@@ -230,6 +231,11 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
         info("Standalone broker %s is starting.", name)
         start
       }
+    } else if (replicating) {
+      if (started.compareAndSet(false, true)) {
+        info("Replicating broker %s is starting.", name)
+        start
+      }
     } else {
       info("Broker %s is waiting to become the master", name)
 
@@ -263,8 +269,10 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     }
 
     def close = this.synchronized {
-      if( pool_enabled ) {
+      if(  pool_enabled || (replicating && discoveryAgent!=null)  ) {
         discoveryAgent.stop()
+      }
+      if( pool_enabled ) {
         return_pool(ClusteredConfiguration.this)
       }
       if(started.compareAndSet(true, false)) {
@@ -320,16 +328,27 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               server._2.start()
               info("Broker %s has started.", name)
 
+              if( replicating ) {
+                discoveryAgent = new FabricDiscoveryAgent
+                discoveryAgent.setAgent(System.getProperty("karaf.name"))
+                discoveryAgent.setId(name)
+                discoveryAgent.setGroupName(group)
+                discoveryAgent.setCurator(curator)
+                discoveryAgent.start()
+              }
+
               // Update the advertised endpoint URIs that clients can use.
-              if (!standalone) discoveryAgent.setServices( connectors.flatMap { name=>
-                val connector = server._2.getConnectorByName(name)
-                if ( connector==null ) {
-                  warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
-                  None
-                } else {
-                  Some(connector.getConnectUri.getScheme + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getConnectUri.getPort)
-                }
-              })
+              if (!standalone || replicating) {
+                discoveryAgent.setServices( connectors.flatMap { name=>
+                  val connector = server._2.getConnectorByName(name)
+                  if ( connector==null ) {
+                    warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
+                    None
+                  } else {
+                    Some(connector.getConnectUri.getScheme + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getConnectUri.getPort)
+                  }
+                })
+              }
 
               if (registerService) osgiRegister(server._2)
             } catch {
@@ -372,7 +391,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
             case e:Throwable => LOG.debug("Exception on close: " + e,  e)
           }
           try {
-            if ( pool_enabled ) discoveryAgent.stop()
+            if ( pool_enabled || (replicating && discoveryAgent!=null) ) {
+              discoveryAgent.stop()
+            }
           } catch {
             case e:Throwable => LOG.debug("Exception on stop: " + e,  e)
           }
