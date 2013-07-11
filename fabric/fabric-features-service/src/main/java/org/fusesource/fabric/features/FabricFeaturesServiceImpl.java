@@ -48,11 +48,23 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
     private final Set<Feature> allfeatures = new HashSet<Feature>();
     private final Set<Feature> installed = new HashSet<Feature>();
 
-    public void init() throws Exception {
+    public synchronized void init() {
+        run();
     }
 
-    public void destroy() throws Exception {
-        fabricService.unTrackConfiguration(this);
+    public synchronized void destroy() {
+        if (fabricService != null) {
+            this.fabricService.unTrackConfiguration(this);
+        }
+    }
+
+    public synchronized void bind(FabricService fabricService) {
+        this.fabricService = fabricService;
+        run();
+    }
+
+    public synchronized void unbind(FabricService fabricService) {
+        this.fabricService = null;
     }
 
 
@@ -76,8 +88,10 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
         installed.clear();
     }
 
-    public void onConnected() {
-        fabricService.trackConfiguration(this);
+    public synchronized void onConnected() {
+        if (fabricService != null) {
+            fabricService.trackConfiguration(this);
+        }
     }
 
     public void onDisconnected() {
@@ -119,7 +133,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
      */
     @Override
     public synchronized Repository[] listRepositories() {
-        if (repositories.isEmpty()) {
+        if (repositories.isEmpty() && fabricService != null) {
             Set<String> repositoryUris = new LinkedHashSet<String>();
             Container container = fabricService.getCurrentContainer();
             Version version = container.getVersion();
@@ -223,7 +237,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
 
     @Override
     public synchronized Feature[] listInstalledFeatures() {
-        if (installed.isEmpty()) {
+        if (installed.isEmpty() && fabricService != null) {
             try {
                 Map<String, Map<String, Feature>> allFeatures = getFeatures(listProfileRepositories());
                 Container container = fabricService.getCurrentContainer();
@@ -323,6 +337,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
     private Repository[] listProfileRepositories() {
         Set<String> repositoryUris = new LinkedHashSet<String>();
         Set<Repository> repositories = new LinkedHashSet<Repository>();
+        //The method is only called when fabricService is available so no need to guard for null values.
         Container container = fabricService.getCurrentContainer();
         Set<Profile> profilesWithParents = new HashSet<Profile>();
 
@@ -408,15 +423,6 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
         for (Feature dependency : feature.getDependencies()) {
             addFeatures(search(dependency.getName(), dependency.getVersion(), repositories), features);
         }
-    }
-
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
     }
 
     public CuratorFramework getCurator() {

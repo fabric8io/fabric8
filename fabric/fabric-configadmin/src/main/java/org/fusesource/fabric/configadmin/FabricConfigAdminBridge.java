@@ -50,29 +50,34 @@ public class FabricConfigAdminBridge implements Runnable {
         this.configAdmin = configAdmin;
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public void init() {
+    public synchronized void init() {
         run();
     }
 
-    public void destroy() {
-        this.fabricService.unTrackConfiguration(this);
+    public synchronized void destroy() {
+        if (fabricService != null) {
+            this.fabricService.unTrackConfiguration(this);
+        }
+    }
+
+    public synchronized void bind(FabricService fabricService) {
+        this.fabricService = fabricService;
+        run();
+    }
+
+    public synchronized void unbind(FabricService fabricService) {
+        this.fabricService = null;
     }
 
     @Override
     public void run() {
-        this.fabricService.trackConfiguration(this);
-        try {
-            update();
-        } catch (Exception ex) {
-          //do not propagate exception back.
+        if (fabricService != null) {
+            this.fabricService.trackConfiguration(this);
+            try {
+                update();
+            } catch (Exception ex) {
+                //do not propagate exception back.
+            }
         }
     }
 
