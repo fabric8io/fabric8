@@ -16,6 +16,51 @@
  */
 package org.fusesource.fabric.agent;
 
+import org.apache.felix.framework.monitor.MonitoringService;
+import org.apache.felix.utils.manifest.Clause;
+import org.apache.felix.utils.manifest.Parser;
+import org.apache.felix.utils.properties.Properties;
+import org.apache.felix.utils.version.VersionRange;
+import org.apache.karaf.features.BundleInfo;
+import org.apache.karaf.features.Feature;
+import org.apache.karaf.features.Repository;
+import org.apache.karaf.features.internal.FeaturesServiceImpl;
+import org.fusesource.fabric.agent.download.DownloadManager;
+import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
+import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
+import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
+import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
+import org.fusesource.fabric.agent.mvn.PropertyStore;
+import org.fusesource.fabric.agent.sort.RequirementSort;
+import org.fusesource.fabric.agent.utils.MultiException;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.fab.MavenResolver;
+import org.fusesource.fabric.fab.MavenResolverImpl;
+import org.fusesource.fabric.fab.osgi.FabBundleInfo;
+import org.fusesource.fabric.fab.osgi.FabResolver;
+import org.fusesource.fabric.fab.osgi.FabResolverFactory;
+import org.fusesource.fabric.fab.osgi.ServiceConstants;
+import org.fusesource.fabric.fab.osgi.internal.Configuration;
+import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
+import org.fusesource.fabric.utils.ChecksumUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkEvent;
+import org.osgi.framework.FrameworkListener;
+import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Version;
+import org.osgi.framework.wiring.FrameworkWiring;
+import org.osgi.resource.Resource;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.util.tracker.ServiceTracker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -23,7 +68,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,71 +85,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.apache.felix.bundlerepository.Resource;
-import org.apache.felix.framework.monitor.MonitoringService;
-import org.apache.felix.utils.manifest.Clause;
-import org.apache.felix.utils.manifest.Parser;
-import org.apache.felix.utils.properties.Properties;
-import org.apache.felix.utils.version.VersionRange;
-import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
-import org.apache.karaf.features.Repository;
-import org.apache.karaf.features.internal.FeatureValidationUtil;
-import org.apache.karaf.features.internal.FeaturesServiceImpl;
-import org.apache.karaf.features.internal.RepositoryImpl;
-import org.fusesource.fabric.agent.download.DownloadFuture;
-import org.fusesource.fabric.agent.download.DownloadManager;
-import org.fusesource.fabric.agent.download.FutureListener;
-import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
-import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
-import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
-import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
-import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
-import org.fusesource.fabric.agent.mvn.PropertyStore;
-import org.fusesource.fabric.agent.sort.RequirementSort;
-import org.fusesource.fabric.utils.ChecksumUtils;
-import org.fusesource.fabric.agent.utils.MultiException;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.fab.MavenResolver;
-import org.fusesource.fabric.fab.MavenResolverImpl;
-import org.fusesource.fabric.fab.osgi.FabBundleInfo;
-import org.fusesource.fabric.fab.osgi.FabResolver;
-import org.fusesource.fabric.fab.osgi.FabResolverFactory;
-import org.fusesource.fabric.fab.osgi.ServiceConstants;
-import org.fusesource.fabric.fab.osgi.internal.Configuration;
-import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.ServiceReference;
-import org.osgi.framework.Version;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.startlevel.StartLevel;
-import org.osgi.util.tracker.ServiceTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import static org.fusesource.fabric.utils.features.FeatureUtils.search;
-import static org.fusesource.fabric.agent.utils.AgentUtils.addRepository;
-import static org.fusesource.fabric.agent.utils.AgentUtils.downloadBundles;
-import static org.fusesource.fabric.agent.utils.AgentUtils.addMavenProxies;
+import static org.apache.felix.resolver.Util.getSymbolicName;
+import static org.apache.felix.resolver.Util.getVersion;
+import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.FAB_PROTOCOL;
+import static org.fusesource.fabric.agent.utils.AgentUtils.addMavenProxies;
+import static org.fusesource.fabric.agent.utils.AgentUtils.downloadBundles;
+import static org.fusesource.fabric.agent.utils.AgentUtils.loadRepositories;
+import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 
-public class DeploymentAgent implements ManagedService, FrameworkListener {
+public class DeploymentAgent implements ManagedService {
 
 
     private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
@@ -118,19 +113,14 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
 
     private BundleContext bundleContext;
     private BundleContext systemBundleContext;
-    private PackageAdmin packageAdmin;
-    private StartLevel startLevel;
-    private ObrResolver obrResolver;
     private ServiceTracker<FabricService, FabricService> fabricService;
-
-    private final Object refreshLock = new Object();
-    private long refreshTimeout = 5000;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-agent"));
     private ExecutorService downloadExecutor;
     private volatile boolean shutdownDownloadExecutor;
     private DownloadManager manager;
     private ExecutorServiceFinder executorServiceFinder;
+    private boolean resolveOptionalImports = false;
 
 	private final RequirementSort requirementSort = new RequirementSort();
 
@@ -144,20 +134,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         manager = new DownloadManager(config);
     }
 
-    public StartLevel getStartLevel() {
-        return startLevel;
-    }
-
     public BundleContext getBundleContext() {
         return bundleContext;
-    }
-
-    public PackageAdmin getPackageAdmin() {
-        return packageAdmin;
-    }
-
-    public ObrResolver getObrResolver() {
-        return obrResolver;
     }
 
     public ServiceTracker<FabricService, FabricService> getFabricService() {
@@ -168,25 +146,20 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         this.bundleContext = bundleContext;
     }
 
-    public void setPackageAdmin(PackageAdmin packageAdmin) {
-        this.packageAdmin = packageAdmin;
-    }
-
-    public void setStartLevel(StartLevel startLevel) {
-        this.startLevel = startLevel;
-    }
-
-    public void setObrResolver(ObrResolver obrResolver) {
-        this.obrResolver = obrResolver;
-    }
-
     public void setFabricService(ServiceTracker<FabricService, FabricService> fabricService) {
         this.fabricService = fabricService;
     }
 
+    public boolean isResolveOptionalImports() {
+        return resolveOptionalImports;
+    }
+
+    public void setResolveOptionalImports(boolean resolveOptionalImports) {
+        this.resolveOptionalImports = resolveOptionalImports;
+    }
+
     public void start() throws IOException {
         LOGGER.info("Starting DeploymentAgent");
-        bundleContext.addFrameworkListener(this);
         systemBundleContext = bundleContext.getBundle(0).getBundleContext();
         if (checksums == null) {
             File file = bundleContext.getDataFile("checksums.properties");
@@ -195,6 +168,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Bundle bundle : systemBundleContext.getBundles()) {
             try {
                 if (isUpdateable(bundle)) {
+                    // TODO: what if the bundle location is not maven based ?
                     org.fusesource.fabric.agent.mvn.Parser parser = new org.fusesource.fabric.agent.mvn.Parser(bundle.getLocation());
                     String systemPath = System.getProperty("karaf.home") + File.separator + "system" + File.separator + parser.getArtifactPath().substring(4);
                     String agentDownloadsPath = System.getProperty("karaf.data") + "/maven/agent" + File.separator + parser.getArtifactPath().substring(4);
@@ -229,11 +203,10 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             downloadExecutor.shutdown();
             downloadExecutor = null;
         }
-        bundleContext.removeFrameworkListener(this);
         manager.shutdown();
     }
 
-    public void updated(final Dictionary props) throws ConfigurationException {
+    public void updated(final Dictionary<String, ?> props) throws ConfigurationException {
         LOGGER.info("DeploymentAgent updated with {}", props);
         if (executor.isShutdown() || props == null) {
             return;
@@ -260,7 +233,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         updateStatus(status, result, null, false);
     }
 
-    private void updateStatus(String status, Throwable result, List<Resource> resources, boolean force) {
+    private void updateStatus(String status, Throwable result, Collection<Resource> resources, boolean force) {
         try {
             FabricService fs;
             if (force) {
@@ -281,7 +254,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
                 if (resources != null) {
                     List<String> uris = new ArrayList<String>();
                     for (Resource res : resources) {
-                        uris.add(res.getURI());
+                        uris.add(getUri(res));
                     }
                     container.setProvisionList(uris);
                 }
@@ -295,7 +268,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
     }
 
-    public boolean doUpdate(Dictionary props) throws Exception {
+    public boolean doUpdate(Dictionary<String, ?> props) throws Exception {
         if (props == null) {
             return false;
         }
@@ -355,74 +328,33 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             bundleContext.getBundle(0).stop();
             return false;
         }
+
         // Compute deployment
-        final Map<URI, Repository> repositories = new HashMap<URI, Repository>();
-        for (String key : properties.keySet()) {
-            if (key.startsWith("repository.")) {
-                String url = properties.get(key);
-                if (url == null || url.length() == 0) {
-                    url = key.substring("repository.".length());
-                }
-                if (url != null && url.length() > 0) {
-                    URI uri = URI.create(url);
-                    addRepository(manager, repositories, uri);
-                }
-            }
-        }
+        final Map<String, Repository> repositories =
+                loadRepositories(manager, getPrefixedProperties(properties, "repository."));
+
         Set<Feature> features = new HashSet<Feature>();
-        for (String key : properties.keySet()) {
-            if (key.startsWith("feature.")) {
-                String name = properties.get(key);
-                if (name == null || name.length() == 0) {
-                    name = key.substring("feature.".length());
-                }
-                Feature feature = search(name, repositories.values());
-                if (feature == null) {
-                    throw new IllegalArgumentException("Unable to find feature " + name);
-                }
-                features.add(feature);
+        for (String name : getPrefixedProperties(properties, "feature.")) {
+            Feature feature = search(name, repositories.values());
+            if (feature == null) {
+                throw new IllegalArgumentException("Unable to find feature " + name);
             }
+            features.add(feature);
         }
-        Set<String> fabs = new HashSet<String>();
-        for (String key : properties.keySet()) {
-            if (key.startsWith("fab.")) {
-                String url = properties.get(key);
-                if (url == null || url.length() == 0) {
-                    url = key.substring("fab.".length());
-                }
-                if (url != null && url.length() > 0) {
-                    fabs.add(url);
-                }
-            }
-        }
+
+        Set<String> fabs = getPrefixedProperties(properties, "fab.");
+
         Set<String> bundles = new HashSet<String>();
-        for (String key : properties.keySet()) {
-            if (key.startsWith("bundle.")) {
-                String url = properties.get(key);
-                if (url == null || url.length() == 0) {
-                    url = key.substring("bundle.".length());
-                }
-                if (url != null && url.length() > 0) {
-                    if (url.startsWith(FAB_PROTOCOL)) {
-                        fabs.add(url.substring(FAB_PROTOCOL.length()));
-                    } else {
-                        bundles.add(url);
-                    }
-                }
+        for (String url : getPrefixedProperties(properties, "bundle.")) {
+            if (url.startsWith(FAB_PROTOCOL)) {
+                fabs.add(url.substring(FAB_PROTOCOL.length()));
+            } else {
+                bundles.add(url);
             }
         }
-        Set<String> overrides = new HashSet<String>();
-        for (String key : properties.keySet()) {
-            if (key.startsWith("override.")) {
-                String url = properties.get(key);
-                if (url == null || url.length() == 0) {
-                    url = key.substring("override.".length());
-                }
-                if (url != null && url.length() > 0) {
-                    overrides.add(url);
-                }
-            }
-        }
+
+        Set<String> overrides = getPrefixedProperties(properties, "override.");
+
         // Update bundles
         FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
         fabResolverFactory.setConfiguration(new FabricFabConfiguration(config, propertyResolver));
@@ -437,6 +369,21 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return true;
     }
 
+    private Set<String> getPrefixedProperties(Map<String, String> properties, String prefix) {
+        Set<String> result = new HashSet<String>();
+        for (String key : properties.keySet()) {
+            if (key.startsWith(prefix)) {
+                String url = properties.get(key);
+                if (url == null || url.length() == 0) {
+                    url = key.substring(prefix.length());
+                }
+                if (url != null && url.length() > 0) {
+                    result.add(url);
+                }
+            }
+        }
+        return result;
+    }
 
 
     private Set<Feature> addFeatures(Collection<Feature> features, Collection<Repository> repositories) {
@@ -460,7 +407,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     private void updateDeployment(FabResolverFactory fabResolverFactory,
-                                  Map<URI, Repository> repositories,
+                                  Map<String, Repository> repositories,
                                   Set<Feature> features,
                                   Set<String> bundles,
                                   Set<String> fabs,
@@ -510,7 +457,8 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         updateStatus("downloading", null);
         Map<String, File> downloads = downloadBundles(manager, allFeatures, bundles, overrides);
         updateStatus("resolving", null);
-        List<Resource> allResources = getObrResolver().resolve(allFeatures, bundles, infos, overrides, downloads);
+        StdResolver resolver = new StdResolver(resolveOptionalImports);
+        Collection<Resource> allResources = resolver.resolve(allFeatures, bundles, infos, overrides, downloads);
 
         updateStatus("installing", null, allResources, true);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -518,7 +466,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         StringBuilder sb = new StringBuilder();
         sb.append("Configuration changed.  New bundles list:\n");
         for (Resource bundle : allResources) {
-            sb.append("  ").append(bundle.getURI()).append("\n");
+            sb.append("  ").append(getUri(bundle)).append("\n");
         }
         LOGGER.info(sb.toString());
 
@@ -535,12 +483,12 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
             checksums = new Properties(file);
         }
         for (Bundle bundle : systemBundleContext.getBundles()) {
-            if (bundle.getBundleId() != 0) {
+            if (bundle.getSymbolicName() != null && bundle.getBundleId() != 0) {
                 Resource resource = null;
                 boolean update = false;
                 for (Resource res : toDeploy) {
-                    if (res.getSymbolicName().equals(bundle.getSymbolicName())) {
-                        if (res.getVersion().equals(bundle.getVersion())) {
+                    if (bundle.getSymbolicName().equals(getSymbolicName(res))) {
+                        if (bundle.getVersion().equals(getVersion(res))) {
                             if (isUpdateable(res)) {
                                 // if the checksum are different
                                 InputStream is = null;
@@ -579,9 +527,9 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         // Second pass on remaining resources
         for (Resource resource : toDeploy) {
             TreeMap<Version, Bundle> matching = new TreeMap<Version, Bundle>();
-            VersionRange range = getMicroVersionRange(resource.getVersion());
+            VersionRange range = getMicroVersionRange(getVersion(resource));
             for (Bundle bundle : toDelete) {
-                if (bundle.getSymbolicName().equals(resource.getSymbolicName())
+                if (bundle.getSymbolicName().equals(getSymbolicName(resource))
                         && range.contains(bundle.getVersion())) {
                     matching.put(bundle.getVersion(), bundle);
                 }
@@ -600,7 +548,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         Resource agentResource = toUpdate.get(bundleContext.getBundle());
         if (agentResource != null) {
             LOGGER.info("Updating agent");
-            LOGGER.info("  " + agentResource.getURI());
+            LOGGER.info("  " + getUri(agentResource));
             InputStream is = getBundleInputStream(agentResource, downloads, infos);
             Bundle bundle = bundleContext.getBundle();
             //We need to store the agent checksum and save before we update the agent.
@@ -620,11 +568,11 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
         LOGGER.info("  Bundles to update:");
         for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
-            LOGGER.info("    " + entry.getKey().getSymbolicName() + " / " + entry.getKey().getVersion() + " with " + entry.getValue().getURI());
+            LOGGER.info("    " + entry.getKey().getSymbolicName() + " / " + entry.getKey().getVersion() + " with " + getUri(entry.getValue()));
         }
         LOGGER.info("  Bundles to install:");
         for (Resource resource : toInstall) {
-            LOGGER.info("    " + resource.getURI());
+            LOGGER.info("    " + getUri(resource));
         }
 
         Set<Bundle> toRefresh = new HashSet<Bundle>();
@@ -655,16 +603,16 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         for (Map.Entry<Bundle, Resource> entry : toUpdate.entrySet()) {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
-            LOGGER.info("  " + resource.getURI());
+            LOGGER.info("  " + getUri(resource));
             InputStream is = getBundleInputStream(resource, downloads, infos);
             bundle.update(is);
             toRefresh.add(bundle);
         }
         LOGGER.info("Installing bundles:");
         for (Resource resource : toInstall) {
-            LOGGER.info("  " + resource.getURI());
+            LOGGER.info("  " + getUri(resource));
             InputStream is = getBundleInputStream(resource, downloads, infos);
-            Bundle bundle = systemBundleContext.installBundle(resource.getURI(), is);
+            Bundle bundle = systemBundleContext.installBundle(getUri(resource), is);
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
             // save a checksum of installed snapshot bundle
@@ -690,7 +638,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         }
 
         if (!toRefresh.isEmpty()) {
-            refreshPackages(toRefresh.toArray(new Bundle[toRefresh.size()]));
+            refreshPackages(toRefresh);
         }
 
         // We hit FELIX-2949 if we don't use the correct order as Felix resolver isn't greedy.
@@ -700,6 +648,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         // make sure those important bundles are started first and minimize the problem.
         List<Throwable> exceptions = new ArrayList<Throwable>();
         LOGGER.info("Starting bundles:");
+        // TODO: use wiring here instead of sorting
         for (Resource resource : requirementSort.sort(allResources)) {
             Bundle bundle = resToBnd.get(resource);
             String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
@@ -720,7 +669,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     protected static InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
-        return getBundleInputStream(resource.getURI(), downloads, infos);
+        return getBundleInputStream(getUri(resource), downloads, infos);
     }
 
     protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
@@ -942,27 +891,19 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
         return false;
     }
 
-    public void frameworkEvent(FrameworkEvent event) {
-        if (event.getType() == FrameworkEvent.PACKAGES_REFRESHED) {
-            synchronized (refreshLock) {
-                refreshLock.notifyAll();
+    protected void refreshPackages(Collection<Bundle> bundles) throws InterruptedException {
+        final CountDownLatch latch = new CountDownLatch(1);
+        FrameworkWiring fw = systemBundleContext.getBundle().adapt(FrameworkWiring.class);
+        fw.refreshBundles(bundles, new FrameworkListener() {
+            @Override
+            public void frameworkEvent(FrameworkEvent event) {
+                if (event.getType() == FrameworkEvent.ERROR) {
+                    LOGGER.error("Framework error", event.getThrowable());
+                }
+                latch.countDown();
             }
-        }
-        if (event.getType() == FrameworkEvent.ERROR) {
-            LOGGER.error("Framework error", event.getThrowable());
-            synchronized (refreshLock) {
-                refreshLock.notifyAll();
-            }
-        }
-    }
-
-    protected void refreshPackages(Bundle[] bundles) throws InterruptedException {
-        if (getPackageAdmin() != null) {
-            synchronized (refreshLock) {
-                getPackageAdmin().refreshPackages(bundles);
-                refreshLock.wait(refreshTimeout);
-            }
-        }
+        });
+        latch.await();
     }
 
     protected synchronized ExecutorService getDownloadExecutor() {
@@ -995,7 +936,7 @@ public class DeploymentAgent implements ManagedService, FrameworkListener {
     }
 
     private static boolean isUpdateable(Resource resource) {
-        return (resource.getVersion().getQualifier().endsWith("SNAPSHOT") || resource.getURI().startsWith(BLUEPRINT_PREFIX) || resource.getURI().startsWith(SPRING_PREFIX));
+        return (getVersion(resource).getQualifier().endsWith(SNAPSHOT) || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
     }
 
     interface ExecutorServiceFinder {

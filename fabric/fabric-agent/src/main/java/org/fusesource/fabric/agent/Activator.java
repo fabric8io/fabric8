@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.agent;
 
-import org.apache.felix.bundlerepository.impl.RepositoryAdminImpl;
-import org.apache.felix.utils.log.Logger;
 import org.fusesource.fabric.api.FabricService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
@@ -39,42 +37,45 @@ public class Activator implements BundleActivator {
 
     public static final String AGENT_PID = "org.fusesource.fabric.agent";
     private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
+    private static final String RESOLVE_OPTIONAL_IMPORTS = "resolve.optional.imports";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Activator.class);
     
     private DeploymentAgent agent;
-    private ServiceTracker packageAdmin;
-    private ServiceTracker startLevel;
     private ServiceTracker<FabricService, FabricService> fabricService;
     private ServiceRegistration registration;
 
     public void start(BundleContext context) throws Exception {
         agent = new DeploymentAgent();
         agent.setBundleContext(context);
-        ObrResolver obr = new ObrResolver(new RepositoryAdminImpl(context, new Logger(context)));
-        Dictionary config = getConfig(context);
-        if (config != null) {
-            obr.setResolveOptionalImports(getResolveOptionalImports(config));
-        }
-        agent.setObrResolver(obr);
-        agent.setPackageAdmin(getPackageAdmin(context));
-        agent.setStartLevel(getStartLevel(context));
+        Dictionary<String, Object> config = getConfig(context);
+        agent.setResolveOptionalImports(getResolveOptionalImports(config));
         agent.setFabricService(getFabricService(context));
         agent.start();
         Hashtable<String, String> props = new Hashtable<String, String>();
         props.put(Constants.SERVICE_PID, AGENT_PID);
         registration = context.registerService(ManagedService.class.getName(), agent, props);
-    }  
-    
-    private boolean getResolveOptionalImports(Dictionary config) {
-        try {
-            return Boolean.parseBoolean((String) config.get(OBR_RESOLVE_OPTIONAL_IMPORTS));
-        } catch (Exception e) {
-            LOGGER.warn("Error reading " + OBR_RESOLVE_OPTIONAL_IMPORTS, e);            
+    }
+
+    public void stop(BundleContext context) throws Exception {
+        registration.unregister();
+        agent.stop();
+        fabricService.close();
+    }
+
+    private boolean getResolveOptionalImports(Dictionary<String, Object> config) {
+        if (config != null) {
+            String str = (String) config.get(OBR_RESOLVE_OPTIONAL_IMPORTS);
+            if (str == null) {
+                str = (String) config.get(RESOLVE_OPTIONAL_IMPORTS);
+            }
+            if (str != null) {
+                return Boolean.parseBoolean(str);
+            }
         }
         return false;
     }
     
-    private Dictionary getConfig(BundleContext bundleContext) {
+    private Dictionary<String, Object> getConfig(BundleContext bundleContext) {
         try {
             ServiceReference configAdminServiceReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
             if (configAdminServiceReference != null) {
@@ -94,27 +95,6 @@ public class Activator implements BundleActivator {
         fabricService = new ServiceTracker<FabricService, FabricService>(context, FabricService.class, null);
         fabricService.open();
         return fabricService;
-    }
-
-    private StartLevel getStartLevel(BundleContext context) {
-        startLevel = new ServiceTracker(context, StartLevel.class.getName(), null);
-        startLevel.open();
-        return (StartLevel) startLevel.getService();
-    }
-
-    private PackageAdmin getPackageAdmin(BundleContext context) {
-        packageAdmin = new ServiceTracker(context, PackageAdmin.class.getName(), null);
-        packageAdmin.open();
-        return (PackageAdmin) packageAdmin.getService();
-    }
-
-    public void stop(BundleContext context) throws Exception {
-        registration.unregister();
-        context.removeFrameworkListener(agent);
-        agent.stop();
-        packageAdmin.close();
-        startLevel.close();
-        fabricService.close();
     }
 
 }
