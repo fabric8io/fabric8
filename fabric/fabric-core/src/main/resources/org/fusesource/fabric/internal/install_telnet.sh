@@ -5,10 +5,10 @@ function install_telnet() {
   else
     echo "Installing telnet."
     if which dpkg &> /dev/null; then
-      sudo apt-get update
-      sudo apt-get -y install telnet
+      sudo -n  apt-get update
+      sudo -n  apt-get -y install telnet
     elif which rpm &> /dev/null; then
-      yum -y install telnet
+      sudo -n yum -y install telnet
     fi
   fi
 }

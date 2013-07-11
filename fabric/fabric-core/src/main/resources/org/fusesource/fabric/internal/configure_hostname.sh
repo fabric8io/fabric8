@@ -21,7 +21,7 @@ function configure_hostnames() {
         echo "local.resolver=publichostname" >> etc/system.properties
         echo "global.resolver=publichostname" >> etc/system.properties
         echo $PUBLIC_HOSTNAME > hostname
-        sudo cp hostname /etc/
+        sudo -n cp hostname /etc/
         export JAVA_OPTS="-Djava.rmi.server.hostname=$PUBLIC_HOSTNAME $JAVA_OPTS"
         echo "RESOLVER OVERRIDE:publichostname"
    fi
