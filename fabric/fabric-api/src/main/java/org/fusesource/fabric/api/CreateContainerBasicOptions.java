@@ -35,7 +35,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         URI proxyUri;
         String zookeeperUrl;
         String jvmOpts;
-        boolean adminAccess = false;
+        boolean adminAccess = true;
         String version;
         Map<String, CreateContainerMetadata> metadataMap = new HashMap<String, CreateContainerMetadata>();
         transient CreationStateListener creationStateListener = new NullCreationStateListener();
@@ -166,7 +166,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, version);
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version);
         }
     }
 
@@ -181,7 +181,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     final URI proxyUri;
     final String zookeeperUrl;
     final String jvmOpts;
-    final boolean adminAccess = false;
+    final boolean adminAccess;
     final String version;
     final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
     final transient CreationStateListener creationStateListener = new NullCreationStateListener();
@@ -192,7 +192,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
                                        Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
-                                       String jvmOpts, String version) {
+                                       String jvmOpts, boolean adminAccess, String version) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort,
                 zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users);
@@ -207,6 +207,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.proxyUri = proxyUri;
         this.zookeeperUrl = zookeeperUrl;
         this.jvmOpts = jvmOpts;
+        this.adminAccess = adminAccess;
         this.version = version;
     }
 

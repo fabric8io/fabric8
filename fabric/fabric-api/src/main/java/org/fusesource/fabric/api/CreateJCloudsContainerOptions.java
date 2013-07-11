@@ -276,7 +276,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return new CreateJCloudsContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, version, osFamily, osVersion, imageId, hardwareId, locationId,
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, osFamily, osVersion, imageId, hardwareId, locationId,
                     group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
                     owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path);
         }
@@ -312,7 +312,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                                          String importPath, Map<String, String> users, String name, String parent,
                                          String providerType, boolean ensembleServer, String preferredAddress,
                                          Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl,
-                                         String jvmOpts, String version, String osFamily, String osVersion, String imageId,
+                                         String jvmOpts, boolean adminAccess, String version, String osFamily, String osVersion, String imageId,
                                          String hardwareId, String locationId, String group, String user, String password,
                                          String contextName, String providerName, String apiName, String endpoint,
                                          JCloudsInstanceType instanceType, String identity, String credential, String owner, Map<String, String> serviceOptions, Map<String, String> nodeOptions, int servicePort, String publicKeyFile,
@@ -320,7 +320,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort,
                 zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType,
-                ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, version);
+                ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version);
 
         this.osFamily = osFamily;
         this.osVersion = osVersion;
@@ -351,7 +351,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return new CreateJCloudsContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                 maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                 importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                number, proxyUri, zookeeperUrl, jvmOpts, version, osFamily, osVersion, imageId, hardwareId, locationId,
+                number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, osFamily, osVersion, imageId, hardwareId, locationId,
                 group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
                 contextName, providerName, apiName, endpoint, instanceType, identity, credential,
                 owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path);

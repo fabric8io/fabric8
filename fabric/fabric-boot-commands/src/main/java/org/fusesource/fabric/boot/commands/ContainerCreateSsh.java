@@ -24,6 +24,7 @@ import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
+import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 
@@ -65,6 +66,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     private String newUserPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserRole = "admin";
+    @Option(name = "--with-admin-access", description = "Indicates that the target user has admin access (password-less sudo). When used installation of missing dependencies will be attempted.")
+    private boolean adminAccess;
 
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
@@ -92,6 +95,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .privateKeyFile(privateKeyFile != null ? privateKeyFile : CreateSshContainerOptions.DEFAULT_PRIVATE_KEY_FILE)
         .passPhrase(passPhrase)
         .port(port)
+        .adminAccess(adminAccess)
         .sshRetries(sshRetries)
         .minimumPort(minimumPort)
         .maximumPort(maximumPort)
