@@ -57,11 +57,15 @@ public class PomDetails {
         return properties;
     }
 
-    public Model getModel() throws IOException, XmlPullParserException {
-        Model model = new MavenXpp3Reader().read(new FileInputStream(file));
-        model.setGroupId(properties.getProperty("groupId", model.getGroupId()));
-        model.setArtifactId(properties.getProperty("artifactId", model.getArtifactId()));
-        model.setVersion(properties.getProperty("version", model.getVersion()));
-        return model;
+    public Model getModel() throws IOException {
+        try {
+            Model model = new MavenXpp3Reader().read(new FileInputStream(file));
+            model.setGroupId(properties.getProperty("groupId", model.getGroupId()));
+            model.setArtifactId(properties.getProperty("artifactId", model.getArtifactId()));
+            model.setVersion(properties.getProperty("version", model.getVersion()));
+            return model;
+        } catch (XmlPullParserException e) {
+            throw new IOException("Error parsing maven pom " + file, e);
+        }
     }
 }

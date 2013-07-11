@@ -249,7 +249,7 @@ public class MavenResolverImpl implements MavenResolver {
     /**
      * Collects the dependency tree for the given file by extracting its pom.xml file
      */
-    public DependencyTreeResult collectDependenciesForJar(File jarFile, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependenciesForJar(File jarFile, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
         // lets find the pom file
         PomDetails pomDetails = findPomFile(jarFile);
         if (pomDetails == null || !pomDetails.isValid()) {
@@ -258,20 +258,23 @@ public class MavenResolverImpl implements MavenResolver {
         return collectDependencies(pomDetails, offline, excludeDependencyFilter);
     }
 
-    public DependencyTreeResult collectDependencies(PomDetails pomDetails, boolean offline, Filter<Dependency> excludeDependencyFilter) throws IOException, XmlPullParserException, RepositoryException {
+    public DependencyTreeResult collectDependencies(PomDetails pomDetails, boolean offline, Filter<Dependency> excludeDependencyFilter) throws IOException, RepositoryException {
         Model model = pomDetails.getModel();
         return collectDependenciesFromPom(pomDetails.getFile(), offline, model, excludeDependencyFilter);
     }
 
 
-    public DependencyTreeResult collectDependencies(File pomFile, boolean offline) throws RepositoryException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependencies(File pomFile, boolean offline) throws RepositoryException, IOException {
         return collectDependencies(pomFile, offline, DependencyFilters.testScopeOrOptionalFilter);
     }
 
-    public DependencyTreeResult collectDependencies(File rootPom, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
-        Model model = new MavenXpp3Reader().read(new FileInputStream(rootPom));
-
-        return collectDependenciesFromPom(rootPom, offline, model, excludeDependencyFilter);
+    public DependencyTreeResult collectDependencies(File rootPom, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
+        try {
+            Model model = new MavenXpp3Reader().read(new FileInputStream(rootPom));
+            return collectDependenciesFromPom(rootPom, offline, model, excludeDependencyFilter);
+        } catch (XmlPullParserException e) {
+            throw new IOException("Unable to read maven pom " + rootPom, e);
+        }
     }
 
 
@@ -291,11 +294,11 @@ public class MavenResolverImpl implements MavenResolver {
         return collectDependencies(root, pomVersion, offline, excludeDependencyFilter);
     }
 
-    public DependencyTreeResult collectDependencies(VersionedDependencyId dependencyId, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependencies(VersionedDependencyId dependencyId, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
         return collectDependencies(dependencyId.getGroupId(), dependencyId.getArtifactId(), dependencyId.getVersion(), dependencyId.getExtension(), dependencyId.getClassifier(), offline, excludeDependencyFilter);
     }
 
-    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, ArtifactResolutionException, IOException, XmlPullParserException {
+    public DependencyTreeResult collectDependencies(String groupId, String artifactId, String version, String extension, String classifier, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
         DefaultArtifact artifact = new DefaultArtifact(groupId, artifactId, classifier, extension, version);
         return collectDependencies(artifact, version, offline, excludeDependencyFilter);
     }

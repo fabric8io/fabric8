@@ -32,7 +32,6 @@ import java.util.zip.ZipEntry;
 
 import aQute.lib.osgi.Analyzer;
 import org.apache.felix.utils.version.VersionCleaner;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.common.util.*;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
@@ -110,7 +109,7 @@ public class FabClassPathResolver implements FabConfiguration {
     }
 
 
-    public void resolve() throws RepositoryException, IOException, XmlPullParserException, BundleException {
+    public void resolve() throws RepositoryException, IOException, BundleException {
         moduleId = connection.getVersionedDependencyId();
         if (moduleId == null) {
             return;
@@ -318,7 +317,7 @@ public class FabClassPathResolver implements FabConfiguration {
         return new ArrayList<DependencyTree>(map.values());
     }
 
-    private void registerModule() throws IOException, XmlPullParserException {
+    private void registerModule() throws IOException {
         try {
             Properties moduleProperties = new Properties();
             for( String key: FAB_MODULE_PROPERTIES) {
@@ -347,7 +346,7 @@ public class FabClassPathResolver implements FabConfiguration {
         }
     }
 
-    protected void resolveExtensions(DependencyTree root, Filter<Dependency> excludeDependencyFilter) throws IOException, RepositoryException, XmlPullParserException {
+    protected void resolveExtensions(DependencyTree root, Filter<Dependency> excludeDependencyFilter) throws IOException, RepositoryException {
         ModuleRegistry.VersionedModule module = moduleRegistry.getVersionedModule(moduleId);
         if( module!=null ) {
             Map<String, ModuleRegistry.VersionedModule> availableExtensions = module.getAvailableExtensions();
