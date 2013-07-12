@@ -353,7 +353,8 @@ public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
         }
         repositoryUris.add(uri);
         try {
-            Repository repository = new RepositoryImpl(new URI(uri));
+            RepositoryImpl repository = new RepositoryImpl(new URI(uri));
+            repository.load();
             URI[] internalUris = repository.getRepositories();
             if (internalUris != null) {
                 for (URI u : internalUris) {
