@@ -32,8 +32,10 @@ class NetworkConnectorResource(val self: NetworkConnectorViewFacade)
   @JsonProperty
   def name = self.getName
 
-  @JsonProperty
-  def network_ttl = self.getNetworkTTL
+
+  // This property does not exist in ActiveMQ 5.9
+  // @JsonProperty
+  // def network_ttl = self.getNetworkTTL
 
   @JsonProperty
   def prefetch_size = self.getPrefetchSize

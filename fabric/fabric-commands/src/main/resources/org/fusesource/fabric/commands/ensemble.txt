@@ -4,7 +4,7 @@ There are four different usages:
 * fabric:ensemble-list
 The list of containers composing the current ensemble will be displayed.
 
-* fabric:ensemble-create [list of containers]
+* fabric:create [list of containers]
 This mode will create a new ensemble composed of the given containers and will switch all containers to this new ensemble.
 
 * fabric:ensemble-add [list of containers]

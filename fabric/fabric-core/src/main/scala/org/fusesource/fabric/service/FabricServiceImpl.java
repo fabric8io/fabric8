@@ -284,19 +284,6 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
-        if (options.getZookeeperUrl() == null && !options.isEnsembleServer()) {
-            options.setZookeeperUrl(getZookeeperUrl());
-        }
-        if (options.getProxyUri() == null) {
-            options.setProxyUri(getMavenRepoURI());
-        }
-        if (options.getJvmOpts() == null || options.getJvmOpts().length() == 0) {
-            options.setJvmOpts(getDefaultJvmOptions());
-        }
-
-        if (options.isEnsembleServer() && (options.getZookeeperPassword() == null || options.getZookeeperPassword().isEmpty())) {
-            options.setZookeeperPassword(generatePassword());
-        }
 
         try {
             ContainerProvider provider = getProvider(options.getProviderType());

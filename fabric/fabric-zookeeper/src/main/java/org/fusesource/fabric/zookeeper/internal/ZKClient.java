@@ -26,6 +26,7 @@ import org.linkedin.zookeeper.client.IZooKeeperFactory;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationException;
 
+@Deprecated
 public class ZKClient extends AbstractZKClient {
 
     public ZKClient(String connectString, Timespan sessionTimeout, Watcher watcher) {

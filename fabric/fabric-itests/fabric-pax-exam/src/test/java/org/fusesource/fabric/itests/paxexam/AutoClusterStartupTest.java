@@ -19,9 +19,11 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
+import org.fusesource.fabric.itests.paxexam.support.WaitForConfigurationChange;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Test;
@@ -40,6 +42,8 @@ import java.util.Dictionary;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 
@@ -52,8 +56,10 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         FabricService fabricService = getFabricService();
         //Test autostartup.
         assertNotNull(fabricService);
+        Thread.sleep(5000);
         CuratorFramework curator = getCurator();
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+        WaitForConfigurationChange.on(fabricService);
         Provision.waitForContainerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", (FabricServiceImpl) fabricService)), PROVISION_TIMEOUT);
         Container[] containers = fabricService.getContainers();
         assertNotNull(containers);
@@ -66,6 +72,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
         Dictionary<String, Object> dictionary = configuration.getProperties();
         assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
+        assertTrue(String.valueOf(dictionary.get("zookeeper.url")).endsWith("2182"));
     }
 
     @Configuration
@@ -74,6 +81,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
                 new VMOption("-D" + SystemProperties.ENSEMBLE_AUTOSTART + "=true"),
                 new VMOption("-D" + SystemProperties.AGENT_AUTOSTART + "=false"),
+                new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_PORT + "=2182"),
+                debugConfiguration("5005",false)
         };
     }
 }

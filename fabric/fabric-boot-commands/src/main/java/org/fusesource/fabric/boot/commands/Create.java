@@ -21,7 +21,6 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -31,6 +30,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.boot.commands.service.Create {
@@ -55,8 +55,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private boolean nonManaged;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
-    @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container.")
-    private String profile = null;
+    @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container.")
+    private Set<String> profiles = null;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
@@ -79,6 +79,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
     @Override
     protected Object doExecute() throws Exception {
+        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder();
+
         if (containers == null || containers.isEmpty()) {
             containers = Arrays.asList(System.getProperty(SystemProperties.KARAF_NAME));
         }
@@ -88,35 +90,49 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         }
 
         if (!noImport && importDir != null) {
-            System.setProperty(SystemProperties.PROFILES_AUTOIMPORT_PATH, importDir);
+            builder.autoImportEnabled(true);
+            builder.importPath(importDir);
         }
 
         if (globalResolver != null) {
+            builder.globalResolver(globalResolver);
             System.setProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, globalResolver);
         }
 
         if (resolver != null) {
+            builder.resolver(resolver);
             System.setProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, resolver);
         }
 
         if (manualIp != null) {
+            builder.manualIp(manualIp);
             System.setProperty(ZkDefs.MANUAL_IP, manualIp);
         }
 
         if (bindAddress != null) {
-            System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+            if (!bindAddress.contains(":")) {
+                builder.bindAddress(bindAddress);
+                System.setProperty(ZkDefs.BIND_ADDRESS, bindAddress);
+            } else {
+                String[] parts = bindAddress.split(":");
+                builder.bindAddress(parts[0]);
+                builder.getZooKeeperServerPort(Integer.parseInt(parts[1]));
+                System.setProperty(ZkDefs.BIND_ADDRESS, parts[0]);
+            }
         }
 
-        if (profile != null) {
-            System.setProperty(SystemProperties.PROFILE, profile);
+        if (profiles != null && profiles.size() > 0) {
+            builder.profiles(profiles);
         }
 
         if (nonManaged) {
-            System.setProperty(SystemProperties.AGENT_AUTOSTART, "false");
+            builder.agentEnabled(false);
         } else {
-            System.setProperty(SystemProperties.AGENT_AUTOSTART, "true");
+            builder.agentEnabled(true);
         }
 
+        builder.minimumPort(minimumPort);
+        builder.minimumPort(maximumPort);
         System.setProperty(ZkDefs.MINIMUM_PORT, String.valueOf(minimumPort));
         System.setProperty(ZkDefs.MAXIMUM_PORT, String.valueOf(maximumPort));
 
@@ -124,6 +140,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         newUserPassword = newUserPassword != null ? newUserPassword : ShellUtils.retrieveFabricUserPassword(session);
 
         Properties userProps = new Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+
         if (userProps.isEmpty()) {
             String[] credentials = promptForNewUser(newUser, newUserPassword);
             newUser = credentials[0];
@@ -148,16 +165,16 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             ShellUtils.storeFabricCredentials(session, newUser, newUserPassword);
         }
 
-        if (zookeeperPassword == null) {
-            zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD);
+        if (generateZookeeperPassword) {
+            //do nothing use the generated password.
+        } else if (zookeeperPassword == null) {
+            zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD, newUserPassword);
+            builder.zookeeperPassword(zookeeperPassword);
         }
 
-        if (zookeeperPassword == null && !generateZookeeperPassword) {
-            zookeeperPassword = newUserPassword;
-        }
-
-        CreateEnsembleOptions options = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + ROLE_DELIMITER+ newUserRole);
-        options.getUsers().putAll(userProps);
+        CreateEnsembleOptions options = builder.users(userProps)
+                                               .withUser(newUser, newUserPassword , newUserRole)
+                                               .build();
 
         if (containers != null && !containers.isEmpty()) {
             service.createCluster(containers, options);
@@ -183,6 +200,14 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Override
     public Object run() throws Exception {
         return doExecute();
+    }
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public void setBindAddress(String bindAddress) {
+        this.bindAddress = bindAddress;
     }
 
     @Override
@@ -305,13 +330,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         this.newUserRole = newUserRole;
     }
 
-    public String getProfile() {
-        return profile;
-
+    public Set<String> getProfiles() {
+        return profiles;
     }
 
-    public void setProfile(String profile) {
-        this.profile = profile;
+    public void setProfiles(Set<String> profiles) {
+        this.profiles = profiles;
     }
 
     public boolean isNonManaged() {

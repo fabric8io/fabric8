@@ -20,7 +20,7 @@ import java.io.IOException;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.CreateContainerChildOptions;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricAuthenticationException;
@@ -43,7 +43,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     @Argument(index = 1, required = true, description = "The name of the containers to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 2, required = false, description = "The number of containers that should be created")
-    protected int number = 1;
+    protected int number = 0;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -58,7 +58,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
         // okay create child container
         String url = "child://" + parent;
-        CreateContainerChildOptions options = CreateContainerOptionsBuilder.child()
+        CreateChildContainerOptions.Builder builder = CreateContainerOptionsBuilder.child()
                 .name(name)
                 .parent(parent)
                 .bindAddress(bindAddress)
@@ -72,19 +72,17 @@ public class ContainerCreateChild extends ContainerCreateSupport {
                 .jmxUser(jmxUser)
                 .jmxPassword(jmxPassword)
                 .version(version)
-                .profiles(profiles);
+                .profiles(getProfileNames());
 
         try {
-            metadatas = fabricService.createContainers(options);
+            metadatas = fabricService.createContainers(builder.build());
             ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         } catch (FabricAuthenticationException ex) {
             //If authentication fails, prompts for credentilas and try again.
             username = null;
             password = null;
             promptForJmxCredentialsIfNeeded();
-            options.setJmxUser(username);
-            options.setJmxPassword(password);
-            metadatas = fabricService.createContainers(options);
+            metadatas = fabricService.createContainers(builder.jmxUser(username).jmxPassword(password).build());
             ShellUtils.storeFabricCredentials(session, username, password);
         }
 
@@ -97,7 +95,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
         // validate number is not out of bounds
-        if (number < 1 || number > 99) {
+        if (number < 0 || number > 99) {
             throw new IllegalArgumentException("The number of containers must be between 1 and 99.");
         }
         if (isEnsembleServer && number > 1) {

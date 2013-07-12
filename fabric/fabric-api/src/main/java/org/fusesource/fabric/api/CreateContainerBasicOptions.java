@@ -20,176 +20,225 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
 
-public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> implements CreateContainerOptions{
+public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> extends CreateEnsembleOptions implements CreateContainerOptions {
 
-    protected String name;
-    protected String parent;
-    protected String providerType;
-    protected boolean ensembleServer;
-    protected String preferredAddress;
-    protected String bindAddress;
-    //The default value is null, so that we know if the user explicitly specified a resolver.
-    protected String resolver = null;
-    protected String manualIp;
 
-    // let's try and avoid importing fabric-util
-    //protected Integer minimumPort = Ports.MIN_PORT_NUMBER;
-    //protected Integer maximumPort = Ports.MAX_PORT_NUMBER;
-    protected Integer minimumPort = 0;
-    protected Integer maximumPort = 65535;
+    public static class Builder<B extends Builder> extends CreateEnsembleOptions.Builder<B> {
 
-    protected final Map<String, Properties> systemProperties = new HashMap<String, Properties>();
-    protected Integer number = 1;
-    protected URI proxyUri;
-    protected String zookeeperUrl;
-    protected String zookeeperPassword;
-    protected String jvmOpts;
-    protected boolean adminAccess = false;
-    protected String version;
-    protected List<String> profiles = new ArrayList<String>();
-    protected Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
-    private transient CreationStateListener creationStateListener = new NullCreationStateListener();
+        String name;
+        String parent;
+        String providerType;
+        boolean ensembleServer;
+        String preferredAddress;
+        Map<String, Properties> systemProperties = new HashMap<String, Properties>();
+        Integer number = 0;
+        URI proxyUri;
+        String zookeeperUrl;
+        String jvmOpts;
+        boolean adminAccess = true;
+        String version;
+        Map<String, CreateContainerMetadata> metadataMap = new HashMap<String, CreateContainerMetadata>();
+        transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
-    public T preferredAddress(final String preferredAddress) {
-        this.setPreferredAddress(preferredAddress);
-        return (T) this;
+        public B preferredAddress(final String preferredAddress) {
+            this.preferredAddress = preferredAddress;
+            return (B) this;
+        }
+
+        public B ensembleServer(final boolean ensembleServer) {
+            this.ensembleServer = ensembleServer;
+            return (B) this;
+        }
+
+        public B number(final int number) {
+            this.number = number;
+            return (B) this;
+        }
+
+
+        public B name(final String name) {
+            this.name = name;
+            return (B) this;
+        }
+
+        public B parent(final String parent) {
+            this.parent = parent;
+            return (B) this;
+        }
+
+        public B providerType(final String providerType) {
+            this.providerType = providerType;
+            return (B) this;
+        }
+
+        public B zookeeperUrl(final String zookeeperUrl) {
+            this.zookeeperUrl = zookeeperUrl;
+            return (B) this;
+        }
+
+        public B proxyUri(final URI proxyUri) {
+            this.proxyUri = proxyUri;
+            return (B) this;
+        }
+
+        public B proxyUri(final String proxyUri) throws URISyntaxException {
+            this.proxyUri = new URI(proxyUri);
+            return (B) this;
+        }
+
+        public B jvmOpts(final String jvmOpts) {
+            this.jvmOpts = jvmOpts;
+            return (B) this;
+        }
+
+        public B adminAccess(final boolean adminAccess) {
+            this.adminAccess = adminAccess;
+            return (B) this;
+        }
+
+        public B creationStateListener(final CreationStateListener creationStateListener) {
+            this.creationStateListener = creationStateListener;
+            return (B) this;
+        }
+
+        public B version(String version) {
+            this.version = version;
+            return (B) this;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getParent() {
+            return parent;
+        }
+
+        public String getProviderType() {
+            return providerType;
+        }
+
+        public boolean isEnsembleServer() {
+            return ensembleServer;
+        }
+
+        public String getPreferredAddress() {
+            return preferredAddress;
+        }
+
+        public Map<String, Properties> getSystemProperties() {
+            return systemProperties;
+        }
+
+        public Integer getNumber() {
+            return number;
+        }
+
+        public URI getProxyUri() {
+            return proxyUri;
+        }
+
+        public String getZookeeperUrl() {
+            return zookeeperUrl;
+        }
+
+        public String getJvmOpts() {
+            return jvmOpts;
+        }
+
+        public boolean isAdminAccess() {
+            return adminAccess;
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public Map<String, CreateContainerMetadata> getMetadataMap() {
+            return metadataMap;
+        }
+
+        public CreationStateListener getCreationStateListener() {
+            return creationStateListener;
+        }
+
+        public CreateContainerBasicOptions build() {
+            return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
+                    maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                    importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version);
+        }
     }
 
-    public T bindAddress(final String bindAddress) {
-        this.setBindAddress(bindAddress);
-        return (T) this;
-    }
 
-    public T resolver(final String resolver) {
-        this.setResolver(resolver);
-        return (T) this;
-    }
+    final String name;
+    final String parent;
+    final String providerType;
+    final boolean ensembleServer;
+    final String preferredAddress;
+    final Map<String, Properties> systemProperties;
+    final Integer number;
+    final URI proxyUri;
+    final String zookeeperUrl;
+    final String jvmOpts;
+    final boolean adminAccess;
+    final String version;
+    final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
+    final transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
-    public T manualIp(final String manualIp) {
-        this.setManualIp(manualIp);
-        return (T) this;
-    }
+    public CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
+                                       int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort,
+                                       String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled,
+                                       String importPath, Map<String, String> users, String name, String parent,
+                                       String providerType, boolean ensembleServer, String preferredAddress,
+                                       Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
+                                       String jvmOpts, boolean adminAccess, String version) {
 
-    public T minimumPort(final int minimumPort) {
-        this.setMinimumPort(minimumPort);
-        return (T) this;
-    }
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort,
+                zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users);
 
-    public T maximumPort(final int maximumPort) {
-        this.setMaximumPort(maximumPort);
-        return (T) this;
-    }
-
-
-    public T ensembleServer(final boolean ensembleServer) {
-        this.ensembleServer = ensembleServer;
-        return (T) this;
-    }
-
-    public T number(final int number) {
-        this.number = number;
-        return (T) this;
-    }
-
-
-    public T name(final String name) {
         this.name = name;
-        return (T) this;
-    }
-
-    public T parent(final String parent) {
         this.parent = parent;
-        return (T) this;
-    }
-
-    public T providerType(final String providerType) {
         this.providerType = providerType;
-        return (T) this;
-    }
-
-    public T zookeeperUrl(final String zookeeperUrl) {
-        this.zookeeperUrl = zookeeperUrl;
-        return (T) this;
-    }
-
-    public T zookeeperPassword(final String zookeeperPassword) {
-        this.zookeeperPassword = zookeeperPassword;
-        return (T) this;
-    }
-
-    public T proxyUri(final URI proxyUri) {
+        this.ensembleServer = ensembleServer;
+        this.preferredAddress = preferredAddress;
+        this.systemProperties = systemProperties;
+        this.number = number;
         this.proxyUri = proxyUri;
-        return (T) this;
-    }
-
-    public T proxyUri(final String proxyUri) throws URISyntaxException {
-        this.proxyUri = new URI(proxyUri);
-        return (T) this;
-    }
-
-    public T jvmOpts(final String jvmOpts) {
+        this.zookeeperUrl = zookeeperUrl;
         this.jvmOpts = jvmOpts;
-        return (T) this;
-    }
-
-    public T adminAccess(final boolean adminAccess) {
         this.adminAccess = adminAccess;
-        return (T) this;
-    }
-
-    public T creationStateListener(final CreationStateListener creationStateListener) {
-        this.creationStateListener = creationStateListener;
-        return (T) this;
-    }
-
-    public T version(String version) {
         this.version = version;
-        return (T) this;
     }
 
-    public T profiles(List<String> profiles) {
-        this.profiles = profiles;
-        return (T) this;
+    public static Builder<? extends Builder> builder() {
+        return new Builder<Builder>();
     }
 
     public String getProviderType() {
         return providerType;
     }
 
-    public void setProviderType(String providerType) {
-        this.providerType = providerType;
+    @Override
+    public CreateContainerOptions updateCredentials(String user, String credential) {
+        throw new UnsupportedOperationException();
     }
 
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getParent() {
         return parent;
     }
 
-    public void setParent(String parent) {
-        this.parent = parent;
-    }
 
     public boolean isEnsembleServer() {
         return ensembleServer;
     }
 
-    public void setEnsembleServer(boolean ensembleServer) {
-        this.ensembleServer = ensembleServer;
-    }
-
     public String getPreferredAddress() {
         return preferredAddress;
-    }
-
-    public void setPreferredAddress(String preferredAddress) {
-        this.preferredAddress = preferredAddress;
     }
 
     @Override
@@ -197,17 +246,8 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return bindAddress;
     }
 
-    @Override
-    public void setBindAddress(String bindAddress) {
-        this.bindAddress = bindAddress;
-    }
-
     public String getResolver() {
         return resolver;
-    }
-
-    public void setResolver(String resolver) {
-        this.resolver = resolver;
     }
 
     @Override
@@ -215,19 +255,10 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return manualIp;
     }
 
-    @Override
-    public void setManualIp(String manualIp) {
-        this.manualIp = manualIp;
-    }
 
     @Override
     public int getMinimumPort() {
         return minimumPort;
-    }
-
-    @Override
-    public void setMinimumPort(int port) {
-        this.minimumPort = port;
     }
 
     @Override
@@ -236,12 +267,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     }
 
     @Override
-    public void setMaximumPort(int port) {
-        this.maximumPort = port;
-    }
-
-    @Override
-    public Map<String,Properties> getSystemProperties() {
+    public Map<String, Properties> getSystemProperties() {
         return systemProperties;
     }
 
@@ -249,40 +275,20 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return number;
     }
 
-    public void setNumber(Integer number) {
-        this.number = number;
-    }
-
     public URI getProxyUri() {
         return proxyUri;
-    }
-
-    public void setProxyUri(URI proxyUri) {
-        this.proxyUri = proxyUri;
     }
 
     public String getZookeeperUrl() {
         return zookeeperUrl;
     }
 
-    public void setZookeeperUrl(String zookeeperUrl) {
-        this.zookeeperUrl = zookeeperUrl;
-    }
-
     public String getZookeeperPassword() {
         return zookeeperPassword;
     }
 
-    public void setZookeeperPassword(String zookeeperPassword) {
-        this.zookeeperPassword = zookeeperPassword;
-    }
-
     public String getJvmOpts() {
         return jvmOpts;
-    }
-
-    public void setJvmOpts(String jvmOpts) {
-        this.jvmOpts = jvmOpts;
     }
 
     public boolean isAdminAccess() {
@@ -293,31 +299,11 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         return creationStateListener;
     }
 
-    public void setCreationStateListener(CreationStateListener creationStateListener) {
-        this.creationStateListener = creationStateListener;
-    }
-
-    public void setAdminAccess(boolean adminAccess) {
-        this.adminAccess = adminAccess;
-    }
-
     public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
         return metadataMap;
     }
 
     public String getVersion() {
         return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public List<String> getProfiles() {
-        return profiles;
-    }
-
-    public void setProfiles(List<String> profiles) {
-        this.profiles = profiles;
     }
 }

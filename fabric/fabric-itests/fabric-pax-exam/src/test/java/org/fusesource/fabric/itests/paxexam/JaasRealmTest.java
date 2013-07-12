@@ -59,7 +59,7 @@ public class JaasRealmTest extends FabricTestSupport {
         Thread.sleep(DEFAULT_WAIT);
 
         System.err.println(executeCommand("osgi:list"));
-        System.err.println(executeCommand("fabric:ensemble-create -n root"));
+        System.err.println(executeCommand("fabric:create -n root"));
 
         sshRealm = readProperty(configAdmin,"org.apache.karaf.shell","sshRealm");
         jmxRealm = readProperty(configAdmin,"org.apache.karaf.management","jmxRealm");

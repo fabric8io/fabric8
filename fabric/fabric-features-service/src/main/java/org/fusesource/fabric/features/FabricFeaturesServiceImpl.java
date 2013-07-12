@@ -36,37 +36,32 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
-public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionStateListener, Runnable {
+public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
     private FabricService fabricService;
-    private CuratorFramework curator;
-
 
     private final Set<Repository> repositories = new HashSet<Repository>();
     private final Set<Feature> allfeatures = new HashSet<Feature>();
     private final Set<Feature> installed = new HashSet<Feature>();
 
-    public void init() throws Exception {
-    }
-
-    public void destroy() throws Exception {
-        fabricService.unTrackConfiguration(this);
-    }
-
-
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
+    public synchronized void bindFabricService(FabricService fabricService) {
+        if (this.fabricService != null) {
+            this.fabricService.unTrackConfiguration(this);
         }
+        this.fabricService = fabricService;
+        if (this.fabricService != null) {
+            this.fabricService.trackConfiguration(this);
+            run();
+        }
+    }
+
+    public synchronized void unbindFabricService(FabricService fabricService) {
+        if (this.fabricService != null) {
+            this.fabricService.unTrackConfiguration(this);
+        }
+        this.fabricService = null;
     }
 
     @Override
@@ -74,13 +69,6 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
         repositories.clear();
         allfeatures.clear();
         installed.clear();
-    }
-
-    public void onConnected() {
-        fabricService.trackConfiguration(this);
-    }
-
-    public void onDisconnected() {
     }
 
     @Override
@@ -119,7 +107,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
      */
     @Override
     public synchronized Repository[] listRepositories() {
-        if (repositories.isEmpty()) {
+        if (repositories.isEmpty() && fabricService != null) {
             Set<String> repositoryUris = new LinkedHashSet<String>();
             Container container = fabricService.getCurrentContainer();
             Version version = container.getVersion();
@@ -223,7 +211,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
 
     @Override
     public synchronized Feature[] listInstalledFeatures() {
-        if (installed.isEmpty()) {
+        if (installed.isEmpty() && fabricService != null) {
             try {
                 Map<String, Map<String, Feature>> allFeatures = getFeatures(listProfileRepositories());
                 Container container = fabricService.getCurrentContainer();
@@ -323,6 +311,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
     private Repository[] listProfileRepositories() {
         Set<String> repositoryUris = new LinkedHashSet<String>();
         Set<Repository> repositories = new LinkedHashSet<Repository>();
+        //The method is only called when fabricService is available so no need to guard for null values.
         Container container = fabricService.getCurrentContainer();
         Set<Profile> profilesWithParents = new HashSet<Profile>();
 
@@ -410,20 +399,4 @@ public class FabricFeaturesServiceImpl implements FeaturesService, ConnectionSta
         }
     }
 
-
-    public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
 }

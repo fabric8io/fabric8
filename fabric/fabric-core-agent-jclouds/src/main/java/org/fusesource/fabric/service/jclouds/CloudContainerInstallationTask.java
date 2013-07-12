@@ -149,7 +149,7 @@ public class CloudContainerInstallationTask implements Runnable {
 
 
             try {
-                String script = buildInstallAndStartScript(options.name(containerName));
+                String script = buildInstallAndStartScript(containerName, options);
                 options.getCreationStateListener().onStateChange(String.format("Installing fabric agent on container %s. It may take a while...", containerName));
                 ExecResponse response = null;
                 try {
@@ -170,7 +170,7 @@ public class CloudContainerInstallationTask implements Runnable {
                     }
                     String overridenResolverValue = ContainerProviderUtils.parseResolverOverride(response.getOutput());
                     if (overridenResolverValue != null) {
-                        options.setResolver(overridenResolverValue);
+                        jCloudsContainerMetadata.setOverridenResolver(overridenResolverValue);
                         options.getCreationStateListener().onStateChange("Overriding resolver to " + overridenResolverValue + ".");
                     }
                 } else {

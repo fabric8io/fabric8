@@ -23,7 +23,7 @@ import java.util.concurrent.*;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
-public abstract class ContainerBuilder<T extends ContainerBuilder, O extends CreateContainerOptions> {
+public abstract class ContainerBuilder<T extends ContainerBuilder, B extends CreateContainerBasicOptions.Builder> {
 
     public static final Long CREATE_TIMEOUT = 10 * 60000L;
     public static final Long PROVISION_TIMEOUT = 5 * 60000L;
@@ -31,15 +31,15 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
     public static final String CONTAINER_NUMBER_PROPERTY = "FABRIC_ITEST_CONTAINER_NUMBER";
     public static final Set<Container> CONTAINERS = new HashSet<Container>();
 
-    private final O createOptions;
+    private final B optionsBuilder;
     private final List<String> profileNames = new LinkedList<String>();
     private boolean waitForProvisioning;
     private boolean assertProvisioningResult;
     private long provisionTimeOut = PROVISION_TIMEOUT;
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    protected ContainerBuilder(O createOptions) {
-        this.createOptions = createOptions;
+    protected ContainerBuilder(B optionsBuilder) {
+        this.optionsBuilder = optionsBuilder;
     }
 
     public static ContainerBuilder create() {
@@ -127,66 +127,66 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
         return new SshContainerBuilder(CreateContainerOptionsBuilder.ssh().number(1));
     }
 
-    public ContainerBuilder<T, O> withName(String name) {
-        getCreateOptions().setName(name);
+    public ContainerBuilder<T, B> withName(String name) {
+        getOptionsBuilder().name(name);
         return this;
     }
 
-    public ContainerBuilder<T, O> withJvmOpts(String jvmOpts) {
-        getCreateOptions().setJvmOpts(jvmOpts);
+    public ContainerBuilder<T, B> withJvmOpts(String jvmOpts) {
+        getOptionsBuilder().jvmOpts(jvmOpts);
         return this;
     }
 
-    public ContainerBuilder<T, O> withResolver(String resolver) {
-        getCreateOptions().setResolver(resolver);
+    public ContainerBuilder<T, B> withResolver(String resolver) {
+        getOptionsBuilder().resolver(resolver);
         return this;
     }
 
-    public ContainerBuilder<T, O> withProfiles(String profile) {
+    public ContainerBuilder<T, B> withProfiles(String profile) {
         profileNames.add(profile);
         return this;
     }
 
-    public ContainerBuilder<T, O> waitForProvisioning() {
+    public ContainerBuilder<T, B> waitForProvisioning() {
         this.waitForProvisioning = true;
         return this;
     }
 
-    public ContainerBuilder<T, O> assertProvisioningResult() {
+    public ContainerBuilder<T, B> assertProvisioningResult() {
         this.assertProvisioningResult = true;
         return this;
     }
 
-    public O getCreateOptions() {
-        return createOptions;
+    public B getOptionsBuilder() {
+        return optionsBuilder;
     }
 
     public ExecutorService getExecutorService() {
         return executorService;
     }
 
-    public Future<Set<Container>> prepareAsync(CreateSshContainerOptions options) {
+    public Future<Set<Container>> prepareAsync(B builder) {
         FabricService fabricService = getOsgiService(FabricService.class);
         CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
-        return completionService.submit(new CreateContainerTask(fabricService, options));
+        return completionService.submit(new CreateContainerTask(fabricService, builder));
     }
 
 
     /**
      * Create the containers.
      *
-     * @param optionList
+     * @param buildersList
      * @return
      */
-    public Set<Container> build(Collection<CreateContainerOptions> optionList) {
+    public Set<Container> build(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
         FabricService fabricService = getOsgiService(FabricService.class);
         CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
 
         int tasks = 0;
-        for (CreateContainerOptions options : optionList) {
+        for (B options : buildersList) {
             if (!options.isEnsembleServer()) {
-                options.setZookeeperUrl(fabricService.getZookeeperUrl());
+                options.zookeeperUrl(fabricService.getZookeeperUrl());
                 completionService.submit(new CreateContainerTask(fabricService, options));
                 tasks++;
             }
@@ -232,17 +232,21 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
      * @return
      */
     public Set<Container> build() {
-        return build(Arrays.<CreateContainerOptions>asList(getCreateOptions()));
+        return build(Arrays.<B>asList(getOptionsBuilder()));
     }
 
     /**
      * Destroy all containers
      */
     public static void destroy() {
+        FabricService fabricService = getOsgiService(FabricService.class);
         for (Container c : CONTAINERS) {
             try {
-                c.destroy();
+                //We want to use the latest metadata
+                Container updated = fabricService.getContainer(c.getId());
+                updated.destroy();
             } catch (Exception ex) {
+                ex.printStackTrace(System.err);
                 //noop
             }
         }
@@ -253,10 +257,14 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, O extends Cre
      * The container directory will not get deleted.
      */
     public static void stop() {
+        FabricService fabricService = getOsgiService(FabricService.class);
         for (Container c : CONTAINERS) {
             try {
-                c.stop();
+                //We want to use the latest metadata
+                Container updated = fabricService.getContainer(c.getId());
+                updated.stop();
             } catch (Exception ex) {
+                ex.printStackTrace(System.err);
                 //noop
             }
         }

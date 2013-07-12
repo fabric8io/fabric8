@@ -60,6 +60,32 @@ public class Provision {
         waitForContainerStatus(containers, "success", timeout);
     }
 
+
+    /**
+     * Wait for all containers to become alive.
+     * @param containers
+     * @param alive
+     * @param timeout
+     * @throws Exception
+     */
+    public static void waitForContainerAlive(Collection<Container> containers, boolean alive, Long timeout) throws Exception {
+        CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
+        List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ");
+        for (Container container : containers) {
+            waitForProvisionTasks.add(completionService.submit(new WaitForAliveTask(container, alive, timeout)));
+            sb.append(container.getId()).append(" ");
+        }
+        System.out.println("Waiting for containers: [" + sb.toString() + "] to reach Alive:"+alive);
+        for (Container container : containers) {
+            Future<Boolean> f = completionService.poll(timeout, TimeUnit.MILLISECONDS);
+            if ( f == null || !f.get()) {
+                throw new Exception("Container " + container.getId() + " failed to reach Alive:" + alive);
+            }
+        }
+    }
+
     /**
      * Wait for all containers to become alive.
      * @param containers
@@ -67,7 +93,7 @@ public class Provision {
      * @throws Exception
      */
     public static void waitForContainerAlive(Collection<Container> containers, Long timeout) throws Exception {
-        waitForContainerStatus(containers, null, timeout);
+        waitForContainerAlive(containers, true, timeout);
     }
 
     /**

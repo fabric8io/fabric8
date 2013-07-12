@@ -24,7 +24,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.ModuleDescriptor;
 import org.fusesource.fabric.fab.VersionedDependencyId;
@@ -101,7 +100,7 @@ public class BundleFabFacade extends FabFacadeSupport {
         }
     }
 
-    public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+    public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
         return getResolver().collectDependencies(dependencyId, offline, excludeDependencyFilter).getTree();
     }
 
@@ -126,7 +125,7 @@ public class BundleFabFacade extends FabFacadeSupport {
     }
 
     @Override
-    public VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException {
+    public VersionedDependencyId getVersionedDependencyId() throws IOException {
         return dependencyId;
     }
 

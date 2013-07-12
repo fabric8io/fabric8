@@ -16,22 +16,20 @@
  */
 package org.fusesource.fabric.commands;
 
-import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.boot.commands.support.FabricCommand;
+
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
-@Command(name = "container-start", scope = "fabric", description = "Start the specified container")
-public class ContainerStart extends FabricCommand {
+@Command(name = "container-start", scope = "fabric", description = "Start the specified container", detailedDescription = "classpath:containerStart.txt")
+public class ContainerStart extends ContainerLifecycleCommand {
 
-    @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
-    private String container = null;
 
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         validateContainersName(container);
         Container found = getContainer(container);
+        applyUpdatedCredentials(found);
         if (!found.isAlive()) {
             found.start();
         } else {

@@ -20,7 +20,6 @@ package org.fusesource.fabric.fab.osgi.internal;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.PomDetails;
@@ -44,11 +43,11 @@ public interface FabFacade {
 
     boolean isIncludeSharedResources();
 
-    VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException;
+    VersionedDependencyId getVersionedDependencyId() throws IOException;
 
     String getProjectDescription();
 
-    DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException;
+    DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException;
 
     /**
      * Lets convert the version to a version range depending on the default or FAB specific version range value

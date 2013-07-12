@@ -19,8 +19,8 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -89,14 +89,14 @@ public class FabricTestSupport extends FuseTestSupport {
         Container parentContainer = fabricService.getContainer(parent);
         assertNotNull(parentContainer);
 
-        CreateContainerOptions args = CreateContainerOptionsBuilder.child().name(name).parent(parent).zookeeperPassword(fabricService.getZookeeperPassword()).jmxUser("admin").jmxPassword("admin");
+        CreateChildContainerOptions.Builder builder = CreateContainerOptionsBuilder.child().name(name).parent(parent).zookeeperPassword(fabricService.getZookeeperPassword()).jmxUser("admin").jmxPassword("admin");
         if (jvmOpts != null) {
-            args.setJvmOpts(jvmOpts);
+            builder.jvmOpts(jvmOpts);
         } else {
-            args.setJvmOpts("-Xms1024m -Xmx1024m");
+            builder.jvmOpts("-Xms1024m -Xmx1024m");
         }
 
-        CreateContainerMetadata[] metadata = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadata = fabricService.createContainers(builder.build());
         if (metadata.length > 0) {
             if (metadata[0].getFailure() != null) {
                 throw new Exception("Error creating child container:" + name, metadata[0].getFailure());

@@ -19,7 +19,6 @@ package org.fusesource.fabric.fab;
 import java.io.File;
 import java.io.IOException;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.common.util.Filter;
 import org.sonatype.aether.RepositoryException;
 import org.sonatype.aether.artifact.Artifact;
@@ -30,9 +29,9 @@ public interface MavenResolver {
 
     File resolveFile(Artifact artifact) throws ArtifactResolutionException;
 
-    DependencyTreeResult collectDependencies(PomDetails details, boolean offline, Filter<Dependency> excludeDependencyFilter) throws IOException, XmlPullParserException, RepositoryException;
+    DependencyTreeResult collectDependencies(PomDetails details, boolean offline, Filter<Dependency> excludeDependencyFilter) throws IOException, RepositoryException;
 
-    DependencyTreeResult collectDependencies(VersionedDependencyId id, boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException;
+    DependencyTreeResult collectDependencies(VersionedDependencyId id, boolean offline, Filter<Dependency> excludeDependencyFilter) throws IOException, RepositoryException;
 
     PomDetails findPomFile(File fileJar) throws IOException;
 

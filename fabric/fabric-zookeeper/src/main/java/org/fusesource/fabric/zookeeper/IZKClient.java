@@ -28,6 +28,7 @@ import org.linkedin.util.clock.Timespan;
 /**
  * Extended zookeeper interface
  */
+@Deprecated
 public interface IZKClient extends org.linkedin.zookeeper.client.IZKClient {
 
     Stat createOrSetByteWithParents(String path, byte[] data, List<ACL> acl, CreateMode createMode)

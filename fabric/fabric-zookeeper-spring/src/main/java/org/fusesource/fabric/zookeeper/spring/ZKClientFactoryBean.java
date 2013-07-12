@@ -30,6 +30,7 @@ import org.springframework.beans.factory.FactoryBean;
 /**
  * A Spring factory bean for creating ZK Clients
  */
+@Deprecated
 public class ZKClientFactoryBean implements FactoryBean<IZKClient>, DisposableBean {
     private static final transient Log LOG = LogFactory.getLog(ZKClientFactoryBean.class);
 

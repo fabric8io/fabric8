@@ -16,14 +16,15 @@
   -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
+    <reference id="configAdmin" interface="org.osgi.service.cm.ConfigurationAdmin">
+        <reference-listener ref="bridge" bind-method="bindConfigAdmin" unbind-method="unbindConfigAdmin" />
+    </reference>
+
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService">
+        <reference-listener ref="bridge" bind-method="bindFabricService" unbind-method="unbindFabricService" />
+    </reference>
+
     <bean id="bridge" class="org.fusesource.fabric.configadmin.FabricConfigAdminBridge"
-          init-method="init" destroy-method="destroy">
-        <property name="configAdmin">
-            <reference interface="org.osgi.service.cm.ConfigurationAdmin"/>
-        </property>
-        <property name="fabricService">
-            <reference interface="org.fusesource.fabric.api.FabricService"/>
-        </property>
-    </bean>
+          init-method="init" destroy-method="destroy" />
 
 </blueprint>

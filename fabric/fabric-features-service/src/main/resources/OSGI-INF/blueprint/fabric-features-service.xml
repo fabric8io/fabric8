@@ -16,18 +16,17 @@
   -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService">
+        <reference-listener ref="fabricFeatureService"
+                            bind-method="bindFabricService" unbind-method="unbindFabricService" />
+    </reference>
 
-    <bean id="fabricFeatureService" class="org.fusesource.fabric.features.FabricFeaturesServiceImpl" destroy-method="destroy">
-        <property name="fabricService" ref="fabricService"/>
-        <property name="curator" ref="curator"/>
-    </bean>
+    <bean id="fabricFeatureService" class="org.fusesource.fabric.features.FabricFeaturesServiceImpl" />
 
     <service ref="fabricFeatureService">
         <interfaces>
             <value>org.apache.karaf.features.FeaturesService</value>
-            <value>org.apache.curator.framework.state.ConnectionStateListener</value>
         </interfaces>
     </service>
+
 </blueprint>

@@ -114,14 +114,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     }
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+        int number = Math.max(options.getNumber(), 1);
         final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
         try {
             options.getCreationStateListener().onStateChange("Looking up for compute service.");
             ComputeService computeService = getOrCreateComputeService(options);
-
-            if (Strings.isNullOrEmpty(options.getProviderName())) {
-                options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
-            }
 
             if (computeService == null) {
                 throw new IllegalStateException("Compute service could not be found or created.");
@@ -153,7 +150,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             }
             StringBuilder overviewBuilder = new StringBuilder();
 
-            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", options.getNumber()));
+            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", number));
 
 
             //Define ImageId
@@ -209,7 +206,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             Set<? extends NodeMetadata> metadatas = null;
             overviewBuilder.append(" It may take a while ...");
             options.getCreationStateListener().onStateChange(overviewBuilder.toString());
-            metadatas = computeService.createNodesInGroup(options.getGroup(), options.getNumber(), builder.build());
+            metadatas = computeService.createNodesInGroup(options.getGroup(), number, builder.build());
 
             if (metadatas != null) {
                 for (NodeMetadata metadata : metadatas) {
@@ -222,11 +219,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             int suffix = 1;
             if (metadatas != null) {
                 String originalName = new String(options.getName());
-                CountDownLatch countDownLatch = new CountDownLatch(options.getNumber());
+                CountDownLatch countDownLatch = new CountDownLatch(number);
 
                 for (NodeMetadata nodeMetadata : metadatas) {
                     String containerName;
-                    if (options.getNumber() > 1) {
+                    if (options.getNumber() >= 1) {
                         containerName = originalName + (suffix++);
                     } else {
                         containerName = originalName;
@@ -239,13 +236,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 countDownLatch.await(10, TimeUnit.MINUTES);
             }
         } catch (Throwable t) {
-            if (options != null && options.getNumber() > 0) {
-                for (int i = result.size(); i < options.getNumber(); i++) {
+                for (int i = result.size(); i < number; i++) {
                     CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
                     failureMetdata.setFailure(t);
                     result.add(failureMetdata);
                 }
-            }
         }
         return result;
     }
@@ -281,7 +276,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     }
                 }
 
-                String script = buildStartScript(options.name(container.getId()));
+                String script = buildStartScript(container.getId(), options);
                 ExecResponse response = null;
                 if (credentials != null) {
                     response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
@@ -328,7 +323,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     }
                 }
 
-                String script = buildStopScript(options.name(container.getId()));
+                String script = buildStopScript(container.getId(), options);
                 ExecResponse response = null;
                 if (credentials != null) {
                     response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
@@ -422,14 +417,14 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         }
 
         //If a service has been found, make sure that the options are updated with provider id and api id.
-        if (computeService != null) {
-            if (Strings.isNullOrEmpty(options.getProviderName())) {
-                options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
-            }
-            if (Strings.isNullOrEmpty(options.getApiName())) {
-                options.setApiName(computeService.getContext().unwrap().getProviderMetadata().getApiMetadata().getId());
-            }
-        }
+        //if (computeService != null) {
+        //    if (Strings.isNullOrEmpty(options.getProviderName())) {
+        //        options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
+        //    }
+        //    if (Strings.isNullOrEmpty(options.getApiName())) {
+        //        options.setApiName(computeService.getContext().unwrap().getProviderMetadata().getApiMetadata().getId());
+        //    }
+        //}
         return computeService;
     }
 
@@ -482,18 +477,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             }
         }
     }
-
-    private void applyJavaRmiHostName(CreateJCloudsContainerOptions options, String publicAddress) {
-        if (!Strings.isNullOrEmpty(publicAddress)) {
-            if (ZkDefs.PUBLIC_IP.equals(options.getResolver())) {
-                String jvmOptions = Strings.isNullOrEmpty(options.getJvmOpts()) ? "" : options.getJvmOpts().trim() + " ";
-                jvmOptions += "-Djava.rmi.server.hostname=" + publicAddress;
-                options.setJvmOpts(jvmOptions);
-            }
-        }
-    }
-
-
     public FirewallManagerFactory getFirewallManagerFactory() {
         return firewallManagerFactory;
     }

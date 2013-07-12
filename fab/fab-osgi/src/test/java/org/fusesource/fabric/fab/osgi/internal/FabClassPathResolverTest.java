@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.DependencyTree;
 import org.fusesource.fabric.fab.VersionedDependencyId;
 import org.fusesource.fabric.fab.osgi.util.FeatureCollector;
@@ -165,7 +164,7 @@ public class FabClassPathResolverTest {
         }
 
         @Override
-        public VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException {
+        public VersionedDependencyId getVersionedDependencyId() throws IOException {
             return null;
         }
 
@@ -175,7 +174,7 @@ public class FabClassPathResolverTest {
         }
 
         @Override
-        public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+        public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
             return null;
         }
 

@@ -95,7 +95,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     @Argument(index = 0, required = true, description = "The name of the container to be created. When creating multiple containers it serves as a prefix")
     protected String name;
     @Argument(index = 1, required = false, description = "The number of containers that should be created")
-    protected int number = 1;
+    protected int number = 0;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -103,9 +103,12 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         preCreateContainer(name);
         validateProfileName(profiles);
 
-        CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.build().zookeeperPassword(zookeeperPassword).user(newUser, newUserPassword + "," + newUserRole);
+        CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.builder()
+                .zookeeperPassword(zookeeperPassword)
+                .withUser(newUser, newUserPassword , newUserRole)
+                .build();
 
-        CreateJCloudsContainerOptions args = CreateContainerOptionsBuilder.jclouds()
+        CreateJCloudsContainerOptions.Builder builder = CreateJCloudsContainerOptions.builder()
         .name(name)
         .bindAddress(bindAddress)
         .resolver(resolver)
@@ -134,15 +137,14 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
-        .createEnsembleOptions(ensembleOptions)
         .version(version)
-        .profiles(profiles);
+        .profiles(getProfileNames());
 
         if (path != null && !path.isEmpty()) {
-            args.setPath(path);
+            builder.path(path);
         }
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(args);
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
 
         if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
             ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());

@@ -102,6 +102,9 @@
         <module>fuse-fabric</module>
 
         <module>fabric-examples</module>
+
+        <module>fabric-client</module>
+
         <module>fabric-itests</module>
 
         <module>openshift</module>

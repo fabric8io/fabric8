@@ -102,7 +102,7 @@ limitations under the License.
         <dependency>
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-api</artifactId>
-          <version>${project.version}</version>
+            <version>${fabric.version}</version>
         </dependency>
 
         <dependency>

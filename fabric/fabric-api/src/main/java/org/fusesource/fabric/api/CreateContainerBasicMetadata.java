@@ -26,6 +26,7 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     private O createOptions;
     private transient Throwable failure;
     private transient Container container;
+    private String overridenResolver;
     private final Map<String,String> containerConfiguration = new HashMap<String, String>();
 
     public boolean isSuccess() {
@@ -67,6 +68,19 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
     @Override
     public Map<String, String> getContainerConfiguration() {
         return containerConfiguration;
+    }
+
+    public String getOverridenResolver() {
+        return overridenResolver;
+    }
+
+    @Override
+    public void updateCredentials(String user, String credential) {
+        this.createOptions = (O) createOptions.updateCredentials(user, credential);
+    }
+
+    public void setOverridenResolver(String overridenResolver) {
+        this.overridenResolver = overridenResolver;
     }
 
     @Override

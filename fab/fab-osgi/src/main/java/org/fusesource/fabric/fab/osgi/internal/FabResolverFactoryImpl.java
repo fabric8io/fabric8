@@ -30,7 +30,6 @@ import java.util.Properties;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.maven.model.Model;
-import org.codehaus.plexus.util.xml.pull.XmlPullParserException;
 import org.fusesource.fabric.fab.*;
 import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.fusesource.fabric.fab.osgi.FabResolver;
@@ -141,16 +140,13 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         }
 
         @Override
-        public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException, XmlPullParserException {
+        public DependencyTree collectDependencyTree(boolean offline, Filter<Dependency> excludeDependencyFilter) throws RepositoryException, IOException {
             if (rootTree == null) {
                 PomDetails details = resolvePomDetails();
                 Objects.notNull(details, "pomDetails");
                 try {
                     rootTree = getResolver().collectDependencies(details, offline, excludeDependencyFilter).getTree();
                 } catch (IOException e) {
-                    logFailure(e);
-                    throw e;
-                } catch (XmlPullParserException e) {
                     logFailure(e);
                     throw e;
                 } catch (RepositoryException e) {
@@ -174,7 +170,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         }
 
         @Override
-        public VersionedDependencyId getVersionedDependencyId() throws IOException, XmlPullParserException {
+        public VersionedDependencyId getVersionedDependencyId() throws IOException {
             PomDetails pomDetails = resolvePomDetails();
             if (pomDetails == null || !pomDetails.isValid()) {
                 LOG.warn("Cannot resolve pom.xml for " + getJarFile());
@@ -266,7 +262,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
          * Returns the processing instructions
          * @param embeddedResources
          */
-        protected Properties createInstructions(Map<String, Object> embeddedResources) throws IOException, RepositoryException, XmlPullParserException, BundleException {
+        protected Properties createInstructions(Map<String, Object> embeddedResources) throws IOException, RepositoryException, BundleException {
             Properties instructions = BndUtils.parseInstructions(url.getQuery());
 
             String urlText = url.toExternalForm();
@@ -279,7 +275,7 @@ public class FabResolverFactoryImpl implements FabResolverFactory, ServiceProvid
         /**
          * Strategy method to allow the instructions to be processed by derived classes
          */
-        protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, XmlPullParserException, BundleException {
+        protected void configureInstructions(Properties instructions, Map<String, Object> embeddedResources) throws RepositoryException, IOException, BundleException {
             getClasspathResolver(instructions, embeddedResources).resolve();
         }
 

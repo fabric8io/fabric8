@@ -54,6 +54,7 @@ import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 
+@Deprecated
 public abstract class AbstractZKClient extends org.linkedin.zookeeper.client.AbstractZKClient implements IZKClient, Watcher {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AbstractZKClient.class.getName());

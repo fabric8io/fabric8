@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api.jmx;
 
 import org.apache.commons.codec.binary.Base64;
+import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
@@ -144,27 +145,28 @@ public class FabricManager implements FabricManagerMBean {
             throw new RuntimeException("No providerType provided");
         }
 
-        CreateContainerOptions createContainerOptions = null;
+        CreateContainerBasicOptions.Builder builder = null;
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
         if (providerType.equals("child")) {
-            createContainerOptions = mapper.convertValue(options, CreateContainerChildOptions.class);
-            createContainerOptions.setResolver(null);
+            builder = mapper.convertValue(options, CreateChildContainerOptions.Builder.class);
+            builder.resolver(null);
         } else if (providerType.equals("ssh")) {
-            createContainerOptions = mapper.convertValue(options, CreateSshContainerOptions.class);
+            builder = mapper.convertValue(options, CreateSshContainerOptions.Builder.class);
         } else if (providerType.equals("jclouds")) {
-            createContainerOptions = mapper.convertValue(options, CreateJCloudsContainerOptions.class);
+            builder = mapper.convertValue(options, CreateJCloudsContainerOptions.Builder.class);
         }
 
-        if (createContainerOptions == null) {
+        if (builder == null) {
             throw new RuntimeException("Unknown provider type : " + providerType);
         }
 
-        createContainerOptions.setZookeeperPassword(getFabricService().getZookeeperPassword());
-        createContainerOptions.setZookeeperUrl(getFabricService().getZookeeperUrl());
+        builder.zookeeperPassword(getFabricService().getZookeeperPassword());
+        builder.zookeeperUrl(getFabricService().getZookeeperUrl());
 
-        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(createContainerOptions);
+        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(builder.build());
 
         Map<String, String> rc = new HashMap<String, String>();
 
@@ -253,7 +255,14 @@ public class FabricManager implements FabricManagerMBean {
 
     @Override
     public void deleteProfile(String versionId, String profileId) {
-        getFabricService().deleteProfile(versionId, profileId);
+        deleteProfile(versionId, profileId, true);
+    }
+
+    @Override
+    public void deleteProfile(String versionId, String profileId, boolean force) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile p = v.getProfile(profileId);
+        p.delete(force);
     }
 
     @Override
@@ -463,6 +472,10 @@ public class FabricManager implements FabricManagerMBean {
         return BeanUtils.convertVersionToMap(getFabricService(), getFabricService().getDefaultVersion(), BeanUtils.getFields(Version.class));
     }
 
+    @Override
+    public String getDefaultVersion() {
+        return getFabricService().getDefaultVersion().getId();
+    }
 
     @Override
     public FabricStatus fabricStatus() {
@@ -618,6 +631,41 @@ public class FabricManager implements FabricManagerMBean {
         } catch (Exception e) {
             throw new FabricException("Error setting config file: ", e);
         }
+    }
+
+    @Override
+    public void setProfileBundles(String versionId, String profileId, List<String> bundles) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setBundles(bundles);
+    }
+
+    @Override
+    public void setProfileFeatures(String versionId, String profileId, List<String> features) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setFeatures(features);
+    }
+
+    @Override
+    public void setProfileRepositories(String versionId, String profileId, List<String> repositories) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setRepositories(repositories);
+    }
+
+    @Override
+    public void setProfileFabs(String versionId, String profileId, List<String> fabs) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setFabs(fabs);
+    }
+
+    @Override
+    public void setProfileOverrides(String versionId, String profileId, List<String> overrides) {
+        Version v = getFabricService().getVersion(versionId);
+        Profile profile = v.getProfile(profileId);
+        profile.setOverrides(overrides);
     }
 
 

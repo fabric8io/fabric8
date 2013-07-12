@@ -1,6 +1,7 @@
 package org.fusesource.fabric.boot.commands.service;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -8,6 +9,10 @@ import java.util.List;
 
 public interface Create {
     Object run() throws Exception;
+
+    public String getBindAddress();
+
+    public void setBindAddress(String bindAddress);
 
     boolean isClean();
 
@@ -33,9 +38,9 @@ public interface Create {
 
     void setContainers(List<String> containers);
 
-    public String getProfile();
+    public Set<String> getProfiles();
 
-    public void setProfile(String profile);
+    public void setProfiles(Set<String> profile);
 
     public boolean isNonManaged();
 

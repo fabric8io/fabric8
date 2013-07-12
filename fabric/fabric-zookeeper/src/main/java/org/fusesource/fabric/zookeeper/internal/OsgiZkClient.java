@@ -40,6 +40,7 @@ import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 import org.slf4j.Logger;
 
+@Deprecated
 public class OsgiZkClient extends AbstractZKClient implements ManagedService {
 
     public static final String PID = "org.fusesource.fabric.zookeeper";

@@ -23,23 +23,23 @@ public final class CreateContainerOptionsBuilder {
         //Utility Class
     }
 
-    public static CreateJCloudsContainerOptions jclouds() {
-        return new CreateJCloudsContainerOptions();
+    public static CreateJCloudsContainerOptions.Builder jclouds() {
+        return CreateJCloudsContainerOptions.builder();
     }
 
-    public static CreateSshContainerOptions ssh() {
-        return new CreateSshContainerOptions();
+    public static CreateSshContainerOptions.Builder ssh() {
+        return CreateSshContainerOptions.builder();
     }
 
-    public static CreateContainerChildOptions child() {
-        return new CreateContainerChildOptions();
+    public static CreateChildContainerOptions.Builder child() {
+        return CreateChildContainerOptions.builder();
     }
 
-    public static CreateContainerBasicOptions basic() {
-        return new CreateContainerBasicOptions();
+    public static CreateContainerBasicOptions.Builder basic() {
+        return CreateContainerBasicOptions.builder();
     }
 
-    public static CreateContainerBasicOptions type(String type) {
+    public static ContainerOptions.Builder type(String type) {
         if ("child".equals(type)) {
             return child();
         } else if ("ssh".equals(type)) {

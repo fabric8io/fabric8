@@ -54,6 +54,8 @@ public interface DataStore {
 
     CreateContainerMetadata getContainerMetadata(String containerId);
 
+    void setContainerMetadata(CreateContainerMetadata metadata);
+
     String getContainerVersion(String containerId);
 
     void setContainerVersion(String containerId, String versionId);

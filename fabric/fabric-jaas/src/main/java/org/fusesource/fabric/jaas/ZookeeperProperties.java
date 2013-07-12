@@ -29,16 +29,16 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-public class ZookeeperProperties extends Properties implements NodeCacheListener {
+public class ZookeeperProperties extends Properties  {
 
     private static final Logger LOG = LoggerFactory.getLogger(ZookeeperProperties.class);
 
     private final String path;
-    private CuratorFramework curator;
-    private NodeCache nodeCache;
+    private final CuratorFramework curator;
 
-    public ZookeeperProperties(String path) throws Exception {
+    public ZookeeperProperties(CuratorFramework curator, String path) throws Exception {
         this.path = path;
+        this.curator = curator;
     }
 
     @Override
@@ -55,29 +55,12 @@ public class ZookeeperProperties extends Properties implements NodeCacheListener
         }
     }
 
-    @Override
-    public void nodeChanged() throws Exception {
-        fetchData();
-    }
-
-    protected void fetchData() throws Exception {
-        byte[] data = nodeCache.getCurrentData().getData();
+    protected void load() throws Exception {
+        byte[] data = curator.getData().forPath(path);
         String value = new String(data);
         if (value != null) {
             clear();
             load(new StringReader(value));
         }
-    }
-
-    public void bind(CuratorFramework curator) throws Exception {
-        this.curator = curator;
-        this.nodeCache = new NodeCache(curator, path);
-        this.nodeCache.getListenable().addListener(this);
-        this.nodeCache.start();
-    }
-
-    public void unbind(CuratorFramework curator) throws IOException {
-        this.nodeCache.close();
-        this.curator = null;
     }
 }

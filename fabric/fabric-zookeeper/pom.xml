@@ -53,6 +53,11 @@
             org.fusesource.fabric.zookeeper.IZKClient,
             org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         </fuse.osgi.services.export>
+        <fuse.osgi.capabilities.provide>
+            service-reference;effective:=active;objectClass=org.apache.curator.framework.CuratorFramework,
+            service-reference;effective:=active;objectClass:List&lt;String&gt;="org.apache.curator.framework.api.ACLProvider,org.fusesource.fabric.zookeeper.ACLManager",
+            service-reference;effective:=active;objectClass:List&lt;String&gt;="org.linkedin.zookeeper.client.IZKClient,org.fusesource.fabric.zookeeper.IZKClient",
+        </fuse.osgi.capabilities.provide>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.utils,
             org.apache.felix.utils.properties,

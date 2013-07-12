@@ -1,0 +1,122 @@
+<!-- Copyright (c) 2013 Red Hat, Inc. Distributed under license by Red Hat, 
+	Inc. All rights reserved. This program is made available under the terms 
+	of the Eclipse Public License v1.0 which accompanies this distribution, and 
+	is available at http://www.eclipse.org/legal/epl-v10.html Contributors: Red 
+	Hat, Inc. - initial API and implementation -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <artifactId>fabric-project</artifactId>
+    <groupId>org.fusesource.fabric</groupId>
+    <version>99-master-SNAPSHOT</version>
+    <relativePath>..</relativePath>
+  </parent>
+
+	<modelVersion>4.0.0</modelVersion>
+
+  <artifactId>fabric-client</artifactId>
+
+  <name>${project.artifactId}</name>
+  <description>Fuse Fabric :: Client (using Jolokia)</description>
+
+	<packaging>bundle</packaging>
+	<properties>
+		<jolokia-client-version>1.1.2</jolokia-client-version>
+  <!--
+		<fabric-version>${project.version}</fabric-version>
+
+		<maven.compiler.source>1.6</maven.compiler.source>
+		<maven.compiler.target>1.6</maven.compiler.target>
+
+		<maven-compiler-plugin-version>2.3.2</maven-compiler-plugin-version>
+		<maven-bundle-plugin-version>2.3.4</maven-bundle-plugin-version>
+		<maven-jar-plugin-version>2.4</maven-jar-plugin-version>
+    <junit-version>4.10</junit-version>
+    <jackson-version>1.9.10</jackson-version>
+	-->
+	</properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-mapper-asl</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jolokia</groupId>
+      <artifactId>jolokia-client-java</artifactId>
+      <version>${jolokia-client-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.fusesource.fabric</groupId>
+      <artifactId>fabric-api</artifactId>
+      <version>${fabric-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit-version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+	<build>
+		<defaultGoal>install</defaultGoal>
+
+		<plugins>
+      <!--
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin-version}</version>
+				<configuration>
+					<source>${maven.compiler.source}</source>
+					<target>${maven.compiler.target}</target>
+				</configuration>
+			</plugin>
+			-->
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<version>${maven-bundle-plugin-version}</version>
+				<extensions>true</extensions>
+				<configuration>
+					<instructions>
+						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
+						<Bundle-Name>Fuse Fabric Jolokia Facade</Bundle-Name>
+						<Bundle-Version>1.0.0</Bundle-Version>
+						<Export-Package>
+							org.fusesource.fabric.jolokia.facade*
+						</Export-Package>
+						<Import-Package>
+							org.fusesource.fabric.api*,
+							org.jolokia*,
+							*;resolution:=optional
+						</Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;inline=true</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+
+	</build>
+
+</project>

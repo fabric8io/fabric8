@@ -35,4 +35,12 @@ public interface CreateContainerMetadata<O extends CreateContainerOptions> exten
 
     O getCreateOptions();
 
+    String getOverridenResolver();
+
+    /**
+     * Updates the value of {@link CreateContainerOptions} with updated credentials.
+     * @param user
+     * @param credential
+     */
+    void updateCredentials(String user, String credential);
 }
