@@ -87,8 +87,14 @@ public class FabricConfigAdminBridge implements Runnable {
         });
     }
 
-    protected synchronized void update() {
+    protected void update() {
         try {
+            FabricService fabricService;
+            ConfigurationAdmin configAdmin;
+            synchronized (this) {
+                fabricService = this.fabricService;
+                configAdmin = this.configAdmin;
+            }
             if (fabricService == null || configAdmin == null) {
                 return;
             }
@@ -100,7 +106,7 @@ public class FabricConfigAdminBridge implements Runnable {
                 c.putAll(pidProperties.get(pid));
                 String p[] = parsePid(pid);
                 //Get the configuration by fabric zookeeper pid, pid and factory pid.
-                Configuration config = getConfiguration(pid, p[0], p[1]);
+                Configuration config = getConfiguration(configAdmin, pid, p[0], p[1]);
                 configs.remove(config);
                 Dictionary props = config.getProperties();
                 Hashtable old = props != null ? new Hashtable() : null;
@@ -165,7 +171,7 @@ public class FabricConfigAdminBridge implements Runnable {
         }
     }
 
-    Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid) throws Exception {
+    Configuration getConfiguration(ConfigurationAdmin configAdmin, String zooKeeperPid, String pid, String factoryPid) throws Exception {
         String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
         Configuration[] oldConfiguration = configAdmin.listConfigurations(filter);
         if (oldConfiguration != null && oldConfiguration.length > 0) {
