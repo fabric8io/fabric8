@@ -19,9 +19,11 @@ DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
                 <Set name="host">
                     <Property name="jetty.host"/>
                 </Set>
-                <!-- default port will be overwritten by pax-web configuration -->
+                <!-- We explicitly set port to 0 to avoid port conflicts, then a real port will be picked
+                     from org.ops4j.pax.web pid, which is PortService aware
+                -->
                 <Set name="port">
-                    <Property name="jetty.port" default="8181"/>
+                    <Property name="jetty.port" default="0"/>
                 </Set>
                 <Set name="maxIdleTime">300000</Set>
                 <Set name="Acceptors">2</Set>
