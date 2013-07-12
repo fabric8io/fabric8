@@ -25,6 +25,8 @@ import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.ServerData;
 import org.fusesource.camel.component.sap.model.rfc.ServerDataStore;
+import org.fusesource.camel.component.sap.util.ComponentDestinationDataProvider;
+import org.fusesource.camel.component.sap.util.ComponentServerDataProvider;
 
 /**
  * Represents the component that manages {@link SAPEndpoint}.
@@ -76,5 +78,19 @@ public class SAPComponent extends DefaultComponent {
     
     public Map<String, ServerData> getServerDataStore() {
     	return serverDataStore.getEntries().map();
+    }
+    
+    @Override
+    protected void doStart() throws Exception {
+    	super.doStart();
+    	ComponentDestinationDataProvider.INSTANCE.addDestinationDataStore(destinationDataStore);
+    	ComponentServerDataProvider.INSTANCE.addServerDataStore(serverDataStore);
+    }
+    
+    @Override
+    protected void doStop() throws Exception {
+    	ComponentDestinationDataProvider.INSTANCE.removeDestinationDataStore(destinationDataStore);
+    	ComponentServerDataProvider.INSTANCE.removeServerDataStore(serverDataStore);
+    	super.doStop();
     }
 }

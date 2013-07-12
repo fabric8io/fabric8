@@ -42,6 +42,11 @@
 			<artifactId>org.eclipse.emf.ecore.xmi</artifactId>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.eclipse.emf</groupId>
+			<artifactId>org.eclipse.emf.edit</artifactId>
+			<scope>compile</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -80,6 +85,16 @@
 			<groupId>com.sap.conn.jco</groupId>
 			<artifactId>sapjco3</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-library</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

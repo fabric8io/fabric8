@@ -432,6 +432,20 @@ public class RfcUtil {
 		}
 	}
 
+	public static Structure addTableRow(Table<? extends Structure> table) {
+		EStructuralFeature feature = table.eClass().getEStructuralFeature(ROW);
+		if (feature == null || !(feature instanceof EReference)) {
+			return null;
+		}
+		EClass rowType = ((EReference) feature).getEReferenceType();
+		@SuppressWarnings("unchecked")
+		EList<Structure> records = (EList<Structure>) getValue(table, feature);
+	
+		Structure newRow = (Structure) rowType.getEPackage().getEFactoryInstance().create(rowType);
+		records.add(newRow);
+		return newRow;
+	}
+
 	@SuppressWarnings("unchecked")
 	public static void extractJCoRecordIntoStructure(JCoRecord jrecord, Structure eObject) {
 		if (jrecord == null || eObject == null)
@@ -502,7 +516,7 @@ public class RfcUtil {
 			extractJCoRecordIntoStructure(jcoTable, newRow);
 		}
 	}
-
+	
 	public static void fillJCoTableFromTable(Table<? extends Structure> table, JCoTable jcoTable) {
 		if (table == null || jcoTable == null)
 			return;
@@ -722,7 +736,8 @@ public class RfcUtil {
 			// Create the super type inherited by this Table subclass: i.e.
 			// 'Table<S extends Structure>'
 			EGenericType tableGenericSuperType = EcoreFactory.eINSTANCE.createEGenericType();
-			tableGenericSuperType.setEClassifier(RfcPackage.eINSTANCE.getTable());
+			EClass tableSuperClass = RfcPackage.eINSTANCE.getTable();
+			tableGenericSuperType.setEClassifier(tableSuperClass);
 
 			// Create type parameter for row type: i.e. the 'S' in 'S extends
 			// Structure'
@@ -738,6 +753,15 @@ public class RfcUtil {
 			ePackage.getEClassifiers().add(tableClass);
 			tableClass.setName(jcoRecordMetaData.getName() + "_TABLE");
 			((EClass) tableClass).getEGenericSuperTypes().add(tableGenericSuperType);
+			
+			// Workaround for type erasure in EMF Generic feature.
+			EReference rowReference = EcoreFactory.eINSTANCE.createEReference();
+			rowReference.setEType(structureType);
+			rowReference.setName(ROW);
+			rowReference.setContainment(true);
+			rowReference.setLowerBound(0);
+			rowReference.setUpperBound(-1);
+			((EClass) tableClass).getEStructuralFeatures().add(rowReference);
 
 		}
 		return (EClass) tableClass;
