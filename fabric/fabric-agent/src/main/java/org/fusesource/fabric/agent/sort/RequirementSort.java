@@ -19,6 +19,7 @@ package org.fusesource.fabric.agent.sort;
 
 import org.apache.felix.utils.filter.FilterImpl;
 import org.fusesource.fabric.agent.resolver.RequirementImpl;
+import org.fusesource.fabric.agent.resolver.SimpleFilter;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.resource.Capability;
@@ -97,17 +98,10 @@ public class RequirementSort  {
         if (requirement instanceof RequirementImpl) {
             br = (RequirementImpl) requirement;
         } else {
-            FilterImpl sf;
-            try {
-                String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
-                if (filter == null) {
-                    sf = FilterImpl.newInstance("(*)");
-                } else {
-                    sf = FilterImpl.newInstance(filter);
-                }
-            } catch (InvalidSyntaxException e) {
-                throw new IllegalStateException(e);
-            }
+            String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
+            SimpleFilter sf = (filter != null)
+                    ? SimpleFilter.parse(filter)
+                    : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
             br = new RequirementImpl(null, requirement.getNamespace(), requirement.getDirectives(), requirement.getAttributes(), sf);
         }
         return br.matches(capability);

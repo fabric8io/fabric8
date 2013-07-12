@@ -1,3 +1,19 @@
+/**
+ * Copyright (C) FuseSource, Inc.
+ * http://fusesource.com
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.fusesource.fabric.agent.resolver;
 
 import org.apache.felix.framework.Felix;
@@ -95,7 +111,7 @@ public class ResolverTest {
                     ress.add(res);
                     infos.put(res, bundleInfo);
                 } catch (MalformedURLException e) {
-                    List<Requirement> reqList = parseRequirement(bundleInfo.getLocation());
+                    List<Requirement> reqList = ResourceBuilder.parseRequirement(null, bundleInfo.getLocation());
                     for (Requirement req : reqList) {
                         reqs.add(req);
                         infos.put(req, bundleInfo);
@@ -161,7 +177,7 @@ public class ResolverTest {
             headers.put(attr.getKey().toString(), attr.getValue().toString());
         }
         try {
-            Resource res = ResourceBuilder.build(null, uri, headers);
+            Resource res = ResourceBuilder.build(uri, headers);
             return res;
         } catch (BundleException e) {
             throw new Exception("Unable to create Resource for bundle " + uri, e);
@@ -213,7 +229,4 @@ public class ResolverTest {
         return null;
     }
 
-    private static List<Requirement> parseRequirement(String req) throws BundleException {
-        return ResourceBuilder.parseRequirement(null, null, req);
-    }
 }

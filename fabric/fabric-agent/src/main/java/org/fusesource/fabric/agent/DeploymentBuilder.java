@@ -171,10 +171,10 @@ public class DeploymentBuilder {
         }
     }
 
-    public Collection<Resource> resolve(boolean resolveOptionalImports) throws ResolutionException {
+    public Collection<Resource> resolve(Resource systemBundle,
+                                        boolean resolveOptionalImports) throws ResolutionException {
         // Resolve
-        Bundle systemBundle = FrameworkUtil.getBundle(DeploymentBuilder.class).getBundleContext().getBundle(0);
-        resources.put("system-bundle", systemBundle.adapt(BundleRevision.class));
+        resources.put("system-bundle", systemBundle);
 
         ResolverImpl resolver = new ResolverImpl(new Slf4jResolverLog(LOGGER));
         ResolveContext context = new ResolveContextImpl(

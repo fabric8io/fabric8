@@ -53,7 +53,7 @@ public class ResourceBuilderTest extends TestCase {
             headers.put(key.getKey().toString(), key.getValue().toString());
         }
 
-        Resource res = ResourceBuilder.build(null, url.toString(), headers);
+        Resource res = ResourceBuilder.build(url.toString(), headers);
         System.out.println("Capabilities");
         for (Capability cap : res.getCapabilities(null)) {
             System.out.println("    " + cap.toString());
@@ -65,10 +65,10 @@ public class ResourceBuilderTest extends TestCase {
     }
 
     public void testMandatory() throws BundleException {
-        List<Capability> caps = ResourceBuilder.parseExport(null, null, "bsn", Version.emptyVersion, "com.acme.foo; company=ACME; security=false; mandatory:=security");
-        List<Requirement> reqs1 = ResourceBuilder.parseImport(null, null, "com.acme.foo;company=ACME");
-        List<Requirement> reqs2 = ResourceBuilder.parseImport(null, null, "com.acme.foo;company=ACME;security=true");
-        List<Requirement> reqs3 = ResourceBuilder.parseImport(null, null, "com.acme.foo;company=ACME;security=false");
+        List<Capability> caps = ResourceBuilder.parseExport(null, "bsn", Version.emptyVersion, "com.acme.foo; company=ACME; security=false; mandatory:=security");
+        List<Requirement> reqs1 = ResourceBuilder.parseImport(null, "com.acme.foo;company=ACME");
+        List<Requirement> reqs2 = ResourceBuilder.parseImport(null, "com.acme.foo;company=ACME;security=true");
+        List<Requirement> reqs3 = ResourceBuilder.parseImport(null, "com.acme.foo;company=ACME;security=false");
 
         assertEquals(1, caps.size());
         assertEquals(1, reqs1.size());
@@ -89,12 +89,12 @@ public class ResourceBuilderTest extends TestCase {
                         "com.acme.ip2location;country:List<String>=\"nl,be,fr,uk\";version:Version=1.3, " +
                         "com.acme.seps;        tokens:List<String>=\";,\\\",\\,\"";
 
-        List<Capability> caps = ResourceBuilder.parseCapability(null, null, header);
+        List<Capability> caps = ResourceBuilder.parseCapability(null, header);
 
         System.out.println("Header: " + header);
         for (Capability bc : caps) {
             System.out.println(bc);
-            List<Capability> cap = ResourceBuilder.parseCapability(null, null, bc.toString());
+            List<Capability> cap = ResourceBuilder.parseCapability(null, bc.toString());
             assertEquals(1, cap.size());
             assertEquals(cap.get(0).toString(), bc.toString());
             assertEquals(cap.get(0), bc);

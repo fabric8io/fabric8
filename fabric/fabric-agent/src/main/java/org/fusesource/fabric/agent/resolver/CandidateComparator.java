@@ -19,6 +19,7 @@ package org.fusesource.fabric.agent.resolver;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.BundleNamespace;
 import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.framework.wiring.BundleCapability;
 import org.osgi.resource.Capability;
 
 import java.util.Comparator;
@@ -28,6 +29,12 @@ public class CandidateComparator implements Comparator<Capability>
     public int compare(Capability cap1, Capability cap2)
     {
         int c = 0;
+        // Always prefer system bundle
+        if (cap1 instanceof BundleCapability && !(cap2 instanceof BundleCapability)) {
+            c = -1;
+        } else if (!(cap1 instanceof BundleCapability) && cap2 instanceof BundleCapability) {
+            c = 1;
+        }
         // Compare revision capabilities.
         if ((c == 0) && cap1.getNamespace().equals(BundleNamespace.BUNDLE_NAMESPACE))
         {

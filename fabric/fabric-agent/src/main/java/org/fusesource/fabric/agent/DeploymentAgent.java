@@ -17,8 +17,6 @@
 package org.fusesource.fabric.agent;
 
 import org.apache.felix.framework.monitor.MonitoringService;
-import org.apache.felix.utils.manifest.Clause;
-import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
@@ -48,6 +46,10 @@ import org.osgi.framework.FrameworkEvent;
 import org.osgi.framework.FrameworkListener;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.Version;
+import org.osgi.framework.namespace.PackageNamespace;
+import org.osgi.framework.wiring.BundleCapability;
+import org.osgi.framework.wiring.BundleRequirement;
+import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.FrameworkWiring;
 import org.osgi.resource.Resource;
 import org.osgi.service.cm.ConfigurationException;
@@ -72,8 +74,6 @@ import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -352,7 +352,8 @@ public class DeploymentAgent implements ManagedService {
         // TODO: handle default range policy on feature dependencies requirements
 
         updateStatus("resolving", null);
-        Collection<Resource> allResources = builder.resolve(resolveOptionalImports);
+        Resource systemBundle = systemBundleContext.getBundle(0).adapt(BundleRevision.class);
+        Collection<Resource> allResources = builder.resolve(systemBundle, resolveOptionalImports);
 
         Map<String, StreamProvider> providers = builder.getProviders();
         install(allResources, providers);
@@ -661,24 +662,28 @@ public class DeploymentAgent implements ManagedService {
 
 
     protected void findBundlesWithFragmentsToRefresh(Set<Bundle> toRefresh) {
-        Set<Bundle> fragments = new HashSet<Bundle>();
-        for (Bundle b : toRefresh) {
-            if (b.getState() != Bundle.UNINSTALLED) {
-                String hostHeader = b.getHeaders().get(Constants.FRAGMENT_HOST);
-                if (hostHeader != null) {
-                    Clause[] clauses = Parser.parseHeader(hostHeader);
-                    if (clauses != null && clauses.length > 0) {
-                        Clause path = clauses[0];
-                        for (Bundle hostBundle : systemBundleContext.getBundles()) {
-                            if (hostBundle.getSymbolicName().equals(path.getName())) {
-                                String ver = path.getAttribute(Constants.BUNDLE_VERSION_ATTRIBUTE);
-                                if (ver != null) {
-                                    VersionRange v = VersionRange.parseVersionRange(ver);
-                                    if (v.contains(hostBundle.getVersion())) {
-                                        fragments.add(hostBundle);
+        if (toRefresh.isEmpty()) {
+            return;
+        }
+        Set<Bundle> bundles = new HashSet<Bundle>(Arrays.asList(systemBundleContext.getBundles()));
+        bundles.removeAll(toRefresh);
+        if (bundles.isEmpty()) {
+            return;
+        }
+        for (Bundle bundle : new ArrayList<Bundle>(toRefresh)) {
+            BundleRevision rev = bundle.adapt(BundleRevision.class);
+            if (rev != null) {
+                for (BundleRequirement req : rev.getDeclaredRequirements(null)) {
+                    if (BundleRevision.HOST_NAMESPACE.equals(req.getNamespace())) {
+                        for (Bundle hostBundle : bundles) {
+                            if (!toRefresh.contains(hostBundle)) {
+                                BundleRevision hostRev = hostBundle.adapt(BundleRevision.class);
+                                if (hostRev != null) {
+                                    for (BundleCapability cap : hostRev.getDeclaredCapabilities(null)) {
+                                        if (req.matches(cap)) {
+                                            toRefresh.add(hostBundle);
+                                        }
                                     }
-                                } else {
-                                    fragments.add(hostBundle);
                                 }
                             }
                         }
@@ -686,88 +691,52 @@ public class DeploymentAgent implements ManagedService {
                 }
             }
         }
-        toRefresh.addAll(fragments);
     }
 
     protected void findBundlesWithOptionalPackagesToRefresh(Set<Bundle> toRefresh) {
         // First pass: include all bundles contained in these features
+        if (toRefresh.isEmpty()) {
+            return;
+        }
         Set<Bundle> bundles = new HashSet<Bundle>(Arrays.asList(systemBundleContext.getBundles()));
         bundles.removeAll(toRefresh);
         if (bundles.isEmpty()) {
             return;
         }
         // Second pass: for each bundle, check if there is any unresolved optional package that could be resolved
-        Map<Bundle, List<Clause>> imports = new HashMap<Bundle, List<Clause>>();
-        for (Iterator<Bundle> it = bundles.iterator(); it.hasNext(); ) {
-            Bundle b = it.next();
-            String importsStr = b.getHeaders().get(Constants.IMPORT_PACKAGE);
-            List<Clause> importsList = getOptionalImports(importsStr);
-            if (importsList.isEmpty()) {
-                it.remove();
-            } else {
-                imports.put(b, importsList);
-            }
-        }
-        if (bundles.isEmpty()) {
-            return;
-        }
-        // Third pass: compute a list of packages that are exported by our bundles and see if
-        //             some exported packages can be wired to the optional imports
-        List<Clause> exports = new ArrayList<Clause>();
-        for (Bundle b : toRefresh) {
-            if (b.getState() != Bundle.UNINSTALLED) {
-                String exportsStr = b.getHeaders().get(Constants.EXPORT_PACKAGE);
-                if (exportsStr != null) {
-                    Clause[] exportsList = Parser.parseHeader(exportsStr);
-                    exports.addAll(Arrays.asList(exportsList));
-                }
-            }
-        }
-        for (Iterator<Bundle> it = bundles.iterator(); it.hasNext(); ) {
-            Bundle b = it.next();
-            List<Clause> importsList = imports.get(b);
-            for (Iterator<Clause> itpi = importsList.iterator(); itpi.hasNext(); ) {
-                Clause pi = itpi.next();
-                boolean matching = false;
-                for (Clause pe : exports) {
-                    if (pi.getName().equals(pe.getName())) {
-                        String evStr = pe.getAttribute(Constants.VERSION_ATTRIBUTE);
-                        String ivStr = pi.getAttribute(Constants.VERSION_ATTRIBUTE);
-                        Version exported = evStr != null ? Version.parseVersion(evStr) : Version.emptyVersion;
-                        VersionRange imported = ivStr != null ? VersionRange.parseVersionRange(ivStr) : VersionRange.ANY_VERSION;
-                        if (imported.contains(exported)) {
-                            matching = true;
-                            break;
+        for (Bundle bundle : bundles) {
+            BundleRevision rev = bundle.adapt(BundleRevision.class);
+            boolean matches = false;
+            if (rev != null) {
+                for (BundleRequirement req : rev.getDeclaredRequirements(null)) {
+                    if (PackageNamespace.PACKAGE_NAMESPACE.equals(req.getNamespace())
+                            && PackageNamespace.RESOLUTION_OPTIONAL.equals(
+                                req.getDirectives().get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
+                        // This requirement is an optional import package
+                        for (Bundle provider : toRefresh) {
+                            BundleRevision providerRev = provider.adapt(BundleRevision.class);
+                            if (providerRev != null) {
+                                for (BundleCapability cap : providerRev.getDeclaredCapabilities(null)) {
+                                    if (req.matches(cap)) {
+                                        matches = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (matches) {
+                                break;
+                            }
                         }
                     }
-                }
-                if (!matching) {
-                    itpi.remove();
+                    if (matches) {
+                        break;
+                    }
                 }
             }
-            if (importsList.isEmpty()) {
-                it.remove();
-//            } else {
-//                LOGGER.debug("Refreshing bundle {} ({}) to solve the following optional imports", b.getSymbolicName(), b.getBundleId());
-//                for (Clause p : importsList) {
-//                    LOGGER.debug("    {}", p);
-//                }
-//
+            if (matches) {
+                toRefresh.add(bundle);
             }
         }
-        toRefresh.addAll(bundles);
-    }
-
-    protected List<Clause> getOptionalImports(String importsStr) {
-        Clause[] imports = Parser.parseHeader(importsStr);
-        List<Clause> result = new LinkedList<Clause>();
-        for (Clause anImport : imports) {
-            String resolution = anImport.getDirective(Constants.RESOLUTION_DIRECTIVE);
-            if (Constants.RESOLUTION_OPTIONAL.equals(resolution)) {
-                result.add(anImport);
-            }
-        }
-        return result;
     }
 
     protected boolean updateFramework(Properties properties, String url) throws Exception {

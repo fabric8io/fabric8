@@ -16,11 +16,6 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
-import org.apache.felix.utils.filter.FilterImpl;
-import org.apache.felix.utils.manifest.Attribute;
-import org.apache.felix.utils.manifest.Clause;
-import org.apache.felix.utils.manifest.Directive;
-import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.version.VersionRange;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.Constants;
@@ -154,7 +149,7 @@ public class ResourceBuilder {
         // Parse Provide-Capability.
         //
 
-        List<ParsedHeaderClause> provideClauses = parseStandardHeader(headerMap.get(Constants.PROVIDE_CAPABILITY), true);
+        List<ParsedHeaderClause> provideClauses = parseStandardHeader(headerMap.get(Constants.PROVIDE_CAPABILITY));
         provideClauses = normalizeProvideCapabilityClauses(provideClauses);
         List<Capability> provideCaps = convertProvideCapabilities(provideClauses, resource);
 
@@ -219,7 +214,7 @@ public class ResourceBuilder {
     }
 
     public static List<Capability> parseCapability(Resource resource, String capability) throws BundleException {
-        List<ParsedHeaderClause> provideClauses = parseStandardHeader(capability, true);
+        List<ParsedHeaderClause> provideClauses = parseStandardHeader(capability);
         provideClauses = normalizeProvideCapabilityClauses(provideClauses);
         List<Capability> provideCaps = convertProvideCapabilities(provideClauses, resource);
         return provideCaps;
@@ -336,7 +331,7 @@ public class ResourceBuilder {
                                     ServiceNamespace.SERVICE_NAMESPACE,
                                     dirs,
                                     Collections.<String, Object>emptyMap(),
-                                    FilterImpl.newInstance(filter)));
+                                    SimpleFilter.parse(filter)));
                 }
             }
             return reqList;
@@ -365,7 +360,7 @@ public class ResourceBuilder {
                 newAttrs.put(BundleRevision.PACKAGE_NAMESPACE, path);
 
                 // Create filter now so we can inject filter directive.
-                FilterImpl sf = FilterImpl.convert(newAttrs);
+                SimpleFilter sf = SimpleFilter.convert(newAttrs);
 
                 // Inject filter directive.
     // TODO: OSGi R4.3 - Can we insert this on demand somehow?
@@ -448,7 +443,100 @@ public class ResourceBuilder {
 
     private static List<ParsedHeaderClause> normalizeProvideCapabilityClauses(
             List<ParsedHeaderClause> clauses)
-            throws BundleException {
+            throws BundleException
+    {
+
+        // Convert attributes into specified types.
+        for (ParsedHeaderClause clause : clauses)
+        {
+            for (Map.Entry<String, String> entry : clause.types.entrySet())
+            {
+                String type = entry.getValue();
+                if (!type.equals("String"))
+                {
+                    if (type.equals("Double"))
+                    {
+                        clause.attrs.put(
+                                entry.getKey(),
+                                new Double(clause.attrs.get(entry.getKey()).toString().trim()));
+                    }
+                    else if (type.equals("Version"))
+                    {
+                        clause.attrs.put(
+                                entry.getKey(),
+                                new Version(clause.attrs.get(entry.getKey()).toString().trim()));
+                    }
+                    else if (type.equals("Long"))
+                    {
+                        clause.attrs.put(
+                                entry.getKey(),
+                                new Long(clause.attrs.get(entry.getKey()).toString().trim()));
+                    }
+                    else if (type.startsWith("List"))
+                    {
+                        int startIdx = type.indexOf('<');
+                        int endIdx = type.indexOf('>');
+                        if (((startIdx > 0) && (endIdx <= startIdx))
+                                || ((startIdx < 0) && (endIdx > 0)))
+                        {
+                            throw new BundleException(
+                                    "Invalid Provide-Capability attribute list type for '"
+                                            + entry.getKey()
+                                            + "' : "
+                                            + type);
+                        }
+
+                        String listType = "String";
+                        if (endIdx > startIdx)
+                        {
+                            listType = type.substring(startIdx + 1, endIdx).trim();
+                        }
+
+                        List<String> tokens = parseDelimitedString(
+                                clause.attrs.get(entry.getKey()).toString(), ",", false);
+                        List<Object> values = new ArrayList<Object>(tokens.size());
+                        for (String token : tokens)
+                        {
+                            if (listType.equals("String"))
+                            {
+                                values.add(token);
+                            }
+                            else if (listType.equals("Double"))
+                            {
+                                values.add(new Double(token.trim()));
+                            }
+                            else if (listType.equals("Version"))
+                            {
+                                values.add(new Version(token.trim()));
+                            }
+                            else if (listType.equals("Long"))
+                            {
+                                values.add(new Long(token.trim()));
+                            }
+                            else
+                            {
+                                throw new BundleException(
+                                        "Unknown Provide-Capability attribute list type for '"
+                                                + entry.getKey()
+                                                + "' : "
+                                                + type);
+                            }
+                        }
+                        clause.attrs.put(
+                                entry.getKey(),
+                                values);
+                    }
+                    else
+                    {
+                        throw new BundleException(
+                                "Unknown Provide-Capability attribute type for '"
+                                        + entry.getKey()
+                                        + "' : "
+                                        + type);
+                    }
+                }
+            }
+        }
 
         return clauses;
     }
@@ -461,7 +549,9 @@ public class ResourceBuilder {
         for (ParsedHeaderClause clause : clauses) {
             try {
                 String filterStr = clause.dirs.get(Constants.FILTER_DIRECTIVE);
-                FilterImpl sf = FilterImpl.newInstance(filterStr != null ? filterStr : "(*)");
+                SimpleFilter sf = (filterStr != null)
+                        ? SimpleFilter.parse(filterStr)
+                        : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
                 for (String path : clause.paths) {
                     if (path.startsWith("osgi.wiring.")) {
                         throw new BundleException("Manifest cannot use Require-Capability for '" + path + "' namespace.");
@@ -705,7 +795,7 @@ public class ResourceBuilder {
             newAttrs.put(BundleRevision.HOST_NAMESPACE, clauses.get(0).paths.get(0));
 
             // Create filter now so we can inject filter directive.
-            FilterImpl sf = FilterImpl.convert(newAttrs);
+            SimpleFilter sf = SimpleFilter.convert(newAttrs);
 
             // Inject filter directive.
     // TODO: OSGi R4.3 - Can we insert this on demand somehow?
@@ -754,7 +844,7 @@ public class ResourceBuilder {
                 newAttrs.put(BundleRevision.BUNDLE_NAMESPACE, path);
 
                 // Create filter now so we can inject filter directive.
-                FilterImpl sf = FilterImpl.convert(newAttrs);
+                SimpleFilter sf = SimpleFilter.convert(newAttrs);
 
                 // Inject filter directive.
     // TODO: OSGi R4.3 - Can we insert this on demand somehow?
@@ -771,31 +861,266 @@ public class ResourceBuilder {
         return reqList;
     }
 
-    private static List<ParsedHeaderClause> parseStandardHeader(String header) {
-        return parseStandardHeader(header, false);
+    private static final char EOF = (char) -1;
+
+    private static char charAt(int pos, String headers, int length)
+    {
+        if (pos >= length)
+        {
+            return EOF;
+        }
+        return headers.charAt(pos);
     }
 
-    private static List<ParsedHeaderClause> parseStandardHeader(String header, boolean normalize) {
+    private static final int CLAUSE_START = 0;
+    private static final int PARAMETER_START = 1;
+    private static final int KEY = 2;
+    private static final int DIRECTIVE_OR_TYPEDATTRIBUTE = 4;
+    private static final int ARGUMENT = 8;
+    private static final int VALUE = 16;
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    private static List<ParsedHeaderClause> parseStandardHeader(String header)
+    {
         List<ParsedHeaderClause> clauses = new ArrayList<ParsedHeaderClause>();
-        Clause[] cs = Parser.parseHeader(header);
-        if (cs != null) {
-            for (Clause c : cs) {
-                ParsedHeaderClause phc = new ParsedHeaderClause();
-                phc.paths.add(c.getName());
-                for (Directive d : c.getDirectives()) {
-                    phc.dirs.put(d.getName(), d.getValue());
-                }
-                for (Attribute a : c.getAttributes()) {
-                    phc.attrs.put(a.getName(), normalize ? a.getNormalizedValue() : a.getValue());
-                    if (a.getType() != null) {
-                        phc.types.put(a.getName(), a.getType());
+        if (header == null)
+        {
+            return clauses;
+        }
+        ParsedHeaderClause clause = null;
+        String key = null;
+        Map targetMap = null;
+        int state = CLAUSE_START;
+        int currentPosition = 0;
+        int startPosition = 0;
+        int length = header.length();
+        boolean quoted = false;
+        boolean escaped = false;
+
+        char currentChar = EOF;
+        do
+        {
+            currentChar = charAt(currentPosition, header, length);
+            switch (state)
+            {
+                case CLAUSE_START:
+                    clause = new ParsedHeaderClause();
+                    clauses.add(clause);
+                    state = PARAMETER_START;
+                case PARAMETER_START:
+                    startPosition = currentPosition;
+                    state = KEY;
+                case KEY:
+                    switch (currentChar)
+                    {
+                        case ':':
+                        case '=':
+                            key = header.substring(startPosition, currentPosition).trim();
+                            startPosition = currentPosition + 1;
+                            targetMap = clause.attrs;
+                            state = currentChar == ':' ? DIRECTIVE_OR_TYPEDATTRIBUTE : ARGUMENT;
+                            break;
+                        case EOF:
+                        case ',':
+                        case ';':
+                            clause.paths.add(header.substring(startPosition, currentPosition).trim());
+                            state = currentChar == ',' ? CLAUSE_START : PARAMETER_START;
+                            break;
+                        default:
+                            break;
                     }
-                }
-                clauses.add(phc);
+                    currentPosition++;
+                    break;
+                case DIRECTIVE_OR_TYPEDATTRIBUTE:
+                    switch(currentChar)
+                    {
+                        case '=':
+                            if (startPosition != currentPosition)
+                            {
+                                clause.types.put(key, header.substring(startPosition, currentPosition).trim());
+                            }
+                            else
+                            {
+                                targetMap = clause.dirs;
+                            }
+                            state = ARGUMENT;
+                            startPosition = currentPosition + 1;
+                            break;
+                        default:
+                            break;
+                    }
+                    currentPosition++;
+                    break;
+                case ARGUMENT:
+                    if (currentChar == '\"')
+                    {
+                        quoted = true;
+                        currentPosition++;
+                    }
+                    else
+                    {
+                        quoted = false;
+                    }
+                    if (!Character.isWhitespace(currentChar)) {
+                        state = VALUE;
+                    }
+                    else {
+                        currentPosition++;
+                    }
+                    break;
+                case VALUE:
+                    if (escaped)
+                    {
+                        escaped = false;
+                    }
+                    else
+                    {
+                        if (currentChar == '\\' )
+                        {
+                            escaped = true;
+                        }
+                        else if (quoted && currentChar == '\"')
+                        {
+                            quoted = false;
+                        }
+                        else if (!quoted)
+                        {
+                            String value = null;
+                            switch(currentChar)
+                            {
+                                case EOF:
+                                case ';':
+                                case ',':
+                                    value = header.substring(startPosition, currentPosition).trim();
+                                    if (value.startsWith("\"") && value.endsWith("\""))
+                                    {
+                                        value = value.substring(1, value.length() - 1);
+                                    }
+                                    if (targetMap.put(key, value) != null)
+                                    {
+                                        throw new IllegalArgumentException(
+                                                "Duplicate '" + key + "' in: " + header);
+                                    }
+                                    state = currentChar == ';' ? PARAMETER_START : CLAUSE_START;
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                    currentPosition++;
+                    break;
+                default:
+                    break;
             }
+        } while ( currentChar != EOF);
+
+        if (state > PARAMETER_START)
+        {
+            throw new IllegalArgumentException("Unable to parse header: " + header);
         }
         return clauses;
     }
+
+    public static List<String> parseDelimitedString(String value, String delim)
+    {
+        return parseDelimitedString(value, delim, true);
+    }
+
+    /**
+     * Parses delimited string and returns an array containing the tokens. This
+     * parser obeys quotes, so the delimiter character will be ignored if it is
+     * inside of a quote. This method assumes that the quote character is not
+     * included in the set of delimiter characters.
+     * @param value the delimited string to parse.
+     * @param delim the characters delimiting the tokens.
+     * @return a list of string or an empty list if there are none.
+     **/
+    public static List<String> parseDelimitedString(String value, String delim, boolean trim)
+    {
+        if (value == null)
+        {
+            value = "";
+        }
+
+        List<String> list = new ArrayList();
+
+        int CHAR = 1;
+        int DELIMITER = 2;
+        int STARTQUOTE = 4;
+        int ENDQUOTE = 8;
+
+        StringBuffer sb = new StringBuffer();
+
+        int expecting = (CHAR | DELIMITER | STARTQUOTE);
+
+        boolean isEscaped = false;
+        for (int i = 0; i < value.length(); i++)
+        {
+            char c = value.charAt(i);
+
+            boolean isDelimiter = (delim.indexOf(c) >= 0);
+
+            if (!isEscaped && (c == '\\'))
+            {
+                isEscaped = true;
+                continue;
+            }
+
+            if (isEscaped)
+            {
+                sb.append(c);
+            }
+            else if (isDelimiter && ((expecting & DELIMITER) > 0))
+            {
+                if (trim)
+                {
+                    list.add(sb.toString().trim());
+                }
+                else
+                {
+                    list.add(sb.toString());
+                }
+                sb.delete(0, sb.length());
+                expecting = (CHAR | DELIMITER | STARTQUOTE);
+            }
+            else if ((c == '"') && ((expecting & STARTQUOTE) > 0))
+            {
+                sb.append(c);
+                expecting = CHAR | ENDQUOTE;
+            }
+            else if ((c == '"') && ((expecting & ENDQUOTE) > 0))
+            {
+                sb.append(c);
+                expecting = (CHAR | STARTQUOTE | DELIMITER);
+            }
+            else if ((expecting & CHAR) > 0)
+            {
+                sb.append(c);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Invalid delimited string: " + value);
+            }
+
+            isEscaped = false;
+        }
+
+        if (sb.length() > 0)
+        {
+            if (trim)
+            {
+                list.add(sb.toString().trim());
+            }
+            else
+            {
+                list.add(sb.toString());
+            }
+        }
+
+        return list;
+    }
+
 
     static class ParsedHeaderClause {
         public final List<String> paths = new ArrayList<String>();

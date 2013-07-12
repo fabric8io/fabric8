@@ -16,9 +16,6 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
-import org.apache.felix.utils.collections.ImmutableMap;
-import org.apache.felix.utils.filter.FilterImpl;
-import org.apache.felix.utils.manifest.Parser;
 import org.osgi.framework.Constants;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Resource;
@@ -38,8 +35,8 @@ public class CapabilityImpl extends BaseClause implements Capability {
     private final Map<String, String> m_dirs;
     private final Map<String, Object> m_attrs;
     private final List<String> m_uses;
-    private final List<String[]> m_includeFilter;
-    private final List<String[]> m_excludeFilter;
+    private final List<List<String>> m_includeFilter;
+    private final List<List<String>> m_excludeFilter;
     private final Set<String> m_mandatory;
 
     public CapabilityImpl(Capability capability) {
@@ -50,8 +47,8 @@ public class CapabilityImpl extends BaseClause implements Capability {
                           Map<String, String> dirs, Map<String, Object> attrs) {
         m_namespace = namespace;
         m_resource = resource;
-        m_dirs = ImmutableMap.newInstance(dirs);
-        m_attrs = ImmutableMap.newInstance(attrs);
+        m_dirs = dirs;
+        m_attrs = attrs;
 
         // Find all export directives: uses, mandatory, include, and exclude.
 
@@ -69,10 +66,10 @@ public class CapabilityImpl extends BaseClause implements Capability {
 
         value = m_dirs.get(Constants.INCLUDE_DIRECTIVE);
         if (value != null) {
-            String[] filters = Parser.parseDelimitedString(value, ",");
-            m_includeFilter = new ArrayList<String[]>(filters.length);
+            List<String> filters = ResourceBuilder.parseDelimitedString(value, ",");
+            m_includeFilter = new ArrayList<List<String>>(filters.size());
             for (String filter : filters) {
-                String[] substrings = FilterImpl.parseSubstring(filter);
+                List<String> substrings = SimpleFilter.parseSubstring(filter);
                 m_includeFilter.add(substrings);
             }
         } else {
@@ -81,10 +78,10 @@ public class CapabilityImpl extends BaseClause implements Capability {
 
         value = m_dirs.get(Constants.EXCLUDE_DIRECTIVE);
         if (value != null) {
-            String[] filters = Parser.parseDelimitedString(value, ",");
-            m_excludeFilter = new ArrayList<String[]>(filters.length);
+            List<String> filters = ResourceBuilder.parseDelimitedString(value, ",");
+            m_excludeFilter = new ArrayList<List<String>>(filters.size());
             for (String filter : filters) {
-                String[] substrings = FilterImpl.parseSubstring(filter);
+                List<String> substrings = SimpleFilter.parseSubstring(filter);
                 m_excludeFilter.add(substrings);
             }
         } else {
@@ -94,8 +91,8 @@ public class CapabilityImpl extends BaseClause implements Capability {
         Set<String> mandatory = Collections.emptySet();
         value = m_dirs.get(Constants.MANDATORY_DIRECTIVE);
         if (value != null) {
-            String[] names = Parser.parseDelimitedString(value, ",");
-            mandatory = new HashSet<String>(names.length);
+            List<String> names = ResourceBuilder.parseDelimitedString(value, ",");
+            mandatory = new HashSet<String>(names.size());
             for (String name : names) {
                 // If attribute exists, then record it as mandatory.
                 if (m_attrs.containsKey(name)) {
@@ -146,14 +143,14 @@ public class CapabilityImpl extends BaseClause implements Capability {
         // by default, otherwise try to find one match.
         boolean included = (m_includeFilter == null);
         for (int i = 0; !included && m_includeFilter != null && i < m_includeFilter.size(); i++) {
-            included = FilterImpl.compareSubstring(m_includeFilter.get(i), className);
+            included = SimpleFilter.compareSubstring(m_includeFilter.get(i), className);
         }
 
         // If there are no exclude filters then no classes are excluded
         // by default, otherwise try to find one match.
         boolean excluded = false;
         for (int i = 0; (!excluded) && (m_excludeFilter != null) && (i < m_excludeFilter.size()); i++) {
-            excluded = FilterImpl.compareSubstring(m_excludeFilter.get(i), className);
+            excluded = SimpleFilter.compareSubstring(m_excludeFilter.get(i), className);
         }
         return included && !excluded;
     }

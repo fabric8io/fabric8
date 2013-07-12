@@ -16,9 +16,13 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
+import org.apache.felix.framework.capabilityset.*;
 import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.namespace.BundleNamespace;
+import org.osgi.framework.namespace.HostNamespace;
+import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -45,13 +49,31 @@ public class ResolveContextImpl extends ResolveContext {
     private final Map<Requirement, List<Capability>> providers;
     private final boolean resolveOptional;
 
-    public ResolveContextImpl(Set<Resource> mandatory, Set<Resource> optional, Collection<Resource> resources, boolean resolveOptional) {
+    // Capability sets.
+    private final Map<String, CapabilitySet> capSets;
+
+    public ResolveContextImpl(Set<Resource> mandatory, Set<Resource> optional,
+                              Collection<Resource> resources, boolean resolveOptional) {
         this.mandatory = mandatory;
         this.optional = optional;
         this.resources = resources;
         this.wirings = new HashMap<Resource, Wiring>();
         this.providers = new HashMap<Requirement, List<Capability>>();
         this.resolveOptional = resolveOptional;
+
+        this.capSets = new HashMap<String, CapabilitySet>();
+
+        for (Resource resource : resources) {
+            for (Capability cap : resource.getCapabilities(null)) {
+                String ns = cap.getNamespace();
+                CapabilitySet set = capSets.get(ns);
+                if (set == null) {
+                    set = new CapabilitySet(Collections.singletonList(ns));
+                    capSets.put(ns, set);
+                }
+                set.addCapability(cap);
+            }
+        }
     }
 
     @Override
@@ -68,21 +90,29 @@ public class ResolveContextImpl extends ResolveContext {
     public List<Capability> findProviders(Requirement requirement) {
         List<Capability> caps = providers.get(requirement);
         if (caps == null) {
+            CapabilitySet set = capSets.get(requirement.getNamespace());
+            if (set == null) {
+                throw new IllegalStateException("Unknown requirement namespace for " + requirement);
+            }
+            SimpleFilter sf;
+            if (requirement instanceof RequirementImpl) {
+                sf = ((RequirementImpl) requirement).getFilter();
+            } else {
+                String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
+                sf = (filter != null)
+                        ? SimpleFilter.parse(filter)
+                        : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
+            }
+            caps = new ArrayList<Capability>(set.match(sf, true));
+            /*
             RequirementImpl br;
             if (requirement instanceof RequirementImpl) {
                 br = (RequirementImpl) requirement;
             } else {
-                FilterImpl sf;
-                try {
-                    String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
-                    if (filter == null) {
-                        sf = FilterImpl.newInstance("(*)");
-                    } else {
-                        sf = FilterImpl.newInstance(filter);
-                    }
-                } catch (InvalidSyntaxException e) {
-                    throw new IllegalStateException(e);
-                }
+                String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
+                SimpleFilter sf = (filter != null)
+                        ? SimpleFilter.parse(filter)
+                        : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
                 br = new RequirementImpl(null, requirement.getNamespace(), requirement.getDirectives(), requirement.getAttributes(), sf);
             }
             caps = new ArrayList<Capability>();
@@ -93,6 +123,7 @@ public class ResolveContextImpl extends ResolveContext {
                     }
                 }
             }
+            */
             Collections.sort(caps, new CandidateComparator());
             providers.put(requirement, caps);
         }

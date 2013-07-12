@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
-import org.apache.felix.utils.collections.ImmutableMap;
-import org.apache.felix.utils.filter.FilterImpl;
 import org.osgi.framework.Constants;
 import org.osgi.resource.Capability;
 import org.osgi.resource.Requirement;
@@ -28,18 +26,18 @@ import java.util.Map;
 public class RequirementImpl extends BaseClause implements Requirement {
     private final Resource m_resource;
     private final String m_namespace;
-    private final FilterImpl m_filter;
+    private final SimpleFilter m_filter;
     private final boolean m_optional;
     private final Map<String, String> m_dirs;
     private final Map<String, Object> m_attrs;
 
     public RequirementImpl(
             Resource resource, String namespace,
-            Map<String, String> dirs, Map<String, Object> attrs, FilterImpl filter) {
+            Map<String, String> dirs, Map<String, Object> attrs, SimpleFilter filter) {
         m_resource = resource;
         m_namespace = namespace;
-        m_dirs = ImmutableMap.newInstance(dirs);
-        m_attrs = ImmutableMap.newInstance(attrs);
+        m_dirs = dirs;
+        m_attrs = attrs;
         m_filter = filter;
         // Find resolution import directives.
         m_optional = Constants.RESOLUTION_OPTIONAL.equals(m_dirs.get(Constants.RESOLUTION_DIRECTIVE));
@@ -48,7 +46,7 @@ public class RequirementImpl extends BaseClause implements Requirement {
     public RequirementImpl(
             Resource resource, String namespace,
             Map<String, String> dirs, Map<String, Object> attrs) {
-        this(resource, namespace, dirs, attrs, FilterImpl.convert(attrs));
+        this(resource, namespace, dirs, attrs, SimpleFilter.convert(attrs));
     }
 
     public String getNamespace() {
@@ -68,30 +66,14 @@ public class RequirementImpl extends BaseClause implements Requirement {
     }
 
     public boolean matches(Capability cap) {
-        return getFilter().matches(cap.getAttributes()) && matchMandatory(cap);
-    }
-
-    private boolean matchMandatory(Capability cap) {
-        CapabilityImpl bci;
-        if (cap instanceof CapabilityImpl) {
-            bci = (CapabilityImpl) cap;
-        } else {
-            bci = new CapabilityImpl(cap);
-        }
-        Map<String, Object> attrs = bci.getAttributes();
-        for (Map.Entry<String, Object> entry : attrs.entrySet()) {
-            if (bci.isAttributeMandatory(entry.getKey()) && !m_filter.hasFilterOn(entry.getKey())) {
-                return false;
-            }
-        }
-        return true;
+        return CapabilitySet.matches(cap, getFilter());
     }
 
     public boolean isOptional() {
         return m_optional;
     }
 
-    public FilterImpl getFilter() {
+    public SimpleFilter getFilter() {
         return m_filter;
     }
 
