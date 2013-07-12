@@ -29,18 +29,18 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
@@ -121,23 +121,78 @@ public class AgentUtils {
         }
     }
 
-    private static abstract class ArtifactDownloader<T> implements FutureListener<DownloadFuture> {
+    public interface DownloadCallback {
+        public void downloaded(File file) throws Exception;
+    }
 
-        private final DownloadManager manager;
-        private final ConcurrentMap<String, T> artifacts = new ConcurrentHashMap<String, T>();
-        private final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
-        private final AtomicInteger pendings = new AtomicInteger();
+    public static abstract class ArtifactDownloader<T> {
 
-        private ArtifactDownloader(DownloadManager manager) {
+        protected final DownloadManager manager;
+        protected final Object lock = new Object();
+        protected final ConcurrentMap<String, DownloadFuture> futures = new ConcurrentHashMap<String, DownloadFuture>();
+        protected final ConcurrentMap<String, T> artifacts = new ConcurrentHashMap<String, T>();
+        protected final List<Throwable> errors = new CopyOnWriteArrayList<Throwable>();
+        protected final AtomicInteger pendings = new AtomicInteger();
+
+        public ArtifactDownloader(DownloadManager manager) {
             this.manager = manager;
         }
 
-        public void download(String uri) throws MalformedURLException {
-            if (artifacts.putIfAbsent(uri, getDownloadingValue()) == null) {
-                pendings.incrementAndGet();
-                manager.download(uri).addListener(this);
+        public void download(String uri, final DownloadCallback callback) throws MalformedURLException {
+            synchronized (lock) {
+                DownloadFuture future = futures.get(uri);
+                if (future == null) {
+                    pendings.incrementAndGet();
+                    future = manager.download(uri);
+                    future.addListener(new FutureListener<DownloadFuture>() {
+                        @Override
+                        public void operationComplete(DownloadFuture future) {
+                            onDownloaded(future, callback);
+                        }
+                    });
+                    futures.put(uri, future);
+                }
             }
         }
+
+        public DownloadFuture download(String uri) throws MalformedURLException {
+            synchronized (lock) {
+                DownloadFuture future = futures.get(uri);
+                if (future == null) {
+                    pendings.incrementAndGet();
+                    future = manager.download(uri);
+                    future.addListener(new FutureListener<DownloadFuture>() {
+                        @Override
+                        public void operationComplete(DownloadFuture future) {
+                            onDownloaded(future, null);
+                        }
+                    });
+                    futures.put(uri, future);
+                }
+                return future;
+            }
+        }
+
+        protected void onDownloaded(DownloadFuture future, DownloadCallback callback) {
+            synchronized (lock) {
+                try {
+                    String url = future.getUrl();
+                    File file = future.getFile();
+                    T t = getArtifact(url, file);
+                    artifacts.put(url, t);
+                    if (callback != null) {
+                        callback.downloaded(file);
+                    }
+                } catch (Throwable t) {
+                    errors.add(t);
+                } finally {
+                    pendings.decrementAndGet();
+                    lock.notifyAll();
+                }
+            }
+        }
+
+        protected abstract T getArtifact(String uri, File file) throws Exception;
 
         public void download(Iterable<String> uris) throws MalformedURLException {
             for (String uri : uris) {
@@ -146,87 +201,48 @@ public class AgentUtils {
         }
 
         public Map<String, T> await() throws InterruptedException, MultiException {
-            synchronized (pendings) {
-                while (pendings.get() != 0) {
-                    pendings.wait();
+            synchronized (lock) {
+                while (pendings.get() > 0) {
+                    lock.wait();
                 }
-            }
-            if (!errors.isEmpty()) {
-                throw new MultiException("Error while downloading artifacts", errors);
-            }
-            return artifacts;
-        }
-
-        @Override
-        public void operationComplete(DownloadFuture future) {
-            try {
-                handle(future.getUrl(), future.getFile());
-            } catch (Throwable e) {
-                errors.add(e);
-            } finally {
-                synchronized (pendings) {
-                    pendings.decrementAndGet();
-                    pendings.notifyAll();
+                if (!errors.isEmpty()) {
+                    throw new MultiException("Error while downloading artifacts", errors);
                 }
+                return artifacts;
             }
         }
-
-        protected void register(String uri, T artifact) {
-            artifacts.put(uri, artifact);
-        }
-
-        protected abstract void handle(String uri, File downloaded) throws Exception;
-
-        protected abstract T getDownloadingValue();
-
     }
 
-    private static class RepositoryDownloader extends ArtifactDownloader<Repository> {
+    public static class RepositoryDownloader extends ArtifactDownloader<Repository> {
 
-        private static final Repository DOWNLOADING = new RepositoryImpl(URI.create("downloading"));
-
-        private RepositoryDownloader(DownloadManager manager) {
+        public RepositoryDownloader(DownloadManager manager) {
             super(manager);
         }
 
         @Override
-        protected Repository getDownloadingValue() {
-            return DOWNLOADING;
-        }
-
-        @Override
-        protected void handle(String uri, File file) throws Exception {
+        protected Repository getArtifact(String uri, File file) throws Exception {
             FeatureValidationUtil.validate(file.toURI());
             //We are using the file uri instead of the maven url, because we want to make sure, that the repo can load.
             //If we used the maven uri instead then we would have to make sure that the download location is added to
             //the ops4j pax url configuration. Using the first is a lot safer and less prone to misconfigurations.
             RepositoryImpl repo = new RepositoryImpl(file.toURI());
-            register(uri, repo);
             repo.load();
             for (URI ref : repo.getRepositories()) {
                 download(ref.toString());
             }
+            return repo;
         }
     }
 
-    private static class FileDownloader extends ArtifactDownloader<File> {
-
-        private static final File DOWNLOADING = new File("downloading");
-
-        private FileDownloader(DownloadManager manager) {
+    public static class FileDownloader extends ArtifactDownloader<File> {
+        public FileDownloader(DownloadManager manager) {
             super(manager);
         }
 
         @Override
-        protected File getDownloadingValue() {
-            return DOWNLOADING;
+        protected File getArtifact(String uri, File file) throws Exception {
+            return file;
         }
-
-        @Override
-        protected void handle(String uri, File downloaded) throws Exception {
-            register(uri, downloaded);
-        }
-
     }
 
 }

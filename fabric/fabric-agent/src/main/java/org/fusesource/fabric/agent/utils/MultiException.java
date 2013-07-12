@@ -19,19 +19,20 @@ package org.fusesource.fabric.agent.utils;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class MultiException extends Exception {
 
-    private List<Throwable> causes = new ArrayList<Throwable>();
+    private Collection<Throwable> causes = new ArrayList<Throwable>();
 
     public MultiException(String message) {
         super(message);
     }
 
-    public MultiException(String message, List<Throwable> causes) {
+    public MultiException(String message, Collection<Throwable> causes) {
         super(message);
-        this.causes = causes;
+        this.causes.addAll(causes);
     }
 
     public void addCause(Throwable e) {

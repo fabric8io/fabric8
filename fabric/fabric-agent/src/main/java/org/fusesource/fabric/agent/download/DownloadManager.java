@@ -51,6 +51,10 @@ public class DownloadManager {
         this.system = new MavenRepositoryURL("file://" + System.getProperty("karaf.home") + "/system" + "@snapshots");
     }
 
+    public ExecutorService getExecutor() {
+        return executor;
+    }
+
     public void shutdown() {
         // noop
     }

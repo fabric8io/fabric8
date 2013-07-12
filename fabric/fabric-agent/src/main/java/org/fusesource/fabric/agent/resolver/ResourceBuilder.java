@@ -17,7 +17,6 @@
 package org.fusesource.fabric.agent.resolver;
 
 import org.apache.felix.utils.filter.FilterImpl;
-import org.apache.felix.utils.log.Logger;
 import org.apache.felix.utils.manifest.Attribute;
 import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Directive;
@@ -45,7 +44,7 @@ public class ResourceBuilder {
 
     public static final String RESOLUTION_DYNAMIC = "dynamic";
 
-    public static Resource build(Logger logger, String uri, Map<String, String> headerMap)
+    public static Resource build(String uri, Map<String, String> headerMap)
             throws BundleException {
 
         // Verify that only manifest version 2 is specified.
@@ -109,14 +108,14 @@ public class ResourceBuilder {
         // Parse Fragment-Host.
         //
 
-        List<RequirementImpl> hostReqs = parseFragmentHost(logger, resource, headerMap);
+        List<RequirementImpl> hostReqs = parseFragmentHost(resource, headerMap);
 
         //
         // Parse Require-Bundle
         //
 
         List<ParsedHeaderClause> rbClauses = parseStandardHeader(headerMap.get(Constants.REQUIRE_BUNDLE));
-        rbClauses = normalizeRequireClauses(logger, rbClauses);
+        rbClauses = normalizeRequireClauses(rbClauses);
         List<Requirement> rbReqs = convertRequires(rbClauses, resource);
 
         //
@@ -124,7 +123,7 @@ public class ResourceBuilder {
         //
 
         List<ParsedHeaderClause> importClauses = parseStandardHeader(headerMap.get(Constants.IMPORT_PACKAGE));
-        importClauses = normalizeImportClauses(logger, importClauses);
+        importClauses = normalizeImportClauses(importClauses);
         List<Requirement> importReqs = convertImports(importClauses, resource);
 
         //
@@ -132,7 +131,7 @@ public class ResourceBuilder {
         //
 
         List<ParsedHeaderClause> dynamicClauses = parseStandardHeader(headerMap.get(Constants.DYNAMICIMPORT_PACKAGE));
-        dynamicClauses = normalizeDynamicImportClauses(logger, dynamicClauses);
+        dynamicClauses = normalizeDynamicImportClauses(dynamicClauses);
         List<Requirement> dynamicReqs = convertImports(dynamicClauses, resource);
 
         //
@@ -140,7 +139,7 @@ public class ResourceBuilder {
         //
 
         List<ParsedHeaderClause> requireClauses = parseStandardHeader(headerMap.get(Constants.REQUIRE_CAPABILITY));
-        requireClauses = normalizeRequireCapabilityClauses(logger, requireClauses);
+        requireClauses = normalizeRequireCapabilityClauses(requireClauses);
         List<Requirement> requireReqs = convertRequireCapabilities(requireClauses, resource);
 
         //
@@ -148,7 +147,7 @@ public class ResourceBuilder {
         //
 
         List<ParsedHeaderClause> exportClauses = parseStandardHeader(headerMap.get(Constants.EXPORT_PACKAGE));
-        exportClauses = normalizeExportClauses(logger, exportClauses, bundleSymbolicName, bundleVersion);
+        exportClauses = normalizeExportClauses(exportClauses, bundleSymbolicName, bundleVersion);
         List<Capability> exportCaps = convertExports(exportClauses, resource);
 
         //
@@ -156,7 +155,7 @@ public class ResourceBuilder {
         //
 
         List<ParsedHeaderClause> provideClauses = parseStandardHeader(headerMap.get(Constants.PROVIDE_CAPABILITY), true);
-        provideClauses = normalizeProvideCapabilityClauses(logger, provideClauses);
+        provideClauses = normalizeProvideCapabilityClauses(provideClauses);
         List<Capability> provideCaps = convertProvideCapabilities(provideClauses, resource);
 
         //
@@ -198,37 +197,37 @@ public class ResourceBuilder {
         return resource;
     }
 
-    public static List<Requirement> parseImport(Logger logger, Resource resource, String imports) throws BundleException {
+    public static List<Requirement> parseImport(Resource resource, String imports) throws BundleException {
         List<ParsedHeaderClause> importClauses = parseStandardHeader(imports);
-        importClauses = normalizeImportClauses(logger, importClauses);
+        importClauses = normalizeImportClauses(importClauses);
         List<Requirement> importReqs = convertImports(importClauses, resource);
         return importReqs;
     }
 
-    public static List<Requirement> parseRequirement(Logger logger, Resource resource, String requirement) throws BundleException {
+    public static List<Requirement> parseRequirement(Resource resource, String requirement) throws BundleException {
         List<ParsedHeaderClause> requireClauses = parseStandardHeader(requirement);
-        requireClauses = normalizeRequireCapabilityClauses(logger, requireClauses);
+        requireClauses = normalizeRequireCapabilityClauses(requireClauses);
         List<Requirement> requireReqs = convertRequireCapabilities(requireClauses, resource);
         return requireReqs;
     }
 
-    public static List<Capability> parseExport(Logger logger, Resource resource, String bundleSymbolicName, Version bundleVersion, String exports) throws BundleException {
+    public static List<Capability> parseExport(Resource resource, String bundleSymbolicName, Version bundleVersion, String exports) throws BundleException {
         List<ParsedHeaderClause> exportClauses = parseStandardHeader(exports);
-        exportClauses = normalizeExportClauses(logger, exportClauses, bundleSymbolicName, bundleVersion);
+        exportClauses = normalizeExportClauses(exportClauses, bundleSymbolicName, bundleVersion);
         List<Capability> exportCaps = convertExports(exportClauses, resource);
         return exportCaps;
     }
 
-    public static List<Capability> parseCapability(Logger logger, Resource resource, String capability) throws BundleException {
+    public static List<Capability> parseCapability(Resource resource, String capability) throws BundleException {
         List<ParsedHeaderClause> provideClauses = parseStandardHeader(capability, true);
-        provideClauses = normalizeProvideCapabilityClauses(logger, provideClauses);
+        provideClauses = normalizeProvideCapabilityClauses(provideClauses);
         List<Capability> provideCaps = convertProvideCapabilities(provideClauses, resource);
         return provideCaps;
     }
 
     @SuppressWarnings( "deprecation" )
     private static List<ParsedHeaderClause> normalizeImportClauses(
-            Logger logger, List<ParsedHeaderClause> clauses)
+            List<ParsedHeaderClause> clauses)
             throws BundleException {
         // Verify that the values are equals if the package specifies
         // both version and specification-version attributes.
@@ -391,7 +390,7 @@ public class ResourceBuilder {
 
     @SuppressWarnings( "deprecation" )
     private static List<ParsedHeaderClause> normalizeDynamicImportClauses(
-            Logger logger, List<ParsedHeaderClause> clauses)
+            List<ParsedHeaderClause> clauses)
             throws BundleException {
         // Verify that the values are equals if the package specifies
         // both version and specification-version attributes.
@@ -441,14 +440,14 @@ public class ResourceBuilder {
     }
 
     private static List<ParsedHeaderClause> normalizeRequireCapabilityClauses(
-            Logger logger, List<ParsedHeaderClause> clauses)
+            List<ParsedHeaderClause> clauses)
             throws BundleException {
 
         return clauses;
     }
 
     private static List<ParsedHeaderClause> normalizeProvideCapabilityClauses(
-            Logger logger, List<ParsedHeaderClause> clauses)
+            List<ParsedHeaderClause> clauses)
             throws BundleException {
 
         return clauses;
@@ -500,7 +499,7 @@ public class ResourceBuilder {
 
     @SuppressWarnings( "deprecation" )
     private static List<ParsedHeaderClause> normalizeExportClauses(
-            Logger logger, List<ParsedHeaderClause> clauses,
+            List<ParsedHeaderClause> clauses,
             String bsn, Version bv)
             throws BundleException {
         // Verify that "java.*" packages are not exported.
@@ -660,16 +659,7 @@ public class ResourceBuilder {
             // Get bundle version.
             Version bundleVersion = Version.emptyVersion;
             if (headerMap.get(Constants.BUNDLE_VERSION) != null) {
-                try {
-                    bundleVersion = Version.parseVersion(headerMap.get(Constants.BUNDLE_VERSION));
-                } catch (RuntimeException ex) {
-                    // R4 bundle versions must parse, R3 bundle version may not.
-                    String mv = getManifestVersion(headerMap);
-                    if (mv != null) {
-                        throw ex;
-                    }
-                    bundleVersion = Version.emptyVersion;
-                }
+                bundleVersion = Version.parseVersion(headerMap.get(Constants.BUNDLE_VERSION));
             }
 
             // Create a require capability and return it.
@@ -684,64 +674,56 @@ public class ResourceBuilder {
     }
 
     private static List<RequirementImpl> parseFragmentHost(
-            Logger logger, Resource resource, Map<String, String> headerMap)
+            Resource resource, Map<String, String> headerMap)
             throws BundleException {
         List<RequirementImpl> reqs = new ArrayList<RequirementImpl>();
 
-        String mv = getManifestVersion(headerMap);
-        if ((mv != null) && mv.equals("2")) {
-            List<ParsedHeaderClause> clauses = parseStandardHeader(headerMap.get(Constants.FRAGMENT_HOST));
-            if (clauses.size() > 0) {
-                // Make sure that only one fragment host symbolic name is specified.
-                if (clauses.size() > 1 || clauses.get(0).paths.size() > 1) {
-                    throw new BundleException("Fragments cannot have multiple hosts: " + headerMap.get(Constants.FRAGMENT_HOST));
-                }
-
-                // If the bundle-version attribute is specified, then convert
-                // it to the proper type.
-                Object value = clauses.get(0).attrs.get(Constants.BUNDLE_VERSION_ATTRIBUTE);
-                value = (value == null) ? "0.0.0" : value;
-                clauses.get(0).attrs.put(Constants.BUNDLE_VERSION_ATTRIBUTE, VersionRange.parseVersionRange(value.toString()));
-
-                // Note that we use a linked hash map here to ensure the
-                // host symbolic name is first, which will make indexing
-                // more efficient.
-    // TODO: OSGi R4.3 - This is ordering is kind of hacky.
-                // Prepend the host symbolic name to the map of attributes.
-                Map<String, Object> attrs = clauses.get(0).attrs;
-                Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
-                // We want this first from an indexing perspective.
-                newAttrs.put(BundleRevision.HOST_NAMESPACE, clauses.get(0).paths.get(0));
-                newAttrs.putAll(attrs);
-                // But we need to put it again to make sure it wasn't overwritten.
-                newAttrs.put(BundleRevision.HOST_NAMESPACE, clauses.get(0).paths.get(0));
-
-                // Create filter now so we can inject filter directive.
-                FilterImpl sf = FilterImpl.convert(newAttrs);
-
-                // Inject filter directive.
-    // TODO: OSGi R4.3 - Can we insert this on demand somehow?
-                Map<String, String> dirs = clauses.get(0).dirs;
-                Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
-                newDirs.putAll(dirs);
-                newDirs.put(Constants.FILTER_DIRECTIVE, sf.toString());
-
-                reqs.add(new RequirementImpl(
-                        resource, BundleRevision.HOST_NAMESPACE,
-                        newDirs,
-                        newAttrs));
+        List<ParsedHeaderClause> clauses = parseStandardHeader(headerMap.get(Constants.FRAGMENT_HOST));
+        if (clauses.size() > 0) {
+            // Make sure that only one fragment host symbolic name is specified.
+            if (clauses.size() > 1 || clauses.get(0).paths.size() > 1) {
+                throw new BundleException("Fragments cannot have multiple hosts: " + headerMap.get(Constants.FRAGMENT_HOST));
             }
-        } else if (headerMap.get(Constants.FRAGMENT_HOST) != null) {
-            String s = headerMap.get(Constants.BUNDLE_SYMBOLICNAME);
-            s = (s == null) ? headerMap.get(Constants.BUNDLE_NAME) : s;
-            s = (s == null) ? headerMap.toString() : s;
-            logger.log(Logger.LOG_WARNING, "Only R4 bundles can be fragments: " + s);
+
+            // If the bundle-version attribute is specified, then convert
+            // it to the proper type.
+            Object value = clauses.get(0).attrs.get(Constants.BUNDLE_VERSION_ATTRIBUTE);
+            value = (value == null) ? "0.0.0" : value;
+            clauses.get(0).attrs.put(Constants.BUNDLE_VERSION_ATTRIBUTE, VersionRange.parseVersionRange(value.toString()));
+
+            // Note that we use a linked hash map here to ensure the
+            // host symbolic name is first, which will make indexing
+            // more efficient.
+    // TODO: OSGi R4.3 - This is ordering is kind of hacky.
+            // Prepend the host symbolic name to the map of attributes.
+            Map<String, Object> attrs = clauses.get(0).attrs;
+            Map<String, Object> newAttrs = new LinkedHashMap<String, Object>(attrs.size() + 1);
+            // We want this first from an indexing perspective.
+            newAttrs.put(BundleRevision.HOST_NAMESPACE, clauses.get(0).paths.get(0));
+            newAttrs.putAll(attrs);
+            // But we need to put it again to make sure it wasn't overwritten.
+            newAttrs.put(BundleRevision.HOST_NAMESPACE, clauses.get(0).paths.get(0));
+
+            // Create filter now so we can inject filter directive.
+            FilterImpl sf = FilterImpl.convert(newAttrs);
+
+            // Inject filter directive.
+    // TODO: OSGi R4.3 - Can we insert this on demand somehow?
+            Map<String, String> dirs = clauses.get(0).dirs;
+            Map<String, String> newDirs = new HashMap<String, String>(dirs.size() + 1);
+            newDirs.putAll(dirs);
+            newDirs.put(Constants.FILTER_DIRECTIVE, sf.toString());
+
+            reqs.add(new RequirementImpl(
+                    resource, BundleRevision.HOST_NAMESPACE,
+                    newDirs,
+                    newAttrs));
         }
 
         return reqs;
     }
 
-    private static List<ParsedHeaderClause> normalizeRequireClauses(Logger logger, List<ParsedHeaderClause> clauses) {
+    private static List<ParsedHeaderClause> normalizeRequireClauses(List<ParsedHeaderClause> clauses) {
         // Convert bundle version attribute to VersionRange type.
         for (ParsedHeaderClause clause : clauses) {
             Object value = clause.attrs.get(Constants.BUNDLE_VERSION_ATTRIBUTE);

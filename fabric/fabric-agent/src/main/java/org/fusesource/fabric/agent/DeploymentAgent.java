@@ -21,8 +21,6 @@ import org.apache.felix.utils.manifest.Clause;
 import org.apache.felix.utils.manifest.Parser;
 import org.apache.felix.utils.properties.Properties;
 import org.apache.felix.utils.version.VersionRange;
-import org.apache.karaf.features.BundleInfo;
-import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.fusesource.fabric.agent.download.DownloadManager;
@@ -38,9 +36,6 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.fab.MavenResolver;
 import org.fusesource.fabric.fab.MavenResolverImpl;
-import org.fusesource.fabric.fab.osgi.FabBundleInfo;
-import org.fusesource.fabric.fab.osgi.FabResolver;
-import org.fusesource.fabric.fab.osgi.FabResolverFactory;
 import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
@@ -68,7 +63,6 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,7 +73,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -94,11 +87,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
 import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
-import static org.fusesource.fabric.agent.utils.AgentUtils.FAB_PROTOCOL;
 import static org.fusesource.fabric.agent.utils.AgentUtils.addMavenProxies;
-import static org.fusesource.fabric.agent.utils.AgentUtils.downloadBundles;
 import static org.fusesource.fabric.agent.utils.AgentUtils.loadRepositories;
-import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 
 public class DeploymentAgent implements ManagedService {
 
@@ -333,28 +323,6 @@ public class DeploymentAgent implements ManagedService {
         final Map<String, Repository> repositories =
                 loadRepositories(manager, getPrefixedProperties(properties, "repository."));
 
-        Set<Feature> features = new HashSet<Feature>();
-        for (String name : getPrefixedProperties(properties, "feature.")) {
-            Feature feature = search(name, repositories.values());
-            if (feature == null) {
-                throw new IllegalArgumentException("Unable to find feature " + name);
-            }
-            features.add(feature);
-        }
-
-        Set<String> fabs = getPrefixedProperties(properties, "fab.");
-
-        Set<String> bundles = new HashSet<String>();
-        for (String url : getPrefixedProperties(properties, "bundle.")) {
-            if (url.startsWith(FAB_PROTOCOL)) {
-                fabs.add(url.substring(FAB_PROTOCOL.length()));
-            } else {
-                bundles.add(url);
-            }
-        }
-
-        Set<String> overrides = getPrefixedProperties(properties, "override.");
-
         // Update bundles
         FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
         fabResolverFactory.setConfiguration(new FabricFabConfiguration(config, propertyResolver));
@@ -365,7 +333,29 @@ public class DeploymentAgent implements ManagedService {
                 return repositories.values().toArray(new Repository[repositories.size()]);
             }
         });
-        updateDeployment(fabResolverFactory, repositories, features, bundles, fabs, overrides);
+
+        DeploymentBuilder builder = new DeploymentBuilder(
+                manager,
+                fabResolverFactory,
+                repositories.values()
+        );
+        updateStatus("downloading", null);
+        builder.download(
+                getPrefixedProperties(properties, "feature."),
+                getPrefixedProperties(properties, "bundle."),
+                getPrefixedProperties(properties, "fab."),
+                getPrefixedProperties(properties, "override.")
+        );
+
+        // TODO: handle plain requirements
+        // TODO: handle default range policy on feature requirements
+        // TODO: handle default range policy on feature dependencies requirements
+
+        updateStatus("resolving", null);
+        Collection<Resource> allResources = builder.resolve(resolveOptionalImports);
+
+        Map<String, StreamProvider> providers = builder.getProviders();
+        install(allResources, providers);
         return true;
     }
 
@@ -385,80 +375,8 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-
-    private Set<Feature> addFeatures(Collection<Feature> features, Collection<Repository> repositories) {
-        Set<Feature> set = new HashSet<Feature>();
-        for (Feature feature : features) {
-            addFeatures(set, feature, repositories);
-        }
-        return set;
-    }
-
-    private Set<Feature> addFeatures(Set<Feature> set, Feature feature, Collection<Repository> repositories) {
-        set.add(feature);
-        for (Feature dep : feature.getDependencies()) {
-            Feature f = search(dep.getName(), dep.getVersion(), repositories);
-            if (f == null) {
-                throw new IllegalArgumentException("Unable to find feature " + dep.getName() + "/" + dep.getVersion());
-            }
-            addFeatures(set, f, repositories);
-        }
-        return set;
-    }
-
-    private void updateDeployment(FabResolverFactory fabResolverFactory,
-                                  Map<String, Repository> repositories,
-                                  Set<Feature> features,
-                                  Set<String> bundles,
-                                  Set<String> fabs,
-                                  Set<String> overrides) throws Exception {
-
-		updateStatus("downloading", null);
-		Map<String, File> fabDownloads = downloadBundles(manager, Collections.<Feature>emptySet(), fabs, Collections.<String>emptySet());
-
-		updateStatus("resolving", null);
-        Map<String, FabBundleInfo> infos = new HashMap<String, FabBundleInfo>();
-        for (Map.Entry<String, File> entry : fabDownloads.entrySet()) {
-            FabResolver resolver = fabResolverFactory.getResolver(entry.getValue().toURI().toURL());
-            FabBundleInfo info = resolver.getInfo();
-            for (String name : info.getFeatures()) {
-                Feature feature = search(name, repositories.values());
-                if (feature == null) {
-                    throw new IllegalArgumentException("Unable to find feature " + name);
-                }
-                features.add(feature);
-            }
-            LOGGER.info("Fab: " + info.getUrl());
-            infos.put(FAB_PROTOCOL + info.getUrl(), info);
-        }
-
-        Set<Feature> allFeatures = addFeatures(features, repositories.values());
-
-        Set<String> featureFabs = new LinkedHashSet<String>();
-        for (Feature feature : allFeatures) {
-            for (BundleInfo bundleInfo : feature.getBundles()) {
-                if (bundleInfo.getLocation().startsWith(FAB_PROTOCOL)) {
-                    String normalizedLocation = bundleInfo.getLocation().substring(FAB_PROTOCOL.length());
-                    if (!fabs.contains(normalizedLocation)) {
-                        featureFabs.add(normalizedLocation);
-                    }
-                }
-            }
-        }
-
-        //Check if we need to resolve more fabs.
-        if (!featureFabs.isEmpty()) {
-            fabs.addAll(featureFabs);
-            updateDeployment(fabResolverFactory, repositories, features, bundles, fabs, overrides);
-            return;
-        }
-
-
-        updateStatus("downloading", null);
-        Map<String, File> downloads = downloadBundles(manager, allFeatures, bundles, overrides);
-        updateStatus("resolving", null);
-        StdResolver resolver = new StdResolver(resolveOptionalImports);
-        Collection<Resource> allResources = resolver.resolve(allFeatures, bundles, infos, overrides, downloads);
+    private void install(Collection<Resource> allResources,
+                         Map<String, StreamProvider> providers) throws Exception {
 
         updateStatus("installing", null, allResources, true);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -493,9 +411,9 @@ public class DeploymentAgent implements ManagedService {
                                 // if the checksum are different
                                 InputStream is = null;
                                 try {
-                                is = getBundleInputStream(res, downloads, infos);
+                                is = getBundleInputStream(res, providers);
                                 long newCrc = ChecksumUtils.checksum(is);
-                                long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong((String) checksums.get(bundle.getLocation())) : 0l;
+                                long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong(checksums.get(bundle.getLocation())) : 0l;
                                 if (newCrc != oldCrc) {
                                     LOGGER.debug("New snapshot available for " + bundle.getLocation());
                                     update = true;
@@ -549,7 +467,7 @@ public class DeploymentAgent implements ManagedService {
         if (agentResource != null) {
             LOGGER.info("Updating agent");
             LOGGER.info("  " + getUri(agentResource));
-            InputStream is = getBundleInputStream(agentResource, downloads, infos);
+            InputStream is = getBundleInputStream(agentResource, providers);
             Bundle bundle = bundleContext.getBundle();
             //We need to store the agent checksum and save before we update the agent.
             if (newCheckums.containsKey(bundle.getLocation())) {
@@ -585,7 +503,7 @@ public class DeploymentAgent implements ManagedService {
         while (!toStop.isEmpty()) {
             List<Bundle> bs = getBundlesToDestroy(toStop);
             for (Bundle bundle : bs) {
-                String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+                String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
                 if (hostHeader == null && (bundle.getState() == Bundle.ACTIVE || bundle.getState() == Bundle.STARTING)) {
                     LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
                     bundle.stop(Bundle.STOP_TRANSIENT);
@@ -604,20 +522,20 @@ public class DeploymentAgent implements ManagedService {
             Bundle bundle = entry.getKey();
             Resource resource = entry.getValue();
             LOGGER.info("  " + getUri(resource));
-            InputStream is = getBundleInputStream(resource, downloads, infos);
+            InputStream is = getBundleInputStream(resource, providers);
             bundle.update(is);
             toRefresh.add(bundle);
         }
         LOGGER.info("Installing bundles:");
         for (Resource resource : toInstall) {
             LOGGER.info("  " + getUri(resource));
-            InputStream is = getBundleInputStream(resource, downloads, infos);
+            InputStream is = getBundleInputStream(resource, providers);
             Bundle bundle = systemBundleContext.installBundle(getUri(resource), is);
             toRefresh.add(bundle);
             resToBnd.put(resource, bundle);
             // save a checksum of installed snapshot bundle
             if (bundle.getVersion().getQualifier().endsWith(SNAPSHOT) && !newCheckums.containsKey(bundle.getLocation())) {
-                newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, downloads, infos))));
+                newCheckums.put(bundle.getLocation(), Long.toString(ChecksumUtils.checksum(getBundleInputStream(resource, providers))));
             }
         }
 
@@ -651,7 +569,7 @@ public class DeploymentAgent implements ManagedService {
         // TODO: use wiring here instead of sorting
         for (Resource resource : requirementSort.sort(allResources)) {
             Bundle bundle = resToBnd.get(resource);
-            String hostHeader = (String) bundle.getHeaders().get(Constants.FRAGMENT_HOST);
+            String hostHeader = bundle.getHeaders().get(Constants.FRAGMENT_HOST);
             if (hostHeader == null && bundle.getState() != Bundle.ACTIVE) {
                 LOGGER.info("  " + bundle.getSymbolicName() + " / " + bundle.getVersion());
                 try {
@@ -668,36 +586,14 @@ public class DeploymentAgent implements ManagedService {
         LOGGER.info("Done.");
     }
 
-    protected static InputStream getBundleInputStream(Resource resource, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
-        return getBundleInputStream(getUri(resource), downloads, infos);
-    }
-
-    protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
-        InputStream is;
-        File file;
-        FabBundleInfo info;
-        if ((file = downloads.get(uri)) != null) {
-            is = new FileInputStream(file);
-        } else if ((info = infos.get(uri)) != null) {
-            is = info.getInputStream();
-        } else {
-            LOGGER.warn("Bundle " + uri + " not found in the downloads, using direct input stream instead");
-            is = new URL(uri).openStream();
+    protected static InputStream getBundleInputStream(Resource resource,
+                                                      Map<String, StreamProvider> providers) throws IOException {
+        String uri = getUri(resource);
+        StreamProvider provider = uri != null ? providers.get(uri) : null;
+        if (provider == null) {
+            throw new IllegalStateException("Could not find stream provider for " + resource);
         }
-        return is;
-    }
-
-    protected static InputStream getBundleInputStream(String uri, Map<String, File> downloads) throws IOException {
-        InputStream is;
-        File file;
-        FabBundleInfo info;
-        if ((file = downloads.get(uri)) != null) {
-            is = new FileInputStream(file);
-        } else {
-            LOGGER.warn("Bundle " + uri + " not found in the downloads, using direct input stream instead");
-            is = new URL(uri).openStream();
-        }
-        return is;
+        return provider.open();
     }
 
     private List<Bundle> getBundlesToDestroy(List<Bundle> bundles) {
@@ -765,10 +661,10 @@ public class DeploymentAgent implements ManagedService {
 
 
     protected void findBundlesWithFragmentsToRefresh(Set<Bundle> toRefresh) {
-        Set fragments = new HashSet();
+        Set<Bundle> fragments = new HashSet<Bundle>();
         for (Bundle b : toRefresh) {
             if (b.getState() != Bundle.UNINSTALLED) {
-                String hostHeader = (String) b.getHeaders().get(Constants.FRAGMENT_HOST);
+                String hostHeader = b.getHeaders().get(Constants.FRAGMENT_HOST);
                 if (hostHeader != null) {
                     Clause[] clauses = Parser.parseHeader(hostHeader);
                     if (clauses != null && clauses.length > 0) {
@@ -804,7 +700,7 @@ public class DeploymentAgent implements ManagedService {
         Map<Bundle, List<Clause>> imports = new HashMap<Bundle, List<Clause>>();
         for (Iterator<Bundle> it = bundles.iterator(); it.hasNext(); ) {
             Bundle b = it.next();
-            String importsStr = (String) b.getHeaders().get(Constants.IMPORT_PACKAGE);
+            String importsStr = b.getHeaders().get(Constants.IMPORT_PACKAGE);
             List<Clause> importsList = getOptionalImports(importsStr);
             if (importsList.isEmpty()) {
                 it.remove();
@@ -820,7 +716,7 @@ public class DeploymentAgent implements ManagedService {
         List<Clause> exports = new ArrayList<Clause>();
         for (Bundle b : toRefresh) {
             if (b.getState() != Bundle.UNINSTALLED) {
-                String exportsStr = (String) b.getHeaders().get(Constants.EXPORT_PACKAGE);
+                String exportsStr = b.getHeaders().get(Constants.EXPORT_PACKAGE);
                 if (exportsStr != null) {
                     Clause[] exportsList = Parser.parseHeader(exportsStr);
                     exports.addAll(Arrays.asList(exportsList));
@@ -865,10 +761,10 @@ public class DeploymentAgent implements ManagedService {
     protected List<Clause> getOptionalImports(String importsStr) {
         Clause[] imports = Parser.parseHeader(importsStr);
         List<Clause> result = new LinkedList<Clause>();
-        for (int i = 0; i < imports.length; i++) {
-            String resolution = imports[i].getDirective(Constants.RESOLUTION_DIRECTIVE);
+        for (Clause anImport : imports) {
+            String resolution = anImport.getDirective(Constants.RESOLUTION_DIRECTIVE);
             if (Constants.RESOLUTION_OPTIONAL.equals(resolution)) {
-                result.add(imports[i]);
+                result.add(anImport);
             }
         }
         return result;
