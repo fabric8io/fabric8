@@ -21,6 +21,8 @@ import org.apache.felix.resolver.ResolverImpl;
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
+import org.fusesource.common.util.Manifests;
+import org.fusesource.fabric.agent.DeploymentBuilder;
 import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
@@ -30,6 +32,7 @@ import org.fusesource.fabric.fab.osgi.FabBundleInfo;
 import org.junit.Test;
 import org.osgi.framework.BundleException;
 import org.osgi.framework.launch.Framework;
+import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.framework.wiring.BundleRevisions;
 import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
@@ -49,6 +52,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,20 +67,17 @@ import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.downloadBundles;
 
 /**
  */
 public class ResolverTest {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResolverTest.class);
-
     @Test
     public void testResolve() throws Exception {
         System.setProperty("karaf.data", new File("target/karaf/data").getAbsolutePath());
         System.setProperty("karaf.home", new File("target/karaf").getAbsolutePath());
-
-
 
         Properties properties = new Properties();
         properties.setProperty("mvn.localRepository", "/Users/gnodet/.m2/repository/@snapshots");
@@ -84,149 +85,32 @@ public class ResolverTest {
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
         mavenConfiguration.setSettings(new MavenSettingsImpl(new URL("file:/Users/gnodet/.m2/settings.xml")));
+
         DownloadManager manager = new DownloadManager(mavenConfiguration, Executors.newFixedThreadPool(2));
 
         Map<URI, Repository> repositories = new HashMap<URI, Repository>();
-        AgentUtils.addRepository(manager, repositories, URI.create("mvn:org.apache.karaf.assemblies.features/standard/2.3.0.redhat-610-SNAPSHOT/xml/features"));
+        AgentUtils.addRepository(manager, repositories, URI.create("mvn:org.apache.karaf.assemblies.features/standard/" + System.getProperty("karaf-version") + "/xml/features"));
 
-        Set<Feature> allFeatures = new HashSet<Feature>();
-        Repository repo = repositories.values().iterator().next();
-        allFeatures.addAll(Arrays.asList(repo.getFeatures()));
+        DeploymentBuilder builder = new DeploymentBuilder(manager, null, repositories.values());
 
-        Map<String, File> downloads = downloadBundles(manager, allFeatures, Collections.<String>emptySet(), Collections.<String>emptySet());
+        builder.download(new HashSet<String>(Arrays.asList("karaf-framework", "ssh")),
+                         Collections.<String>emptySet(),
+                         Collections.<String>emptySet(),
+                         Collections.<String>emptySet());
 
-        Map<String, Resource> locToRes = new HashMap<String, Resource>();
-        List<Requirement> reqs = new ArrayList<Requirement>();
-        List<Resource> ress = new ArrayList<Resource>();
-        List<Resource> deploy = new ArrayList<Resource>();
-        Map<Object, BundleInfo> infos = new HashMap<Object, BundleInfo>();
-        for (Feature feature : allFeatures) {
-            for (BundleInfo bundleInfo : feature.getBundles()) {
-                try {
-                    Resource res = createResource(bundleInfo.getLocation(), downloads, Collections.<String, FabBundleInfo>emptyMap());
-                    if (res == null) {
-                        throw new IllegalArgumentException("Unable to build OBR representation for bundle " + bundleInfo.getLocation());
-                    }
-                    locToRes.put(bundleInfo.getLocation(), res);
-                    ress.add(res);
-                    infos.put(res, bundleInfo);
-                } catch (MalformedURLException e) {
-                    List<Requirement> reqList = ResourceBuilder.parseRequirement(null, bundleInfo.getLocation());
-                    for (Requirement req : reqList) {
-                        reqs.add(req);
-                        infos.put(req, bundleInfo);
-                    }
-                }
-            }
-        }
-
-
-        // System bundle
         properties = new Properties();
         properties.setProperty("org.osgi.framework.system.packages.extra", "org.apache.karaf.jaas.boot;version=\"2.3.0.redhat-610-SNAPSHOT\",org.apache.karaf.jaas.boot.principal;version=\"2.3.0.redhat-610-SNAPSHOT\"");
         properties.setProperty("org.osgi.framework.system.capabilities.extra",
                 "service-reference;effective:=active;objectClass=org.osgi.service.packageadmin.PackageAdmin," +
-                "service-reference;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +
-                "service-reference;effective:=active;objectClass=org.osgi.service.url.URLHandlers");
-
+                        "service-reference;effective:=active;objectClass=org.osgi.service.startlevel.StartLevel," +
+                        "service-reference;effective:=active;objectClass=org.osgi.service.url.URLHandlers");
         Framework felix = new Felix(properties);
-        ress.add(felix.adapt(BundleRevisions.class).getRevisions().iterator().next());
+        Collection<Resource> resources = builder.resolve(felix.adapt(BundleRevision.class), false);
 
-        Map<Feature, Resource> featureResourceMap = new HashMap<Feature, Resource>();
-        for (Feature feature : repo.getFeatures()) {
-            Resource resf = FeatureResource.build(feature, locToRes);
-            ress.add(resf);
-            featureResourceMap.put(feature, resf);
+        for (Resource resource : resources) {
+            System.out.println("Resource: " + getUri(resource));
         }
 
-        Map<String, String> types = new HashMap<String, String>();
-        types.put("ResourceImpl",             "bundle ");
-        types.put("FeatureResource",          "feature");
-        types.put("ExtensionManagerRevision", "system ");
-
-        for (Feature feature : repo.getFeatures()) {
-            Set<Resource> mandatory = new HashSet<Resource>();
-            Set<Resource> optional = new HashSet<Resource>();
-            mandatory.add(featureResourceMap.get(feature));
-
-            ResolverImpl resolver = new ResolverImpl(new org.apache.felix.resolver.Logger(org.apache.felix.resolver.Logger.LOG_DEBUG));
-            ResolveContext context = new ResolveContextImpl(mandatory, optional, ress, false);
-
-            System.out.println("Resolution for feature " + feature.getName());
-            try {
-                Map<Resource, List<Wire>> wires = resolver.resolve(context);
-                for (Map.Entry<Resource, List<Wire>> entry : wires.entrySet()) {
-                    System.out.println("    Resource: " + types.get(entry.getKey().getClass().getSimpleName()) + ": " + entry.getKey());
-                    for (Wire wire : entry.getValue()) {
-    //                System.out.println("    " + wire);
-                    }
-                }
-            } catch (Throwable t) {
-                t.printStackTrace(System.out);
-            }
-            System.out.println();
-        }
-
-    }
-
-
-    private Resource createResource(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
-        Attributes attributes = getAttributes(uri, urls, infos);
-        Map<String, String> headers = new HashMap<String, String>();
-        for (Map.Entry attr : attributes.entrySet()) {
-            headers.put(attr.getKey().toString(), attr.getValue().toString());
-        }
-        try {
-            Resource res = ResourceBuilder.build(uri, headers);
-            return res;
-        } catch (BundleException e) {
-            throw new Exception("Unable to create Resource for bundle " + uri, e);
-        }
-    }
-
-    private static Attributes getAttributes(String uri, Map<String, File> urls, Map<String, FabBundleInfo> infos) throws Exception {
-        InputStream is = getBundleInputStream(uri, urls, infos);
-        byte[] man = loadEntry(is, JarFile.MANIFEST_NAME);
-        if (man == null) {
-            throw new IllegalArgumentException("The specified url is not a valid jar (can't read manifest): " + uri);
-        }
-        Manifest manifest = new Manifest(new ByteArrayInputStream(man));
-        return manifest.getMainAttributes();
-    }
-
-    private static InputStream getBundleInputStream(String uri, Map<String, File> downloads, Map<String, FabBundleInfo> infos) throws Exception {
-        InputStream is;
-        File file;
-        FabBundleInfo info;
-        if ((file = downloads.get(uri)) != null) {
-            is = new FileInputStream(file);
-        } else if ((info = infos.get(uri)) != null) {
-            is = info.getInputStream();
-        } else {
-            LOGGER.warn("Bundle " + uri + " not found in the downloads, using direct input stream instead");
-            is = new URL(uri).openStream();
-        }
-        return is;
-    }
-
-    private static byte[] loadEntry(InputStream is, String name) throws IOException {
-        try {
-            ZipInputStream jis = new ZipInputStream(is);
-            for (ZipEntry e = jis.getNextEntry(); e != null; e = jis.getNextEntry()) {
-                if (name.equalsIgnoreCase(e.getName())) {
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    byte[] buf = new byte[1024];
-                    int n;
-                    while ((n = jis.read(buf, 0, buf.length)) > 0) {
-                        baos.write(buf, 0, n);
-                    }
-                    return baos.toByteArray();
-                }
-            }
-        } finally {
-            is.close();
-        }
-        return null;
     }
 
 }
