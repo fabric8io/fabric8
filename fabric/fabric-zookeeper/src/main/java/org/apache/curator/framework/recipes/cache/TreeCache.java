@@ -454,7 +454,7 @@ public class TreeCache implements Closeable
     {
         TreeData parentData = getCurrentData(fullPath);
         if (parentData != null) {
-            return new ArrayList(parentData.getChildren());
+            return new ArrayList<String>(parentData.getChildren());
         }
         return Lists.newArrayList();
     }
