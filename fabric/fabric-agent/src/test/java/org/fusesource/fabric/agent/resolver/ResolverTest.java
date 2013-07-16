@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
+import aQute.lib.osgi.Macro;
+import aQute.lib.osgi.Processor;
 import org.apache.felix.framework.Felix;
 import org.apache.felix.resolver.ResolverImpl;
 import org.apache.karaf.features.BundleInfo;
@@ -69,6 +71,7 @@ import java.util.zip.ZipInputStream;
 
 import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.downloadBundles;
+import static org.junit.Assert.assertEquals;
 
 /**
  */
@@ -96,6 +99,7 @@ public class ResolverTest {
         builder.download(new HashSet<String>(Arrays.asList("karaf-framework", "ssh")),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
+                         Collections.<String>emptySet(),
                          Collections.<String>emptySet());
 
         properties = new Properties();
@@ -111,6 +115,16 @@ public class ResolverTest {
             System.out.println("Resource: " + getUri(resource));
         }
 
+    }
+
+    @Test
+    public void testRange() throws Exception {
+        Processor processor = new Processor();
+        processor.setProperty("@", "1.2.3.redhat-61-SNAPSHOT");
+        Macro macro = new Macro(processor);
+
+        assertEquals("[1.2,1.3)", macro.process("${range;[==,=+)}"));
+        assertEquals("[1.2.3.redhat-61-SNAPSHOT,2)", macro.process("${range;[====,+)}"));
     }
 
 }
