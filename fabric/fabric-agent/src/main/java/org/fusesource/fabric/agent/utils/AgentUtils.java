@@ -50,6 +50,7 @@ public class AgentUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentUtils.class);
 
     public static final String FAB_PROTOCOL = "fab:";
+    public static final String REQ_PROTOCOL = "req:";
 
     public static void addRepository(DownloadManager manager, Map<URI, Repository> repositories, URI uri) throws Exception {
         if (!repositories.containsKey(uri)) {

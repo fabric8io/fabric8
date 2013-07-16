@@ -45,6 +45,7 @@ import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.service.resolver.ResolutionException;
@@ -71,6 +72,7 @@ import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
 import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.FAB_PROTOCOL;
+import static org.fusesource.fabric.agent.utils.AgentUtils.REQ_PROTOCOL;
 import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
 import static org.fusesource.fabric.utils.PatchUtils.extractVersionRange;
 
@@ -106,6 +108,7 @@ public class DeploymentBuilder {
     public void download(Set<String> features,
                          Set<String> bundles,
                          Set<String> fabs,
+                         Set<String> reqs,
                          Set<String> overrides) throws IOException, MultiException, InterruptedException, ResolutionException {
         this.downloader = new AgentUtils.FileDownloader(manager);
         this.resources = new ConcurrentHashMap<String, Resource>();
@@ -120,6 +123,9 @@ public class DeploymentBuilder {
         }
         for (String fab : fabs) {
             downloadAndBuildResource(FAB_PROTOCOL + fab);
+        }
+        for (String req : reqs) {
+            downloadAndBuildResource(REQ_PROTOCOL + req);
         }
         for (String override : overrides) {
             // TODO: ignore download failures for overrides
@@ -165,6 +171,9 @@ public class DeploymentBuilder {
         }
         for (String bundle : bundles) {
             requireResource(bundle);
+        }
+        for (String req : reqs) {
+            requireResource(REQ_PROTOCOL + req);
         }
         for (String fab : fabs) {
             requireResource(FAB_PROTOCOL + fab);
@@ -295,6 +304,16 @@ public class DeploymentBuilder {
                     }
                 }
             });
+        } else if (location.startsWith(REQ_PROTOCOL)) {
+            try {
+                ResourceImpl resource = new ResourceImpl(location, "dummy", Version.emptyVersion);
+                for (Requirement req : ResourceBuilder.parseRequirement(resource, location.substring(REQ_PROTOCOL.length()))) {
+                    resource.addRequirement(req);
+                }
+                resources.put(location, resource);
+            } catch (BundleException e) {
+                throw new IOException("Error parsing requirement", e);
+            }
         } else {
             downloader.download(location, new AgentUtils.DownloadCallback() {
                 @Override
