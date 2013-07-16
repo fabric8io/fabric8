@@ -119,21 +119,49 @@ public class RfcUtil {
 	public static final String RfcNS_TYPE_AS_STRING_KEY = "typeAsString";
 
 	/**
-	 * Details key for a parameter list entry annotation providing the length of
+	 * Details key for a record entry annotation providing the length of
 	 * the underlying data field for Unicode layout represented by the annotated
-	 * parameter list entry. The details value is the length of the underlying
-	 * data field for Unicode layout represented by the parameter list entry.
+	 * record entry. The details value is the length of the underlying
+	 * data field for Unicode layout represented by the record entry.
 	 */
 	public static final String RfcNS_UNICODE_BYTE_LENGTH_KEY = "unicodeByteLength";
 
 	/**
+	 * Details key for a record entry annotation providing the offset of the
+	 * underlying data field in a Unicode layout represented by the
+	 * annotated record entry. The details value is the byte offset of
+	 * the underlying data field in a Non-Unicode layout represented by the
+	 * record entry.
+	 */
+	public static final String RfcNS_UNICODE_BYTE_OFFSET_KEY = "unicodeByteOffset";
+
+	/**
+	 * Details key for a record entry annotation providing the total length of
+	 * an underlying JCo structure or single row in an underlying JCo table with a Unicode layout. The
+	 * details value is the total length of of the underlying JCo structure or
+	 * single row in an underlying JCo table with a Unicode layout. Note due to alignment constraints
+	 * the length of a JCo structure or table row is not necessarily the same as
+	 * the sum of the field lenth.
+	 */
+	public static final String RfcNS_UNICODE_RECORD_LENGTH_KEY = "unicodeRecordLength";
+
+	/**
 	 * Details key for a parameter list entry annotation providing the byte
 	 * length of the underlying data field for Non-Unicode layout represented by
-	 * the annotated parameter list entry. The details value is the byte length
+	 * the annotated record entry. The details value is the byte length
 	 * of the underlying data field for Non-Unicode layout represented by the
 	 * parameter list entry.
 	 */
 	public static final String RfcNS_BYTE_LENGTH_KEY = "byteLength";
+
+	/**
+	 * Details key for a record entry annotation providing the offset of the
+	 * underlying data field in a Non-Unicode layout represented by the
+	 * annotated parameter list entry. The details value is the byte offset of
+	 * the underlying data field in a Non-Unicode layout represented by the
+	 * record entry.
+	 */
+	public static final String RfcNS_BYTE_OFFSET_KEY = "byteOffset";
 
 	/**
 	 * Details key for a parameter list entry annotation providing the max
@@ -282,7 +310,8 @@ public class RfcUtil {
 
 	public static Destination getDestination(String destinationName) {
 		try {
-			JCoDestination jcoDestination = JCoDestinationManager.getDestination(destinationName);
+			JCoDestination jcoDestination = JCoDestinationManager
+					.getDestination(destinationName);
 			Destination destination = RfcFactory.eINSTANCE.createDestination();
 			String repositoryName = jcoDestination.getRepository().getName();
 			destination.setName(destinationName);
@@ -293,24 +322,31 @@ public class RfcUtil {
 		}
 	}
 
-	public static List<RFC> getRFCs(JCoDestination jcoDestination, String functionNameFilter, String groupNameFilter) {
+	public static List<RFC> getRFCs(JCoDestination jcoDestination,
+			String functionNameFilter, String groupNameFilter) {
 		List<RFC> rfcs = new ArrayList<RFC>();
 		try {
-			JCoFunction jcoFunction = jcoDestination.getRepository().getFunction(RFC_FUNCTION_SEARCH_FUNCTION);
-			jcoFunction.getImportParameterList().setValue(FUNCNAME_PARAM, functionNameFilter);
-			jcoFunction.getImportParameterList().setValue(GROUPNAME_PARAM, groupNameFilter);
+			JCoFunction jcoFunction = jcoDestination.getRepository()
+					.getFunction(RFC_FUNCTION_SEARCH_FUNCTION);
+			jcoFunction.getImportParameterList().setValue(FUNCNAME_PARAM,
+					functionNameFilter);
+			jcoFunction.getImportParameterList().setValue(GROUPNAME_PARAM,
+					groupNameFilter);
 			jcoFunction.execute(jcoDestination);
-			JCoTable sapFunctions = jcoFunction.getTableParameterList().getTable(FUNCTIONS_TABLE);
+			JCoTable sapFunctions = jcoFunction.getTableParameterList()
+					.getTable(FUNCTIONS_TABLE);
 
 			if (sapFunctions.getNumRows() > 0) {
 				sapFunctions.firstRow();
 				do {
 					RFC rfc = RfcFactory.eINSTANCE.createRFC();
-					String functionName = sapFunctions.getString(FUNCNAME_PARAM);
+					String functionName = sapFunctions
+							.getString(FUNCNAME_PARAM);
 					String groupName = sapFunctions.getString(GROUPNAME_PARAM);
 					rfc.setName(functionName);
 					rfc.setGroup(groupName);
-					String functionDescription = sapFunctions.getString(STEXT_PARAM);
+					String functionDescription = sapFunctions
+							.getString(STEXT_PARAM);
 					rfc.setDescription(functionDescription);
 					rfcs.add(rfc);
 				} while (sapFunctions.nextRow());
@@ -321,76 +357,106 @@ public class RfcUtil {
 		return rfcs;
 	}
 
-	public static Structure executeFunction(JCoDestination destination, String functionName, Structure request) throws JCoException {
-		JCoFunction jcoFunction = destination.getRepository().getFunction(functionName);
+	public static Structure executeFunction(JCoDestination destination,
+			String functionName, Structure request) throws JCoException {
+		JCoFunction jcoFunction = destination.getRepository().getFunction(
+				functionName);
 		fillJCoParameterListsFromRequest(request, jcoFunction);
 
 		jcoFunction.execute(destination);
 
-		Structure response = getResponse(destination.getRepository(), functionName);
+		Structure response = getResponse(destination.getRepository(),
+				functionName);
 		extractJCoParameterListsIntoResponse(jcoFunction, response);
 
 		return response;
 	}
 
-	public static void executeFunction(JCoDestination destination, String functionName, Structure request, String tid) throws JCoException {
+	public static void executeFunction(JCoDestination destination,
+			String functionName, Structure request, String tid)
+			throws JCoException {
 
-		JCoFunction jcoFunction = destination.getRepository().getFunction(functionName);
+		JCoFunction jcoFunction = destination.getRepository().getFunction(
+				functionName);
 		fillJCoParameterListsFromRequest(request, jcoFunction);
 
 		jcoFunction.execute(destination, tid);
 	}
 
-	public static void executeFunction(JCoDestination destination, String functionName, Structure request, String tid, String queueName) throws JCoException {
-		JCoFunction jcoFunction = destination.getRepository().getFunction(functionName);
+	public static void executeFunction(JCoDestination destination,
+			String functionName, Structure request, String tid, String queueName)
+			throws JCoException {
+		JCoFunction jcoFunction = destination.getRepository().getFunction(
+				functionName);
 		fillJCoParameterListsFromRequest(request, jcoFunction);
 
 		jcoFunction.execute(destination, tid, queueName);
 	}
 
-	public static void fillJCoParameterListsFromRequest(Structure request, JCoFunction jcoFunction) {
-		fillJCoRecordFromStructure(request, jcoFunction.getImportParameterList());
-		fillJCoRecordFromStructure(request, jcoFunction.getChangingParameterList());
+	public static void fillJCoParameterListsFromRequest(Structure request,
+			JCoFunction jcoFunction) {
+		fillJCoRecordFromStructure(request,
+				jcoFunction.getImportParameterList());
+		fillJCoRecordFromStructure(request,
+				jcoFunction.getChangingParameterList());
 		fillJCoRecordFromStructure(request, jcoFunction.getTableParameterList());
 	}
 
-	public static void fillJCoParameterListsFromResponse(Structure response, JCoFunction jcoFunction) {
-		fillJCoRecordFromStructure(response, jcoFunction.getChangingParameterList());
-		fillJCoRecordFromStructure(response, jcoFunction.getTableParameterList());
-		fillJCoRecordFromStructure(response, jcoFunction.getExportParameterList());
+	public static void fillJCoParameterListsFromResponse(Structure response,
+			JCoFunction jcoFunction) {
+		fillJCoRecordFromStructure(response,
+				jcoFunction.getChangingParameterList());
+		fillJCoRecordFromStructure(response,
+				jcoFunction.getTableParameterList());
+		fillJCoRecordFromStructure(response,
+				jcoFunction.getExportParameterList());
 	}
 
-	public static void extractJCoParameterListsIntoRequest(JCoFunction jcoFunction, Structure request) {
-		extractJCoRecordIntoStructure(jcoFunction.getImportParameterList(), request);
-		extractJCoRecordIntoStructure(jcoFunction.getChangingParameterList(), request);
-		extractJCoRecordIntoStructure(jcoFunction.getTableParameterList(), request);
+	public static void extractJCoParameterListsIntoRequest(
+			JCoFunction jcoFunction, Structure request) {
+		extractJCoRecordIntoStructure(jcoFunction.getImportParameterList(),
+				request);
+		extractJCoRecordIntoStructure(jcoFunction.getChangingParameterList(),
+				request);
+		extractJCoRecordIntoStructure(jcoFunction.getTableParameterList(),
+				request);
 	}
 
-	public static void extractJCoParameterListsIntoResponse(JCoFunction jcoFunction, Structure response) {
-		extractJCoRecordIntoStructure(jcoFunction.getChangingParameterList(), response);
-		extractJCoRecordIntoStructure(jcoFunction.getTableParameterList(), response);
-		extractJCoRecordIntoStructure(jcoFunction.getExportParameterList(), response);
+	public static void extractJCoParameterListsIntoResponse(
+			JCoFunction jcoFunction, Structure response) {
+		extractJCoRecordIntoStructure(jcoFunction.getChangingParameterList(),
+				response);
+		extractJCoRecordIntoStructure(jcoFunction.getTableParameterList(),
+				response);
+		extractJCoRecordIntoStructure(jcoFunction.getExportParameterList(),
+				response);
 	}
 
-	public static void beginTransaction(JCoDestination jcoDestination) throws JCoException {
+	public static void beginTransaction(JCoDestination jcoDestination)
+			throws JCoException {
 		JCoContext.begin(jcoDestination);
 	}
 
-	public static void commitTransaction(JCoDestination jcoDestination) throws JCoException {
-		JCoRequest request = jcoDestination.getRepository().getRequest("BAPI_TRANSACTION_COMMIT");
+	public static void commitTransaction(JCoDestination jcoDestination)
+			throws JCoException {
+		JCoRequest request = jcoDestination.getRepository().getRequest(
+				"BAPI_TRANSACTION_COMMIT");
 		request.setValue("WAIT", "X");
 		request.execute(jcoDestination);
 		JCoContext.end(jcoDestination);
 	}
 
-	public static void rollbackTransaction(JCoDestination jcoDestination) throws JCoException {
-		JCoRequest request = jcoDestination.getRepository().getRequest("BAPI_TRANSACTION_ROLLBACK");
+	public static void rollbackTransaction(JCoDestination jcoDestination)
+			throws JCoException {
+		JCoRequest request = jcoDestination.getRepository().getRequest(
+				"BAPI_TRANSACTION_ROLLBACK");
 		request.execute(jcoDestination);
 		JCoContext.end(jcoDestination);
 	}
 
 	public static Object getValue(EObject object, String featureName) {
-		EStructuralFeature feature = object.eClass().getEStructuralFeature(featureName);
+		EStructuralFeature feature = object.eClass().getEStructuralFeature(
+				featureName);
 		if (feature == null)
 			return null;
 		return getValue(object, feature);
@@ -401,7 +467,8 @@ public class RfcUtil {
 			Object value = object.eGet(feature);
 			if (value == null && feature instanceof EReference) {
 				EClass eClass = ((EReference) feature).getEReferenceType();
-				value = eClass.getEPackage().getEFactoryInstance().create(eClass);
+				value = eClass.getEPackage().getEFactoryInstance()
+						.create(eClass);
 				setValue(object, feature, value);
 			}
 			return value;
@@ -410,20 +477,25 @@ public class RfcUtil {
 		}
 	}
 
-	public static boolean setValue(EObject object, String featureName, Object value) {
-		EStructuralFeature feature = object.eClass().getEStructuralFeature(featureName);
+	public static boolean setValue(EObject object, String featureName,
+			Object value) {
+		EStructuralFeature feature = object.eClass().getEStructuralFeature(
+				featureName);
 		if (feature == null)
 			return false;
 		return setValue(object, feature, value);
 	}
 
-	public static boolean setValue(EObject object, EStructuralFeature feature, Object value) {
+	public static boolean setValue(EObject object, EStructuralFeature feature,
+			Object value) {
 		try {
-			EditingDomain editingDomain = AdapterFactoryEditingDomain.getEditingDomainFor(object);
+			EditingDomain editingDomain = AdapterFactoryEditingDomain
+					.getEditingDomainFor(object);
 			if (editingDomain == null) {
 				object.eSet(feature, value);
 			} else {
-				Command setCommand = SetCommand.create(editingDomain, object, feature, value);
+				Command setCommand = SetCommand.create(editingDomain, object,
+						feature, value);
 				editingDomain.getCommandStack().execute(setCommand);
 			}
 			return true;
@@ -440,14 +512,16 @@ public class RfcUtil {
 		EClass rowType = ((EReference) feature).getEReferenceType();
 		@SuppressWarnings("unchecked")
 		EList<Structure> records = (EList<Structure>) getValue(table, feature);
-	
-		Structure newRow = (Structure) rowType.getEPackage().getEFactoryInstance().create(rowType);
+
+		Structure newRow = (Structure) rowType.getEPackage()
+				.getEFactoryInstance().create(rowType);
 		records.add(newRow);
 		return newRow;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void extractJCoRecordIntoStructure(JCoRecord jrecord, Structure eObject) {
+	public static void extractJCoRecordIntoStructure(JCoRecord jrecord,
+			Structure eObject) {
 		if (jrecord == null || eObject == null)
 			return;
 
@@ -455,16 +529,19 @@ public class RfcUtil {
 		JCoFieldIterator iterator = jrecord.getFieldIterator();
 		while (iterator.hasNextField()) {
 			JCoField field = iterator.nextField();
-			EStructuralFeature feature = eClass.getEStructuralFeature(field.getName());
+			EStructuralFeature feature = eClass.getEStructuralFeature(field
+					.getName());
 			Object value = getValue(eObject, feature);
 			if (field.isStructure()) {
 				if (value == null || !(value instanceof EObject))
 					continue;
-				extractJCoRecordIntoStructure(field.getStructure(), (Structure) value);
+				extractJCoRecordIntoStructure(field.getStructure(),
+						(Structure) value);
 			} else if (field.isTable()) {
 				if (value == null || !(value instanceof EObject))
 					continue;
-				extractJCoTableIntoTable((JCoTable) field.getTable(), (Table<? extends Structure>) value);
+				extractJCoTableIntoTable((JCoTable) field.getTable(),
+						(Table<? extends Structure>) value);
 			} else {
 				setValue(eObject, feature, field.getValue());
 			}
@@ -472,7 +549,8 @@ public class RfcUtil {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void fillJCoRecordFromStructure(Structure eObject, JCoRecord jcoRecord) {
+	public static void fillJCoRecordFromStructure(Structure eObject,
+			JCoRecord jcoRecord) {
 		if (jcoRecord == null || eObject == null)
 			return;
 
@@ -480,16 +558,19 @@ public class RfcUtil {
 		JCoFieldIterator iterator = jcoRecord.getFieldIterator();
 		while (iterator.hasNextField()) {
 			JCoField field = iterator.nextField();
-			EStructuralFeature feature = eClass.getEStructuralFeature(field.getName());
+			EStructuralFeature feature = eClass.getEStructuralFeature(field
+					.getName());
 			Object value = getValue(eObject, feature);
 			if (field.isStructure()) {
 				if (value == null || !(value instanceof Structure))
 					continue;
-				fillJCoRecordFromStructure((Structure) value, field.getStructure());
+				fillJCoRecordFromStructure((Structure) value,
+						field.getStructure());
 			} else if (field.isTable()) {
 				if (value == null || !(value instanceof Table))
 					continue;
-				fillJCoTableFromTable((Table<? extends Structure>) value, field.getTable());
+				fillJCoTableFromTable((Table<? extends Structure>) value,
+						field.getTable());
 			} else {
 				field.setValue(value);
 			}
@@ -497,7 +578,8 @@ public class RfcUtil {
 
 	}
 
-	public static void extractJCoTableIntoTable(JCoTable jcoTable, Table<? extends Structure> table) {
+	public static void extractJCoTableIntoTable(JCoTable jcoTable,
+			Table<? extends Structure> table) {
 		if (table == null || jcoTable == null)
 			return;
 
@@ -511,13 +593,15 @@ public class RfcUtil {
 
 		jcoTable.firstRow();
 		for (int i = 0; i < jcoTable.getNumRows(); i++, jcoTable.nextRow()) {
-			Structure newRow = (Structure) rowType.getEPackage().getEFactoryInstance().create(rowType);
+			Structure newRow = (Structure) rowType.getEPackage()
+					.getEFactoryInstance().create(rowType);
 			records.add(newRow);
 			extractJCoRecordIntoStructure(jcoTable, newRow);
 		}
 	}
-	
-	public static void fillJCoTableFromTable(Table<? extends Structure> table, JCoTable jcoTable) {
+
+	public static void fillJCoTableFromTable(Table<? extends Structure> table,
+			JCoTable jcoTable) {
 		if (table == null || jcoTable == null)
 			return;
 
@@ -530,16 +614,22 @@ public class RfcUtil {
 		}
 	}
 
-	public static Structure getRequest(JCoRepository repository, String functionModuleName) {
-		return (Structure) getInstance(repository, functionModuleName, "Request");
+	public static Structure getRequest(JCoRepository repository,
+			String functionModuleName) {
+		return (Structure) getInstance(repository, functionModuleName,
+				"Request");
 	}
 
-	public static Structure getResponse(JCoRepository repository, String functionModuleName) {
-		return (Structure) getInstance(repository, functionModuleName, "Response");
+	public static Structure getResponse(JCoRepository repository,
+			String functionModuleName) {
+		return (Structure) getInstance(repository, functionModuleName,
+				"Response");
 	}
 
-	public static EObject getInstance(JCoRepository repository, String functionModuleName, String eClassName) {
-		String nsURI = eNS_URI + "/" + repository.getName() + "/" + functionModuleName;
+	public static EObject getInstance(JCoRepository repository,
+			String functionModuleName, String eClassName) {
+		String nsURI = eNS_URI + "/" + repository.getName() + "/"
+				+ functionModuleName;
 
 		EPackage ePackage = getEPackage(repository, nsURI);
 		EClassifier classifier = ePackage.getEClassifier(eClassName);
@@ -565,23 +655,29 @@ public class RfcUtil {
 		if (nsURI.startsWith(eNS_URI + "/" + repository.getName())) {
 
 			// Extract the function module name from the URI.
-			int prefixLength = eNS_URI.length() + repository.getName().length() + 2; // Length
-																						// of
-																						// "http://sap.jboss.org/<repo-name>/"
-																						// prefix.
+			int prefixLength = eNS_URI.length() + repository.getName().length()
+					+ 2; // Length
+							// of
+							// "http://sap.jboss.org/<repo-name>/"
+							// prefix.
 			String functionModuleName = nsURI.substring(prefixLength);
 
 			// Retrieve the function module's meta-data.
 			JCoFunctionTemplate functionTemplate;
 			try {
-				functionTemplate = repository.getFunctionTemplate(functionModuleName);
+				functionTemplate = repository
+						.getFunctionTemplate(functionModuleName);
 			} catch (JCoException e) {
 				return null;
 			}
-			JCoListMetaData importParameterListMetaData = functionTemplate.getImportParameterList();
-			JCoListMetaData changingParameterListMetaData = functionTemplate.getChangingParameterList();
-			JCoListMetaData tableParameterListMetaData = functionTemplate.getTableParameterList();
-			JCoListMetaData exportParameterListMetaData = functionTemplate.getExportParameterList();
+			JCoListMetaData importParameterListMetaData = functionTemplate
+					.getImportParameterList();
+			JCoListMetaData changingParameterListMetaData = functionTemplate
+					.getChangingParameterList();
+			JCoListMetaData tableParameterListMetaData = functionTemplate
+					.getTableParameterList();
+			JCoListMetaData exportParameterListMetaData = functionTemplate
+					.getExportParameterList();
 
 			// Create and initialize package
 			EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE;
@@ -594,21 +690,25 @@ public class RfcUtil {
 			EClass requestClass = ecoreFactory.createEClass();
 			ePackage.getEClassifiers().add(requestClass);
 			requestClass.setName("Request");
-			requestClass.getESuperTypes().add(RfcPackage.eINSTANCE.getStructure());
+			requestClass.getESuperTypes().add(
+					RfcPackage.eINSTANCE.getStructure());
 			addListMetaData(requestClass, importParameterListMetaData);
 			addListMetaData(requestClass, changingParameterListMetaData);
 			addListMetaData(requestClass, tableParameterListMetaData);
-			addAnnotation(requestClass, GenNS_URI, GenNS_DOCUMENTATION_KEY, "Request for " + functionModuleName);
+			addAnnotation(requestClass, GenNS_URI, GenNS_DOCUMENTATION_KEY,
+					"Request for " + functionModuleName);
 
 			// Create Response Class
 			EClass responseClass = ecoreFactory.createEClass();
 			ePackage.getEClassifiers().add(responseClass);
 			responseClass.setName("Response");
-			responseClass.getESuperTypes().add(RfcPackage.eINSTANCE.getStructure());
+			responseClass.getESuperTypes().add(
+					RfcPackage.eINSTANCE.getStructure());
 			addListMetaData(responseClass, exportParameterListMetaData);
 			addListMetaData(responseClass, changingParameterListMetaData);
 			addListMetaData(responseClass, tableParameterListMetaData);
-			addAnnotation(responseClass, GenNS_URI, GenNS_DOCUMENTATION_KEY, "Response for " + functionModuleName);
+			addAnnotation(responseClass, GenNS_URI, GenNS_DOCUMENTATION_KEY,
+					"Response for " + functionModuleName);
 
 			// Register Package
 			EPackage.Registry.INSTANCE.put(nsURI, ePackage);
@@ -621,7 +721,8 @@ public class RfcUtil {
 	 * @param jcoListMetaData
 	 * @generated NOT
 	 */
-	public static void addAnnotation(EModelElement modelElement, String source, String key, String value) {
+	public static void addAnnotation(EModelElement modelElement, String source,
+			String key, String value) {
 		EAnnotation annotation = modelElement.getEAnnotation(source);
 		if (annotation == null) {
 			annotation = EcoreFactory.eINSTANCE.createEAnnotation();
@@ -642,7 +743,8 @@ public class RfcUtil {
 	 *            - the {@link JCoListMetaData} from which the meta-data is
 	 *            derived.
 	 */
-	public static void addListMetaData(EClass eClass, JCoListMetaData jcoListMetaData) {
+	public static void addListMetaData(EClass eClass,
+			JCoListMetaData jcoListMetaData) {
 		if (jcoListMetaData == null)
 			return;
 
@@ -651,59 +753,96 @@ public class RfcUtil {
 		for (int i = 0; i < jcoListMetaData.getFieldCount(); i++) {
 			EStructuralFeature structuralFeature;
 			if (jcoListMetaData.isStructure(i)) {
-				JCoRecordMetaData jcoRecordMetaData = jcoListMetaData.getRecordMetaData(i);
-				EClass structureClass = getStructureClass(ePackage, jcoRecordMetaData);
+				JCoRecordMetaData jcoRecordMetaData = jcoListMetaData
+						.getRecordMetaData(i);
+				EClass structureClass = getStructureClass(ePackage,
+						jcoRecordMetaData);
 				EReference reference = ecoreFactory.createEReference();
 				reference.setEType(structureClass);
 				reference.setContainment(true);
 				structuralFeature = reference;
-				addAnnotation(structuralFeature, eNS_URI, RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
+				addAnnotation(structuralFeature, eNS_URI,
+						RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
 			} else if (jcoListMetaData.isTable(i)) {
-				JCoRecordMetaData jcoRecordMetaData = jcoListMetaData.getRecordMetaData(i);
+				JCoRecordMetaData jcoRecordMetaData = jcoListMetaData
+						.getRecordMetaData(i);
 				EClass tableClass = getTableClass(ePackage, jcoRecordMetaData);
 				EReference reference = ecoreFactory.createEReference();
 				reference.setEType(tableClass);
 				reference.setContainment(true);
 				structuralFeature = reference;
-				addAnnotation(structuralFeature, eNS_URI, RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
+				addAnnotation(structuralFeature, eNS_URI,
+						RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
 			} else {
 				EAttribute attribute = ecoreFactory.createEAttribute();
 				attribute.setEType(getEDataType(jcoListMetaData.getType(i)));
 				structuralFeature = attribute;
-				addAnnotation(structuralFeature, eNS_URI, RfcNS_CLASS_NAME_OF_FIELD_KEY, jcoListMetaData.getClassNameOfField(i));
+				addAnnotation(structuralFeature, eNS_URI,
+						RfcNS_CLASS_NAME_OF_FIELD_KEY,
+						jcoListMetaData.getClassNameOfField(i));
 			}
 			structuralFeature.setName(jcoListMetaData.getName(i));
 			if (!jcoListMetaData.isOptional(i))
 				structuralFeature.setLowerBound(1);
 			if (jcoListMetaData.getDefault(i) != null)
-				structuralFeature.setDefaultValueLiteral(jcoListMetaData.getDefault(i));
-			addAnnotation(structuralFeature, GenNS_URI, GenNS_DOCUMENTATION_KEY, jcoListMetaData.getDescription(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_DESCRIPTION_KEY, jcoListMetaData.getDescription(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_KEY, Integer.toString(jcoListMetaData.getType(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_AS_STRING_KEY, jcoListMetaData.getTypeAsString(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_RECORD_TYPE_NAME_KEY, jcoListMetaData.getRecordTypeName(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_LENGTH_KEY, Integer.toString(jcoListMetaData.getLength(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_BYTE_LENGTH_KEY, Integer.toString(jcoListMetaData.getByteLength(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_UNICODE_BYTE_LENGTH_KEY, Integer.toString(jcoListMetaData.getUnicodeByteLength(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_DECIMALS_KEY, Integer.toString(jcoListMetaData.getDecimals(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_DEFAULT_KEY, jcoListMetaData.getDefault(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_RECORD_FIELD_NAME_KEY, jcoListMetaData.getRecordFieldName(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_ABAP_OBJECT_KEY, Boolean.toString(jcoListMetaData.isAbapObject(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_NESTED_TYPE1_STRUCTURE_KEY, Boolean.toString(jcoListMetaData.isNestedType1Structure(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_STRUCTURE_KEY, Boolean.toString(jcoListMetaData.isStructure(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_TABLE_KEY, Boolean.toString(jcoListMetaData.isTable(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_IMPORT_KEY, Boolean.toString(jcoListMetaData.isImport(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_EXPORT_KEY, Boolean.toString(jcoListMetaData.isExport(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_CHANGING_KEY, Boolean.toString(jcoListMetaData.isChanging(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_OPTIONAL_KEY, Boolean.toString(jcoListMetaData.isOptional(i)));
+				structuralFeature.setDefaultValueLiteral(jcoListMetaData
+						.getDefault(i));
+			addAnnotation(structuralFeature, GenNS_URI,
+					GenNS_DOCUMENTATION_KEY, jcoListMetaData.getDescription(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_DESCRIPTION_KEY,
+					jcoListMetaData.getDescription(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_KEY,
+					Integer.toString(jcoListMetaData.getType(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_AS_STRING_KEY,
+					jcoListMetaData.getTypeAsString(i));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_RECORD_TYPE_NAME_KEY,
+					jcoListMetaData.getRecordTypeName(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_LENGTH_KEY,
+					Integer.toString(jcoListMetaData.getLength(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_BYTE_LENGTH_KEY,
+					Integer.toString(jcoListMetaData.getByteLength(i)));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_UNICODE_BYTE_LENGTH_KEY,
+					Integer.toString(jcoListMetaData.getUnicodeByteLength(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_DECIMALS_KEY,
+					Integer.toString(jcoListMetaData.getDecimals(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_DEFAULT_KEY,
+					jcoListMetaData.getDefault(i));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_RECORD_FIELD_NAME_KEY,
+					jcoListMetaData.getRecordFieldName(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_ABAP_OBJECT_KEY,
+					Boolean.toString(jcoListMetaData.isAbapObject(i)));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_IS_NESTED_TYPE1_STRUCTURE_KEY,
+					Boolean.toString(jcoListMetaData.isNestedType1Structure(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_STRUCTURE_KEY,
+					Boolean.toString(jcoListMetaData.isStructure(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_TABLE_KEY,
+					Boolean.toString(jcoListMetaData.isTable(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_IMPORT_KEY,
+					Boolean.toString(jcoListMetaData.isImport(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_EXCEPTION_KEY,
+					Boolean.toString(jcoListMetaData.isException(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_EXPORT_KEY,
+					Boolean.toString(jcoListMetaData.isExport(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_CHANGING_KEY,
+					Boolean.toString(jcoListMetaData.isChanging(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_OPTIONAL_KEY,
+					Boolean.toString(jcoListMetaData.isOptional(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_RECORD_FIELD_NAME_KEY,
+					jcoListMetaData.getRecordFieldName(i));
 			eClass.getEStructuralFeatures().add(structuralFeature);
 		}
 	}
 
-	public static EClass getStructureClass(EPackage ePackage, JCoRecordMetaData jcoRecordMetaData) {
+	public static EClass getStructureClass(EPackage ePackage,
+			JCoRecordMetaData jcoRecordMetaData) {
 
 		// Check package to see if structure class has already been defined.
-		EClassifier structureClass = ePackage.getEClassifier(jcoRecordMetaData.getName());
+		EClassifier structureClass = ePackage.getEClassifier(jcoRecordMetaData
+				.getName());
 
 		// Build structure class if not already built.
 		if (!(structureClass instanceof EClass)) {
@@ -712,7 +851,8 @@ public class RfcUtil {
 			ePackage.getEClassifiers().add(structureClass);
 			structureClass.setName(jcoRecordMetaData.getName());
 			addRecordMetaData(((EClass) structureClass), jcoRecordMetaData);
-			((EClass) structureClass).getESuperTypes().add(RfcPackage.eINSTANCE.getStructure());
+			((EClass) structureClass).getESuperTypes().add(
+					RfcPackage.eINSTANCE.getStructure());
 		}
 		return (EClass) structureClass;
 	}
@@ -725,24 +865,29 @@ public class RfcUtil {
 	 * @param jcoRecordMetaData
 	 * @return
 	 */
-	public static EClass getTableClass(EPackage ePackage, JCoRecordMetaData jcoRecordMetaData) {
+	public static EClass getTableClass(EPackage ePackage,
+			JCoRecordMetaData jcoRecordMetaData) {
 
 		// Check package to see if table class has already been defined.
-		EClassifier tableClass = ePackage.getEClassifier(jcoRecordMetaData.getName() + "_TABLE");
+		EClassifier tableClass = ePackage.getEClassifier(jcoRecordMetaData
+				.getName() + "_TABLE");
 
 		// Build table class if not already built.
 		if (!(tableClass instanceof EClass)) {
 
 			// Create the super type inherited by this Table subclass: i.e.
 			// 'Table<S extends Structure>'
-			EGenericType tableGenericSuperType = EcoreFactory.eINSTANCE.createEGenericType();
+			EGenericType tableGenericSuperType = EcoreFactory.eINSTANCE
+					.createEGenericType();
 			EClass tableSuperClass = RfcPackage.eINSTANCE.getTable();
 			tableGenericSuperType.setEClassifier(tableSuperClass);
 
 			// Create type parameter for row type: i.e. the 'S' in 'S extends
 			// Structure'
-			EGenericType rowGenericType = EcoreFactory.eINSTANCE.createEGenericType();
-			EClass structureType = getStructureClass(ePackage, jcoRecordMetaData);
+			EGenericType rowGenericType = EcoreFactory.eINSTANCE
+					.createEGenericType();
+			EClass structureType = getStructureClass(ePackage,
+					jcoRecordMetaData);
 			rowGenericType.setEClassifier(structureType);
 
 			// Add the type parameter to super type: i.e. 'S'
@@ -752,8 +897,9 @@ public class RfcUtil {
 			tableClass = EcoreFactory.eINSTANCE.createEClass();
 			ePackage.getEClassifiers().add(tableClass);
 			tableClass.setName(jcoRecordMetaData.getName() + "_TABLE");
-			((EClass) tableClass).getEGenericSuperTypes().add(tableGenericSuperType);
-			
+			((EClass) tableClass).getEGenericSuperTypes().add(
+					tableGenericSuperType);
+
 			// Workaround for type erasure in EMF Generic feature.
 			EReference rowReference = EcoreFactory.eINSTANCE.createEReference();
 			rowReference.setEType(structureType);
@@ -778,47 +924,79 @@ public class RfcUtil {
 	 *            - the {@link JCoRecordMetaData} from which the meta-data is
 	 *            derived.
 	 */
-	public static void addRecordMetaData(EClass eClass, JCoRecordMetaData jcoRecordMetaData) {
+	public static void addRecordMetaData(EClass eClass,
+			JCoRecordMetaData jcoRecordMetaData) {
 		EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE;
 		EPackage ePackage = eClass.getEPackage();
 		for (int i = 0; i < jcoRecordMetaData.getFieldCount(); i++) {
 			EStructuralFeature structuralFeature;
 			if (jcoRecordMetaData.isStructure(i)) {
-				JCoRecordMetaData jcoSubRecordMetaData = jcoRecordMetaData.getRecordMetaData(i);
-				EClass structureClass = getStructureClass(ePackage, jcoSubRecordMetaData);
+				JCoRecordMetaData jcoSubRecordMetaData = jcoRecordMetaData
+						.getRecordMetaData(i);
+				EClass structureClass = getStructureClass(ePackage,
+						jcoSubRecordMetaData);
 				EReference reference = ecoreFactory.createEReference();
 				structuralFeature = reference;
 				reference.setEType(structureClass);
 				reference.setContainment(true);
-				addAnnotation(structuralFeature, eNS_URI, RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
+				addAnnotation(structuralFeature, eNS_URI,
+						RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
 			} else if (jcoRecordMetaData.isTable(i)) {
-				JCoRecordMetaData jcoSubRecordMetaData = jcoRecordMetaData.getRecordMetaData(i);
-				EClass tableClass = getTableClass(ePackage, jcoSubRecordMetaData);
+				JCoRecordMetaData jcoSubRecordMetaData = jcoRecordMetaData
+						.getRecordMetaData(i);
+				EClass tableClass = getTableClass(ePackage,
+						jcoSubRecordMetaData);
 				EReference reference = ecoreFactory.createEReference();
 				structuralFeature = reference;
 				reference.setEType(tableClass);
 				reference.setContainment(true);
-				addAnnotation(structuralFeature, eNS_URI, RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
+				addAnnotation(structuralFeature, eNS_URI,
+						RfcNS_CLASS_NAME_OF_FIELD_KEY, EObject.class.getName());
 			} else {
 				EAttribute attribute = ecoreFactory.createEAttribute();
 				structuralFeature = attribute;
 				attribute.setEType(getEDataType(jcoRecordMetaData.getType(i)));
-				addAnnotation(structuralFeature, eNS_URI, RfcNS_CLASS_NAME_OF_FIELD_KEY, jcoRecordMetaData.getClassNameOfField(i));
+				addAnnotation(structuralFeature, eNS_URI,
+						RfcNS_CLASS_NAME_OF_FIELD_KEY,
+						jcoRecordMetaData.getClassNameOfField(i));
 			}
 			structuralFeature.setName(jcoRecordMetaData.getName(i));
-			addAnnotation(structuralFeature, GenNS_URI, GenNS_DOCUMENTATION_KEY, jcoRecordMetaData.getDescription(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_DESCRIPTION_KEY, jcoRecordMetaData.getDescription(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_KEY, Integer.toString(jcoRecordMetaData.getType(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_AS_STRING_KEY, jcoRecordMetaData.getTypeAsString(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_RECORD_TYPE_NAME_KEY, jcoRecordMetaData.getRecordTypeName(i));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_LENGTH_KEY, Integer.toString(jcoRecordMetaData.getLength(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_BYTE_LENGTH_KEY, Integer.toString(jcoRecordMetaData.getByteLength(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_UNICODE_BYTE_LENGTH_KEY, Integer.toString(jcoRecordMetaData.getUnicodeByteLength(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_DECIMALS_KEY, Integer.toString(jcoRecordMetaData.getDecimals(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_ABAP_OBJECT_KEY, Boolean.toString(jcoRecordMetaData.isAbapObject(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_NESTED_TYPE1_STRUCTURE_KEY, Boolean.toString(jcoRecordMetaData.isNestedType1Structure(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_STRUCTURE_KEY, Boolean.toString(jcoRecordMetaData.isStructure(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_TABLE_KEY, Boolean.toString(jcoRecordMetaData.isTable(i)));
+			addAnnotation(structuralFeature, GenNS_URI,
+					GenNS_DOCUMENTATION_KEY,
+					jcoRecordMetaData.getDescription(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_DESCRIPTION_KEY,
+					jcoRecordMetaData.getDescription(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_KEY,
+					Integer.toString(jcoRecordMetaData.getType(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_TYPE_AS_STRING_KEY,
+					jcoRecordMetaData.getTypeAsString(i));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_RECORD_TYPE_NAME_KEY,
+					jcoRecordMetaData.getRecordTypeName(i));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_LENGTH_KEY,
+					Integer.toString(jcoRecordMetaData.getLength(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_BYTE_LENGTH_KEY,
+					Integer.toString(jcoRecordMetaData.getByteLength(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_BYTE_OFFSET_KEY,
+					Integer.toString(jcoRecordMetaData.getByteOffset(i)));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_UNICODE_BYTE_LENGTH_KEY,
+					Integer.toString(jcoRecordMetaData.getUnicodeByteLength(i)));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_UNICODE_BYTE_OFFSET_KEY,
+					Integer.toString(jcoRecordMetaData.getUnicodeByteOffset(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_DECIMALS_KEY,
+					Integer.toString(jcoRecordMetaData.getDecimals(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_ABAP_OBJECT_KEY,
+					Boolean.toString(jcoRecordMetaData.isAbapObject(i)));
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_IS_NESTED_TYPE1_STRUCTURE_KEY,
+					Boolean.toString(jcoRecordMetaData
+							.isNestedType1Structure(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_STRUCTURE_KEY,
+					Boolean.toString(jcoRecordMetaData.isStructure(i)));
+			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_TABLE_KEY,
+					Boolean.toString(jcoRecordMetaData.isTable(i)));
 			eClass.getEStructuralFeatures().add(structuralFeature);
 
 		}
