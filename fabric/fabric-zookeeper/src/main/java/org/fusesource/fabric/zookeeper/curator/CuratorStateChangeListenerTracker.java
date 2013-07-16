@@ -44,22 +44,26 @@ public class CuratorStateChangeListenerTracker implements ServiceTrackerCustomiz
     @Override
     public ConnectionStateListener addingService(ServiceReference<ConnectionStateListener> reference) {
         final ConnectionStateListener listener = bundleContext.getService(reference);
-        if (curator.getZookeeperClient().isConnected()) {
-            listener.stateChanged(curator, ConnectionState.CONNECTED);
+        if (listener != null) {
+            if (curator.getZookeeperClient().isConnected()) {
+                listener.stateChanged(curator, ConnectionState.CONNECTED);
+            }
+            curator.getConnectionStateListenable().addListener(listener, executor);
         }
-        curator.getConnectionStateListenable().addListener(listener, executor);
         return listener;
     }
 
     @Override
-    public void modifiedService(ServiceReference<ConnectionStateListener> reference, ConnectionStateListener service) {
+    public void modifiedService(ServiceReference<ConnectionStateListener> reference, ConnectionStateListener listener) {
     }
 
     @Override
-    public void removedService(ServiceReference<ConnectionStateListener> reference, final ConnectionStateListener service) {
-        if (curator.getZookeeperClient().isConnected()) {
-            service.stateChanged(curator, ConnectionState.LOST);
+    public void removedService(ServiceReference<ConnectionStateListener> reference, final ConnectionStateListener listener) {
+        if (listener != null) {
+            if (curator.getZookeeperClient().isConnected()) {
+                listener.stateChanged(curator, ConnectionState.LOST);
+            }
+            curator.getConnectionStateListenable().removeListener(listener);
         }
-        curator.getConnectionStateListenable().removeListener(service);
     }
 }

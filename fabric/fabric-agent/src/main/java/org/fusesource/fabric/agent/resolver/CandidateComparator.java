@@ -50,7 +50,7 @@ public class CandidateComparator implements Comparator<Capability>
                         : (Version) cap2.getAttributes().get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
                 // Compare these in reverse order, since we want
                 // highest version to have priority.
-                c = v2.compareTo(v1);
+                c = compareVersions(v2, v1);
             }
         }
         // Compare package capabilities.
@@ -68,7 +68,20 @@ public class CandidateComparator implements Comparator<Capability>
                         : (Version) cap2.getAttributes().get(PackageNamespace.CAPABILITY_VERSION_ATTRIBUTE);
                 // Compare these in reverse order, since we want
                 // highest version to have priority.
-                c = v2.compareTo(v1);
+                c = compareVersions(v2, v1);
+                // if same version, rather compare on the bundle version
+                if (c == 0)
+                {
+                    v1 = (!cap1.getAttributes().containsKey(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE))
+                            ? Version.emptyVersion
+                            : (Version) cap1.getAttributes().get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+                    v2 = (!cap2.getAttributes().containsKey(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE))
+                            ? Version.emptyVersion
+                            : (Version) cap2.getAttributes().get(BundleNamespace.CAPABILITY_BUNDLE_VERSION_ATTRIBUTE);
+                    // Compare these in reverse order, since we want
+                    // highest version to have priority.
+                    c = compareVersions(v2, v1);
+                }
             }
         }
         // Compare feature capabilities
@@ -86,9 +99,31 @@ public class CandidateComparator implements Comparator<Capability>
                         : (Version) cap2.getAttributes().get(FeatureNamespace.CAPABILITY_VERSION_ATTRIBUTE);
                 // Compare these in reverse order, since we want
                 // highest version to have priority.
-                c = v2.compareTo(v1);
+                c = compareVersions(v2, v1);
             }
         }
         return c;
+    }
+
+    private int compareVersions(Version v1, Version v2) {
+        int c = v1.getMajor() - v2.getMajor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMinor() - v2.getMinor();
+        if (c != 0) {
+            return c;
+        }
+        c = v1.getMicro() - v2.getMicro();
+        if (c != 0) {
+            return c;
+        }
+        String q1 = cleanQualifierForComparison(v1.getQualifier());
+        String q2 = cleanQualifierForComparison(v2.getQualifier());
+        return q1.compareTo(q2);
+    }
+
+    private String cleanQualifierForComparison(String qualifier) {
+        return qualifier.replaceAll("(redhat-[0-9]{3})([0-9]{3})", "$1-$2");
     }
 }

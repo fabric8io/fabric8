@@ -19,15 +19,9 @@
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
 
-    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
+    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
-
-    <!--reference id="dataStore" interface="org.fusesource.fabric.api.DataStore" availability="optional"/-->
-
-    <reference-list interface="org.apache.curator.framework.CuratorFramework">
-        <reference-listener ref="dataStore" bind-method="bind" unbind-method="unbind"/>
-    </reference-list>
 
     <reference-list interface="org.fusesource.fabric.api.ContainerProvider" availability="optional">
         <reference-listener ref="fabricService" bind-method="registerProvider" unbind-method="unregisterProvider"/>
@@ -62,8 +56,13 @@
         <argument index="0" ref="curator"/>
     </bean>
 
+    <!-- Don't use a pointer to the curator reference defined, as it can cause
+        deadlocks by kind of cyclic bean creation because of the listener -->
+    <reference id="curator2" interface="org.apache.curator.framework.CuratorFramework">
+        <reference-listener ref="dataStore" bind-method="bind" unbind-method="unbind"/>
+    </reference>
     <bean id="dataStore" class="org.fusesource.fabric.service.ZooKeeperDataStore" destroy-method="destroy">
-        <property name="curator" ref="curator"/>
+        <property name="curator" ref="curator2"/>
         <property name="placeholderResolvers">
             <list>
                 <ref component-id="checksumResolver"/>

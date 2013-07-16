@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
+import aQute.lib.osgi.Macro;
+import aQute.lib.osgi.Processor;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
 import org.apache.karaf.features.BundleInfo;
@@ -33,7 +35,7 @@ import java.util.Map;
 */
 public class FeatureResource extends ResourceImpl {
 
-    public static Resource build(Feature feature, Map<String, Resource> locToRes) {
+    public static Resource build(Feature feature, String featureRange, Map<String, Resource> locToRes) {
         FeatureResource resource = new FeatureResource(feature.getName(), VersionTable.getVersion(feature.getVersion()));
         Map<String, String> dirs = new HashMap<String, String>();
         Map<String, Object> attrs = new HashMap<String, Object>();
@@ -61,6 +63,12 @@ public class FeatureResource extends ResourceImpl {
         for (Feature dep : feature.getDependencies()) {
             String name = dep.getName();
             String version = dep.getVersion();
+            if (!version.startsWith("[") && !version.startsWith("(")) {
+                Processor processor = new Processor();
+                processor.setProperty("@", VersionTable.getVersion(version).toString());
+                Macro macro = new Macro(processor);
+                version = macro.process(featureRange);
+            }
             dirs = new HashMap<String, String>();
             attrs = new HashMap<String, Object>();
             attrs.put(FeatureNamespace.FEATURE_NAMESPACE, name);

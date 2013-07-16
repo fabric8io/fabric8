@@ -161,8 +161,31 @@
             <outputDirectory>extras</outputDirectory>
             <fileMode>0644</fileMode>
         </file>
+        <file>
+          <source>${basedir}/target/dependencies/unix/activemq-cpp-library-${activemqcpp.version}-src.zip
+          </source>
+          <outputDirectory>extras/cpp</outputDirectory>
+          <fileMode>0644</fileMode>
+        </file>
+        <file>
+          <source>${basedir}/target/dependencies/unix/activemq-cpp-library-${activemqcpp.version}-src.tar.gz
+          </source>
+          <outputDirectory>extras/cpp</outputDirectory>
+          <fileMode>0644</fileMode>
+        </file>
+        <file>
+          <source>${basedir}/target/dependencies/unix/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip
+          </source>
+          <outputDirectory>extras/dotnet</outputDirectory>
+          <fileMode>0644</fileMode>
+        </file>
+        <file>
+          <source>${basedir}/target/dependencies/unix/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip
+          </source>
+          <outputDirectory>extras/dotnet</outputDirectory>
+          <fileMode>0644</fileMode>
+        </file>
     </files>
-
 
     <componentDescriptors>
       <componentDescriptor>${basedir}/src/main/descriptors/common-bin.xml</componentDescriptor>

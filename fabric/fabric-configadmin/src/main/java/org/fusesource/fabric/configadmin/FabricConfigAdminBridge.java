@@ -32,6 +32,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class FabricConfigAdminBridge implements Runnable {
 
@@ -43,7 +46,7 @@ public class FabricConfigAdminBridge implements Runnable {
 
     private ConfigurationAdmin configAdmin;
     private FabricService fabricService;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 
     public synchronized void bindConfigAdmin(ConfigurationAdmin configAdmin) {
         this.configAdmin = configAdmin;
@@ -75,6 +78,13 @@ public class FabricConfigAdminBridge implements Runnable {
     }
 
     public void destroy() {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        executor.shutdownNow();
     }
 
     @Override
@@ -87,11 +97,17 @@ public class FabricConfigAdminBridge implements Runnable {
         });
     }
 
-    protected synchronized void update() {
+    protected void update() {
+        FabricService fabricService;
+        ConfigurationAdmin configAdmin;
+        synchronized (this) {
+            fabricService = this.fabricService;
+            configAdmin = this.configAdmin;
+        }
+        if (fabricService == null || configAdmin == null) {
+            return;
+        }
         try {
-            if (fabricService == null || configAdmin == null) {
-                return;
-            }
             Profile profile = fabricService.getCurrentContainer().getOverlayProfile();
             final Map<String, Map<String, String>> pidProperties = profile.getConfigurations();
             List<Configuration> configs = asList(configAdmin.listConfigurations("(" + FABRIC_ZOOKEEPER_PID + "=*)"));
@@ -100,7 +116,7 @@ public class FabricConfigAdminBridge implements Runnable {
                 c.putAll(pidProperties.get(pid));
                 String p[] = parsePid(pid);
                 //Get the configuration by fabric zookeeper pid, pid and factory pid.
-                Configuration config = getConfiguration(pid, p[0], p[1]);
+                Configuration config = getConfiguration(configAdmin, pid, p[0], p[1]);
                 configs.remove(config);
                 Dictionary props = config.getProperties();
                 Hashtable old = props != null ? new Hashtable() : null;
@@ -136,7 +152,11 @@ public class FabricConfigAdminBridge implements Runnable {
                 config.delete();
             }
         } catch (Throwable e) {
-            LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
+            if (this.fabricService == fabricService && this.configAdmin == configAdmin) {
+                LOGGER.warn("Exception when tracking configurations. This exception will be ignored.", e);
+            } else {
+                LOGGER.debug("Exception when tracking configurations. This exception will be ignored because services have been unbound in the mean time.", e);
+            }
         }
     }
 
@@ -165,7 +185,7 @@ public class FabricConfigAdminBridge implements Runnable {
         }
     }
 
-    Configuration getConfiguration(String zooKeeperPid, String pid, String factoryPid) throws Exception {
+    Configuration getConfiguration(ConfigurationAdmin configAdmin, String zooKeeperPid, String pid, String factoryPid) throws Exception {
         String filter = "(" + FABRIC_ZOOKEEPER_PID + "=" + zooKeeperPid + ")";
         Configuration[] oldConfiguration = configAdmin.listConfigurations(filter);
         if (oldConfiguration != null && oldConfiguration.length > 0) {
@@ -180,4 +200,33 @@ public class FabricConfigAdminBridge implements Runnable {
             return newConfiguration;
         }
     }
+
+    static class NamedThreadFactory implements ThreadFactory {
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private final String namePrefix;
+
+        NamedThreadFactory(String prefix) {
+            SecurityManager s = System.getSecurityManager();
+            group = (s != null) ? s.getThreadGroup() :
+                    Thread.currentThread().getThreadGroup();
+            namePrefix = prefix + "-" +
+                    poolNumber.getAndIncrement() +
+                    "-thread-";
+        }
+
+        public Thread newThread(Runnable r) {
+            Thread t = new Thread(group, r,
+                    namePrefix + threadNumber.getAndIncrement(),
+                    0);
+            if (t.isDaemon())
+                t.setDaemon(false);
+            if (t.getPriority() != Thread.NORM_PRIORITY)
+                t.setPriority(Thread.NORM_PRIORITY);
+            return t;
+        }
+
+    }
+
 }

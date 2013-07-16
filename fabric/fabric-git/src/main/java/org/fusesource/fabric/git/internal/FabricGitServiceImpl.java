@@ -51,13 +51,7 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
     }
 
     public void destroy() {
-        if (group != null) {
-            try {
-                group.close();
-            } catch (IOException e) {
-                // Ignore
-            }
-        }
+        onDisconnected();
     }
 
 	@Override

@@ -553,10 +553,6 @@ public class ResourceBuilder {
                         ? SimpleFilter.parse(filterStr)
                         : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
                 for (String path : clause.paths) {
-                    if (path.startsWith("osgi.wiring.")) {
-                        throw new BundleException("Manifest cannot use Require-Capability for '" + path + "' namespace.");
-                    }
-
                     // Create requirement and add to requirement list.
                     reqList.add(new RequirementImpl(
                                     resource, path, clause.dirs, clause.attrs, sf));

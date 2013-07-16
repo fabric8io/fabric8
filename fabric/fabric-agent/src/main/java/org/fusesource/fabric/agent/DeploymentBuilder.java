@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.agent;
 
+import aQute.lib.osgi.Macro;
+import aQute.lib.osgi.Processor;
 import org.apache.felix.resolver.ResolverImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
@@ -45,6 +47,7 @@ import org.osgi.framework.Version;
 import org.osgi.framework.namespace.IdentityNamespace;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
 import org.osgi.resource.Resource;
 import org.osgi.resource.Wire;
 import org.osgi.service.resolver.ResolutionException;
@@ -71,6 +74,7 @@ import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
 import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.FAB_PROTOCOL;
+import static org.fusesource.fabric.agent.utils.AgentUtils.REQ_PROTOCOL;
 import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
 import static org.fusesource.fabric.utils.PatchUtils.extractVersionRange;
 
@@ -83,6 +87,8 @@ public class DeploymentBuilder {
     private final DownloadManager manager;
     private final FabResolverFactory fabResolverFactory;
     private final Collection<Repository> repositories;
+
+    String featureRange = "${version;==}";
 
     AgentUtils.FileDownloader downloader;
     ResourceImpl requirements;
@@ -106,6 +112,7 @@ public class DeploymentBuilder {
     public void download(Set<String> features,
                          Set<String> bundles,
                          Set<String> fabs,
+                         Set<String> reqs,
                          Set<String> overrides) throws IOException, MultiException, InterruptedException, ResolutionException {
         this.downloader = new AgentUtils.FileDownloader(manager);
         this.resources = new ConcurrentHashMap<String, Resource>();
@@ -120,6 +127,9 @@ public class DeploymentBuilder {
         }
         for (String fab : fabs) {
             downloadAndBuildResource(FAB_PROTOCOL + fab);
+        }
+        for (String req : reqs) {
+            downloadAndBuildResource(REQ_PROTOCOL + req);
         }
         for (String override : overrides) {
             // TODO: ignore download failures for overrides
@@ -156,7 +166,7 @@ public class DeploymentBuilder {
         }
         // Build features resources
         for (Feature feature : featuresToRegister) {
-            Resource resource = FeatureResource.build(feature, resources);
+            Resource resource = FeatureResource.build(feature, featureRange, resources);
             resources.put("feature:" + feature.getName() + "/" + feature.getVersion(), resource);
         }
         // Build requirements
@@ -165,6 +175,9 @@ public class DeploymentBuilder {
         }
         for (String bundle : bundles) {
             requireResource(bundle);
+        }
+        for (String req : reqs) {
+            requireResource(REQ_PROTOCOL + req);
         }
         for (String fab : fabs) {
             requireResource(FAB_PROTOCOL + fab);
@@ -243,7 +256,17 @@ public class DeploymentBuilder {
     }
 
     public void registerMatchingFeatures(Feature feature) throws IOException {
-        registerMatchingFeatures(feature.getName(), new VersionRange(feature.getVersion()));
+        registerMatchingFeatures(feature.getName(), feature.getVersion());
+    }
+
+    public void registerMatchingFeatures(String name, String version) throws IOException {
+        if (!version.startsWith("[") && !version.startsWith("(")) {
+            Processor processor = new Processor();
+            processor.setProperty("@", VersionTable.getVersion(version).toString());
+            Macro macro = new Macro(processor);
+            version = macro.process(featureRange);
+        }
+        registerMatchingFeatures(name, new VersionRange(version));
     }
 
     public void registerMatchingFeatures(String name, VersionRange range) throws IOException {
@@ -295,6 +318,16 @@ public class DeploymentBuilder {
                     }
                 }
             });
+        } else if (location.startsWith(REQ_PROTOCOL)) {
+            try {
+                ResourceImpl resource = new ResourceImpl(location, "dummy", Version.emptyVersion);
+                for (Requirement req : ResourceBuilder.parseRequirement(resource, location.substring(REQ_PROTOCOL.length()))) {
+                    resource.addRequirement(req);
+                }
+                resources.put(location, resource);
+            } catch (BundleException e) {
+                throw new IOException("Error parsing requirement", e);
+            }
         } else {
             downloader.download(location, new AgentUtils.DownloadCallback() {
                 @Override

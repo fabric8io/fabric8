@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
@@ -79,7 +80,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
     private CuratorFramework curator;
-    private final List<Runnable> callbacks = new ArrayList<Runnable>();
+    private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
     private TreeCache treeCache;
 
 
@@ -92,10 +93,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     }
 
     public void destroy() {
-        if (treeCache != null) {
-            treeCache.getListenable().removeListener(this);
-            Closeables.closeQuitely(treeCache);
-        }
+        destroyCache();
     }
 
     @Override
@@ -107,28 +105,33 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         }
     }
 
-    private synchronized void createCacheIfNeeded(CuratorFramework curator) throws Exception {
-        if (treeCache == null) {
-            treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, true);
-            treeCache.start(TreeCache.StartMode.NORMAL);
-            treeCache.getListenable().addListener(this);
-        }
+    private void createCache() throws Exception {
+        destroyCache();
+        treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, true);
+        treeCache.start(TreeCache.StartMode.NORMAL);
+        treeCache.getListenable().addListener(this);
     }
 
-    public void bind(CuratorFramework curator) throws Exception {
-        unbind(curator);
-        String connectionString = curator.getZookeeperClient().getCurrentConnectionString();
-        if (connectionString != null && !connectionString.isEmpty()) {
-            createCacheIfNeeded(curator);
-        }
-    }
-
-    public void unbind(CuratorFramework curator) throws IOException {
+    private void destroyCache() {
         if (treeCache != null) {
             treeCache.getListenable().removeListener(this);
             Closeables.closeQuitely(treeCache);
             treeCache = null;
         }
+    }
+
+    public void bind(CuratorFramework curator) throws Exception {
+        destroyCache();
+        if (curator != null) {
+            String connectionString = curator.getZookeeperClient().getCurrentConnectionString();
+            if (connectionString != null && !connectionString.isEmpty()) {
+                createCache();
+            }
+        }
+    }
+
+    public void unbind(CuratorFramework curator) throws IOException {
+        destroyCache();
     }
 
     @Override
@@ -144,9 +147,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     }
 
     private void runCallbacks() {
-        List<Runnable> copyOfCallbacks = new ArrayList<Runnable>(callbacks);
-        callbacks.clear();
-        for (Runnable callback : copyOfCallbacks) {
+        for (Runnable callback : callbacks) {
             try {
                 callback.run();
             } catch (Throwable t) {
@@ -156,16 +157,12 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     }
 
     public void trackConfiguration(Runnable callback) {
-        synchronized (callbacks) {
-            callbacks.add(callback);
-        }
+        callbacks.add(callback);
     }
 
     @Override
     public void unTrackConfiguration(Runnable callback) {
-        synchronized (callbacks) {
-            callbacks.remove(callback);
-        }
+        callbacks.remove(callback);
     }
 
     @Override
@@ -198,6 +195,9 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
     @Override
     public void deleteContainer(String containerId) {
         try {
+            if (curator == null) {
+                throw new IllegalStateException("Zookeeper service not available");
+            }
             //Wipe all config entries that are related to the container for all versions.
             for (String version : getVersions()) {
                 deleteSafe(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, containerId));

@@ -513,10 +513,11 @@
     </feature>
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
+        <!--
         <feature>war</feature>
         <bundle>war:mvn:org.jolokia/jolokia-war/${jolokia-version}/war?WebappContext=/jolokia&amp;Bundle-SymbolicName=org.jolokia&amp;Bundle-Version=${jolokia-version}&amp;DynamicImport-Package=*&amp;Bundle-Name=jolokia&amp;Bundle-ClassPath=.,WEB-INF/classes&amp;Web-ContextPath=/jolokia</bundle>
-        <!--
-        <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>
         -->
+        <feature>http</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>
     </feature>
 </features>
