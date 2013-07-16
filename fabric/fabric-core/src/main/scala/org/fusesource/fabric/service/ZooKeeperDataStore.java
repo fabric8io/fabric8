@@ -105,7 +105,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         }
     }
 
-    private void createCache() throws Exception {
+    private void createCache(CuratorFramework curator) throws Exception {
         destroyCache();
         treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, true);
         treeCache.start(TreeCache.StartMode.NORMAL);
@@ -125,7 +125,7 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         if (curator != null) {
             String connectionString = curator.getZookeeperClient().getCurrentConnectionString();
             if (connectionString != null && !connectionString.isEmpty()) {
-                createCache();
+                createCache(curator);
             }
         }
     }
