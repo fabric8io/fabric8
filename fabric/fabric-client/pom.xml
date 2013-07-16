@@ -101,7 +101,6 @@
 					<instructions>
 						<Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
 						<Bundle-Name>Fuse Fabric Jolokia Facade</Bundle-Name>
-						<Bundle-Version>1.0.0</Bundle-Version>
 						<Export-Package>
 							org.fusesource.fabric.jolokia.facade*
 						</Export-Package>
