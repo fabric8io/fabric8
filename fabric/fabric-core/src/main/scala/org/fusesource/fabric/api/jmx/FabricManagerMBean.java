@@ -120,7 +120,7 @@ public interface FabricManagerMBean {
 
     String getDefaultVersion();
 
-    FabricStatus fabricStatus();
+    FabricStatusDTO fabricStatus();
 
     String getMavenRepoUploadURI();
 

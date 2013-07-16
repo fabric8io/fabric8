@@ -478,8 +478,8 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public FabricStatus fabricStatus() {
-        return getFabricService().getFabricStatus();
+    public FabricStatusDTO fabricStatus() {
+        return new FabricStatusDTO(getFabricService().getFabricStatus());
     }
 
 
