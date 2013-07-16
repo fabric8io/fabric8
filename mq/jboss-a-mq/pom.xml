@@ -75,7 +75,7 @@
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>org.jboss.amq.karaf.branding</artifactId>
-			    <version>${project.version}</version>
+                <version>${project.version}</version>
            </dependency>
 
            <!-- Scala support -->
@@ -338,43 +338,98 @@
                    </executions>
                </plugin>
 
+            <plugin>
+              <groupId>com.googlecode.maven-download-plugin</groupId>
+              <artifactId>maven-download-plugin</artifactId>
+              <version>1.1.0</version>
+              <executions>
+                <execution>
+                  <id>download-activemq-cpp-tar</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                    <goal>wget</goal>
+                  </goals>
+                  <configuration>
+                    <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.tar.gz</url>
+                    <unpack>false</unpack>
+                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>download-activemq-cpp-zip</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                    <goal>wget</goal>
+                  </goals>
+                  <configuration>
+                    <url>http://www.eu.apache.org/dist/activemq/activemq-cpp/source/activemq-cpp-library-${activemqcpp.version}-src.zip</url>
+                    <unpack>false</unpack>
+                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>download-nms-activemq-bin-zip</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                    <goal>wget</goal>
+                  </goals>
+                  <configuration>
+                    <url>http://www.eu.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-bin.zip</url>
+                    <unpack>false</unpack>
+                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                  </configuration>
+                </execution>
+                <execution>
+                  <id>download-nms-activemq-src-zip</id>
+                  <phase>prepare-package</phase>
+                  <goals>
+                    <goal>wget</goal>
+                  </goals>
+                  <configuration>
+                    <url>http://www.eu.apache.org/dist/activemq/apache-nms/1.6.0/Apache.NMS.ActiveMQ-${activemqnms.version}-src.zip</url>
+                    <unpack>false</unpack>
+                    <outputDirectory>target/dependencies/unix</outputDirectory>
+                  </configuration>
+                </execution>
+              </executions>
+            </plugin>
            </plugins>
            <pluginManagement>
-           	<plugins>
-           		<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-           		<plugin>
-           			<groupId>org.eclipse.m2e</groupId>
-           			<artifactId>lifecycle-mapping</artifactId>
-           			<version>1.0.0</version>
-           			<configuration>
-           				<lifecycleMappingMetadata>
-           					<pluginExecutions>
-           						<pluginExecution>
-           							<pluginExecutionFilter>
-           								<groupId>
-           									org.apache.karaf.tooling
-           								</groupId>
-           								<artifactId>
-           									features-maven-plugin
-           								</artifactId>
-           								<versionRange>
-           									[2.2.2-fuse-02-06,)
-           								</versionRange>
-           								<goals>
-           									<goal>
-           										add-features-to-repo
-           									</goal>
-           								</goals>
-           							</pluginExecutionFilter>
-           							<action>
-           								<ignore />
-           							</action>
-           						</pluginExecution>
-           					</pluginExecutions>
-           				</lifecycleMappingMetadata>
-           			</configuration>
-           		</plugin>
-           	</plugins>
+               <plugins>
+                   <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+                   <plugin>
+                       <groupId>org.eclipse.m2e</groupId>
+                       <artifactId>lifecycle-mapping</artifactId>
+                       <version>1.0.0</version>
+                       <configuration>
+                           <lifecycleMappingMetadata>
+                               <pluginExecutions>
+                                   <pluginExecution>
+                                       <pluginExecutionFilter>
+                                           <groupId>
+                                               org.apache.karaf.tooling
+                                           </groupId>
+                                           <artifactId>
+                                               features-maven-plugin
+                                           </artifactId>
+                                           <versionRange>
+                                               [2.2.2-fuse-02-06,)
+                                           </versionRange>
+                                           <goals>
+                                               <goal>
+                                                   add-features-to-repo
+                                               </goal>
+                                           </goals>
+                                       </pluginExecutionFilter>
+                                       <action>
+                                           <ignore />
+                                       </action>
+                                   </pluginExecution>
+                               </pluginExecutions>
+                           </lifecycleMappingMetadata>
+                       </configuration>
+                   </plugin>
+               </plugins>
            </pluginManagement>
        </build>
    </project>
