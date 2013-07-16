@@ -75,6 +75,11 @@
         <artifactId>fabric-zookeeper</artifactId>
         <version>${fabric.version}</version>
     </dependency>
+    <dependency>
+        <groupId>org.fusesource.fabric</groupId>
+        <artifactId>fabric-api</artifactId>
+        <version>${fabric.version}</version>
+    </dependency>
 
     <dependency>
         <groupId>org.fusesource.fabric</groupId>

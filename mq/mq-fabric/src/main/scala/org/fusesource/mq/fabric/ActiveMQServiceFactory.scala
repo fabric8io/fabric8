@@ -45,6 +45,7 @@ import org.apache.curator.framework.CuratorFramework
 import org.fusesource.mq.fabric.FabricDiscoveryAgent.ActiveMQNode
 import org.fusesource.fabric.groups.{Group, GroupListener}
 import GroupListener.GroupEvent
+import org.fusesource.fabric.api.FabricService
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -128,6 +129,17 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   var curator: CuratorFramework = null
 
   var owned_pools = Set[String]()
+
+  @volatile
+  var fabricService:FabricService = _
+
+  def bindFabricService(fabricService:FabricService) = {
+    this.fabricService = fabricService
+  }
+
+  def unbindFabricService(fabricService:FabricService) = {
+    this.fabricService = null;
+  }
   
   def can_own_pool(cc:ClusteredConfiguration) = this.synchronized {
     if( cc.pool==null )
@@ -313,6 +325,14 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
           override def run() {
             var start_failure:Throwable = null
             try {
+
+              // If we are in a fabric, let pass along the zk password in the props.
+              val fs = fabricService
+              if( fs != null ) {
+                properties.setProperty("zookeeper.url", fs.getZookeeperUrl)
+                properties.setProperty("zookeeper.password", fs.getZookeeperPassword)
+              }
+
               // ok boot up the server..
               server = createBroker(config, properties)
               server._2.addShutdownHook(new Runnable(){

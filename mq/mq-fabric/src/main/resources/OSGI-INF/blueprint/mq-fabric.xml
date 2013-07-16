@@ -20,6 +20,10 @@
 
   <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
 
+  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService">
+      <reference-listener ref="activeMQServiceFactory" bind-method="bindFabricService" unbind-method="unbindFabricService" />
+  </reference>
+
   <bean id="activeMQServiceFactory" class="org.fusesource.mq.fabric.ActiveMQServiceFactory" destroy-method="destroy">
     <property name="bundleContext" ref="blueprintBundleContext"/>
     <property name="curator" ref="curator"/>
