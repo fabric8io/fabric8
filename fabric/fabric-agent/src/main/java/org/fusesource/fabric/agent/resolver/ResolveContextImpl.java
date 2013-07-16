@@ -104,26 +104,6 @@ public class ResolveContextImpl extends ResolveContext {
                         : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
             }
             caps = new ArrayList<Capability>(set.match(sf, true));
-            /*
-            RequirementImpl br;
-            if (requirement instanceof RequirementImpl) {
-                br = (RequirementImpl) requirement;
-            } else {
-                String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
-                SimpleFilter sf = (filter != null)
-                        ? SimpleFilter.parse(filter)
-                        : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
-                br = new RequirementImpl(null, requirement.getNamespace(), requirement.getDirectives(), requirement.getAttributes(), sf);
-            }
-            caps = new ArrayList<Capability>();
-            for (Resource res : resources) {
-                for (Capability cap : res.getCapabilities(null)) {
-                    if (br.matches(cap)) {
-                        caps.add(cap);
-                    }
-                }
-            }
-            */
             Collections.sort(caps, new CandidateComparator());
             providers.put(requirement, caps);
         }

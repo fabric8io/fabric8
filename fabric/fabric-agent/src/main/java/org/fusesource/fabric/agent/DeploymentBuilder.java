@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.agent;
 
+import aQute.lib.osgi.Macro;
+import aQute.lib.osgi.Processor;
 import org.apache.felix.resolver.ResolverImpl;
 import org.apache.felix.utils.version.VersionRange;
 import org.apache.felix.utils.version.VersionTable;
@@ -85,6 +87,8 @@ public class DeploymentBuilder {
     private final DownloadManager manager;
     private final FabResolverFactory fabResolverFactory;
     private final Collection<Repository> repositories;
+
+    String featureRange = "${version;==}";
 
     AgentUtils.FileDownloader downloader;
     ResourceImpl requirements;
@@ -162,7 +166,7 @@ public class DeploymentBuilder {
         }
         // Build features resources
         for (Feature feature : featuresToRegister) {
-            Resource resource = FeatureResource.build(feature, resources);
+            Resource resource = FeatureResource.build(feature, featureRange, resources);
             resources.put("feature:" + feature.getName() + "/" + feature.getVersion(), resource);
         }
         // Build requirements
@@ -252,7 +256,17 @@ public class DeploymentBuilder {
     }
 
     public void registerMatchingFeatures(Feature feature) throws IOException {
-        registerMatchingFeatures(feature.getName(), new VersionRange(feature.getVersion()));
+        registerMatchingFeatures(feature.getName(), feature.getVersion());
+    }
+
+    public void registerMatchingFeatures(String name, String version) throws IOException {
+        if (!version.startsWith("[") && !version.startsWith("(")) {
+            Processor processor = new Processor();
+            processor.setProperty("@", VersionTable.getVersion(version).toString());
+            Macro macro = new Macro(processor);
+            version = macro.process(featureRange);
+        }
+        registerMatchingFeatures(name, new VersionRange(version));
     }
 
     public void registerMatchingFeatures(String name, VersionRange range) throws IOException {
