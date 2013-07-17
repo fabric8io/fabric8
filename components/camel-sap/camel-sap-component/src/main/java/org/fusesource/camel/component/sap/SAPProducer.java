@@ -34,6 +34,10 @@ public class SAPProducer extends DefaultProducer {
 		super(endpoint);
 	}
 
+	public SAPProducer(SAPDestinationEndpoint endpoint) {
+		super(endpoint);
+	}
+
 	public void process(Exchange exchange) throws Exception {
 		Structure request = exchange.getIn().getBody(Structure.class);
 		if (LOG.isDebugEnabled()) {

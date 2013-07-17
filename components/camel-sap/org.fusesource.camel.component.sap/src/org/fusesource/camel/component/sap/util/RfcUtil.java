@@ -119,38 +119,38 @@ public class RfcUtil {
 	public static final String RfcNS_TYPE_AS_STRING_KEY = "typeAsString";
 
 	/**
-	 * Details key for a record entry annotation providing the length of
-	 * the underlying data field for Unicode layout represented by the annotated
-	 * record entry. The details value is the length of the underlying
-	 * data field for Unicode layout represented by the record entry.
+	 * Details key for a record entry annotation providing the length of the
+	 * underlying data field for Unicode layout represented by the annotated
+	 * record entry. The details value is the length of the underlying data
+	 * field for Unicode layout represented by the record entry.
 	 */
 	public static final String RfcNS_UNICODE_BYTE_LENGTH_KEY = "unicodeByteLength";
 
 	/**
 	 * Details key for a record entry annotation providing the offset of the
-	 * underlying data field in a Unicode layout represented by the
-	 * annotated record entry. The details value is the byte offset of
-	 * the underlying data field in a Non-Unicode layout represented by the
-	 * record entry.
+	 * underlying data field in a Unicode layout represented by the annotated
+	 * record entry. The details value is the byte offset of the underlying data
+	 * field in a Non-Unicode layout represented by the record entry.
 	 */
 	public static final String RfcNS_UNICODE_BYTE_OFFSET_KEY = "unicodeByteOffset";
 
 	/**
 	 * Details key for a record entry annotation providing the total length of
-	 * an underlying JCo structure or single row in an underlying JCo table with a Unicode layout. The
-	 * details value is the total length of of the underlying JCo structure or
-	 * single row in an underlying JCo table with a Unicode layout. Note due to alignment constraints
-	 * the length of a JCo structure or table row is not necessarily the same as
-	 * the sum of the field lenth.
+	 * an underlying JCo structure or single row in an underlying JCo table with
+	 * a Unicode layout. The details value is the total length of of the
+	 * underlying JCo structure or single row in an underlying JCo table with a
+	 * Unicode layout. Note due to alignment constraints the length of a JCo
+	 * structure or table row is not necessarily the same as the sum of the
+	 * field lenth.
 	 */
 	public static final String RfcNS_UNICODE_RECORD_LENGTH_KEY = "unicodeRecordLength";
 
 	/**
 	 * Details key for a parameter list entry annotation providing the byte
 	 * length of the underlying data field for Non-Unicode layout represented by
-	 * the annotated record entry. The details value is the byte length
-	 * of the underlying data field for Non-Unicode layout represented by the
-	 * parameter list entry.
+	 * the annotated record entry. The details value is the byte length of the
+	 * underlying data field for Non-Unicode layout represented by the parameter
+	 * list entry.
 	 */
 	public static final String RfcNS_BYTE_LENGTH_KEY = "byteLength";
 
@@ -626,6 +626,13 @@ public class RfcUtil {
 				"Response");
 	}
 
+	/**
+	 * Returns an {@link EObject} instance defined by the {@link EClass} with the name <code>eClassName</code> in the {@link EPackage} associated with the <code>functionModuleName</code> described in the <code>repository</code>.
+	 * @param repository - the {@link JCoRepository} describing 
+	 * @param functionModuleName
+	 * @param eClassName
+	 * @return
+	 */
 	public static EObject getInstance(JCoRepository repository,
 			String functionModuleName, String eClassName) {
 		String nsURI = eNS_URI + "/" + repository.getName() + "/"
@@ -642,6 +649,17 @@ public class RfcUtil {
 		return eObject;
 	}
 
+	/**
+	 * Returns (and creates if necessary) the {@link EPackage} instance
+	 * containing the definition of the input and output {@link Structure}s
+	 * passed to the {@link JcoFunction} designated by <code>nsURi</code> and
+	 * described in the given <code>repository</code>.
+	 * 
+	 * @param repository
+	 *            - the {@link JCoRepository} containing the meta data	 *            describing the designated {@link JCoFunction}.
+	 * @param nsURI - the URI designating {@link JCoFunction}. The URI format is of the form: http://sap.fusesource.org/rfc/{repository-name}/{jco-function-name}.
+	 * @return The {@link EPackage} instance.
+	 */
 	public static EPackage getEPackage(JCoRepository repository, String nsURI) {
 
 		// Check whether the requested package has already been built.
@@ -658,7 +676,7 @@ public class RfcUtil {
 			int prefixLength = eNS_URI.length() + repository.getName().length()
 					+ 2; // Length
 							// of
-							// "http://sap.jboss.org/<repo-name>/"
+							// "http://sap.fusesource.org/<repo-name>/"
 							// prefix.
 			String functionModuleName = nsURI.substring(prefixLength);
 
@@ -717,9 +735,16 @@ public class RfcUtil {
 	}
 
 	/**
-	 * @param clazz
-	 * @param jcoListMetaData
-	 * @generated NOT
+	 * Adds detail entry to designated annotation of given model element.
+	 * 
+	 * @param modelElement
+	 *            - the model element to be annotated.
+	 * @param source
+	 *            - the source URL of annotation to be added to.
+	 * @param key
+	 *            - the key of the detail entry to be added to annotation.
+	 * @param value
+	 *            - the value of the detail entry to added to annotation.
 	 */
 	public static void addAnnotation(EModelElement modelElement, String source,
 			String key, String value) {
@@ -831,12 +856,26 @@ public class RfcUtil {
 					Boolean.toString(jcoListMetaData.isChanging(i)));
 			addAnnotation(structuralFeature, eNS_URI, RfcNS_IS_OPTIONAL_KEY,
 					Boolean.toString(jcoListMetaData.isOptional(i)));
-			addAnnotation(structuralFeature, eNS_URI, RfcNS_RECORD_FIELD_NAME_KEY,
+			addAnnotation(structuralFeature, eNS_URI,
+					RfcNS_RECORD_FIELD_NAME_KEY,
 					jcoListMetaData.getRecordFieldName(i));
 			eClass.getEStructuralFeatures().add(structuralFeature);
 		}
 	}
 
+	/**
+	 * Create and return an {@link EClass} in <code>ePackage</code> deriving
+	 * from {@link Structure} and representing a {@link JCoRecord} described by
+	 * <code>jcoRecordMetaData</code>.
+	 * 
+	 * @param ePackage
+	 *            - the {@link EPackage} instance containing the {@link EClass}
+	 *            definition.
+	 * @param jcoRecordMetaData
+	 *            - the {@link JCoRecordMetaData} instance describing an
+	 *            underlying {@link JCoRecord} instance.
+	 * @return The {@link EClass} instance created.
+	 */
 	public static EClass getStructureClass(EPackage ePackage,
 			JCoRecordMetaData jcoRecordMetaData) {
 
@@ -858,12 +897,17 @@ public class RfcUtil {
 	}
 
 	/**
-	 * Create and return an {@link EClass} deriving from {@link IndexedRecord}
-	 * and representing the {@link JCoTable}
+	 * Create and return an {@link EClass} in <code>ePackage</code> deriving
+	 * from {@link Table<? extends Structure>} and representing a
+	 * {@link JCoTable} described by <code>jcoRecordMetaData</code>.
 	 * 
 	 * @param ePackage
+	 *            - the {@link EPackage} instance containing the {@link EClass}
+	 *            definition.
 	 * @param jcoRecordMetaData
-	 * @return
+	 *            - the {@link JCoRecordMetaData} instance describing an
+	 *            underlying {@link JCoTable} instance.
+	 * @return The {@link EClass} instance created.
 	 */
 	public static EClass getTableClass(EPackage ePackage,
 			JCoRecordMetaData jcoRecordMetaData) {
@@ -1061,6 +1105,14 @@ public class RfcUtil {
 		}
 	}
 
+	/**
+	 * Marshals the given {@link EObject} into a string.
+	 * 
+	 * @param eObject
+	 *            - the {@link EObject} to be marshalled.
+	 * @return The marshaled content of {@link EObject}.
+	 * @throws IOException
+	 */
 	public static String marshal(EObject eObject) throws IOException {
 		XMLResource resource = new XMLResourceImpl();
 		resource.getContents().add(eObject);
@@ -1069,6 +1121,15 @@ public class RfcUtil {
 		return out.toString();
 	}
 
+	/**
+	 * Unmarshals the given string content into an {@link EObject} instance.
+	 * 
+	 * @param string
+	 *            - the string content to unmarshal.
+	 * @return The {@link EObject} instance unmarshalled from the string
+	 *         content.
+	 * @throws IOException
+	 */
 	public static EObject unmarshal(String string) throws IOException {
 		XMLResource resource = new XMLResourceImpl();
 		StringReader in = new StringReader(string);

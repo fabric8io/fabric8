@@ -44,6 +44,10 @@ public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHan
 		super(endpoint, processor);
 	}
 	
+	public SAPConsumer(SAPServerEndpoint endpoint, Processor processor) {
+		super(endpoint, processor);
+	}
+
 	public void setSessionData(Map<String, Object> sessionData) {
 		this.sessionData = sessionData;
 	}
