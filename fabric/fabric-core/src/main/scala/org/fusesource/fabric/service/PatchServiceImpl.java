@@ -132,6 +132,7 @@ public class PatchServiceImpl implements PatchService {
                     "org.apache.cxf.karaf:apache-cxf," +
             "org.apache.karaf:karaf|" +
                     "org.apache.karaf.assemblies.features:enterprise|" +
+                    "org.apache.karaf.assemblies.features:spring|" +
                     "org.apache.karaf.assemblies.features:standard," +
             "org.apache.servicemix.nmr:nmr-parent|" +
                     "org.apache.servicemix.nmr:apache-servicemix-nmr," +
