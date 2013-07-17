@@ -270,6 +270,7 @@
                            <configuration>
                                <descriptors>
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
