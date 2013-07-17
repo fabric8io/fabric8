@@ -126,7 +126,7 @@ public abstract class BaseCommand extends OsgiCommandSupport {
 
     protected ConfigurationAdmin getConfigAdmin() {
         ServiceReference ref = getBundleContext().getServiceReference(ConfigurationAdmin.class.getName());
-        return getService(ConfigurationAdmin.class, ref);
+        return (ConfigurationAdmin) getService(ref);
     }
 
 }
