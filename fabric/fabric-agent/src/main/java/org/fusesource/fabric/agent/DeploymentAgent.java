@@ -345,7 +345,8 @@ public class DeploymentAgent implements ManagedService {
                 getPrefixedProperties(properties, "bundle."),
                 getPrefixedProperties(properties, "fab."),
                 getPrefixedProperties(properties, "req."),
-                getPrefixedProperties(properties, "override.")
+                getPrefixedProperties(properties, "override."),
+                getPrefixedProperties(properties, "optional.")
         );
 
         // TODO: handle default range policy on feature requirements

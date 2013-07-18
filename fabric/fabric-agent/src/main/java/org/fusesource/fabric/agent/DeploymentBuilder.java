@@ -113,7 +113,8 @@ public class DeploymentBuilder {
                          Set<String> bundles,
                          Set<String> fabs,
                          Set<String> reqs,
-                         Set<String> overrides) throws IOException, MultiException, InterruptedException, ResolutionException {
+                         Set<String> overrides,
+                         Set<String> optionals) throws IOException, MultiException, InterruptedException, ResolutionException {
         this.downloader = new AgentUtils.FileDownloader(manager);
         this.resources = new ConcurrentHashMap<String, Resource>();
         this.providers = new ConcurrentHashMap<String, StreamProvider>();
@@ -134,6 +135,9 @@ public class DeploymentBuilder {
         for (String override : overrides) {
             // TODO: ignore download failures for overrides
             downloadAndBuildResource(extractUrl(override));
+        }
+        for (String optional : optionals) {
+            downloadAndBuildResource(optional);
         }
         // Wait for all resources to be created
         downloader.await();
