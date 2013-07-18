@@ -1,25 +1,18 @@
 package org.fusesource.fabric.jolokia.facade;
 
+import org.fusesource.fabric.jolokia.facade.facades.FabricServiceFacade;
 import org.jolokia.client.J4pClient;
-import org.jolokia.client.request.J4pExecRequest;
-import org.jolokia.client.request.J4pReadRequest;
-import org.jolokia.client.request.J4pWriteRequest;
-
-import javax.management.MalformedObjectNameException;
 
 /**
  * @author Stan Lewis
  */
 public class JolokiaFabricConnector {
 
-    public static String FabricManagerMBean = "org.fusesource.fabric:type=Fabric";
-
     private J4pClient j4p;
     private String userName;
     private String password;
     private String url;
     private FabricServiceFacade fabricServiceFacade;
-
 
     /**
      * creates the fabric connector and returns it
@@ -36,24 +29,6 @@ public class JolokiaFabricConnector {
         rc.setUrl(url);
         rc.connect();
         return rc;
-    }
-
-    static J4pExecRequest createExecRequest(String operation, Object... args) throws MalformedObjectNameException {
-        J4pExecRequest rc = new J4pExecRequest(FabricManagerMBean, operation, args);
-        rc.setPreferredHttpMethod("POST");
-        return rc;
-    }
-
-    static J4pWriteRequest createWriteRequest(String attribute, Object value) throws MalformedObjectNameException {
-        J4pWriteRequest answer = new J4pWriteRequest(FabricManagerMBean, attribute, value);
-        answer.setPreferredHttpMethod("POST");
-        return answer;
-    }
-
-    static J4pReadRequest createReadRequest(String attribute) throws MalformedObjectNameException {
-        J4pReadRequest answer = new J4pReadRequest(FabricManagerMBean, attribute);
-        answer.setPreferredHttpMethod("POST");
-        return answer;
     }
 
     /**
@@ -152,7 +127,7 @@ public class JolokiaFabricConnector {
         this.url = url;
     }
 
-    public J4pClient getJ4p() {
+    public J4pClient getJolokiaClient() {
         return j4p;
     }
 }

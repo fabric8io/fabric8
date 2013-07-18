@@ -1,7 +1,8 @@
-package org.fusesource.fabric.jolokia.facade;
+package org.fusesource.fabric.jolokia.facade.facades;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 
 import java.util.ArrayList;

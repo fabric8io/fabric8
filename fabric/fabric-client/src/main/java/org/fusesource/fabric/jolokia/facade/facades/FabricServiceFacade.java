@@ -8,9 +8,11 @@
  * Contributors:
  *     Red Hat, Inc. - initial API and implementation
  ******************************************************************************/
-package org.fusesource.fabric.jolokia.facade;
+package org.fusesource.fabric.jolokia.facade.facades;
 
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.jolokia.facade.utils.Helpers;
+import org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
@@ -23,8 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.fusesource.fabric.jolokia.facade.Helpers.toList;
-import static org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector.createExecRequest;
+import static org.fusesource.fabric.jolokia.facade.utils.Helpers.toList;
 
 public class FabricServiceFacade implements FabricService {
 
@@ -50,12 +51,12 @@ public class FabricServiceFacade implements FabricService {
         List<Container> containers = new ArrayList<Container>();
 
         try {
-            J4pExecRequest request = createExecRequest("containers(java.util.List)", toList("id"));
-            J4pExecResponse response = getJ4p().execute(request);
+            J4pExecRequest request = Helpers.createExecRequest("containers(java.util.List)", toList("id"));
+            J4pExecResponse response = getJolokiaClient().execute(request);
             List<Map<String, Object>> values = response.getValue();
 
             for (Map<String, Object> value : values) {
-                containers.add(new ContainerFacade(getJ4p(), (String)value.get("id")));
+                containers.add(new ContainerFacade(getJolokiaClient(), (String)value.get("id")));
             }
         } catch (Exception e) {
             throw new RuntimeException ("Failed to fetch container list", e);
@@ -65,37 +66,37 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public Container getContainer(String containerId) {
-        return new ContainerFacade(getJ4p(), containerId);
+        return new ContainerFacade(getJolokiaClient(), containerId);
     }
 
     @Override
     public void startContainer(String containerId) {
-        Helpers.doContainerAction(getJ4p(), "start", containerId);
+        Helpers.doContainerAction(getJolokiaClient(), "start", containerId);
     }
 
     @Override
     public void startContainer(Container container) {
-        Helpers.doContainerAction(getJ4p(), "start", container.getId());
+        Helpers.doContainerAction(getJolokiaClient(), "start", container.getId());
     }
 
     @Override
     public void stopContainer(String containerId) {
-        Helpers.doContainerAction(getJ4p(), "stop", containerId);
+        Helpers.doContainerAction(getJolokiaClient(), "stop", containerId);
     }
 
     @Override
     public void stopContainer(Container container) {
-        Helpers.doContainerAction(getJ4p(), "stop", container.getId());
+        Helpers.doContainerAction(getJolokiaClient(), "stop", container.getId());
     }
 
     @Override
     public void destroyContainer(String containerId) {
-        Helpers.doContainerAction(getJ4p(), "destroy", containerId);
+        Helpers.doContainerAction(getJolokiaClient(), "destroy", containerId);
     }
 
     @Override
     public void destroyContainer(Container container) {
-        Helpers.doContainerAction(getJ4p(), "destroy", container.getId());
+        Helpers.doContainerAction(getJolokiaClient(), "destroy", container.getId());
     }
 
     @Override
@@ -103,7 +104,7 @@ public class FabricServiceFacade implements FabricService {
 
         Map options = Helpers.getObjectMapper().convertValue(createContainerOptions, Map.class);
 
-        Helpers.exec(getJ4p(), "createContainers(java.util.Map)", options);
+        Helpers.exec(getJolokiaClient(), "createContainers(java.util.Map)", options);
 
         // JMX API doesn't currently return this...
         return new CreateContainerMetadata[0];
@@ -111,45 +112,45 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public Version getDefaultVersion() {
-        String id = Helpers.read(getJ4p(), "DefaultVersion");
-        return new VersionFacade(getJ4p(), id);
+        String id = Helpers.read(getJolokiaClient(), "DefaultVersion");
+        return new VersionFacade(getJolokiaClient(), id);
     }
 
     @Override
     public void setDefaultVersion(Version version) {
-        Helpers.write(getJ4p(), "DefaultVersion", version.getId());
+        Helpers.write(getJolokiaClient(), "DefaultVersion", version.getId());
     }
 
     @Override
     public Version[] getVersions() {
-        List<Map<String, Object>> results = Helpers.exec(getJ4p(), "versions(java.util.List)", Helpers.toList("id"));
+        List<Map<String, Object>> results = Helpers.exec(getJolokiaClient(), "versions(java.util.List)", Helpers.toList("id"));
         List<Version> answer = new ArrayList<Version>();
         for (Map<String, Object> result : results) {
-            answer.add(new VersionFacade(getJ4p(), (String)result.get("id")));
+            answer.add(new VersionFacade(getJolokiaClient(), (String)result.get("id")));
         }
         return answer.toArray(new Version[answer.size()]);
     }
 
     @Override
     public Version getVersion(String versionKey) {
-        return new VersionFacade(getJ4p(), versionKey);
+        return new VersionFacade(getJolokiaClient(), versionKey);
     }
 
     @Override
     public Version createVersion(String versionKey) {
-        JSONObject obj = Helpers.exec(getJ4p(), "createVersion(java.lang.String)", versionKey);
-        return new VersionFacade(getJ4p(), (String)obj.get("id"));
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "createVersion(java.lang.String)", versionKey);
+        return new VersionFacade(getJolokiaClient(), (String)obj.get("id"));
     }
 
     @Override
     public Version createVersion(Version version, String versionKey) {
-        JSONObject obj = Helpers.exec(getJ4p(), "createVersion(java.lang.String, java.lang.String)", version.getId(), versionKey);
-        return new VersionFacade(getJ4p(), versionKey);
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "createVersion(java.lang.String, java.lang.String)", version.getId(), versionKey);
+        return new VersionFacade(getJolokiaClient(), versionKey);
     }
 
     @Override
     public URI getMavenRepoURI() {
-        String uri = Helpers.read(getJ4p(), "MavenRepoURI");
+        String uri = Helpers.read(getJolokiaClient(), "MavenRepoURI");
         try {
             return new URI(uri);
         } catch (URISyntaxException e) {
@@ -164,7 +165,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public URI getMavenRepoUploadURI() {
-        String uri = Helpers.read(getJ4p(), "MavenRepoUploadURI");
+        String uri = Helpers.read(getJolokiaClient(), "MavenRepoUploadURI");
         try {
             return new URI(uri);
         } catch (URISyntaxException e) {
@@ -174,7 +175,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public String getZookeeperUrl() {
-        return Helpers.read(getJ4p(), "ZookeeperUrl");
+        return Helpers.read(getJolokiaClient(), "ZookeeperUrl");
     }
 
     /* not exposed, does it really need to be? */
@@ -218,13 +219,13 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public Container getCurrentContainer() {
-        JSONObject obj = Helpers.exec(getJ4p(), "currentContainer()");
-        return new ContainerFacade(getJ4p(), (String)obj.get("id"));
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "currentContainer()");
+        return new ContainerFacade(getJolokiaClient(), (String)obj.get("id"));
     }
 
     @Override
     public String getCurrentContainerName() {
-        return Helpers.read(getJ4p(), "CurrentContainerName");
+        return Helpers.read(getJolokiaClient(), "CurrentContainerName");
     }
 
     @Override
@@ -239,7 +240,11 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public FabricStatus getFabricStatus() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        FabricStatus status = null;
+        JSONObject o = Helpers.exec(getJolokiaClient(), "fabricstatus()");
+        System.out.println(o.toJSONString());
+
+        return status;
     }
 
     /* these are separate OSGi services, don't think we need to worry about these */
@@ -260,12 +265,12 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public String getDefaultJvmOptions() {
-        return Helpers.read(getJ4p(), "DefaultJvmOptions");
+        return Helpers.read(getJolokiaClient(), "DefaultJvmOptions");
     }
 
     @Override
     public void setDefaultJvmOptions(String s) {
-        Helpers.write(getJ4p(), "DefaultJvmOptions", s);
+        Helpers.write(getJolokiaClient(), "DefaultJvmOptions", s);
     }
 
     @Override
@@ -273,7 +278,7 @@ public class FabricServiceFacade implements FabricService {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
 
-    public J4pClient getJ4p() {
-        return connector.getJ4p();
+    private J4pClient getJolokiaClient() {
+        return connector.getJolokiaClient();
     }
 }

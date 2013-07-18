@@ -1,35 +1,56 @@
-package org.fusesource.fabric.jolokia.facade;
+package org.fusesource.fabric.jolokia.facade.utils;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.HasId;
+import org.fusesource.fabric.jolokia.facade.mbeans.MBeans;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.*;
 
+import javax.management.MalformedObjectNameException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
-import static org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector.createExecRequest;
-import static org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector.createReadRequest;
-import static org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector.createWriteRequest;
 
 /**
  * @author Stan Lewis
  */
 public class Helpers {
 
-    static private ObjectMapper mapper = null;
+    private static ObjectMapper mapper = null;
 
-    static List<Object> toList(Object... args) {
+    public static List<Object> toList(Object... args) {
         List<Object> rc = new ArrayList<Object>();
         for (Object arg : args) {
             rc.add(arg);
         }
         return rc;
+    }
+
+    public static J4pExecRequest createExecRequest(String operation, Object... args) throws MalformedObjectNameException {
+        J4pExecRequest rc = new J4pExecRequest(MBeans.FABRIC.getUrl(), operation, args);
+        rc.setPreferredHttpMethod("POST");
+        return rc;
+    }
+
+    public static J4pWriteRequest createWriteRequest(String attribute, Object value) throws MalformedObjectNameException {
+        J4pWriteRequest answer = new J4pWriteRequest(MBeans.FABRIC.getUrl(), attribute, value);
+        answer.setPreferredHttpMethod("POST");
+        return answer;
+    }
+
+    public static J4pReadRequest createReadRequest(String attribute) throws MalformedObjectNameException {
+        J4pReadRequest answer = null;
+        if (answer == null || answer.toString().length() < 1) {
+            answer = new J4pReadRequest(MBeans.FABRIC.getUrl());
+        } else {
+            answer = new J4pReadRequest(MBeans.FABRIC.getUrl(), attribute);
+        }
+        answer.setPreferredHttpMethod("POST");
+        return answer;
     }
 
     public static void doContainerAction(J4pClient j4p, String action, String id) {

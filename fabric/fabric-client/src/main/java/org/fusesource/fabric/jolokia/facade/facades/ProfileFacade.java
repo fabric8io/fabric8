@@ -1,8 +1,9 @@
-package org.fusesource.fabric.jolokia.facade;
+package org.fusesource.fabric.jolokia.facade.facades;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.HasId;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
@@ -12,8 +13,6 @@ import javax.management.MalformedObjectNameException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector.createExecRequest;
 
 /**
  * @author Stan Lewis
@@ -33,7 +32,7 @@ public class ProfileFacade implements Profile, HasId {
     private static <T extends Object> T getFieldValue(J4pClient j4p, String operation, String versionId, String id, String field) {
         T rc = null;
         try {
-            J4pExecRequest request = createExecRequest(operation, versionId, id, Helpers.toList(field));
+            J4pExecRequest request = Helpers.createExecRequest(operation, versionId, id, Helpers.toList(field));
             J4pExecResponse response = j4p.execute(request);
             Map<String, Object> value = response.getValue();
             rc = (T)value.get(field);

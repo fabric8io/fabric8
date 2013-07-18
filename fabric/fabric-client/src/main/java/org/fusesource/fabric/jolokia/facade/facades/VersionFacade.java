@@ -1,9 +1,10 @@
-package org.fusesource.fabric.jolokia.facade;
+package org.fusesource.fabric.jolokia.facade.facades;
 
 import org.fusesource.fabric.api.HasId;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.VersionSequence;
+import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 
 import java.util.ArrayList;

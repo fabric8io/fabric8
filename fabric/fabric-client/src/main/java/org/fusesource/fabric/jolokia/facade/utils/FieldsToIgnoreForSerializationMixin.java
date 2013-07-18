@@ -1,4 +1,4 @@
-package org.fusesource.fabric.jolokia.facade;
+package org.fusesource.fabric.jolokia.facade.utils;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.fusesource.fabric.api.CreationStateListener;
