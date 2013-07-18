@@ -103,10 +103,10 @@
         <fabric.version>${project.version}</fabric.version>
         <fuse.version>${project.version}</fuse.version>
 <!--
-        <perfectus-build>024</perfectus-build>
+        <perfectus-build>017</perfectus-build>
         <full-perfectus-build>60${perfectus-build}</full-perfectus-build>
 -->
-        <perfectus-build>014</perfectus-build>
+        <perfectus-build>017</perfectus-build>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
 
@@ -1590,7 +1590,7 @@
     <profile>
       <id>snapshots</id>
       <properties>
-        <perfectus-build>SNAPSHOT</perfectus-build>
+        <perfectus-build>017</perfectus-build>
         <activemq-version>5.8.0.fuse-72-${perfectus-build}</activemq-version>
         <aries.blueprint.version>1.0.1.fuse-72-${perfectus-build}</aries.blueprint.version>
         <aries.jmx.version>1.0.1.fuse-72-${perfectus-build}</aries.jmx.version>
