@@ -50,7 +50,7 @@ public class SAPProducer extends DefaultProducer {
 	}
 
 	@Override
-	public SAPEndpoint getEndpoint() {
-		return (SAPEndpoint) super.getEndpoint();
+	public SAPDestinationEndpoint getEndpoint() {
+		return (SAPDestinationEndpoint) super.getEndpoint();
 	}
 }

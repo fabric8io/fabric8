@@ -16,69 +16,16 @@
  */
 package org.fusesource.camel.component.sap;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.camel.Consumer;
 import org.apache.camel.ExchangePattern;
-import org.apache.camel.Processor;
-import org.apache.camel.Producer;
 import org.apache.camel.impl.DefaultEndpoint;
 
-import com.sap.conn.jco.JCoDestination;
-import com.sap.conn.jco.JCoDestinationManager;
-import com.sap.conn.jco.JCoException;
-import com.sap.conn.jco.server.JCoServerContext;
-import com.sap.conn.jco.server.JCoServerFunctionHandler;
-import com.sap.conn.jco.server.JCoServerFunctionHandlerFactory;
-
 /**
- * Represents a SAP endpoint.
+ * Represents an SAP endpoint.
  */
-public class SAPEndpoint extends DefaultEndpoint {
+public abstract class SAPEndpoint extends DefaultEndpoint {
 
-	class FunctionHandlerFactory implements JCoServerFunctionHandlerFactory {
-		
-		class SessionContext {
-			Map<String, Object> cachedSessionData = new HashMap<String, Object>(); 
-		}
-		
-		private Map<String, JCoServerFunctionHandler> callHandlers = new HashMap<String, JCoServerFunctionHandler>();
-		private Map<String, SessionContext> statefulSessions = new HashMap<String, SessionContext>();
-		
-		public void registerHandler(String functionName, JCoServerFunctionHandler handler) {
-			callHandlers.put(functionName, handler);
-		}
-
-		public JCoServerFunctionHandler unregisterHandler(String functionName) {
-			return callHandlers.remove(functionName);
-		}
-
-		@Override
-		public void sessionClosed(JCoServerContext arg0, String arg1, boolean arg2) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public JCoServerFunctionHandler getCallHandler(JCoServerContext serverContext, String functionName) {
-			JCoServerFunctionHandler handler = callHandlers.get(functionName);
-			if (handler == null)
-				return null;
-			
-			return null;
-		}
-		
-	}
-	
-	protected boolean isServer;
-	protected String destinationName;
-	protected String serverName;
 	protected String rfcName;
-	protected ExchangePattern mep;
-	protected JCoDestination destination;
-	
-	
+	protected ExchangePattern mep = ExchangePattern.InOut;
 
 	public SAPEndpoint() {
 	}
@@ -87,49 +34,11 @@ public class SAPEndpoint extends DefaultEndpoint {
 		super(uri, component);
 	}
 
-	public Producer createProducer() throws Exception {
-		if (!isServer) {
-			return new SAPProducer(this);
-		}
-		throw new UnsupportedOperationException(
-				"Server endpoints do not support producers");
-	}
-
-	public Consumer createConsumer(Processor processor) throws Exception {
-		if (isServer) {
-			return new SAPConsumer(this, processor);
-		}
-		throw new UnsupportedOperationException(
-				"Destination endpoints do not support consumers");
-	}
-
 	public boolean isSingleton() {
 		return false;
 	}
 
-	public boolean isServer() {
-		return isServer;
-	}
-
-	public void setServer(boolean isServer) {
-		this.isServer = isServer;
-	}
-
-	public String getDestinationName() {
-		return destinationName;
-	}
-
-	public void setDestinationName(String destinationName) {
-		this.destinationName = destinationName;
-	}
-
-	public String getServerName() {
-		return serverName;
-	}
-
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
+	public abstract boolean isServer();
 
 	public String getRfcName() {
 		return rfcName;
@@ -147,11 +56,4 @@ public class SAPEndpoint extends DefaultEndpoint {
 		this.mep = mep;
 	}
 	
-	protected JCoDestination getDestination() throws JCoException {
-		if (destination == null) {
-			destination = JCoDestinationManager.getDestination((destinationName));
-		}
-		return destination;
-	}
-
 }

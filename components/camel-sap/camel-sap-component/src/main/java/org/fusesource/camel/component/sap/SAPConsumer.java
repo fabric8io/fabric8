@@ -40,12 +40,13 @@ public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHan
 	
 	Map<String, Object> sessionData = new HashMap<String,Object>();
 
-	public SAPConsumer(SAPEndpoint endpoint, Processor processor) {
+	public SAPConsumer(SAPServerEndpoint endpoint, Processor processor) {
 		super(endpoint, processor);
 	}
 	
-	public SAPConsumer(SAPServerEndpoint endpoint, Processor processor) {
-		super(endpoint, processor);
+	@Override
+	public SAPServerEndpoint getEndpoint() {
+		return (SAPServerEndpoint) super.getEndpoint();
 	}
 
 	public void setSessionData(Map<String, Object> sessionData) {
@@ -56,7 +57,7 @@ public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHan
 	public void handleRequest(JCoServerContext serverContext, JCoFunction jcoFunction)
 			throws AbapException, AbapClassException {
 		
-		SAPEndpoint sapEndpoint = (SAPEndpoint) getEndpoint();
+		SAPServerEndpoint sapEndpoint = (SAPServerEndpoint) getEndpoint();
 		Exchange exchange = getEndpoint().createExchange(sapEndpoint.getMep());
 		
 		// Create Request structure

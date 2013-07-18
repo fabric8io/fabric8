@@ -29,7 +29,7 @@ import org.fusesource.camel.component.sap.util.ComponentDestinationDataProvider;
 import org.fusesource.camel.component.sap.util.ComponentServerDataProvider;
 
 /**
- * Represents the component that manages {@link SAPEndpoint}.
+ * Represents the component that manages {@link SAPDestinationEndpoint} and {@link SAPServerEndpoint} instances.
  */
 public class SAPComponent extends DefaultComponent {
 
@@ -45,19 +45,19 @@ public class SAPComponent extends DefaultComponent {
     		throw new IllegalArgumentException("URI must be of the form: sap:[destination:<destinationName>|server:<serverName>]:<rfcName>");
     	}
     	
+    	Endpoint endpoint;
     	if (urlComponents[0].equals("destination")) {
-    		parameters.put("server", false);
     		parameters.put("destinationName", urlComponents[1]);
     		parameters.put("rfcName", urlComponents[2]);
+    		endpoint = new SAPDestinationEndpoint(uri, this);
     	} else if (urlComponents[0].equals("server")) {
-    		parameters.put("server", true);
     		parameters.put("serverName", urlComponents[1]);
     		parameters.put("rfcName", urlComponents[2]);
+    		endpoint = new SAPServerEndpoint(uri, this);
     	} else {
     		throw new IllegalArgumentException("Must specify 'client' or 'server' in URL");
     	}
 
-    	Endpoint endpoint = new SAPEndpoint(uri, this);
         setProperties(endpoint, parameters);
         return endpoint;
     }
