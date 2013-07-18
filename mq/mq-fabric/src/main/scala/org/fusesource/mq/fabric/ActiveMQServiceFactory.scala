@@ -329,6 +329,13 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               // If we are in a fabric, let pass along the zk password in the props.
               val fs = fabricService
               if( fs != null ) {
+                val container = fs.getCurrentContainer
+                if( !properties.containsKey("container.id") ) {
+                  properties.setProperty("container.id", container.getId)
+                }
+                if( !properties.containsKey("container.ip") ) {
+                  properties.setProperty("container.ip", container.getIp)
+                }
                 if( !properties.containsKey("zookeeper.url") ) {
                   properties.setProperty("zookeeper.url", fs.getZookeeperUrl)
                 }

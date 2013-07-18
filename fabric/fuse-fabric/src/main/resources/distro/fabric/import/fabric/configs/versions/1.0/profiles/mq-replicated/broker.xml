@@ -55,6 +55,7 @@
               zkPassword="${zookeeper.password}"
               zkPath="/fabric/registry/clusters/fusemq-replication-elections/${group}"
               securityToken="${zookeeper.password}"
+              hostname="${container.ip}"
               />
         </persistenceAdapter>
 
