@@ -100,6 +100,7 @@ public class ResolverTest {
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
                          Collections.<String>emptySet(),
+                         Collections.<String>emptySet(),
                          Collections.<String>emptySet());
 
         properties = new Properties();
