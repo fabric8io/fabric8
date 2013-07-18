@@ -16,29 +16,20 @@
  */
 package org.fusesource.camel.component.sap;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.test.spring.CamelSpringTestSupport;
-import org.fusesource.camel.component.sap.model.rfc.DestinationData;
-import org.fusesource.camel.component.sap.model.rfc.ServerData;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
 import org.fusesource.camel.component.sap.util.RfcUtil;
-import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.support.StaticApplicationContext;
 
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoField;
@@ -55,130 +46,130 @@ import com.sap.conn.jco.JCoResponse;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
 
-public class SAPComponentTest extends CamelSpringTestSupport {
-
+public abstract class SAPTestSupport extends CamelSpringTestSupport {
 	/*********************************************************************
-	 * Test Function And Record Names
+	 * Test Destination, Repository, and Function Module
 	 *********************************************************************/
 
-	private static final String REPOSITORY_NAME = "TEST_REPOSITORY";
-	private static final String FUNCTION_MODULE_NAME = "TEST_FUNCTION_MODULE";
+	public static final String DESTINATION_NAME = "TEST_DEST";
+	public static final String REPOSITORY_NAME = "TEST_REPOSITORY";
+	public static final String FUNCTION_MODULE_NAME = "TEST_FUNCTION_MODULE";
 	
 	/*********************************************************************
 	 * Test Structure Names
 	 *********************************************************************/
 
-	private static final String STRUCTURE_TYPE_NAME = "ZSTRUCTURE";
+	public static final String STRUCTURE_TYPE_NAME = "ZSTRUCTURE";
 	
 	/*********************************************************************
 	 * Test Parameter List Names
 	 *********************************************************************/
-	private static final String PARAM_LIST_CHAR_PARAM = "PARAM_LIST_CHAR_PARAM";
-	private static final String PARAM_LIST_NUM_PARAM = "PARAM_LIST_NUM_PARAM";
-	private static final String PARAM_LIST_INT_PARAM = "PARAM_LIST_INT_PARAM";
-	private static final String PARAM_LIST_FLOAT_PARAM = "PARAM_LIST_FLOAT_PARAM";
-	private static final String PARAM_LIST_BCD_PARAM = "PARAM_LIST_BCD_PARAM";
-	private static final String PARAM_LIST_BINARY_PARAM = "PARAM_LIST_BINARY_PARAM";
-	private static final String PARAM_LIST_BINARY_ARRAY_PARAM = "PARAM_LIST_BINARY_ARRAY_PARAM";
-	private static final String PARAM_LIST_DATE_PARAM = "PARAM_LIST_DATE_PARAM";
-	private static final String PARAM_LIST_TIME_PARAM = "PARAM_LIST_TIME_PARAM";
-	private static final String PARAM_LIST_STRING_PARAM = "PARAM_LIST_STRING_PARAM";
-	private static final String PARAM_LIST_STRUCTURE_PARAM = "PARAM_LIST_STRUCTURE_PARAM";
-	private static final String PARAM_LIST_TABLE_PARAM = "PARAM_LIST_TABLE_PARAM";
+	public static final String PARAM_LIST_CHAR_PARAM = "PARAM_LIST_CHAR_PARAM";
+	public static final String PARAM_LIST_NUM_PARAM = "PARAM_LIST_NUM_PARAM";
+	public static final String PARAM_LIST_INT_PARAM = "PARAM_LIST_INT_PARAM";
+	public static final String PARAM_LIST_FLOAT_PARAM = "PARAM_LIST_FLOAT_PARAM";
+	public static final String PARAM_LIST_BCD_PARAM = "PARAM_LIST_BCD_PARAM";
+	public static final String PARAM_LIST_BINARY_PARAM = "PARAM_LIST_BINARY_PARAM";
+	public static final String PARAM_LIST_BINARY_ARRAY_PARAM = "PARAM_LIST_BINARY_ARRAY_PARAM";
+	public static final String PARAM_LIST_DATE_PARAM = "PARAM_LIST_DATE_PARAM";
+	public static final String PARAM_LIST_TIME_PARAM = "PARAM_LIST_TIME_PARAM";
+	public static final String PARAM_LIST_STRING_PARAM = "PARAM_LIST_STRING_PARAM";
+	public static final String PARAM_LIST_STRUCTURE_PARAM = "PARAM_LIST_STRUCTURE_PARAM";
+	public static final String PARAM_LIST_TABLE_PARAM = "PARAM_LIST_TABLE_PARAM";
 
 	/*********************************************************************
 	 * Test Parameter Names
 	 *********************************************************************/
-	private static final String CHAR_PARAM = "CHAR_PARAM";
-	private static final String NUM_PARAM = "NUM_PARAM";
-	private static final String INT_PARAM = "INT_PARAM";
-	private static final String FLOAT_PARAM = "FLOAT_PARAM";
-	private static final String BCD_PARAM = "BCD_PARAM";
-	private static final String BINARY_PARAM = "BINARY_PARAM";
-	private static final String BINARY_ARRAY_PARAM = "BINARY_ARRAY_PARAM";
-	private static final String DATE_PARAM = "DATE_PARAM";
-	private static final String TIME_PARAM = "TIME_PARAM";
-	private static final String STRING_PARAM = "STRING_PARAM";
+	public static final String CHAR_PARAM = "CHAR_PARAM";
+	public static final String NUM_PARAM = "NUM_PARAM";
+	public static final String INT_PARAM = "INT_PARAM";
+	public static final String FLOAT_PARAM = "FLOAT_PARAM";
+	public static final String BCD_PARAM = "BCD_PARAM";
+	public static final String BINARY_PARAM = "BINARY_PARAM";
+	public static final String BINARY_ARRAY_PARAM = "BINARY_ARRAY_PARAM";
+	public static final String DATE_PARAM = "DATE_PARAM";
+	public static final String TIME_PARAM = "TIME_PARAM";
+	public static final String STRING_PARAM = "STRING_PARAM";
 
 	/*********************************************************************
 	 * Test Parameter Input Values
 	 *********************************************************************/
-	private static final String CHAR_PARAM_IN_VAL = "ABCDEFGHIJ";
-	private static final String NUM_PARAM_IN_VAL = "0123456789";
-	private static final int INT_PARAM_IN_VAL = 0x75555555;
-	private static final double FLOAT_PARAM_IN_VAL = Math.pow(10, 38); // This seems to be the biggest double to not come
+	public static final String CHAR_PARAM_IN_VAL = "ABCDEFGHIJ";
+	public static final String NUM_PARAM_IN_VAL = "0123456789";
+	public static final int INT_PARAM_IN_VAL = 0x75555555;
+	public static final double FLOAT_PARAM_IN_VAL = Math.pow(10, 38); // This seems to be the biggest double to not come
 																	// back as infinity.
-	private static final BigDecimal BCD_PARAM_IN_VAL = new BigDecimal("100.00000000000001");
-	private static final byte[] BINARY_PARAM_IN_VAL = new byte[] { (byte) 0x55 };
-	private static final byte[] BINARY_ARRAY_PARAM_IN_VAL = new byte[] { (byte) 0xFF, (byte) 0x0F, (byte) 0x1E,
+	public static final BigDecimal BCD_PARAM_IN_VAL = new BigDecimal("100.00000000000001");
+	public static final byte[] BINARY_PARAM_IN_VAL = new byte[] { (byte) 0x55 };
+	public static final byte[] BINARY_ARRAY_PARAM_IN_VAL = new byte[] { (byte) 0xFF, (byte) 0x0F, (byte) 0x1E,
 			(byte) 0x2D, (byte) 0x3C, (byte) 0x4B, (byte) 0x5A, (byte) 0x60, (byte) 0x79, (byte) 0x88 };
-	private static final Date DATE_PARAM_IN_VAL = new GregorianCalendar(1861, 03, 12).getTime();
-	private static final Date TIME_PARAM_IN_VAL = new GregorianCalendar(1970, 0, 1, 12, 15, 30).getTime();
-	private static final String STRING_PARAM_IN_VAL = "Four score and seven years ago ...";
+	public static final Date DATE_PARAM_IN_VAL = new GregorianCalendar(1861, 03, 12).getTime();
+	public static final Date TIME_PARAM_IN_VAL = new GregorianCalendar(1970, 0, 1, 12, 15, 30).getTime();
+	public static final String STRING_PARAM_IN_VAL = "Four score and seven years ago ...";
 
 	/*********************************************************************
 	 * Test Parameter Output Values
 	 *********************************************************************/
 
-	private static final String CHAR_PARAM_OUT_VAL = "ZYXWVUTSRQ";
-	private static final String NUM_PARAM_OUT_VAL = "9876543210";
-	private static final int INT_PARAM_OUT_VAL = 0x7AAAAAAA;
-	private static final double FLOAT_PARAM_OUT_VAL = 2 * Math.pow(10, 38);
-	private static final BigDecimal BCD_PARAM_OUT_VAL = new BigDecimal("200.00000000000002");
-	private static final byte[] BINARY_PARAM_OUT_VAL = new byte[] { (byte) 0xAA };
-	private static final byte[] BINARY_ARRAY_PARAM_OUT_VAL = new byte[] { (byte) 0x88, (byte) 0x79, (byte) 0x60,
+	public static final String CHAR_PARAM_OUT_VAL = "ZYXWVUTSRQ";
+	public static final String NUM_PARAM_OUT_VAL = "9876543210";
+	public static final int INT_PARAM_OUT_VAL = 0x7AAAAAAA;
+	public static final double FLOAT_PARAM_OUT_VAL = 2 * Math.pow(10, 38);
+	public static final BigDecimal BCD_PARAM_OUT_VAL = new BigDecimal("200.00000000000002");
+	public static final byte[] BINARY_PARAM_OUT_VAL = new byte[] { (byte) 0xAA };
+	public static final byte[] BINARY_ARRAY_PARAM_OUT_VAL = new byte[] { (byte) 0x88, (byte) 0x79, (byte) 0x60,
 			(byte) 0x5A, (byte) 0x4B, (byte) 0x3C, (byte) 0x2D, (byte) 0x1E, (byte) 0x0F, (byte) 0xFF };
-	private static final Date DATE_PARAM_OUT_VAL = new GregorianCalendar(1865, 03, 9).getTime();
-	private static final Date TIME_PARAM_OUT_VAL = new GregorianCalendar(1970, 0, 1, 23, 45, 15).getTime();
-	private static final String STRING_PARAM_OUT_VAL = "... shall not perish from this earth.";
+	public static final Date DATE_PARAM_OUT_VAL = new GregorianCalendar(1865, 03, 9).getTime();
+	public static final Date TIME_PARAM_OUT_VAL = new GregorianCalendar(1970, 0, 1, 23, 45, 15).getTime();
+	public static final String STRING_PARAM_OUT_VAL = "... shall not perish from this earth.";
 	
 	/****************************************************************************
 	 * Mocks
 	 ****************************************************************************/
 	
-	private JCoRepository mockRepository;
-	private JCoFunction mockFunction;
-	private JCoFunctionTemplate mockFunctionTemplate;
-	private JCoListMetaData mockImportParameterListMetaData;
-	private JCoListMetaData mockChangingParameterListMetaData;
-	private JCoListMetaData mockTableParameterListMetaData;
-	private JCoListMetaData mockExportParameterListMetaData;
-	private JCoRecordMetaData mockStructureMetaData;
-	private JCoParameterList mockImportParameterList;
-	private JCoParameterList mockChangingParameterList;
-	private JCoParameterList mockExportParameterList;
-	private JCoParameterList mockTableParameterList;
-	private JCoFieldIterator mockParameterListFieldIterator;
-	private JCoFieldIterator mockTableParameterListFieldIterator;
-	private JCoField mockParameterListCharField;
-	private JCoField mockParameterListNumField;
-	private JCoField mockParameterListIntField;
-	private JCoField mockParameterListFloatField;
-	private JCoField mockParameterListBCDField;
-	private JCoField mockParameterListBinaryField;
-	private JCoField mockParameterListBinaryArrayField;
-	private JCoField mockParameterListDateField;
-	private JCoField mockParameterListTimeField;
-	private JCoField mockParameterListStringField;
-	private JCoField mockParameterListStructureField;
-	private JCoField mockParameterListTableField;
-	private JCoFieldIterator mockStructureFieldIterator;
-	private JCoField mockCharField;
-	private JCoField mockNumField;
-	private JCoField mockIntField;
-	private JCoField mockFloatField;
-	private JCoField mockBCDField;
-	private JCoField mockBinaryField;
-	private JCoField mockBinaryArrayField;
-	private JCoField mockDateField;
-	private JCoField mockTimeField;
-	private JCoField mockStringField;
-	private JCoStructure mockStructure;
-	private JCoFieldIterator mockTableFieldIterator;
-	private JCoRequest mockRequest;
-	private JCoResponse mockResponse;
-	private JCoDestination mockDestination;
-	private JCoFieldIterator mockEmptyParameterListFieldIterator;
+	protected JCoRepository mockRepository;
+	protected JCoFunction mockFunction;
+	protected JCoFunctionTemplate mockFunctionTemplate;
+	protected JCoListMetaData mockImportParameterListMetaData;
+	protected JCoListMetaData mockChangingParameterListMetaData;
+	protected JCoListMetaData mockTableParameterListMetaData;
+	protected JCoListMetaData mockExportParameterListMetaData;
+	protected JCoRecordMetaData mockStructureMetaData;
+	protected JCoParameterList mockImportParameterList;
+	protected JCoParameterList mockChangingParameterList;
+	protected JCoParameterList mockExportParameterList;
+	protected JCoParameterList mockTableParameterList;
+	protected JCoFieldIterator mockParameterListFieldIterator;
+	protected JCoFieldIterator mockTableParameterListFieldIterator;
+	protected JCoField mockParameterListCharField;
+	protected JCoField mockParameterListNumField;
+	protected JCoField mockParameterListIntField;
+	protected JCoField mockParameterListFloatField;
+	protected JCoField mockParameterListBCDField;
+	protected JCoField mockParameterListBinaryField;
+	protected JCoField mockParameterListBinaryArrayField;
+	protected JCoField mockParameterListDateField;
+	protected JCoField mockParameterListTimeField;
+	protected JCoField mockParameterListStringField;
+	protected JCoField mockParameterListStructureField;
+	protected JCoField mockParameterListTableField;
+	protected JCoFieldIterator mockStructureFieldIterator;
+	protected JCoField mockCharField;
+	protected JCoField mockNumField;
+	protected JCoField mockIntField;
+	protected JCoField mockFloatField;
+	protected JCoField mockBCDField;
+	protected JCoField mockBinaryField;
+	protected JCoField mockBinaryArrayField;
+	protected JCoField mockDateField;
+	protected JCoField mockTimeField;
+	protected JCoField mockStringField;
+	protected JCoStructure mockStructure;
+	protected JCoFieldIterator mockTableFieldIterator;
+	protected JCoRequest mockRequest;
+	protected JCoResponse mockResponse;
+	protected JCoDestination mockDestination;
+	protected JCoFieldIterator mockEmptyParameterListFieldIterator;
 	
 	public void doPreSetup() throws Exception {	
 		super.doPreSetup();
@@ -651,254 +642,7 @@ public class SAPComponentTest extends CamelSpringTestSupport {
 		when(mockStructureMetaData.getFieldCount()).thenReturn(10);
 		
 	}
-	
-	@Test
-	public void testFillFromRequest() throws Exception {
-		// Given
-		
-		enhanceParameterListMetaData();
-		Structure request = createAndPopulateRequest();
-		
-		// When
 
-		RfcUtil.fillJCoParameterListsFromRequest(request, mockFunction);
-		
-		// Then
-		
-		assertThat("RfcUtil.getRequest(mockRepository, FUNCTION_MODULE_NAME) returned unexpected value", request, notNullValue());
-
-		verify(mockParameterListCharField, times(1)).setValue((Object)CHAR_PARAM_IN_VAL);
-		verify(mockCharField, times(2)).setValue((Object)CHAR_PARAM_IN_VAL);
-
-		verify(mockParameterListNumField, times(1)).setValue((Object)NUM_PARAM_IN_VAL);
-		verify(mockNumField, times(2)).setValue((Object)NUM_PARAM_IN_VAL);
-
-		verify(mockParameterListIntField, times(1)).setValue((Object)INT_PARAM_IN_VAL);
-		verify(mockIntField, times(2)).setValue((Object)INT_PARAM_IN_VAL);
-
-		verify(mockParameterListFloatField, times(1)).setValue((Object)FLOAT_PARAM_IN_VAL);
-		verify(mockFloatField, times(2)).setValue((Object)FLOAT_PARAM_IN_VAL);
-
-		verify(mockParameterListBCDField, times(1)).setValue((Object)BCD_PARAM_IN_VAL);
-		verify(mockBCDField, times(2)).setValue((Object)BCD_PARAM_IN_VAL);
-
-		verify(mockParameterListBinaryField, times(1)).setValue((Object)BINARY_PARAM_IN_VAL);
-		verify(mockBinaryField, times(2)).setValue((Object)BINARY_PARAM_IN_VAL);
-
-		verify(mockParameterListBinaryArrayField, times(1)).setValue((Object)BINARY_ARRAY_PARAM_IN_VAL);
-		verify(mockBinaryArrayField, times(2)).setValue((Object)BINARY_ARRAY_PARAM_IN_VAL);
-
-		verify(mockParameterListDateField, times(1)).setValue((Object)DATE_PARAM_IN_VAL);
-		verify(mockDateField, times(2)).setValue((Object)DATE_PARAM_IN_VAL);
-
-		verify(mockParameterListTimeField, times(1)).setValue((Object)TIME_PARAM_IN_VAL);
-		verify(mockTimeField, times(2)).setValue((Object)TIME_PARAM_IN_VAL);
-
-		verify(mockParameterListStringField, times(1)).setValue((Object)STRING_PARAM_IN_VAL);
-		verify(mockStringField, times(2)).setValue((Object)STRING_PARAM_IN_VAL);
-		
-		verify(mockParameterListStructureField, times(1)).isStructure();
-		verify(mockParameterListStructureField, times(1)).getStructure();
-
-		verify(mockParameterListTableField, times(1)).isTable();
-		verify(mockParameterListTableField, times(1)).getTable();
-
-	}
-
-	@Test
-	public void testExtractIntoResponse() throws Exception {
-		// Given
-		enhanceParameterListMetaData();
-		
-		// When
-		Structure response = RfcUtil.getResponse(mockRepository, FUNCTION_MODULE_NAME);
-		
-		RfcUtil.extractJCoParameterListsIntoResponse(mockFunction, response);
-		
-		// Then
-		assertThat("recordFactory.createMappedRecord(OUTPUT_RECORD_NAME) returned unexpected null value", response, notNullValue());
-		
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_INT_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(response, PARAM_LIST_INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("outputRecord.getP(ARAM_LIST_DATE_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM), is(STRING_PARAM_OUT_VAL));
-		
-		Structure structure = (Structure) RfcUtil.getValue(response, PARAM_LIST_STRUCTURE_PARAM);
-		assertThat("RfcUtil.getValue(structure, PARAM_LIST_STRUCTURE_PARAM) returned unexpected null value", structure, notNullValue());
-		assertThat("RfcUtil.getValue(structure, CHAR_PARAM) returned '" +  RfcUtil.getValue(structure, CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, NUM_PARAM) returned '" +  RfcUtil.getValue(structure, NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, INT_PARAM) returned '" +  RfcUtil.getValue(structure, INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(structure, INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, FLOAT_PARAM) returned '" +  RfcUtil.getValue(structure, FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(structure, FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BCD_PARAM) returned '" +  RfcUtil.getValue(structure, BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(structure, BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BINARY_PARAM) returned '" +  RfcUtil.getValue(structure, BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(structure, BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(structure, BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(structure, BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, DATE_PARAM) returned '" +  RfcUtil.getValue(structure, DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(structure, DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, TIME_PARAM) returned '" +  RfcUtil.getValue(structure, TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(structure, TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, STRING_PARAM) returned '" +  RfcUtil.getValue(structure, STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, STRING_PARAM), is(STRING_PARAM_OUT_VAL));
-		
-		@SuppressWarnings("unchecked")
-		Table<? extends Structure> table = (Table<? extends Structure>) RfcUtil.getValue(response, PARAM_LIST_TABLE_PARAM);
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_TABLE_PARAM) returned unexpected null value", table, notNullValue());
-		@SuppressWarnings("unchecked")
-		List<? extends Structure> rows = (List<? extends Structure>) RfcUtil.getValue(table, "row");
-		assertThat("rows.size() returned '" + rows.size() + "' instead of expected value of '1'", rows.size(), is(1));
-		Structure tableRow = rows.get(0);
-		assertThat("RfcUtil.getValue(tableRow, CHAR_PARAM) returned '" +  RfcUtil.getValue(tableRow, CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, NUM_PARAM) returned '" +  RfcUtil.getValue(tableRow, NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, INT_PARAM) returned '" +  RfcUtil.getValue(tableRow, INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(tableRow, INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, FLOAT_PARAM) returned '" +  RfcUtil.getValue(tableRow, FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(tableRow, FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BCD_PARAM) returned '" +  RfcUtil.getValue(tableRow, BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(tableRow, BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BINARY_PARAM) returned '" +  RfcUtil.getValue(tableRow, BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(tableRow, BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, DATE_PARAM) returned '" +  RfcUtil.getValue(tableRow, DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(tableRow, DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, TIME_PARAM) returned '" +  RfcUtil.getValue(tableRow, TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(tableRow, TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, STRING_PARAM) returned '" +  RfcUtil.getValue(tableRow, STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, STRING_PARAM), is(STRING_PARAM_OUT_VAL));
-		
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Test
-	public void testSynchronousRfc() throws Exception {
-		// Given
-		
-		enhanceParameterListMetaData();
-		Structure request = createAndPopulateRequest();
-		Structure structure;
-		Table<? extends Structure> table;
-		
-		// When
-
-		Structure response = RfcUtil.executeFunction(mockDestination, FUNCTION_MODULE_NAME, request);
-
-		// Then
-
-		assertThat("RfcUtil.getRequest(mockRepository, FUNCTION_MODULE_NAME) returned unexpected value", request, notNullValue());
-
-		verify(mockParameterListCharField, times(1)).setValue((Object)CHAR_PARAM_IN_VAL);
-		verify(mockCharField, times(2)).setValue((Object)CHAR_PARAM_IN_VAL);
-
-		verify(mockParameterListNumField, times(1)).setValue((Object)NUM_PARAM_IN_VAL);
-		verify(mockNumField, times(2)).setValue((Object)NUM_PARAM_IN_VAL);
-
-		verify(mockParameterListIntField, times(1)).setValue((Object)INT_PARAM_IN_VAL);
-		verify(mockIntField, times(2)).setValue((Object)INT_PARAM_IN_VAL);
-
-		verify(mockParameterListFloatField, times(1)).setValue((Object)FLOAT_PARAM_IN_VAL);
-		verify(mockFloatField, times(2)).setValue((Object)FLOAT_PARAM_IN_VAL);
-
-		verify(mockParameterListBCDField, times(1)).setValue((Object)BCD_PARAM_IN_VAL);
-		verify(mockBCDField, times(2)).setValue((Object)BCD_PARAM_IN_VAL);
-
-		verify(mockParameterListBinaryField, times(1)).setValue((Object)BINARY_PARAM_IN_VAL);
-		verify(mockBinaryField, times(2)).setValue((Object)BINARY_PARAM_IN_VAL);
-
-		verify(mockParameterListBinaryArrayField, times(1)).setValue((Object)BINARY_ARRAY_PARAM_IN_VAL);
-		verify(mockBinaryArrayField, times(2)).setValue((Object)BINARY_ARRAY_PARAM_IN_VAL);
-
-		verify(mockParameterListDateField, times(1)).setValue((Object)DATE_PARAM_IN_VAL);
-		verify(mockDateField, times(2)).setValue((Object)DATE_PARAM_IN_VAL);
-
-		verify(mockParameterListTimeField, times(1)).setValue((Object)TIME_PARAM_IN_VAL);
-		verify(mockTimeField, times(2)).setValue((Object)TIME_PARAM_IN_VAL);
-
-		verify(mockParameterListStringField, times(1)).setValue((Object)STRING_PARAM_IN_VAL);
-		verify(mockStringField, times(2)).setValue((Object)STRING_PARAM_IN_VAL);
-		
-		verify(mockParameterListStructureField, times(2)).isStructure();
-		verify(mockParameterListStructureField, times(2)).getStructure();
-
-		verify(mockParameterListTableField, times(2)).isTable();
-		verify(mockParameterListTableField, times(2)).getTable();
-
-		assertThat("Structure response = RfcUtil.executeFunction(mockDestination, FUNCTION_MODULE_NAME, request returned unexpected null value", response, notNullValue());
-		
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_INT_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(response, PARAM_LIST_INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("outputRecord.getP(ARAM_LIST_DATE_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM), is(STRING_PARAM_OUT_VAL));
-		
-		structure = (Structure) RfcUtil.getValue(response, PARAM_LIST_STRUCTURE_PARAM);
-		assertThat("RfcUtil.getValue(structure, PARAM_LIST_STRUCTURE_PARAM) returned unexpected null value", structure, notNullValue());
-		assertThat("RfcUtil.getValue(structure, CHAR_PARAM) returned '" +  RfcUtil.getValue(structure, CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, NUM_PARAM) returned '" +  RfcUtil.getValue(structure, NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, INT_PARAM) returned '" +  RfcUtil.getValue(structure, INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(structure, INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, FLOAT_PARAM) returned '" +  RfcUtil.getValue(structure, FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(structure, FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BCD_PARAM) returned '" +  RfcUtil.getValue(structure, BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(structure, BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BINARY_PARAM) returned '" +  RfcUtil.getValue(structure, BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(structure, BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(structure, BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(structure, BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, DATE_PARAM) returned '" +  RfcUtil.getValue(structure, DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(structure, DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, TIME_PARAM) returned '" +  RfcUtil.getValue(structure, TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(structure, TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, STRING_PARAM) returned '" +  RfcUtil.getValue(structure, STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, STRING_PARAM), is(STRING_PARAM_OUT_VAL));
-		
-		table = (Table<? extends Structure>) RfcUtil.getValue(response, PARAM_LIST_TABLE_PARAM);
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_TABLE_PARAM) returned unexpected null value", table, notNullValue());
-		List<? extends Structure> rows = (List<? extends Structure>) RfcUtil.getValue(table, "row");
-		assertThat("rows.size() returned '" + rows.size() + "' instead of expected value of '1'", rows.size(), is(1));
-		Structure tableRow = rows.get(0);
-		assertThat("RfcUtil.getValue(tableRow, CHAR_PARAM) returned '" +  RfcUtil.getValue(tableRow, CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, NUM_PARAM) returned '" +  RfcUtil.getValue(tableRow, NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, INT_PARAM) returned '" +  RfcUtil.getValue(tableRow, INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(tableRow, INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, FLOAT_PARAM) returned '" +  RfcUtil.getValue(tableRow, FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(tableRow, FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BCD_PARAM) returned '" +  RfcUtil.getValue(tableRow, BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(tableRow, BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BINARY_PARAM) returned '" +  RfcUtil.getValue(tableRow, BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(tableRow, BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, DATE_PARAM) returned '" +  RfcUtil.getValue(tableRow, DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(tableRow, DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, TIME_PARAM) returned '" +  RfcUtil.getValue(tableRow, TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(tableRow, TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, STRING_PARAM) returned '" +  RfcUtil.getValue(tableRow, STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, STRING_PARAM), is(STRING_PARAM_OUT_VAL));
-	}
-	
-	@Test
-	public void testComponentConfiguration() {
-		SAPComponent component = (SAPComponent) context.getComponent("sap");
-		
-		// Validated Destination Data
-		DestinationData nplDestinationData = component.getDestinationDataStore().get("nplDest");
-		assertNotNull("Destination Data 'nplDest' not loaded into Destination Data Store", nplDestinationData);
-		assertEquals("Destination Data Property 'ashost' has incorrect value set", "nplhost", nplDestinationData.getAshost());
-		assertEquals("Destination Data Property 'sysnr' has incorrect value set", "42", nplDestinationData.getSysnr());
-		assertEquals("Destination Data Property 'client' has incorrect value set", "001", nplDestinationData.getClient());
-		assertEquals("Destination Data Property 'user' has incorrect value set", "developer", nplDestinationData.getUser());
-		assertEquals("Destination Data Property 'passwd' has incorrect value set", "ch4ngeme", nplDestinationData.getPasswd());
-		assertEquals("Destination Data Property 'lang' has incorrect value set", "en", nplDestinationData.getLang());
-
-		// Validated Server Data
-		ServerData nplServerData = component.getServerDataStore().get("nplServer");
-		assertNotNull("Server Data 'nplServer' not loaded into Server Data Store", nplServerData);
-		assertEquals("Server Data Property 'gwhost' has incorrect value set", "nplhost", nplServerData.getGwhost());
-		assertEquals("Server Data Property 'gwserv' has incorrect value set", "3342", nplServerData.getGwserv());
-		assertEquals("Server Data Property 'progid' has incorrect value set", "JCO_SERVER", nplServerData.getProgid());
-		assertEquals("Server Data Property 'repositoryDestination' has incorrect value set", "nplDest", nplServerData.getRepositoryDestination());
-		assertEquals("Server Data Property 'connectionCount' has incorrect value set", "2", nplServerData.getConnectionCount());
-	}
-	
-	@Override
-    protected RouteBuilder createRouteBuilder() throws Exception {
-        return new RouteBuilder() {
-            public void configure() {
-                from("direct:start")
-                  .to("sap:destination:nplDest:BAPI_FLCUST_GETLIST")
-                  .to("mock:result");
-            }
-        };
-    }
-
-	@Override
-	protected AbstractApplicationContext createApplicationContext() {
-		return new ClassPathXmlApplicationContext("org/fusesource/camel/component/sap/SAPComponentTestConfig.xml");
-	}
-	
 	protected Structure createAndPopulateRequest() throws Exception {
 
 		Structure request = RfcUtil.getRequest(mockRepository, FUNCTION_MODULE_NAME);
@@ -941,5 +685,10 @@ public class SAPComponentTest extends CamelSpringTestSupport {
 		RfcUtil.setValue(row, STRING_PARAM, STRING_PARAM_IN_VAL);
 
 		return request;
+	}
+	
+	@Override
+	protected AbstractApplicationContext createApplicationContext() {
+		return new StaticApplicationContext();
 	}
 }

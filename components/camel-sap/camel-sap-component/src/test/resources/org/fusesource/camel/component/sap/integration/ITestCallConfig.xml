@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+	<bean id="sap"
+		class="org.fusesource.camel.component.sap.SAPComponent">
+		<property name="destinationDataStore">
+			<map>
+				<entry key="nplDest" value-ref="nplDestinationData" />
+			</map>
+		</property>
+		<property name="serverDataStore">
+			<map>
+				<entry key="nplServer" value-ref="nplServerData"/>
+			</map>
+		</property>
+	</bean>
+
+	<bean id="nplDestinationData"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.DestinationDataImpl">
+		<property name="ashost" value="nplhost" />
+		<property name="sysnr" value="42" />
+		<property name="client" value="001" />
+		<property name="user" value="developer" />
+		<property name="passwd" value="ch4ngeme" />
+		<property name="lang" value="en" />
+	</bean>
+
+	<bean id="nplServerData"
+		class="org.fusesource.camel.component.sap.model.rfc.impl.ServerDataImpl">
+		<property name="gwhost" value="nplhost" />
+		<property name="gwserv" value="3342" />
+		<property name="progid" value="JCO_SERVER" />
+		<property name="repositoryDestination" value="nplDest" />
+		<property name="connectionCount" value="2" />
+	</bean>
+
+</beans>
