@@ -10,14 +10,17 @@
  ******************************************************************************/
 package org.fusesource.fabric.jolokia.facade;
 
+import org.codehaus.jackson.map.type.TypeFactory;
 import org.fusesource.fabric.jolokia.facade.dto.FabricDTO;
 import org.fusesource.fabric.jolokia.facade.dto.FabricRequirementsDTO;
+import org.fusesource.fabric.jolokia.facade.dto.VersionDTO;
 import org.fusesource.fabric.jolokia.facade.mbeans.FabricMBean;
 import org.fusesource.fabric.jolokia.facade.utils.Helpers;
-import org.json.simple.JSONObject;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Collection;
 
 /**
  * Author: lhein
@@ -52,10 +55,10 @@ public class FabricMBeanFacadeTest {
 
         FabricMBean facade = getFabricMBean();
 
-        JSONObject o = facade.requirements();
+        String json = facade.requirements();
 
         try {
-            FabricRequirementsDTO dto = Helpers.getObjectMapper().readValue(o.toJSONString(), FabricRequirementsDTO.class);
+            FabricRequirementsDTO dto = Helpers.getObjectMapper().readValue(json, FabricRequirementsDTO.class);
             Assume.assumeNotNull(dto);
             System.out.println(dto);
         } catch (Exception e) {
@@ -70,12 +73,52 @@ public class FabricMBeanFacadeTest {
 
         FabricMBean facade = getFabricMBean();
 
-        JSONObject o = facade.getFabricFields();
+        String json = facade.getFabricFields();
 
         try {
-            FabricDTO dto = Helpers.getObjectMapper().readValue(o.toJSONString(), FabricDTO.class);
+            FabricDTO dto = Helpers.getObjectMapper().readValue(json, FabricDTO.class);
             Assume.assumeNotNull(dto);
             System.out.println(dto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testVersions() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.versions();
+
+        try {
+            Collection<VersionDTO> versions = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, VersionDTO.class));
+            Assume.assumeNotNull(versions);
+            for (Object version : versions) {
+                System.out.println(version);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testVersionsWithOnlyIDs() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.versions(Helpers.toList("id"));
+
+        try {
+            Collection<VersionDTO> versions = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, VersionDTO.class));
+            Assume.assumeNotNull(versions);
+            for (Object version : versions) {
+                System.out.println(version);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

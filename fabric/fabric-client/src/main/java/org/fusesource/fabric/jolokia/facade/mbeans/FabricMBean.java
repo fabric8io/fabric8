@@ -10,9 +10,11 @@
  ******************************************************************************/
 package org.fusesource.fabric.jolokia.facade.mbeans;
 
-import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector;
+import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.json.simple.JSONObject;
+
+import java.util.List;
 
 /**
  * this facade simply maps all operations and attributes of the
@@ -28,11 +30,23 @@ public class FabricMBean {
         this.connector = connector;
     }
 
-    public JSONObject getFabricFields() {
-        return Helpers.read(connector.getJolokiaClient(), null);
+    public String getFabricFields() {
+        return Helpers.readToJSON(connector.getJolokiaClient(), null);
     }
 
-    public JSONObject requirements() {
-        return Helpers.exec(connector.getJolokiaClient(), "requirements()");
+    public String requirements() {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "requirements()");
+    }
+
+    public String requirements(Object requirements) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "requirements()", requirements);
+    }
+
+    public String versions() {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "versions()");
+    }
+
+    public String versions(List versions) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "versions(java.util.List)", versions);
     }
 }

@@ -12,13 +12,25 @@
  */
 package org.fusesource.fabric.jolokia.facade.dto;
 
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class VersionDTO {
     public String id;
+    public String name;
     public VersionSequenceDTO sequence;
     public VersionDTO derivedFrom;
     public Map<String, String> attributes;
-    public Set<ProfileDTO> profiles;
+    public List<String> profiles;
+    public boolean defaultVersion;
+
+    @Override
+    public String toString() {
+        return String.format("Version: { id: %s, name: %s, version: %s, derivedFrom: %s, profiles: %s }",
+                id,
+                name,
+                (sequence != null ? sequence.name : ""),
+                (derivedFrom != null ? derivedFrom.id : ""),
+                profiles);
+    }
 }

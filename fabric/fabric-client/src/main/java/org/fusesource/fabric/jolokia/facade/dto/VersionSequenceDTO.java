@@ -15,4 +15,9 @@ package org.fusesource.fabric.jolokia.facade.dto;
 public class VersionSequenceDTO {
     public String name;
     public int[] numbers;
+
+    @Override
+    public String toString() {
+        return String.format("Version Sequence: %s ", name);
+    }
 }

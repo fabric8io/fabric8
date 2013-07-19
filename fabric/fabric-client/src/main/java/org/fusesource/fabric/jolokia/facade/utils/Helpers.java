@@ -73,9 +73,38 @@ public class Helpers {
         try {
             J4pExecRequest request = createExecRequest(operation, args);
             J4pExecResponse response = j4p.execute(request);
+            System.out.println(response.getValue().toString());
             return response.getValue();
         } catch (Exception e) {
             throw new RuntimeException("Failed to call " + operation + " with args: " + args, e);
+        }
+    }
+
+    /**
+     * executes an operation and returns the json result value
+     *
+     * @param j4p
+     * @param operation
+     * @param args
+     * @return
+     */
+    public static String execToJSON(J4pClient j4p, String operation, Object ... args) {
+        try {
+            J4pExecRequest request = createExecRequest(operation, args);
+            J4pExecResponse response = j4p.execute(request);
+            return response.getValue().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to call " + operation + " with args: " + args, e);
+        }
+    }
+
+    public static String readToJSON(J4pClient j4p, String attribute) {
+        try {
+            J4pReadRequest request = createReadRequest(attribute);
+            J4pReadResponse response = j4p.execute(request);
+            return response.getValue().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read " + attribute, e);
         }
     }
 
