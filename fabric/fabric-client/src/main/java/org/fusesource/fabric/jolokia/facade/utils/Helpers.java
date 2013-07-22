@@ -44,7 +44,7 @@ public class Helpers {
 
     public static J4pReadRequest createReadRequest(String attribute) throws MalformedObjectNameException {
         J4pReadRequest answer = null;
-        if (answer == null || answer.toString().length() < 1) {
+        if (attribute == null || attribute.toString().length() < 1) {
             answer = new J4pReadRequest(MBeans.FABRIC.getUrl());
         } else {
             answer = new J4pReadRequest(MBeans.FABRIC.getUrl(), attribute);
@@ -73,7 +73,7 @@ public class Helpers {
         try {
             J4pExecRequest request = createExecRequest(operation, args);
             J4pExecResponse response = j4p.execute(request);
-            System.out.println(response.getValue().toString());
+            //System.out.println(response.getValue().toString());
             return response.getValue();
         } catch (Exception e) {
             throw new RuntimeException("Failed to call " + operation + " with args: " + args, e);
@@ -124,7 +124,6 @@ public class Helpers {
             J4pReadRequest request = createReadRequest(attribute);
             J4pReadResponse response = j4p.execute(request);
             return response.getValue();
-
         } catch (Exception e) {
             throw new RuntimeException("Failed to read " + attribute, e);
         }
