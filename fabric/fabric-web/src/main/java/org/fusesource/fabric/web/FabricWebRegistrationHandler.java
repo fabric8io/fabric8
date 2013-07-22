@@ -33,7 +33,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
@@ -98,6 +97,9 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
             url = "http://" + url;
         }
 
+        String name = servletEvent.getBundle().getSymbolicName();
+        setJolokiaUrl(container, url, name);
+
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
             String path = "/fabric/registry/clusters/servlets/"
@@ -113,6 +115,9 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
 
     void unregisterServlet(Container container, ServletEvent servletEvent) {
         try {
+            String name = servletEvent.getBundle().getSymbolicName();
+            clearJolokiaUrl(container, name);
+
             String id = container.getId();
             String path = "/fabric/registry/clusters/servlets/"
                     + servletEvent.getBundle().getSymbolicName() + "/"
@@ -141,11 +146,7 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
         }
 
         String name = webEvent.getBundle().getSymbolicName();
-
-        if (name.equals("org.jolokia")) {
-            container.setJolokiaUrl(url);
-            System.setProperty("jolokia.agent", url);
-        }
+        setJolokiaUrl(container, url, name);
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
@@ -165,10 +166,7 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
     void unRegisterWebapp(Container container, WebEvent webEvent) {
         try {
             String name = webEvent.getBundle().getSymbolicName();
-            if (name.equals("org.jolokia")) {
-                container.setJolokiaUrl(null);
-                System.clearProperty("jolokia.agent");
-            }
+            clearJolokiaUrl(container, name);
 
             delete(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
                     webEvent.getBundle().getVersion().toString(), container.getId()));
@@ -176,6 +174,20 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
             // If the node does not exists, ignore the exception
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
+        }
+    }
+
+    private void setJolokiaUrl(Container container, String url, String symbolicName) {
+        if (symbolicName.contains("jolokia")) {
+            container.setJolokiaUrl(url);
+            System.setProperty("jolokia.agent", url);
+        }
+    }
+
+    private void clearJolokiaUrl(Container container, String symbolicName) {
+        if (symbolicName.contains("jolokia")) {
+            container.setJolokiaUrl(null);
+            System.clearProperty("jolokia.agent");
         }
     }
 
