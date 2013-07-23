@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one
+  or more contributor license agreements. See the NOTICE file
+  distributed with this work for additional information
+  regarding copyright ownership. The ASF licenses this file
+  to you under the Apache License, Version 2.0 (the
+  "License"); you may not use this file except in compliance
+  with the License. You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing,
+  software distributed under the License is distributed on an
+  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  KIND, either express or implied. See the License for the
+  specific language governing permissions and limitations
+  under the License.
+-->
+
+<schema targetNamespace="http://apache.org/Invoice"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:tns="http://apache.org/Invoice"
+	xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+    <complexType name="InvoiceHeader">
+	<sequence>
+	    <element maxOccurs="1" minOccurs="1" name="shippingDate" type="date"/>
+	    <element maxOccurs="1" minOccurs="1" name="paymentDueDate" type="date"/>
+	    <element maxOccurs="1" minOccurs="1" name="customer" type="tns:Customer"/>
+	</sequence>
+    </complexType>
+    <complexType name="InvoiceLine">
+	<sequence>
+	    <element maxOccurs="1" minOccurs="1" name="productCode" type="int"/>
+	    <element maxOccurs="1" minOccurs="1" name="description" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="quantity" type="int"/>
+	    <element maxOccurs="1" minOccurs="1" name="unitCost" type="double"/>
+	    <element maxOccurs="1" minOccurs="1" name="totalCost" type="double"/>
+	</sequence>
+    </complexType>
+    <complexType name="Invoice">
+	<sequence>
+	    <element maxOccurs="1" minOccurs="1" name="header" type="tns:InvoiceHeader"/>
+	    <element maxOccurs="unbounded" minOccurs="1" name="invoiceLine"
+		     type="tns:InvoiceLine"/>
+	</sequence>
+    </complexType>
+    <complexType name="Address">
+	<sequence>
+	    <element maxOccurs="1" minOccurs="1" name="addressLine1" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="addressLine2" nillable="true"
+		     type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="city" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="stateProvinceRegion" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="ZIPPostalCode" nillable="true"
+		     type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="country" type="string"/>
+	</sequence>
+    </complexType>
+    <complexType name="Person">
+	<sequence>
+	    <element maxOccurs="1" minOccurs="1" name="firstName" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="lastName" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="email" nillable="true"
+		     type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="contactPhoneNumber"
+		     nillable="true" type="string"/>
+	    <element maxOccurs="1" minOccurs="1" name="address" nillable="true"
+		     type="tns:Address"/>
+	</sequence>
+    </complexType>
+    <complexType name="Customer">
+	<complexContent>
+	    <extension base="tns:Person">
+		<sequence>
+		    <element maxOccurs="1" minOccurs="1" name="customerNumber"
+			     type="string"/>
+		    <element maxOccurs="1" minOccurs="1" name="supportLevel"
+			     type="tns:SupportLevel"/>
+		</sequence>
+	    </extension>
+	</complexContent>
+    </complexType>
+    <simpleType name="SupportLevel">
+	<restriction base="string">
+	    <enumeration value="Silver"/>
+	    <enumeration value="Bronze"/>
+	    <enumeration value="Gold"/>
+	</restriction>
+    </simpleType>
+</schema>
