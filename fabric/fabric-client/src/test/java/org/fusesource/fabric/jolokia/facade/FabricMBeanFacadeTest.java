@@ -11,9 +11,7 @@
 package org.fusesource.fabric.jolokia.facade;
 
 import org.codehaus.jackson.map.type.TypeFactory;
-import org.fusesource.fabric.jolokia.facade.dto.FabricDTO;
-import org.fusesource.fabric.jolokia.facade.dto.FabricRequirementsDTO;
-import org.fusesource.fabric.jolokia.facade.dto.VersionDTO;
+import org.fusesource.fabric.jolokia.facade.dto.*;
 import org.fusesource.fabric.jolokia.facade.mbeans.FabricMBean;
 import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.junit.Assume;
@@ -118,6 +116,124 @@ public class FabricMBeanFacadeTest {
             Assume.assumeNotNull(versions);
             for (Object version : versions) {
                 System.out.println(version);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFabricStatus() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.fabricStatus();
+
+        try {
+            FabricStatusDTO status = Helpers.getObjectMapper().readValue(json, FabricStatusDTO.class);
+            Assume.assumeNotNull(status);
+            System.out.println(status);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testContainers() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.containers();
+
+        try {
+            Collection<ContainerDTO> containers = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, ContainerDTO.class));
+            Assume.assumeNotNull(containers);
+            for (ContainerDTO container : containers) {
+                System.out.println(container);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testContainersWithFields() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.containers(Helpers.toList("id"));
+
+        try {
+            Collection<ContainerDTO> containers = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, ContainerDTO.class));
+            Assume.assumeNotNull(containers);
+            for (ContainerDTO container : containers) {
+                System.out.println(container);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetProfiles() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.getProfiles("1.0");
+
+        try {
+            Collection<ProfileDTO> profiles = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, ProfileDTO.class));
+            Assume.assumeNotNull(profiles);
+            for (ProfileDTO profile : profiles) {
+                System.out.println(profile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetProfilesFields() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.getProfiles("1.0", Helpers.toList("id"));
+
+        try {
+            Collection<ProfileDTO> profiles = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, ProfileDTO.class));
+            Assume.assumeNotNull(profiles);
+            for (ProfileDTO profile : profiles) {
+                System.out.println(profile);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testGetProfileIds() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricMBean facade = getFabricMBean();
+
+        String json = facade.getProfileIds("1.0");
+
+        try {
+            Collection<String> profiles = Helpers.getObjectMapper().readValue(json, TypeFactory.defaultInstance().constructParametricType(Collection.class, String.class));
+            Assume.assumeNotNull(profiles);
+            for (String profile : profiles) {
+                System.out.println("Profile id:" + profile);
             }
         } catch (Exception e) {
             e.printStackTrace();

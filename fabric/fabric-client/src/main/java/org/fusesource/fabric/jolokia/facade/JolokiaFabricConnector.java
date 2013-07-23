@@ -1,6 +1,7 @@
 package org.fusesource.fabric.jolokia.facade;
 
 import org.fusesource.fabric.jolokia.facade.facades.FabricServiceFacade;
+import org.fusesource.fabric.jolokia.facade.mbeans.FabricMBean;
 import org.jolokia.client.J4pClient;
 
 /**
@@ -13,6 +14,7 @@ public class JolokiaFabricConnector {
     private String password;
     private String url;
     private FabricServiceFacade fabricServiceFacade;
+    private FabricMBean fabricMBeanFacade;
 
     /**
      * creates the fabric connector and returns it
@@ -50,6 +52,7 @@ public class JolokiaFabricConnector {
         });
         */
         this.fabricServiceFacade = new FabricServiceFacade(this);
+        this.fabricMBeanFacade = new FabricMBean(this);
     }
 
     /**
@@ -62,6 +65,9 @@ public class JolokiaFabricConnector {
         if (this.fabricServiceFacade != null) {
             this.fabricServiceFacade = null;
         }
+        if (this.fabricMBeanFacade != null) {
+            this.fabricMBeanFacade = null;
+        }
     }
 
     /**
@@ -71,6 +77,10 @@ public class JolokiaFabricConnector {
      */
     public FabricServiceFacade getFabricServiceFacade() {
         return this.fabricServiceFacade;
+    }
+
+    public FabricMBean getFabricMBeanFacade() {
+        return this.fabricMBeanFacade;
     }
 
     /**

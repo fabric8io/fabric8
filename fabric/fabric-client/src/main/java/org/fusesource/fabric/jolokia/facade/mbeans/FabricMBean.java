@@ -11,8 +11,8 @@
 package org.fusesource.fabric.jolokia.facade.mbeans;
 
 import org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector;
+import org.fusesource.fabric.jolokia.facade.dto.FabricRequirementsDTO;
 import org.fusesource.fabric.jolokia.facade.utils.Helpers;
-import org.json.simple.JSONObject;
 
 import java.util.List;
 
@@ -38,15 +38,41 @@ public class FabricMBean {
         return Helpers.execToJSON(connector.getJolokiaClient(), "requirements()");
     }
 
-    public String requirements(Object requirements) {
-        return Helpers.execToJSON(connector.getJolokiaClient(), "requirements()", requirements);
+    public String requirements(FabricRequirementsDTO requirements) {
+        String json = Helpers.execToJSON(connector.getJolokiaClient(), "requirements(org.fusesource.fabric.api.FabricRequirement)", requirements);
+        System.out.println(json);
+        return json;
     }
 
     public String versions() {
         return Helpers.execToJSON(connector.getJolokiaClient(), "versions()");
     }
 
-    public String versions(List versions) {
-        return Helpers.execToJSON(connector.getJolokiaClient(), "versions(java.util.List)", versions);
+    public String versions(List versionsFields) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "versions(java.util.List)", versionsFields);
+    }
+
+    public String fabricStatus() {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "fabricStatus()");
+    }
+
+    public String containers() {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "containers()");
+    }
+
+    public String containers(List containersFields) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "containers(java.util.List)", containersFields);
+    }
+
+    public String getProfiles(String version) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "getProfiles(java.lang.String)", version);
+    }
+
+    public String getProfiles(String version, List profilesFields) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "getProfiles(java.lang.String,java.util.List)", version, profilesFields);
+    }
+
+    public String getProfileIds(String version) {
+        return Helpers.execToJSON(connector.getJolokiaClient(), "getProfileIds(java.lang.String)", version);
     }
 }

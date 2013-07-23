@@ -11,8 +11,8 @@
 package org.fusesource.fabric.jolokia.facade.facades;
 
 import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector;
+import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
@@ -230,7 +230,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public FabricRequirements getRequirements() {
-        throw new UnsupportedOperationException("The method is not yet implemented.");
+        return Helpers.exec(getJolokiaClient(), "requirements()");
     }
 
     @Override
@@ -240,10 +240,16 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public FabricStatus getFabricStatus() {
+        JSONObject obj = Helpers.exec(getJolokiaClient(), "fabricStatus()");
         FabricStatus status = null;
-        JSONObject o = Helpers.exec(getJolokiaClient(), "fabricstatus()");
-        System.out.println(o.toJSONString());
-
+        try {
+            Map<String, ProfileStatus> profileStatusMap = Helpers.getObjectMapper().readValue(obj.toJSONString(), Map.class);
+            System.out.println(profileStatusMap.size());
+            status = new FabricStatus(this);
+            status.getProfileStatusMap().putAll(profileStatusMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         return status;
     }
 

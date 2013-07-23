@@ -44,12 +44,22 @@ public class ContainerDTO {
     public boolean aliveAndOK;
     public int minimumPort;
     public int maximumPort;
-    public ContainerDTO parent;
-    public VersionDTO version;
-    public ProfileDTO overlayProfile;
-    public Set<ProfileDTO> profiles;
-    public Set<ContainerDTO> children;
+    public String parent;
+    public String version;
+    public ContainerDTO overlayProfile;
+    public Set<String> profiles;
+    public Set<String> children;
     public List<String> jmxDomains;
     public List<String> provisionList;
     public Map<Object, Object> metaData;
+
+    @Override
+    public String toString() {
+        return String.format("Container: { id: %s, type: %s, provisionStatus: %s, alive: %s, version: %s }",
+                id,
+                type,
+                provisionStatus,
+                alive,
+                version);
+    }
 }

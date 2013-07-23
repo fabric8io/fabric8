@@ -17,6 +17,8 @@ import java.util.Collection;
  */
 public class ProfileRequirementsDTO {
     public String profile;
+    public Integer count;
+    public Double health;
     public Integer minimumInstances;
     public Integer maximumInstances;
     public Collection<String> dependentProfiles;
@@ -31,10 +33,12 @@ public class ProfileRequirementsDTO {
             }
         }
 
-        return String.format("ProfileRequirements: (profile: %s, minimumInstances: %d, maximumInstances: %d, dependentProfiles: %s)",
+        return String.format("ProfileRequirements: (profile: %s, minimumInstances: %d, maximumInstances: %d, count: %d, health: %s, dependentProfiles: %s)",
                 profile,
                 minimumInstances,
                 maximumInstances,
+                count,
+                health,
                 deps);
     }
 }

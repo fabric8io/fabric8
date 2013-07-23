@@ -18,18 +18,29 @@ public class ProfileDTO {
     public String id;
     public String version;
     public long lastModified;
-    public boolean isOverlay;
-    public boolean isAbstract;
-    public boolean isLocked;
-    public boolean isHidden;
-    public Set<ProfileDTO> parents;
+    public boolean overlay;
+    public boolean _abstract;
+    public boolean locked;
+    public boolean hidden;
+    public Set<String> parents;
     public Map<String, String> attributes;
-    public Map<String, Map<String, String>> configurations;
-    public Map<String, byte[]> fileConfigurations;
-    public Set<ContainerDTO> associatedContainers;
+    public Set<String> configurations;
+    public Set<String> fileConfigurations;
+    public Set<String> associatedContainers;
     public List<String> bundles;
     public List<String> fabs;
     public List<String> features;
     public List<String> repositories;
     public List<String> overrides;
+
+    @Override
+    public String toString() {
+        return String.format("Profile: { id: %s, version: %s, overlay: %s, abstract: %s, locked: %s, hidden: %s }",
+                id,
+                version,
+                overlay,
+                _abstract,
+                locked,
+                hidden);
+    }
 }

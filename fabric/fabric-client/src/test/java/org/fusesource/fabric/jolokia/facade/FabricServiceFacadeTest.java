@@ -1,6 +1,7 @@
 package org.fusesource.fabric.jolokia.facade;
 
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.jolokia.facade.dto.FabricStatusDTO;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,15 +60,15 @@ public class FabricServiceFacadeTest {
     public void testGetFabricStatus() {
 
         // this can only be run if you have a fabric running...
-//        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
 
-//        FabricService service = getFabricService();
-//
-//        System.out.println("Grabbing Fabric Status...");
-//
-//        FabricStatus status = service.getFabricStatus();
-//
-//        System.out.println("Fabric Status: " + status);
+        FabricService service = getFabricService();
+
+        System.out.println("Grabbing Fabric Status...");
+
+        FabricStatus status = service.getFabricStatus();
+
+        System.out.println("Fabric Status: " + status);
     }
 
     @Test
