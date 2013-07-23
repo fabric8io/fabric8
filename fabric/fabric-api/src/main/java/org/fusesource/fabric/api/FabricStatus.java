@@ -24,12 +24,19 @@ import java.util.TreeMap;
  * Represents the current status of the Fabric in terms of requirements and current instances
  */
 public class FabricStatus {
-    private final FabricService service;
+    private FabricService service;
     private FabricRequirements requirements;
-    Map<String,ProfileStatus> profileStatusMap = new TreeMap<String, ProfileStatus>();
+    private Map<String,ProfileStatus> profileStatusMap = new TreeMap<String, ProfileStatus>();
+
+    public FabricStatus() {
+    }
 
     public FabricStatus(FabricService service) {
         this.service = service;
+        init();
+    }
+
+    public void init() {
         requirements = service.getRequirements();
         List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
         for (ProfileRequirements profileRequirement : profileRequirements) {
@@ -63,12 +70,24 @@ public class FabricStatus {
         return profileStatusMap;
     }
 
+    public void setProfileStatusMap(Map<String, ProfileStatus> profileStatusMap) {
+        this.profileStatusMap = profileStatusMap;
+    }
+
     public FabricRequirements getRequirements() {
         return requirements;
     }
 
+    public void setRequirements(FabricRequirements requirements) {
+        this.requirements = requirements;
+    }
+
     public FabricService getService() {
         return service;
+    }
+
+    public void setService(FabricService service) {
+        this.service = service;
     }
 
     protected ProfileStatus createStatus(String profileId, ProfileRequirements profileRequirement) {
