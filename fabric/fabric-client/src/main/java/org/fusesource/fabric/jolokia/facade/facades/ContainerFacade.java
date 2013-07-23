@@ -301,7 +301,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public String getProvisionResult() {
-        return getFieldValue("provisioningResult");
+        return getFieldValue("provisionResult");
     }
 
     @Override
@@ -311,7 +311,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public String getProvisionException() {
-        return getFieldValue("provisioningPending");
+        return getFieldValue("provisionException");
     }
 
     @Override
