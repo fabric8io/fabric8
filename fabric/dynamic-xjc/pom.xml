@@ -32,7 +32,7 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.xjc
+            org.fusesource.fabric.xjc;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
 <!--
         <fuse.osgi.activator>org.fusesource.fabric.xjc.Activator</fuse.osgi.activator>
