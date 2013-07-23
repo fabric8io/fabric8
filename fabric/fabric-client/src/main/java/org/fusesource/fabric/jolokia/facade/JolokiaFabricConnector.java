@@ -22,7 +22,7 @@ public class JolokiaFabricConnector {
      * @param url      the url
      * @return the initialized and ready to use connector
      */
-    static JolokiaFabricConnector getFabricConnector(String user, String password, String url) {
+    public static JolokiaFabricConnector getFabricConnector(String user, String password, String url) {
         JolokiaFabricConnector rc = new JolokiaFabricConnector();
         rc.setUserName(user);
         rc.setPassword(password);
