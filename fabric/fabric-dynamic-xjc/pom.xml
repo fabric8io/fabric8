@@ -32,15 +32,11 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.xjc
+            org.fusesource.fabric.xjc.profile*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
-<!--
-        <fuse.osgi.activator>org.fusesource.fabric.xjc.Activator</fuse.osgi.activator>
--->
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -57,11 +53,20 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>dynamic-xjc</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <dependency>

@@ -512,6 +512,15 @@
         <bundle>mvn:org.fusesource.fabric/fabric-partition/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-dynamic-xjc" version="${project.version}" resolver="(obr)">
+        <feature version="[2.4,3.0)">cxf-core</feature>
+        <feature version="${project.version}">fabric-core</feature>
+        <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-dynamic-xjc/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/dynamic-xjc/${project.version}</bundle>
+        <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
+    </feature>
+
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
         <!--
         <feature>war</feature>
