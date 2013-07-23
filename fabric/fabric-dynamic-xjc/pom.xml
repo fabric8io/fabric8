@@ -35,7 +35,12 @@
             org.fusesource.fabric.xjc.profile*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            org.fusesource.fabric.xjc*;version=${project.version},*
+            org.fusesource.fabric.xjc*;version=${project.version},
+            javax.xml.bind,
+            javax.xml.bind.annotation,
+            javax.xml.datatype,
+            javax.xml.namespace,
+            *
         </fuse.osgi.import>
     </properties>
 
