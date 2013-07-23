@@ -84,6 +84,9 @@
 
         <module>fabric-ldap</module>
 
+        <module>dynamic-xjc</module>
+        <module>fabric-dynamic-xjc</module>
+
         <module>fmc-branding</module>
         <module>fmc-webui</module>
         <module>fmc-webui-branding-example</module>
