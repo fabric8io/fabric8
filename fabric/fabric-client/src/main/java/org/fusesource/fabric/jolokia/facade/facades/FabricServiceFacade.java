@@ -10,10 +10,8 @@
  ******************************************************************************/
 package org.fusesource.fabric.jolokia.facade.facades;
 
-import org.codehaus.jackson.map.type.TypeFactory;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.jolokia.facade.JolokiaFabricConnector;
-import org.fusesource.fabric.jolokia.facade.dto.ProfileDTO;
 import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 import org.jolokia.client.request.J4pExecRequest;
@@ -24,7 +22,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -293,6 +290,16 @@ public class FabricServiceFacade implements FabricService {
     @Override
     public String containerWebAppURL(String s, String s2) {
         throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
+        return Helpers.exec(getJolokiaClient(), "getConfigurationValue(java.lang.String,java.lang.String,java.lang.String,java.lang.String)", versionId, profileId, pid, key);
+    }
+
+    @Override
+    public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
+        Helpers.exec(getJolokiaClient(), "setConfigurationValue(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String)", versionId, profileId, pid, key, value);
     }
 
     private J4pClient getJolokiaClient() {

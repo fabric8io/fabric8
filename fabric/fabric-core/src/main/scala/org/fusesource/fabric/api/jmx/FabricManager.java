@@ -28,8 +28,12 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.net.URI;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  */
@@ -907,5 +911,15 @@ public class FabricManager implements FabricManagerMBean {
             }
         }
 
+    }
+
+    @Override
+    public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
+        return getFabricService().getConfigurationValue(versionId, profileId, pid, key);
+    }
+
+    @Override
+    public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
+        getFabricService().setConfigurationValue(versionId, profileId, pid, key, value);
     }
 }

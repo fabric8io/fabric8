@@ -16,25 +16,15 @@
  */
 package org.fusesource.fabric.service;
 
+import com.google.common.base.Strings;
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.FabricStatus;
-import org.fusesource.fabric.api.PatchService;
-import org.fusesource.fabric.api.PortService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.FileSystem;
 import org.fusesource.fabric.api.jmx.HealthCheck;
 import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.utils.Constants;
@@ -48,21 +38,10 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.google.common.base.Strings;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generatePassword;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 
 public class FabricServiceImpl implements FabricService {
@@ -627,5 +606,57 @@ public class FabricServiceImpl implements FabricService {
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
         getDataStore().setDefaultJvmOptions(jvmOptions);
+    }
+
+    @Override
+    public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
+        Version v = getVersion(versionId);
+        if (v == null) throw new FabricException("No version found: " + versionId);
+        Profile pr = v.getProfile(profileId);
+        if (pr == null) throw new FabricException("No profile found: " + profileId);
+        Map<String, byte[]> configs = pr.getFileConfigurations();
+
+        byte[] b = configs.get(pid);
+
+        Properties p = null;
+
+        try {
+            if (b != null) {
+                p = DataStoreHelpers.toProperties(b);
+            } else {
+                p = new Properties();
+            }
+        } catch (Throwable t) {
+            throw new FabricException(t);
+        }
+
+        return p.getProperty(key);
+    }
+
+    @Override
+    public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
+        Version v = getVersion(versionId);
+        if (v == null) throw new FabricException("No version found: " + versionId);
+        Profile pr = v.getProfile(profileId);
+        if (pr == null) throw new FabricException("No profile found: " + profileId);
+        Map<String, byte[]> configs = pr.getFileConfigurations();
+
+        byte[] b = configs.get(pid);
+
+        Properties p = null;
+
+        try {
+            if (b != null) {
+                p = DataStoreHelpers.toProperties(b);
+            } else {
+                p = new Properties();
+            }
+            p.setProperty(key, value);
+            b = DataStoreHelpers.toBytes(p);
+            configs.put(pid, b);
+            pr.setFileConfigurations(configs);
+        } catch (Throwable t) {
+            throw new FabricException(t);
+        }
     }
 }

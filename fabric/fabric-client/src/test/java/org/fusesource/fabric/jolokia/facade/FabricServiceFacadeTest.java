@@ -1,7 +1,6 @@
 package org.fusesource.fabric.jolokia.facade;
 
 import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.jolokia.facade.dto.FabricStatusDTO;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
@@ -174,6 +173,69 @@ public class FabricServiceFacadeTest {
 
     }
 
+    @Test
+    public void testGetProfilesOfVersion() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
 
+        FabricService service = getFabricService();
 
+        Version v = service.getDefaultVersion();
+        Assume.assumeNotNull(v);
+        Profile[] profs = v.getProfiles();
+        Assume.assumeNotNull(profs);
+        for (Profile p : profs) {
+            System.out.println(p.getId() + " - " + p.getVersion());
+        }
+    }
+
+    @Test
+    public void testParentsOfProfile() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        FabricService service = getFabricService();
+
+        Version v = service.getDefaultVersion();
+        Assume.assumeNotNull(v);
+        Profile prof = v.getProfile("hawtio");
+        Assume.assumeNotNull(prof);
+        Profile[] parents = prof.getParents();
+
+        for (Profile p : parents) {
+            System.out.println(p.getId() + " - " + p.getVersion());
+        }
+    }
+
+    @Test
+    public void testConfigurationModifications() {
+        // this can only be run if you have a fabric running...
+        Assume.assumeTrue(Boolean.valueOf(System.getProperty("hasFabric")));
+
+        final String version = "1.0";
+        final String profile = "hawtio";
+        final String pid = "org.fusesource.fabric.agent.properties";
+        final String key = "feature.fabric-hawtio";
+        final String origVal = "fabric-hawtio";
+        final String testVal = "test1";
+
+        FabricService service = getFabricService();
+
+        String val = service.getConfigurationValue(version, profile, pid, key);
+        System.out.println("Original Value: " + val);
+        Assume.assumeNotNull(val);
+        Assume.assumeTrue(origVal.equals(val));
+
+        service.setConfigurationValue(version, profile, pid, key, testVal);
+        String val2 = service.getConfigurationValue(version, profile, pid, key);
+        System.out.println("New Value: " + val2);
+        Assume.assumeNotNull(val2);
+        Assume.assumeTrue(testVal.equals(val2));
+
+        service.setConfigurationValue(version, profile, pid, key, origVal);
+        val2 = service.getConfigurationValue(version, profile, pid, key);
+        System.out.println("Restored Value: " + val2);
+        Assume.assumeNotNull(val2);
+        Assume.assumeTrue(origVal.equals(val2));
+    }
 }

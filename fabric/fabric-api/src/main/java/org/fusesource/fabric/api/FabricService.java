@@ -235,4 +235,26 @@ public interface FabricService {
      * Returns the web app URL for the given web application (from its id)
      */
     String containerWebAppURL(String webAppId, String name);
+
+    /**
+     * returns the configuration value for the given key
+     *
+     * @param versionId     the version
+     * @param profileId     the profile id
+     * @param pid           the PID
+     * @param key           the configuration key
+     * @return  the value stored for that key
+     */
+    String getConfigurationValue(String versionId, String profileId, String pid, String key);
+
+    /**
+     * sets the configuration value for the given key
+     *
+     * @param versionId     the version
+     * @param profileId     the profile id
+     * @param pid           the pid
+     * @param key           the key
+     * @param value         the value
+     */
+    void setConfigurationValue(String versionId, String profileId, String pid, String key, String value);
 }

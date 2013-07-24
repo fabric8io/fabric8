@@ -6,6 +6,7 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.VersionSequence;
 import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
+import org.json.simple.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,13 +63,13 @@ public class VersionFacade implements Version, HasId {
     public Profile[] getProfiles() {
         List<Profile> rc = new ArrayList<Profile>();
 
-        String[] profiles = getFieldValue("profiles");
-        if (profiles == null || profiles.length == 0) {
+        JSONArray array = getFieldValue("profiles");
+        if (array == null || array.size() == 0) {
             return new Profile[0];
         }
 
-        for (String profile : profiles) {
-            rc.add(new ProfileFacade(j4p, id, profile));
+        for (Object profile : array) {
+            rc.add(new ProfileFacade(j4p, id, (String)profile));
         }
         return rc.toArray(new Profile[rc.size()]);
     }

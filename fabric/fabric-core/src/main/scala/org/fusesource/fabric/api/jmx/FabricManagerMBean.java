@@ -18,7 +18,6 @@ package org.fusesource.fabric.api.jmx;
 
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.FabricStatus;
 
 import java.io.IOException;
 import java.util.List;
@@ -207,4 +206,7 @@ public interface FabricManagerMBean {
 
     void applyPatches(List<String> files, String targetVersionId, String newVersionId, String proxyUser, String proxyPassword);
 
+    String getConfigurationValue(String versionId, String profileId, String pid, String key);
+
+    void setConfigurationValue(String versionId, String profileId, String pid, String key, String value);
 }
