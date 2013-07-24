@@ -19,18 +19,22 @@ package org.fusesource.camel.component.sap;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoDestinationManager;
-import com.sap.conn.jco.JCoException;
 
 /**
  * Represents an SAP destination endpoint for outbound communication to SAP.
  */
 public class SAPDestinationEndpoint extends SAPEndpoint {
 
-	protected String destinationName;
+    private static final Logger LOG = LoggerFactory.getLogger(SAPDestinationEndpoint.class);
+
+    protected String destinationName;
 	protected String rfcName;
+	protected boolean transacted;
 	protected JCoDestination destination;
 
 	public SAPDestinationEndpoint() {
@@ -72,9 +76,21 @@ public class SAPDestinationEndpoint extends SAPEndpoint {
 		this.rfcName = rfcName;
 	}
 
-	protected JCoDestination getDestination() throws JCoException {
+	public boolean isTransacted() {
+		return transacted;
+	}
+
+	public void setTransacted(boolean transacted) {
+		this.transacted = transacted;
+	}
+
+	protected JCoDestination getDestination() {
 		if (destination == null) {
-			destination = JCoDestinationManager.getDestination((destinationName));
+			try {
+				destination = JCoDestinationManager.getDestination((destinationName));
+			} catch (Exception e) {
+				LOG.warn("Failed to get destination object for endpoint. This exception will be ignored.", e);
+			}
 		}
 		return destination;
 	}

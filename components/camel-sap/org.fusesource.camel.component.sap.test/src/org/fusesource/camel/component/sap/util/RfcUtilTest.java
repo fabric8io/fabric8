@@ -157,7 +157,7 @@ public class RfcUtilTest {
 		
 	}
 	
-	@Test
+	//@Test
 	public void testApplesAndOranges() throws Exception {
 		// Create and initialize package
 		EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE;
@@ -274,6 +274,15 @@ public class RfcUtilTest {
         ((EList)appleBasket.eGet(feature)).add(orange);
         System.out.println("Apple basket contents: " + appleBasket.eGet(feature));
         
+	}
+	
+	@Test
+	public void testPackage() throws Exception {
+		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination");
+		EPackage ePackage = RfcUtil.getEPackage(jcoDestination.getRepository(), "http://sap.fusesource.org/rfc/NPL/BAPI_FLCUST_CREATEFROMDATA");
+        Resource res = new XMLResourceImpl();
+        res.getContents().add(ePackage);
+        res.save(System.out, null);
 	}
 
 }

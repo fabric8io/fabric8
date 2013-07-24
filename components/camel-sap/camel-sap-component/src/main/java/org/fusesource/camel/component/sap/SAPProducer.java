@@ -39,6 +39,7 @@ public class SAPProducer extends DefaultProducer {
 	}
 
 	public void process(Exchange exchange) throws Exception {
+		checkIfTransacted(exchange);
 		Structure request = exchange.getIn().getBody(Structure.class);
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("Calling '{}' RFC", getEndpoint().getRfcName());
@@ -52,5 +53,23 @@ public class SAPProducer extends DefaultProducer {
 	@Override
 	public SAPDestinationEndpoint getEndpoint() {
 		return (SAPDestinationEndpoint) super.getEndpoint();
+	}
+
+	protected void checkIfTransacted(Exchange exchange) {
+		if (getEndpoint().isTransacted()) {
+			// Initiate SAP Transaction for destination if necessary.
+			SAPDestinationTransaction transaction = new SAPDestinationTransaction(
+					getEndpoint().getDestinationName(), getEndpoint()
+							.getDestination());
+			if (!exchange.getUnitOfWork().containsSynchronization(
+					transaction)) {
+				// Begin SAP Transaction.
+				transaction.begin();
+				
+				// Add transaction to UOW: SAP Transaction committed/rolledback at end of exchange.
+				exchange.getUnitOfWork().addSynchronization(transaction);
+				
+			}
+		}
 	}
 }
