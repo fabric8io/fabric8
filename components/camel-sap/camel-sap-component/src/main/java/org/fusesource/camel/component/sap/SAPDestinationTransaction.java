@@ -22,79 +22,72 @@ import org.fusesource.camel.component.sap.util.RfcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sap.conn.jco.JCoContext;
 import com.sap.conn.jco.JCoDestination;
 
 public class SAPDestinationTransaction extends SynchronizationAdapter {
-	
-    private static final Logger LOG = LoggerFactory.getLogger(SAPDestinationTransaction.class);
-	
+
+	private static final Logger LOG = LoggerFactory
+			.getLogger(SAPDestinationTransaction.class);
+
 	private String destinationName;
-	
+
 	private JCoDestination destination;
 
-	public SAPDestinationTransaction(String destinationName, JCoDestination destination) {
+	public SAPDestinationTransaction(String destinationName,
+			JCoDestination destination) {
 		this.destinationName = destinationName;
 		this.destination = destination;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return destinationName.hashCode();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		return destinationName.equals(obj);
 	}
-	
+
 	public void begin() {
 		// Begin stateful session with destination SAP instance
-		JCoContext.begin(destination);
-		LOG.info("Destination '{}' is stateful: {}", destinationName, JCoContext.isStateful(destination));
-
+		RfcUtil.beginTransaction(destination);
 		LOG.debug("Began SAP Transaction for destination '{}'", destinationName);
 	}
-	
+
 	public void commit() throws Exception {
-		try {
-			LOG.info("Destination '{}' is stateful: {}", destinationName, JCoContext.isStateful(destination));
-			// Invoke BAPI_TRANSACTION_COMMIT
-			RfcUtil.commitTransaction(destination);
-			LOG.debug("Committed SAP Transaction for destination '{0}'", destinationName);
-		} finally {
-			// End stateful session with destination SAP instance
-			JCoContext.end(destination);
-		}
+		// Invoke BAPI_TRANSACTION_COMMIT
+		RfcUtil.commitTransaction(destination);
+		LOG.debug("Committed SAP Transaction for destination '{0}'",
+				destinationName);
 	}
-	
+
 	public void rollback() throws Exception {
-		try {
-			LOG.info("Destination '{}' is stateful: {}", destinationName, JCoContext.isStateful(destination));
-			// Invoke BAPI_TRANSACTION_ROLLBACK
-			RfcUtil.rollbackTransaction(destination);
-			LOG.debug("Rolledback SAP Transaction for destination '{0}'", destinationName);
-		} finally {
-			// End stateful session with destination SAP instance
-			JCoContext.end(destination);
-		}
+		// Invoke BAPI_TRANSACTION_ROLLBACK
+		RfcUtil.rollbackTransaction(destination);
+		LOG.debug("Rolledback SAP Transaction for destination '{0}'",
+				destinationName);
 	}
-	
+
 	@Override
 	public void onComplete(Exchange exchange) {
 		try {
 			commit();
 		} catch (Exception e) {
-			LOG.warn("Failed to commit SAP Transaction. This exception will be ignored.", e);
+			LOG.warn(
+					"Failed to commit SAP Transaction. This exception will be ignored.",
+					e);
 		}
 	}
-	
+
 	@Override
 	public void onFailure(Exchange exchange) {
 		try {
 			rollback();
 		} catch (Exception e) {
-			LOG.warn("Failed to rollback SAP Transaction. This exception will be ignored.", e);
+			LOG.warn(
+					"Failed to rollback SAP Transaction. This exception will be ignored.",
+					e);
 		}
 	}
 }

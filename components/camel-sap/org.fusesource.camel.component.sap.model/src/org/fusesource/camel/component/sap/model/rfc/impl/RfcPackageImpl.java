@@ -21,6 +21,7 @@ import java.util.Map;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EGenericType;
+import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypeParameter;
@@ -301,15 +302,6 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 */
 	public EClass getTable() {
 		return tableEClass;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EReference getTable_Row() {
-		return (EReference)tableEClass.getEStructuralFeatures().get(0);
 	}
 
 	/**
@@ -1119,7 +1111,6 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		createEReference(rfcEClass, RFC__DESTINATION);
 
 		tableEClass = createEClass(TABLE);
-		createEReference(tableEClass, TABLE__ROW);
 
 		structureEClass = createEClass(STRUCTURE);
 
@@ -1264,8 +1255,19 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		initEReference(getRFC_Destination(), this.getDestination(), this.getDestination_Rfcs(), "destination", null, 0, 1, org.fusesource.camel.component.sap.model.rfc.RFC.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(tableEClass, Table.class, "Table", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+
+		EOperation op = addEOperation(tableEClass, null, "getRows", 0, -1, IS_UNIQUE, IS_ORDERED);
 		g1 = createEGenericType(tableEClass_S);
-		initEReference(getTable_Row(), g1, null, "row", null, 0, -1, Table.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEOperation(op, g1);
+
+		op = addEOperation(tableEClass, null, "add", 0, 1, IS_UNIQUE, IS_ORDERED);
+		g1 = createEGenericType(tableEClass_S);
+		initEOperation(op, g1);
+
+		op = addEOperation(tableEClass, null, "add", 0, 1, IS_UNIQUE, IS_ORDERED);
+		addEParameter(op, ecorePackage.getEInt(), "index", 0, 1, IS_UNIQUE, IS_ORDERED);
+		g1 = createEGenericType(tableEClass_S);
+		initEOperation(op, g1);
 
 		initEClass(structureEClass, Structure.class, "Structure", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 

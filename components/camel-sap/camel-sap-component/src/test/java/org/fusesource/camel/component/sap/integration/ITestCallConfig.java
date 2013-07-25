@@ -44,7 +44,7 @@ public class ITestCallConfig extends CamelSpringTestSupport {
         JCoDestination destination = JCoDestinationManager.getDestination("nplDest");
         
         Structure request = RfcUtil.getRequest(destination.getRepository(), "BAPI_FLCUST_GETLIST");
-        RfcUtil.setValue(request, "MAX_ROWS", 1);
+        request.put("MAX_ROWS", 1);
         
         template.sendBody("direct:getFlcustList", request);
         

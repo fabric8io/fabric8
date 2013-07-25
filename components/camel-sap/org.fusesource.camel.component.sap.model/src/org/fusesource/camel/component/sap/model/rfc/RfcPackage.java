@@ -199,22 +199,13 @@ public interface RfcPackage extends EPackage {
 	int TABLE = 2;
 
 	/**
-	 * The feature id for the '<em><b>Row</b></em>' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 * @ordered
-	 */
-	int TABLE__ROW = 0;
-
-	/**
 	 * The number of structural features of the '<em>Table</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int TABLE_FEATURE_COUNT = 1;
+	int TABLE_FEATURE_COUNT = 0;
 
 	/**
 	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.StructureImpl <em>Structure</em>}' class.
@@ -1211,17 +1202,6 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 */
 	EClass getTable();
-
-	/**
-	 * Returns the meta object for the containment reference list '{@link org.fusesource.camel.component.sap.model.rfc.Table#getRow <em>Row</em>}'.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the meta object for the containment reference list '<em>Row</em>'.
-	 * @see org.fusesource.camel.component.sap.model.rfc.Table#getRow()
-	 * @see #getTable()
-	 * @generated
-	 */
-	EReference getTable_Row();
 
 	/**
 	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.Structure <em>Structure</em>}'.
@@ -2279,14 +2259,6 @@ public interface RfcPackage extends EPackage {
 		 * @generated
 		 */
 		EClass TABLE = eINSTANCE.getTable();
-
-		/**
-		 * The meta object literal for the '<em><b>Row</b></em>' containment reference list feature.
-		 * <!-- begin-user-doc -->
-		 * <!-- end-user-doc -->
-		 * @generated
-		 */
-		EReference TABLE__ROW = eINSTANCE.getTable_Row();
 
 		/**
 		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.StructureImpl <em>Structure</em>}' class.

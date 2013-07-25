@@ -23,34 +23,44 @@ import org.eclipse.emf.ecore.EObject;
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Table</b></em>'.
+ * @extends java.util.List<S>
  * <!-- end-user-doc -->
  *
- * <p>
- * The following features are supported:
- * <ul>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.Table#getRow <em>Row</em>}</li>
- * </ul>
- * </p>
  *
  * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getTable()
  * @model
  * @generated
  */
-public interface Table<S extends Structure> extends EObject {
+public interface Table<S extends Structure> extends EObject, java.util.List<S> {
 	/**
-	 * Returns the value of the '<em><b>Row</b></em>' containment reference list.
-	 * The list contents are of type {@link S}.
 	 * <!-- begin-user-doc -->
-	 * <p>
-	 * If the meaning of the '<em>Row</em>' containment reference list isn't clear,
-	 * there really should be more of a description here...
-	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Row</em>' containment reference list.
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getTable_Row()
-	 * @model containment="true"
+	 * @model kind="operation"
 	 * @generated
 	 */
-	EList<S> getRow();
+	EList<S> getRows();
 
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * Create and add new row to end of table.
+	 * 
+	 * @return The new row added to table.
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	S add();
+	
+	/**
+	 * <!-- begin-user-doc -->
+	 * Create and add new row to table at <code>index</code>.
+	 * 
+	 * @return The new row added to table.
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	S add(int index);
+	
 } // Table

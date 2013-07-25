@@ -17,50 +17,31 @@
 package org.fusesource.camel.component.sap.model.rfc.impl;
 
 import java.util.Collection;
-
-import org.eclipse.emf.common.notify.NotificationChain;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 import org.eclipse.emf.common.util.EList;
-
 import org.eclipse.emf.ecore.EClass;
-import org.eclipse.emf.ecore.InternalEObject;
-
+import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
-import org.eclipse.emf.ecore.util.EObjectContainmentEList;
-import org.eclipse.emf.ecore.util.InternalEList;
-
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
 
 /**
- * <!-- begin-user-doc -->
- * An implementation of the model object '<em><b>Table</b></em>'.
- * <!-- end-user-doc -->
+ * <!-- begin-user-doc --> An implementation of the model object '
+ * <em><b>Table</b></em>'. <!-- end-user-doc -->
  * <p>
- * The following features are implemented:
- * <ul>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.TableImpl#getRow <em>Row</em>}</li>
- * </ul>
  * </p>
  *
  * @generated
  */
-public class TableImpl<S extends Structure> extends EObjectImpl implements Table<S> {
+public class TableImpl<S extends Structure> extends EObjectImpl implements
+		Table<S> {
 	/**
-	 * The cached value of the '{@link #getRow() <em>Row</em>}' containment reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getRow()
-	 * @generated
-	 * @ordered
-	 */
-	protected EList<S> row;
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	protected TableImpl() {
@@ -68,8 +49,7 @@ public class TableImpl<S extends Structure> extends EObjectImpl implements Table
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
+	 * <!-- begin-user-doc --> <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
@@ -78,89 +58,157 @@ public class TableImpl<S extends Structure> extends EObjectImpl implements Table
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	public EList<S> getRow() {
-		if (row == null) {
-			row = new EObjectContainmentEList<S>(Structure.class, this, RfcPackage.TABLE__ROW);
-		}
-		return row;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
-		switch (featureID) {
-			case RfcPackage.TABLE__ROW:
-				return ((InternalEList<?>)getRow()).basicRemove(otherEnd, msgs);
-		}
-		return super.eInverseRemove(otherEnd, featureID, msgs);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	public Object eGet(int featureID, boolean resolve, boolean coreType) {
-		switch (featureID) {
-			case RfcPackage.TABLE__ROW:
-				return getRow();
-		}
-		return super.eGet(featureID, resolve, coreType);
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
+	 * @generated NOT 
 	 */
 	@SuppressWarnings("unchecked")
-	@Override
-	public void eSet(int featureID, Object newValue) {
-		switch (featureID) {
-			case RfcPackage.TABLE__ROW:
-				getRow().clear();
-				getRow().addAll((Collection<? extends S>)newValue);
-				return;
+	public EList<S> getRows() {
+		EStructuralFeature feature = eClass().getEStructuralFeature("row");
+		Object value = eGet(feature);
+		if (value == null) {
+			EClass eClass = ((EReference) feature).getEReferenceType();
+			value = eClass.getEPackage().getEFactoryInstance().create(eClass);
+			eSet(feature, value);
 		}
-		super.eSet(featureID, newValue);
+		return (EList<S>) value;
 	}
 
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
-	public void eUnset(int featureID) {
-		switch (featureID) {
-			case RfcPackage.TABLE__ROW:
-				getRow().clear();
-				return;
-		}
-		super.eUnset(featureID);
+	public int size() {
+		return getRows().size();
 	}
 
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
 	@Override
-	public boolean eIsSet(int featureID) {
-		switch (featureID) {
-			case RfcPackage.TABLE__ROW:
-				return row != null && !row.isEmpty();
-		}
-		return super.eIsSet(featureID);
+	public boolean isEmpty() {
+		return getRows().isEmpty();
 	}
 
-} //TableImpl
+	@Override
+	public boolean contains(Object o) {
+		return getRows().contains(0);
+	}
+
+	@Override
+	public Iterator<S> iterator() {
+		return getRows().iterator();
+	}
+
+	@Override
+	public Object[] toArray() {
+		return getRows().toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return getRows().toArray(a);
+	}
+
+	public S add() {
+		S newRow = createNewRow();
+		getRows().add(newRow);
+		return newRow;
+	}
+
+	public S add(int index) {
+		S newRow = createNewRow();
+		getRows().add(index, newRow);
+		return newRow;
+	}
+
+	@Override
+	public boolean add(S e) {
+		return getRows().add(e);
+	}
+
+	@Override
+	public boolean remove(Object o) {
+		return getRows().remove(o);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return getRows().containsAll(c);
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends S> c) {
+		return getRows().addAll(c);
+	}
+
+	@Override
+	public boolean addAll(int index, Collection<? extends S> c) {
+		return getRows().addAll(index, c);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return getRows().removeAll(c);
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return getRows().retainAll(c);
+	}
+
+	@Override
+	public void clear() {
+		getRows().clear();
+	}
+
+	@Override
+	public S get(int index) {
+		return getRows().get(index);
+	}
+
+	@Override
+	public S set(int index, S element) {
+		return getRows().set(index, element);
+	}
+
+	@Override
+	public void add(int index, S element) {
+		getRows().add(index, element);
+	}
+
+	@Override
+	public S remove(int index) {
+		return getRows().remove(index);
+	}
+
+	@Override
+	public int indexOf(Object o) {
+		return getRows().indexOf(o);
+	}
+
+	@Override
+	public int lastIndexOf(Object o) {
+		return getRows().lastIndexOf(o);
+	}
+
+	@Override
+	public ListIterator<S> listIterator() {
+		return getRows().listIterator();
+	}
+
+	@Override
+	public ListIterator<S> listIterator(int index) {
+		return getRows().listIterator(index);
+	}
+
+	@Override
+	public List<S> subList(int fromIndex, int toIndex) {
+		return getRows().subList(fromIndex, toIndex);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected S createNewRow() {
+		EStructuralFeature feature = eClass().getEStructuralFeature("row");
+		if (feature == null || !(feature instanceof EReference)) {
+			return null;
+		}
+
+		EClass rowType = ((EReference) feature).getEReferenceType();
+
+		return (S) rowType.getEPackage().getEFactoryInstance().create(rowType);
+	}
+
+} // TableImpl

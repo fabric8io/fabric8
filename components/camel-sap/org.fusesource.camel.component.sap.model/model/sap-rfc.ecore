@@ -24,9 +24,16 @@
     <eTypeParameters name="S">
       <eBounds eClassifier="#//Structure"/>
     </eTypeParameters>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="row" upperBound="-1" containment="true">
+    <eOperations name="getRows" upperBound="-1">
       <eGenericType eTypeParameter="#//Table/S"/>
-    </eStructuralFeatures>
+    </eOperations>
+    <eOperations name="add">
+      <eGenericType eTypeParameter="#//Table/S"/>
+    </eOperations>
+    <eOperations name="add">
+      <eGenericType eTypeParameter="#//Table/S"/>
+      <eParameters name="index" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    </eOperations>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Structure"/>
   <eClassifiers xsi:type="ecore:EClass" name="DestinationDataEntry" instanceClassName="java.util.Map$Entry">

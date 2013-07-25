@@ -432,26 +432,31 @@ public class RfcUtil {
 				response);
 	}
 
-	public static void beginTransaction(JCoDestination jcoDestination)
-			throws JCoException {
+	public static void beginTransaction(JCoDestination jcoDestination) {
 		JCoContext.begin(jcoDestination);
 	}
 
 	public static void commitTransaction(JCoDestination jcoDestination)
 			throws JCoException {
-		JCoRequest request = jcoDestination.getRepository().getRequest(
-				"BAPI_TRANSACTION_COMMIT");
-		request.setValue("WAIT", "X");
-		request.execute(jcoDestination);
-		JCoContext.end(jcoDestination);
+		try {
+			JCoRequest request = jcoDestination.getRepository().getRequest(
+					"BAPI_TRANSACTION_COMMIT");
+			request.setValue("WAIT", "X");
+			request.execute(jcoDestination);
+		} finally {
+			JCoContext.end(jcoDestination);
+		}
 	}
 
 	public static void rollbackTransaction(JCoDestination jcoDestination)
 			throws JCoException {
-		JCoRequest request = jcoDestination.getRepository().getRequest(
-				"BAPI_TRANSACTION_ROLLBACK");
-		request.execute(jcoDestination);
-		JCoContext.end(jcoDestination);
+		try {
+			JCoRequest request = jcoDestination.getRepository().getRequest(
+					"BAPI_TRANSACTION_ROLLBACK");
+			request.execute(jcoDestination);
+		} finally {
+			JCoContext.end(jcoDestination);
+		}
 	}
 
 	public static Object getValue(EObject object, String featureName) {
@@ -516,6 +521,22 @@ public class RfcUtil {
 		Structure newRow = (Structure) rowType.getEPackage()
 				.getEFactoryInstance().create(rowType);
 		records.add(newRow);
+		return newRow;
+	}
+
+	public static Structure addTableRow(Table<? extends Structure> table,
+			int index) {
+		EStructuralFeature feature = table.eClass().getEStructuralFeature(ROW);
+		if (feature == null || !(feature instanceof EReference)) {
+			return null;
+		}
+		EClass rowType = ((EReference) feature).getEReferenceType();
+		@SuppressWarnings("unchecked")
+		EList<Structure> records = (EList<Structure>) getValue(table, feature);
+
+		Structure newRow = (Structure) rowType.getEPackage()
+				.getEFactoryInstance().create(rowType);
+		records.add(index, newRow);
 		return newRow;
 	}
 
@@ -627,8 +648,13 @@ public class RfcUtil {
 	}
 
 	/**
-	 * Returns an {@link EObject} instance defined by the {@link EClass} with the name <code>eClassName</code> in the {@link EPackage} associated with the <code>functionModuleName</code> described in the <code>repository</code>.
-	 * @param repository - the {@link JCoRepository} describing 
+	 * Returns an {@link EObject} instance defined by the {@link EClass} with
+	 * the name <code>eClassName</code> in the {@link EPackage} associated with
+	 * the <code>functionModuleName</code> described in the
+	 * <code>repository</code>.
+	 * 
+	 * @param repository
+	 *            - the {@link JCoRepository} describing
 	 * @param functionModuleName
 	 * @param eClassName
 	 * @return
@@ -656,8 +682,13 @@ public class RfcUtil {
 	 * described in the given <code>repository</code>.
 	 * 
 	 * @param repository
-	 *            - the {@link JCoRepository} containing the meta data	 *            describing the designated {@link JCoFunction}.
-	 * @param nsURI - the URI designating {@link JCoFunction}. The URI format is of the form: http://sap.fusesource.org/rfc/{repository-name}/{jco-function-name}.
+	 *            - the {@link JCoRepository} containing the meta data *
+	 *            describing the designated {@link JCoFunction}.
+	 * @param nsURI
+	 *            - the URI designating {@link JCoFunction}. The URI format is
+	 *            of the form:
+	 *            http://sap.fusesource.org/rfc/{repository-name}/{jco
+	 *            -function-name}.
 	 * @return The {@link EPackage} instance.
 	 */
 	public static EPackage getEPackage(JCoRepository repository, String nsURI) {

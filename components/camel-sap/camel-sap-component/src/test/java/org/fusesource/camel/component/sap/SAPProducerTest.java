@@ -28,7 +28,6 @@ import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
-import org.fusesource.camel.component.sap.util.RfcUtil;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -81,47 +80,46 @@ public class SAPProducerTest extends SAPTestSupport {
 		Structure response = exchange.getIn().getBody(Structure.class);
 		assertThat("The response returned by route is an unexpected null value", response, notNullValue());
 		
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_INT_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(response, PARAM_LIST_INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(response, PARAM_LIST_FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(response, PARAM_LIST_BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(response, PARAM_LIST_BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(response, PARAM_LIST_BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(response, PARAM_LIST_DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(response, PARAM_LIST_TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM) returned '" +  RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(response, PARAM_LIST_STRING_PARAM), is(STRING_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_CHAR_PARAM) returned '" +  response.get(PARAM_LIST_CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) response.get(PARAM_LIST_CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_NUM_PARAM) returned '" +  response.get(PARAM_LIST_NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) response.get(PARAM_LIST_NUM_PARAM), is(NUM_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_INT_PARAM) returned '" +  response.get(PARAM_LIST_INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) response.get(PARAM_LIST_INT_PARAM), is(INT_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_FLOAT_PARAM) returned '" +  response.get(PARAM_LIST_FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) response.get(PARAM_LIST_FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_BCD_PARAM) returned '" +  response.get(PARAM_LIST_BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) response.get(PARAM_LIST_BCD_PARAM), is(BCD_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_BINARY_PARAM) returned '" +  response.get(PARAM_LIST_BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) response.get(PARAM_LIST_BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_BINARY_ARRAY_PARAM) returned '" +  response.get(PARAM_LIST_BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) response.get(PARAM_LIST_BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_DATE_PARAM) returned '" +  response.get(PARAM_LIST_DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) response.get(PARAM_LIST_DATE_PARAM), is(DATE_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_TIME_PARAM) returned '" +  response.get(PARAM_LIST_TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) response.get(PARAM_LIST_TIME_PARAM), is(TIME_PARAM_OUT_VAL));
+		assertThat("response.get(PARAM_LIST_STRING_PARAM) returned '" +  response.get(PARAM_LIST_STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) response.get(PARAM_LIST_STRING_PARAM), is(STRING_PARAM_OUT_VAL));
 		
-		Structure structure = (Structure) RfcUtil.getValue(response, PARAM_LIST_STRUCTURE_PARAM);
-		assertThat("RfcUtil.getValue(structure, PARAM_LIST_STRUCTURE_PARAM) returned unexpected null value", structure, notNullValue());
-		assertThat("RfcUtil.getValue(structure, CHAR_PARAM) returned '" +  RfcUtil.getValue(structure, CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, NUM_PARAM) returned '" +  RfcUtil.getValue(structure, NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, INT_PARAM) returned '" +  RfcUtil.getValue(structure, INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(structure, INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, FLOAT_PARAM) returned '" +  RfcUtil.getValue(structure, FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(structure, FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BCD_PARAM) returned '" +  RfcUtil.getValue(structure, BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(structure, BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BINARY_PARAM) returned '" +  RfcUtil.getValue(structure, BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(structure, BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(structure, BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(structure, BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, DATE_PARAM) returned '" +  RfcUtil.getValue(structure, DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(structure, DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, TIME_PARAM) returned '" +  RfcUtil.getValue(structure, TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(structure, TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(structure, STRING_PARAM) returned '" +  RfcUtil.getValue(structure, STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(structure, STRING_PARAM), is(STRING_PARAM_OUT_VAL));
+		Structure structure = (Structure) response.get(PARAM_LIST_STRUCTURE_PARAM);
+		assertThat("structure.get(PARAM_LIST_STRUCTURE_PARAM) returned unexpected null value", structure, notNullValue());
+		assertThat("structure.get(CHAR_PARAM) returned '" +  structure.get(CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) structure.get(CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
+		assertThat("structure.get(NUM_PARAM) returned '" +  structure.get(NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) structure.get(NUM_PARAM), is(NUM_PARAM_OUT_VAL));
+		assertThat("structure.get(INT_PARAM) returned '" +  structure.get(INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) structure.get(INT_PARAM), is(INT_PARAM_OUT_VAL));
+		assertThat("structure.get(FLOAT_PARAM) returned '" +  structure.get(FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) structure.get(FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
+		assertThat("structure.get(BCD_PARAM) returned '" +  structure.get(BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) structure.get(BCD_PARAM), is(BCD_PARAM_OUT_VAL));
+		assertThat("structure.get(BINARY_PARAM) returned '" +  structure.get(BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) structure.get(BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
+		assertThat("structure.get(BINARY_ARRAY_PARAM) returned '" +  structure.get(BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) structure.get(BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
+		assertThat("structure.get(DATE_PARAM) returned '" +  structure.get(DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) structure.get(DATE_PARAM), is(DATE_PARAM_OUT_VAL));
+		assertThat("structure.get(TIME_PARAM) returned '" +  structure.get(TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) structure.get(TIME_PARAM), is(TIME_PARAM_OUT_VAL));
+		assertThat("structure.get(STRING_PARAM) returned '" +  structure.get(STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) structure.get(STRING_PARAM), is(STRING_PARAM_OUT_VAL));
 		
 		@SuppressWarnings("unchecked")
-		Table<? extends Structure> table = (Table<? extends Structure>) RfcUtil.getValue(response, PARAM_LIST_TABLE_PARAM);
-		assertThat("RfcUtil.getValue(response, PARAM_LIST_TABLE_PARAM) returned unexpected null value", table, notNullValue());
-		@SuppressWarnings("unchecked")
-		List<? extends Structure> rows = (List<? extends Structure>) RfcUtil.getValue(table, "row");
+		Table<? extends Structure> table = (Table<? extends Structure>) response.get(PARAM_LIST_TABLE_PARAM);
+		assertThat("response.get(PARAM_LIST_TABLE_PARAM) returned unexpected null value", table, notNullValue());
+		List<? extends Structure> rows = table.getRows();
 		assertThat("rows.size() returned '" + rows.size() + "' instead of expected value of '1'", rows.size(), is(1));
 		Structure tableRow = rows.get(0);
-		assertThat("RfcUtil.getValue(tableRow, CHAR_PARAM) returned '" +  RfcUtil.getValue(tableRow, CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, NUM_PARAM) returned '" +  RfcUtil.getValue(tableRow, NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, NUM_PARAM), is(NUM_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, INT_PARAM) returned '" +  RfcUtil.getValue(tableRow, INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) RfcUtil.getValue(tableRow, INT_PARAM), is(INT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, FLOAT_PARAM) returned '" +  RfcUtil.getValue(tableRow, FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) RfcUtil.getValue(tableRow, FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BCD_PARAM) returned '" +  RfcUtil.getValue(tableRow, BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) RfcUtil.getValue(tableRow, BCD_PARAM), is(BCD_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BINARY_PARAM) returned '" +  RfcUtil.getValue(tableRow, BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(tableRow, BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM) returned '" +  RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) RfcUtil.getValue(tableRow, BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, DATE_PARAM) returned '" +  RfcUtil.getValue(tableRow, DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(tableRow, DATE_PARAM), is(DATE_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, TIME_PARAM) returned '" +  RfcUtil.getValue(tableRow, TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) RfcUtil.getValue(tableRow, TIME_PARAM), is(TIME_PARAM_OUT_VAL));
-		assertThat("RfcUtil.getValue(tableRow, STRING_PARAM) returned '" +  RfcUtil.getValue(tableRow, STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) RfcUtil.getValue(tableRow, STRING_PARAM), is(STRING_PARAM_OUT_VAL));
+		assertThat("tableRow.get(CHAR_PARAM) returned '" +  tableRow.get(CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) tableRow.get(CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
+		assertThat("tableRow.get(NUM_PARAM) returned '" +  tableRow.get(NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) tableRow.get(NUM_PARAM), is(NUM_PARAM_OUT_VAL));
+		assertThat("tableRow.get(INT_PARAM) returned '" +  tableRow.get(INT_PARAM) + "' instead of expected value '" + INT_PARAM_OUT_VAL + "'", (Integer) tableRow.get(INT_PARAM), is(INT_PARAM_OUT_VAL));
+		assertThat("tableRow.get(FLOAT_PARAM) returned '" +  tableRow.get(FLOAT_PARAM) + "' instead of expected value '" + FLOAT_PARAM_OUT_VAL + "'", (Double) tableRow.get(FLOAT_PARAM), is(FLOAT_PARAM_OUT_VAL));
+		assertThat("tableRow.get(BCD_PARAM) returned '" +  tableRow.get(BCD_PARAM) + "' instead of expected value '" + BCD_PARAM_OUT_VAL + "'", (BigDecimal) tableRow.get(BCD_PARAM), is(BCD_PARAM_OUT_VAL));
+		assertThat("tableRow.get(BINARY_PARAM) returned '" +  tableRow.get(BINARY_PARAM) + "' instead of expected value '" + BINARY_PARAM_OUT_VAL + "'", (byte[]) tableRow.get(BINARY_PARAM), is(BINARY_PARAM_OUT_VAL));
+		assertThat("tableRow.get(BINARY_ARRAY_PARAM) returned '" +  tableRow.get(BINARY_ARRAY_PARAM) + "' instead of expected value '" + BINARY_ARRAY_PARAM_OUT_VAL + "'", (byte[]) tableRow.get(BINARY_ARRAY_PARAM), is(BINARY_ARRAY_PARAM_OUT_VAL));
+		assertThat("tableRow.get(DATE_PARAM) returned '" +  tableRow.get(DATE_PARAM) + "' instead of expected value '" + DATE_PARAM_OUT_VAL + "'", (Date) tableRow.get(DATE_PARAM), is(DATE_PARAM_OUT_VAL));
+		assertThat("tableRow.get(TIME_PARAM) returned '" +  tableRow.get(TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) tableRow.get(TIME_PARAM), is(TIME_PARAM_OUT_VAL));
+		assertThat("tableRow.get(STRING_PARAM) returned '" +  tableRow.get(STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) tableRow.get(STRING_PARAM), is(STRING_PARAM_OUT_VAL));
 	}
 
 	@Override

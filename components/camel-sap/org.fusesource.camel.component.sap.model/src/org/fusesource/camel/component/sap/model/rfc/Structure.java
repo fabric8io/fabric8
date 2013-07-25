@@ -21,6 +21,7 @@ import org.eclipse.emf.ecore.EObject;
 /**
  * <!-- begin-user-doc -->
  * A representation of the model object '<em><b>Structure</b></em>'.
+ * @extends java.util.Map<String,Object>
  * <!-- end-user-doc -->
  *
  *
@@ -28,5 +29,5 @@ import org.eclipse.emf.ecore.EObject;
  * @model
  * @generated
  */
-public interface Structure extends EObject {
+public interface Structure extends EObject, java.util.Map<String, Object> {
 } // Structure

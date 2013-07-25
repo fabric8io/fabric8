@@ -41,20 +41,20 @@ public class ITestTransactionalCallConfig extends CamelSpringTestSupport {
         JCoDestination destination = JCoDestinationManager.getDestination("nplDest");
         
         Structure request = RfcUtil.getRequest(destination.getRepository(), "BAPI_FLCUST_CREATEFROMDATA");
-        RfcUtil.setValue(request, "TEST_RUN", "");
-        Structure customerData = (Structure) RfcUtil.getValue(request, "CUSTOMER_DATA");
-        RfcUtil.setValue(customerData, "CUSTNAME", "Barney Rubble");
-        RfcUtil.setValue(customerData, "FORM", "Mr.");
-        RfcUtil.setValue(customerData, "STREET", "456 Cobblestone Ave");
-        RfcUtil.setValue(customerData, "POBOX", "987");
-        RfcUtil.setValue(customerData, "POSTCODE", "99999");
-        RfcUtil.setValue(customerData, "CITY", "Bedrock");
-        RfcUtil.setValue(customerData, "CONTR", "US");
-        RfcUtil.setValue(customerData, "REGION", "PA");
-        RfcUtil.setValue(customerData, "PHONE", "18005551212");
-        RfcUtil.setValue(customerData, "CUSTTYPE", "P");
-        RfcUtil.setValue(customerData, "DISCOUNT", "005");
-        RfcUtil.setValue(customerData, "LANG_ISO", "en");
+        request.put("TEST_RUN", "");
+        Structure customerData = (Structure) request.get("CUSTOMER_DATA");
+        customerData.put("CUSTNAME", "Barney Rubble");
+        customerData.put("FORM", "Mr.");
+        customerData.put("STREET", "456 Cobblestone Ave");
+        customerData.put("POBOX", "987");
+        customerData.put("POSTCODE", "99999");
+        customerData.put("CITY", "Bedrock");
+        customerData.put("CONTR", "US");
+        customerData.put("REGION", "PA");
+        customerData.put("PHONE", "18005551212");
+        customerData.put("CUSTTYPE", "P");
+        customerData.put("DISCOUNT", "005");
+        customerData.put("LANG_ISO", "en");
         
         template.sendBody("direct:createFlcustList", request);
         

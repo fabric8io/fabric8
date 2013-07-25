@@ -647,42 +647,42 @@ public abstract class SAPTestSupport extends CamelSpringTestSupport {
 
 		Structure request = RfcUtil.getRequest(mockRepository, FUNCTION_MODULE_NAME);
 		
-		RfcUtil.setValue(request, PARAM_LIST_CHAR_PARAM, CHAR_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_NUM_PARAM, NUM_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_INT_PARAM, INT_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_FLOAT_PARAM, FLOAT_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_BCD_PARAM, BCD_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_BINARY_PARAM, BINARY_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_BINARY_ARRAY_PARAM, BINARY_ARRAY_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_DATE_PARAM, DATE_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_TIME_PARAM, TIME_PARAM_IN_VAL);
-		RfcUtil.setValue(request, PARAM_LIST_STRING_PARAM, STRING_PARAM_IN_VAL);
+		request.put(PARAM_LIST_CHAR_PARAM, CHAR_PARAM_IN_VAL);
+		request.put(PARAM_LIST_NUM_PARAM, NUM_PARAM_IN_VAL);
+		request.put(PARAM_LIST_INT_PARAM, INT_PARAM_IN_VAL);
+		request.put(PARAM_LIST_FLOAT_PARAM, FLOAT_PARAM_IN_VAL);
+		request.put(PARAM_LIST_BCD_PARAM, BCD_PARAM_IN_VAL);
+		request.put(PARAM_LIST_BINARY_PARAM, BINARY_PARAM_IN_VAL);
+		request.put(PARAM_LIST_BINARY_ARRAY_PARAM, BINARY_ARRAY_PARAM_IN_VAL);
+		request.put(PARAM_LIST_DATE_PARAM, DATE_PARAM_IN_VAL);
+		request.put(PARAM_LIST_TIME_PARAM, TIME_PARAM_IN_VAL);
+		request.put(PARAM_LIST_STRING_PARAM, STRING_PARAM_IN_VAL);
 		
-		Structure structure = (Structure) RfcUtil.getValue(request, PARAM_LIST_STRUCTURE_PARAM);
-		RfcUtil.setValue(structure, CHAR_PARAM, CHAR_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, NUM_PARAM, NUM_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, INT_PARAM, INT_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, FLOAT_PARAM, FLOAT_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, BCD_PARAM, BCD_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, BINARY_PARAM, BINARY_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, BINARY_ARRAY_PARAM, BINARY_ARRAY_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, DATE_PARAM, DATE_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, TIME_PARAM, TIME_PARAM_IN_VAL);
-		RfcUtil.setValue(structure, STRING_PARAM, STRING_PARAM_IN_VAL);
+		Structure structure = (Structure) request.get(PARAM_LIST_STRUCTURE_PARAM);
+		structure.put(CHAR_PARAM, CHAR_PARAM_IN_VAL);
+		structure.put(NUM_PARAM, NUM_PARAM_IN_VAL);
+		structure.put(INT_PARAM, INT_PARAM_IN_VAL);
+		structure.put(FLOAT_PARAM, FLOAT_PARAM_IN_VAL);
+		structure.put(BCD_PARAM, BCD_PARAM_IN_VAL);
+		structure.put(BINARY_PARAM, BINARY_PARAM_IN_VAL);
+		structure.put(BINARY_ARRAY_PARAM, BINARY_ARRAY_PARAM_IN_VAL);
+		structure.put(DATE_PARAM, DATE_PARAM_IN_VAL);
+		structure.put(TIME_PARAM, TIME_PARAM_IN_VAL);
+		structure.put(STRING_PARAM, STRING_PARAM_IN_VAL);
 		
 		@SuppressWarnings("unchecked")
-		Table<? extends Structure> table = (Table<? extends Structure>) RfcUtil.getValue(request, PARAM_LIST_TABLE_PARAM);
-		Structure row = RfcUtil.addTableRow(table);
-		RfcUtil.setValue(row, CHAR_PARAM, CHAR_PARAM_IN_VAL);
-		RfcUtil.setValue(row, NUM_PARAM, NUM_PARAM_IN_VAL);
-		RfcUtil.setValue(row, INT_PARAM, INT_PARAM_IN_VAL);
-		RfcUtil.setValue(row, FLOAT_PARAM, FLOAT_PARAM_IN_VAL);
-		RfcUtil.setValue(row, BCD_PARAM, BCD_PARAM_IN_VAL);
-		RfcUtil.setValue(row, BINARY_PARAM, BINARY_PARAM_IN_VAL);
-		RfcUtil.setValue(row, BINARY_ARRAY_PARAM, BINARY_ARRAY_PARAM_IN_VAL);
-		RfcUtil.setValue(row, DATE_PARAM, DATE_PARAM_IN_VAL);
-		RfcUtil.setValue(row, TIME_PARAM, TIME_PARAM_IN_VAL);
-		RfcUtil.setValue(row, STRING_PARAM, STRING_PARAM_IN_VAL);
+		Table<? extends Structure> table = (Table<? extends Structure>) request.get(PARAM_LIST_TABLE_PARAM);
+		Structure row = table.add();
+		row.put(CHAR_PARAM, CHAR_PARAM_IN_VAL);
+		row.put(NUM_PARAM, NUM_PARAM_IN_VAL);
+		row.put(INT_PARAM, INT_PARAM_IN_VAL);
+		row.put(FLOAT_PARAM, FLOAT_PARAM_IN_VAL);
+		row.put(BCD_PARAM, BCD_PARAM_IN_VAL);
+		row.put(BINARY_PARAM, BINARY_PARAM_IN_VAL);
+		row.put(BINARY_ARRAY_PARAM, BINARY_ARRAY_PARAM_IN_VAL);
+		row.put(DATE_PARAM, DATE_PARAM_IN_VAL);
+		row.put(TIME_PARAM, TIME_PARAM_IN_VAL);
+		row.put(STRING_PARAM, STRING_PARAM_IN_VAL);
 
 		return request;
 	}
