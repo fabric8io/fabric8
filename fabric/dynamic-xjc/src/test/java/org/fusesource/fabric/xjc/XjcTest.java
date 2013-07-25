@@ -17,6 +17,7 @@
 package org.fusesource.fabric.xjc;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import javax.xml.bind.JAXBContext;
 
@@ -34,14 +35,7 @@ public class XjcTest  {
 
     @Test
     public void testGeneratesClassesForXsd() throws Exception {
-        String url;
-        URL resource = getClass().getClassLoader().getResource("xsds/invoice.xsd");
-        if (resource != null) {
-            url = resource.toString();
-        } else {
-            url = new File("src/test/resources/xsds/invoice.xsd").toURI().toURL().toString();
-        }
-        LOG.info("Using system ID for schema: " + url);
+        String url = getSchemaURL("xsds/invoice.xsd");
 
         xjc.addSchemaUrl(url);
 
@@ -51,6 +45,18 @@ public class XjcTest  {
 
         ClassLoader classLoader = results.getClassLoader();
         assertLoadClasses(classLoader, "org.apache.invoice.Invoice", "org.apache.invoice.Address");
+    }
+
+    public static String getSchemaURL(String path) throws MalformedURLException {
+        String url;
+        URL resource = XjcTest.class.getClassLoader().getResource(path);
+        if (resource != null) {
+            url = resource.toString();
+        } else {
+            url = new File("src/test/resources/" + path).toURI().toURL().toString();
+        }
+        LOG.info("Using system ID for schema: " + url);
+        return url;
     }
 
     public static void assertLoadClasses(ClassLoader classLoader, String... classNames) {

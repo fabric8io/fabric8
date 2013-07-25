@@ -73,6 +73,11 @@ public class DynamicXJC {
         this.classLoader = classLoader;
     }
 
+    public void compileAndUpdate(DynamicJaxbDataFormat dataFormat) {
+        CompileResults compileResults = compileSchemas();
+        dataFormat.updateCompileResults(compileResults);
+    }
+
     public CompileResults compileSchemas() {
         SchemaCompiler compiler = createSchemaCompiler();
 
@@ -86,7 +91,8 @@ public class DynamicXJC {
         boolean first = true;
         StringBuilder sb = new StringBuilder();
 
-        for (String schemaUrl : getSchemaUrls()) {
+        for (String rawUrl : getSchemaUrls()) {
+            String schemaUrl = resolveUrl(rawUrl);
             InnerErrorListener listener = new InnerErrorListener(schemaUrl);
             Object elForRun = ReflectionInvokationHandler
                     .createProxyWrapper(listener,
@@ -207,6 +213,26 @@ public class DynamicXJC {
             compiler.getOptions().parseArguments(schemaCompilerOptions);
         }
         return compiler;
+    }
+
+    /**
+     * Lets try deal with URLs which start with classpath:
+     */
+    protected String resolveUrl(String rawUrl) {
+        String classpathPrefix = "classpath:";
+        if (rawUrl.startsWith(classpathPrefix)) {
+            String remaining = rawUrl.substring(classpathPrefix.length());
+            // lets see if we can find the URL on the class loader
+            try {
+                URL resource = ClassLoaderUtils.getResource(remaining, getClass());
+                if (resource != null) {
+                    return resource.toString();
+                }
+            } catch (Throwable e) {
+                LOG.fine("Ignored error trying to resolve '" + remaining + "' on the classpath: " + e);
+            }
+        }
+        return rawUrl;
     }
 
     private boolean isValidPackage(JPackage jpackage) {
