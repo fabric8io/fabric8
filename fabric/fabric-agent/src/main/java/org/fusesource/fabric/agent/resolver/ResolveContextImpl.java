@@ -16,20 +16,6 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
-import org.apache.felix.framework.capabilityset.*;
-import org.apache.felix.utils.filter.FilterImpl;
-import org.osgi.framework.Constants;
-import org.osgi.framework.InvalidSyntaxException;
-import org.osgi.framework.namespace.BundleNamespace;
-import org.osgi.framework.namespace.HostNamespace;
-import org.osgi.framework.namespace.PackageNamespace;
-import org.osgi.resource.Capability;
-import org.osgi.resource.Requirement;
-import org.osgi.resource.Resource;
-import org.osgi.resource.Wiring;
-import org.osgi.service.resolver.HostedCapability;
-import org.osgi.service.resolver.ResolveContext;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -38,42 +24,34 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.osgi.framework.Constants;
+import org.osgi.resource.Capability;
+import org.osgi.resource.Requirement;
+import org.osgi.resource.Resource;
+import org.osgi.resource.Wiring;
+import org.osgi.service.repository.Repository;
+import org.osgi.service.resolver.HostedCapability;
+import org.osgi.service.resolver.ResolveContext;
+
 /**
 */
 public class ResolveContextImpl extends ResolveContext {
 
     private final Set<Resource> mandatory;
     private final Set<Resource> optional;
-    private final Collection<Resource> resources;
+    private final Repository repository;
     private final Map<Resource, Wiring> wirings;
-    private final Map<Requirement, List<Capability>> providers;
     private final boolean resolveOptional;
 
-    // Capability sets.
-    private final Map<String, CapabilitySet> capSets;
-
-    public ResolveContextImpl(Set<Resource> mandatory, Set<Resource> optional,
-                              Collection<Resource> resources, boolean resolveOptional) {
+    public ResolveContextImpl(Set<Resource> mandatory,
+                              Set<Resource> optional,
+                              Repository repository,
+                              boolean resolveOptional) {
         this.mandatory = mandatory;
         this.optional = optional;
-        this.resources = resources;
+        this.repository = repository;
         this.wirings = new HashMap<Resource, Wiring>();
-        this.providers = new HashMap<Requirement, List<Capability>>();
         this.resolveOptional = resolveOptional;
-
-        this.capSets = new HashMap<String, CapabilitySet>();
-
-        for (Resource resource : resources) {
-            for (Capability cap : resource.getCapabilities(null)) {
-                String ns = cap.getNamespace();
-                CapabilitySet set = capSets.get(ns);
-                if (set == null) {
-                    set = new CapabilitySet(Collections.singletonList(ns));
-                    capSets.put(ns, set);
-                }
-                set.addCapability(cap);
-            }
-        }
     }
 
     @Override
@@ -88,25 +66,14 @@ public class ResolveContextImpl extends ResolveContext {
 
     @Override
     public List<Capability> findProviders(Requirement requirement) {
-        List<Capability> caps = providers.get(requirement);
-        if (caps == null) {
-            CapabilitySet set = capSets.get(requirement.getNamespace());
-            if (set == null) {
-                throw new IllegalStateException("Unknown requirement namespace for " + requirement);
-            }
-            SimpleFilter sf;
-            if (requirement instanceof RequirementImpl) {
-                sf = ((RequirementImpl) requirement).getFilter();
-            } else {
-                String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
-                sf = (filter != null)
-                        ? SimpleFilter.parse(filter)
-                        : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
-            }
-            caps = new ArrayList<Capability>(set.match(sf, true));
-            Collections.sort(caps, new CandidateComparator());
-            providers.put(requirement, caps);
+        List<Capability> caps = new ArrayList<Capability>();
+        Map<Requirement, Collection<Capability>> resMap =
+                repository.findProviders(Collections.singleton(requirement));
+        Collection<Capability> res = resMap != null ? resMap.get(requirement) : null;
+        if (res != null) {
+            caps.addAll(res);
         }
+        Collections.sort(caps, new CandidateComparator());
         return caps;
     }
     @Override

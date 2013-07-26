@@ -228,6 +228,7 @@
             org.fusesource.fabric.agent;
             org.fusesource.fabric.agent.download;
             org.fusesource.fabric.agent.mvn;
+            org.fusesource.fabric.agent.repository;
             org.fusesource.fabric.agent.resolver;
             org.fusesource.fabric.agent.sort;
             org.fusesource.fabric.agent.utils;
@@ -247,6 +248,7 @@
             org.ops4j.pax.url.commons.handler;
             org.ops4j.util.property;
             org.osgi.service.resolver;
+            org.osgi.service.repository;
             org.sonatype.aether;
             org.sonatype.aether.artifact;
             org.sonatype.aether.collection;
@@ -315,6 +317,12 @@
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.enterprise</artifactId>
             <scope>provided</scope>
         </dependency>
 

@@ -26,6 +26,8 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.fusesource.common.util.Manifests;
 import org.fusesource.fabric.agent.download.DownloadManager;
+import org.fusesource.fabric.agent.repository.AggregateRepository;
+import org.fusesource.fabric.agent.repository.StaticRepository;
 import org.fusesource.fabric.agent.resolver.FeatureNamespace;
 import org.fusesource.fabric.agent.resolver.FeatureResource;
 import org.fusesource.fabric.agent.resolver.RequirementImpl;
@@ -54,6 +56,7 @@ import org.osgi.service.resolver.ResolutionException;
 import org.osgi.service.resolver.ResolveContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.actors.threadpool.Arrays;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,6 +91,8 @@ public class DeploymentBuilder {
     private final FabResolverFactory fabResolverFactory;
     private final Collection<Repository> repositories;
 
+    private final List<org.osgi.service.repository.Repository> resourceRepos;
+
     String featureRange = "${version;==}";
 
     AgentUtils.FileDownloader downloader;
@@ -103,6 +108,11 @@ public class DeploymentBuilder {
         this.manager = manager;
         this.fabResolverFactory = fabResolverFactory;
         this.repositories = repositories;
+        this.resourceRepos = new ArrayList<org.osgi.service.repository.Repository>();
+    }
+
+    public void addResourceRepository(org.osgi.service.repository.Repository repository) {
+        resourceRepos.add(repository);
     }
 
     public Map<String, StreamProvider> getProviders() {
@@ -193,11 +203,15 @@ public class DeploymentBuilder {
         // Resolve
         resources.put("system-bundle", systemBundle);
 
+        List<org.osgi.service.repository.Repository> repos = new ArrayList<org.osgi.service.repository.Repository>();
+        repos.add(new StaticRepository(resources.values()));
+        repos.addAll(resourceRepos);
+
         ResolverImpl resolver = new ResolverImpl(new Slf4jResolverLog(LOGGER));
         ResolveContext context = new ResolveContextImpl(
                 Collections.<Resource>singleton(requirements),
                 Collections.<Resource>emptySet(),
-                resources.values(),
+                new AggregateRepository(repos),
                 resolveOptionalImports);
 
         Map<Resource, List<Wire>> wiring = resolver.resolve(context);
