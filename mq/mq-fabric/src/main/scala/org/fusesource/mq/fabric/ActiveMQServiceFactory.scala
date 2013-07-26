@@ -393,7 +393,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
                 trystartup
               } else {
                 start_thread = null
-                last_modified = server._3.lastModified()
+                if (server != null) {
+                  last_modified = server._3.lastModified()
+                }
               }
             }
           }
