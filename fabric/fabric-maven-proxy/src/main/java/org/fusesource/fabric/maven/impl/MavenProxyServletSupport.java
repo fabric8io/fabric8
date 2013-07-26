@@ -220,7 +220,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 system.install(session, request);
                 success = true;
             } catch (Exception e) {
-                LOGGER.log(Level.WARNING, String.format("Failed to uploade metadata: %s due to %s", path, e));
+                LOGGER.log(Level.WARNING, String.format("Failed to upload metadata: %s due to %s", path, e));
                 success = false;
             }
             //If no matching metadata found return nothing
