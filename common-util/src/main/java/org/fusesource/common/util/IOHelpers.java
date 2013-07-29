@@ -18,11 +18,13 @@ package org.fusesource.common.util;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 
 /**
  */
@@ -32,6 +34,14 @@ public class IOHelpers {
 
     public static void writeTo(File file, InputStream in) throws IOException {
         writeTo(file, in, BUFFER_SIZE);
+    }
+
+
+    /**
+     * Writes the given string as data to the given file
+     */
+    public static void writeTo(File newFile, String text) throws IOException {
+        writeTo(newFile, new ByteArrayInputStream(text.getBytes()));
     }
 
     public static void writeTo(File file, InputStream in, int bufferSize) throws IOException {
@@ -60,4 +70,5 @@ public class IOHelpers {
             }
         }
     }
+
 }

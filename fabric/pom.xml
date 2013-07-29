@@ -63,6 +63,8 @@
         <module>fabric-configadmin</module>
         <module>fabric-zeroconf</module>
 
+        <module>watcher-core</module>
+
         <module>fabric-cxf</module>
         <module>fabric-camel</module>
 <!--
