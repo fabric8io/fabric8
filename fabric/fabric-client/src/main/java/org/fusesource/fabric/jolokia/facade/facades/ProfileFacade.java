@@ -8,7 +8,6 @@ import org.jolokia.client.J4pClient;
 import org.jolokia.client.exception.J4pException;
 import org.jolokia.client.request.J4pExecRequest;
 import org.jolokia.client.request.J4pExecResponse;
-import org.json.simple.JSONArray;
 
 import javax.management.MalformedObjectNameException;
 import java.util.ArrayList;
@@ -66,7 +65,8 @@ public class ProfileFacade implements Profile, HasId {
 
     @Override
     public Profile[] getParents() {
-        JSONArray profiles = getFieldValue("parents");
+        List<String> profiles = getFieldValue("parents");
+//        JSONArray profiles = getFieldValue("parents");
         if (profiles == null || profiles.size() == 0) {
             return new Profile[0];
         }

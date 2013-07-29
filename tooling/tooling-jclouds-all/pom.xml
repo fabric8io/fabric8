@@ -36,9 +36,10 @@
   <properties>
     <fuse.osgi.activator>org.jclouds.osgi.Activator</fuse.osgi.activator>
     <fuse.osgi.export>
-      com.google.gson*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
-      com.google.common*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
-      com.google.inject*;version=${guava-version};-noimport:=true;version=${guava-version};-noimport:=true,
+      org.fusesource.fabric*,
+      com.google.gson*;version=${guava-version};-noimport:=true,
+      com.google.common*;version=${guava-version};-noimport:=true,
+      com.google.inject*;version=${guava-version};-noimport:=true,
       org.jclouds*;version=${jclouds.osgi.version.clean};-noimport:=true,
       net.oauth*,;version=${jclouds.osgi.version.clean};-noimport:=true
     </fuse.osgi.export>
@@ -67,6 +68,8 @@
       !userauth*,
       !org.aopalliance*,
       !org.jclouds.javax.annotation,
+      org.fusesource.fabric.internal;resolution:=optional,
+      org.apache.karaf.features;resolution:=optional,
       org.osgi.service.cm;version="[1.3,2)"
     </fuse.osgi.import.before.defaults>
           <!--

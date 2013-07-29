@@ -36,6 +36,12 @@ public class Helpers {
         return rc;
     }
 
+    public static J4pExecRequest createCustomExecRequest(String mbeanUrl, String operation, Object... args) throws MalformedObjectNameException {
+        J4pExecRequest rc = new J4pExecRequest(mbeanUrl, operation, args);
+        rc.setPreferredHttpMethod("POST");
+        return rc;
+    }
+
     public static J4pWriteRequest createWriteRequest(String attribute, Object value) throws MalformedObjectNameException {
         J4pWriteRequest answer = new J4pWriteRequest(MBeans.FABRIC.getUrl(), attribute, value);
         answer.setPreferredHttpMethod("POST");
@@ -48,6 +54,17 @@ public class Helpers {
             answer = new J4pReadRequest(MBeans.FABRIC.getUrl());
         } else {
             answer = new J4pReadRequest(MBeans.FABRIC.getUrl(), attribute);
+        }
+        answer.setPreferredHttpMethod("POST");
+        return answer;
+    }
+
+    public static J4pReadRequest createCustomReadRequest(String mbeanUrl, String attribute) throws MalformedObjectNameException {
+        J4pReadRequest answer = null;
+        if (attribute == null || attribute.toString().length() < 1) {
+            answer = new J4pReadRequest(mbeanUrl);
+        } else {
+            answer = new J4pReadRequest(mbeanUrl, attribute);
         }
         answer.setPreferredHttpMethod("POST");
         return answer;
@@ -98,9 +115,29 @@ public class Helpers {
         }
     }
 
+    public static String execCustomToJSON(J4pClient j4p, String mbeanUrl, String operation, Object ... args) {
+        try {
+            J4pExecRequest request = createCustomExecRequest(mbeanUrl, operation, args);
+            J4pExecResponse response = j4p.execute(request);
+            return response.getValue().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to call " + operation + " with args: " + args, e);
+        }
+    }
+
     public static String readToJSON(J4pClient j4p, String attribute) {
         try {
             J4pReadRequest request = createReadRequest(attribute);
+            J4pReadResponse response = j4p.execute(request);
+            return response.getValue().toString();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to read " + attribute, e);
+        }
+    }
+
+    public static String readCustomToJSON(J4pClient j4p, String mbeanUrl, String attribute) {
+        try {
+            J4pReadRequest request = createCustomReadRequest(mbeanUrl, attribute);
             J4pReadResponse response = j4p.execute(request);
             return response.getValue().toString();
         } catch (Exception e) {
