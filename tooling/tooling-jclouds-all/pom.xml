@@ -69,7 +69,10 @@
       !org.aopalliance*,
       !org.jclouds.javax.annotation,
       org.fusesource.fabric.internal;resolution:=optional,
-      org.apache.karaf.features;resolution:=optional,
+      org.apache.karaf*;resolution:=optional,
+      org.apache.felix*;resolution:=optional,
+      org.jledit*;resolution:=optional,
+      org.fusesource.jansi*;resolution:=optional,
       org.osgi.service.cm;version="[1.3,2)"
     </fuse.osgi.import.before.defaults>
           <!--
@@ -81,7 +84,7 @@
     </fuse.osgi.import.additional>
     <fuse.osgi.services.export>
     </fuse.osgi.services.export>
-    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=org.apache.jclouds.provider|org.apache.jclouds|org.apache.jclouds.api|net.schmizz|org.apache.servicemix.bundles|org.bouncycastle</fuse.osgi.embed.dependency>
+    <fuse.osgi.embed.dependency>*;scope=compile|runtime;inline=false;groupId=org.fusesource.jansi|org.apache.felix|org.jledit|org.apache.jclouds.provider|org.apache.jclouds|org.apache.jclouds.api|net.schmizz|org.apache.servicemix.bundles|org.bouncycastle</fuse.osgi.embed.dependency>
     <fuse.osgi.embed.transitive>true</fuse.osgi.embed.transitive>
   </properties>
 
@@ -91,6 +94,24 @@
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
           <version>${guava-version}</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.apache.felix</groupId>
+          <artifactId>org.apache.felix.gogo.runtime</artifactId>
+          <version>0.11.0.redhat-610007</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.jansi</groupId>
+          <artifactId>jansi</artifactId>
+          <version>1.11</version>
+      </dependency>
+
+      <dependency>
+          <groupId>org.jledit</groupId>
+          <artifactId>jledit</artifactId>
+          <version>${jledit.version}</version>
       </dependency>
 
       <dependency>
