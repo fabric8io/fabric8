@@ -74,7 +74,7 @@
         </property>
     </bean>
 
-    <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init">
+    <bean id="zooKeeperClusterService" class="org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl" init-method="init" destroy-method="destroy">
         <property name="bundleContext" ref="blueprintBundleContext"/>
         <property name="curator" ref="curator"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>

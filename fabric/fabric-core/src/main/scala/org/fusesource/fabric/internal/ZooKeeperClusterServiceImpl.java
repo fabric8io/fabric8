@@ -23,6 +23,7 @@ import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.jmx.ClusterServiceManager;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -36,7 +37,10 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.*;
+import java.lang.management.ManagementFactory;
 import java.net.UnknownHostException;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -45,11 +49,7 @@ import java.util.regex.Pattern;
 
 import static org.fusesource.fabric.utils.BundleUtils.*;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
-import static org.fusesource.fabric.zookeeper.ZkPath.POLICIES;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
@@ -61,8 +61,21 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 	private FabricService fabricService;
     private DataStore dataStore;
     private boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
+    private MBeanServer mBeanServer;
+    private ClusterServiceManager manager;
+
 
     public void init() {
+        manager = new ClusterServiceManager(this);
+        try {
+            if (mBeanServer == null) {
+                mBeanServer = ManagementFactory.getPlatformMBeanServer();
+            }
+            manager.registerMBeanServer(mBeanServer);
+        } catch (Exception e) {
+            LOGGER.warn("Exception registering ClusterServiceManager MBean: ", e);
+        }
+
         if (ensembleAutoStart) {
             new Thread(new Runnable() {
                 @Override
@@ -72,6 +85,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             }).start();
 
         }
+    }
+
+    public void destroy() {
+        manager.unregisterMBeanServer(mBeanServer);
     }
 
     public BundleContext getBundleContext() {
