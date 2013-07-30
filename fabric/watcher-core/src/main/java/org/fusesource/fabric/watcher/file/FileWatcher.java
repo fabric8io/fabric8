@@ -41,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.fusesource.common.util.Objects;
 import org.fusesource.fabric.watcher.Processor;
+import org.fusesource.fabric.watcher.matchers.Matchers;
 import org.fusesource.fabric.watcher.support.WatcherSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,7 +134,7 @@ public class FileWatcher extends WatcherSupport {
      * such as <code>glob:/foo/*</code>
      */
     public void setDirMatchPattern(String pattern) {
-        setDirMatcher(getFileSystem().getPathMatcher(pattern));
+        setDirMatcher(Matchers.parse(pattern, getFileSystem()));
     }
 
     /**
@@ -142,7 +143,7 @@ public class FileWatcher extends WatcherSupport {
      * such as <code>glob:*.xml</code>
      */
     public void setFileMatchPattern(String pattern) {
-        setFileMatcher(getFileSystem().getPathMatcher(pattern));
+        setFileMatcher(Matchers.parse(pattern, getFileSystem()));
     }
 
     public Path getRoot() {
