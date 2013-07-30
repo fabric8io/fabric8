@@ -141,13 +141,13 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
-    public Map<String, String> createContainers(Map<String, String> options) {
+    public Map<String, String> createContainers(Map<String, Object> options) {
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Creating containers from JSON data: " + options);
         }
 
-        String providerType = options.get("providerType");
+        String providerType = (String) options.get("providerType");
 
         if (providerType == null) {
             throw new RuntimeException("No providerType provided");
@@ -157,6 +157,7 @@ public class FabricManager implements FabricManagerMBean {
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
         if (providerType.equals("child")) {
             builder = mapper.convertValue(options, CreateChildContainerOptions.Builder.class);
@@ -174,7 +175,15 @@ public class FabricManager implements FabricManagerMBean {
         builder.zookeeperPassword(getFabricService().getZookeeperPassword());
         builder.zookeeperUrl(getFabricService().getZookeeperUrl());
 
+        Object profileObject = options.get("profiles");
+
+        if (profileObject != null) {
+            List profiles = mapper.convertValue(profileObject, List.class);
+            builder.profiles(profiles);
+        }
+
         CreateContainerBasicOptions build = builder.build();
+
         if (LOG.isDebugEnabled()) {
             LOG.debug("Created container options: " + build + " with profiles " + build.getProfiles());
         }

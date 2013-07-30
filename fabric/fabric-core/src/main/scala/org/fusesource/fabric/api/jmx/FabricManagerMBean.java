@@ -34,7 +34,7 @@ public interface FabricManagerMBean {
 
     ServiceStatusDTO getFabricServiceStatus();
 
-    Map<String, String> createContainers(Map<String, String> options);
+    Map<String, String> createContainers(Map<String, Object> options);
 
     Map<String, Object> createProfile(String version, String name);
 
