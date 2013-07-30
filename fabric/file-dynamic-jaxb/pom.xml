@@ -14,7 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -46,6 +47,18 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-jaxb</artifactId>
+            <version>${camel.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-api</artifactId>
+            <version>${cxf-version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>watcher-core</artifactId>
             <version>${project.version}</version>
@@ -63,29 +76,29 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-test</artifactId>
-          <version>${camel.version}</version>
-          <scope>test</scope>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test</artifactId>
+            <version>${camel.version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-test-spring</artifactId>
-          <version>${camel.version}</version>
-          <scope>test</scope>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test-spring</artifactId>
+            <version>${camel.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
 
-          <!-- fork per test to not have side effects between tests -->
-          <plugin>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <forkMode>pertest</forkMode>
-            </configuration>
-          </plugin>
+            <!-- fork per test to not have side effects between tests -->
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <forkMode>pertest</forkMode>
+                </configuration>
+            </plugin>
 
         </plugins>
     </build>

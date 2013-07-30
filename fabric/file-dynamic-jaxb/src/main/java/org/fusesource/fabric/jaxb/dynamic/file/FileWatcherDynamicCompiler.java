@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.jaxb.dynamic.file;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.util.Set;
@@ -69,6 +70,11 @@ public class FileWatcherDynamicCompiler extends FileWatcher implements DynamicCo
         if (handler != null && compileResults != null) {
             handler.onCompileResults(compileResults);
         }
+    }
+
+    public void init() throws IOException {
+        super.init();
+        LOG.info("Watching directory " + getRoot() + " for XML Schema files to dynamically compile");
     }
 
     // Properties
