@@ -18,7 +18,6 @@ package org.fusesource.fabric.api;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,10 +42,21 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return (B) this;
         }
 
-        public B getZooKeeperServerPort(final int getZooKeeperServerPort) {
-            this.zooKeeperServerPort = getZooKeeperServerPort;
+        public B zooKeeperServerPort(int zooKeeperServerPort) {
+            this.zooKeeperServerPort = zooKeeperServerPort;
             return (B) this;
         }
+
+        public B zooKeeperServerPort(Integer zooKeeperServerPort) {
+            this.zooKeeperServerPort = zooKeeperServerPort;
+            return (B) this;
+        }
+
+        public B zooKeeperServerPort(Long zooKeeperServerPort) {
+            this.zooKeeperServerPort = zooKeeperServerPort.intValue();
+            return (B) this;
+        }
+
 
         public B zookeeperPassword(final String zookeeperPassword) {
             this.zookeeperPassword = zookeeperPassword;
@@ -64,12 +74,22 @@ public class CreateEnsembleOptions extends ContainerOptions {
         }
 
 
-        public B agentEnabled(final boolean agentEnabled) {
+        public B agentEnabled(boolean agentEnabled) {
             this.agentEnabled = agentEnabled;
             return (B) this;
         }
 
-        public B autoImportEnabled(final boolean autoImportEnabled) {
+        public B agentEnabled(Boolean agentEnabled) {
+            this.agentEnabled = agentEnabled;
+            return (B) this;
+        }
+
+        public B autoImportEnabled(boolean autoImportEnabled) {
+            this.autoImportEnabled = autoImportEnabled;
+            return (B) this;
+        }
+
+        public B autoImportEnabled(Boolean autoImportEnabled) {
             this.autoImportEnabled = autoImportEnabled;
             return (B) this;
         }
@@ -78,6 +98,30 @@ public class CreateEnsembleOptions extends ContainerOptions {
         public B importPath(final String importPath) {
             this.importPath = importPath;
             return (B) this;
+        }
+
+        public void setZooKeeperServerPort(int zooKeeperServerPort) {
+            this.zooKeeperServerPort = zooKeeperServerPort;
+        }
+
+        public void setZookeeperPassword(String zookeeperPassword) {
+            this.zookeeperPassword = zookeeperPassword;
+        }
+
+        public void setAgentEnabled(boolean agentEnabled) {
+            this.agentEnabled = agentEnabled;
+        }
+
+        public void setAutoImportEnabled(boolean autoImportEnabled) {
+            this.autoImportEnabled = autoImportEnabled;
+        }
+
+        public void setImportPath(String importPath) {
+            this.importPath = importPath;
+        }
+
+        public void setUsers(Map<String, String> users) {
+            this.users = users;
         }
 
         /**
@@ -149,5 +193,17 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public Map<String, String> getUsers() {
         return users;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " CreateEnsembleOptions{" +
+                "zooKeeperServerPort=" + zooKeeperServerPort +
+                ", zookeeperPassword='" + zookeeperPassword + '\'' +
+                ", agentEnabled=" + agentEnabled +
+                ", autoImportEnabled=" + autoImportEnabled +
+                ", importPath='" + importPath + '\'' +
+                ", users=" + users +
+                '}';
     }
 }

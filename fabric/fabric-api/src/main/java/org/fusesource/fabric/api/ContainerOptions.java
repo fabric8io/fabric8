@@ -17,7 +17,6 @@
 package org.fusesource.fabric.api;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -65,16 +64,35 @@ public class ContainerOptions implements Serializable {
             return (B) this;
         }
 
-        public B minimumPort(final int minimumPort) {
+        public B minimumPort(int minimumPort) {
             this.minimumPort = minimumPort;
             return (B) this;
         }
 
-        public B maximumPort(final int maximumPort) {
+        public B minimumPort(Integer minimumPort) {
+            this.minimumPort = minimumPort;
+            return (B) this;
+        }
+
+        public B minimumPort(Long minimumPort) {
+            this.minimumPort = minimumPort.intValue();
+            return (B) this;
+        }
+
+        public B maximumPort(int maximumPort) {
             this.maximumPort = maximumPort;
             return (B) this;
         }
 
+        public B maximumPort(Integer maximumPort) {
+            this.maximumPort = maximumPort;
+            return (B) this;
+        }
+
+        public B maximumPort(Long maximumPort) {
+            this.maximumPort = maximumPort.intValue();
+            return (B) this;
+        }
 
         public B profiles(final Set<String> profiles) {
             this.profiles = profiles;
@@ -101,6 +119,34 @@ public class ContainerOptions implements Serializable {
                 this.profiles.add(p.trim());
             }
             return (B) this;
+        }
+
+        public void setBindAddress(String bindAddress) {
+            this.bindAddress = bindAddress;
+        }
+
+        public void setResolver(String resolver) {
+            this.resolver = resolver;
+        }
+
+        public void setGlobalResolver(String globalResolver) {
+            this.globalResolver = globalResolver;
+        }
+
+        public void setManualIp(String manualIp) {
+            this.manualIp = manualIp;
+        }
+
+        public void setMinimumPort(int minimumPort) {
+            this.minimumPort = minimumPort;
+        }
+
+        public void setMaximumPort(int maximumPort) {
+            this.maximumPort = maximumPort;
+        }
+
+        public void setProfiles(Set<String> profiles) {
+            this.profiles = profiles;
         }
 
         public ContainerOptions build() {
@@ -161,5 +207,18 @@ public class ContainerOptions implements Serializable {
 
     public Set<String> getProfiles() {
         return profiles;
+    }
+
+    @Override
+    public String toString() {
+        return "ContainerOptions{" +
+                "bindAddress='" + bindAddress + '\'' +
+                ", resolver='" + resolver + '\'' +
+                ", globalResolver='" + globalResolver + '\'' +
+                ", manualIp='" + manualIp + '\'' +
+                ", minimumPort=" + minimumPort +
+                ", maximumPort=" + maximumPort +
+                ", profiles=" + profiles +
+                '}';
     }
 }

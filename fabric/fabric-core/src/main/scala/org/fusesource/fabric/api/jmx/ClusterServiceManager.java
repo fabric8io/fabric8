@@ -1,5 +1,7 @@
 package org.fusesource.fabric.api.jmx;
 
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
@@ -67,6 +69,7 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
             }
         }
     }
+
     private static CreateEnsembleOptions getCreateEnsembleOptions(Map<String, Object> options) {
         String username = (String) options.remove("username");
         String password = (String) options.remove("password");
@@ -76,10 +79,17 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
             throw new FabricException("Must specify an administrator username, password and administrative role when creating a fabric");
         }
 
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder();
+        Object profileObject = options.remove("profiles");
 
-        for(String key : options.keySet()) {
-            BeanUtils.setValue(builder, key, options.get(key));
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+
+        CreateEnsembleOptions.Builder builder = mapper.convertValue(options, CreateEnsembleOptions.Builder.class);
+
+        if (profileObject != null) {
+            List profiles = mapper.convertValue(profileObject, List.class);
+            builder.profiles(profiles);
         }
 
         org.apache.felix.utils.properties.Properties userProps = null;
@@ -93,7 +103,10 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
             userProps.put(username, password + "," + role);
         }
 
-        return builder.users(userProps).withUser(username, password, role).build();
+        CreateEnsembleOptions answer = builder.users(userProps).withUser(username, password, role).build();
+        LOG.debug("Creating ensemble with options: {}", answer);
+
+        return answer;
     }
 
     @Override

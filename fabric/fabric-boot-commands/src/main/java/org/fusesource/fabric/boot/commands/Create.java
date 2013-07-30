@@ -116,7 +116,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
             } else {
                 String[] parts = bindAddress.split(":");
                 builder.bindAddress(parts[0]);
-                builder.getZooKeeperServerPort(Integer.parseInt(parts[1]));
+                builder.zooKeeperServerPort(Integer.parseInt(parts[1]));
                 System.setProperty(ZkDefs.BIND_ADDRESS, parts[0]);
             }
         }
