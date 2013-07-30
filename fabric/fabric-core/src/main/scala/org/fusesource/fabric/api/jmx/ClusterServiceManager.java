@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -80,7 +82,18 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
             BeanUtils.setValue(builder, key, options.get(key));
         }
 
-        return builder.withUser(username, password, role).build();
+        org.apache.felix.utils.properties.Properties userProps = null;
+        try {
+             userProps = new org.apache.felix.utils.properties.Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
+        } catch (IOException e) {
+            userProps = new org.apache.felix.utils.properties.Properties();
+        }
+
+        if (userProps.get(username) == null) {
+            userProps.put(username, password + "," + role);
+        }
+
+        return builder.users(userProps).withUser(username, password, role).build();
     }
 
     @Override
