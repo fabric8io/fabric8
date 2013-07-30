@@ -94,8 +94,6 @@ public class FileWatcherTest {
         // now lets delete some files and directories and ensure we get notified
         file1.delete();
 
-        // lets move the files to a deleted dir
-
         // lets try move the directories to avoid raising events directly for files
         moveFileToTempDir(file2.getParentFile());
         moveFileToTempDir(file3.getParentFile());
