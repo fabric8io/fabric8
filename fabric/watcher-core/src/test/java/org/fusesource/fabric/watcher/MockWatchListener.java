@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.watcher;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.util.List;
@@ -50,17 +51,23 @@ public class MockWatchListener implements WatcherListener {
         return null;
     }
 
-    public void expectCalledWith(List<Expectation> expectations, final Path path) {
-        expectations.add(new Expectation() {
-            public boolean isValid() {
-                WatchEventValues event = findEventForPath(path);
-                return event != null;
-            }
+    public void expectCalledWith(List<Expectation> expectations, File... files) {
+        expectCalledWith(expectations, Paths.toPathArray(files));
+    }
 
-            public String toString() {
-                return "No change event on path " + path;
-            }
-        });
+    public void expectCalledWith(List<Expectation> expectations, Path... paths) {
+        for (final Path path : paths) {
+            expectations.add(new Expectation() {
+                public boolean isValid() {
+                    WatchEventValues event = findEventForPath(path);
+                    return event != null;
+                }
+
+                public String toString() {
+                    return "No change event on path " + path;
+                }
+            });
+        }
     }
 
     public void expectNotCalledWith(List<Expectation> expectations, final Path path) {
@@ -76,5 +83,9 @@ public class MockWatchListener implements WatcherListener {
                 return "Should not have received an event for " + path + " but got " + event;
             }
         });
+    }
+
+    public void clearEvents() {
+        events.clear();
     }
 }

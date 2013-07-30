@@ -30,6 +30,8 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -64,6 +66,7 @@ public class FileWatcher extends WatcherSupport {
     private final AtomicInteger processing = new AtomicInteger();
     private final Map<WatchKey, Path> keys = new ConcurrentHashMap<WatchKey, Path>();
     private volatile long lastModified;
+    private final Map<Path, Boolean> processedMap = new ConcurrentHashMap<Path, Boolean>();
 
     public void init() throws IOException {
         if (root == null) {
@@ -85,7 +88,12 @@ public class FileWatcher extends WatcherSupport {
             this.executor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    processEvents();
+                    try {
+                        processEvents();
+                    } catch (Throwable e) {
+                        LOGGER.warn("Caught: " + e, e);
+                    }
+                    LOGGER.debug("Completed processing file watcher events");
                 }
             });
         }
@@ -215,29 +223,31 @@ public class FileWatcher extends WatcherSupport {
             }
             Path dir = keys.get(key);
             if (dir == null) {
+                LOGGER.warn("Could not find key for " + key);
                 continue;
             }
 
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind kind = event.kind();
-                if (kind == OVERFLOW) {
-//                    rescan();
-                    continue;
-                }
+                WatchEvent<Path> ev = (WatchEvent<Path>)event;
 
                 // Context for directory entry event is the file name of entry
-                WatchEvent<Path> ev = (WatchEvent<Path>)event;
                 Path name = ev.context();
                 Path child = dir.resolve(name);
 
                 LOGGER.debug("Processing event {} on path {}", kind, child);
 
+                if (kind == OVERFLOW) {
+//                    rescan();
+                    continue;
+                }
 
-                // if directory is created, and watching recursively, then
-                // register it and its sub-directories
                 try {
                     if (kind == ENTRY_CREATE) {
                         if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
+
+                            // if directory is created, and watching recursively, then
+                            // register it and its sub-directories
                             Files.walkFileTree(child, new FilteringFileVisitor());
                         } else if (Files.isRegularFile(child, NOFOLLOW_LINKS)) {
                             scan(child);
@@ -258,6 +268,7 @@ public class FileWatcher extends WatcherSupport {
             // reset key and remove from set if directory no longer accessible
             boolean valid = key.reset();
             if (!valid) {
+                LOGGER.debug("Removing key " + key + " and dir " + dir + " from keys");
                 keys.remove(key);
 
                 // all directories are inaccessible
@@ -272,6 +283,7 @@ public class FileWatcher extends WatcherSupport {
         if (isMatchesFile(file)) {
             fireListeners(file, ENTRY_MODIFY);
             process(file);
+            processedMap.put(file, Boolean.TRUE);
         }
     }
 
@@ -291,6 +303,22 @@ public class FileWatcher extends WatcherSupport {
                 processor.onRemove(file);
             }
             lastModified = System.currentTimeMillis();
+        } else {
+            // lets find all the files that now no longer exist
+            List<Path> files = new ArrayList<Path>(processedMap.keySet());
+            for (Path path : files) {
+                if (!Files.exists(path)) {
+                    LOGGER.debug("File has been deleted: " + path);
+                    processedMap.remove(path);
+                    if (isMatchesFile(path)) {
+                        Processor processor = getProcessor();
+                        if (processor != null) {
+                            processor.onRemove(path);
+                        }
+                        fireListeners(path, ENTRY_DELETE);
+                    }
+                }
+            }
         }
     }
 
@@ -327,6 +355,9 @@ public class FileWatcher extends WatcherSupport {
         if (watcher != null) {
             WatchKey key = path.register(watcher, ENTRY_CREATE, ENTRY_MODIFY, ENTRY_DELETE);
             keys.put(key, path);
+            LOGGER.debug("Watched path " + path + " key " + key);
+        } else {
+            LOGGER.warn("No watcher yet for path " + path);
         }
     }
 

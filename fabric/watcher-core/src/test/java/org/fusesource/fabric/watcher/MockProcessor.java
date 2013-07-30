@@ -28,16 +28,6 @@ public class MockProcessor implements Processor {
     private List<Path> onRemovePaths = new CopyOnWriteArrayList<Path>();
     private long timeout = 10000;
 
-    public static Path[] toPathArray(File[] files) {
-        Path[] paths = new Path[files.length];
-        int idx = 0;
-        for (File file : files) {
-            paths[idx++] = file.toPath();
-        }
-        return paths;
-    }
-
-
     public void process(Path path) {
         processPaths.add(path);
     }
@@ -56,7 +46,7 @@ public class MockProcessor implements Processor {
 
 
     public void expectProcessed(List<Expectation> expectations, File... files) throws Exception {
-        expectProcessed(expectations, toPathArray(files));
+        expectProcessed(expectations, Paths.toPathArray(files));
     }
 
     public void expectProcessed(List<Expectation> expectations, Path... paths) throws Exception {
@@ -74,7 +64,7 @@ public class MockProcessor implements Processor {
     }
 
     public void expectRemoved(List<Expectation> expectations, File... files) throws Exception {
-        expectRemoved(expectations, toPathArray(files));
+        expectRemoved(expectations, Paths.toPathArray(files));
     }
 
     public void expectRemoved(List<Expectation> expectations, Path... paths) throws Exception {

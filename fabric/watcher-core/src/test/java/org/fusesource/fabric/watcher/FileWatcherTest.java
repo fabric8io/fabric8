@@ -23,22 +23,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import org.fusesource.common.util.Files;
 import org.fusesource.common.util.IOHelpers;
 import org.fusesource.fabric.watcher.file.FileWatcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
  */
 public class FileWatcherTest {
+    private static final transient Logger LOG = LoggerFactory.getLogger(FileWatcherTest.class);
+
     protected static FileWatcher watcher = new FileWatcher();
     protected static File dataDir;
     protected static MockWatchListener listener = new MockWatchListener();
     protected static MockProcessor processor = new MockProcessor();
     private List<Expectation> expectations = new ArrayList<Expectation>();
     private long timeout = 10000;
+    protected static File tmpDir;
 
 
     public static File getBaseDir() {
@@ -49,6 +55,13 @@ public class FileWatcherTest {
     @BeforeClass
     public static void init() throws IOException {
         dataDir = new File(getBaseDir(), "target/test-fileWatcherDir");
+        Files.recursiveDelete(dataDir);
+        dataDir.mkdirs();
+
+        tmpDir = new File(getBaseDir(), "target/tmp-fileWatcherDir");
+        Files.recursiveDelete(tmpDir);
+        tmpDir.mkdirs();
+
         watcher.setRootDirectory(dataDir);
         watcher.setFileMatchPattern("glob:**.txt");
         watcher.addListener(listener);
@@ -65,30 +78,45 @@ public class FileWatcherTest {
 
     @Test
     public void testFileWatcher() throws Exception {
-
         File file1 = assertProcessed("something.txt", "this is\nsome text\n");
-        File file2 = assertProcessed("one/thing2.txt", "1 level deep");
-        File file3 = assertProcessed("two/bar/thing3.txt", "2 levels deep");
+        File file2 = assertProcessed("a1/thing2.txt", "1 level deep");
+        File file3 = assertProcessed("b1/b2/thing3.txt", "2 levels deep");
+        File file4 = assertProcessed("c1/c2/thing3.txt", "2 levels deep");
 
         assertNotProcessed("something.ignored", "ignored");
-        assertNotProcessed("another/something.ignored", "ignored");
-        assertNotProcessed("another/thing/something.ignored", "ignored");
+        assertNotProcessed("a1/something.ignored", "ignored");
+        assertNotProcessed("b1/b2/something.ignored", "ignored");
 
         assertExpectations();
         expectations.clear();
+        listener.clearEvents();
 
         // now lets delete some files and directories and ensure we get notified
         file1.delete();
-        file2.getParentFile().delete();
-        file2.getParentFile().getParentFile().delete();
 
-        processor.expectRemoved(expectations, file1, file2, file3);
+        // lets move the files to a deleted dir
 
-        System.out.println("Processed: " + processor.getProcessPaths());
-        System.out.println("Removed: " + processor.getOnRemovePaths());
+        // lets try move the directories to avoid raising events directly for files
+        moveFileToTempDir(file2.getParentFile());
+        moveFileToTempDir(file3.getParentFile());
+        moveFileToTempDir(file4.getParentFile().getParentFile());
 
-        // TODO removals not quite working yet
-        // assertExpectations();
+        processor.expectRemoved(expectations, file1, file2, file3, file4);
+        listener.expectCalledWith(expectations, file1, file2, file3, file4);
+
+        LOG.info("Processed: " + processor.getProcessPaths());
+        LOG.info("Removed: " + processor.getOnRemovePaths());
+
+        assertExpectations();
+    }
+
+    protected void moveFileToTempDir(File file) {
+        File dest = new File(tmpDir, file.getName());
+        LOG.info("moving file " + file + " to " + dest);
+        file.renameTo(dest);
+        if (file.exists()) {
+            LOG.warn("File still exists!" + file);
+        }
     }
 
     protected void assertExpectations() throws Exception {
