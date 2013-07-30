@@ -89,7 +89,7 @@ public class ZKWatcherDynamicCompiler implements DynamicCompiler {
     public ZKWatcherDynamicCompiler() {
     }
 
-    public void start() {
+    public void init() {
         try {
             watchSchemaFolders();
         } catch (Exception e) {
@@ -97,7 +97,7 @@ public class ZKWatcherDynamicCompiler implements DynamicCompiler {
         }
     }
 
-    public void stop() throws IOException {
+    public void destroy() throws IOException {
         for (Map.Entry<String, PathChildrenCache> entry : pathCacheMap.entrySet()) {
             PathChildrenCache pathCache = entry.getValue();
             Closeables.close(pathCache, true);

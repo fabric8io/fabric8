@@ -514,6 +514,7 @@
 
     <feature name="fabric-dynamic-jaxb" version="${project.version}" resolver="(obr)">
         <feature version="[2.4,3.0)">cxf-core</feature>
+        <feature version="[2.12,3.0)">camel-jaxb</feature>
         <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-dynamic-jaxb/${project.version}</bundle>
