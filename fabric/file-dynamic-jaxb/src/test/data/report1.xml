@@ -1,0 +1,12 @@
+<report xmlns='http://foo.com/report' xmlns:rb='http://foo.com/report-base'>
+    <author>
+        <rb:name>Knuth</rb:name>
+    </author>
+    <content>
+        <rb:chapter>
+            <rb:subject>Something</rb:subject>
+            <rb:abstract>This is an abstract</rb:abstract>
+            <rb:body>Blah de blah de blah</rb:body>
+        </rb:chapter>
+    </content>
+</report>

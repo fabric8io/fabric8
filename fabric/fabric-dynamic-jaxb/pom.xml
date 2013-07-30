@@ -24,31 +24,70 @@
         <relativePath>..</relativePath>
     </parent>
 
-    <artifactId>watcher-core</artifactId>
+    <artifactId>fabric-dynamic-jaxb</artifactId>
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Watcher Core</description>
+    <description>Fuse Fabric :: Fabric Dynamic JAXB</description>
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.watcher*;version=${fuse.osgi.version};-noimport:=true,
+            org.fusesource.fabric.jaxb.dynamic.profile*;version=${fuse.osgi.version};-noimport:=true,
         </fuse.osgi.export>
-<!--
-        <fuse.osgi.activator>org.fusesource.fabric.xjc.Activator</fuse.osgi.activator>
--->
+        <fuse.osgi.import>
+            org.fusesource.fabric.jaxb.dynamic;version=${project.version},
+            javax.xml.bind,
+            javax.xml.bind.annotation,
+            javax.xml.datatype,
+            javax.xml.namespace,
+            *
+        </fuse.osgi.import>
     </properties>
 
     <dependencies>
         <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
-          <version>${slf4j-version}</version>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-api</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>dynamic-jaxb</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
 
         <!-- testing -->
@@ -57,12 +96,7 @@
             <artifactId>slf4j-log4j12</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-          <groupId>junit</groupId>
-          <artifactId>junit</artifactId>
-          <version>${junit-version}</version>
-          <scope>test</scope>
-        </dependency>
+
     </dependencies>
 
     <build>

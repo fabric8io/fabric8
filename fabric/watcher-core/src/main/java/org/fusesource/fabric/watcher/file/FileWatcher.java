@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.fusesource.common.util.Objects;
 import org.fusesource.fabric.watcher.Processor;
 import org.fusesource.fabric.watcher.support.WatcherSupport;
 import org.slf4j.Logger;
@@ -78,6 +79,11 @@ public class FileWatcher extends WatcherSupport {
                 }
             }
         }
+        if (!Files.exists(root)) {
+            fail(LOGGER, "Root path does not exist: " + root);
+        } else if (!Files.isDirectory(root)) {
+            fail(LOGGER, "Root path is not a directory: " + root);
+        }
         if (executor == null) {
             this.executor = Executors.newFixedThreadPool(4);
         }
@@ -113,7 +119,7 @@ public class FileWatcher extends WatcherSupport {
     //-------------------------------------------------------------------------
 
     public void setRootPath(String rootPath) {
-        Path path = getFileSystem().getPath(rootPath);
+        Path path = new File(rootPath).getAbsoluteFile().toPath();
         setRoot(path);
     }
 
@@ -400,5 +406,17 @@ public class FileWatcher extends WatcherSupport {
         public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
             return FileVisitResult.CONTINUE;
         }
+    }
+
+
+    /**
+     * Throws an invalid argument exception after logging a warning
+     * just in case the stack trace gets gobbled up by application containers
+     * like spring or blueprint, at least the error message will be clearly shown in the log
+     *
+     */
+    public static void fail(Logger logger, String message) {
+        logger.warn(message);
+        throw new IllegalArgumentException(message);
     }
 }

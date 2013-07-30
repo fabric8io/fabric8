@@ -62,3 +62,12 @@ Now there should be a child Tomcat process running with the drools workbench ins
 If it doens't appear at first, be patient; it takes a little while to download the tomcat & drools workbench distros and get them running (they are not currently pre-cached in the Fuse Fabric distro).
 
 If you run the hawtio application, you should see the Rules tab on the Fabric page; which links to the drools workbench web application running in the child Tomcat container.
+
+
+Running Fuse Fabric on OpenShift
+--------------------------------
+
+This is highly experimental but you can create a Fuse Fabric application via:
+
+    rhc create-app <app name> https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml
+
