@@ -12,6 +12,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-web</artifactId>
     <packaging>bundle</packaging>
+    <name>${project.artifactId}</name>
 
     <properties>
         <fuse.osgi.export>
@@ -22,6 +23,7 @@
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
         </fuse.osgi.private.pkg>
+        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -51,6 +53,10 @@
             <artifactId>fabric-core</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.ops4j.pax.web</groupId>
@@ -58,5 +64,24 @@
             <version>${ops4j-pax-web-version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+                <version>1.9.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-scr-scrdescriptor</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>scr</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

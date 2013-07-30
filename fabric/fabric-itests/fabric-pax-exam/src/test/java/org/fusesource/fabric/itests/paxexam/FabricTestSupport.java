@@ -285,7 +285,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                logLevel(LogLevelOption.LogLevel.WARN),
+                logLevel(LogLevelOption.LogLevel.ERROR),
                 keepRuntimeFolder()
         };
     }

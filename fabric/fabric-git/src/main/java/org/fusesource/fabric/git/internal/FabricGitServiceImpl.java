@@ -17,16 +17,19 @@
 package org.fusesource.fabric.git.internal;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -38,20 +41,29 @@ import java.io.IOException;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-public class FabricGitServiceImpl implements FabricGitService, ConnectionStateListener, GroupListener<GitNode> {
+@Component(name = "org.fusesource.fabric.git.service",description = "Fabric Git Service", immediate = true)
+@Service(FabricGitService.class)
+public class FabricGitServiceImpl implements FabricGitService, GroupListener<GitNode> {
 
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
-	private Group<GitNode> group;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
 	private CuratorFramework curator;
 
+    private Group<GitNode> group;
+
+    @Activate
     public void init() {
+        group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
+        group.add(this);
+        group.start();
     }
 
+    @Deactivate
     public void destroy() {
-        onDisconnected();
+        Closeables.closeQuitely(group);
+        group = null;
     }
 
 	@Override
@@ -95,28 +107,4 @@ public class FabricGitServiceImpl implements FabricGitService, ConnectionStateLi
 			LOGGER.error("Failed to point origin to the new master.", e);
 		}
 	}
-
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
-        }
-    }
-
-	public void onConnected() {
-		group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
-		group.add(this);
-        group.start();
-	}
-
-    public void onDisconnected() {
-        Closeables.closeQuitely(group);
-        group = null;
-    }
 }

@@ -16,50 +16,47 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateChildContainerMetadata;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_MANUAL_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-
+@Component(name = "org.fusesource.fabric.container.provider.child",
+           description = "Child Container Provider", immediate = true)
+@Service(ContainerProvider.class)
 public class ChildContainerProvider implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
 
+    private static final String SCHEME = "child";
 
-    private final FabricServiceImpl service;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private FabricService service;
 
-    public ChildContainerProvider(FabricServiceImpl service) {
-        this.service = service;
-    }
 
     @Override
     public Set<CreateChildContainerMetadata> create(final CreateChildContainerOptions options) throws Exception {
         final Set<CreateChildContainerMetadata> result = new LinkedHashSet<CreateChildContainerMetadata>();
         final String parentName = options.getParent();
         final Container parent = service.getContainer(parentName);
-        ContainerTemplate containerTemplate = service.getContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword());
+        ContainerTemplate containerTemplate =  new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
 
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
             public Object doWithAdminService(AdminServiceMBean adminService) throws Exception {
@@ -101,8 +98,8 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
                 Set<String> features = new LinkedHashSet<String>();
                 //TODO: This is a temporary fix till we address the url handlers in the deployment agent.
                 features.add("war");
-                features.addAll(defaultProfile.getFeatures());
-
+                features.add("fabric-agent");
+                //features.addAll(defaultProfile.getFeatures());
                 String originalName = options.getName();
 
                 PortService portService = service.getPortService();
@@ -123,10 +120,9 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
                     int minimumPort = parent.getMinimumPort();
                     int maximumPort = parent.getMaximumPort();
 
-                    setData(service.getCurator(), ZkPath.CONTAINER_PORT_MIN.getPath(containerName), String.valueOf(minimumPort));
-                    setData(service.getCurator(), ZkPath.CONTAINER_PORT_MAX.getPath(containerName), String.valueOf(maximumPort));
-
-                    inheritAddresses(service.getCurator(), parentName, containerName, options);
+                    service.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
+                    service.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
+                    inheritAddresses(service, parentName, containerName, options);
 
                     //We are creating a container instance, just for the needs of port registration.
                     Container child = new ContainerImpl(parent, containerName, service) {
@@ -209,6 +205,11 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
         });
     }
 
+    @Override
+    public String getScheme() {
+        return SCHEME;
+    }
+
     /**
      * Returns the {@link ContainerTemplate} of the parent of the specified child {@link Container}.
      *
@@ -223,37 +224,38 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
     /**
      * Links child container resolver and addresses to its parents resolver and addresses.
      *
-     * @param curator
+     * @param service
      * @param parent
      * @param name
      * @param options
      * @throws KeeperException
      * @throws InterruptedException
      */
-    private void inheritAddresses(CuratorFramework curator, String parent, String name, CreateChildContainerOptions options) throws Exception {
+    private void inheritAddresses(FabricService service, String parent, String name, CreateChildContainerOptions options) throws Exception {
         if (options.getManualIp() != null) {
-            createDefault(curator, CONTAINER_MANUAL_IP.getPath(name), options.getManualIp());
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, options.getManualIp());
+        } else {
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, "${zk:" + parent + "/manulaip}");
         }
 
         //Link to the addresses from the parent container.
-        for (String resolver : ZkDefs.VALID_RESOLVERS) {
-            createDefault(curator, CONTAINER_ADDRESS.getPath(name, resolver), "${zk:" + parent + "/" + resolver + "}");
-        }
+        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.LocalHostName, "${zk:" + parent + "/localhostname}");
+        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.LocalIp, "${zk:" + parent + "/localip}");
+        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.PublicIp, "${zk:" + parent + "/publicip}");
 
         if (options.getResolver() != null) {
-            createDefault(curator, CONTAINER_RESOLVER.getPath(name), options.getResolver());
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Resolver, options.getResolver());
         } else {
-            createDefault(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Resolver, "${zk:" + parent + "/resolver}");
         }
 
         if (options.getBindAddress() != null) {
-            createDefault(curator, CONTAINER_BINDADDRESS.getPath(name), options.getBindAddress());
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress, options.getBindAddress());
         } else {
-            createDefault(curator, CONTAINER_BINDADDRESS.getPath(name), "${zk:" + parent + "/bindaddress}");
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress,  "${zk:" + parent + "/bindaddress}");
         }
 
-        createDefault(curator, CONTAINER_RESOLVER.getPath(name), "${zk:" + parent + "/resolver}");
-        createDefault(curator, CONTAINER_IP.getPath(name), "${zk:" + name + "/resolver}");
+        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + parent + "/resolver}");
     }
 
     private static String collectionAsString(Collection<String> value) {

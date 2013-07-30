@@ -46,7 +46,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 public class Join extends OsgiCommandSupport implements org.fusesource.fabric.boot.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;
-    private CuratorFramework curator;
     private String version = ZkDefs.DEFAULT_VERSION;
     private BundleContext bundleContext;
 
@@ -260,11 +259,6 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     @Override
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
-    }
-
-    @Override
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
     }
 
     @Override

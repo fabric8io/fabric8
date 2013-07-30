@@ -21,6 +21,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -76,17 +77,18 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private List<String> containers;
 
     private static final String ROLE_DELIMITER = ",";
+    private ZooKeeperClusterBootstrap bootstrap;
 
     @Override
     protected Object doExecute() throws Exception {
         CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder();
-
+        String name = System.getProperty(SystemProperties.KARAF_NAME);
         if (containers == null || containers.isEmpty()) {
-            containers = Arrays.asList(System.getProperty(SystemProperties.KARAF_NAME));
+            containers = Arrays.asList(name);
         }
 
         if (clean) {
-            service.clean();
+            bootstrap.clean();
         }
 
         if (!noImport && importDir != null) {
@@ -170,13 +172,17 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         } else if (zookeeperPassword == null) {
             zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD, newUserPassword);
             builder.zookeeperPassword(zookeeperPassword);
+        } else {
+            builder.zookeeperPassword(zookeeperPassword);
         }
 
         CreateEnsembleOptions options = builder.users(userProps)
                                                .withUser(newUser, newUserPassword , newUserRole)
                                                .build();
 
-        if (containers != null && !containers.isEmpty()) {
+        if (containers.size() == 1 && containers.contains(name)) {
+            bootstrap.create(options);
+        } else {
             service.createCluster(containers, options);
         }
 
@@ -376,5 +382,13 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
     public void setGenerateZookeeperPassword(boolean generateZookeeperPassword) {
         this.generateZookeeperPassword = generateZookeeperPassword;
+    }
+
+    public ZooKeeperClusterBootstrap getBootstrap() {
+        return bootstrap;
+    }
+
+    public void setBootstrap(ZooKeeperClusterBootstrap bootstrap) {
+        this.bootstrap = bootstrap;
     }
 }

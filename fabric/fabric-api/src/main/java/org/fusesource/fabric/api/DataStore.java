@@ -79,6 +79,7 @@ public interface DataStore {
         PublicIp,
         PublicHostName,
         ManualIp,
+        BindAddress,
         SshUrl,
         JmxUrl,
         JolokiaUrl,

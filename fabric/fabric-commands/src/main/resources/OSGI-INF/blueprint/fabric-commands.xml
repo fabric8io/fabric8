@@ -67,6 +67,15 @@
                 <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
+        <command name="fabric/container-create-ssh">
+            <action class="org.fusesource.fabric.commands.ContainerCreateSsh">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <optional-completers>
+                <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
+        </command>
 
         <command name="fabric/container-delete">
             <action class="org.fusesource.fabric.commands.ContainerDelete">

@@ -73,6 +73,7 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScr
 public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
+    private static final String SCHEME = "jclouds";
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
     private FirewallManagerFactory firewallManagerFactory;
@@ -354,6 +355,11 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             ComputeService computeService = getOrCreateComputeService(options);
             computeService.destroyNode(nodeId);
         }
+    }
+
+    @Override
+    public String getScheme() {
+        return SCHEME;
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {

@@ -19,6 +19,9 @@ package org.fusesource.fabric.partition.internal;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.partition.BalancingPolicy;
 import org.fusesource.fabric.partition.WorkerNode;
@@ -28,12 +31,17 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
+@Component(name = "org.fusesource.fabric.partition.balancing.even",
+        description = "Fabric Partition Even Balancing Policy",
+        immediate = true)
+@Service
 public class EvenBalancingPolicy implements BalancingPolicy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvenBalancingPolicy.class);
     private static final String TYPE = "even";
     private final ObjectMapper mapper = new ObjectMapper();
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
 
     public EvenBalancingPolicy() {

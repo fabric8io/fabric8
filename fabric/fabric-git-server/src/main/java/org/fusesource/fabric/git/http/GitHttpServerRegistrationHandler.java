@@ -18,12 +18,15 @@
 package org.fusesource.fabric.git.http;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.git.GitNode;
-import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -39,34 +42,45 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Dictionary;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-public class GitHttpServerRegistrationHandler implements ConnectionStateListener, ConfigurationListener, GroupListener<GitNode> {
+@Component(name = "org.fusesource.fabric.git.server",
+           description = "Fabric Git HTTP Server Registration Handler",
+           immediate = true)
+@Service(ConfigurationListener.class)
+public class GitHttpServerRegistrationHandler implements ConfigurationListener, GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
+    private static final String REALM_PROPERTY_NAME = "realm";
+    private static final String ROLE_PROPERTY_NAME = "role";
+    private static final String DEFAULT_REALM = "karaf";
+    private static final String DEFAULT_ROLE = "admin";
 
-    private CuratorFramework curator = null;
-    private boolean connected = false;
+
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
     private Group<GitNode> group;
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private HttpService httpService;
-    private GitServlet gitServlet;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private ConfigurationAdmin configurationAdmin;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private CuratorFramework curator;
+
+    private final GitServlet gitServlet = new GitServlet();
+
+
     private String port;
     private String realm;
     private String role;
-
-    private ConfigurationAdmin configurationAdmin;
 
     private List<GitListener> listeners = new ArrayList<GitListener>();
     private String gitRemoteUrl;
@@ -75,26 +89,17 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
     }
 
 
-    public void init() {
-    }
+    @Activate
+    public void init(Map<String, String> properties) {
+        this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+        this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
-    public void destroy() {
-        onDisconnected();
-        unbindHttpService(null);
-    }
-
-    public synchronized void addGitListener(GitListener listener) {
-        listeners.add(listener);
-    }
-
-    public synchronized void removeGitListener(GitListener listener) {
-        listeners.remove(listener);
-    }
-
-    public synchronized void bindHttpService(HttpService httpService) {
-        unbindHttpService(null);
-        this.httpService = httpService;
         this.port = getPortFromConfig();
+        group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
+        group.add(this);
+        group.update(createState());
+        group.start();
+
         try {
             HttpContext base = httpService.createDefaultHttpContext();
             HttpContext secure = new SecureHttpContext(base, realm, role);
@@ -109,58 +114,13 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
             initParams.put("repository-root", basePath);
             initParams.put("export-all", "true");
             httpService.registerServlet("/git", gitServlet, initParams, secure);
-
-            if (connected) {
-                group.update(createState());
-            }
         } catch (Exception e) {
             LOGGER.error("Error while registering git servlet", e);
         }
     }
 
-    public synchronized void unbindHttpService(HttpService oldService) {
-        try {
-            if (httpService != null) {
-                if (connected) {
-                    try {
-                        group.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
-                httpService.unregister("/git");
-            }
-        } catch (Exception ex) {
-            LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
-        }
-        this.httpService = null;
-    }
-
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
-        }
-    }
-
-    public synchronized void onConnected() {
-        connected = true;
-        group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
-        group.add(this);
-        if (httpService != null) {
-            group.update(createState());
-        }
-        group.start();
-    }
-
-    public synchronized void onDisconnected() {
-        connected = false;
+    @Deactivate
+    public void destroy() {
         try {
             if (group != null) {
                 group.close();
@@ -168,6 +128,14 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
         } catch (Exception e) {
             LOGGER.warn("Failed to remove git server from registry.", e);
         }
+    }
+
+    public synchronized void addGitListener(GitListener listener) {
+        listeners.add(listener);
+    }
+
+    public synchronized void removeGitListener(GitListener listener) {
+        listeners.remove(listener);
     }
 
     @Override
@@ -235,9 +203,7 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
     public void configurationEvent(ConfigurationEvent event) {
         if (event.getPid().equals("org.ops4j.pax.web") && event.getType() == ConfigurationEvent.CM_UPDATED) {
             this.port = getPortFromConfig();
-            if (httpService != null && connected) {
-                group.update(createState());
-            }
+            group.update(createState());
         }
     }
 
@@ -295,14 +261,6 @@ public class GitHttpServerRegistrationHandler implements ConnectionStateListener
 
     public void setRole(String role) {
         this.role = role;
-    }
-
-    public GitServlet getGitServlet() {
-        return gitServlet;
-    }
-
-    public void setGitServlet(GitServlet gitServlet) {
-        this.gitServlet = gitServlet;
     }
 
     public ConfigurationAdmin getConfigurationAdmin() {

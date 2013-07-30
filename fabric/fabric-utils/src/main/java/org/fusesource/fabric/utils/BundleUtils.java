@@ -27,6 +27,14 @@ public class BundleUtils {
         //Utility Class
     }
 
+    public static Bundle instalBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
+        Bundle bundle = findBundle(bundleContext, bsn);
+        if (bundle == null) {
+            bundle = bundleContext.installBundle(url);
+        }
+        return bundle;
+    }
+
     public static Bundle installOrStopBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
         Bundle bundle = findBundle(bundleContext, bsn);
         if (bundle == null) {

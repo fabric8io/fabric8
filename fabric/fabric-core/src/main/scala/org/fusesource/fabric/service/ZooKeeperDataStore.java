@@ -22,12 +22,20 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.framework.recipes.cache.TreeData;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.utils.Base64Encoder;
@@ -36,6 +44,7 @@ import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
+import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -53,7 +62,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
+import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
@@ -74,25 +86,34 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 /**
  * @author Stan Lewis
  */
-public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore, PathChildrenCacheListener {
+@Component(name = "org.fusesource.fabric.datastore.zookeeper",
+           description = "Fabric ZooKeeper DataStore")
+@Service(DataStore.class)
+public class ZooKeeperDataStore  implements DataStore, PathChildrenCacheListener {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+               referenceInterface = PlaceholderResolver.class,
+               bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC)
+    private final Map<String, PlaceholderResolver> placeholderResolvers = new HashMap<String, PlaceholderResolver>();
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
+
+    //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
+    private ExecutorService cacheExecutor;
+
     private TreeCache treeCache;
 
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    @Activate
+    public synchronized void init() throws Exception {
+      createCache(curator);
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void destroy() {
+    @Deactivate
+    public synchronized void destroy() {
         destroyCache();
     }
 
@@ -105,33 +126,28 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
         }
     }
 
-    private void createCache(CuratorFramework curator) throws Exception {
-        destroyCache();
-        treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, true);
+    private synchronized void createCache(CuratorFramework curator) throws Exception {
+        cacheExecutor = Executors.newSingleThreadExecutor();
+        treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, false, true, cacheExecutor);
         treeCache.start(TreeCache.StartMode.NORMAL);
         treeCache.getListenable().addListener(this);
     }
 
-    private void destroyCache() {
+    private synchronized void destroyCache() {
         if (treeCache != null) {
             treeCache.getListenable().removeListener(this);
             Closeables.closeQuitely(treeCache);
             treeCache = null;
+            cacheExecutor.shutdownNow();
         }
     }
 
-    public void bind(CuratorFramework curator) throws Exception {
-        destroyCache();
-        if (curator != null) {
-            String connectionString = curator.getZookeeperClient().getCurrentConnectionString();
-            if (connectionString != null && !connectionString.isEmpty()) {
-                createCache(curator);
-            }
-        }
+    public void bindCurator(CuratorFramework curator) throws Exception {
+        this.curator = curator;
     }
 
-    public void unbind(CuratorFramework curator) throws IOException {
-        destroyCache();
+    public void unbindCurator(CuratorFramework curator) throws IOException {
+        this.curator = null;
     }
 
     @Override
@@ -443,6 +459,8 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
                 return ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId);
             case ManualIp:
                 return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
+            case BindAddress:
+                return ZkPath.CONTAINER_BINDADDRESS.getPath(containerId);
             case JmxUrl:
                 return ZkPath.CONTAINER_JMX.getPath(containerId);
             case JolokiaUrl:
@@ -915,4 +933,59 @@ public class ZooKeeperDataStore extends SubstitutionSupport implements DataStore
             throw new FabricException(e);
         }
     }
+
+    /**
+     * Performs substitution to configuration based on the registered {@link PlaceholderResolver} instances.
+     *
+     * @param configs
+     */
+    public synchronized void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+        for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
+            final String pid = entry.getKey();
+            Map<String, String> props = entry.getValue();
+
+            for (Map.Entry<String, String> e : props.entrySet()) {
+                final String key = e.getKey();
+                final String value = e.getValue();
+                props.put(key, InterpolationHelper.substVars(value, key, null, props, new InterpolationHelper.SubstitutionCallback() {
+                    public String getValue(String toSubstitute) {
+                        if (toSubstitute != null && toSubstitute.contains(":")) {
+                            String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
+                            if (placeholderResolvers.containsKey(scheme)) {
+                                return placeholderResolvers.get(scheme).resolve(pid, key, toSubstitute);
+                            }
+                        }
+                        return substituteBundleProperty(toSubstitute, getBundleContext());
+                    }
+                }));
+            }
+        }
+    }
+
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
+        if (resolver != null) {
+            placeholderResolvers.put(resolver.getScheme(), resolver);
+        }
+    }
+
+    public synchronized void unbindPlaceholderResolver(PlaceholderResolver resolver) {
+        if (resolver != null) {
+            placeholderResolvers.remove(resolver.getScheme());
+        }
+    }
+
+    public void setPlaceholderResolvers(List<PlaceholderResolver> resolvers) {
+        for (PlaceholderResolver resolver : resolvers) {
+            bindPlaceholderResolver(resolver);
+        }
+    }
+
 }

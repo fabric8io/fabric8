@@ -20,8 +20,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
-import com.google.common.collect.Sets;
 import org.apache.curator.utils.ZKPaths;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -33,18 +36,19 @@ import org.mvel2.ParserContext;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
 import org.mvel2.templates.TemplateRuntime;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Dictionary;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+@Component(name = "org.fusesource.fabric.partition.listener.profile",
+        description = "Fabric Profile Partition Listener",
+        immediate = true)
+@Service(PartitionListener.class)
 public class ProfilePartitionListener implements PartitionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);
@@ -53,19 +57,16 @@ public class ProfilePartitionListener implements PartitionListener {
     private static final String TYPE = "profile-template";
     private static final String NAME_VARIABLE_FORMAT = "__%s__";
 
-    private ConcurrentMap<Key, CompiledTemplate> templates = new ConcurrentHashMap<Key, CompiledTemplate>();
-    private SetMultimap<String, Partition> assignedPartitons = Multimaps.synchronizedSetMultimap(HashMultimap.<String, Partition>create());
-
+    private final ConcurrentMap<Key, CompiledTemplate> templates = new ConcurrentHashMap<Key, CompiledTemplate>();
+    private final SetMultimap<String, Partition> assignedPartitons = Multimaps.synchronizedSetMultimap(HashMultimap.<String, Partition>create());
     private final ParserContext parserContext = new ParserContext();
-    private final BundleContext bundleContext;
-    private final Dictionary properties = new Properties();
 
-    private ServiceRegistration registration;
+
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
 
-    public ProfilePartitionListener(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-        this.properties.put("type", TYPE);
+    public ProfilePartitionListener() {
     }
 
     @Override
@@ -73,33 +74,24 @@ public class ProfilePartitionListener implements PartitionListener {
         return TYPE;
     }
 
-    @Override
+    @Activate
     public synchronized void init() {
 
     }
 
-    @Override
+    @Deactivate
     public synchronized void destroy() {
-        if (fabricService != null) {
-            for (String taskDefinition : assignedPartitons.keySet()) {
-                stop(null, taskDefinition, assignedPartitons.get(taskDefinition));
-            }
-            fabricService = null;
-        }
-
-        if (registration != null) {
-            registration.unregister();
-            registration = null;
+        for (String taskDefinition : assignedPartitons.keySet()) {
+            stop(null, taskDefinition, assignedPartitons.get(taskDefinition));
         }
     }
 
-    public synchronized void unbind(FabricService fabricService) {
-        destroy();
+    public synchronized void unbindFabricService(FabricService fabricService) {
+        this.fabricService = null;
     }
 
-    public synchronized void bind(FabricService fabricService) {
+    public synchronized void bindFabricService(FabricService fabricService) {
         this.fabricService = fabricService;
-        this.registration = bundleContext.registerService(PartitionListener.class.getName(), this, properties);
     }
 
 

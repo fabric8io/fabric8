@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PlaceholderResolver;
@@ -28,6 +31,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Component(name = "org.fusesource.fabric.placholder.resolver.profileprop",
+           description = "Fabric Profile Property Placeholder Resolver", immediate = true)
+@Service(PlaceholderResolver.class)
 public class ProfilePropertyPointerResolver implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfilePropertyPointerResolver.class);
@@ -38,7 +44,9 @@ public class ProfilePropertyPointerResolver implements PlaceholderResolver {
 
     private static final String EMPTY = "";
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private DataStore dataStore;
 
     /**

@@ -17,8 +17,9 @@
 package org.fusesource.fabric.web;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
@@ -38,13 +39,20 @@ import java.util.Map;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-public class FabricWebRegistrationHandler implements WebListener, ConnectionStateListener, ServletListener {
+@Component(name = "org.fusesource.fabric.web",
+        description = "Fabric Web Registration Handler",
+        immediate = true)
+@Service({WebListener.class, ServletListener.class})
+public class FabricWebRegistrationHandler implements WebListener, ServletListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
     private final Map<Bundle, WebEvent> webEvents = new HashMap<Bundle, WebEvent>();
     private final Map<Bundle, Map<String, ServletEvent>> servletEvents = new HashMap<Bundle, Map<String, ServletEvent>>();
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
 
     @Override
@@ -189,35 +197,6 @@ public class FabricWebRegistrationHandler implements WebListener, ConnectionStat
             container.setJolokiaUrl(null);
             System.clearProperty("jolokia.agent");
         }
-    }
-
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
-                this.curator = null;
-                break;
-        }
-    }
-
-    public void onConnected() {
-        for (WebEvent event : webEvents.values()) {
-            webEvent(event);
-        }
-        for (Map<String, ServletEvent> map : servletEvents.values()) {
-            for (ServletEvent event : map.values()) {
-                servletEvent(event);
-            }
-        }
-    }
-
-    public void onDisconnected() {
     }
 
     public FabricService getFabricService() {

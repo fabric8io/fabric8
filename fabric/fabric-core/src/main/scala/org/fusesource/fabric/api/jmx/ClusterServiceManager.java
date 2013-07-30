@@ -1,9 +1,15 @@
 package org.fusesource.fabric.api.jmx;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -22,15 +28,22 @@ import java.util.Map;
 /**
  * @author Stan Lewis
  */
+@Component(name = "org.fusesource.fabric.zookeeper.cluster.manager",
+        description = "Fabric ZooKeeper Cluster Manager")
 public class ClusterServiceManager implements ClusterServiceManagerMBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(ClusterServiceManager.class);
 
-    ZooKeeperClusterService service;
-    private ObjectName objectName;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private ZooKeeperClusterBootstrap bootstrap;
 
-    public ClusterServiceManager(ZooKeeperClusterService service) {
-        this.service = service;
-    }
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    private ZooKeeperClusterService service;
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private MBeanServer mbeanServer;
+
+
+    private ObjectName objectName;
 
     public ObjectName getObjectName() throws MalformedObjectNameException {
         if (objectName == null) {
@@ -43,32 +56,22 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
         this.objectName = objectName;
     }
 
-    public void registerMBeanServer(MBeanServer mbeanServer) {
-        try {
-            ObjectName name = getObjectName();
-            if (!mbeanServer.isRegistered(name)) {
-                mbeanServer.registerMBean(this, name);
-            } else {
-                LOG.info("Replacing existing ClusterServiceManager MBean registration");
-                mbeanServer.unregisterMBean(name);
-                mbeanServer.registerMBean(this, name);
-            }
-        } catch (Exception e) {
-            LOG.warn("An error occured during mbean server registration: " + e, e);
-        }
+    @Activate
+    public void init() throws Exception {
+         this.mbeanServer.registerMBean(this, getObjectName());
     }
 
-    public void unregisterMBeanServer(MBeanServer mbeanServer) {
-        if (mbeanServer != null) {
-            try {
-                ObjectName name = getObjectName();
-                if (mbeanServer.isRegistered(name)) {
-                    mbeanServer.unregisterMBean(name);
-                }
-            } catch (Exception e) {
-                LOG.warn("An error occured during mbean server registration: " + e, e);
-            }
-        }
+    @Deactivate
+    public void destroy() throws Exception {
+      this.mbeanServer.unregisterMBean(getObjectName());
+    }
+
+    public void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer = mbeanServer;
+    }
+
+    public void unbindMBeanServer(MBeanServer mbeanServer) {
+            this.mbeanServer = null;
     }
 
     private static void maybeSetProperty(String prop, Object value) {
@@ -135,6 +138,9 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
 
     @Override
     public void createCluster(List<String> containers) {
+        if (containers == null || (containers.size() == 1 && containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME)))) {
+            bootstrap.create(CreateEnsembleOptions.builder().fromSystemProperties().build());
+        }
         service.createCluster(containers);
     }
 
@@ -161,7 +167,11 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
 
     @Override
     public void createCluster(List<String> containers, CreateEnsembleOptions options) {
-        service.createCluster(containers, options);
+        if (service == null) {
+            bootstrap.create(options);
+        } else {
+            service.createCluster(containers, options);
+        }
     }
 
     @Override

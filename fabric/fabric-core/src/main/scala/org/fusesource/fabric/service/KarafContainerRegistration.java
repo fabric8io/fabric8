@@ -19,10 +19,16 @@ package org.fusesource.fabric.service;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.internal.ContainerImpl;
@@ -33,6 +39,7 @@ import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceException;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
@@ -80,8 +87,11 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
+@Component(name = "org.fusesource.fabric.container.registration.karaf",
+           description = "Fabric Karaf Container Registration")
+@Service({ContainerRegistration.class, ConfigurationListener.class, ConnectionStateListener.class})
 public class
-        KarafContainerRegistration implements ConnectionStateListener, NotificationListener, ConfigurationListener {
+        KarafContainerRegistration implements ContainerRegistration, NotificationListener, ConfigurationListener, ConnectionStateListener {
 
     private transient Logger LOGGER = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
@@ -94,14 +104,20 @@ public class
     private static final String SSH_KEY = "sshPort";
     private static final String HTTP_KEY = "org.osgi.service.http.port";
 
+    private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private ConfigurationAdmin configurationAdmin;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
-    private BundleContext bundleContext;
+
+    private BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private volatile MBeanServer mbeanServer;
-    private volatile boolean connected;
 
 
     public CuratorFramework getCurator() {
@@ -128,28 +144,13 @@ public class
         this.fabricService = fabricService;
     }
 
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
-        }
-    }
 
-    public synchronized void onConnected() {
-        connected = true;
-
-        final String name = System.getProperty(SystemProperties.KARAF_NAME);
+    @Activate
+    public void init() {
+        LOGGER.trace("init");
         String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = System.getProperty("fabric.profiles");
-        LOGGER.trace("onConnected");
 
-        String nodeAlive = CONTAINER_ALIVE.getPath(name);
         try {
 
             if (profiles != null) {
@@ -159,18 +160,10 @@ public class
                 createDefault(curator, profileNode, profiles);
             }
 
-            Stat stat = exists(curator, nodeAlive);
-            if (stat != null) {
-                if (stat.getEphemeralOwner() != curator.getZookeeperClient().getZooKeeper().getSessionId()) {
-                    delete(curator, nodeAlive);
-                    create(curator, nodeAlive, CreateMode.EPHEMERAL);
-                }
-            } else {
-                create(curator, nodeAlive, CreateMode.EPHEMERAL);
-            }
+            checkAlive();
 
             String domainsNode = CONTAINER_DOMAINS.getPath(name);
-            stat = exists(curator, domainsNode);
+            Stat stat = exists(curator, domainsNode);
             if (stat != null) {
                 deleteSafe(curator, domainsNode);
             }
@@ -207,6 +200,46 @@ public class
             registerDomains();
         } catch (Exception e) {
             LOGGER.warn("Error updating Fabric Container information. This exception will be ignored.", e);
+        }
+    }
+
+    @Deactivate
+    public void destroy() {
+        LOGGER.trace("destroy");
+        try {
+            unregisterDomains();
+        } catch (ServiceException e) {
+            LOGGER.trace("ZooKeeper is no longer available", e);
+        } catch (Exception e) {
+            LOGGER.warn("An error occurred during disconnecting to curator. This exception will be ignored.", e);
+        }
+    }
+
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                try {
+                    checkAlive();
+                } catch (Exception ex) {
+                    LOGGER.error("Error while checking/setting container status.");
+                }
+                break;
+        }
+    }
+
+
+    public void checkAlive() throws Exception {
+        String nodeAlive = CONTAINER_ALIVE.getPath(name);
+        Stat stat = exists(curator, nodeAlive);
+        if (stat != null) {
+            if (stat.getEphemeralOwner() != curator.getZookeeperClient().getZooKeeper().getSessionId()) {
+                delete(curator, nodeAlive);
+                create(curator, nodeAlive, CreateMode.EPHEMERAL);
+            }
+        } else {
+            create(curator, nodeAlive, CreateMode.EPHEMERAL);
         }
     }
 
@@ -368,7 +401,7 @@ public class
     /**
      * Returns a pointer to the container IP based on the global IP policy.
      *
-     * @param curator The curator client to use to read global policy.
+     * @param curator   The curator client to use to read global policy.
      * @param container The name of the container.
      * @return
      * @throws InterruptedException
@@ -378,22 +411,6 @@ public class
         String pointer = "${zk:%s/%s}";
         String policy = getContainerResolutionPolicy(curator, container);
         return String.format(pointer, container, policy);
-    }
-
-    public void destroy() {
-        LOGGER.trace("destroy");
-        try {
-            unregisterDomains();
-        } catch (ServiceException e) {
-            LOGGER.trace("ZooKeeper is no longer available", e);
-        } catch (Exception e) {
-            LOGGER.warn("An error occurred during disconnecting to curator. This exception will be ignored.", e);
-        }
-    }
-
-    public void onDisconnected() {
-        LOGGER.trace("onDisconnected");
-        connected = false;
     }
 
     public synchronized void registerMBeanServer(ServiceReference ref) {
@@ -423,21 +440,17 @@ public class
     }
 
     protected void registerDomains() throws Exception {
-        if (isConnected() && mbeanServer != null) {
-            String name = System.getProperty(SystemProperties.KARAF_NAME);
-            domains.addAll(Arrays.asList(mbeanServer.getDomains()));
-            for (String domain : mbeanServer.getDomains()) {
-                setData(curator, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
-            }
+        String name = System.getProperty(SystemProperties.KARAF_NAME);
+        domains.addAll(Arrays.asList(mbeanServer.getDomains()));
+        for (String domain : mbeanServer.getDomains()) {
+            setData(curator, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
         }
     }
 
     protected void unregisterDomains() throws Exception {
-        if (isConnected()) {
-            String name = System.getProperty(SystemProperties.KARAF_NAME);
-            String domainsPath = CONTAINER_DOMAINS.getPath(name);
-            deleteSafe(curator, domainsPath);
-        }
+        String name = System.getProperty(SystemProperties.KARAF_NAME);
+        String domainsPath = CONTAINER_DOMAINS.getPath(name);
+        deleteSafe(curator, domainsPath);
     }
 
     @Override
@@ -446,7 +459,7 @@ public class
 
         // we may get notifications when curator client is not really connected
         // handle mbeans registration and de-registration events
-        if (isConnected() && mbeanServer != null && notif instanceof MBeanServerNotification) {
+        if (notif instanceof MBeanServerNotification) {
             MBeanServerNotification notification = (MBeanServerNotification) notif;
             String domain = notification.getMBeanName().getDomain();
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
@@ -473,11 +486,6 @@ public class
     }
 
 
-    private boolean isConnected() {
-        // we are only considered connected if we have a client and its connected
-        return curator != null && connected;
-    }
-
     /**
      * Receives notification of a Configuration that has changed.
      *
@@ -486,44 +494,42 @@ public class
     @Override
     public void configurationEvent(ConfigurationEvent event) {
         try {
-            if (isConnected()) {
-                Container current = getContainer();
+            Container current = getContainer();
 
-                String name = System.getProperty(SystemProperties.KARAF_NAME);
-                if (event.getPid().equals(SSH_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
-                    Configuration config = configurationAdmin.getConfiguration(SSH_PID);
-                    int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_KEY));
-                    String sshUrl = getSshUrl(name, sshPort);
-                    setData(curator, CONTAINER_SSH.getPath(name), sshUrl);
-                    if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_KEY) != sshPort) {
-                        fabricService.getPortService().unRegisterPort(current, SSH_PID);
-                        fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
-                    }
+            String name = System.getProperty(SystemProperties.KARAF_NAME);
+            if (event.getPid().equals(SSH_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                Configuration config = configurationAdmin.getConfiguration(SSH_PID);
+                int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_KEY));
+                String sshUrl = getSshUrl(name, sshPort);
+                setData(curator, CONTAINER_SSH.getPath(name), sshUrl);
+                if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_KEY) != sshPort) {
+                    fabricService.getPortService().unRegisterPort(current, SSH_PID);
+                    fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
                 }
-                if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
-                    Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
-                    int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_KEY));
-                    String httpUrl = getHttpUrl(name, httpPort);
-                    setData(curator, CONTAINER_HTTP.getPath(name), httpUrl);
-                    if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_KEY) != httpPort) {
-                        fabricService.getPortService().unRegisterPort(current, HTTP_PID);
-                        fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
-                    }
+            }
+            if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
+                int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_KEY));
+                String httpUrl = getHttpUrl(name, httpPort);
+                setData(curator, CONTAINER_HTTP.getPath(name), httpUrl);
+                if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_KEY) != httpPort) {
+                    fabricService.getPortService().unRegisterPort(current, HTTP_PID);
+                    fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
                 }
-                if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
-                    Configuration config = configurationAdmin.getConfiguration(MANAGEMENT_PID);
-                    int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_KEY));
-                    int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_KEY));
-                    String jmxUrl = getJmxUrl(name, rmiServerPort, rmiRegistryPort);
-                    setData(curator, CONTAINER_JMX.getPath(name), jmxUrl);
-                    if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY) != rmiRegistryPort
-                            || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_KEY) != rmiServerPort) {
-                        fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
-                        fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
-                        fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
-                    }
+            }
+            if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
+                Configuration config = configurationAdmin.getConfiguration(MANAGEMENT_PID);
+                int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_KEY));
+                int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_KEY));
+                String jmxUrl = getJmxUrl(name, rmiServerPort, rmiRegistryPort);
+                setData(curator, CONTAINER_JMX.getPath(name), jmxUrl);
+                if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY) != rmiRegistryPort
+                        || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_KEY) != rmiServerPort) {
+                    fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
+                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
+                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
+                }
 
-                }
             }
         } catch (Exception e) {
 
@@ -532,7 +538,8 @@ public class
 
     /**
      * Gets the current {@link Container}.
-     * @return  The current container if registered or a dummy wrapper of the name and ip.
+     *
+     * @return The current container if registered or a dummy wrapper of the name and ip.
      */
     private Container getContainer() {
         try {

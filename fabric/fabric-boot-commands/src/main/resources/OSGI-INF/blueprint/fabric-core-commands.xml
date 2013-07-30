@@ -16,70 +16,41 @@
   -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
-    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
-    <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService"/>
-    <reference id="curator" interface="org.apache.curator.framework.CuratorFramework"/>
-    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
+    <reference id="zooKeeperClusterBootstrap" interface="org.fusesource.fabric.api.ZooKeeperClusterBootstrap" availability="optional"/>
+    <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" availability="optional"/>
+    <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
     <bean id="Create" class="org.fusesource.fabric.boot.commands.Create">
+        <property name="bootstrap" ref="zooKeeperClusterBootstrap"/>
         <property name="service" ref="zooKeeperClusterService"/>
     </bean>
 
-    <service ref="Create" auto-export="interfaces"/>
-
     <bean id="Join" class="org.fusesource.fabric.boot.commands.Join">
-        <property name="curator" ref="curator"/>
         <property name="configurationAdmin" ref="configurationAdmin"/>
         <property name="bundleContext" ref="blueprintBundleContext"/>
     </bean>
 
+    <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
+
     <service ref="Join" auto-export="interfaces"/>
+    <service ref="Create" auto-export="interfaces"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/create">
             <action class="org.fusesource.fabric.boot.commands.Create">
+                <property name="bootstrap" ref="zooKeeperClusterBootstrap"/>
                 <property name="service" ref="zooKeeperClusterService"/>
             </action>
-            <completers>
-                <ref component-id="currentContainerCompleter"/>
-                <null/>
-            </completers>
             <optional-completers>
                 <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/join">
             <action class="org.fusesource.fabric.boot.commands.Join">
-                <property name="curator" ref="curator"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
             </action>
         </command>
-        <command name="fabric/container-create-ssh">
-            <action class="org.fusesource.fabric.boot.commands.ContainerCreateSsh">
-                <property name="fabricService" ref="fabricService"/>
-            </action>
-            <optional-completers>
-                <entry key="--profile" value-ref="profileCompleter"/>
-                <entry key="--version" value-ref="versionCompleter"/>
-            </optional-completers>
-        </command>
+
     </command-bundle>
-
-    <bean id="currentContainerCompleter" class="org.fusesource.fabric.boot.commands.support.CurrentContainerCompleter"/>
-
-    <bean id="containerCompleter" class="org.fusesource.fabric.boot.commands.support.ContainerCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
-
-    <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
-
-
-    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
-        <property name="fabricService" ref="fabricService"/>
-    </bean>
 
 </blueprint>

@@ -70,7 +70,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         assertEquals("Expected to find 1 container",1, containers.length);
         assertEquals("Expected to find the root container","root", containers[0].getId());
 
-        //Test that a provided by commmand line password exists
+        //Test that a provided by command line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
         ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
         org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");

@@ -12,12 +12,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
-import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.apache.karaf.features.Repository;
@@ -27,7 +26,6 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,32 +34,32 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
+@Component(name = "org.fusesource.fabric.features",
+           description = "Fabric Features Service", immediate = true)
+@Service(FeaturesService.class)
 public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
 
     private final Set<Repository> repositories = new HashSet<Repository>();
     private final Set<Feature> allfeatures = new HashSet<Feature>();
     private final Set<Feature> installed = new HashSet<Feature>();
 
-    public synchronized void bindFabricService(FabricService fabricService) {
-        if (this.fabricService != null) {
-            this.fabricService.unTrackConfiguration(this);
-        }
-        this.fabricService = fabricService;
-        if (this.fabricService != null) {
-            this.fabricService.trackConfiguration(this);
-            run();
-        }
+    @Activate
+    public void activate() {
+        fabricService.trackConfiguration(this);
     }
 
-    public synchronized void unbindFabricService(FabricService fabricService) {
-        if (this.fabricService != null) {
-            this.fabricService.unTrackConfiguration(this);
-        }
-        this.fabricService = null;
+    @Deactivate
+    public void deactivate() {
+        fabricService.unTrackConfiguration(this);
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
     }
 
     @Override

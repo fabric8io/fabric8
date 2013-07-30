@@ -19,6 +19,12 @@ package org.fusesource.fabric.git.zkbridge;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.utils.properties.Properties;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -37,6 +43,7 @@ import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,71 +76,76 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
-public class Bridge implements ConnectionStateListener, GroupListener<GitZkBridgeNode> {
+@Component(name = "org.fusesource.fabric.git.zkbridge",
+        description = "Fabric Git / ZooKeeper Bridge",
+        immediate = true, policy = ConfigurationPolicy.OPTIONAL)
+public class Bridge implements GroupListener<GitZkBridgeNode> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
     public static final String METADATA = ".metadata";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);
 
-    private Group<GitZkBridgeNode> group;
-    private boolean connected = false;
-
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricGitService gitService;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
-    private long period;
+    private Group<GitZkBridgeNode> group;
+
+    private long period = 1000;
     private ScheduledExecutorService executors;
 
-    public synchronized void bindGitService(FabricGitService gitService) {
-        this.gitService = gitService;
-        if (connected) {
-            group.update(createState());
-        }
-    }
 
-    public synchronized void unbindGitService(FabricGitService gitService) {
-        if (connected) {
-            try {
-                group.close();
-            } catch (IOException e) {
-                // Ignore
-            }
-        }
-        this.gitService = null;
-    }
-
-    @Override
-    public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                this.curator = client;
-                onConnected();
-                break;
-            default:
-                onDisconnected();
-        }
-    }
-
-    public synchronized void onConnected() {
-        connected = true;
+    @Activate
+    public void init(Map<String, String> properties) {
+        this.period = Integer.parseInt(properties != null && properties.containsKey("period") ? properties.get("period") : "1000");
+        this.executors = Executors.newSingleThreadScheduledExecutor();
         group = new ZooKeeperGroup<GitZkBridgeNode>(curator, "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
         group.add(this);
-        if (gitService != null) {
-            group.update(createState());
-        }
+        group.update(createState());
         group.start();
+        executors.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                        String login = getContainerLogin();
+                        String token = generateContainerToken(curator);
+                        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
+                        if (group.isMaster()) {
+                            update(gitService.get(), curator, cp);
+                        } else {
+                            updateLocal(gitService.get(), curator, cp);
+                        }
+                } catch (Exception e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to sync git/zookeeper", e);
+                    } else {
+                        LOGGER.info("Unable to sync git / zookeeper: " + e.getClass().getName() + ": " + e.getMessage());
+                    }
+                }
+            }
+        }, period, period, TimeUnit.MILLISECONDS);
     }
 
-    public synchronized void onDisconnected() {
-        connected = false;
+    @Deactivate
+    public void destroy() {
+        executors.shutdown();
         try {
             if (group != null) {
                 group.close();
             }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to remove git server from registry.", e);
+        } catch (IOException e) {
+            // Ignore
         }
+    }
+
+
+    public synchronized void bindGitService(FabricGitService gitService) {
+        this.gitService = gitService;
+    }
+
+    public synchronized void unbindGitService(FabricGitService gitService) {
+        this.gitService = null;
     }
 
     @Override
@@ -157,41 +169,8 @@ public class Bridge implements ConnectionStateListener, GroupListener<GitZkBridg
         return state;
     }
 
-    public void init() {
-        executors = Executors.newSingleThreadScheduledExecutor();
-        executors.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    if (gitService != null && connected) {
-                        String login = getContainerLogin();
-                        String token = generateContainerToken(curator);
-                        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
-                        if (group.isMaster()) {
-                            update(gitService.get(), curator, cp);
-                        } else {
-                            updateLocal(gitService.get(), curator, cp);
-                        }
-                    }
-                } catch (Exception e) {
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("Unable to sync git/zookeeper", e);
-                    } else {
-                        LOGGER.info("Unable to sync git / zookeeper: " + e.getClass().getName() + ": " + e.getMessage());
-                    }
-                }
-            }
-        }, period, period, TimeUnit.MILLISECONDS);
-    }
 
-    public void destroy() {
-        executors.shutdown();
-        try {
-            group.close();
-        } catch (IOException e) {
-            // Ignore
-        }
-    }
+
 
     public static void updateLocal(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
         String remoteName = "origin";

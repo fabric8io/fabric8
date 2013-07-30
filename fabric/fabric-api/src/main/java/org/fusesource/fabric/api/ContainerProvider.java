@@ -52,4 +52,7 @@ public interface ContainerProvider<O extends CreateContainerOptions, M extends C
      */
     void destroy(Container container);
 
+
+    String getScheme();
+
 }

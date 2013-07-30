@@ -19,8 +19,13 @@ package org.fusesource.fabric.service;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.locks.InterProcessLock;
 import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.zookeeper.ZkPath;
 
@@ -36,15 +41,24 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
+@Component(name = "org.fusesource.fabric.portservice.zookeeper",
+           description = "Fabric ZooKeeper Port Service")
+@Service(PortService.class)
 public class ZookeeperPortService implements PortService {
 
-    private final CuratorFramework curator;
-    private final InterProcessLock lock;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private CuratorFramework curator;
+    private InterProcessLock lock;
 
-    public ZookeeperPortService(CuratorFramework curator) {
-        this.curator = curator;
+    @Activate
+    public void init() {
         this.lock = new InterProcessMultiLock(curator, Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
     }
+
+    public void destroy() {
+        release();
+    }
+
 
     @Override
     public int registerPort(Container container, String pid, String key, int fromPort, int toPort, Set<Integer> excludes)  {

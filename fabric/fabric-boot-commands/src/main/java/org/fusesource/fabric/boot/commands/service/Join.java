@@ -13,8 +13,6 @@ public interface Join {
 
     void setConfigurationAdmin(ConfigurationAdmin configurationAdmin);
 
-    void setCurator(CuratorFramework zooKeeper);
-
     String getVersion();
 
     void setVersion(String version);

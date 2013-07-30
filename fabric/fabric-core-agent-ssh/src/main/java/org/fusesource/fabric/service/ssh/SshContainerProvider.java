@@ -45,6 +45,8 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildUninsta
  */
 public class SshContainerProvider implements ContainerProvider<CreateSshContainerOptions, CreateSshContainerMetadata> {
 
+    private static final String SCHEME = "ssh";
+
     private static final Logger logger = LoggerFactory.getLogger(SshContainerProvider.class);
 
     private boolean verbose = false;
@@ -144,6 +146,11 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 logger.error("Failed to stop container: "+container.getId(),t);
             }
         }
+    }
+
+    @Override
+    public String getScheme() {
+        return SCHEME;
     }
 
     protected void runScriptOnHost(CreateSshContainerOptions options, String script) throws Exception {

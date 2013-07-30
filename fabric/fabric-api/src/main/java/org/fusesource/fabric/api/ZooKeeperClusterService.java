@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-//import org.apache.curator.framework.CuratorFramework;
-
 import java.util.List;
 
 public interface ZooKeeperClusterService {
@@ -72,6 +70,4 @@ public interface ZooKeeperClusterService {
 	void removeFromCluster(List<String> containers, CreateEnsembleOptions options);
 
     void clean();
-
-    //CuratorFramework getCurator();
 }

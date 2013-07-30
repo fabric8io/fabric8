@@ -16,6 +16,8 @@
 
 package org.fusesource.fabric.partition.internal;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
 import org.slf4j.Logger;
@@ -23,6 +25,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
+@Component(name = "org.fusesource.fabric.partition.listener.logging",
+        description = "Fabric Logging Partition Listener",
+        immediate = true)
+@Service(PartitionListener.class)
 public class LoggingPartitionListener implements PartitionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);

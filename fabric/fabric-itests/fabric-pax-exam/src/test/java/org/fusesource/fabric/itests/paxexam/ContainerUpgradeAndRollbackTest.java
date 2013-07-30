@@ -19,6 +19,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.junit.Assert.assertFalse;
@@ -56,7 +57,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         //Make sure that the profile change has been applied before changing the version
         CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
-        latch.await();
+        latch.await(5, TimeUnit.SECONDS);
 
         System.out.println(executeCommand("fabric:profile-display --version 1.1 camel"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
@@ -96,7 +97,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         //Make sure that the profile change has been applied before changing the version
         CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
-        latch.await();
+        latch.await(5, TimeUnit.SECONDS);
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Provision.assertSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));

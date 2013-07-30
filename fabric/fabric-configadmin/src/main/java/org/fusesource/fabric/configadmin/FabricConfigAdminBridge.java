@@ -16,6 +16,11 @@
  */
 package org.fusesource.fabric.configadmin;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.osgi.service.cm.Configuration;
@@ -36,6 +41,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Component(name = "org.fusesource.fabric.configadmin.bridge",
+           description = "Fabric Config Admin Bridge")
 public class FabricConfigAdminBridge implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
@@ -44,40 +51,23 @@ public class FabricConfigAdminBridge implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private ConfigurationAdmin configAdmin;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private ContainerRegistration registration;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 
-    public synchronized void bindConfigAdmin(ConfigurationAdmin configAdmin) {
-        this.configAdmin = configAdmin;
-    }
-
-    public synchronized void unbindConfigAdmin(ConfigurationAdmin configAdmin) {
-        this.configAdmin = null;
-    }
-
-    public synchronized void bindFabricService(FabricService fabricService) {
-        if (this.fabricService != null) {
-            this.fabricService.unTrackConfiguration(this);
-        }
-        this.fabricService = fabricService;
-        if (this.fabricService != null) {
-            this.fabricService.trackConfiguration(this);
-            run();
-        }
-    }
-
-    public synchronized void unbindFabricService(FabricService fabricService) {
-        if (this.fabricService != null) {
-            this.fabricService.unTrackConfiguration(this);
-        }
-        this.fabricService = null;
-    }
-
+    @Activate
     public void init() {
+        fabricService.trackConfiguration(this);
+        run();
     }
 
+    @Deactivate
     public void destroy() {
+        fabricService.unTrackConfiguration(this);
         executor.shutdown();
         try {
             executor.awaitTermination(1, TimeUnit.MINUTES);

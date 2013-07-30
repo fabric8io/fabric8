@@ -6,7 +6,7 @@ import org.junit.Test;
 
 public class MavenProxyServletSupportTest {
 
-    private MavenProxyServletSupport servlet = new MavenDownloadProxyServlet();
+    private MavenProxyServletSupport servlet = new MavenDownloadProxyServlet(null, null, false, null,null,null,null,0,null, null, null);
 
     @Test
     public void testMetadataRegex() {

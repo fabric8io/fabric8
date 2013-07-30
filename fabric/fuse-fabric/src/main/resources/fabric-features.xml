@@ -154,6 +154,7 @@
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric/fabric-api/${project.version}</bundle>
+        <feature>scr</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>

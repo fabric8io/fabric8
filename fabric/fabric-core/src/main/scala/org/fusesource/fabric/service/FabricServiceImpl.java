@@ -18,7 +18,24 @@ package org.fusesource.fabric.service;
 
 import com.google.common.base.Strings;
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.api.*;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.FabricStatus;
+import org.fusesource.fabric.api.PatchService;
+import org.fusesource.fabric.api.PortService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.FileSystem;
 import org.fusesource.fabric.api.jmx.HealthCheck;
@@ -38,12 +55,23 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 
 
+@Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
+@Service(FabricService.class)
 public class FabricServiceImpl implements FabricService {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
@@ -51,22 +79,24 @@ public class FabricServiceImpl implements FabricService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private DataStore dataStore;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private PortService portService;
-    private Map<String, ContainerProvider> providers;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private ConfigurationAdmin configurationAdmin;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private MBeanServer mbeanServer;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "registerProvider", unbind = "unregisterProvider", referenceInterface = ContainerProvider.class, policy = ReferencePolicy.DYNAMIC)
+    private Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
     private final HealthCheck healthCheck = new HealthCheck(this);
     private final FabricManager managerMBean = new FabricManager(this);
     private final ZooKeeperFacade zooKeeperMBean = new ZooKeeperFacade(this);
     private final FileSystem fileSystemMBean = new FileSystem();
-    private MBeanServer mbeanServer;
 
-    public FabricServiceImpl() {
-        providers = new ConcurrentHashMap<String, ContainerProvider>();
-        providers.put("child", new ChildContainerProvider(this));
-    }
 
     public void bindMBeanServer(MBeanServer mbeanServer) {
         unbindMBeanServer(this.mbeanServer);
@@ -434,13 +464,21 @@ public class FabricServiceImpl implements FabricService {
         return null;
     }
 
+
+    public void registerProvider(ContainerProvider provider) {
+        providers.put(provider.getScheme(), provider);
+    }
+
     public void registerProvider(String scheme, ContainerProvider provider) {
         providers.put(scheme, provider);
     }
-
     public void registerProvider(ContainerProvider provider, Map<String, Object> properties) {
         String scheme = (String) properties.get(Constants.PROTOCOL);
         registerProvider(scheme, provider);
+    }
+
+    public void unregisterProvider(ContainerProvider provider) {
+            providers.remove(provider.getScheme());
     }
 
     public void unregisterProvider(String scheme) {

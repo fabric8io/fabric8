@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.utils.ChecksumUtils;
 import org.fusesource.fabric.utils.Closeables;
@@ -25,6 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.io.InputStream;
 import java.net.URL;
 
+@Component(name = "org.fusesource.fabric.placholder.resolver.checksum",
+           description = "Fabric Checksum Placholder Resolver")
+@Service(PlaceholderResolver.class)
 public class ChecksumPlaceholderResolver implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChecksumPlaceholderResolver.class);

@@ -89,7 +89,9 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
 
     @Override
     public void updated(Dictionary properties) throws ConfigurationException {
-        if (isRestartRequired(oldProperties, properties)) {
+        if (properties == null && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
+            return;
+        } else if (isRestartRequired(oldProperties, properties)) {
             updateService(buildCuratorFramework(properties));
         } else {
             updateEnsemble(properties);
@@ -254,6 +256,8 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
             return true;
         } else if (oldProperties.equals(properties)) {
             return false;
+        } else if (!propertyEquals(oldProperties, properties, ZOOKEEPER_URL)) {
+            return true;
         } else if (!propertyEquals(oldProperties, properties, ZOOKEEPER_PASSWORD)) {
             return true;
         } else if (!propertyEquals(oldProperties, properties, CONNECTION_TIMEOUT)) {

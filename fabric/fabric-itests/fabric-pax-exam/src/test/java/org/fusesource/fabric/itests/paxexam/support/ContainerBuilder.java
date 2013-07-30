@@ -232,6 +232,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @return
      */
     public Set<Container> build() {
+        getOsgiService(ContainerRegistration.class);
         return build(Arrays.<B>asList(getOptionsBuilder()));
     }
 

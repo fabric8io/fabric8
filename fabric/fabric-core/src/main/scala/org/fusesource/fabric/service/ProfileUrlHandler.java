@@ -17,9 +17,16 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.Profile;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.url.URLStreamHandlerService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,14 +36,18 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
 
+@Component(name = "org.fusesource.fabric.profile.urlhandler",
+           description = "Fabric Profile URL Handler", immediate = true)
+@Service(URLStreamHandlerService.class)
+@Properties({
+        @Property(name = "url.handler.protocol", value = "profile")
+})
 public class ProfileUrlHandler extends AbstractURLStreamHandlerService {
 
-    private final FabricService fabricService;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private FabricService fabricService;
     private static final String SYNTAX = "profile:<resource name>";
 
-    public ProfileUrlHandler(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
 
     @Override
     public URLConnection openConnection(URL url) throws IOException {

@@ -17,6 +17,9 @@
 package org.fusesource.fabric.service;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
@@ -26,9 +29,13 @@ import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_ALGORI
 import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
+@Component(name = "org.fusesource.fabric.placholder.resolver.crypt",
+           description = "Fabric Encrypted Property Placeholder Resolver")
+@Service(PlaceholderResolver.class)
 public class EncryptedPropertyResolver implements PlaceholderResolver {
 
-    private static final String CRYPT_SCHEME = "crypt";;
+    private static final String CRYPT_SCHEME = "crypt";
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
 
     @Override

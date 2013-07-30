@@ -79,34 +79,44 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
 
     public static final Pattern REPOSITORY_ID_REGEX = Pattern.compile("[^ ]*(@id=([^@ ]+))+[^ ]*");
 
-    private static final String DEFAULT_REPO_ID = "default";
-
-    protected String localRepository;
-    protected String remoteRepositories = "repo1.maven.org/maven2@id=central,repo.fusesource.com/nexus/content/groups/public@id=fusepublic,repo.fusesource.com/nexus/content/groups/releases@id=fusereleases,repo.fusesource.com/nexus/content/groups/public-snapshots@id=fusesnapshots,repo.fusesource.com/nexus/content/groups/ea@id=fuseeasrlyaccess";
-    private boolean appendSystemRepos;
-
-    protected String updatePolicy;
-    protected String checksumPolicy;
+    public static final String DEFAULT_REPO_ID = "default";
 
     protected Map<String, RemoteRepository> repositories;
     protected RepositorySystem system;
     protected RepositorySystemSession session;
     protected File tmpFolder = new File(System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "tmp");
 
-    private String proxyProtocol;
-    private String proxyHost;
-    private int proxyPort;
-    private String proxyUsername;
-    private String proxyPassword;
-    private String proxyNonProxyHosts;
+    final String localRepository;
+    final String remoteRepositories;
+    final boolean appendSystemRepos;
+
+    final String updatePolicy;
+    final String checksumPolicy;
+
+    final String proxyProtocol;
+    final String proxyHost;
+    final int proxyPort;
+    final String proxyUsername;
+    final String proxyPassword;
+    final String proxyNonProxyHosts;
+
+    public MavenProxyServletSupport(String localRepository, String remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
+        this.localRepository = localRepository;
+        this.remoteRepositories = remoteRepositories;
+        this.appendSystemRepos = appendSystemRepos;
+        this.updatePolicy = updatePolicy;
+        this.checksumPolicy = checksumPolicy;
+        this.proxyProtocol = proxyProtocol;
+        this.proxyHost = proxyHost;
+        this.proxyPort = proxyPort;
+        this.proxyUsername = proxyUsername;
+        this.proxyPassword = proxyPassword;
+        this.proxyNonProxyHosts = proxyNonProxyHosts;
+    }
 
     public synchronized void start() throws IOException {
         if (!tmpFolder.exists() && !tmpFolder.mkdirs()) {
             throw new IOException("Failed to create temporary artifact folder");
-        }
-        if (localRepository.equals("")) {
-            //It doesn't work when using the file:// protocol prefix.
-            localRepository = System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
         }
         if (system == null) {
             system = newRepositorySystem();
@@ -409,89 +419,48 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         }
     }
 
-
-    public void setLocalRepository(String localRepository) {
-        this.localRepository = localRepository;
+    public String getLocalRepository() {
+        return localRepository;
     }
 
     public String getRemoteRepositories() {
         return remoteRepositories;
     }
 
-    public void setRemoteRepositories(String remoteRepositories) {
-        this.remoteRepositories = remoteRepositories;
+    public boolean isAppendSystemRepos() {
+        return appendSystemRepos;
     }
 
     public String getUpdatePolicy() {
         return updatePolicy;
     }
 
-    public void setUpdatePolicy(String updatePolicy) {
-        this.updatePolicy = updatePolicy;
-    }
-
     public String getChecksumPolicy() {
         return checksumPolicy;
-    }
-
-    public void setChecksumPolicy(String checksumPolicy) {
-        this.checksumPolicy = checksumPolicy;
     }
 
     public String getProxyProtocol() {
         return proxyProtocol;
     }
 
-    public void setProxyProtocol(String proxyProtocol) {
-        this.proxyProtocol = proxyProtocol;
-    }
-
     public String getProxyHost() {
         return proxyHost;
-    }
-
-    public void setProxyHost(String proxyHost) {
-        this.proxyHost = proxyHost;
     }
 
     public int getProxyPort() {
         return proxyPort;
     }
 
-    public void setProxyPort(int proxyPort) {
-        this.proxyPort = proxyPort;
-    }
-
     public String getProxyUsername() {
         return proxyUsername;
-    }
-
-    public void setProxyUsername(String proxyUsername) {
-        this.proxyUsername = proxyUsername;
     }
 
     public String getProxyPassword() {
         return proxyPassword;
     }
 
-    public void setProxyPassword(String proxyPassword) {
-        this.proxyPassword = proxyPassword;
-    }
-
     public String getProxyNonProxyHosts() {
         return proxyNonProxyHosts;
-    }
-
-    public void setProxyNonProxyHosts(String proxyNonProxyHosts) {
-        this.proxyNonProxyHosts = proxyNonProxyHosts;
-    }
-
-    public boolean isAppendSystemRepos() {
-        return appendSystemRepos;
-    }
-
-    public void setAppendSystemRepos(boolean appendSystemRepos) {
-        this.appendSystemRepos = appendSystemRepos;
     }
 
     public static class LogAdapter implements org.sonatype.aether.spi.log.Logger {

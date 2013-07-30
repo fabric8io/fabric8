@@ -98,6 +98,7 @@
         <fuse.osgi.require.bundle />
         <fuse.osgi.capabilities.provide />
         <fuse.osgi.capabilities.require />
+        <fuse.osgi.service.component/>
 
         <fmc-port>8107</fmc-port>
 
@@ -167,6 +168,7 @@
         <felix-fileinstall-version>3.3.11.redhat-${full-perfectus-build}</felix-fileinstall-version>
         <felix-utils-version>1.1.0</felix-utils-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
+        <felix-scr-version>1.9.4</felix-scr-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.0.3</hadoop-version>
@@ -381,6 +383,7 @@
                             <Require-Bundle>${fuse.osgi.require.bundle}</Require-Bundle>
                             <Require-Capability>${fuse.osgi.capabilities.require}</Require-Capability>
                             <Provide-Capability>${fuse.osgi.capabilities.provide}</Provide-Capability>
+                            <Service-Component>${fuse.osgi.service.component}</Service-Component>
                         </instructions>
                     </configuration>
                     <executions>
@@ -1269,6 +1272,11 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.eventadmin</artifactId>
                 <version>${felix.eventadmin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.annotations</artifactId>
+                <version>${felix-scr-version}</version>
             </dependency>
             <!-- Equinox -->
             <dependency>

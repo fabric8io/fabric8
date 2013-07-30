@@ -20,11 +20,19 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.curator.framework.CuratorFramework;
-import org.fusesource.fabric.partition.internal.WorkManagerWithBalancingPolicy;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.fusesource.fabric.partition.internal.DefaultTaskManager;
+import org.fusesource.fabric.partition.internal.WorkManagerWithBalancingPolicy;
 import org.fusesource.fabric.partition.internal.WorkManagerWithListener;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.Constants;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
@@ -41,7 +49,9 @@ import static com.google.common.collect.Iterables.filter;
 /**
  * A {@link ManagedServiceFactory} for creating {@link org.fusesource.fabric.partition.internal.DefaultTaskManager} instances.
  */
-public class TaskManagerFactory implements ManagedServiceFactory {
+@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true,
+           policy = ConfigurationPolicy.REQUIRE)
+public class TaskManagerFactory {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManagerFactory.class);
 
@@ -52,37 +62,27 @@ public class TaskManagerFactory implements ManagedServiceFactory {
     private static final String WORKER_TYPE = "worker.type";
 
     private final ConcurrentMap<String, TaskManager> taksManagers = new ConcurrentHashMap<String, TaskManager>();
+    private final Multimap<String, String> waitingOnBalancing = LinkedHashMultimap.create();
+    private final Multimap<String, String> waitingOnListener = LinkedHashMultimap.create();
+    private final Map<String, Map<String,?>> pendingPids = new HashMap<String, Map<String,?>>();
+
+    private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = BalancingPolicy.class, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, BalancingPolicy> balancingPolicies = new ConcurrentHashMap<String, BalancingPolicy>();
+
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = PartitionListener.class, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, PartitionListener> partitionListeners = new ConcurrentHashMap<String, PartitionListener>();
 
 
-    private final Multimap<String, String> waitingOnBalancing = LinkedHashMultimap.create();
-    private final Multimap<String, String> waitingOnListener = LinkedHashMultimap.create();
-    private final Map<String, Dictionary> pendingPids = new HashMap<String, Dictionary>();
-
-    private BundleContext bundleContext;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
 
 
-    public synchronized void destroy() {
-
-        for (Map.Entry<String, TaskManager> entry : taksManagers.entrySet()) {
-            TaskManager taskManager = entry.getValue();
-            taskManager.stop();
-        }
-        taksManagers.clear();
-        balancingPolicies.clear();
-        partitionListeners.clear();
-    }
-
-    @Override
-    public String getName() {
-        return "Work Manager Factory";
-    }
-
-    @Override
-    public synchronized void updated(String s, Dictionary<String, ?> properties) throws ConfigurationException {
+    @Activate
+    public synchronized void activate(Map<String,?> properties) throws ConfigurationException {
         validate(properties);
+        String s = readString(properties, Constants.SERVICE_PID);
         String taskId = readString(properties, TASK_ID_PROPERTY_NAME);
         String taskDefinition = readString(properties, TASK_DEFINITION_PROPERTY_NAME);
         String partitionsPath = readString(properties, PARTITIONS_PATH_PROPERTY_NAME);
@@ -110,8 +110,9 @@ public class TaskManagerFactory implements ManagedServiceFactory {
         }
     }
 
-    @Override
-    public void deleted(String s) {
+    @Deactivate
+    public void deleted(Map<String,?> properties) {
+        String s = readString(properties, Constants.SERVICE_PID);
         TaskManager taskManager = taksManagers.remove(s);
         taskManager.stop();
     }
@@ -119,10 +120,11 @@ public class TaskManagerFactory implements ManagedServiceFactory {
 
     /**
      * Validates configuration.
+     *
      * @param properties
      * @throws ConfigurationException
      */
-    private void validate(Dictionary<String, ?> properties) throws ConfigurationException {
+    private void validate(Map<String,?> properties) throws ConfigurationException {
         if (properties == null) {
             throw new IllegalArgumentException("Configuration is null");
         } else if (properties.get(TASK_ID_PROPERTY_NAME) == null) {
@@ -140,12 +142,13 @@ public class TaskManagerFactory implements ManagedServiceFactory {
 
     /**
      * Reads the specified key as a String from configuration.
-     * @param dictionary
+     *
+     * @param properties
      * @param key
      * @return
      */
-    private String readString(Dictionary dictionary, String key) {
-        Object obj = dictionary.get(key);
+    private String readString(Map<String,?> properties, String key) {
+        Object obj = properties.get(key);
         if (obj instanceof String) {
             return (String) obj;
         } else {
@@ -165,48 +168,36 @@ public class TaskManagerFactory implements ManagedServiceFactory {
         }
     }
 
-    public synchronized void bindPolicy(ServiceReference<BalancingPolicy> reference) {
-        BalancingPolicy balancingPolicy = bundleContext.getService(reference);
-        if (balancingPolicy != null) {
-            balancingPolicies.put(balancingPolicy.getType(), balancingPolicy);
-            for (String pid : waitingOnBalancing.get(balancingPolicy.getType())) {
-                try {
-                    updated(pid, pendingPids.remove(pid));
-                } catch (ConfigurationException e) {
-                    Throwables.propagate(e);
-                }
+    public synchronized void bindBalancingPolicy(BalancingPolicy balancingPolicy) {
+        balancingPolicies.put(balancingPolicy.getType(), balancingPolicy);
+        for (String pid : waitingOnBalancing.get(balancingPolicy.getType())) {
+            try {
+                activate(pendingPids.remove(pid));
+            } catch (ConfigurationException e) {
+                Throwables.propagate(e);
             }
         }
     }
 
-    public synchronized void unbindPolicy(ServiceReference<BalancingPolicy> reference) {
-        if (reference != null) {
-            String type = (String) reference.getProperty("type");
-            balancingPolicies.remove(type);
-            stopWorkManagerWithBalancingPolicy(taksManagers.values(), type);
-        }
+    public synchronized void unbindBalancingPolicy(BalancingPolicy balancingPolicy) {
+        balancingPolicies.remove(balancingPolicy.getType());
+        stopWorkManagerWithBalancingPolicy(taksManagers.values(), balancingPolicy.getType());
     }
 
-    public synchronized void bindWorkListener(ServiceReference<PartitionListener> reference) {
-        PartitionListener partitionListener = bundleContext.getService(reference);
-        if (partitionListener != null) {
-            partitionListeners.put(partitionListener.getType(), partitionListener);
-            for (String pid : waitingOnListener.get(partitionListener.getType())) {
-                try {
-                    updated(pid, pendingPids.remove(pid));
-                } catch (ConfigurationException e) {
-                    Throwables.propagate(e);
-                }
+    public synchronized void bindPartitionListener(PartitionListener partitionListener) {
+        partitionListeners.put(partitionListener.getType(), partitionListener);
+        for (String pid : waitingOnListener.get(partitionListener.getType())) {
+            try {
+                activate(pendingPids.remove(pid));
+            } catch (ConfigurationException e) {
+                Throwables.propagate(e);
             }
         }
     }
 
-    public synchronized void unbindWorkListener(ServiceReference<PartitionListener> reference) {
-        if (reference != null) {
-            String type = (String) reference.getProperty("type");
-            partitionListeners.remove(type);
-            stopWorkManagerWithListener(taksManagers.values(), type);
-        }
+    public synchronized void unbindPartitionListener(PartitionListener partitionListener) {
+        partitionListeners.remove(partitionListener.getType());
+        stopWorkManagerWithListener(taksManagers.values(), partitionListener.getType());
     }
 
     public CuratorFramework getCurator() {
@@ -215,13 +206,5 @@ public class TaskManagerFactory implements ManagedServiceFactory {
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
-    }
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
     }
 }
