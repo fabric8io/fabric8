@@ -143,6 +143,10 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public Map<String, String> createContainers(Map<String, String> options) {
 
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Creating containers from JSON data: " + options);
+        }
+
         String providerType = options.get("providerType");
 
         if (providerType == null) {
@@ -170,7 +174,12 @@ public class FabricManager implements FabricManagerMBean {
         builder.zookeeperPassword(getFabricService().getZookeeperPassword());
         builder.zookeeperUrl(getFabricService().getZookeeperUrl());
 
-        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(builder.build());
+        CreateContainerBasicOptions build = builder.build();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Created container options: " + build + " with profiles " + build.getProfiles());
+        }
+
+        CreateContainerMetadata<?> metadatas[] = getFabricService().createContainers(build);
 
         Map<String, String> rc = new HashMap<String, String>();
 
