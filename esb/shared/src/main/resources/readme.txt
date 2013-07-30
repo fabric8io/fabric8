@@ -15,13 +15,6 @@ with the admin role by adding a line with the following syntax:
 
 The admin role grants full administration privileges to the user.
 
-To make the container's JMX port and ActiveMQ Web console accessible, modify the 
-following lines of the ./etc/system.properties file to use the credentials of one 
-of the users from the users.properties file:
-
-activemq.jmx.user=<Username>
-activemq.jmx.password=<Password>
-
 Quick Start
 -----------
 To start JBoss Fuse ${project.version}, run 'bin/fuse' on 
