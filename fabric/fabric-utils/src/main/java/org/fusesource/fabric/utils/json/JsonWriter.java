@@ -17,8 +17,6 @@
 package org.fusesource.fabric.utils.json;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Collection;
 import java.util.Map;
@@ -26,10 +24,6 @@ import java.util.Map;
 /**
  */
 public class JsonWriter {
-
-    public static void write(OutputStream os, Object value) throws IOException {
-        write(new OutputStreamWriter(os), value);
-    }
 
     public static void write(Writer writer, Object value) throws IOException {
         if (value instanceof Map) {

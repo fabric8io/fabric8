@@ -16,6 +16,18 @@
  */
 package org.fusesource.fabric.agent.resolver;
 
+import java.io.File;
+import java.net.URI;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Executors;
+
 import aQute.lib.osgi.Macro;
 import aQute.lib.osgi.Processor;
 import org.apache.felix.framework.Felix;
@@ -25,28 +37,11 @@ import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
-import org.fusesource.fabric.agent.repository.Maven2MetadataProvider;
-import org.fusesource.fabric.agent.repository.MetadataRepository;
 import org.fusesource.fabric.agent.utils.AgentUtils;
 import org.junit.Test;
 import org.osgi.framework.launch.Framework;
 import org.osgi.framework.wiring.BundleRevision;
 import org.osgi.resource.Resource;
-
-import java.io.File;
-import java.net.URI;
-import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.Executors;
 
 import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.junit.Assert.assertEquals;
@@ -73,11 +68,6 @@ public class ResolverTest {
         AgentUtils.addRepository(manager, repositories, URI.create("mvn:org.apache.karaf.assemblies.features/standard/" + System.getProperty("karaf-version") + "/xml/features"));
 
         DeploymentBuilder builder = new DeploymentBuilder(manager, null, repositories.values());
-
-        final Path root = Paths.get(System.getProperty("user.home"), ".m2/repository");
-        final List<String> groupIds = Arrays.asList("org.fusesource.fabric", "org.apache.karaf");
-        Maven2MetadataProvider repo = new Maven2MetadataProvider(root, groupIds);
-        builder.addResourceRepository(new MetadataRepository(repo));
 
         builder.download(new HashSet<String>(Arrays.asList("karaf-framework", "ssh")),
                          Collections.<String>emptySet(),

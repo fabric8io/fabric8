@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>fabric-project</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <version>99-master-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.fusesource.fabric</groupId>
+    <artifactId>fabric-osgimetadata</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>Fuse Fabric :: OSGi Metadata Provider</description>
+
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.fabric.osgimetadata;version=${project.version};-noimport:=true
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+            *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+            org.fusesource.fabric.utils.json
+        </fuse.osgi.private.pkg>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.compendium</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>watcher-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <version>${servlet-api-version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+</project>

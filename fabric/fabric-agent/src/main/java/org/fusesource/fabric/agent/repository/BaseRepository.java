@@ -67,19 +67,20 @@ public class BaseRepository implements Repository {
         Map<Requirement, Collection<Capability>> result = new HashMap<Requirement, Collection<Capability>>();
         for (Requirement requirement : requirements) {
             CapabilitySet set = capSets.get(requirement.getNamespace());
-            if (set == null) {
-                throw new IllegalStateException("Unknown requirement namespace for " + requirement);
-            }
-            SimpleFilter sf;
-            if (requirement instanceof RequirementImpl) {
-                sf = ((RequirementImpl) requirement).getFilter();
+            if (set != null) {
+                SimpleFilter sf;
+                if (requirement instanceof RequirementImpl) {
+                    sf = ((RequirementImpl) requirement).getFilter();
+                } else {
+                    String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
+                    sf = (filter != null)
+                            ? SimpleFilter.parse(filter)
+                            : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
+                }
+                result.put(requirement, set.match(sf, true));
             } else {
-                String filter = requirement.getDirectives().get(Constants.FILTER_DIRECTIVE);
-                sf = (filter != null)
-                        ? SimpleFilter.parse(filter)
-                        : new SimpleFilter(null, null, SimpleFilter.MATCH_ALL);
+                result.put(requirement, Collections.<Capability>emptyList());
             }
-            result.put(requirement, set.match(sf, true));
         }
         return result;
     }

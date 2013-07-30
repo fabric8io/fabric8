@@ -240,6 +240,7 @@
             org.fusesource.fabric.maven.impl;
             org.fusesource.fabric.utils;
             org.fusesource.fabric.utils.features;
+            org.fusesource.fabric.utils.json;
             org.ops4j.lang;
             org.ops4j.monitors;
             org.ops4j.monitors.exception;

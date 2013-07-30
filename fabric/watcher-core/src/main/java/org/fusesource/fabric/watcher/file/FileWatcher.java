@@ -323,6 +323,7 @@ public class FileWatcher extends WatcherSupport {
                             processor.onRemove(path);
                         }
                         fireListeners(path, ENTRY_DELETE);
+                        lastModified = System.currentTimeMillis();
                     }
                 }
             }

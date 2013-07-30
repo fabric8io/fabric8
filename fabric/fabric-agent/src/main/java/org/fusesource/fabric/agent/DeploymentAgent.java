@@ -28,6 +28,8 @@ import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.mvn.PropertyStore;
+import org.fusesource.fabric.agent.repository.HttpMetadataProvider;
+import org.fusesource.fabric.agent.repository.MetadataRepository;
 import org.fusesource.fabric.agent.sort.RequirementSort;
 import org.fusesource.fabric.agent.utils.MultiException;
 import org.fusesource.fabric.api.Container;
@@ -62,6 +64,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
@@ -352,6 +355,11 @@ public class DeploymentAgent implements ManagedService {
         // TODO: handle default range policy on feature requirements
         // TODO: handle default range policy on feature dependencies requirements
 
+
+        for (String uri : getPrefixedProperties(properties, "resources.")) {
+            builder.addResourceRepository(new MetadataRepository(new HttpMetadataProvider(uri)));
+        }
+
         updateStatus("resolving", null);
         Resource systemBundle = systemBundleContext.getBundle(0).adapt(BundleRevision.class);
         Collection<Resource> allResources = builder.resolve(systemBundle, resolveOptionalImports);
@@ -588,12 +596,19 @@ public class DeploymentAgent implements ManagedService {
         LOGGER.info("Done.");
     }
 
-    protected static InputStream getBundleInputStream(Resource resource,
-                                                      Map<String, StreamProvider> providers) throws IOException {
+    protected InputStream getBundleInputStream(Resource resource,
+                                               Map<String, StreamProvider> providers) throws IOException {
         String uri = getUri(resource);
-        StreamProvider provider = uri != null ? providers.get(uri) : null;
+        if (uri == null) {
+            throw new IllegalStateException("Resource has no uri");
+        }
+        StreamProvider provider = providers.get(uri);
         if (provider == null) {
-            throw new IllegalStateException("Could not find stream provider for " + resource);
+            try {
+                return new FileInputStream(manager.download(uri).await().getFile());
+            } catch (InterruptedException e) {
+                throw (IOException) new InterruptedIOException().initCause(e);
+            }
         }
         return provider.open();
     }

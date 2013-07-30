@@ -56,6 +56,7 @@
         <module>fabric-core-agent-jclouds</module>
         <module>fabric-boot-commands</module>
         <module>fabric-commands</module>
+        <module>fabric-osgimetadata</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>
         <module>fabric-jaas</module>

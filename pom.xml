@@ -976,6 +976,12 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
+                <artifactId>watcher-core</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
                 <version>${project.version}</version>
             </dependency>
