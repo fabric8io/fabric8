@@ -6,6 +6,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.utils.SystemProperties;
+import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,6 +71,12 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
         }
     }
 
+    private static void maybeSetProperty(String prop, Object value) {
+        if (value != null) {
+            System.setProperty(prop, value.toString());
+        }
+    }
+
     private static CreateEnsembleOptions getCreateEnsembleOptions(Map<String, Object> options) {
         String username = (String) options.remove("username");
         String password = (String) options.remove("password");
@@ -105,6 +112,13 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
 
         CreateEnsembleOptions answer = builder.users(userProps).withUser(username, password, role).build();
         LOG.debug("Creating ensemble with options: {}", answer);
+
+        maybeSetProperty(ZkDefs.GLOBAL_RESOLVER_PROPERTY, answer.getGlobalResolver());
+        maybeSetProperty(ZkDefs.LOCAL_RESOLVER_PROPERTY, answer.getResolver());
+        maybeSetProperty(ZkDefs.MANUAL_IP, answer.getManualIp());
+        maybeSetProperty(ZkDefs.BIND_ADDRESS, answer.getBindAddress());
+        maybeSetProperty(ZkDefs.MINIMUM_PORT, answer.getMinimumPort());
+        maybeSetProperty(ZkDefs.MAXIMUM_PORT, answer.getMaximumPort());
 
         return answer;
     }
