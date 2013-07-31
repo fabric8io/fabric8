@@ -48,6 +48,12 @@
             <artifactId>cxf-api</artifactId>
             <version>${cxf-version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.sun.xml.bind</groupId>
+            <artifactId>jaxb-xjc</artifactId>
+            <version>${jaxb-version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- testing -->
         <dependency>
