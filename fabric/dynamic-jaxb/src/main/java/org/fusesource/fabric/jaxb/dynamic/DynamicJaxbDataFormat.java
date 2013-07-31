@@ -27,6 +27,7 @@ import org.apache.camel.util.ObjectHelper;
  */
 public class DynamicJaxbDataFormat extends JaxbDataFormat implements CompileResultsHandler {
     private DynamicCompiler compiler;
+    private CompileResults compileResults;
 
     public DynamicJaxbDataFormat() {
     }
@@ -59,6 +60,21 @@ public class DynamicJaxbDataFormat extends JaxbDataFormat implements CompileResu
      */
     @Override
     public void onCompileResults(CompileResults compileResults) {
+        this.compileResults = compileResults;
         setContext(compileResults.getJAXBContext());
+    }
+
+    /**
+     * Returns the class loader created by the dynamic compilation or null if none has been created yet
+     */
+    public ClassLoader getClassLoader() {
+        if (compileResults != null) {
+            return compileResults.getClassLoader();
+        }
+        return null;
+    }
+
+    public CompileResults getCompileResults() {
+        return compileResults;
     }
 }
