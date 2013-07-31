@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.Notifier;
-
 import org.eclipse.emf.edit.provider.ChangeNotifier;
 import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.ComposedAdapterFactory;
@@ -34,7 +33,6 @@ import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.INotifyChangedListener;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
-
 import org.fusesource.camel.component.sap.model.rfc.util.RfcAdapterFactory;
 
 /**
@@ -385,6 +383,190 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 	}
 
 	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected FunctionTemplateItemProvider functionTemplateItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createFunctionTemplateAdapter() {
+		if (functionTemplateItemProvider == null) {
+			functionTemplateItemProvider = new FunctionTemplateItemProvider(this);
+		}
+
+		return functionTemplateItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected FieldMetaDataItemProvider fieldMetaDataItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createFieldMetaDataAdapter() {
+		if (fieldMetaDataItemProvider == null) {
+			fieldMetaDataItemProvider = new FieldMetaDataItemProvider(this);
+		}
+
+		return fieldMetaDataItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ListFieldMetaDataItemProvider listFieldMetaDataItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createListFieldMetaDataAdapter() {
+		if (listFieldMetaDataItemProvider == null) {
+			listFieldMetaDataItemProvider = new ListFieldMetaDataItemProvider(this);
+		}
+
+		return listFieldMetaDataItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.AbapException} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected AbapExceptionItemProvider abapExceptionItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.AbapException}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createAbapExceptionAdapter() {
+		if (abapExceptionItemProvider == null) {
+			abapExceptionItemProvider = new AbapExceptionItemProvider(this);
+		}
+
+		return abapExceptionItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected RespositoryDataEntryItemProvider respositoryDataEntryItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link java.util.Map.Entry}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createRespositoryDataEntryAdapter() {
+		if (respositoryDataEntryItemProvider == null) {
+			respositoryDataEntryItemProvider = new RespositoryDataEntryItemProvider(this);
+		}
+
+		return respositoryDataEntryItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.RepositoryData} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected RepositoryDataItemProvider repositoryDataItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RepositoryData}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createRepositoryDataAdapter() {
+		if (repositoryDataItemProvider == null) {
+			repositoryDataItemProvider = new RepositoryDataItemProvider(this);
+		}
+
+		return repositoryDataItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected RepositoryDataStoreItemProvider repositoryDataStoreItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createRepositoryDataStoreAdapter() {
+		if (repositoryDataStoreItemProvider == null) {
+			repositoryDataStoreItemProvider = new RepositoryDataStoreItemProvider(this);
+		}
+
+		return repositoryDataStoreItemProvider;
+	}
+
+	/**
+	 * This keeps track of the one adapter used for all {@link java.util.Map.Entry} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected RespositoryDataStoreEntryItemProvider respositoryDataStoreEntryItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link java.util.Map.Entry}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createRespositoryDataStoreEntryAdapter() {
+		if (respositoryDataStoreEntryItemProvider == null) {
+			respositoryDataStoreEntryItemProvider = new RespositoryDataStoreEntryItemProvider(this);
+		}
+
+		return respositoryDataStoreEntryItemProvider;
+	}
+
+	/**
 	 * This returns the root adapter factory that contains this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -496,6 +678,14 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 		if (serverDataItemProvider != null) serverDataItemProvider.dispose();
 		if (serverDataStoreEntryItemProvider != null) serverDataStoreEntryItemProvider.dispose();
 		if (serverDataStoreItemProvider != null) serverDataStoreItemProvider.dispose();
+		if (functionTemplateItemProvider != null) functionTemplateItemProvider.dispose();
+		if (fieldMetaDataItemProvider != null) fieldMetaDataItemProvider.dispose();
+		if (listFieldMetaDataItemProvider != null) listFieldMetaDataItemProvider.dispose();
+		if (abapExceptionItemProvider != null) abapExceptionItemProvider.dispose();
+		if (respositoryDataEntryItemProvider != null) respositoryDataEntryItemProvider.dispose();
+		if (repositoryDataItemProvider != null) repositoryDataItemProvider.dispose();
+		if (repositoryDataStoreItemProvider != null) repositoryDataStoreItemProvider.dispose();
+		if (respositoryDataStoreEntryItemProvider != null) respositoryDataStoreEntryItemProvider.dispose();
 	}
 
 }

@@ -17,14 +17,27 @@
 package org.fusesource.camel.component.sap.model.rfc.util;
 
 import java.util.Map;
+
 import org.eclipse.emf.common.notify.Adapter;
 import org.eclipse.emf.common.notify.Notifier;
-
 import org.eclipse.emf.common.notify.impl.AdapterFactoryImpl;
-
 import org.eclipse.emf.ecore.EObject;
-
-import org.fusesource.camel.component.sap.model.rfc.*;
+import org.fusesource.camel.component.sap.model.rfc.AbapException;
+import org.fusesource.camel.component.sap.model.rfc.Destination;
+import org.fusesource.camel.component.sap.model.rfc.DestinationData;
+import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
+import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.FunctionTemplate;
+import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RFC;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryData;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore;
+import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
+import org.fusesource.camel.component.sap.model.rfc.Server;
+import org.fusesource.camel.component.sap.model.rfc.ServerData;
+import org.fusesource.camel.component.sap.model.rfc.ServerDataStore;
+import org.fusesource.camel.component.sap.model.rfc.Structure;
+import org.fusesource.camel.component.sap.model.rfc.Table;
 
 /**
  * <!-- begin-user-doc -->
@@ -133,6 +146,38 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 			@Override
 			public Adapter caseServerDataStore(ServerDataStore object) {
 				return createServerDataStoreAdapter();
+			}
+			@Override
+			public Adapter caseFunctionTemplate(FunctionTemplate object) {
+				return createFunctionTemplateAdapter();
+			}
+			@Override
+			public Adapter caseFieldMetaData(FieldMetaData object) {
+				return createFieldMetaDataAdapter();
+			}
+			@Override
+			public Adapter caseListFieldMetaData(ListFieldMetaData object) {
+				return createListFieldMetaDataAdapter();
+			}
+			@Override
+			public Adapter caseAbapException(AbapException object) {
+				return createAbapExceptionAdapter();
+			}
+			@Override
+			public Adapter caseRespositoryDataEntry(Map.Entry<String, FunctionTemplate> object) {
+				return createRespositoryDataEntryAdapter();
+			}
+			@Override
+			public Adapter caseRepositoryData(RepositoryData object) {
+				return createRepositoryDataAdapter();
+			}
+			@Override
+			public Adapter caseRepositoryDataStore(RepositoryDataStore object) {
+				return createRepositoryDataStoreAdapter();
+			}
+			@Override
+			public Adapter caseRespositoryDataStoreEntry(Map.Entry<String, RepositoryData> object) {
+				return createRespositoryDataStoreEntryAdapter();
 			}
 			@Override
 			public Adapter defaultCase(EObject object) {
@@ -333,6 +378,118 @@ public class RfcAdapterFactory extends AdapterFactoryImpl {
 	 * @generated
 	 */
 	public Adapter createServerDataStoreAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate <em>Function Template</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate
+	 * @generated
+	 */
+	public Adapter createFunctionTemplateAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData <em>Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData
+	 * @generated
+	 */
+	public Adapter createFieldMetaDataAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData <em>List Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData
+	 * @generated
+	 */
+	public Adapter createListFieldMetaDataAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.AbapException <em>Abap Exception</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.AbapException
+	 * @generated
+	 */
+	public Adapter createAbapExceptionAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link java.util.Map.Entry <em>Respository Data Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see java.util.Map.Entry
+	 * @generated
+	 */
+	public Adapter createRespositoryDataEntryAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryData <em>Repository Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryData
+	 * @generated
+	 */
+	public Adapter createRepositoryDataAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore <em>Repository Data Store</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore
+	 * @generated
+	 */
+	public Adapter createRepositoryDataStoreAdapter() {
+		return null;
+	}
+
+	/**
+	 * Creates a new adapter for an object of class '{@link java.util.Map.Entry <em>Respository Data Store Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * This default implementation returns null so that we can easily ignore cases;
+	 * it's useful to ignore a case when inheritance will catch all the cases anyway.
+	 * <!-- end-user-doc -->
+	 * @return the new adapter.
+	 * @see java.util.Map.Entry
+	 * @generated
+	 */
+	public Adapter createRespositoryDataStoreEntryAdapter() {
 		return null;
 	}
 

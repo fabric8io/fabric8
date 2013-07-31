@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
+ * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  * 
  */
@@ -34,17 +34,17 @@ import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
+import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
-import org.fusesource.camel.component.sap.model.rfc.ServerData;
 
 /**
- * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.ServerData} object.
+ * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class ServerDataItemProvider
+public class ListFieldMetaDataItemProvider
 	extends ItemProviderAdapter
 	implements
 		IEditingDomainItemProvider,
@@ -58,7 +58,7 @@ public class ServerDataItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ServerDataItemProvider(AdapterFactory adapterFactory) {
+	public ListFieldMetaDataItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -73,39 +73,37 @@ public class ServerDataItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
-			addGwhostPropertyDescriptor(object);
-			addGwservPropertyDescriptor(object);
-			addProgidPropertyDescriptor(object);
-			addConnectionCountPropertyDescriptor(object);
-			addSaprouterPropertyDescriptor(object);
-			addMaxStartUpDelayPropertyDescriptor(object);
-			addRepositoryDestinationPropertyDescriptor(object);
-			addRepositoryMapPropertyDescriptor(object);
-			addTracePropertyDescriptor(object);
-			addWorkerThreadCountPropertyDescriptor(object);
-			addWorkerThreadMinCountPropertyDescriptor(object);
-			addSncModePropertyDescriptor(object);
-			addSncQopPropertyDescriptor(object);
-			addSncMynamePropertyDescriptor(object);
-			addSncLibPropertyDescriptor(object);
+			addNamePropertyDescriptor(object);
+			addTypePropertyDescriptor(object);
+			addByteLengthPropertyDescriptor(object);
+			addUnicodeByteLengthPropertyDescriptor(object);
+			addDecimalsPropertyDescriptor(object);
+			addDefaultsPropertyDescriptor(object);
+			addDescriptionPropertyDescriptor(object);
+			addImportPropertyDescriptor(object);
+			addChangingPropertyDescriptor(object);
+			addExportPropertyDescriptor(object);
+			addExceptionPropertyDescriptor(object);
+			addOptionalPropertyDescriptor(object);
+			addComplexFieldMetaDataPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
 
 	/**
-	 * This adds a property descriptor for the Gwhost feature.
+	 * This adds a property descriptor for the Name feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addGwhostPropertyDescriptor(Object object) {
+	protected void addNamePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_gwhost_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_gwhost_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__GWHOST,
+				 getString("_UI_ListFieldMetaData_name_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_name_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__NAME,
 				 true,
 				 false,
 				 false,
@@ -115,19 +113,19 @@ public class ServerDataItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Gwserv feature.
+	 * This adds a property descriptor for the Type feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addGwservPropertyDescriptor(Object object) {
+	protected void addTypePropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_gwserv_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_gwserv_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__GWSERV,
+				 getString("_UI_ListFieldMetaData_type_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_type_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__TYPE,
 				 true,
 				 false,
 				 false,
@@ -137,19 +135,85 @@ public class ServerDataItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Progid feature.
+	 * This adds a property descriptor for the Byte Length feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addProgidPropertyDescriptor(Object object) {
+	protected void addByteLengthPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_progid_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_progid_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__PROGID,
+				 getString("_UI_ListFieldMetaData_byteLength_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_byteLength_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__BYTE_LENGTH,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Unicode Byte Length feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addUnicodeByteLengthPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_ListFieldMetaData_unicodeByteLength_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_unicodeByteLength_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__UNICODE_BYTE_LENGTH,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Decimals feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addDecimalsPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_ListFieldMetaData_decimals_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_decimals_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__DECIMALS,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Defaults feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addDefaultsPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_ListFieldMetaData_defaults_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_defaults_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__DEFAULTS,
 				 true,
 				 false,
 				 false,
@@ -159,19 +223,19 @@ public class ServerDataItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Connection Count feature.
+	 * This adds a property descriptor for the Description feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addConnectionCountPropertyDescriptor(Object object) {
+	protected void addDescriptionPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_connectionCount_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_connectionCount_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__CONNECTION_COUNT,
+				 getString("_UI_ListFieldMetaData_description_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_description_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__DESCRIPTION,
 				 true,
 				 false,
 				 false,
@@ -181,242 +245,132 @@ public class ServerDataItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Saprouter feature.
+	 * This adds a property descriptor for the Import feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addSaprouterPropertyDescriptor(Object object) {
+	protected void addImportPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_saprouter_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_saprouter_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__SAPROUTER,
+				 getString("_UI_ListFieldMetaData_import_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_import_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__IMPORT,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Max Start Up Delay feature.
+	 * This adds a property descriptor for the Changing feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addMaxStartUpDelayPropertyDescriptor(Object object) {
+	protected void addChangingPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_maxStartUpDelay_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_maxStartUpDelay_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__MAX_START_UP_DELAY,
+				 getString("_UI_ListFieldMetaData_changing_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_changing_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__CHANGING,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Repository Destination feature.
+	 * This adds a property descriptor for the Export feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addRepositoryDestinationPropertyDescriptor(Object object) {
+	protected void addExportPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_repositoryDestination_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_repositoryDestination_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__REPOSITORY_DESTINATION,
+				 getString("_UI_ListFieldMetaData_export_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_export_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__EXPORT,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Repository Map feature.
+	 * This adds a property descriptor for the Exception feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addRepositoryMapPropertyDescriptor(Object object) {
+	protected void addExceptionPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_repositoryMap_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_repositoryMap_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__REPOSITORY_MAP,
+				 getString("_UI_ListFieldMetaData_exception_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_exception_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__EXCEPTION,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Trace feature.
+	 * This adds a property descriptor for the Optional feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addTracePropertyDescriptor(Object object) {
+	protected void addOptionalPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_trace_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_trace_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__TRACE,
+				 getString("_UI_ListFieldMetaData_optional_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_optional_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__OPTIONAL,
 				 true,
 				 false,
 				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 ItemPropertyDescriptor.BOOLEAN_VALUE_IMAGE,
 				 null,
 				 null));
 	}
 
 	/**
-	 * This adds a property descriptor for the Worker Thread Count feature.
+	 * This adds a property descriptor for the Complex Field Meta Data feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addWorkerThreadCountPropertyDescriptor(Object object) {
+	protected void addComplexFieldMetaDataPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_ServerData_workerThreadCount_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_workerThreadCount_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__WORKER_THREAD_COUNT,
+				 getString("_UI_ListFieldMetaData_complexFieldMetaData_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_ListFieldMetaData_complexFieldMetaData_feature", "_UI_ListFieldMetaData_type"),
+				 RfcPackage.Literals.LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA,
 				 true,
 				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Worker Thread Min Count feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addWorkerThreadMinCountPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_ServerData_workerThreadMinCount_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_workerThreadMinCount_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__WORKER_THREAD_MIN_COUNT,
 				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Snc Mode feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addSncModePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_ServerData_sncMode_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_sncMode_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__SNC_MODE,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Snc Qop feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addSncQopPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_ServerData_sncQop_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_sncQop_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__SNC_QOP,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Snc Myname feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addSncMynamePropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_ServerData_sncMyname_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_sncMyname_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__SNC_MYNAME,
-				 true,
-				 false,
-				 false,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
-				 null,
-				 null));
-	}
-
-	/**
-	 * This adds a property descriptor for the Snc Lib feature.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	protected void addSncLibPropertyDescriptor(Object object) {
-		itemPropertyDescriptors.add
-			(createItemPropertyDescriptor
-				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
-				 getResourceLocator(),
-				 getString("_UI_ServerData_sncLib_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_ServerData_sncLib_feature", "_UI_ServerData_type"),
-				 RfcPackage.Literals.SERVER_DATA__SNC_LIB,
-				 true,
-				 false,
-				 false,
 				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
 				 null,
 				 null));
@@ -434,7 +388,7 @@ public class ServerDataItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(RfcPackage.Literals.SERVER_DATA__ENTRIES);
+			childrenFeatures.add(RfcPackage.Literals.LIST_FIELD_META_DATA__FIELD_META_DATA);
 		}
 		return childrenFeatures;
 	}
@@ -453,14 +407,14 @@ public class ServerDataItemProvider
 	}
 
 	/**
-	 * This returns ServerData.gif.
+	 * This returns ListFieldMetaData.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/ServerData"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/ListFieldMetaData"));
 	}
 
 	/**
@@ -471,10 +425,10 @@ public class ServerDataItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		String label = ((ServerData)object).getSncMyname();
+		String label = ((ListFieldMetaData)object).getName();
 		return label == null || label.length() == 0 ?
-			getString("_UI_ServerData_type") :
-			getString("_UI_ServerData_type") + " " + label;
+			getString("_UI_ListFieldMetaData_type") :
+			getString("_UI_ListFieldMetaData_type") + " " + label;
 	}
 
 	/**
@@ -488,25 +442,22 @@ public class ServerDataItemProvider
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
 
-		switch (notification.getFeatureID(ServerData.class)) {
-			case RfcPackage.SERVER_DATA__GWHOST:
-			case RfcPackage.SERVER_DATA__GWSERV:
-			case RfcPackage.SERVER_DATA__PROGID:
-			case RfcPackage.SERVER_DATA__CONNECTION_COUNT:
-			case RfcPackage.SERVER_DATA__SAPROUTER:
-			case RfcPackage.SERVER_DATA__MAX_START_UP_DELAY:
-			case RfcPackage.SERVER_DATA__REPOSITORY_DESTINATION:
-			case RfcPackage.SERVER_DATA__REPOSITORY_MAP:
-			case RfcPackage.SERVER_DATA__TRACE:
-			case RfcPackage.SERVER_DATA__WORKER_THREAD_COUNT:
-			case RfcPackage.SERVER_DATA__WORKER_THREAD_MIN_COUNT:
-			case RfcPackage.SERVER_DATA__SNC_MODE:
-			case RfcPackage.SERVER_DATA__SNC_QOP:
-			case RfcPackage.SERVER_DATA__SNC_MYNAME:
-			case RfcPackage.SERVER_DATA__SNC_LIB:
+		switch (notification.getFeatureID(ListFieldMetaData.class)) {
+			case RfcPackage.LIST_FIELD_META_DATA__NAME:
+			case RfcPackage.LIST_FIELD_META_DATA__TYPE:
+			case RfcPackage.LIST_FIELD_META_DATA__BYTE_LENGTH:
+			case RfcPackage.LIST_FIELD_META_DATA__UNICODE_BYTE_LENGTH:
+			case RfcPackage.LIST_FIELD_META_DATA__DECIMALS:
+			case RfcPackage.LIST_FIELD_META_DATA__DEFAULTS:
+			case RfcPackage.LIST_FIELD_META_DATA__DESCRIPTION:
+			case RfcPackage.LIST_FIELD_META_DATA__IMPORT:
+			case RfcPackage.LIST_FIELD_META_DATA__CHANGING:
+			case RfcPackage.LIST_FIELD_META_DATA__EXPORT:
+			case RfcPackage.LIST_FIELD_META_DATA__EXCEPTION:
+			case RfcPackage.LIST_FIELD_META_DATA__OPTIONAL:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
-			case RfcPackage.SERVER_DATA__ENTRIES:
+			case RfcPackage.LIST_FIELD_META_DATA__FIELD_META_DATA:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -526,8 +477,8 @@ public class ServerDataItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(RfcPackage.Literals.SERVER_DATA__ENTRIES,
-				 RfcFactory.eINSTANCE.create(RfcPackage.Literals.SERVER_DATA_ENTRY)));
+				(RfcPackage.Literals.LIST_FIELD_META_DATA__FIELD_META_DATA,
+				 RfcFactory.eINSTANCE.createFieldMetaData()));
 	}
 
 	/**

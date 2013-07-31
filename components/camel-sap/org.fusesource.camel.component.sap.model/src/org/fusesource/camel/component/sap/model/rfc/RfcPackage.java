@@ -18,6 +18,8 @@ package org.fusesource.camel.component.sap.model.rfc;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 
@@ -1072,6 +1074,589 @@ public interface RfcPackage extends EPackage {
 	 * @ordered
 	 */
 	int SERVER_DATA_STORE_FEATURE_COUNT = 1;
+
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl <em>Function Template</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFunctionTemplate()
+	 * @generated
+	 */
+	int FUNCTION_TEMPLATE = 13;
+
+	/**
+	 * The feature id for the '<em><b>Imports</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__IMPORTS = 0;
+
+	/**
+	 * The feature id for the '<em><b>Exports</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__EXPORTS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Changing</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__CHANGING = 2;
+
+	/**
+	 * The feature id for the '<em><b>Tables</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__TABLES = 3;
+
+	/**
+	 * The feature id for the '<em><b>Exceptions</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__EXCEPTIONS = 4;
+
+	/**
+	 * The feature id for the '<em><b>Import Parameter List</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__IMPORT_PARAMETER_LIST = 5;
+
+	/**
+	 * The feature id for the '<em><b>Export Parameter List</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__EXPORT_PARAMETER_LIST = 6;
+
+	/**
+	 * The feature id for the '<em><b>Changing Parameter List</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST = 7;
+
+	/**
+	 * The feature id for the '<em><b>Exception List</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__EXCEPTION_LIST = 8;
+
+	/**
+	 * The number of structural features of the '<em>Function Template</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE_FEATURE_COUNT = 9;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl <em>Field Meta Data</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFieldMetaData()
+	 * @generated
+	 */
+	int FIELD_META_DATA = 14;
+
+	/**
+	 * The feature id for the '<em><b>Field Meta Data</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__FIELD_META_DATA = 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__NAME = 1;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__TYPE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Byte Length</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__BYTE_LENGTH = 3;
+
+	/**
+	 * The feature id for the '<em><b>Byte Offset</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__BYTE_OFFSET = 4;
+
+	/**
+	 * The feature id for the '<em><b>Unicode Byte Length</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__UNICODE_BYTE_LENGTH = 5;
+
+	/**
+	 * The feature id for the '<em><b>Unicode Byte Offset</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__UNICODE_BYTE_OFFSET = 6;
+
+	/**
+	 * The feature id for the '<em><b>Decimals</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__DECIMALS = 7;
+
+	/**
+	 * The feature id for the '<em><b>Description</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__DESCRIPTION = 8;
+
+	/**
+	 * The feature id for the '<em><b>Complex Field Meta Data</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA__COMPLEX_FIELD_META_DATA = 9;
+
+	/**
+	 * The number of structural features of the '<em>Field Meta Data</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FIELD_META_DATA_FEATURE_COUNT = 10;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl <em>List Field Meta Data</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getListFieldMetaData()
+	 * @generated
+	 */
+	int LIST_FIELD_META_DATA = 15;
+
+	/**
+	 * The feature id for the '<em><b>Field Meta Data</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__FIELD_META_DATA = 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__NAME = 1;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__TYPE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Byte Length</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__BYTE_LENGTH = 3;
+
+	/**
+	 * The feature id for the '<em><b>Unicode Byte Length</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__UNICODE_BYTE_LENGTH = 4;
+
+	/**
+	 * The feature id for the '<em><b>Decimals</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__DECIMALS = 5;
+
+	/**
+	 * The feature id for the '<em><b>Defaults</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__DEFAULTS = 6;
+
+	/**
+	 * The feature id for the '<em><b>Description</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__DESCRIPTION = 7;
+
+	/**
+	 * The feature id for the '<em><b>Import</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__IMPORT = 8;
+
+	/**
+	 * The feature id for the '<em><b>Changing</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__CHANGING = 9;
+
+	/**
+	 * The feature id for the '<em><b>Export</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__EXPORT = 10;
+
+	/**
+	 * The feature id for the '<em><b>Exception</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__EXCEPTION = 11;
+
+	/**
+	 * The feature id for the '<em><b>Optional</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__OPTIONAL = 12;
+
+	/**
+	 * The feature id for the '<em><b>Complex Field Meta Data</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA = 13;
+
+	/**
+	 * The number of structural features of the '<em>List Field Meta Data</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LIST_FIELD_META_DATA_FEATURE_COUNT = 14;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.AbapExceptionImpl <em>Abap Exception</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.AbapExceptionImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getAbapException()
+	 * @generated
+	 */
+	int ABAP_EXCEPTION = 16;
+
+	/**
+	 * The feature id for the '<em><b>Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_EXCEPTION__KEY = 0;
+
+	/**
+	 * The feature id for the '<em><b>Message</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_EXCEPTION__MESSAGE = 1;
+
+	/**
+	 * The number of structural features of the '<em>Abap Exception</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ABAP_EXCEPTION_FEATURE_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataEntryImpl <em>Respository Data Entry</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataEntryImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRespositoryDataEntry()
+	 * @generated
+	 */
+	int RESPOSITORY_DATA_ENTRY = 17;
+
+	/**
+	 * The feature id for the '<em><b>Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPOSITORY_DATA_ENTRY__KEY = 0;
+
+	/**
+	 * The feature id for the '<em><b>Value</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPOSITORY_DATA_ENTRY__VALUE = 1;
+
+	/**
+	 * The number of structural features of the '<em>Respository Data Entry</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPOSITORY_DATA_ENTRY_FEATURE_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataImpl <em>Repository Data</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRepositoryData()
+	 * @generated
+	 */
+	int REPOSITORY_DATA = 18;
+
+	/**
+	 * The feature id for the '<em><b>Entries</b></em>' map.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORY_DATA__ENTRIES = 0;
+
+	/**
+	 * The feature id for the '<em><b>Function Templates</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORY_DATA__FUNCTION_TEMPLATES = 1;
+
+	/**
+	 * The number of structural features of the '<em>Repository Data</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORY_DATA_FEATURE_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataStoreImpl <em>Repository Data Store</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataStoreImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRepositoryDataStore()
+	 * @generated
+	 */
+	int REPOSITORY_DATA_STORE = 19;
+
+	/**
+	 * The feature id for the '<em><b>Entries</b></em>' map.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORY_DATA_STORE__ENTRIES = 0;
+
+	/**
+	 * The number of structural features of the '<em>Repository Data Store</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPOSITORY_DATA_STORE_FEATURE_COUNT = 1;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataStoreEntryImpl <em>Respository Data Store Entry</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataStoreEntryImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRespositoryDataStoreEntry()
+	 * @generated
+	 */
+	int RESPOSITORY_DATA_STORE_ENTRY = 20;
+
+	/**
+	 * The feature id for the '<em><b>Key</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPOSITORY_DATA_STORE_ENTRY__KEY = 0;
+
+	/**
+	 * The feature id for the '<em><b>Value</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPOSITORY_DATA_STORE_ENTRY__VALUE = 1;
+
+	/**
+	 * The number of structural features of the '<em>Respository Data Store Entry</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RESPOSITORY_DATA_STORE_ENTRY_FEATURE_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.DataType <em>Data Type</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.DataType
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getDataType()
+	 * @generated
+	 */
+	int DATA_TYPE = 21;
+
+
+	/**
+	 * The meta object id for the '<em>Parameter List</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.List
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getParameterList()
+	 * @generated
+	 */
+	int PARAMETER_LIST = 22;
+
+	/**
+	 * The meta object id for the '<em>Field List</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.List
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFieldList()
+	 * @generated
+	 */
+	int FIELD_LIST = 23;
+
+	/**
+	 * The meta object id for the '<em>Abap Exception List</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.List
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getAbapExceptionList()
+	 * @generated
+	 */
+	int ABAP_EXCEPTION_LIST = 24;
+
+
+	/**
+	 * The meta object id for the '<em>Function Template Map</em>' data type.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see java.util.Map
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFunctionTemplateMap()
+	 * @generated
+	 */
+	int FUNCTION_TEMPLATE_MAP = 25;
 
 
 	/**
@@ -2137,6 +2722,606 @@ public interface RfcPackage extends EPackage {
 	EReference getServerDataStore_Entries();
 
 	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate <em>Function Template</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Function Template</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate
+	 * @generated
+	 */
+	EClass getFunctionTemplate();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getImports <em>Imports</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Imports</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getImports()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EReference getFunctionTemplate_Imports();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExports <em>Exports</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Exports</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExports()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EReference getFunctionTemplate_Exports();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getChanging <em>Changing</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Changing</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getChanging()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EReference getFunctionTemplate_Changing();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getTables <em>Tables</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Tables</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getTables()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EReference getFunctionTemplate_Tables();
+
+	/**
+	 * Returns the meta object for the reference list '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExceptions <em>Exceptions</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Exceptions</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExceptions()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EReference getFunctionTemplate_Exceptions();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getImportParameterList <em>Import Parameter List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Import Parameter List</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getImportParameterList()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EAttribute getFunctionTemplate_ImportParameterList();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExportParameterList <em>Export Parameter List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Export Parameter List</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExportParameterList()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EAttribute getFunctionTemplate_ExportParameterList();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getChangingParameterList <em>Changing Parameter List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Changing Parameter List</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getChangingParameterList()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EAttribute getFunctionTemplate_ChangingParameterList();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExceptionList <em>Exception List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Exception List</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExceptionList()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EAttribute getFunctionTemplate_ExceptionList();
+
+	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData <em>Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData
+	 * @generated
+	 */
+	EClass getFieldMetaData();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getFieldMetaData <em>Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getFieldMetaData()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EReference getFieldMetaData_FieldMetaData();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getName()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getType <em>Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Type</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getType()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_Type();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getByteLength <em>Byte Length</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Byte Length</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getByteLength()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_ByteLength();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getByteOffset <em>Byte Offset</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Byte Offset</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getByteOffset()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_ByteOffset();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getUnicodeByteLength <em>Unicode Byte Length</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Unicode Byte Length</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getUnicodeByteLength()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_UnicodeByteLength();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getUnicodeByteOffset <em>Unicode Byte Offset</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Unicode Byte Offset</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getUnicodeByteOffset()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_UnicodeByteOffset();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getDecimals <em>Decimals</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Decimals</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getDecimals()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_Decimals();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getDescription <em>Description</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Description</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getDescription()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_Description();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getComplexFieldMetaData <em>Complex Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Complex Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getComplexFieldMetaData()
+	 * @see #getFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getFieldMetaData_ComplexFieldMetaData();
+
+	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData <em>List Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>List Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData
+	 * @generated
+	 */
+	EClass getListFieldMetaData();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getFieldMetaData <em>Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getFieldMetaData()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EReference getListFieldMetaData_FieldMetaData();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getName()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getType <em>Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Type</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getType()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Type();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getByteLength <em>Byte Length</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Byte Length</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getByteLength()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_ByteLength();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getUnicodeByteLength <em>Unicode Byte Length</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Unicode Byte Length</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getUnicodeByteLength()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_UnicodeByteLength();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getDecimals <em>Decimals</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Decimals</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getDecimals()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Decimals();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getDefaults <em>Defaults</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Defaults</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getDefaults()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Defaults();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getDescription <em>Description</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Description</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getDescription()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Description();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isImport <em>Import</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Import</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isImport()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Import();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isChanging <em>Changing</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Changing</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isChanging()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Changing();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isExport <em>Export</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Export</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isExport()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Export();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isException <em>Exception</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Exception</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isException()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Exception();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isOptional <em>Optional</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Optional</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#isOptional()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_Optional();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getComplexFieldMetaData <em>Complex Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Complex Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getComplexFieldMetaData()
+	 * @see #getListFieldMetaData()
+	 * @generated
+	 */
+	EAttribute getListFieldMetaData_ComplexFieldMetaData();
+
+	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.AbapException <em>Abap Exception</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Abap Exception</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.AbapException
+	 * @generated
+	 */
+	EClass getAbapException();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.AbapException#getKey <em>Key</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Key</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.AbapException#getKey()
+	 * @see #getAbapException()
+	 * @generated
+	 */
+	EAttribute getAbapException_Key();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.AbapException#getMessage <em>Message</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Message</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.AbapException#getMessage()
+	 * @see #getAbapException()
+	 * @generated
+	 */
+	EAttribute getAbapException_Message();
+
+	/**
+	 * Returns the meta object for class '{@link java.util.Map.Entry <em>Respository Data Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Respository Data Entry</em>'.
+	 * @see java.util.Map.Entry
+	 * @model keyDataType="org.eclipse.emf.ecore.EString" keyRequired="true"
+	 *        valueType="org.fusesource.camel.component.sap.model.rfc.FunctionTemplate" valueRequired="true"
+	 * @generated
+	 */
+	EClass getRespositoryDataEntry();
+
+	/**
+	 * Returns the meta object for the attribute '{@link java.util.Map.Entry <em>Key</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Key</em>'.
+	 * @see java.util.Map.Entry
+	 * @see #getRespositoryDataEntry()
+	 * @generated
+	 */
+	EAttribute getRespositoryDataEntry_Key();
+
+	/**
+	 * Returns the meta object for the reference '{@link java.util.Map.Entry <em>Value</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Value</em>'.
+	 * @see java.util.Map.Entry
+	 * @see #getRespositoryDataEntry()
+	 * @generated
+	 */
+	EReference getRespositoryDataEntry_Value();
+
+	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryData <em>Repository Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Repository Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryData
+	 * @generated
+	 */
+	EClass getRepositoryData();
+
+	/**
+	 * Returns the meta object for the map '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryData#getEntries <em>Entries</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the map '<em>Entries</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryData#getEntries()
+	 * @see #getRepositoryData()
+	 * @generated
+	 */
+	EReference getRepositoryData_Entries();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryData#getFunctionTemplates <em>Function Templates</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Function Templates</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryData#getFunctionTemplates()
+	 * @see #getRepositoryData()
+	 * @generated
+	 */
+	EAttribute getRepositoryData_FunctionTemplates();
+
+	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore <em>Repository Data Store</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Repository Data Store</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore
+	 * @generated
+	 */
+	EClass getRepositoryDataStore();
+
+	/**
+	 * Returns the meta object for the map '{@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore#getEntries <em>Entries</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the map '<em>Entries</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore#getEntries()
+	 * @see #getRepositoryDataStore()
+	 * @generated
+	 */
+	EReference getRepositoryDataStore_Entries();
+
+	/**
+	 * Returns the meta object for class '{@link java.util.Map.Entry <em>Respository Data Store Entry</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Respository Data Store Entry</em>'.
+	 * @see java.util.Map.Entry
+	 * @model keyDataType="org.eclipse.emf.ecore.EString" keyRequired="true"
+	 *        valueType="org.fusesource.camel.component.sap.model.rfc.RepositoryData" valueRequired="true"
+	 * @generated
+	 */
+	EClass getRespositoryDataStoreEntry();
+
+	/**
+	 * Returns the meta object for the attribute '{@link java.util.Map.Entry <em>Key</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Key</em>'.
+	 * @see java.util.Map.Entry
+	 * @see #getRespositoryDataStoreEntry()
+	 * @generated
+	 */
+	EAttribute getRespositoryDataStoreEntry_Key();
+
+	/**
+	 * Returns the meta object for the reference '{@link java.util.Map.Entry <em>Value</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Value</em>'.
+	 * @see java.util.Map.Entry
+	 * @see #getRespositoryDataStoreEntry()
+	 * @generated
+	 */
+	EReference getRespositoryDataStoreEntry_Value();
+
+	/**
+	 * Returns the meta object for enum '{@link org.fusesource.camel.component.sap.model.rfc.DataType <em>Data Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Data Type</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.DataType
+	 * @generated
+	 */
+	EEnum getDataType();
+
+	/**
+	 * Returns the meta object for data type '{@link java.util.List <em>Parameter List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Parameter List</em>'.
+	 * @see java.util.List
+	 * @model instanceClass="java.util.List<org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData>" serializeable="false"
+	 * @generated
+	 */
+	EDataType getParameterList();
+
+	/**
+	 * Returns the meta object for data type '{@link java.util.List <em>Field List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Field List</em>'.
+	 * @see java.util.List
+	 * @model instanceClass="java.util.List<org.fusesource.camel.component.sap.model.rfc.FieldMetaData>" serializeable="false"
+	 * @generated
+	 */
+	EDataType getFieldList();
+
+	/**
+	 * Returns the meta object for data type '{@link java.util.List <em>Abap Exception List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Abap Exception List</em>'.
+	 * @see java.util.List
+	 * @model instanceClass="java.util.List<org.fusesource.camel.component.sap.model.rfc.AbapException>" serializeable="false"
+	 * @generated
+	 */
+	EDataType getAbapExceptionList();
+
+	/**
+	 * Returns the meta object for data type '{@link java.util.Map <em>Function Template Map</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for data type '<em>Function Template Map</em>'.
+	 * @see java.util.Map
+	 * @model instanceClass="java.util.Map<java.lang.String, org.fusesource.camel.component.sap.model.rfc.FunctionTemplate>" serializeable="false"
+	 * @generated
+	 */
+	EDataType getFunctionTemplateMap();
+
+	/**
 	 * Returns the factory that creates the instances of the model.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2959,6 +4144,472 @@ public interface RfcPackage extends EPackage {
 		 * @generated
 		 */
 		EReference SERVER_DATA_STORE__ENTRIES = eINSTANCE.getServerDataStore_Entries();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl <em>Function Template</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFunctionTemplate()
+		 * @generated
+		 */
+		EClass FUNCTION_TEMPLATE = eINSTANCE.getFunctionTemplate();
+
+		/**
+		 * The meta object literal for the '<em><b>Imports</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FUNCTION_TEMPLATE__IMPORTS = eINSTANCE.getFunctionTemplate_Imports();
+
+		/**
+		 * The meta object literal for the '<em><b>Exports</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FUNCTION_TEMPLATE__EXPORTS = eINSTANCE.getFunctionTemplate_Exports();
+
+		/**
+		 * The meta object literal for the '<em><b>Changing</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FUNCTION_TEMPLATE__CHANGING = eINSTANCE.getFunctionTemplate_Changing();
+
+		/**
+		 * The meta object literal for the '<em><b>Tables</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FUNCTION_TEMPLATE__TABLES = eINSTANCE.getFunctionTemplate_Tables();
+
+		/**
+		 * The meta object literal for the '<em><b>Exceptions</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FUNCTION_TEMPLATE__EXCEPTIONS = eINSTANCE.getFunctionTemplate_Exceptions();
+
+		/**
+		 * The meta object literal for the '<em><b>Import Parameter List</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FUNCTION_TEMPLATE__IMPORT_PARAMETER_LIST = eINSTANCE.getFunctionTemplate_ImportParameterList();
+
+		/**
+		 * The meta object literal for the '<em><b>Export Parameter List</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FUNCTION_TEMPLATE__EXPORT_PARAMETER_LIST = eINSTANCE.getFunctionTemplate_ExportParameterList();
+
+		/**
+		 * The meta object literal for the '<em><b>Changing Parameter List</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST = eINSTANCE.getFunctionTemplate_ChangingParameterList();
+
+		/**
+		 * The meta object literal for the '<em><b>Exception List</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FUNCTION_TEMPLATE__EXCEPTION_LIST = eINSTANCE.getFunctionTemplate_ExceptionList();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl <em>Field Meta Data</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFieldMetaData()
+		 * @generated
+		 */
+		EClass FIELD_META_DATA = eINSTANCE.getFieldMetaData();
+
+		/**
+		 * The meta object literal for the '<em><b>Field Meta Data</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference FIELD_META_DATA__FIELD_META_DATA = eINSTANCE.getFieldMetaData_FieldMetaData();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__NAME = eINSTANCE.getFieldMetaData_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Type</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__TYPE = eINSTANCE.getFieldMetaData_Type();
+
+		/**
+		 * The meta object literal for the '<em><b>Byte Length</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__BYTE_LENGTH = eINSTANCE.getFieldMetaData_ByteLength();
+
+		/**
+		 * The meta object literal for the '<em><b>Byte Offset</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__BYTE_OFFSET = eINSTANCE.getFieldMetaData_ByteOffset();
+
+		/**
+		 * The meta object literal for the '<em><b>Unicode Byte Length</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__UNICODE_BYTE_LENGTH = eINSTANCE.getFieldMetaData_UnicodeByteLength();
+
+		/**
+		 * The meta object literal for the '<em><b>Unicode Byte Offset</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__UNICODE_BYTE_OFFSET = eINSTANCE.getFieldMetaData_UnicodeByteOffset();
+
+		/**
+		 * The meta object literal for the '<em><b>Decimals</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__DECIMALS = eINSTANCE.getFieldMetaData_Decimals();
+
+		/**
+		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__DESCRIPTION = eINSTANCE.getFieldMetaData_Description();
+
+		/**
+		 * The meta object literal for the '<em><b>Complex Field Meta Data</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FIELD_META_DATA__COMPLEX_FIELD_META_DATA = eINSTANCE.getFieldMetaData_ComplexFieldMetaData();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl <em>List Field Meta Data</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getListFieldMetaData()
+		 * @generated
+		 */
+		EClass LIST_FIELD_META_DATA = eINSTANCE.getListFieldMetaData();
+
+		/**
+		 * The meta object literal for the '<em><b>Field Meta Data</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference LIST_FIELD_META_DATA__FIELD_META_DATA = eINSTANCE.getListFieldMetaData_FieldMetaData();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__NAME = eINSTANCE.getListFieldMetaData_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Type</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__TYPE = eINSTANCE.getListFieldMetaData_Type();
+
+		/**
+		 * The meta object literal for the '<em><b>Byte Length</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__BYTE_LENGTH = eINSTANCE.getListFieldMetaData_ByteLength();
+
+		/**
+		 * The meta object literal for the '<em><b>Unicode Byte Length</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__UNICODE_BYTE_LENGTH = eINSTANCE.getListFieldMetaData_UnicodeByteLength();
+
+		/**
+		 * The meta object literal for the '<em><b>Decimals</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__DECIMALS = eINSTANCE.getListFieldMetaData_Decimals();
+
+		/**
+		 * The meta object literal for the '<em><b>Defaults</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__DEFAULTS = eINSTANCE.getListFieldMetaData_Defaults();
+
+		/**
+		 * The meta object literal for the '<em><b>Description</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__DESCRIPTION = eINSTANCE.getListFieldMetaData_Description();
+
+		/**
+		 * The meta object literal for the '<em><b>Import</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__IMPORT = eINSTANCE.getListFieldMetaData_Import();
+
+		/**
+		 * The meta object literal for the '<em><b>Changing</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__CHANGING = eINSTANCE.getListFieldMetaData_Changing();
+
+		/**
+		 * The meta object literal for the '<em><b>Export</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__EXPORT = eINSTANCE.getListFieldMetaData_Export();
+
+		/**
+		 * The meta object literal for the '<em><b>Exception</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__EXCEPTION = eINSTANCE.getListFieldMetaData_Exception();
+
+		/**
+		 * The meta object literal for the '<em><b>Optional</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__OPTIONAL = eINSTANCE.getListFieldMetaData_Optional();
+
+		/**
+		 * The meta object literal for the '<em><b>Complex Field Meta Data</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA = eINSTANCE.getListFieldMetaData_ComplexFieldMetaData();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.AbapExceptionImpl <em>Abap Exception</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.AbapExceptionImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getAbapException()
+		 * @generated
+		 */
+		EClass ABAP_EXCEPTION = eINSTANCE.getAbapException();
+
+		/**
+		 * The meta object literal for the '<em><b>Key</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ABAP_EXCEPTION__KEY = eINSTANCE.getAbapException_Key();
+
+		/**
+		 * The meta object literal for the '<em><b>Message</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute ABAP_EXCEPTION__MESSAGE = eINSTANCE.getAbapException_Message();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataEntryImpl <em>Respository Data Entry</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataEntryImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRespositoryDataEntry()
+		 * @generated
+		 */
+		EClass RESPOSITORY_DATA_ENTRY = eINSTANCE.getRespositoryDataEntry();
+
+		/**
+		 * The meta object literal for the '<em><b>Key</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RESPOSITORY_DATA_ENTRY__KEY = eINSTANCE.getRespositoryDataEntry_Key();
+
+		/**
+		 * The meta object literal for the '<em><b>Value</b></em>' reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference RESPOSITORY_DATA_ENTRY__VALUE = eINSTANCE.getRespositoryDataEntry_Value();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataImpl <em>Repository Data</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRepositoryData()
+		 * @generated
+		 */
+		EClass REPOSITORY_DATA = eINSTANCE.getRepositoryData();
+
+		/**
+		 * The meta object literal for the '<em><b>Entries</b></em>' map feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference REPOSITORY_DATA__ENTRIES = eINSTANCE.getRepositoryData_Entries();
+
+		/**
+		 * The meta object literal for the '<em><b>Function Templates</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute REPOSITORY_DATA__FUNCTION_TEMPLATES = eINSTANCE.getRepositoryData_FunctionTemplates();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataStoreImpl <em>Repository Data Store</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RepositoryDataStoreImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRepositoryDataStore()
+		 * @generated
+		 */
+		EClass REPOSITORY_DATA_STORE = eINSTANCE.getRepositoryDataStore();
+
+		/**
+		 * The meta object literal for the '<em><b>Entries</b></em>' map feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference REPOSITORY_DATA_STORE__ENTRIES = eINSTANCE.getRepositoryDataStore_Entries();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataStoreEntryImpl <em>Respository Data Store Entry</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RespositoryDataStoreEntryImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRespositoryDataStoreEntry()
+		 * @generated
+		 */
+		EClass RESPOSITORY_DATA_STORE_ENTRY = eINSTANCE.getRespositoryDataStoreEntry();
+
+		/**
+		 * The meta object literal for the '<em><b>Key</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RESPOSITORY_DATA_STORE_ENTRY__KEY = eINSTANCE.getRespositoryDataStoreEntry_Key();
+
+		/**
+		 * The meta object literal for the '<em><b>Value</b></em>' reference feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference RESPOSITORY_DATA_STORE_ENTRY__VALUE = eINSTANCE.getRespositoryDataStoreEntry_Value();
+
+		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.DataType <em>Data Type</em>}' enum.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.DataType
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getDataType()
+		 * @generated
+		 */
+		EEnum DATA_TYPE = eINSTANCE.getDataType();
+
+		/**
+		 * The meta object literal for the '<em>Parameter List</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.List
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getParameterList()
+		 * @generated
+		 */
+		EDataType PARAMETER_LIST = eINSTANCE.getParameterList();
+
+		/**
+		 * The meta object literal for the '<em>Field List</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.List
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFieldList()
+		 * @generated
+		 */
+		EDataType FIELD_LIST = eINSTANCE.getFieldList();
+
+		/**
+		 * The meta object literal for the '<em>Abap Exception List</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.List
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getAbapExceptionList()
+		 * @generated
+		 */
+		EDataType ABAP_EXCEPTION_LIST = eINSTANCE.getAbapExceptionList();
+
+		/**
+		 * The meta object literal for the '<em>Function Template Map</em>' data type.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see java.util.Map
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFunctionTemplateMap()
+		 * @generated
+		 */
+		EDataType FUNCTION_TEMPLATE_MAP = eINSTANCE.getFunctionTemplateMap();
 
 	}
 

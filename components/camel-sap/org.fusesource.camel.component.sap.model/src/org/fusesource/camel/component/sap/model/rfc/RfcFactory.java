@@ -117,6 +117,60 @@ public interface RfcFactory extends EFactory {
 	ServerDataStore createServerDataStore();
 
 	/**
+	 * Returns a new object of class '<em>Function Template</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Function Template</em>'.
+	 * @generated
+	 */
+	FunctionTemplate createFunctionTemplate();
+
+	/**
+	 * Returns a new object of class '<em>Field Meta Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Field Meta Data</em>'.
+	 * @generated
+	 */
+	FieldMetaData createFieldMetaData();
+
+	/**
+	 * Returns a new object of class '<em>List Field Meta Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>List Field Meta Data</em>'.
+	 * @generated
+	 */
+	ListFieldMetaData createListFieldMetaData();
+
+	/**
+	 * Returns a new object of class '<em>Abap Exception</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Abap Exception</em>'.
+	 * @generated
+	 */
+	AbapException createAbapException();
+
+	/**
+	 * Returns a new object of class '<em>Repository Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Repository Data</em>'.
+	 * @generated
+	 */
+	RepositoryData createRepositoryData();
+
+	/**
+	 * Returns a new object of class '<em>Repository Data Store</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Repository Data Store</em>'.
+	 * @generated
+	 */
+	RepositoryDataStore createRepositoryDataStore();
+
+	/**
 	 * Returns the package supported by this factory.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

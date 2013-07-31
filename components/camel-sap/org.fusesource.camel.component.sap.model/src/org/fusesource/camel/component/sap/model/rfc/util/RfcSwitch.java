@@ -17,12 +17,26 @@
 package org.fusesource.camel.component.sap.model.rfc.util;
 
 import java.util.Map;
+
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
-
 import org.eclipse.emf.ecore.util.Switch;
-
-import org.fusesource.camel.component.sap.model.rfc.*;
+import org.fusesource.camel.component.sap.model.rfc.AbapException;
+import org.fusesource.camel.component.sap.model.rfc.Destination;
+import org.fusesource.camel.component.sap.model.rfc.DestinationData;
+import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
+import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.FunctionTemplate;
+import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RFC;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryData;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore;
+import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
+import org.fusesource.camel.component.sap.model.rfc.Server;
+import org.fusesource.camel.component.sap.model.rfc.ServerData;
+import org.fusesource.camel.component.sap.model.rfc.ServerDataStore;
+import org.fusesource.camel.component.sap.model.rfc.Structure;
+import org.fusesource.camel.component.sap.model.rfc.Table;
 
 /**
  * <!-- begin-user-doc -->
@@ -156,6 +170,54 @@ public class RfcSwitch<T> extends Switch<T> {
 			case RfcPackage.SERVER_DATA_STORE: {
 				ServerDataStore serverDataStore = (ServerDataStore)theEObject;
 				T result = caseServerDataStore(serverDataStore);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.FUNCTION_TEMPLATE: {
+				FunctionTemplate functionTemplate = (FunctionTemplate)theEObject;
+				T result = caseFunctionTemplate(functionTemplate);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.FIELD_META_DATA: {
+				FieldMetaData fieldMetaData = (FieldMetaData)theEObject;
+				T result = caseFieldMetaData(fieldMetaData);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.LIST_FIELD_META_DATA: {
+				ListFieldMetaData listFieldMetaData = (ListFieldMetaData)theEObject;
+				T result = caseListFieldMetaData(listFieldMetaData);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.ABAP_EXCEPTION: {
+				AbapException abapException = (AbapException)theEObject;
+				T result = caseAbapException(abapException);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.RESPOSITORY_DATA_ENTRY: {
+				@SuppressWarnings("unchecked") Map.Entry<String, FunctionTemplate> respositoryDataEntry = (Map.Entry<String, FunctionTemplate>)theEObject;
+				T result = caseRespositoryDataEntry(respositoryDataEntry);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.REPOSITORY_DATA: {
+				RepositoryData repositoryData = (RepositoryData)theEObject;
+				T result = caseRepositoryData(repositoryData);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.REPOSITORY_DATA_STORE: {
+				RepositoryDataStore repositoryDataStore = (RepositoryDataStore)theEObject;
+				T result = caseRepositoryDataStore(repositoryDataStore);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.RESPOSITORY_DATA_STORE_ENTRY: {
+				@SuppressWarnings("unchecked") Map.Entry<String, RepositoryData> respositoryDataStoreEntry = (Map.Entry<String, RepositoryData>)theEObject;
+				T result = caseRespositoryDataStoreEntry(respositoryDataStoreEntry);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -355,6 +417,126 @@ public class RfcSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseServerDataStore(ServerDataStore object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Function Template</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Function Template</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseFunctionTemplate(FunctionTemplate object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Field Meta Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Field Meta Data</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseFieldMetaData(FieldMetaData object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>List Field Meta Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>List Field Meta Data</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseListFieldMetaData(ListFieldMetaData object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Abap Exception</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Abap Exception</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseAbapException(AbapException object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Respository Data Entry</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Respository Data Entry</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseRespositoryDataEntry(Map.Entry<String, FunctionTemplate> object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Repository Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Repository Data</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseRepositoryData(RepositoryData object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Repository Data Store</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Repository Data Store</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseRepositoryDataStore(RepositoryDataStore object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Respository Data Store Entry</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Respository Data Store Entry</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseRespositoryDataStoreEntry(Map.Entry<String, RepositoryData> object) {
 		return null;
 	}
 

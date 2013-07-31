@@ -17,7 +17,6 @@
 package org.fusesource.camel.component.sap.model.rfc.provider;
 
 import org.eclipse.emf.common.EMFPlugin;
-
 import org.eclipse.emf.common.util.ResourceLocator;
 
 /**

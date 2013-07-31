@@ -10,7 +10,7 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
- *  implied.  See the License for the specific language governing
+ * implied.  See the License for the specific language governing
  * permissions and limitations under the License.
  * 
  */
@@ -23,7 +23,7 @@ import java.util.List;
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.util.ResourceLocator;
-import org.eclipse.emf.ecore.EStructuralFeature;
+import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
@@ -31,18 +31,15 @@ import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
-import org.eclipse.emf.edit.provider.ViewerNotification;
-import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
-import org.fusesource.camel.component.sap.model.rfc.ServerDataStore;
 
 /**
- * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.ServerDataStore} object.
+ * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class ServerDataStoreItemProvider
+public class RepositoryDataStoreItemProvider
 	extends ItemProviderAdapter
 	implements
 		IEditingDomainItemProvider,
@@ -56,7 +53,7 @@ public class ServerDataStoreItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public ServerDataStoreItemProvider(AdapterFactory adapterFactory) {
+	public RepositoryDataStoreItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -71,49 +68,42 @@ public class ServerDataStoreItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
+			addEntriesPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
 
 	/**
-	 * This specifies how to implement {@link #getChildren} and is used to deduce an appropriate feature for an
-	 * {@link org.eclipse.emf.edit.command.AddCommand}, {@link org.eclipse.emf.edit.command.RemoveCommand} or
-	 * {@link org.eclipse.emf.edit.command.MoveCommand} in {@link #createCommand}.
+	 * This adds a property descriptor for the Entries feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	@Override
-	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
-		if (childrenFeatures == null) {
-			super.getChildrenFeatures(object);
-			childrenFeatures.add(RfcPackage.Literals.SERVER_DATA_STORE__ENTRIES);
-		}
-		return childrenFeatures;
+	protected void addEntriesPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RepositoryDataStore_entries_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_RepositoryDataStore_entries_feature", "_UI_RepositoryDataStore_type"),
+				 RfcPackage.Literals.REPOSITORY_DATA_STORE__ENTRIES,
+				 true,
+				 false,
+				 true,
+				 null,
+				 null,
+				 null));
 	}
 
 	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
-	protected EStructuralFeature getChildFeature(Object object, Object child) {
-		// Check the type of the specified child object and return the proper feature to use for
-		// adding (see {@link AddCommand}) it as a child.
-
-		return super.getChildFeature(object, child);
-	}
-
-	/**
-	 * This returns ServerDataStore.gif.
+	 * This returns RepositoryDataStore.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/ServerDataStore"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/RepositoryDataStore"));
 	}
 
 	/**
@@ -124,7 +114,7 @@ public class ServerDataStoreItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		return getString("_UI_ServerDataStore_type");
+		return getString("_UI_RepositoryDataStore_type");
 	}
 
 	/**
@@ -137,12 +127,6 @@ public class ServerDataStoreItemProvider
 	@Override
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
-
-		switch (notification.getFeatureID(ServerDataStore.class)) {
-			case RfcPackage.SERVER_DATA_STORE__ENTRIES:
-				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
-				return;
-		}
 		super.notifyChanged(notification);
 	}
 
@@ -156,11 +140,6 @@ public class ServerDataStoreItemProvider
 	@Override
 	protected void collectNewChildDescriptors(Collection<Object> newChildDescriptors, Object object) {
 		super.collectNewChildDescriptors(newChildDescriptors, object);
-
-		newChildDescriptors.add
-			(createChildParameter
-				(RfcPackage.Literals.SERVER_DATA_STORE__ENTRIES,
-				 RfcFactory.eINSTANCE.create(RfcPackage.Literals.SERVER_DATA_STORE_ENTRY)));
 	}
 
 	/**

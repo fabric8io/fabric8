@@ -26,7 +26,12 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.camel.builder.RouteBuilder;
+import org.fusesource.camel.component.sap.model.rfc.DataType;
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
+import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.FunctionTemplate;
+import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryData;
 import org.fusesource.camel.component.sap.model.rfc.ServerData;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
@@ -247,7 +252,10 @@ public class SAPComponentTest extends SAPTestSupport {
 	public void testComponentConfiguration() {
 		SAPComponent component = (SAPComponent) context.getComponent("sap");
 		
-		// Validated Destination Data
+		//
+		// Validate Destination Data
+		//
+		
 		DestinationData nplDestinationData = component.getDestinationDataStore().get("nplDest");
 		assertNotNull("Destination Data 'nplDest' not loaded into Destination Data Store", nplDestinationData);
 		assertEquals("Destination Data Property 'ashost' has incorrect value set", "nplhost", nplDestinationData.getAshost());
@@ -256,8 +264,11 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertEquals("Destination Data Property 'user' has incorrect value set", "developer", nplDestinationData.getUser());
 		assertEquals("Destination Data Property 'passwd' has incorrect value set", "ch4ngeme", nplDestinationData.getPasswd());
 		assertEquals("Destination Data Property 'lang' has incorrect value set", "en", nplDestinationData.getLang());
-
-		// Validated Server Data
+		
+		// 
+		// Validate Server Data
+		//
+		
 		ServerData nplServerData = component.getServerDataStore().get("nplServer");
 		assertNotNull("Server Data 'nplServer' not loaded into Server Data Store", nplServerData);
 		assertEquals("Server Data Property 'gwhost' has incorrect value set", "nplhost", nplServerData.getGwhost());
@@ -265,6 +276,368 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertEquals("Server Data Property 'progid' has incorrect value set", "JCO_SERVER", nplServerData.getProgid());
 		assertEquals("Server Data Property 'repositoryDestination' has incorrect value set", "nplDest", nplServerData.getRepositoryDestination());
 		assertEquals("Server Data Property 'connectionCount' has incorrect value set", "2", nplServerData.getConnectionCount());
+		
+		//
+		// Validate Repository Data
+		//
+		
+		// Changing Parameter List
+		//
+		RepositoryData nplRepositoryData = component.getRepositoryDataStore().get("nplServer");
+		assertNotNull("Respository Data 'nplServer' not loaded into Repository Data Store", nplRepositoryData);
+		FunctionTemplate paramTestFunctionTemplate = nplRepositoryData.getFunctionTemplates().get("PARAM_TEST");
+		assertNotNull("Function Template 'PARAM_TEST' not loaded into Repository Data Store", paramTestFunctionTemplate);
+		// PARAM_LIST_CHAR_PARAM
+		ListFieldMetaData paramListCharParam = paramTestFunctionTemplate.getChangingParameterList().get(0);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_CHAR_PARAM' not loaded into Repository Data Store", paramListCharParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_CHAR_PARAM", paramListCharParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.CHAR, paramListCharParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 10, paramListCharParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 20, paramListCharParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListCharParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListCharParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListCharParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListCharParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListCharParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListCharParam.isOptional());
+		// PARAM_LIST_NUM_PARAM
+		ListFieldMetaData paramListNumParam = paramTestFunctionTemplate.getChangingParameterList().get(1);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_NUM_PARAM' not loaded into Repository Data Store", paramListNumParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_NUM_PARAM", paramListNumParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.NUM, paramListNumParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 10, paramListNumParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 10, paramListNumParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListNumParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListNumParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListNumParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListNumParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListNumParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListNumParam.isOptional());
+		// PARAM_LIST_INT_PARAM
+		ListFieldMetaData paramListIntParam = paramTestFunctionTemplate.getChangingParameterList().get(2);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_INT_PARAM' not loaded into Repository Data Store", paramListIntParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_INT_PARAM", paramListIntParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.INT, paramListIntParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 4, paramListIntParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 4, paramListIntParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListIntParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListIntParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListIntParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListIntParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListIntParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListIntParam.isOptional());
+		// PARAM_LIST_FLOAT_PARAM
+		ListFieldMetaData paramListFloatParam = paramTestFunctionTemplate.getChangingParameterList().get(3);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_FLOAT_PARAM' not loaded into Repository Data Store", paramListFloatParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_FLOAT_PARAM", paramListFloatParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.FLOAT, paramListFloatParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 8, paramListFloatParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 8, paramListFloatParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListFloatParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListFloatParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListFloatParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListFloatParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListFloatParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListFloatParam.isOptional());
+		// PARAM_LIST_BCD_PARAM
+		ListFieldMetaData paramListBCDParam = paramTestFunctionTemplate.getChangingParameterList().get(4);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_BCD_PARAM' not loaded into Repository Data Store", paramListBCDParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_BCD_PARAM", paramListBCDParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.BCD, paramListBCDParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 9, paramListBCDParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 9, paramListBCDParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 14, paramListBCDParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBCDParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBCDParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListBCDParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBCDParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBCDParam.isOptional());
+		// PARAM_LIST_BINARY_PARAM
+		ListFieldMetaData paramListBinaryParam = paramTestFunctionTemplate.getChangingParameterList().get(5);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_BINARY_PARAM' not loaded into Repository Data Store", paramListBinaryParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_BINARY_PARAM", paramListBinaryParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.BYTE, paramListBinaryParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 1, paramListBinaryParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 1, paramListBinaryParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListBinaryParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListBinaryParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryParam.isOptional());
+		// PARAM_LIST_BINARY_ARRAY_PARAM
+		ListFieldMetaData paramListBinaryArrayParam = paramTestFunctionTemplate.getChangingParameterList().get(6);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_BINARY_ARRAY_PARAM' not loaded into Repository Data Store", paramListBinaryArrayParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_BINARY_ARRAY_PARAM", paramListBinaryArrayParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.BYTE, paramListBinaryArrayParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 10, paramListBinaryArrayParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 10, paramListBinaryArrayParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListBinaryArrayParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryArrayParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryArrayParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListBinaryArrayParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryArrayParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListBinaryArrayParam.isOptional());
+		// PARAM_LIST_DATE_PARAM
+		ListFieldMetaData paramListDateParam = paramTestFunctionTemplate.getChangingParameterList().get(7);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_DATE_PARAM' not loaded into Repository Data Store", paramListDateParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_DATE_PARAM", paramListDateParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.DATE, paramListDateParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 8, paramListDateParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 16, paramListDateParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListDateParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListDateParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListDateParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListDateParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListDateParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListDateParam.isOptional());
+		// PARAM_LIST_TIME_PARAM
+		ListFieldMetaData paramListTimeParam = paramTestFunctionTemplate.getChangingParameterList().get(8);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_TIME_PARAM' not loaded into Repository Data Store", paramListTimeParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_TIME_PARAM", paramListTimeParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.TIME, paramListTimeParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 6, paramListTimeParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 12, paramListTimeParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListTimeParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTimeParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTimeParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListTimeParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTimeParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTimeParam.isOptional());
+		// PARAM_LIST_STRING_PARAM
+		ListFieldMetaData paramListStringParam = paramTestFunctionTemplate.getChangingParameterList().get(9);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_STRING_PARAM' not loaded into Repository Data Store", paramListStringParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_STRING_PARAM", paramListStringParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.STRING, paramListStringParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", 8, paramListStringParam.getByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 8, paramListStringParam.getUnicodeByteLength());
+		assertEquals("ListFieldMetaData property has incorrect value set", 0, paramListStringParam.getDecimals());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStringParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStringParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListStringParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStringParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStringParam.isOptional());
+		// PARAM_LIST_STRUCTURE_PARAM
+		ListFieldMetaData paramListStructureParam = paramTestFunctionTemplate.getChangingParameterList().get(10);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_STRUCTURE_PARAM' not loaded into Repository Data Store", paramListStructureParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_STRUCTURE_PARAM", paramListStructureParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.STRUCTURE, paramListStructureParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStructureParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStructureParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListStructureParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStructureParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStructureParam.isOptional());
+		List<FieldMetaData> zjbossStructure = paramListStructureParam.getComplexFieldMetaData();
+		assertNotNull("ComplexFieldMetaData for 'PARAM_LIST_STRUCTURE_PARAM' not loaded into Repository Data Store", zjbossStructure);
+		// PARAM_LIST_TABLE_PARAM
+		ListFieldMetaData paramListTableParam = paramTestFunctionTemplate.getChangingParameterList().get(11);
+		assertNotNull("ListFieldMetaData for 'PARAM_LIST_TABLE_PARAM' not loaded into Repository Data Store", paramListTableParam);
+		assertEquals("ListFieldMetaData property has incorrect value set", "PARAM_LIST_TABLE_PARAM", paramListTableParam.getName());
+		assertEquals("ListFieldMetaData property has incorrect value set", DataType.TABLE, paramListTableParam.getType());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTableParam.isImport());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTableParam.isExport());
+		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListTableParam.isChanging());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTableParam.isException());
+		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTableParam.isOptional());
+		List<FieldMetaData> zjbossLineType = paramListTableParam.getComplexFieldMetaData();
+		assertNotNull("ComplexFieldMetaData for 'PARAM_LIST_TABLE_PARAM' not loaded into Repository Data Store", zjbossLineType);
+		
+		// ZJBOSS_STRUCTURE
+		//
+		// CHAR_PARAM
+		FieldMetaData charParam = zjbossStructure.get(0);
+		assertNotNull("FieldMetaData for 'CHAR_PARAM' not loaded into Repository Data Store", charParam);
+		assertEquals("FieldMetaData property has incorrect value set", "CHAR_PARAM", charParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.CHAR, charParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 10, charParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 0, charParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 20, charParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 0, charParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, charParam.getDecimals());
+		// NUM_PARAM
+		FieldMetaData numParam = zjbossStructure.get(1);
+		assertNotNull("FieldMetaData for 'NUM_PARAM' not loaded into Repository Data Store", numParam);
+		assertEquals("FieldMetaData property has incorrect value set", "NUM_PARAM", numParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.NUM, numParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 10, numParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 10, numParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 20, numParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 20, numParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, numParam.getDecimals());
+		// INT_PARAM
+		FieldMetaData intParam = zjbossStructure.get(2);
+		assertNotNull("FieldMetaData for 'INT_PARAM' not loaded into Repository Data Store", intParam);
+		assertEquals("FieldMetaData property has incorrect value set", "INT_PARAM", intParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.INT, intParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 4, intParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 20, intParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 4, intParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 40, intParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, intParam.getDecimals());
+		// FLOAT_PARAM
+		FieldMetaData floatParam = zjbossStructure.get(3);
+		assertNotNull("FieldMetaData for 'FLOAT_PARAM' not loaded into Repository Data Store", floatParam);
+		assertEquals("FieldMetaData property has incorrect value set", "FLOAT_PARAM", floatParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.FLOAT, floatParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 8, floatParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 24, floatParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 8, floatParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 48, floatParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 16, floatParam.getDecimals());
+		// BCD_PARAM
+		FieldMetaData bcdParam = zjbossStructure.get(4);
+		assertNotNull("FieldMetaData for 'BCD_PARAM' not loaded into Repository Data Store", bcdParam);
+		assertEquals("FieldMetaData property has incorrect value set", "BCD_PARAM", bcdParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.BCD, bcdParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 9, bcdParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 32, bcdParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 9, bcdParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 56, bcdParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 14, bcdParam.getDecimals());
+		// BINARY_PARAM
+		FieldMetaData binaryParam = zjbossStructure.get(5);
+		assertNotNull("FieldMetaData for 'BINARY_PARAM' not loaded into Repository Data Store", binaryParam);
+		assertEquals("FieldMetaData property has incorrect value set", "BINARY_PARAM", binaryParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.BYTE, binaryParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 1, binaryParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 41, binaryParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 1, binaryParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 65, binaryParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, binaryParam.getDecimals());
+		// BINARY_ARRAY_PARAM
+		FieldMetaData binaryArrayParam = zjbossStructure.get(6);
+		assertNotNull("FieldMetaData for 'BINARY_ARRAY_PARAM' not loaded into Repository Data Store", binaryArrayParam);
+		assertEquals("FieldMetaData property has incorrect value set", "BINARY_ARRAY_PARAM", binaryArrayParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.BYTE, binaryArrayParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 10, binaryArrayParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 42, binaryArrayParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 10, binaryArrayParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 66, binaryArrayParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, binaryArrayParam.getDecimals());
+		// DATE_PARAM
+		FieldMetaData dateParam = zjbossStructure.get(7);
+		assertNotNull("FieldMetaData for 'DATE_PARAM' not loaded into Repository Data Store", dateParam);
+		assertEquals("FieldMetaData property has incorrect value set", "DATE_PARAM", dateParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.DATE, dateParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 8, dateParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 52, dateParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 16, dateParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 76, dateParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, dateParam.getDecimals());
+		// TIME_PARAM
+		FieldMetaData timeParam = zjbossStructure.get(8);
+		assertNotNull("FieldMetaData for 'TIME_PARAM' not loaded into Repository Data Store", timeParam);
+		assertEquals("FieldMetaData property has incorrect value set", "TIME_PARAM", timeParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.TIME, timeParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 6, timeParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 60, timeParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 12, timeParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 92, timeParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, timeParam.getDecimals());
+		// STRING_PARAM
+		FieldMetaData stringParam = zjbossStructure.get(9);
+		assertNotNull("FieldMetaData for 'STRING_PARAM' not loaded into Repository Data Store", stringParam);
+		assertEquals("FieldMetaData property has incorrect value set", "STRING_PARAM", stringParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.STRING, stringParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 8, stringParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 68, stringParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 8, stringParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 104, stringParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, stringParam.getDecimals());
+		
+		// ZJBOSS_LINE_TYPE
+		//
+		// CHAR_PARAM
+		charParam = zjbossLineType.get(0);
+		assertNotNull("FieldMetaData for 'CHAR_PARAM' not loaded into Repository Data Store", charParam);
+		assertEquals("FieldMetaData property has incorrect value set", "CHAR_PARAM", charParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.CHAR, charParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 10, charParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 0, charParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 20, charParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 0, charParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, charParam.getDecimals());
+		// NUM_PARAM
+		numParam = zjbossLineType.get(1);
+		assertNotNull("FieldMetaData for 'NUM_PARAM' not loaded into Repository Data Store", numParam);
+		assertEquals("FieldMetaData property has incorrect value set", "NUM_PARAM", numParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.NUM, numParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 10, numParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 10, numParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 20, numParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 20, numParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, numParam.getDecimals());
+		// INT_PARAM
+		intParam = zjbossLineType.get(2);
+		assertNotNull("FieldMetaData for 'INT_PARAM' not loaded into Repository Data Store", intParam);
+		assertEquals("FieldMetaData property has incorrect value set", "INT_PARAM", intParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.INT, intParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 4, intParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 20, intParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 4, intParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 40, intParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, intParam.getDecimals());
+		// FLOAT_PARAM
+		floatParam = zjbossLineType.get(3);
+		assertNotNull("FieldMetaData for 'FLOAT_PARAM' not loaded into Repository Data Store", floatParam);
+		assertEquals("FieldMetaData property has incorrect value set", "FLOAT_PARAM", floatParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.FLOAT, floatParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 8, floatParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 24, floatParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 8, floatParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 48, floatParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 16, floatParam.getDecimals());
+		// BCD_PARAM
+		bcdParam = zjbossLineType.get(4);
+		assertNotNull("FieldMetaData for 'BCD_PARAM' not loaded into Repository Data Store", bcdParam);
+		assertEquals("FieldMetaData property has incorrect value set", "BCD_PARAM", bcdParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.BCD, bcdParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 9, bcdParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 32, bcdParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 9, bcdParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 56, bcdParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 14, bcdParam.getDecimals());
+		// BINARY_PARAM
+		binaryParam = zjbossLineType.get(5);
+		assertNotNull("FieldMetaData for 'BINARY_PARAM' not loaded into Repository Data Store", binaryParam);
+		assertEquals("FieldMetaData property has incorrect value set", "BINARY_PARAM", binaryParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.BYTE, binaryParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 1, binaryParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 41, binaryParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 1, binaryParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 65, binaryParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, binaryParam.getDecimals());
+		// BINARY_ARRAY_PARAM
+		binaryArrayParam = zjbossLineType.get(6);
+		assertNotNull("FieldMetaData for 'BINARY_ARRAY_PARAM' not loaded into Repository Data Store", binaryArrayParam);
+		assertEquals("FieldMetaData property has incorrect value set", "BINARY_ARRAY_PARAM", binaryArrayParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.BYTE, binaryArrayParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 10, binaryArrayParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 42, binaryArrayParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 10, binaryArrayParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 66, binaryArrayParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, binaryArrayParam.getDecimals());
+		// DATE_PARAM
+		dateParam = zjbossLineType.get(7);
+		assertNotNull("FieldMetaData for 'DATE_PARAM' not loaded into Repository Data Store", dateParam);
+		assertEquals("FieldMetaData property has incorrect value set", "DATE_PARAM", dateParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.DATE, dateParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 8, dateParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 52, dateParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 16, dateParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 76, dateParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, dateParam.getDecimals());
+		// TIME_PARAM
+		timeParam = zjbossStructure.get(8);
+		assertNotNull("FieldMetaData for 'TIME_PARAM' not loaded into Repository Data Store", timeParam);
+		assertEquals("FieldMetaData property has incorrect value set", "TIME_PARAM", timeParam.getName());
+		assertEquals("FieldMetaData property has incorrect value set", DataType.TIME, timeParam.getType());
+		assertEquals("FieldMetaData property has incorrect value set", 6, timeParam.getByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 60, timeParam.getByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 12, timeParam.getUnicodeByteLength());
+		assertEquals("FieldMetaData property has incorrect value set", 92, timeParam.getUnicodeByteOffset());
+		assertEquals("FieldMetaData property has incorrect value set", 0, timeParam.getDecimals());
+		
 	}
 	
 	@Override

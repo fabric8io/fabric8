@@ -197,4 +197,104 @@
     <eStructuralFeatures xsi:type="ecore:EReference" name="entries" upperBound="-1"
         eType="#//ServerDataStoreEntry" containment="true"/>
   </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionTemplate">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="imports" upperBound="-1"
+        eType="#//ListFieldMetaData"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="exports" upperBound="-1"
+        eType="#//ListFieldMetaData"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="changing" upperBound="-1"
+        eType="#//ListFieldMetaData"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tables" upperBound="-1"
+        eType="#//ListFieldMetaData"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="exceptions" upperBound="-1"
+        eType="#//AbapException"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="importParameterList" eType="#//ParameterList"
+        volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="exportParameterList" eType="#//ParameterList"
+        volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="changingParameterList"
+        eType="#//ParameterList" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="exceptionList" eType="#//AbapExceptionList"
+        volatile="true" transient="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FieldMetaData">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fieldMetaData" upperBound="-1"
+        eType="#//FieldMetaData" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//DataType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="byteLength" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="byteOffset" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="unicodeByteLength" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="unicodeByteOffset" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="decimals" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="complexFieldMetaData" eType="#//FieldList"
+        volatile="true" transient="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ListFieldMetaData">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fieldMetaData" upperBound="-1"
+        eType="#//FieldMetaData" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//DataType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="byteLength" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="unicodeByteLength" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="decimals" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaults" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="description" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="import" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="changing" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="export" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="exception" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="optional" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="complexFieldMetaData" eType="#//FieldList"
+        volatile="true" transient="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AbapException">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="message" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RespositoryDataEntry" instanceClassName="java.util.Map$Entry">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" lowerBound="1" eType="#//FunctionTemplate"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RepositoryData">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entries" upperBound="-1"
+        eType="#//RespositoryDataEntry" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="functionTemplates" eType="#//FunctionTemplateMap"
+        volatile="true" transient="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RepositoryDataStore">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="entries" upperBound="-1"
+        eType="#//RespositoryDataStoreEntry" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RespositoryDataStoreEntry" instanceClassName="java.util.Map$Entry">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="key" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="value" lowerBound="1" eType="#//RepositoryData"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="DataType">
+    <eLiterals name="CHAR"/>
+    <eLiterals name="DATE" value="1"/>
+    <eLiterals name="BCD" value="2"/>
+    <eLiterals name="TIME" value="3"/>
+    <eLiterals name="BYTE" value="4"/>
+    <eLiterals name="NUM" value="6"/>
+    <eLiterals name="FLOAT" value="7"/>
+    <eLiterals name="INT" value="8"/>
+    <eLiterals name="INT2" value="9"/>
+    <eLiterals name="INT1" value="10"/>
+    <eLiterals name="STRUCTURE" value="17"/>
+    <eLiterals name="DECF16" value="23"/>
+    <eLiterals name="DECF34" value="24"/>
+    <eLiterals name="STRING" value="29"/>
+    <eLiterals name="XSTRING" value="30"/>
+    <eLiterals name="TABLE" value="99"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="ParameterList" instanceTypeName="java.util.List&lt;org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData>"
+      serializable="false"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="FieldList" instanceTypeName="java.util.List&lt;org.fusesource.camel.component.sap.model.rfc.FieldMetaData>"
+      serializable="false"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="AbapExceptionList" instanceTypeName="java.util.List&lt;org.fusesource.camel.component.sap.model.rfc.AbapException>"
+      serializable="false"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="FunctionTemplateMap" instanceTypeName="java.util.Map&lt;java.lang.String, org.fusesource.camel.component.sap.model.rfc.FunctionTemplate>"
+      serializable="false"/>
 </ecore:EPackage>

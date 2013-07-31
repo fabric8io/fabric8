@@ -22,6 +22,8 @@ import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultComponent;
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
 import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryData;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.ServerData;
 import org.fusesource.camel.component.sap.model.rfc.ServerDataStore;
@@ -36,6 +38,8 @@ public class SAPComponent extends DefaultComponent {
 	protected DestinationDataStore destinationDataStore = RfcFactory.eINSTANCE.createDestinationDataStore();
 	
 	protected ServerDataStore serverDataStore = RfcFactory.eINSTANCE.createServerDataStore();
+	
+	protected RepositoryDataStore repositoryDataStore = RfcFactory.eINSTANCE.createRepositoryDataStore();
 	
     protected Endpoint createEndpoint(String uri, String remaining, Map<String, Object> parameters) throws Exception {
     	
@@ -80,7 +84,16 @@ public class SAPComponent extends DefaultComponent {
     	return serverDataStore.getEntries().map();
     }
     
-    @Override
+    public Map<String, RepositoryData> getRepositoryDataStore() {
+		return repositoryDataStore.getEntries().map();
+	}
+
+	public void setRepositoryDataStore(Map<String, RepositoryData> repositoryDataEntries) {
+		this.repositoryDataStore.getEntries().clear();
+		this.repositoryDataStore.getEntries().putAll(repositoryDataEntries);
+	}
+
+	@Override
     protected void doStart() throws Exception {
     	super.doStart();
     	ComponentDestinationDataProvider.INSTANCE.addDestinationDataStore(destinationDataStore);

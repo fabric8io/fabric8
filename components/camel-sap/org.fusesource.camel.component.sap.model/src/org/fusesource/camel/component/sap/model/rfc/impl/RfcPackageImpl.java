@@ -16,19 +16,29 @@
  */
 package org.fusesource.camel.component.sap.model.rfc.impl;
 
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EDataType;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EGenericType;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.ETypeParameter;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
+import org.fusesource.camel.component.sap.model.rfc.AbapException;
+import org.fusesource.camel.component.sap.model.rfc.DataType;
 import org.fusesource.camel.component.sap.model.rfc.Destination;
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
 import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
+import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.FunctionTemplate;
+import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryData;
+import org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 import org.fusesource.camel.component.sap.model.rfc.Server;
@@ -134,6 +144,97 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * @generated
 	 */
 	private EClass serverDataStoreEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass functionTemplateEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass fieldMetaDataEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass listFieldMetaDataEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass abapExceptionEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass respositoryDataEntryEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass repositoryDataEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass repositoryDataStoreEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass respositoryDataStoreEntryEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EEnum dataTypeEEnum = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EDataType parameterListEDataType = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EDataType fieldListEDataType = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EDataType abapExceptionListEDataType = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EDataType functionTemplateMapEDataType = null;
 
 	/**
 	 * Creates an instance of the model <b>Package</b>, registered with
@@ -1074,6 +1175,501 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getFunctionTemplate() {
+		return functionTemplateEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getFunctionTemplate_Imports() {
+		return (EReference)functionTemplateEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getFunctionTemplate_Exports() {
+		return (EReference)functionTemplateEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getFunctionTemplate_Changing() {
+		return (EReference)functionTemplateEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getFunctionTemplate_Tables() {
+		return (EReference)functionTemplateEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getFunctionTemplate_Exceptions() {
+		return (EReference)functionTemplateEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFunctionTemplate_ImportParameterList() {
+		return (EAttribute)functionTemplateEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFunctionTemplate_ExportParameterList() {
+		return (EAttribute)functionTemplateEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFunctionTemplate_ChangingParameterList() {
+		return (EAttribute)functionTemplateEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFunctionTemplate_ExceptionList() {
+		return (EAttribute)functionTemplateEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getFieldMetaData() {
+		return fieldMetaDataEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getFieldMetaData_FieldMetaData() {
+		return (EReference)fieldMetaDataEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_Name() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_Type() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_ByteLength() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_ByteOffset() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_UnicodeByteLength() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_UnicodeByteOffset() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_Decimals() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_Description() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFieldMetaData_ComplexFieldMetaData() {
+		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getListFieldMetaData() {
+		return listFieldMetaDataEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getListFieldMetaData_FieldMetaData() {
+		return (EReference)listFieldMetaDataEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Name() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Type() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_ByteLength() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_UnicodeByteLength() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(4);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Decimals() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(5);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Defaults() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(6);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Description() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(7);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Import() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Changing() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(9);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Export() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(10);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Exception() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(11);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_Optional() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(12);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getListFieldMetaData_ComplexFieldMetaData() {
+		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(13);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getAbapException() {
+		return abapExceptionEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getAbapException_Key() {
+		return (EAttribute)abapExceptionEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getAbapException_Message() {
+		return (EAttribute)abapExceptionEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getRespositoryDataEntry() {
+		return respositoryDataEntryEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getRespositoryDataEntry_Key() {
+		return (EAttribute)respositoryDataEntryEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRespositoryDataEntry_Value() {
+		return (EReference)respositoryDataEntryEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getRepositoryData() {
+		return repositoryDataEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRepositoryData_Entries() {
+		return (EReference)repositoryDataEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getRepositoryData_FunctionTemplates() {
+		return (EAttribute)repositoryDataEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getRepositoryDataStore() {
+		return repositoryDataStoreEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRepositoryDataStore_Entries() {
+		return (EReference)repositoryDataStoreEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EClass getRespositoryDataStoreEntry() {
+		return respositoryDataStoreEntryEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getRespositoryDataStoreEntry_Key() {
+		return (EAttribute)respositoryDataStoreEntryEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRespositoryDataStoreEntry_Value() {
+		return (EReference)respositoryDataStoreEntryEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EEnum getDataType() {
+		return dataTypeEEnum;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EDataType getParameterList() {
+		return parameterListEDataType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EDataType getFieldList() {
+		return fieldListEDataType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EDataType getAbapExceptionList() {
+		return abapExceptionListEDataType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EDataType getFunctionTemplateMap() {
+		return functionTemplateMapEDataType;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public RfcFactory getRfcFactory() {
 		return (RfcFactory)getEFactoryInstance();
 	}
@@ -1206,6 +1802,73 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 
 		serverDataStoreEClass = createEClass(SERVER_DATA_STORE);
 		createEReference(serverDataStoreEClass, SERVER_DATA_STORE__ENTRIES);
+
+		functionTemplateEClass = createEClass(FUNCTION_TEMPLATE);
+		createEReference(functionTemplateEClass, FUNCTION_TEMPLATE__IMPORTS);
+		createEReference(functionTemplateEClass, FUNCTION_TEMPLATE__EXPORTS);
+		createEReference(functionTemplateEClass, FUNCTION_TEMPLATE__CHANGING);
+		createEReference(functionTemplateEClass, FUNCTION_TEMPLATE__TABLES);
+		createEReference(functionTemplateEClass, FUNCTION_TEMPLATE__EXCEPTIONS);
+		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__IMPORT_PARAMETER_LIST);
+		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__EXPORT_PARAMETER_LIST);
+		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST);
+		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__EXCEPTION_LIST);
+
+		fieldMetaDataEClass = createEClass(FIELD_META_DATA);
+		createEReference(fieldMetaDataEClass, FIELD_META_DATA__FIELD_META_DATA);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__NAME);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__TYPE);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__BYTE_LENGTH);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__BYTE_OFFSET);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__UNICODE_BYTE_LENGTH);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__UNICODE_BYTE_OFFSET);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__DECIMALS);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__DESCRIPTION);
+		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__COMPLEX_FIELD_META_DATA);
+
+		listFieldMetaDataEClass = createEClass(LIST_FIELD_META_DATA);
+		createEReference(listFieldMetaDataEClass, LIST_FIELD_META_DATA__FIELD_META_DATA);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__NAME);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__TYPE);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__BYTE_LENGTH);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__UNICODE_BYTE_LENGTH);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__DECIMALS);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__DEFAULTS);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__DESCRIPTION);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__IMPORT);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__CHANGING);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__EXPORT);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__EXCEPTION);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__OPTIONAL);
+		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA);
+
+		abapExceptionEClass = createEClass(ABAP_EXCEPTION);
+		createEAttribute(abapExceptionEClass, ABAP_EXCEPTION__KEY);
+		createEAttribute(abapExceptionEClass, ABAP_EXCEPTION__MESSAGE);
+
+		respositoryDataEntryEClass = createEClass(RESPOSITORY_DATA_ENTRY);
+		createEAttribute(respositoryDataEntryEClass, RESPOSITORY_DATA_ENTRY__KEY);
+		createEReference(respositoryDataEntryEClass, RESPOSITORY_DATA_ENTRY__VALUE);
+
+		repositoryDataEClass = createEClass(REPOSITORY_DATA);
+		createEReference(repositoryDataEClass, REPOSITORY_DATA__ENTRIES);
+		createEAttribute(repositoryDataEClass, REPOSITORY_DATA__FUNCTION_TEMPLATES);
+
+		repositoryDataStoreEClass = createEClass(REPOSITORY_DATA_STORE);
+		createEReference(repositoryDataStoreEClass, REPOSITORY_DATA_STORE__ENTRIES);
+
+		respositoryDataStoreEntryEClass = createEClass(RESPOSITORY_DATA_STORE_ENTRY);
+		createEAttribute(respositoryDataStoreEntryEClass, RESPOSITORY_DATA_STORE_ENTRY__KEY);
+		createEReference(respositoryDataStoreEntryEClass, RESPOSITORY_DATA_STORE_ENTRY__VALUE);
+
+		// Create enums
+		dataTypeEEnum = createEEnum(DATA_TYPE);
+
+		// Create data types
+		parameterListEDataType = createEDataType(PARAMETER_LIST);
+		fieldListEDataType = createEDataType(FIELD_LIST);
+		abapExceptionListEDataType = createEDataType(ABAP_EXCEPTION_LIST);
+		functionTemplateMapEDataType = createEDataType(FUNCTION_TEMPLATE_MAP);
 	}
 
 	/**
@@ -1363,6 +2026,89 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 
 		initEClass(serverDataStoreEClass, ServerDataStore.class, "ServerDataStore", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getServerDataStore_Entries(), this.getServerDataStoreEntry(), null, "entries", null, 0, -1, ServerDataStore.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(functionTemplateEClass, FunctionTemplate.class, "FunctionTemplate", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getFunctionTemplate_Imports(), this.getListFieldMetaData(), null, "imports", null, 0, -1, FunctionTemplate.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getFunctionTemplate_Exports(), this.getListFieldMetaData(), null, "exports", null, 0, -1, FunctionTemplate.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getFunctionTemplate_Changing(), this.getListFieldMetaData(), null, "changing", null, 0, -1, FunctionTemplate.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getFunctionTemplate_Tables(), this.getListFieldMetaData(), null, "tables", null, 0, -1, FunctionTemplate.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getFunctionTemplate_Exceptions(), this.getAbapException(), null, "exceptions", null, 0, -1, FunctionTemplate.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionTemplate_ImportParameterList(), this.getParameterList(), "importParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionTemplate_ExportParameterList(), this.getParameterList(), "exportParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionTemplate_ChangingParameterList(), this.getParameterList(), "changingParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionTemplate_ExceptionList(), this.getAbapExceptionList(), "exceptionList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+
+		initEClass(fieldMetaDataEClass, FieldMetaData.class, "FieldMetaData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getFieldMetaData_FieldMetaData(), this.getFieldMetaData(), null, "fieldMetaData", null, 0, -1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_Name(), ecorePackage.getEString(), "name", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_Type(), this.getDataType(), "type", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_ByteLength(), ecorePackage.getEInt(), "byteLength", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_ByteOffset(), ecorePackage.getEInt(), "byteOffset", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_UnicodeByteLength(), ecorePackage.getEInt(), "unicodeByteLength", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_UnicodeByteOffset(), ecorePackage.getEInt(), "unicodeByteOffset", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_Decimals(), ecorePackage.getEInt(), "decimals", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_Description(), ecorePackage.getEString(), "description", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_ComplexFieldMetaData(), this.getFieldList(), "complexFieldMetaData", null, 0, 1, FieldMetaData.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+
+		initEClass(listFieldMetaDataEClass, ListFieldMetaData.class, "ListFieldMetaData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getListFieldMetaData_FieldMetaData(), this.getFieldMetaData(), null, "fieldMetaData", null, 0, -1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Name(), ecorePackage.getEString(), "name", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Type(), this.getDataType(), "type", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_ByteLength(), ecorePackage.getEInt(), "byteLength", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_UnicodeByteLength(), ecorePackage.getEInt(), "unicodeByteLength", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Decimals(), ecorePackage.getEInt(), "decimals", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Defaults(), ecorePackage.getEString(), "defaults", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Description(), ecorePackage.getEString(), "description", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Import(), ecorePackage.getEBoolean(), "import", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Changing(), ecorePackage.getEBoolean(), "changing", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Export(), ecorePackage.getEBoolean(), "export", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Exception(), ecorePackage.getEBoolean(), "exception", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Optional(), ecorePackage.getEBoolean(), "optional", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_ComplexFieldMetaData(), this.getFieldList(), "complexFieldMetaData", null, 0, 1, ListFieldMetaData.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+
+		initEClass(abapExceptionEClass, AbapException.class, "AbapException", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getAbapException_Key(), ecorePackage.getEString(), "key", null, 0, 1, AbapException.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getAbapException_Message(), ecorePackage.getEString(), "message", null, 0, 1, AbapException.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(respositoryDataEntryEClass, Map.Entry.class, "RespositoryDataEntry", !IS_ABSTRACT, !IS_INTERFACE, !IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getRespositoryDataEntry_Key(), ecorePackage.getEString(), "key", null, 1, 1, Map.Entry.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRespositoryDataEntry_Value(), this.getFunctionTemplate(), null, "value", null, 1, 1, Map.Entry.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(repositoryDataEClass, RepositoryData.class, "RepositoryData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getRepositoryData_Entries(), this.getRespositoryDataEntry(), null, "entries", null, 0, -1, RepositoryData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRepositoryData_FunctionTemplates(), this.getFunctionTemplateMap(), "functionTemplates", null, 0, 1, RepositoryData.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+
+		initEClass(repositoryDataStoreEClass, RepositoryDataStore.class, "RepositoryDataStore", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getRepositoryDataStore_Entries(), this.getRespositoryDataStoreEntry(), null, "entries", null, 0, -1, RepositoryDataStore.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		initEClass(respositoryDataStoreEntryEClass, Map.Entry.class, "RespositoryDataStoreEntry", !IS_ABSTRACT, !IS_INTERFACE, !IS_GENERATED_INSTANCE_CLASS);
+		initEAttribute(getRespositoryDataStoreEntry_Key(), ecorePackage.getEString(), "key", null, 1, 1, Map.Entry.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getRespositoryDataStoreEntry_Value(), this.getRepositoryData(), null, "value", null, 1, 1, Map.Entry.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+
+		// Initialize enums and add enum literals
+		initEEnum(dataTypeEEnum, DataType.class, "DataType");
+		addEEnumLiteral(dataTypeEEnum, DataType.CHAR);
+		addEEnumLiteral(dataTypeEEnum, DataType.DATE);
+		addEEnumLiteral(dataTypeEEnum, DataType.BCD);
+		addEEnumLiteral(dataTypeEEnum, DataType.TIME);
+		addEEnumLiteral(dataTypeEEnum, DataType.BYTE);
+		addEEnumLiteral(dataTypeEEnum, DataType.NUM);
+		addEEnumLiteral(dataTypeEEnum, DataType.FLOAT);
+		addEEnumLiteral(dataTypeEEnum, DataType.INT);
+		addEEnumLiteral(dataTypeEEnum, DataType.INT2);
+		addEEnumLiteral(dataTypeEEnum, DataType.INT1);
+		addEEnumLiteral(dataTypeEEnum, DataType.STRUCTURE);
+		addEEnumLiteral(dataTypeEEnum, DataType.DECF16);
+		addEEnumLiteral(dataTypeEEnum, DataType.DECF34);
+		addEEnumLiteral(dataTypeEEnum, DataType.STRING);
+		addEEnumLiteral(dataTypeEEnum, DataType.XSTRING);
+		addEEnumLiteral(dataTypeEEnum, DataType.TABLE);
+
+		// Initialize data types
+		initEDataType(parameterListEDataType, List.class, "ParameterList", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS, "java.util.List<org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData>");
+		initEDataType(fieldListEDataType, List.class, "FieldList", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS, "java.util.List<org.fusesource.camel.component.sap.model.rfc.FieldMetaData>");
+		initEDataType(abapExceptionListEDataType, List.class, "AbapExceptionList", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS, "java.util.List<org.fusesource.camel.component.sap.model.rfc.AbapException>");
+		initEDataType(functionTemplateMapEDataType, Map.class, "FunctionTemplateMap", !IS_SERIALIZABLE, !IS_GENERATED_INSTANCE_CLASS, "java.util.Map<java.lang.String, org.fusesource.camel.component.sap.model.rfc.FunctionTemplate>");
 
 		// Create resource
 		createResource(eNS_URI);

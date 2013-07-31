@@ -56,7 +56,7 @@ public class RfcUtilTest {
 		//ComponentDestinationDataProvider.INSTANCE.removeDestinationDataStore(destinationDataStore);
 	}
 
-	@Test
+	//@Test
 	public void test() throws JCoException {
 		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination"); 
 		
@@ -279,7 +279,7 @@ public class RfcUtilTest {
 	@Test
 	public void testPackage() throws Exception {
 		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination");
-		EPackage ePackage = RfcUtil.getEPackage(jcoDestination.getRepository(), "http://sap.fusesource.org/rfc/NPL/BAPI_FLCUST_CREATEFROMDATA");
+		EPackage ePackage = RfcUtil.getEPackage(jcoDestination.getRepository(), "http://sap.fusesource.org/rfc/NPL/ZJBOSS_PARAM_TEST");
         Resource res = new XMLResourceImpl();
         res.getContents().add(ePackage);
         res.save(System.out, null);
