@@ -1545,7 +1545,7 @@
     </profile>
     <!--
         Do a license check by running       : mvn -P license license:check
-        UPdate the license check by running : mvn -P license license:format
+        Update the license check by running : mvn -P license license:format
       -->
     <profile>
       <id>license</id>
