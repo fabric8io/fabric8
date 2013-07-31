@@ -170,7 +170,9 @@ public class DynamicXJC {
                     + jbe.getMessage(), jbe);
         }
 
-        FileUtils.removeDir(classes);
+        // keep around for class loader discovery later
+        classes.deleteOnExit();
+        //FileUtils.removeDir(classes);
         return new CompileResults(cl, context);
     }
 
