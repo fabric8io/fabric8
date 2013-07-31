@@ -133,8 +133,15 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   @volatile
   var fabricService:FabricService = _
 
-  def bindFabricService(fabricService:FabricService) = {
-    this.fabricService = fabricService
+  def bindFabricService(fs:FabricService) = {
+    new Thread("fabric service check") {
+      override def run() {
+        // This method is seems to block until we get connected
+        // to an actual fabric..
+        fs.getCurrentContainer
+        fabricService = fs
+      }
+    }.start()
   }
 
   def unbindFabricService(fabricService:FabricService) = {
@@ -329,22 +336,18 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               // If we are in a fabric, let pass along the zk password in the props.
               val fs = fabricService
               if( fs != null ) {
-                try {
-                  val container = fs.getCurrentContainer
-                  if( !properties.containsKey("container.id") ) {
-                    properties.setProperty("container.id", container.getId)
-                  }
-                  if( !properties.containsKey("container.ip") ) {
-                    properties.setProperty("container.ip", container.getIp)
-                  }
-                  if( !properties.containsKey("zookeeper.url") ) {
-                    properties.setProperty("zookeeper.url", fs.getZookeeperUrl)
-                  }
-                  if( !properties.containsKey("zookeeper.password") ) {
-                    properties.setProperty("zookeeper.password", fs.getZookeeperPassword)
-                  }
-                } catch {
-                  case e:Exception => // We are probably not connected to Fabric yet.
+                val container = fs.getCurrentContainer
+                if( !properties.containsKey("container.id") ) {
+                  properties.setProperty("container.id", container.getId)
+                }
+                if( !properties.containsKey("container.ip") ) {
+                  properties.setProperty("container.ip", container.getIp)
+                }
+                if( !properties.containsKey("zookeeper.url") ) {
+                  properties.setProperty("zookeeper.url", fs.getZookeeperUrl)
+                }
+                if( !properties.containsKey("zookeeper.password") ) {
+                  properties.setProperty("zookeeper.password", fs.getZookeeperPassword)
                 }
               }
 
