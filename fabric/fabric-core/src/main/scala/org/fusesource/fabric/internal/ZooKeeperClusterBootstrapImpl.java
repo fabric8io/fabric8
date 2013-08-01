@@ -204,6 +204,14 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
             // Create the client configuration
             createZooKeeeperConfig(connectionUrl, options);
+            // Reset the autostart flag
+            if (ensembleAutoStart) {
+                System.setProperty(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
+                org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
+                props.put(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                props.save();
+            }
             startBundles(options);
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
