@@ -82,7 +82,7 @@ public class WatcherBlueprintContainer extends FileWatcher {
             for (Map.Entry<URL, BlueprintContainer> entry : entries) {
                 URL url = entry.getKey();
                 BlueprintContainer container = entry.getValue();
-                closeContext(url, container);
+                closeContainer(url, container);
             }
         }
         super.destroy();
@@ -142,11 +142,11 @@ public class WatcherBlueprintContainer extends FileWatcher {
             BlueprintContainer container = containerMap.get(url);
             if (container != null) {
                 // There is no refresh API so lets close and restart
-                closeContext(url, container);
+                closeContainer(url, container);
             }
 
             try {
-                container = createContext(path, url);
+                container = createContainer(path, url);
                 if (container != null) {
                     containerMap.put(url, container);
                 }
@@ -160,30 +160,31 @@ public class WatcherBlueprintContainer extends FileWatcher {
     protected void removePath(Path path) {
         URL url = toUrl(path);
         if (url != null) {
-            BlueprintContainer context = containerMap.remove(url);
-            closeContext(url, context);
+            BlueprintContainer container = containerMap.remove(url);
+            closeContainer(url, container);
         }
     }
 
-    protected void closeContext(URL url, BlueprintContainer context) {
-        if (context instanceof BlueprintContainerImpl) {
-            BlueprintContainerImpl impl = (BlueprintContainerImpl)context;
-            try {
-                LOG.info("Closing context at path " + url + " context " + context);
-                impl.destroy();
-            } catch (Exception e) {
-                LOG.info("Failed to close at " + url + " context " + context + ". " + e, e);
-            }
-        }
-    }
-
-    protected BlueprintContainer createContext(Path path, URL url) throws Exception {
+    protected BlueprintContainer createContainer(Path path, URL url) throws Exception {
         if (!XmlHelper.hasNamespace(path, BLUEPRINT_NAMESPACE_URI)) {
             LOG.info("Ignoring XML file " + path + " which is not a blueprint XML");
             return null;
         }
+        LOG.info("Creating container at " + url);
         List<URL> locations = Arrays.asList(url);
         return new BlueprintContainerImpl(classLoader, locations, properties, true);
+    }
+
+    protected void closeContainer(URL url, BlueprintContainer container) {
+        if (container instanceof BlueprintContainerImpl) {
+            BlueprintContainerImpl impl = (BlueprintContainerImpl)container;
+            try {
+                LOG.info("Closing container at path " + url + " container " + container);
+                impl.destroy();
+            } catch (Exception e) {
+                LOG.info("Failed to close at " + url + " container " + container + ". " + e, e);
+            }
+        }
     }
 
     protected URL toUrl(Path path) {
