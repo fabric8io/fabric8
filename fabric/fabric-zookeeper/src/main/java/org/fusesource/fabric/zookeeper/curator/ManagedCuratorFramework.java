@@ -348,7 +348,13 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
 
     @Override
     public void close() throws IOException {
-        registration.unregister();
+        if (registration != null) {
+            try {
+                registration.unregister();
+            } catch (IllegalStateException e) {
+                // Ignore
+            }
+        }
         closeQuietly(connectionStateListenerTracker);
         closeQuietly(aclProviderTracker);
         Closeables.close(curatorFramework, true);
