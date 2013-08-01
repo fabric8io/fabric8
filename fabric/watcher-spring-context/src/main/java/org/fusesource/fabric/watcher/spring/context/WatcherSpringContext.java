@@ -26,6 +26,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.fusesource.common.util.XmlHelper;
 import org.fusesource.fabric.watcher.Processor;
 import org.fusesource.fabric.watcher.file.FileWatcher;
 import org.slf4j.Logger;
@@ -41,6 +42,8 @@ import static org.fusesource.fabric.watcher.PathHelper.toUrlString;
  */
 public class WatcherSpringContext extends FileWatcher {
     private static final transient Logger LOG = LoggerFactory.getLogger(WatcherSpringContext.class);
+
+    public static final String SPRING_BEANS_NAMESPACE_URI = "http://www.springframework.org/schema/beans";
 
     private ConcurrentHashMap<String, FileSystemXmlApplicationContext> contextMap = new ConcurrentHashMap<String, FileSystemXmlApplicationContext>();
     private ApplicationContext parentApplicationContext;
@@ -154,7 +157,10 @@ public class WatcherSpringContext extends FileWatcher {
     }
 
     protected FileSystemXmlApplicationContext createContext(Path path, String url) {
-        // TODO lets only create an application context if the XML file contains the spring namespace?
+        if (!XmlHelper.hasNamespace(path, SPRING_BEANS_NAMESPACE_URI)) {
+            LOG.info("Ignoring XML file " + path + " which is not a spring XML");
+            return null;
+        }
         String[] locations = {url};
         if (parentApplicationContext != null) {
             return new FileSystemXmlApplicationContext(locations, true, parentApplicationContext);

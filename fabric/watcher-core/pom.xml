@@ -52,7 +52,6 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>common-util</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- testing -->
