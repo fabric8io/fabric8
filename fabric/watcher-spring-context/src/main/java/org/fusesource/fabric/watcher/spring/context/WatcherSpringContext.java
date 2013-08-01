@@ -45,7 +45,8 @@ public class WatcherSpringContext extends FileWatcher {
 
     public static final String SPRING_BEANS_NAMESPACE_URI = "http://www.springframework.org/schema/beans";
 
-    private ConcurrentHashMap<String, FileSystemXmlApplicationContext> contextMap = new ConcurrentHashMap<String, FileSystemXmlApplicationContext>();
+    private ConcurrentHashMap<String, FileSystemXmlApplicationContext> contextMap
+            = new ConcurrentHashMap<String, FileSystemXmlApplicationContext>();
     private ApplicationContext parentApplicationContext;
     private AtomicBoolean closing = new AtomicBoolean(false);
 
