@@ -53,6 +53,7 @@ public class WatcherBlueprintContainer extends FileWatcher {
     private ClassLoader classLoader;
     private Map<String, String> properties = new HashMap<String, String>();
     private AtomicBoolean closing = new AtomicBoolean(false);
+    private BlueprintContainer parentContainer;
 
     public WatcherBlueprintContainer() {
         this.classLoader = getClass().getClassLoader();
@@ -114,6 +115,25 @@ public class WatcherBlueprintContainer extends FileWatcher {
 
     public void setProperties(Map<String, String> properties) {
         this.properties = properties;
+    }
+
+    public BlueprintContainer getParentContainer() {
+        return parentContainer;
+    }
+
+    public void setParentContainer(BlueprintContainer parentContainer) {
+        this.parentContainer = parentContainer;
+        if (parentContainer instanceof BlueprintContainerImpl) {
+            BlueprintContainerImpl impl = (BlueprintContainerImpl)parentContainer;
+
+            // TODO we could auto-default the ClassLoader and Properties here if
+            // https://issues.apache.org/jira/browse/ARIES-1092 were fixed
+/*
+            TODO
+            setProperties(impl.getProperties());
+            setClassLoader(impl.getClassLoader());
+*/
+        }
     }
 
     // Implementation
