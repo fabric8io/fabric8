@@ -134,14 +134,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   var fabricService:FabricService = _
 
   def bindFabricService(fs:FabricService) = {
-    new Thread("fabric service check") {
-      override def run() {
-        // This method is seems to block until we get connected
-        // to an actual fabric..
-        fs.getCurrentContainer
-        fabricService = fs
-      }
-    }.start()
+    fabricService = fs
   }
 
   def unbindFabricService(fabricService:FabricService) = {

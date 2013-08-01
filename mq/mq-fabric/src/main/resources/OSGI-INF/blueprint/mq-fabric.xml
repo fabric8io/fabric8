@@ -20,7 +20,7 @@
 
   <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
 
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService">
+  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService" availability="optional">
       <reference-listener ref="activeMQServiceFactory" bind-method="bindFabricService" unbind-method="unbindFabricService" />
   </reference>
 
