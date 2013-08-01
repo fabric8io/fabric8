@@ -95,7 +95,7 @@ public class WatcherBlueprintContainer extends FileWatcher {
         return new HashSet<URL>(containerMap.keySet());
     }
 
-    public BlueprintContainer getApplicationContext(URL url) {
+    public BlueprintContainer getContainer(URL url) {
         return containerMap.get(url);
     }
 
