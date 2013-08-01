@@ -88,8 +88,8 @@
         <module>watcher-core</module>
         <module>dynamic-jaxb</module>
         <module>fabric-dynamic-jaxb</module>
-        <module>file-dynamic-jaxb</module>
-        <module>file-watcher-dozer</module>
+        <module>watcher-dynamic-jaxb</module>
+        <module>watcher-dozer</module>
         <module>watcher-spring-context</module>
         <module>watcher-blueprint-web</module>
 
