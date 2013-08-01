@@ -17,17 +17,29 @@
 package org.fusesource.fabric.watcher;
 
 import java.io.File;
+import java.net.MalformedURLException;
 import java.nio.file.Path;
 
 /**
+ * A set of helper methods for working with {@link Path) instances
  */
-public class Paths {
-    public static Path[] toPathArray(File[] files) {
+public class PathHelper {
+    /**
+     * Converts the given array of files into an array of paths
+     */
+    public static Path[] toPathArray(File... files) {
         Path[] paths = new Path[files.length];
         int idx = 0;
         for (File file : files) {
             paths[idx++] = file.toPath();
         }
         return paths;
+    }
+
+    /**
+     * Converts the given Path to a URL string
+     */
+    public static String toUrlString(Path path) throws MalformedURLException {
+        return path.toUri().toURL().toString();
     }
 }

@@ -46,7 +46,7 @@ public class MockProcessor implements Processor {
 
 
     public void expectProcessed(List<Expectation> expectations, File... files) throws Exception {
-        expectProcessed(expectations, Paths.toPathArray(files));
+        expectProcessed(expectations, PathHelper.toPathArray(files));
     }
 
     public void expectProcessed(List<Expectation> expectations, Path... paths) throws Exception {
@@ -64,7 +64,7 @@ public class MockProcessor implements Processor {
     }
 
     public void expectRemoved(List<Expectation> expectations, File... files) throws Exception {
-        expectRemoved(expectations, Paths.toPathArray(files));
+        expectRemoved(expectations, PathHelper.toPathArray(files));
     }
 
     public void expectRemoved(List<Expectation> expectations, Path... paths) throws Exception {

@@ -52,7 +52,7 @@ public class MockWatchListener implements WatcherListener {
     }
 
     public void expectCalledWith(List<Expectation> expectations, File... files) {
-        expectCalledWith(expectations, Paths.toPathArray(files));
+        expectCalledWith(expectations, PathHelper.toPathArray(files));
     }
 
     public void expectCalledWith(List<Expectation> expectations, Path... paths) {

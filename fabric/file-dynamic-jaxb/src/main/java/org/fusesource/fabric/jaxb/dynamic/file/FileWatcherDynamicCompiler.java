@@ -19,6 +19,7 @@ package org.fusesource.fabric.jaxb.dynamic.file;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -30,10 +31,13 @@ import org.fusesource.fabric.jaxb.dynamic.CompileResults;
 import org.fusesource.fabric.jaxb.dynamic.CompileResultsHandler;
 import org.fusesource.fabric.jaxb.dynamic.DefaultDynamicCompiler;
 import org.fusesource.fabric.jaxb.dynamic.DynamicCompiler;
+import org.fusesource.fabric.watcher.PathHelper;
 import org.fusesource.fabric.watcher.Processor;
 import org.fusesource.fabric.watcher.file.FileWatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.fusesource.fabric.watcher.PathHelper.toUrlString;
 
 /**
  * A {@link FileWatcher} which implements the {@link DynamicCompiler} API by
@@ -158,9 +162,4 @@ public class FileWatcherDynamicCompiler extends FileWatcher implements DynamicCo
             handler.onCompileResults(compileResults);
         }
     }
-
-    protected String toUrlString(Path path) throws MalformedURLException {
-        return path.toUri().toURL().toString();
-    }
-
 }

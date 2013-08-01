@@ -90,6 +90,7 @@
         <module>fabric-dynamic-jaxb</module>
         <module>file-dynamic-jaxb</module>
         <module>file-watcher-dozer</module>
+        <module>watcher-spring-context</module>
 
         <module>fmc-branding</module>
         <module>fmc-webui</module>
