@@ -24,11 +24,13 @@ import java.util.Set;
 public class CreateEnsembleOptions extends ContainerOptions {
 
     public static String ZOOKEEPER_SERVER_PORT = "zookeeper.server.port";
+    public static String ZOOKEEPER_SERVER_CONNECTION_PORT = "zookeeper.server.connection.port";
     public static final String ROLE_DELIMITER = ",";
 
     public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
 
         int zooKeeperServerPort = 2181;
+        int zooKeeperServerConnectionPort = 2181;
         String zookeeperPassword = generatePassword();
         boolean agentEnabled = true;
         boolean autoImportEnabled = true;
@@ -39,6 +41,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         public B fromSystemProperties() {
             super.fromSystemProperties();
             this.zooKeeperServerPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_PORT, "2181"));
+            this.zooKeeperServerConnectionPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_CONNECTION_PORT, "2181"));
             return (B) this;
         }
 
@@ -53,7 +56,22 @@ public class CreateEnsembleOptions extends ContainerOptions {
         }
 
         public B zooKeeperServerPort(Long zooKeeperServerPort) {
-            this.zooKeeperServerPort = zooKeeperServerPort.intValue();
+            this.zooKeeperServerConnectionPort = zooKeeperServerPort.intValue();
+            return (B) this;
+        }
+
+        public B zooKeeperServerConnectionPort(int zooKeeperServerConnectionPort) {
+            this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
+            return (B) this;
+        }
+
+        public B zooKeeperServerConnectionPort(Integer zooKeeperServerConnectionPort) {
+            this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
+            return (B) this;
+        }
+
+        public B zooKeeperServerConnectionPort(Long zooKeeperServerConnectionPort) {
+            this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort.intValue();
             return (B) this;
         }
 
@@ -146,11 +164,12 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
 
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, zooKeeperServerPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users);
         }
     }
 
     final int zooKeeperServerPort;
+    final int zooKeeperServerConnectionPort;
     final String zookeeperPassword;
     final boolean agentEnabled;
     final boolean autoImportEnabled;
@@ -161,9 +180,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder<Builder>();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int zooKeeperServerPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles);
         this.zooKeeperServerPort = zooKeeperServerPort;
+        this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
         this.zookeeperPassword = zookeeperPassword;
         this.agentEnabled = agentEnabled;
         this.autoImportEnabled = autoImportEnabled;
@@ -173,6 +193,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public int getZooKeeperServerPort() {
         return zooKeeperServerPort;
+    }
+
+    public int getZooKeeperServerConnectionPort() {
+        return zooKeeperServerConnectionPort;
     }
 
     public String getZookeeperPassword() {

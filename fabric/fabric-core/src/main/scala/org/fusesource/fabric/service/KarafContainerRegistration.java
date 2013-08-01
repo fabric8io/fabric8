@@ -99,10 +99,15 @@ public class
     private static final String SSH_PID = "org.apache.karaf.shell";
     private static final String HTTP_PID = "org.ops4j.pax.web";
 
-    private static final String RMI_REGISTRY_KEY = "rmiRegistryPort";
-    private static final String RMI_SERVER_KEY = "rmiServerPort";
-    private static final String SSH_KEY = "sshPort";
-    private static final String HTTP_KEY = "org.osgi.service.http.port";
+    private static final String RMI_REGISTRY_BINDING_PORT_KEY = "rmiRegistryPort";
+    private static final String RMI_SERVER_BINDING_PORT_KEY = "rmiServerPort";
+    private static final String SSH_BINDING_PORT_KEY = "sshPort";
+    private static final String HTTP_BINDING_PORT_KEY = "org.osgi.service.http.port";
+
+    private static final String RMI_REGISTRY_CONNECTION_PORT_KEY = "rmiRegistryConnectionPort";
+    private static final String RMI_SERVER_CONNECTION_PORT_KEY = "rmiServerConnectionPort";
+    private static final String SSH_CONNECTION_PORT_KEY = "sshConnectionPort";
+    private static final String HTTP_CONNECTION_PORT_KEY = "org.osgi.service.http.connection.port";
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
@@ -245,39 +250,54 @@ public class
 
     private void registerJmx(Container container) throws Exception {
         int rmiRegistryPort = getRmiRegistryPort(container);
+        int rmiRegistryConnectionPort = getRmiRegistryConnectionPort(container);
         int rmiServerPort = getRmiServerPort(container);
-        String jmxUrl = getJmxUrl(container.getId(), rmiServerPort, rmiRegistryPort);
+        int rmiServerConenctionPort = getRmiServerConnectionPort(container);
+        String jmxUrl = getJmxUrl(container.getId(), rmiServerConenctionPort, rmiRegistryConnectionPort);
         setData(curator, CONTAINER_JMX.getPath(container.getId()), jmxUrl);
-        fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
-        fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
+        fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
+        fabricService.getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
         Configuration configuration = configurationAdmin.getConfiguration(MANAGEMENT_PID);
-        updateIfNeeded(configuration, RMI_REGISTRY_KEY, rmiRegistryPort);
-        updateIfNeeded(configuration, RMI_SERVER_KEY, rmiServerPort);
+        updateIfNeeded(configuration, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
+        updateIfNeeded(configuration, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
     }
 
     private int getRmiRegistryPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_KEY, Ports.DEFAULT_RMI_REGISTRY_PORT);
+        return getPortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, Ports.DEFAULT_RMI_REGISTRY_PORT);
+    }
+
+    private int getRmiRegistryConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
+        return getPortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_CONNECTION_PORT_KEY, getRmiRegistryPort(container));
     }
 
     private int getRmiServerPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, MANAGEMENT_PID, RMI_SERVER_KEY, Ports.DEFAULT_RMI_SERVER_PORT);
+        return getPortForKey(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, Ports.DEFAULT_RMI_SERVER_PORT);
     }
 
-    private String getJmxUrl(String name, int serverPort, int registryPort) throws IOException, KeeperException, InterruptedException {
-        return "service:jmx:rmi://${zk:" + name + "/ip}:" + serverPort + "/jndi/rmi://${zk:" + name + "/ip}:" + registryPort + "/karaf-" + name;
+    private int getRmiServerConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
+        return getPortForKey(container, MANAGEMENT_PID, RMI_SERVER_CONNECTION_PORT_KEY, getRmiServerPort(container));
+    }
+
+    private String getJmxUrl(String name, int serverConnectionPort, int registryConnectionPort) throws IOException, KeeperException, InterruptedException {
+        return "service:jmx:rmi://${zk:" + name + "/ip}:" + serverConnectionPort + "/jndi/rmi://${zk:" + name + "/ip}:" + registryConnectionPort + "/karaf-" + name;
     }
 
     private void registerSsh(Container container) throws Exception {
         int sshPort = getSshPort(container);
-        String sshUrl = getSshUrl(container.getId(), sshPort);
+        int sshConnectionPort = getSshConnectionPort(container);
+        String sshUrl = getSshUrl(container.getId(), sshConnectionPort);
         setData(curator, CONTAINER_SSH.getPath(container.getId()), sshUrl);
-        fabricService.getPortService().registerPort(container, SSH_PID, SSH_KEY, sshPort);
+        fabricService.getPortService().registerPort(container, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
         Configuration configuration = configurationAdmin.getConfiguration(SSH_PID);
-        updateIfNeeded(configuration, SSH_KEY, sshPort);
+        updateIfNeeded(configuration, SSH_BINDING_PORT_KEY, sshPort);
     }
 
     private int getSshPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, SSH_PID, SSH_KEY, Ports.DEFAULT_KARAF_SSH_PORT);
+        return getPortForKey(container, SSH_PID, SSH_BINDING_PORT_KEY, Ports.DEFAULT_KARAF_SSH_PORT);
+    }
+
+    private int getSshConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
+        return getPortForKey(container, SSH_PID, SSH_CONNECTION_PORT_KEY, getSshPort(container));
     }
 
     private String getSshUrl(String name, int sshPort) throws IOException, KeeperException, InterruptedException {
@@ -287,19 +307,24 @@ public class
 
     private void registerHttp(Container container) throws Exception {
         int httpPort = getHttpPort(container);
-        String httpUrl = getHttpUrl(container.getId(), httpPort);
+        int httpConnectionPort = getHttpConnectionPort(container);
+        String httpUrl = getHttpUrl(container.getId(), httpConnectionPort);
         setData(curator, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
-        fabricService.getPortService().registerPort(container, HTTP_PID, HTTP_KEY, httpPort);
+        fabricService.getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
         Configuration configuration = configurationAdmin.getConfiguration(HTTP_PID);
-        updateIfNeeded(configuration, HTTP_KEY, httpPort);
+        updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
     }
 
     private int getHttpPort(Container container) throws KeeperException, InterruptedException, IOException {
-        return getPortForKey(container, HTTP_PID, HTTP_KEY, Ports.DEFAULT_HTTP_PORT);
+        return getPortForKey(container, HTTP_PID, HTTP_BINDING_PORT_KEY, Ports.DEFAULT_HTTP_PORT);
     }
 
-    private String getHttpUrl(String name, int httpPort) throws IOException, KeeperException, InterruptedException {
-        return "http://${zk:" + name + "/ip}:" + httpPort;
+    private int getHttpConnectionPort(Container container) throws KeeperException, InterruptedException, IOException {
+        return getPortForKey(container, HTTP_PID, HTTP_CONNECTION_PORT_KEY, getHttpPort(container));
+    }
+
+    private String getHttpUrl(String name, int httpConnectionPort) throws IOException, KeeperException, InterruptedException {
+        return "http://${zk:" + name + "/ip}:" + httpConnectionPort;
     }
 
 
@@ -499,35 +524,39 @@ public class
             String name = System.getProperty(SystemProperties.KARAF_NAME);
             if (event.getPid().equals(SSH_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                 Configuration config = configurationAdmin.getConfiguration(SSH_PID);
-                int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_KEY));
-                String sshUrl = getSshUrl(name, sshPort);
+                int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_BINDING_PORT_KEY));
+                int sshConnectionPort = getSshConnectionPort(current);
+                String sshUrl = getSshUrl(name, sshConnectionPort);
                 setData(curator, CONTAINER_SSH.getPath(name), sshUrl);
-                if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_KEY) != sshPort) {
+                if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_BINDING_PORT_KEY) != sshPort) {
                     fabricService.getPortService().unRegisterPort(current, SSH_PID);
-                    fabricService.getPortService().registerPort(current, SSH_PID, SSH_KEY, sshPort);
+                    fabricService.getPortService().registerPort(current, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
                 }
             }
             if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                 Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
-                int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_KEY));
-                String httpUrl = getHttpUrl(name, httpPort);
+                int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
+                int httpConnectionPort = getHttpConnectionPort(current);
+                String httpUrl = getHttpUrl(name, httpConnectionPort);
                 setData(curator, CONTAINER_HTTP.getPath(name), httpUrl);
-                if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_KEY) != httpPort) {
+                if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
                     fabricService.getPortService().unRegisterPort(current, HTTP_PID);
-                    fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_KEY, httpPort);
+                    fabricService.getPortService().registerPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
                 }
             }
             if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                 Configuration config = configurationAdmin.getConfiguration(MANAGEMENT_PID);
-                int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_KEY));
-                int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_KEY));
-                String jmxUrl = getJmxUrl(name, rmiServerPort, rmiRegistryPort);
+                int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_BINDING_PORT_KEY));
+                int rmiServerConnectionPort = getRmiServerConnectionPort(current);
+                int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_BINDING_PORT_KEY));
+                int rmiRegistryConnectionPort = getRmiRegistryPort(current);
+                String jmxUrl = getJmxUrl(name, rmiServerConnectionPort, rmiRegistryConnectionPort);
                 setData(curator, CONTAINER_JMX.getPath(name), jmxUrl);
-                if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY) != rmiRegistryPort
-                        || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_KEY) != rmiServerPort) {
+                if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY) != rmiRegistryPort
+                        || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY) != rmiServerPort) {
                     fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
-                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_KEY, rmiServerPort);
-                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_KEY, rmiRegistryPort);
+                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
+                    fabricService.getPortService().registerPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
                 }
 
             }
