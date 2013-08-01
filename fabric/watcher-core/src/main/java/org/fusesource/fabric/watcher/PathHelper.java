@@ -18,6 +18,7 @@ package org.fusesource.fabric.watcher;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Path;
 
 /**
@@ -40,6 +41,13 @@ public class PathHelper {
      * Converts the given Path to a URL string
      */
     public static String toUrlString(Path path) throws MalformedURLException {
-        return path.toUri().toURL().toString();
+        return toURL(path).toString();
+    }
+
+    /**
+     * Converts the given Path to a URL
+     */
+    public static URL toURL(Path path) throws MalformedURLException {
+        return path.toUri().toURL();
     }
 }

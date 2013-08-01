@@ -43,7 +43,6 @@ public class WatcherSpringContext extends FileWatcher {
     private static final transient Logger LOG = LoggerFactory.getLogger(WatcherSpringContext.class);
 
     private ConcurrentHashMap<String, FileSystemXmlApplicationContext> contextMap = new ConcurrentHashMap<String, FileSystemXmlApplicationContext>();
-    private ClassLoader classLoader;
     private ApplicationContext parentApplicationContext;
     private AtomicBoolean closing = new AtomicBoolean(false);
 

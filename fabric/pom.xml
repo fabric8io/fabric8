@@ -91,6 +91,7 @@
         <module>file-dynamic-jaxb</module>
         <module>file-watcher-dozer</module>
         <module>watcher-spring-context</module>
+        <module>watcher-blueprint-web</module>
 
         <module>fmc-branding</module>
         <module>fmc-webui</module>
