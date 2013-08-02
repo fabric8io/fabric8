@@ -32,11 +32,11 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/win/apache-camel-${camel.version}.zip</source>
+            <source>${basedir}/target/dependencies/win/apache-camel-${camel-version}.zip</source>
             <outputDirectory>extras</outputDirectory>
         </file>
         <file>
-            <source>${basedir}/target/dependencies/win/apache-cxf-${cxf.version}.zip</source>
+            <source>${basedir}/target/dependencies/win/apache-cxf-${cxf-version}.zip</source>
             <outputDirectory>extras</outputDirectory>
         </file>
     </files>

@@ -264,27 +264,8 @@
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.5</zookeeper-version>
 
-        <activemq.version>${activemq-version}</activemq.version>
         <activemqcpp.version>3.7.1</activemqcpp.version>
-        <activemqnms.version>1.6.0</activemqnms.version>
-        <aries.blueprint.version>${aries-blueprint-version}</aries.blueprint.version>
-        <aries.jmx.version>${aries-jmx-version}</aries.jmx.version>
-        <aries.transaction.version>${aries-transaction-version}</aries.transaction.version>
-        <camel.version>${camel-version}</camel.version>
-        <cxf.version>${cxf-version}</cxf.version>
-        <felix.framework.version>${felix-framework-version}</felix.framework.version>
-        <felix.framework.security.version>${felix-framework-security-version}</felix.framework.security.version>
-        <felix.configadmin.version>${felix-configadmin-version}</felix.configadmin.version>
-        <felix.eventadmin.version>${felix-eventadmin-version}</felix.eventadmin.version>
-        <felix.fileinstall.version>${felix-fileinstall-version}</felix.fileinstall.version>
-        <felix.utils.version>${felix-utils-version}</felix.utils.version>
-        <felix.resolver.version>${felix-resolver-version}</felix.resolver.version>
-        <karaf.version>${karaf-version}</karaf.version>
-        <servicemix.components.version>${servicemix-components-version}</servicemix.components.version>
-        <servicemix.features.version>${servicemix-features-version}</servicemix.features.version>
-        <servicemix.nmr.version>${servicemix-nmr-version}</servicemix.nmr.version>
-        <servicemix.specs.version>${servicemix-specs-version}</servicemix.specs.version>
-        <servicemix.utils.version>${servicemix-utils-version}</servicemix.utils.version>
+        <activemqnms.version>1.6.0</activemqnms.version>        
         
         <felix.obr.version>1.6.6</felix.obr.version>
 
