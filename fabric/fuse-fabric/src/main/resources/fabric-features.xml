@@ -26,7 +26,7 @@
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
-        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix.configadmin.version}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
 
         <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
@@ -43,18 +43,18 @@
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.config/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.packages/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.shell/org.apache.karaf.shell.ssh/${karaf-version}</bundle>
-        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries.blueprint.version}</bundle>
-        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries.blueprint.version}</bundle>
-        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/${aries.blueprint.version}</bundle>
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.api/${aries-blueprint-version}</bundle>
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.core/${aries-blueprint-version}</bundle>
+        <bundle>mvn:org.apache.aries.blueprint/org.apache.aries.blueprint.cm/${aries-blueprint-version}</bundle>
 
-        <bundle>mvn:org.apache.aries/org.apache.aries.util/${aries.util.version}</bundle>
-        <bundle>mvn:org.apache.aries.proxy/org.apache.aries.proxy.api/${aries.proxy.version}</bundle>
-        <bundle>mvn:org.apache.aries.proxy/org.apache.aries.proxy.impl/${aries.proxy.version}</bundle>
+        <bundle>mvn:org.apache.aries/org.apache.aries.util/${aries-util-version}</bundle>
+        <bundle>mvn:org.apache.aries.proxy/org.apache.aries.proxy.api/${aries-proxy-version}</bundle>
+        <bundle>mvn:org.apache.aries.proxy/org.apache.aries.proxy.impl/${aries-proxy-version}</bundle>
         <bundle>mvn:org.ow2.asm/asm-all/${asm.version}</bundle>
-        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.api/${aries.jmx.version}</bundle>
-        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/${aries.jmx.version}</bundle>
-        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.api/${aries.jmx.version}</bundle>
-        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.core/${aries.jmx.version}</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.api/${aries-jmx-version}</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.core/${aries-jmx-version}</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.api/${aries-jmx-version}</bundle>
+        <bundle>mvn:org.apache.aries.jmx/org.apache.aries.jmx.blueprint.core/${aries-jmx-version}</bundle>
         <bundle dependency="true">mvn:org.apache.karaf.management/org.apache.karaf.management.server/${karaf-version}</bundle>
 
 
@@ -79,7 +79,7 @@
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.command/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.diagnostic/org.apache.karaf.diagnostic.common/${karaf-version}</bundle-->
 
-        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/${felix.fileinstall.version}</bundle>
+        <bundle>mvn:org.apache.felix/org.apache.felix.fileinstall/${felix-fileinstall-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.blueprint/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.spring/${karaf-version}</bundle>
         <bundle>mvn:org.apache.karaf.deployer/org.apache.karaf.deployer.wrap/${karaf-version}</bundle>

@@ -239,7 +239,7 @@
                                 <artifactItem>
                                     <groupId>org.apache.activemq</groupId>
                                     <artifactId>apache-activemq</artifactId>
-                                    <version>${activemq.version}</version>
+                                    <version>${activemq-version}</version>
                                     <classifier>bin</classifier>
                                     <type>zip</type>
                                     <outputDirectory>target/dependencies/unix</outputDirectory>

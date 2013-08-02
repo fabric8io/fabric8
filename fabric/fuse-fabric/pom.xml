@@ -198,17 +198,17 @@
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy</artifactId>
-               <version>${aries.proxy.version}</version>
+               <version>${aries-proxy-version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy.impl</artifactId>
-               <version>${aries.proxy.version}</version>
+               <version>${aries-proxy-version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy.api</artifactId>
-               <version>${aries.proxy.version}</version>
+               <version>${aries-proxy-version}</version>
            </dependency>
        </dependencies>
 

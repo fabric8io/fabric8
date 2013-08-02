@@ -119,11 +119,9 @@
         TODO is this correct?
         <aries-util-version>1.0.0</aries-util-version>
 -->
-        <aries.util.version>1.0.1.redhat-${full-perfectus-build}</aries.util.version>
-        <aries-util-version>${aries.util.version}</aries-util-version>
+        <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
         <aries.version>1.0.0</aries.version>
-        <aries.proxy.version>1.0.1.redhat-${full-perfectus-build}</aries.proxy.version>
-        <aries-proxy-version>${aries.proxy.version}</aries-proxy-version>
+        <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
         <asm.version>4.1</asm.version>
         <asm.bundle.version>3.3.1_1</asm.bundle.version>
         <bndlib-version>1.43.0</bndlib-version>
@@ -1030,37 +1028,37 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.utils</artifactId>
-                <version>${felix.utils.version}</version>
+                <version>${felix-utils-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.resolver</artifactId>
-                <version>${felix.resolver.version}</version>
+                <version>${felix-resolver-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework</artifactId>
-                <version>${felix.framework.version}</version>
+                <version>${felix-framework-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.framework.security</artifactId>
-                <version>${felix.framework.security.version}</version>
+                <version>${felix-framework-security-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.fileinstall</artifactId>
-                <version>${felix.fileinstall.version}</version>
+                <version>${felix-fileinstall-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>${felix.configadmin.version}</version>
+                <version>${felix-configadmin-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.eventadmin</artifactId>
-                <version>${felix.eventadmin.version}</version>
+                <version>${felix-eventadmin-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
@@ -1219,27 +1217,27 @@
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint</artifactId>
-                <version>${aries.blueprint.version}</version>
+                <version>${aries-blueprint-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.api</artifactId>
-                <version>${aries.blueprint.version}</version>
+                <version>${aries-blueprint-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries.blueprint</groupId>
                 <artifactId>org.apache.aries.blueprint.core</artifactId>
-                <version>${aries.blueprint.version}</version>
+                <version>${aries-blueprint-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries</groupId>
                 <artifactId>org.apache.aries.util</artifactId>
-                <version>${aries.util.version}</version>
+                <version>${aries-util-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.aries.proxy</groupId>
                 <artifactId>org.apache.aries.proxy</artifactId>
-                <version>${aries.proxy.version}</version>
+                <version>${aries-proxy-version}</version>
             </dependency>
 
             <!-- ServiceMix bundles -->
