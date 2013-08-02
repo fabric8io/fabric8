@@ -87,6 +87,13 @@ public final class ContainerProviderUtils {
     public static String buildInstallAndStartScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException, URISyntaxException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
+        //Export environmental variables
+        if (options.getEnvironmentalVariables() != null && !options.getEnvironmentalVariables().isEmpty()) {
+            for (Map.Entry<String, String> entry : options.getEnvironmentalVariables().entrySet()) {
+                sb.append("export ").append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"").append("\n");
+            }
+        }
+
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(DOWNLOAD_FUNCTION).append("\n");
         sb.append(MAVEN_DOWNLOAD_FUNCTION).append("\n");
@@ -222,6 +229,12 @@ public final class ContainerProviderUtils {
     public static String buildStartScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
+        //Export environmental variables
+        if (options.getEnvironmentalVariables() != null && !options.getEnvironmentalVariables().isEmpty()) {
+            for (Map.Entry<String, String> entry : options.getEnvironmentalVariables().entrySet()) {
+                sb.append("export ").append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"").append("\n");
+            }
+        }
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
@@ -256,6 +269,12 @@ public final class ContainerProviderUtils {
     public static String buildStopScript(String name, CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
         sb.append("#!/bin/bash").append("\n");
+        //Export environmental variables
+        if (options.getEnvironmentalVariables() != null && !options.getEnvironmentalVariables().isEmpty()) {
+            for (Map.Entry<String, String> entry : options.getEnvironmentalVariables().entrySet()) {
+                sb.append("export ").append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"").append("\n");
+            }
+        }
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
 
@@ -275,6 +294,13 @@ public final class ContainerProviderUtils {
      */
     public static String buildUninstallScript(String name,CreateRemoteContainerOptions options) throws MalformedURLException {
         StringBuilder sb = new StringBuilder();
+        sb.append("#!/bin/bash").append("\n");
+        //Export environmental variables
+        if (options.getEnvironmentalVariables() != null && !options.getEnvironmentalVariables().isEmpty()) {
+            for (Map.Entry<String, String> entry : options.getEnvironmentalVariables().entrySet()) {
+                sb.append("export ").append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"").append("\n");
+            }
+        }
         sb.append(RUN_FUNCTION).append("\n");
         sb.append(KARAF_KILL).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");

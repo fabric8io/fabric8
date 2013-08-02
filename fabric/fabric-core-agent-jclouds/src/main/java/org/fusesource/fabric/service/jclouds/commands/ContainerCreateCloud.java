@@ -17,6 +17,7 @@
 package org.fusesource.fabric.service.jclouds.commands;
 
 import java.net.URI;
+import java.util.List;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
@@ -40,6 +41,8 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
 
     @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
     private String path;
+    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. Can be used multiple times")
+    private List<String> environmentalVariables;
     @Option(name = "--name", required = true, description = "The context name. Used to distinct between multiple services of the same provider/api.")
     protected String contextName;
     @Option(name = "--provider", required = false, description = "The cloud provider name")
@@ -136,6 +139,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
+        .environmentalVariable(environmentalVariables)
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
         .version(version)
         .profiles(getProfileNames());

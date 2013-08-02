@@ -22,4 +22,5 @@ public interface CreateRemoteContainerOptions extends CreateContainerOptions {
 
     String getPath();
     Map<String, String> getUsers();
+    Map<String, String> getEnvironmentalVariables();
 }

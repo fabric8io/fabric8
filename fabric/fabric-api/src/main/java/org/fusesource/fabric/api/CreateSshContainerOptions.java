@@ -18,6 +18,8 @@ package org.fusesource.fabric.api;
 
 import java.io.File;
 import java.net.URI;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -45,6 +47,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
         private String passPhrase;
         private String path = "~/containers/";
+        private Map<String, String> environmentalVariables = new HashMap<String, String>();
 
 
         public Builder username(final String username) {
@@ -69,6 +72,34 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
         public Builder path(final String path) {
             this.path = path;
+            return this;
+        }
+
+        public Builder environmentalVariables(Map<String, String> environmentalVariables) {
+            this.environmentalVariables = environmentalVariables;
+            return this;
+        }
+
+        public Builder environmentalVariable(String key, String value) {
+            this.environmentalVariables.put(key, value);
+            return this;
+        }
+
+        public Builder environmentalVariable(String entry) {
+            if (entry.contains("=")) {
+                String key = entry.substring(0, entry.indexOf("="));
+                String value = entry.substring(entry.indexOf("=") + 1);
+                environmentalVariable(key, value);
+            }
+            return this;
+        }
+
+        public Builder environmentalVariable(List<String> entries) {
+            if (entries != null) {
+                for (String entry : entries) {
+                    environmentalVariable(entry);
+                }
+            }
             return this;
         }
 
@@ -164,11 +195,16 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
             this.path = path;
         }
 
+        public void setEnvironmentalVariables(Map<String, String> environmentalVariables) {
+            this.environmentalVariables = environmentalVariables;
+        }
+
+
         public CreateSshContainerOptions build() {
             return new CreateSshContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, "ssh", ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path);
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
         }
     }
 
@@ -182,8 +218,9 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
     private final String privateKeyFile;
     private final String passPhrase;
     private final String path;
+    private final Map<String, String> environmentalVariables;
 
-    public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String version, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path) {
+    public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String version, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version);
         this.username = username;
         this.password = password;
@@ -194,6 +231,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         this.privateKeyFile = privateKeyFile;
         this.passPhrase = passPhrase;
         this.path = path;
+        this.environmentalVariables = environmentalVariables;
     }
 
     @Override
@@ -202,7 +240,7 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                 maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                 importPath, users, name, parent, "ssh", ensembleServer, preferredAddress, systemProperties,
                 number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, newUser != null ? newUser : username,
-                newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path);
+                newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
     }
 
     public static Builder builder() {
@@ -232,6 +270,10 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public String getPath() {
         return path;
+    }
+
+    public Map<String, String> getEnvironmentalVariables() {
+        return environmentalVariables;
     }
 
     public String getPrivateKeyFile() {

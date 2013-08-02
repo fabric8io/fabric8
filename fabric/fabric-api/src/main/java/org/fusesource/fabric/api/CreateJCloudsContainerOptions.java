@@ -18,6 +18,7 @@ package org.fusesource.fabric.api;
 
 import java.net.URI;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -52,6 +53,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         private String publicKeyFile;
         private transient Object computeService;
         private String path = "~/containers/";
+        private Map<String, String> environmentalVariables = new HashMap<String, String>();
 
 
         public Builder osVersion(final String osVersion) {
@@ -184,6 +186,34 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return this;
         }
 
+        public Builder environmentalVariables(Map<String, String> environmentalVariables) {
+            this.environmentalVariables = environmentalVariables;
+            return this;
+        }
+
+        public Builder environmentalVariable(String key, String value) {
+            this.environmentalVariables.put(key, value);
+            return this;
+        }
+
+        public Builder environmentalVariable(String entry) {
+            if (entry.contains("=")) {
+                String key = entry.substring(0, entry.indexOf("="));
+                String value = entry.substring(entry.indexOf("=") + 1);
+                environmentalVariable(key, value);
+            }
+            return this;
+        }
+
+        public Builder environmentalVariable(List<String> entries) {
+            if (entries != null) {
+                for (String entry : entries) {
+                    environmentalVariable(entry);
+                }
+            }
+            return this;
+        }
+
         public String getOsFamily() {
             return osFamily;
         }
@@ -272,13 +302,17 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return path;
         }
 
+        public void setEnvironmentalVariables(Map<String, String> environmentalVariables) {
+            this.environmentalVariables = environmentalVariables;
+        }
+
         public CreateJCloudsContainerOptions build() {
             return new CreateJCloudsContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
                     number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, osFamily, osVersion, imageId, hardwareId, locationId,
                     group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                    owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path);
+                    owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
         }
     }
 
@@ -305,6 +339,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     private final String publicKeyFile;
     private final transient Object computeService;
     private final String path;
+    private final Map<String, String> environmentalVariables;
 
     public CreateJCloudsContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
                                          int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort, int zooKeeperServerConnectionPort,
@@ -316,7 +351,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                                          String hardwareId, String locationId, String group, String user, String password,
                                          String contextName, String providerName, String apiName, String endpoint,
                                          JCloudsInstanceType instanceType, String identity, String credential, String owner, Map<String, String> serviceOptions, Map<String, String> nodeOptions, int servicePort, String publicKeyFile,
-                                         Object computeService, String path) {
+                                         Object computeService, String path, Map<String, String> environmentalVariables) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort, zooKeeperServerConnectionPort,
                 zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType,
@@ -344,6 +379,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         this.publicKeyFile = publicKeyFile;
         this.computeService = computeService;
         this.path = path;
+        this.environmentalVariables = environmentalVariables;
     }
 
     @Override
@@ -354,7 +390,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, osFamily, osVersion, imageId, hardwareId, locationId,
                 group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
                 contextName, providerName, apiName, endpoint, instanceType, identity, credential,
-                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path);
+                owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
     }
 
 
@@ -364,6 +400,10 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public String getPath() {
         return path;
+    }
+
+    public Map<String, String> getEnvironmentalVariables() {
+        return environmentalVariables;
     }
 
     public String getImageId() {

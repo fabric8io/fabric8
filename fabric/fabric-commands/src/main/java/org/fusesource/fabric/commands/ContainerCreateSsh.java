@@ -33,6 +33,7 @@ import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.List;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {
@@ -41,6 +42,8 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     private String host;
     @Option(name = "--path", description = "Path on the remote filesystem where the container is to be installed.")
     private String path;
+    @Option(name = "--env", required = false, multiValued = true, description = "Adds an environmental variable. Can be used multiple times")
+    private List<String> environmentalVariables;
     @Option(name = "--user", description = "User name for login.")
     private String user;
     @Option(name = "--password", description = "Password for login. If the password is omitted, private key authentication is used instead.")
@@ -104,6 +107,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .zookeeperUrl(fabricService.getZookeeperUrl())
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
+        .environmentalVariable(environmentalVariables)
         .zookeeperPassword(zookeeperPassword)
         .withUser(newUser, newUserPassword , newUserRole)
         .version(version)
