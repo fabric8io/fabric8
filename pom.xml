@@ -24,15 +24,15 @@
         <version>1.9</version>
     </parent>
 
-    <groupId>org.fusesource</groupId>
-    <artifactId>fuse-project</artifactId>
+    <groupId>org.jboss.fuse</groupId>
+    <artifactId>bom</artifactId>
     <packaging>pom</packaging>
     <version>99-master-SNAPSHOT</version>
 
     <name>${project.artifactId}</name>
-    <description>Fuse Fabric</description>
+    <description>JBoss Fuse Bill Of Materials (BOM)</description>
 
-    <url>http://fabric.fusesource.org/</url>
+    <url>http://www.jboss.org/products/fuse</url>
 
     <organization>
         <name>Red Hat</name>
@@ -304,25 +304,9 @@
             <url>dav:http://fusesource.com/forge/dav/fabric/maven/${project.version}</url>
         </site>
     </distributionManagement>
-    <dependencies>
-
-        <!-- test -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit-version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j-version}</version>
-            <scope>test</scope>
-        </dependency>
-
-    </dependencies>
 
     <modules>
+        <module>parent</module>
         <module>common-util</module>
         <module>insight</module>
         <module>process</module>
@@ -339,260 +323,7 @@
         <module>examples</module>
     </modules>
 
-    <build>
-        <defaultGoal>install</defaultGoal>
-
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-
-        <pluginManagement>
-            <plugins>
-               <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>1.7</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.felix</groupId>
-                    <artifactId>maven-bundle-plugin</artifactId>
-                    <version>${maven-bundle-plugin-version}</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <excludeDependencies>${fuse.osgi.exclude.dependencies}</excludeDependencies>
-                        <instructions>
-                            <Bundle-Name>${fuse.osgi.bundle.name}</Bundle-Name>
-                            <Bundle-SymbolicName>${fuse.osgi.symbolic.name}</Bundle-SymbolicName>
-                            <Bundle-DocURL>http://fabric.fusesource.org/</Bundle-DocURL>
-                            <Bundle-Activator>${fuse.osgi.activator}</Bundle-Activator>
-                            <Export-Package>${fuse.osgi.export}</Export-Package>
-                            <Import-Package>${fuse.osgi.import}</Import-Package>
-                            <DynamicImport-Package>${fuse.osgi.dynamic}</DynamicImport-Package>
-                            <Private-Package>${fuse.osgi.private.pkg}</Private-Package>
-                            <Implementation-Title>FuseSource FON</Implementation-Title>
-                            <Implementation-Version>${project.version}</Implementation-Version>
-                            <Include-Resource>${fuse.osgi.resource}</Include-Resource>
-                            <_versionpolicy>${fuse.osgi.import.default.version}</_versionpolicy>
-                            <_failok>${fuse.osgi.failok}</_failok>
-                            <Export-Service>${fuse.osgi.services.export}</Export-Service>
-                            <Embed-Dependency>${fuse.osgi.embed.dependency}</Embed-Dependency>
-                            <Embed-Transitive>${fuse.osgi.embed.transitive}</Embed-Transitive>
-                            <Require-Bundle>${fuse.osgi.require.bundle}</Require-Bundle>
-                            <Require-Capability>${fuse.osgi.capabilities.require}</Require-Capability>
-                            <Provide-Capability>${fuse.osgi.capabilities.provide}</Provide-Capability>
-                            <Service-Component>${fuse.osgi.service.component}</Service-Component>
-                        </instructions>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>cleanVersions</id>
-                            <phase>generate-sources</phase>
-                            <goals>
-                                <goal>cleanVersions</goal>
-                            </goals>
-                            <configuration>
-                                <versions>
-                                    <karaf.osgi.version>${karaf-version}</karaf.osgi.version>
-                                </versions>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-              <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
-              <plugin>
-                <groupId>org.eclipse.m2e</groupId>
-                <artifactId>lifecycle-mapping</artifactId>
-                <version>1.0.0</version>
-                <configuration>
-                  <lifecycleMappingMetadata>
-                    <pluginExecutions>
-                      <pluginExecution>
-                        <pluginExecutionFilter>
-                          <groupId>
-                            org.apache.felix
-                          </groupId>
-                          <artifactId>
-                            maven-bundle-plugin
-                          </artifactId>
-                          <versionRange>
-                            [2.1.0,)
-                          </versionRange>
-                          <goals>
-                            <goal>cleanVersions</goal>
-                          </goals>
-                        </pluginExecutionFilter>
-                        <action>
-                          <ignore />
-                        </action>
-                      </pluginExecution>
-                    </pluginExecutions>
-                  </lifecycleMappingMetadata>
-                </configuration>
-              </plugin>
-
-              <plugin>
-                <groupId>org.scala-tools</groupId>
-                <artifactId>maven-scala-plugin</artifactId>
-                <version>${scala-plugin-version}</version>
-                <executions>
-                  <execution>
-                    <goals>
-                      <goal>compile</goal>
-                      <goal>testCompile</goal>
-                    </goals>
-                    <configuration>
-                      <args>
-                        <arg>-deprecation</arg>
-                      </args>
-                      <compilerPlugins>
-                        <compilerPlugin>
-                          <groupId>org.fusesource.jvmassert</groupId>
-                          <artifactId>jvmassert</artifactId>
-                          <version>1.1</version>
-                        </compilerPlugin>
-                      </compilerPlugins>
-                    </configuration>
-                  </execution>
-                </executions>
-                <configuration>
-                  <jvmArgs>
-                    <jvmArg>-Xmx1024m</jvmArg>
-                    <jvmArg>-Xss8m</jvmArg>
-                  </jvmArgs>
-                  <scalaVersion>${scala-version}</scalaVersion>
-                </configuration>
-              </plugin>
-            </plugins>
-          </pluginManagement>
-
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven-compiler-plugin-version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-                <version>2.7</version>
-            </plugin>
-
-            <plugin>
-              <groupId>org.codehaus.mojo</groupId>
-              <artifactId>build-helper-maven-plugin</artifactId>
-              <version>1.5</version>
-            </plugin>
-
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-archetype-plugin</artifactId>
-              <version>2.2</version>
-            </plugin>
-
-            <plugin>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-version}</version>
-                <configuration>
-                    <forkMode>once</forkMode>
-                    <!-- these settings are mandatory to avoid SureFire giving a bogus system property to the web container -->
-                    <useSystemClassLoader>false</useSystemClassLoader>
-                    <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <failIfNoTests>false</failIfNoTests>
-                    <runOrder>alphabetical</runOrder>
-                    <includes>
-                        <include>**/*Test.*</include>
-                    </includes>
-                    <excludes>
-                    </excludes>
-                    <systemPropertyVariables>
-                        <basedir>${basedir}</basedir>
-                        <project.version>${project.version}</project.version>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <inherited>true</inherited>
-                <executions>
-                    <execution>
-                        <id>cleanVersions</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>cleanVersions</goal>
-                        </goals>
-                        <configuration>
-                            <versions>
-                                <fuse.osgi.version>${fabric.version}</fuse.osgi.version>
-                            </versions>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-antrun-plugin</artifactId>
-               <version>1.7</version>
-           </plugin>
-
-          <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-shade-plugin</artifactId>
-              <version>1.5</version>
-          </plugin>
-
-          <plugin>
-              <groupId>org.apache.servicemix.tooling</groupId>
-              <artifactId>depends-maven-plugin</artifactId>
-              <version>${depends-maven-plugin.version}</version>
-          </plugin>
-          <plugin>
-              <groupId>org.fusesource.mvnplugins</groupId>
-              <artifactId>maven-notices-plugin</artifactId>
-              <version>1.29</version>
-          </plugin>
-        </plugins>
-    </build>
-
     <repositories>
-        <repository>
-            <id>fusesource.61</id>
-            <name>FuseSource Community Early Access 61 Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
         <repository>
             <id>repo1.maven</id>
             <name>Maven Central Repo</name>
@@ -620,17 +351,6 @@
                 <enabled>true</enabled>
             </releases>
         </repository>
-<!--        <repository>
-            <id>fusesource-nexus-staging</id>
-            <name>FuseSource Release Proxy</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository> -->
         <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Repository Group</name>
@@ -678,20 +398,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-        <!-- bad repo
-        <repository>
-            <id>scala-tools.org-releases</id>
-            <url>http://scala-tools.org/repo-releases</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>scala-tools.org-snapshots</id>
-            <url>http://scala-tools.org/repo-snapshots</url>
-            <snapshots><enabled>true</enabled></snapshots>
-            <releases><enabled>false</enabled></releases>
-        </repository>
-        -->
 
         <repository>
           <id>java.net.m2</id>
@@ -699,14 +405,6 @@
           <releases><enabled>true</enabled></releases>
           <snapshots><enabled>false</enabled></snapshots>
         </repository>
-<!--
-        <repository>
-          <id>glassfish-repo-archive</id>
-          <url>http://maven.glassfish.org/content/groups/glassfish</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>false</enabled></snapshots>
-        </repository>
--->
 
         <!-- for the bdb je dependency -->
         <repository>
@@ -745,6 +443,26 @@
             <releases>
                 <enabled>true</enabled>
             </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>scriptengines-repository</id>
+            <name>Scriptengines Release Repository</name>
+            <url>http://scriptengines.googlecode.com/svn/m2-repo</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository> 
+        <repository>
+            <id>couchbase.repo</id>
+            <name>Couchbase Repository</name>
+            <layout>default</layout>
+            <url>http://files.couchbase.com/maven2/</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
@@ -811,18 +529,7 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-<!--
-        <pluginRepository>
-            <id>fusesource-nexus-staging</id>
-            <name>FuseSource Release Proxy</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository> -->
+
     </pluginRepositories>
 
 
@@ -1548,190 +1255,6 @@
       </modules>
     </profile>
 
-    <profile>
-      <id>release</id>
-    </profile>
-    <!--
-        Do a license check by running       : mvn -P license license:check
-        Update the license check by running : mvn -P license license:format
-      -->
-    <profile>
-      <id>license</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.mycila.maven-license-plugin</groupId>
-            <artifactId>maven-license-plugin</artifactId>
-            <version>1.6.0</version>
-            <configuration>
-              <quiet>false</quiet>
-              <header>src/main/resources/license-header.txt</header>
-              <aggregate>true</aggregate>
-              <includes>
-                  <include>src/**</include>
-                  <include>**/pom.xml</include>
-              </includes>
-              <excludes>
-                <!-- can remove once http://code.google.com/p/maven-license-plugin/issues/detail?id=72 is resolved -->
-                <exclude>**/*.scaml</exclude>
-                <exclude>**/LICENSE.txt</exclude>
-                <exclude>**/LICENSE</exclude>
-                <exclude>**/.svn/**</exclude>
-
-                <!-- ignore files produced during a build -->
-                <exclude>**/target/**</exclude>
-
-                <!-- ignore binary files -->
-                <exclude>**/*.jpg</exclude>
-                <exclude>**/*.png</exclude>
-                <exclude>**/*.gif</exclude>
-                <exclude>**/*.ico</exclude>
-                <exclude>**/*.keystore</exclude>
-
-              </excludes>
-              <useDefaultExcludes>false</useDefaultExcludes>
-              <mapping>
-                  <jj>JAVADOC_STYLE</jj>
-                  <proto>DOUBLESLASH_STYLE</proto>
-                  <index>SCRIPT_STYLE</index>
-              </mapping>
-            </configuration>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>check</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>snapshots</id>
-      <properties>
-        <perfectus-build>030</perfectus-build>
-        <activemq-version>5.8.0.fuse-72-${perfectus-build}</activemq-version>
-        <aries.blueprint.version>1.0.1.fuse-72-${perfectus-build}</aries.blueprint.version>
-        <aries.jmx.version>1.0.1.fuse-72-${perfectus-build}</aries.jmx.version>
-        <aries.transaction.version>1.0.1.fuse-72-${perfectus-build}</aries.transaction.version>
-        <aries.util.version>1.0.1.fuse-72-${perfectus-build}</aries.util.version>
-        <aries.proxy.version>1.0.1.fuse-72-${perfectus-build}</aries.proxy.version>
-        <camel-version>2.10.0.fuse-72-${perfectus-build}</camel-version>
-        <cxf-version>2.6.0.fuse-72-${perfectus-build}</cxf-version>
-        <felix-configadmin-version>1.4.0.fuse-72-${perfectus-build}</felix-configadmin-version>
-        <felix-eventadmin-version>1.3.0.fuse-72-${perfectus-build}</felix-eventadmin-version>
-        <felix-fileinstall-version>3.3.11.fuse-72-${perfectus-build}</felix-fileinstall-version>
-        <felix-framework-version>4.0.3.fuse-72-${perfectus-build}</felix-framework-version>
-        <felix-framework-security-version>2.0.1.fuse-72-${perfectus-build}</felix-framework-security-version>
-        <karaf-version>2.3.0.fuse-72-${perfectus-build}</karaf-version>
-        <servicemix.components.version>2012.01.0.fuse-72-${perfectus-build}</servicemix.components.version>
-        <servicemix.features.version>4.5.0-fuse-${perfectus-build}</servicemix.features.version>
-        <servicemix-nmr-version>1.6.0.fuse-72-${perfectus-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.0.0.fuse-72-${perfectus-build}</servicemix-specs-version>
-        <servicemix.utils.version>1.5.1.fuse-72-${perfectus-build}</servicemix.utils.version>
-      </properties>
-    </profile>
-
-    <!-- switches to use the latest perfectus build versions -->
-    <profile>
-      <id>perfectus</id>
-      <properties>
-        <perfectus-postfix>.redhat-60008</perfectus-postfix>
-        <activemq-version>5.8.0${perfectus-postfix}</activemq-version>
-        <cxf-version>2.6.0${perfectus-postfix}</cxf-version>
-        <camel-version>2.10.0${perfectus-postfix}</camel-version>
-        <karaf-version>2.3.0${perfectus-postfix}</karaf-version>
-      </properties>
-
-      <repositories>
-        <repository>
-          <id>repo1.maven</id>
-          <name>Maven Central Repo</name>
-          <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
-          <id>fusesource.m2</id>
-          <name>FuseSource Community Release Repository</name>
-          <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-        </repository>
-<!--
-        <repository>
-          <id>fusesource-nexus-staging</id>
-          <name>FuseSource Community Release Repository</name>
-          <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-          <snapshots>
-            <enabled>false</enabled>
-          </snapshots>
-          <releases>
-            <enabled>true</enabled>
-          </releases>
-        </repository>
--->
-
-        <repository>
-          <id>fusesource.m2-snapshot</id>
-          <name>FuseSource Community Snapshot Repository</name>
-          <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-        </repository>
-        <repository>
-          <id>fusesource.nexus.m2-snapshot</id>
-          <name>FuseSource Community Snapshot Repository</name>
-          <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
-          <snapshots>
-            <enabled>true</enabled>
-          </snapshots>
-          <releases>
-            <enabled>false</enabled>
-          </releases>
-        </repository>
-      </repositories>
-    </profile>
-
-    <profile>
-      <!-- builds using the FuseSource private release proxy to test builds before we ship them -->
-      <id>rp</id>
-
-      <repositories>
-        <repository>
-            <id>fusesource.rp</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-            <id>fusesource.rp</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/m2-release-proxy</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
   </profiles>
 
 </project>

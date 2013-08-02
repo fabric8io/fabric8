@@ -19,6 +19,7 @@
     <groupId>org.fusesource</groupId>
     <artifactId>fuse-project</artifactId>
     <version>99-master-SNAPSHOT</version>
+    <relativePath>../parent</relativePath>
   </parent>
   <artifactId>components</artifactId>
   <packaging>pom</packaging>

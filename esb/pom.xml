@@ -22,7 +22,7 @@
         <groupId>org.fusesource</groupId>
         <artifactId>fuse-project</artifactId>
         <version>99-master-SNAPSHOT</version>
-        <relativePath>..</relativePath>
+      <relativePath>../parent</relativePath>
     </parent>
 
     <groupId>org.jboss.fuse</groupId>
