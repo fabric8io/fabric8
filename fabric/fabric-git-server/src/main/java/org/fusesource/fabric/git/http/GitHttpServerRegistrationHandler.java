@@ -22,7 +22,6 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
@@ -30,11 +29,8 @@ import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.framework.Constants;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -54,8 +50,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 @Component(name = "org.fusesource.fabric.git.server",
            description = "Fabric Git HTTP Server Registration Handler",
            immediate = true)
-@Service(ConfigurationListener.class)
-public class GitHttpServerRegistrationHandler implements ConfigurationListener, GroupListener<GitNode> {
+public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
     private static final String REALM_PROPERTY_NAME = "realm";
@@ -78,7 +73,6 @@ public class GitHttpServerRegistrationHandler implements ConfigurationListener, 
     private final GitServlet gitServlet = new GitServlet();
 
 
-    private String port;
     private String realm;
     private String role;
 
@@ -94,7 +88,6 @@ public class GitHttpServerRegistrationHandler implements ConfigurationListener, 
         this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
         this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
-        this.port = getPortFromConfig();
         group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
         group.add(this);
         group.update(createState());
@@ -199,52 +192,13 @@ public class GitHttpServerRegistrationHandler implements ConfigurationListener, 
         return gitRemoteUrl;
     }
 
-    @Override
-    public void configurationEvent(ConfigurationEvent event) {
-        if (event.getPid().equals("org.ops4j.pax.web") && event.getType() == ConfigurationEvent.CM_UPDATED) {
-            this.port = getPortFromConfig();
-            group.update(createState());
-        }
-    }
-
     GitNode createState() {
-        String fabricRepoUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/git/fabric/";
+        String fabricRepoUrl = "http://${zk:" + name + "/http}/git/fabric/";
         GitNode state = new GitNode();
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
         state.setContainer(name);
         return state;
-    }
-
-    public String getPortFromConfig() {
-        String port = "8181";
-        try {
-            Configuration[] configurations = configurationAdmin.listConfigurations("(" + Constants.SERVICE_PID + "=org.ops4j.pax.web)");
-            if (configurations != null && configurations.length > 0) {
-                Configuration configuration = configurations[0];
-                Dictionary properties = configuration.getProperties();
-                if (properties != null && properties.get("org.osgi.service.http.port") != null) {
-                    port = String.valueOf(properties.get("org.osgi.service.http.port"));
-                }
-            }
-        } catch (Exception e) {
-            //noop
-        }
-        return port;
-    }
-
-    private int getPortSafe() {
-        int port = 8181;
-        try {
-            port = Integer.parseInt(getPort());
-        } catch (NumberFormatException ex) {
-            //noop
-        }
-        return port;
-    }
-
-    public String getPort() {
-        return port;
     }
 
     public String getRealm() {

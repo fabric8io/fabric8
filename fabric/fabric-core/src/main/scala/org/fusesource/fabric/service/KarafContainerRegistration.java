@@ -263,7 +263,7 @@ public class
     }
 
     private int getRmiRegistryPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, Ports.DEFAULT_RMI_REGISTRY_PORT);
+        return getOrAllocatePortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, Ports.DEFAULT_RMI_REGISTRY_PORT);
     }
 
     private int getRmiRegistryConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
@@ -271,7 +271,7 @@ public class
     }
 
     private int getRmiServerPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, Ports.DEFAULT_RMI_SERVER_PORT);
+        return getOrAllocatePortForKey(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, Ports.DEFAULT_RMI_SERVER_PORT);
     }
 
     private int getRmiServerConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
@@ -293,7 +293,7 @@ public class
     }
 
     private int getSshPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, SSH_PID, SSH_BINDING_PORT_KEY, Ports.DEFAULT_KARAF_SSH_PORT);
+        return getOrAllocatePortForKey(container, SSH_PID, SSH_BINDING_PORT_KEY, Ports.DEFAULT_KARAF_SSH_PORT);
     }
 
     private int getSshConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
@@ -316,7 +316,7 @@ public class
     }
 
     private int getHttpPort(Container container) throws KeeperException, InterruptedException, IOException {
-        return getPortForKey(container, HTTP_PID, HTTP_BINDING_PORT_KEY, Ports.DEFAULT_HTTP_PORT);
+        return getOrAllocatePortForKey(container, HTTP_PID, HTTP_BINDING_PORT_KEY, Ports.DEFAULT_HTTP_PORT);
     }
 
     private int getHttpConnectionPort(Container container) throws KeeperException, InterruptedException, IOException {
@@ -342,7 +342,7 @@ public class
      * @throws KeeperException
      * @throws InterruptedException
      */
-    private int getPortForKey(Container container, String pid, String key, int defaultValue) throws IOException, KeeperException, InterruptedException {
+    private int getOrAllocatePortForKey(Container container, String pid, String key, int defaultValue) throws IOException, KeeperException, InterruptedException {
         Configuration config = configurationAdmin.getConfiguration(pid);
         Set<Integer> unavailable = fabricService.getPortService().findUsedPortByHost(container);
         int port = fabricService.getPortService().lookupPort(container, pid, key);
@@ -363,6 +363,33 @@ public class
         }
         return port;
     }
+
+    /**
+     * Returns a port number for the use in the specified pid and key.
+     * Note: The method doesn't allocate ports, only gets port if configured.
+     *
+     * @param container
+     * @param pid
+     * @param key
+     * @param defaultValue
+     * @return
+     * @throws IOException
+     */
+    private int getPortForKey(Container container, String pid, String key, int defaultValue) throws IOException {
+        int port = defaultValue;
+        Configuration config = configurationAdmin.getConfiguration(pid);
+        if (config.getProperties() != null && config.getProperties().get(key) != null) {
+            try {
+                port = Integer.parseInt((String) config.getProperties().get(key));
+            } catch (NumberFormatException ex) {
+                port = defaultValue;
+            }
+        } else {
+            port = defaultValue;
+        }
+        return port;
+    }
+
 
     private void updateIfNeeded(Configuration configuration, String key, int port) throws IOException {
         if (configuration != null) {

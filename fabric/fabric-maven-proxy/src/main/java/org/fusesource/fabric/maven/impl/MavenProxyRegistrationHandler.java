@@ -54,8 +54,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 @Component(name = "org.fusesource.fabric.maven",
         description = "Fabric Maven Proxy Registration Handler",
         immediate = true)
-@Service(ConfigurationListener.class)
-public class MavenProxyRegistrationHandler implements ConfigurationListener {
+public class MavenProxyRegistrationHandler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
 
@@ -66,6 +65,7 @@ public class MavenProxyRegistrationHandler implements ConfigurationListener {
     private static final String CHECKSUM_POLICY_PROPERTY = "checksumPolicy";
     private static final String PROXY_PROTOCOL_PROPERTY = "proxy.protocol";
     private static final String PROXY_HOST_PROPERTY = "proxy.host";
+    private static final String PROXY_PORT_PROPERTY = "proxy.port";
     private static final String PROXY_USERNAME_PROPERTY = "proxy.username";
     private static final String PROXY_PASSWORD_PROPERTY = "proxy.password";
     private static final String NON_PROXY_HOSTS_PROPERTY = "proxy.nonProxyHosts";
@@ -79,11 +79,8 @@ public class MavenProxyRegistrationHandler implements ConfigurationListener {
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private HttpService httpService;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
 
-    private String port;
     private String realm;
     private String role;
 
@@ -105,14 +102,14 @@ public class MavenProxyRegistrationHandler implements ConfigurationListener {
         String checksumPolicy = readProperty(properties, CHECKSUM_POLICY_PROPERTY, "fail");
         String proxyProtocol = readProperty(properties, PROXY_PROTOCOL_PROPERTY, "");
         String proxyHost = readProperty(properties, PROXY_HOST_PROPERTY, "");
+        int proxyPort = Integer.parseInt(readProperty(properties, PROXY_PORT_PROPERTY, "8080"));
         String proxyUsername = readProperty(properties, PROXY_USERNAME_PROPERTY, "");
         String proxyPassword = readProperty(properties, PROXY_PASSWORD_PROPERTY, "");
         String nonProxyHosts = readProperty(properties, NON_PROXY_HOSTS_PROPERTY, "");
 
-        this.port = getPortFromConfig();
-        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, getPortSafe(), proxyUsername, proxyPassword, nonProxyHosts);
+        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
         this.mavenDownloadProxyServlet.start();
-        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, getPortSafe(), proxyUsername, proxyPassword, nonProxyHosts);
+        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
         this.mavenUploadProxyServlet.start();
 
         try {
@@ -162,7 +159,7 @@ public class MavenProxyRegistrationHandler implements ConfigurationListener {
     public void register(String type) {
         unregister(type);
         try {
-            String mavenProxyUrl = "http://${zk:" + name + "/ip}:" + getPortSafe() + "/maven/" + type + "/";
+            String mavenProxyUrl = "http://${zk:" + name + "/http}/maven/" + type + "/";
             String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
             String path = parentPath + "/p_";
             registeredProxies.get(type).add(create(curator, path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
@@ -185,49 +182,10 @@ public class MavenProxyRegistrationHandler implements ConfigurationListener {
         }
     }
 
-    @Override
-    public void configurationEvent(ConfigurationEvent event) {
-        if (event.getPid().equals("org.ops4j.pax.web") && event.getType() == ConfigurationEvent.CM_UPDATED) {
-            this.port = getPortFromConfig();
-            register(MavenProxy.DOWNLOAD_TYPE);
-            register(MavenProxy.UPLOAD_TYPE);
-        }
-    }
-
     private String readProperty(Map<String, String> properties, String key, String defaultValue) {
         return properties != null && properties.containsKey(key) ? properties.get(key) : defaultValue;
     }
 
-    public String getPortFromConfig() {
-        String port = "8181";
-        try {
-            Configuration[] configurations = configurationAdmin.listConfigurations("(" + Constants.SERVICE_PID + "=org.ops4j.pax.web)");
-            if (configurations != null && configurations.length > 0) {
-                Configuration configuration = configurations[0];
-                Dictionary properties = configuration.getProperties();
-                if (properties != null && properties.get("org.osgi.service.http.port") != null) {
-                    port = String.valueOf(properties.get("org.osgi.service.http.port"));
-                }
-            }
-        } catch (Exception e) {
-            //noop
-        }
-        return port;
-    }
-
-    private int getPortSafe() {
-        int port = 8181;
-        try {
-            port = Integer.parseInt(getPort());
-        } catch (NumberFormatException ex) {
-            //noop
-        }
-        return port;
-    }
-
-    public String getPort() {
-        return port;
-    }
 
     public MavenDownloadProxyServlet getMavenDownloadProxyServlet() {
         return mavenDownloadProxyServlet;
@@ -243,14 +201,6 @@ public class MavenProxyRegistrationHandler implements ConfigurationListener {
 
     public void setMavenUploadProxyServlet(MavenUploadProxyServlet mavenUploadProxyServlet) {
         this.mavenUploadProxyServlet = mavenUploadProxyServlet;
-    }
-
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
     }
 
     public String getRealm() {
