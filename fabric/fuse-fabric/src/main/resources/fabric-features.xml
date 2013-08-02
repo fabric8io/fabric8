@@ -225,6 +225,12 @@
         <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
     </feature>
 
+    <feature name="mq-fabric-http-discovery" version="${fuse.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-groups</feature>
+        <feature version="[2,3)">war</feature>
+        <bundle>mvn:org.jboss.amq/mq-http-discovery/${fuse.version}</bundle>
+    </feature>
+
     <feature name="mq-web-console" version="${fuse.version}" resolver="(obr)">
         <feature version="[2,3)">war</feature>
         <feature>eventadmin</feature>

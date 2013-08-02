@@ -29,15 +29,19 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
+import org.osgi.service.http.HttpService;
 
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {
 
     private ConcurrentMap<String, ArtifactDownloadFuture> requestMap = new ConcurrentHashMap<String, ArtifactDownloadFuture>();
     private ExecutorService executorService = Executors.newCachedThreadPool();
+
 
     public MavenDownloadProxyServlet(String localRepository, String remoteRepositories, boolean appendSystemRepos, String updatePolicy, String checksumPolicy, String proxyProtocol, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword, String proxyNonProxyHosts) {
         super(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy, proxyProtocol, proxyHost, proxyPort, proxyUsername, proxyPassword, proxyNonProxyHosts);
