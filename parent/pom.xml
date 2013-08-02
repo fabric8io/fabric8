@@ -19,8 +19,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.jboss.fuse</groupId>
-    <artifactId>bom</artifactId>
+    <groupId>org.jboss.bom</groupId>
+    <artifactId>jboss-fuse</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
