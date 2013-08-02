@@ -24,7 +24,7 @@
         <version>1.9</version>
     </parent>
 
-    <groupId>org.jboss.bom</groupId>
+    <groupId>org.jboss.fuse.bom</groupId>
     <artifactId>jboss-fuse</artifactId>
     <packaging>pom</packaging>
     <version>99-master-SNAPSHOT</version>
