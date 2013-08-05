@@ -25,6 +25,7 @@ import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,6 +85,7 @@ public class MasterEndpointFailoverTest {
     }
 
     @Test
+    @Ignore
     public void testEndpoint() throws Exception {
         System.out.println("Starting consumerContext1");
 
