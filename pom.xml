@@ -52,7 +52,7 @@
     </prerequisites>
 
     <properties>
-        <perfectus-build>029</perfectus-build>
+        <perfectus-build>030</perfectus-build>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
@@ -66,7 +66,7 @@
         <fuse.osgi.import.default.version>[$(version;==;$(@)),$(version;+;$(@)))</fuse.osgi.import.default.version>
         <fuse.osgi.import.defaults>
             org.springframework.osgi.*;version="[1.2,2)",
-            org.springframework.*;version="[3,4)",
+            org.springframework.*;version="[3.1,4)",
             org.apache.commons.logging.*;version="[1.1,2)",
             org.apache.camel.*;version="[2.10,3)",
             org.apache.felix.gogo.commands.*;version="[0.10,1)",
@@ -1288,6 +1288,21 @@
           <dependency>
              <groupId>org.apache.activemq</groupId>
              <artifactId>activemq-client</artifactId>
+             <version>${activemq-version}</version>
+          </dependency>
+          <dependency>
+             <groupId>org.apache.activemq</groupId>
+             <artifactId>activemq-camel</artifactId>
+             <version>${activemq-version}</version>
+          </dependency>
+          <dependency>
+             <groupId>org.apache.activemq</groupId>
+             <artifactId>activemq-pool</artifactId>
+             <version>${activemq-version}</version>
+          </dependency>
+          <dependency>
+             <groupId>org.apache.activemq</groupId>
+             <artifactId>activemq-kahadb-store</artifactId>
              <version>${activemq-version}</version>
           </dependency>
 

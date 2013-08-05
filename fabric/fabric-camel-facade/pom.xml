@@ -32,7 +32,7 @@
 
   <properties>
     <fuse.osgi.import.pkg>
-      org.apache.camel*;version="[2.9,3)";resolution:=optional,
+      org.apache.camel*;version="[2.10,3)";resolution:=optional,
       org.springframework*;resolution:=optional,
       *
     </fuse.osgi.import.pkg>
@@ -98,20 +98,37 @@
       <version>${camel-version}</version>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-broker</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-client</artifactId>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-camel</artifactId>
-      <version>${activemq-version}</version>
+      <scope>test</scope>
+      <!-- break the cyclic dependency to camel-jms which otherwise would baffle the maven eclipse plugin -->
       <exclusions>
         <exclusion>
           <groupId>org.apache.camel</groupId>
           <artifactId>camel-jms</artifactId>
         </exclusion>
-        <exclusion>
-          <groupId>org.apache.camel</groupId>
-          <artifactId>camel-web</artifactId>
-        </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-pool</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-kahadb-store</artifactId>
       <scope>test</scope>
     </dependency>
 
