@@ -33,10 +33,6 @@
   <name>${project.artifactId}</name>
   <description>FuseSource :: Camel Tooling Util</description>
 
-  <prerequisites>
-    <maven>2.0.9</maven>
-  </prerequisites>
-
   <properties>
     <fuse.osgi.export>
         org.fusesource.camel.tooling.util.*,
@@ -258,11 +254,12 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire-version}</version>
           <configuration>
-<!--
-              <excludes>
+  <!-- skip this test as it requires some manual setup
+  initializationError(org.fusesource.camel.tooling.util.ArchetypeTest): No file available at /Users/davsclaus/.repo.fusesource.com.properties to contain the username and password to connect to the fusesource repo!
+  -->
+            <excludes>
                   <exclude>**/ArchetypeTest.*</exclude>
               </excludes>
--->
               <systemPropertyVariables>
                   <camel-version>${camel-version}</camel-version>
                   <basedir>${basedir}</basedir>
