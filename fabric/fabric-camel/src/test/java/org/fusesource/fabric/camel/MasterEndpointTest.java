@@ -61,7 +61,7 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
         List<Route> registeredRoutes = camelContext.getRoutes();
         Assert.assertEquals("number of routes", 1, registeredRoutes.size());
         MasterEndpoint endpoint = (MasterEndpoint) registeredRoutes.get(0).getEndpoint();
-        Assert.assertEquals("wrong endpoint uri", "seda:bar?size=10", endpoint.getChild());
+        Assert.assertEquals("wrong endpoint uri", "seda:bar", endpoint.getChild());
 
         System.out.println("===== starting test of Master endpoint!");
 

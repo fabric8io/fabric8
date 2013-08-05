@@ -57,7 +57,7 @@ public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTest
     	SpringRouteBuilder route = new SpringRouteBuilder() {
     		@Override
              public void configure() throws Exception {   
-                from("fabric:cheese:seda:bar?size=10").routeId(ROUTE_NAME).to("log:mylog");
+                from("fabric:cheese:seda:bar").routeId(ROUTE_NAME).to("log:mylog");
              }
         };
 
@@ -67,7 +67,7 @@ public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTest
         Assert.assertEquals("route name", ROUTE_NAME,registeredRoutes.get(0).getId());
         // make sure the parameters are passed to the child endpoint
         FabricPublisherEndpoint endpoint = (FabricPublisherEndpoint) registeredRoutes.get(0).getEndpoint();
-        Assert.assertEquals("wrong endpoint uri", "seda:bar?size=10", endpoint.getChild());
+        Assert.assertEquals("wrong endpoint uri", "seda:bar", endpoint.getChild());
 
     }
 }

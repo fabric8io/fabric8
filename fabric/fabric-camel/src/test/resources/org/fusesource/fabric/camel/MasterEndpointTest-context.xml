@@ -33,7 +33,7 @@
   <camelContext xmlns="http://camel.apache.org/schema/spring" depends-on="curator">
 
     <route>
-      <from uri="master:master-000:seda:bar?size=10"/>
+      <from uri="master:master-000:seda:bar"/>
       <to uri="mock:results"/>
     </route>
 
