@@ -117,6 +117,7 @@ public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
         assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
     }
 
+    @Ignore
     @Test
     public void testGetTopicProducers() throws Exception {
         assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
