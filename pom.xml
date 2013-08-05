@@ -1305,6 +1305,17 @@
              <artifactId>activemq-kahadb-store</artifactId>
              <version>${activemq-version}</version>
           </dependency>
+          <dependency>
+             <groupId>org.apache.activemq</groupId>
+             <artifactId>activemq-spring</artifactId>
+             <version>${activemq-version}</version>
+             <exclusions>
+               <exclusion>
+                 <groupId>org.springframework</groupId>
+                 <artifactId>spring-beans</artifactId>
+                </exclusion>
+            </exclusions>
+          </dependency>
 
           <dependency>
              <groupId>org.mvel</groupId>
