@@ -97,6 +97,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return this;
         }
 
+        public Builder computeService(final Object computeService) {
+            this.computeService = computeService;
+            return this;
+        }
+
         public Builder contextName(final String contextName) {
             this.contextName = contextName;
             return this;
@@ -212,6 +217,10 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                 }
             }
             return this;
+        }
+
+        public void setComputeService(Object computeService) {
+            this.computeService = computeService;
         }
 
         public String getOsFamily() {
