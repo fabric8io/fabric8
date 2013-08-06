@@ -103,11 +103,16 @@ public class
     private static final String RMI_SERVER_BINDING_PORT_KEY = "rmiServerPort";
     private static final String SSH_BINDING_PORT_KEY = "sshPort";
     private static final String HTTP_BINDING_PORT_KEY = "org.osgi.service.http.port";
+    private static final String HTTPS_BINDING_PORT_KEY = "org.osgi.service.http.port.secure";
 
     private static final String RMI_REGISTRY_CONNECTION_PORT_KEY = "rmiRegistryConnectionPort";
     private static final String RMI_SERVER_CONNECTION_PORT_KEY = "rmiServerConnectionPort";
     private static final String SSH_CONNECTION_PORT_KEY = "sshConnectionPort";
     private static final String HTTP_CONNECTION_PORT_KEY = "org.osgi.service.http.connection.port";
+    private static final String HTTPS_CONNECTION_PORT_KEY = "org.osgi.service.http.connection.port.secure";
+
+    private static final String HTTP_ENABLED = "org.osgi.service.http.enabled";
+    private static final String HTTPS_ENABLED = "org.osgi.service.http.secure.enabled";
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
@@ -306,13 +311,36 @@ public class
 
 
     private void registerHttp(Container container) throws Exception {
-        int httpPort = getHttpPort(container);
-        int httpConnectionPort = getHttpConnectionPort(container);
-        String httpUrl = getHttpUrl(container.getId(), httpConnectionPort);
+        boolean httpEnabled = isHttpEnabled();
+        boolean httpsEnabled = isHttpsEnabled();
+        String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
+        int httpPort = httpsEnabled && !httpEnabled ? getHttpsPort(container) : getHttpPort(container);
+        int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpConnectionPort(container) : getHttpsConnectionPort(container);
+        String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
         fabricService.getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
         Configuration configuration = configurationAdmin.getConfiguration(HTTP_PID);
         updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
+    }
+
+    private boolean isHttpEnabled() throws IOException {
+        Configuration configuration = configurationAdmin.getConfiguration(HTTP_PID);
+        Dictionary properties = configuration.getProperties();
+        if (properties != null && properties.get(HTTP_ENABLED) != null) {
+            return Boolean.parseBoolean(String.valueOf(properties.get(HTTP_ENABLED)));
+        } else {
+            return true;
+        }
+    }
+
+    private boolean isHttpsEnabled() throws IOException {
+        Configuration configuration = configurationAdmin.getConfiguration(HTTP_PID);
+        Dictionary properties = configuration.getProperties();
+        if (properties != null && properties.get(HTTPS_ENABLED) != null) {
+            return Boolean.parseBoolean(String.valueOf(properties.get(HTTPS_ENABLED)));
+        } else {
+            return false;
+        }
     }
 
     private int getHttpPort(Container container) throws KeeperException, InterruptedException, IOException {
@@ -323,8 +351,16 @@ public class
         return getPortForKey(container, HTTP_PID, HTTP_CONNECTION_PORT_KEY, getHttpPort(container));
     }
 
-    private String getHttpUrl(String name, int httpConnectionPort) throws IOException, KeeperException, InterruptedException {
-        return "http://${zk:" + name + "/ip}:" + httpConnectionPort;
+    private String getHttpUrl(String protocol, String name, int httpConnectionPort) throws IOException, KeeperException, InterruptedException {
+        return protocol+"://${zk:" + name + "/ip}:" + httpConnectionPort;
+    }
+
+    private int getHttpsPort(Container container) throws KeeperException, InterruptedException, IOException {
+        return getOrAllocatePortForKey(container, HTTP_PID, HTTPS_BINDING_PORT_KEY, Ports.DEFAULT_HTTPS_PORT);
+    }
+
+    private int getHttpsConnectionPort(Container container) throws KeeperException, InterruptedException, IOException {
+        return getPortForKey(container, HTTP_PID, HTTPS_CONNECTION_PORT_KEY, getHttpsPort(container));
     }
 
 
@@ -562,9 +598,12 @@ public class
             }
             if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                 Configuration config = configurationAdmin.getConfiguration(HTTP_PID);
-                int httpPort = Integer.parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY));
-                int httpConnectionPort = getHttpConnectionPort(current);
-                String httpUrl = getHttpUrl(name, httpConnectionPort);
+                boolean httpEnabled = isHttpEnabled();
+                boolean httpsEnabled = isHttpsEnabled();
+                String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
+                int httpPort = httpsEnabled && !httpEnabled ? Integer.parseInt((String) config.getProperties().get(HTTPS_BINDING_PORT_KEY)) : Integer.parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY)) ;
+                int httpConnectionPort =  httpsEnabled && !httpEnabled ? getHttpsConnectionPort(current) : getHttpConnectionPort(current);
+                String httpUrl = getHttpUrl(protocol, name, httpConnectionPort);
                 setData(curator, CONTAINER_HTTP.getPath(name), httpUrl);
                 if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
                     fabricService.getPortService().unRegisterPort(current, HTTP_PID);

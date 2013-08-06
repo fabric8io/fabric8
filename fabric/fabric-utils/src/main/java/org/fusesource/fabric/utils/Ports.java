@@ -37,6 +37,7 @@ public class Ports {
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
     public static final int DEFAULT_RMI_REGISTRY_PORT = 1099;
     public static final int DEFAULT_HTTP_PORT = 8181;
+    public static final int DEFAULT_HTTPS_PORT = 8443;
 
 
     public static final int MIN_PORT_NUMBER = 0;
