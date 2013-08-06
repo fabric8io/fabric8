@@ -22,27 +22,33 @@ import java.util.List;
 
 import org.eclipse.emf.common.notify.AdapterFactory;
 import org.eclipse.emf.common.notify.Notification;
+
 import org.eclipse.emf.common.util.ResourceLocator;
+
 import org.eclipse.emf.ecore.EStructuralFeature;
+
+import org.eclipse.emf.edit.provider.ComposeableAdapterFactory;
 import org.eclipse.emf.edit.provider.IEditingDomainItemProvider;
 import org.eclipse.emf.edit.provider.IItemLabelProvider;
 import org.eclipse.emf.edit.provider.IItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.IItemPropertySource;
 import org.eclipse.emf.edit.provider.IStructuredItemContentProvider;
 import org.eclipse.emf.edit.provider.ITreeItemContentProvider;
+import org.eclipse.emf.edit.provider.ItemPropertyDescriptor;
 import org.eclipse.emf.edit.provider.ItemProviderAdapter;
 import org.eclipse.emf.edit.provider.ViewerNotification;
-import org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore;
+
+import org.fusesource.camel.component.sap.model.rfc.RecordMetaData;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 
 /**
- * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore} object.
+ * This is the item provider adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData} object.
  * <!-- begin-user-doc -->
  * <!-- end-user-doc -->
  * @generated
  */
-public class RepositoryDataStoreItemProvider
+public class RecordMetaDataItemProvider
 	extends ItemProviderAdapter
 	implements
 		IEditingDomainItemProvider,
@@ -56,7 +62,7 @@ public class RepositoryDataStoreItemProvider
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public RepositoryDataStoreItemProvider(AdapterFactory adapterFactory) {
+	public RecordMetaDataItemProvider(AdapterFactory adapterFactory) {
 		super(adapterFactory);
 	}
 
@@ -71,8 +77,54 @@ public class RepositoryDataStoreItemProvider
 		if (itemPropertyDescriptors == null) {
 			super.getPropertyDescriptors(object);
 
+			addNamePropertyDescriptor(object);
+			addRecordFieldMetaDataPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
+	}
+
+	/**
+	 * This adds a property descriptor for the Name feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addNamePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RecordMetaData_name_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_RecordMetaData_name_feature", "_UI_RecordMetaData_type"),
+				 RfcPackage.Literals.RECORD_META_DATA__NAME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Record Field Meta Data feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addRecordFieldMetaDataPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_RecordMetaData_recordFieldMetaData_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_RecordMetaData_recordFieldMetaData_feature", "_UI_RecordMetaData_type"),
+				 RfcPackage.Literals.RECORD_META_DATA__RECORD_FIELD_META_DATA,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
 	}
 
 	/**
@@ -87,7 +139,7 @@ public class RepositoryDataStoreItemProvider
 	public Collection<? extends EStructuralFeature> getChildrenFeatures(Object object) {
 		if (childrenFeatures == null) {
 			super.getChildrenFeatures(object);
-			childrenFeatures.add(RfcPackage.Literals.REPOSITORY_DATA_STORE__ENTRIES);
+			childrenFeatures.add(RfcPackage.Literals.RECORD_META_DATA__FIELD_META_DATA);
 		}
 		return childrenFeatures;
 	}
@@ -106,14 +158,14 @@ public class RepositoryDataStoreItemProvider
 	}
 
 	/**
-	 * This returns RepositoryDataStore.gif.
+	 * This returns RecordMetaData.gif.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
 	@Override
 	public Object getImage(Object object) {
-		return overlayImage(object, getResourceLocator().getImage("full/obj16/RepositoryDataStore"));
+		return overlayImage(object, getResourceLocator().getImage("full/obj16/RecordMetaData"));
 	}
 
 	/**
@@ -124,7 +176,10 @@ public class RepositoryDataStoreItemProvider
 	 */
 	@Override
 	public String getText(Object object) {
-		return getString("_UI_RepositoryDataStore_type");
+		String label = ((RecordMetaData)object).getName();
+		return label == null || label.length() == 0 ?
+			getString("_UI_RecordMetaData_type") :
+			getString("_UI_RecordMetaData_type") + " " + label;
 	}
 
 	/**
@@ -138,8 +193,12 @@ public class RepositoryDataStoreItemProvider
 	public void notifyChanged(Notification notification) {
 		updateChildren(notification);
 
-		switch (notification.getFeatureID(RepositoryDataStore.class)) {
-			case RfcPackage.REPOSITORY_DATA_STORE__ENTRIES:
+		switch (notification.getFeatureID(RecordMetaData.class)) {
+			case RfcPackage.RECORD_META_DATA__NAME:
+			case RfcPackage.RECORD_META_DATA__RECORD_FIELD_META_DATA:
+				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
+				return;
+			case RfcPackage.RECORD_META_DATA__FIELD_META_DATA:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), true, false));
 				return;
 		}
@@ -159,8 +218,8 @@ public class RepositoryDataStoreItemProvider
 
 		newChildDescriptors.add
 			(createChildParameter
-				(RfcPackage.Literals.REPOSITORY_DATA_STORE__ENTRIES,
-				 RfcFactory.eINSTANCE.create(RfcPackage.Literals.RESPOSITORY_DATA_STORE_ENTRY)));
+				(RfcPackage.Literals.RECORD_META_DATA__FIELD_META_DATA,
+				 RfcFactory.eINSTANCE.createFieldMetaData()));
 	}
 
 	/**

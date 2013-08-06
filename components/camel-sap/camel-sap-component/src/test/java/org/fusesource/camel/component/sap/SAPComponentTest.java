@@ -427,7 +427,8 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListStructureParam.isChanging());
 		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStructureParam.isException());
 		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListStructureParam.isOptional());
-		List<FieldMetaData> zjbossStructure = paramListStructureParam.getComplexFieldMetaData();
+		assertNotNull("RecordMetaData for 'PARAM_LIST_STRUCTURE_PARAM' not loaded into Repository Data Store", paramListStructureParam.getRecordMetaData());
+		List<FieldMetaData> zjbossStructure = paramListStructureParam.getRecordMetaData().getRecordFieldMetaData();
 		assertNotNull("ComplexFieldMetaData for 'PARAM_LIST_STRUCTURE_PARAM' not loaded into Repository Data Store", zjbossStructure);
 		// PARAM_LIST_TABLE_PARAM
 		ListFieldMetaData paramListTableParam = paramTestFunctionTemplate.getChangingParameterList().get(11);
@@ -439,7 +440,8 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertEquals("ListFieldMetaData property has incorrect value set", true, paramListTableParam.isChanging());
 		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTableParam.isException());
 		assertEquals("ListFieldMetaData property has incorrect value set", false, paramListTableParam.isOptional());
-		List<FieldMetaData> zjbossLineType = paramListTableParam.getComplexFieldMetaData();
+		assertNotNull("RecordMetaData for 'PARAM_LIST_TABLE_PARAM' not loaded into Repository Data Store", paramListTableParam.getRecordMetaData());
+		List<FieldMetaData> zjbossLineType = paramListTableParam.getRecordMetaData().getRecordFieldMetaData();
 		assertNotNull("ComplexFieldMetaData for 'PARAM_LIST_TABLE_PARAM' not loaded into Repository Data Store", zjbossLineType);
 		
 		// ZJBOSS_STRUCTURE

@@ -16,61 +16,17 @@
  */
 package org.fusesource.camel.component.sap;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
-
-import com.sap.conn.jco.JCoException;
-import com.sap.conn.jco.server.JCoServer;
-import com.sap.conn.jco.server.JCoServerContext;
-import com.sap.conn.jco.server.JCoServerFactory;
-import com.sap.conn.jco.server.JCoServerFunctionHandler;
-import com.sap.conn.jco.server.JCoServerFunctionHandlerFactory;
+import org.fusesource.camel.component.sap.SAPComponent.FunctionHandlerFactory;
 
 /**
  * Represents an SAP server endpoint for inbound communication from SAP.
  */
 public class SAPServerEndpoint extends SAPEndpoint {
 
-	class FunctionHandlerFactory implements JCoServerFunctionHandlerFactory {
-		
-		class SessionContext {
-			Map<String, Object> cachedSessionData = new HashMap<String, Object>(); 
-		}
-		
-		private Map<String, JCoServerFunctionHandler> callHandlers = new HashMap<String, JCoServerFunctionHandler>();
-		private Map<String, SessionContext> statefulSessions = new HashMap<String, SessionContext>();
-		
-		public void registerHandler(String functionName, JCoServerFunctionHandler handler) {
-			callHandlers.put(functionName, handler);
-		}
-
-		public JCoServerFunctionHandler unregisterHandler(String functionName) {
-			return callHandlers.remove(functionName);
-		}
-
-		@Override
-		public void sessionClosed(JCoServerContext serverContext, String arg1, boolean arg2) {
-			statefulSessions.remove(serverContext.getSessionID());
-		}
-
-		@Override
-		public JCoServerFunctionHandler getCallHandler(JCoServerContext serverContext, String functionName) {
-			JCoServerFunctionHandler handler = callHandlers.get(functionName);
-			if (handler == null)
-				return null;
-			
-			return null;
-		}
-		
-	}
-	
 	protected String serverName;
-	protected String rfcName;
-	protected JCoServer server;
 	
 	public SAPServerEndpoint() {
 		super();
@@ -80,7 +36,19 @@ public class SAPServerEndpoint extends SAPEndpoint {
 		super(endpointUri, component);
 	}
 
+	public String getServerName() {
+		return serverName;
+	}
 
+	public void setServerName(String serverName) {
+		this.serverName = serverName;
+	}
+
+	@Override
+	public SAPComponent getComponent() {
+		return (SAPComponent) super.getComponent();
+	}
+	
 	@Override
 	public boolean isServer() {
 		return true;
@@ -94,13 +62,12 @@ public class SAPServerEndpoint extends SAPEndpoint {
 
 	@Override
 	public Consumer createConsumer(Processor processor) throws Exception {
-		return new SAPConsumer(this, processor);
-	}
-
-	protected JCoServer getServer() throws JCoException {
-		if (server == null) {
-			server = JCoServerFactory.getServer(serverName);
+		FunctionHandlerFactory handlerFactory = getComponent().getServerHandlerFactory(serverName);
+		if (handlerFactory == null) {
+			throw new IllegalStateException("Function Handler Factory for '" + serverName + "' missing.");
 		}
-		return server;
+		SAPConsumer consumer = new SAPConsumer(this, processor);
+		handlerFactory.registerHandler(getRfcName(), consumer);
+		return consumer;
 	}
 }

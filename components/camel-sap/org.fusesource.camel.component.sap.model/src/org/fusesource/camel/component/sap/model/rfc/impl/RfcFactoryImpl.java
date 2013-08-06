@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.impl.EFactoryImpl;
 import org.eclipse.emf.ecore.plugin.EcorePlugin;
+import org.fusesource.camel.component.sap.model.rfc.*;
 import org.fusesource.camel.component.sap.model.rfc.AbapException;
 import org.fusesource.camel.component.sap.model.rfc.DataType;
 import org.fusesource.camel.component.sap.model.rfc.Destination;
@@ -101,6 +102,7 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 			case RfcPackage.SERVER_DATA_STORE_ENTRY: return (EObject)createServerDataStoreEntry();
 			case RfcPackage.SERVER_DATA_STORE: return createServerDataStore();
 			case RfcPackage.FUNCTION_TEMPLATE: return createFunctionTemplate();
+			case RfcPackage.RECORD_META_DATA: return createRecordMetaData();
 			case RfcPackage.FIELD_META_DATA: return createFieldMetaData();
 			case RfcPackage.LIST_FIELD_META_DATA: return createListFieldMetaData();
 			case RfcPackage.ABAP_EXCEPTION: return createAbapException();
@@ -281,6 +283,16 @@ public class RfcFactoryImpl extends EFactoryImpl implements RfcFactory {
 	public FunctionTemplate createFunctionTemplate() {
 		FunctionTemplateImpl functionTemplate = new FunctionTemplateImpl();
 		return functionTemplate;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public RecordMetaData createRecordMetaData() {
+		RecordMetaDataImpl recordMetaData = new RecordMetaDataImpl();
+		return recordMetaData;
 	}
 
 	/**

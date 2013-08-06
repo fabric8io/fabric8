@@ -1177,6 +1177,52 @@ public interface RfcPackage extends EPackage {
 	int FUNCTION_TEMPLATE_FEATURE_COUNT = 9;
 
 	/**
+	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl <em>Record Meta Data</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl
+	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRecordMetaData()
+	 * @generated
+	 */
+	int RECORD_META_DATA = 14;
+
+	/**
+	 * The feature id for the '<em><b>Field Meta Data</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RECORD_META_DATA__FIELD_META_DATA = 0;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RECORD_META_DATA__NAME = 1;
+
+	/**
+	 * The feature id for the '<em><b>Record Field Meta Data</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RECORD_META_DATA__RECORD_FIELD_META_DATA = 2;
+
+	/**
+	 * The number of structural features of the '<em>Record Meta Data</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RECORD_META_DATA_FEATURE_COUNT = 3;
+
+	/**
 	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl <em>Field Meta Data</em>}' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -1184,7 +1230,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFieldMetaData()
 	 * @generated
 	 */
-	int FIELD_META_DATA = 14;
+	int FIELD_META_DATA = 15;
 
 	/**
 	 * The feature id for the '<em><b>Field Meta Data</b></em>' containment reference list.
@@ -1268,13 +1314,13 @@ public interface RfcPackage extends EPackage {
 	int FIELD_META_DATA__DESCRIPTION = 8;
 
 	/**
-	 * The feature id for the '<em><b>Complex Field Meta Data</b></em>' attribute.
+	 * The feature id for the '<em><b>Record Meta Data</b></em>' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int FIELD_META_DATA__COMPLEX_FIELD_META_DATA = 9;
+	int FIELD_META_DATA__RECORD_META_DATA = 9;
 
 	/**
 	 * The number of structural features of the '<em>Field Meta Data</em>' class.
@@ -1293,7 +1339,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getListFieldMetaData()
 	 * @generated
 	 */
-	int LIST_FIELD_META_DATA = 15;
+	int LIST_FIELD_META_DATA = 16;
 
 	/**
 	 * The feature id for the '<em><b>Field Meta Data</b></em>' containment reference list.
@@ -1413,13 +1459,13 @@ public interface RfcPackage extends EPackage {
 	int LIST_FIELD_META_DATA__OPTIONAL = 12;
 
 	/**
-	 * The feature id for the '<em><b>Complex Field Meta Data</b></em>' attribute.
+	 * The feature id for the '<em><b>Record Meta Data</b></em>' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA = 13;
+	int LIST_FIELD_META_DATA__RECORD_META_DATA = 13;
 
 	/**
 	 * The number of structural features of the '<em>List Field Meta Data</em>' class.
@@ -1438,7 +1484,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getAbapException()
 	 * @generated
 	 */
-	int ABAP_EXCEPTION = 16;
+	int ABAP_EXCEPTION = 17;
 
 	/**
 	 * The feature id for the '<em><b>Key</b></em>' attribute.
@@ -1475,7 +1521,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRespositoryDataEntry()
 	 * @generated
 	 */
-	int RESPOSITORY_DATA_ENTRY = 17;
+	int RESPOSITORY_DATA_ENTRY = 18;
 
 	/**
 	 * The feature id for the '<em><b>Key</b></em>' attribute.
@@ -1512,7 +1558,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRepositoryData()
 	 * @generated
 	 */
-	int REPOSITORY_DATA = 18;
+	int REPOSITORY_DATA = 19;
 
 	/**
 	 * The feature id for the '<em><b>Entries</b></em>' map.
@@ -1549,7 +1595,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRepositoryDataStore()
 	 * @generated
 	 */
-	int REPOSITORY_DATA_STORE = 19;
+	int REPOSITORY_DATA_STORE = 20;
 
 	/**
 	 * The feature id for the '<em><b>Entries</b></em>' map.
@@ -1577,7 +1623,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRespositoryDataStoreEntry()
 	 * @generated
 	 */
-	int RESPOSITORY_DATA_STORE_ENTRY = 20;
+	int RESPOSITORY_DATA_STORE_ENTRY = 21;
 
 	/**
 	 * The feature id for the '<em><b>Key</b></em>' attribute.
@@ -1614,7 +1660,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getDataType()
 	 * @generated
 	 */
-	int DATA_TYPE = 21;
+	int DATA_TYPE = 22;
 
 
 	/**
@@ -1625,7 +1671,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getParameterList()
 	 * @generated
 	 */
-	int PARAMETER_LIST = 22;
+	int PARAMETER_LIST = 23;
 
 	/**
 	 * The meta object id for the '<em>Field List</em>' data type.
@@ -1635,7 +1681,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFieldList()
 	 * @generated
 	 */
-	int FIELD_LIST = 23;
+	int FIELD_LIST = 24;
 
 	/**
 	 * The meta object id for the '<em>Abap Exception List</em>' data type.
@@ -1645,7 +1691,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getAbapExceptionList()
 	 * @generated
 	 */
-	int ABAP_EXCEPTION_LIST = 24;
+	int ABAP_EXCEPTION_LIST = 25;
 
 
 	/**
@@ -1656,7 +1702,7 @@ public interface RfcPackage extends EPackage {
 	 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getFunctionTemplateMap()
 	 * @generated
 	 */
-	int FUNCTION_TEMPLATE_MAP = 25;
+	int FUNCTION_TEMPLATE_MAP = 26;
 
 
 	/**
@@ -2831,6 +2877,49 @@ public interface RfcPackage extends EPackage {
 	EAttribute getFunctionTemplate_ExceptionList();
 
 	/**
+	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData <em>Record Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Record Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RecordMetaData
+	 * @generated
+	 */
+	EClass getRecordMetaData();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData#getFieldMetaData <em>Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RecordMetaData#getFieldMetaData()
+	 * @see #getRecordMetaData()
+	 * @generated
+	 */
+	EReference getRecordMetaData_FieldMetaData();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RecordMetaData#getName()
+	 * @see #getRecordMetaData()
+	 * @generated
+	 */
+	EAttribute getRecordMetaData_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData#getRecordFieldMetaData <em>Record Field Meta Data</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Record Field Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.RecordMetaData#getRecordFieldMetaData()
+	 * @see #getRecordMetaData()
+	 * @generated
+	 */
+	EAttribute getRecordMetaData_RecordFieldMetaData();
+
+	/**
 	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData <em>Field Meta Data</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -2940,15 +3029,15 @@ public interface RfcPackage extends EPackage {
 	EAttribute getFieldMetaData_Description();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getComplexFieldMetaData <em>Complex Field Meta Data</em>}'.
+	 * Returns the meta object for the reference '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getRecordMetaData <em>Record Meta Data</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Complex Field Meta Data</em>'.
-	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getComplexFieldMetaData()
+	 * @return the meta object for the reference '<em>Record Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getRecordMetaData()
 	 * @see #getFieldMetaData()
 	 * @generated
 	 */
-	EAttribute getFieldMetaData_ComplexFieldMetaData();
+	EReference getFieldMetaData_RecordMetaData();
 
 	/**
 	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData <em>List Field Meta Data</em>}'.
@@ -3104,15 +3193,15 @@ public interface RfcPackage extends EPackage {
 	EAttribute getListFieldMetaData_Optional();
 
 	/**
-	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getComplexFieldMetaData <em>Complex Field Meta Data</em>}'.
+	 * Returns the meta object for the reference '{@link org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getRecordMetaData <em>Record Meta Data</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the meta object for the attribute '<em>Complex Field Meta Data</em>'.
-	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getComplexFieldMetaData()
+	 * @return the meta object for the reference '<em>Record Meta Data</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData#getRecordMetaData()
 	 * @see #getListFieldMetaData()
 	 * @generated
 	 */
-	EAttribute getListFieldMetaData_ComplexFieldMetaData();
+	EReference getListFieldMetaData_RecordMetaData();
 
 	/**
 	 * Returns the meta object for class '{@link org.fusesource.camel.component.sap.model.rfc.AbapException <em>Abap Exception</em>}'.
@@ -4228,6 +4317,40 @@ public interface RfcPackage extends EPackage {
 		EAttribute FUNCTION_TEMPLATE__EXCEPTION_LIST = eINSTANCE.getFunctionTemplate_ExceptionList();
 
 		/**
+		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl <em>Record Meta Data</em>}' class.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl
+		 * @see org.fusesource.camel.component.sap.model.rfc.impl.RfcPackageImpl#getRecordMetaData()
+		 * @generated
+		 */
+		EClass RECORD_META_DATA = eINSTANCE.getRecordMetaData();
+
+		/**
+		 * The meta object literal for the '<em><b>Field Meta Data</b></em>' containment reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference RECORD_META_DATA__FIELD_META_DATA = eINSTANCE.getRecordMetaData_FieldMetaData();
+
+		/**
+		 * The meta object literal for the '<em><b>Name</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RECORD_META_DATA__NAME = eINSTANCE.getRecordMetaData_Name();
+
+		/**
+		 * The meta object literal for the '<em><b>Record Field Meta Data</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute RECORD_META_DATA__RECORD_FIELD_META_DATA = eINSTANCE.getRecordMetaData_RecordFieldMetaData();
+
+		/**
 		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl <em>Field Meta Data</em>}' class.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
@@ -4310,12 +4433,12 @@ public interface RfcPackage extends EPackage {
 		EAttribute FIELD_META_DATA__DESCRIPTION = eINSTANCE.getFieldMetaData_Description();
 
 		/**
-		 * The meta object literal for the '<em><b>Complex Field Meta Data</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Record Meta Data</b></em>' reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute FIELD_META_DATA__COMPLEX_FIELD_META_DATA = eINSTANCE.getFieldMetaData_ComplexFieldMetaData();
+		EReference FIELD_META_DATA__RECORD_META_DATA = eINSTANCE.getFieldMetaData_RecordMetaData();
 
 		/**
 		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl <em>List Field Meta Data</em>}' class.
@@ -4432,12 +4555,12 @@ public interface RfcPackage extends EPackage {
 		EAttribute LIST_FIELD_META_DATA__OPTIONAL = eINSTANCE.getListFieldMetaData_Optional();
 
 		/**
-		 * The meta object literal for the '<em><b>Complex Field Meta Data</b></em>' attribute feature.
+		 * The meta object literal for the '<em><b>Record Meta Data</b></em>' reference feature.
 		 * <!-- begin-user-doc -->
 		 * <!-- end-user-doc -->
 		 * @generated
 		 */
-		EAttribute LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA = eINSTANCE.getListFieldMetaData_ComplexFieldMetaData();
+		EReference LIST_FIELD_META_DATA__RECORD_META_DATA = eINSTANCE.getListFieldMetaData_RecordMetaData();
 
 		/**
 		 * The meta object literal for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.AbapExceptionImpl <em>Abap Exception</em>}' class.

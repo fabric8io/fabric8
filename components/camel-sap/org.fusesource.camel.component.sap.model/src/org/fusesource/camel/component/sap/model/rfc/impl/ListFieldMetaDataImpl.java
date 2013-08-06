@@ -33,6 +33,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
 import org.fusesource.camel.component.sap.model.rfc.DataType;
 import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
 import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RecordMetaData;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 
 /**
@@ -55,7 +56,7 @@ import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl#isExport <em>Export</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl#isException <em>Exception</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl#isOptional <em>Optional</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl#getComplexFieldMetaData <em>Complex Field Meta Data</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl#getRecordMetaData <em>Record Meta Data</em>}</li>
  * </ul>
  * </p>
  *
@@ -311,6 +312,16 @@ public class ListFieldMetaDataImpl extends EObjectImpl implements ListFieldMetaD
 	 * @ordered
 	 */
 	protected boolean optional = OPTIONAL_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getRecordMetaData() <em>Record Meta Data</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRecordMetaData()
+	 * @generated
+	 * @ordered
+	 */
+	protected RecordMetaData recordMetaData;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -619,6 +630,44 @@ public class ListFieldMetaDataImpl extends EObjectImpl implements ListFieldMetaD
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public RecordMetaData getRecordMetaData() {
+		if (recordMetaData != null && recordMetaData.eIsProxy()) {
+			InternalEObject oldRecordMetaData = (InternalEObject)recordMetaData;
+			recordMetaData = (RecordMetaData)eResolveProxy(oldRecordMetaData);
+			if (recordMetaData != oldRecordMetaData) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, RfcPackage.LIST_FIELD_META_DATA__RECORD_META_DATA, oldRecordMetaData, recordMetaData));
+			}
+		}
+		return recordMetaData;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public RecordMetaData basicGetRecordMetaData() {
+		return recordMetaData;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setRecordMetaData(RecordMetaData newRecordMetaData) {
+		RecordMetaData oldRecordMetaData = recordMetaData;
+		recordMetaData = newRecordMetaData;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.LIST_FIELD_META_DATA__RECORD_META_DATA, oldRecordMetaData, recordMetaData));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
@@ -662,8 +711,9 @@ public class ListFieldMetaDataImpl extends EObjectImpl implements ListFieldMetaD
 				return isException();
 			case RfcPackage.LIST_FIELD_META_DATA__OPTIONAL:
 				return isOptional();
-			case RfcPackage.LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				return getComplexFieldMetaData();
+			case RfcPackage.LIST_FIELD_META_DATA__RECORD_META_DATA:
+				if (resolve) return getRecordMetaData();
+				return basicGetRecordMetaData();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -717,8 +767,8 @@ public class ListFieldMetaDataImpl extends EObjectImpl implements ListFieldMetaD
 			case RfcPackage.LIST_FIELD_META_DATA__OPTIONAL:
 				setOptional((Boolean)newValue);
 				return;
-			case RfcPackage.LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				setComplexFieldMetaData((List<FieldMetaData>)newValue);
+			case RfcPackage.LIST_FIELD_META_DATA__RECORD_META_DATA:
+				setRecordMetaData((RecordMetaData)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -771,8 +821,8 @@ public class ListFieldMetaDataImpl extends EObjectImpl implements ListFieldMetaD
 			case RfcPackage.LIST_FIELD_META_DATA__OPTIONAL:
 				setOptional(OPTIONAL_EDEFAULT);
 				return;
-			case RfcPackage.LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				setComplexFieldMetaData((List<FieldMetaData>)null);
+			case RfcPackage.LIST_FIELD_META_DATA__RECORD_META_DATA:
+				setRecordMetaData((RecordMetaData)null);
 				return;
 		}
 		super.eUnset(featureID);
@@ -812,8 +862,8 @@ public class ListFieldMetaDataImpl extends EObjectImpl implements ListFieldMetaD
 				return exception != EXCEPTION_EDEFAULT;
 			case RfcPackage.LIST_FIELD_META_DATA__OPTIONAL:
 				return optional != OPTIONAL_EDEFAULT;
-			case RfcPackage.LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				return getComplexFieldMetaData() != null;
+			case RfcPackage.LIST_FIELD_META_DATA__RECORD_META_DATA:
+				return recordMetaData != null;
 		}
 		return super.eIsSet(featureID);
 	}

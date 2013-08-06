@@ -17,21 +17,19 @@
 package org.fusesource.camel.component.sap.model.rfc.impl;
 
 import java.util.Collection;
-import java.util.List;
-import org.eclipse.emf.common.notify.Notification;
 
+import org.eclipse.emf.common.notify.Notification;
 import org.eclipse.emf.common.notify.NotificationChain;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.InternalEObject;
-
 import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.EObjectImpl;
-
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 import org.fusesource.camel.component.sap.model.rfc.DataType;
 import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RecordMetaData;
 import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
 
 /**
@@ -50,7 +48,7 @@ import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl#getUnicodeByteOffset <em>Unicode Byte Offset</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl#getDecimals <em>Decimals</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl#getDescription <em>Description</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl#getComplexFieldMetaData <em>Complex Field Meta Data</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl#getRecordMetaData <em>Record Meta Data</em>}</li>
  * </ul>
  * </p>
  *
@@ -226,6 +224,16 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 	 * @ordered
 	 */
 	protected String description = DESCRIPTION_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getRecordMetaData() <em>Record Meta Data</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getRecordMetaData()
+	 * @generated
+	 * @ordered
+	 */
+	protected RecordMetaData recordMetaData;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -431,10 +439,16 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public List<FieldMetaData> getComplexFieldMetaData() {
-		// TODO: implement this method to return the 'Complex Field Meta Data' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+	public RecordMetaData getRecordMetaData() {
+		if (recordMetaData != null && recordMetaData.eIsProxy()) {
+			InternalEObject oldRecordMetaData = (InternalEObject)recordMetaData;
+			recordMetaData = (RecordMetaData)eResolveProxy(oldRecordMetaData);
+			if (recordMetaData != oldRecordMetaData) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, RfcPackage.FIELD_META_DATA__RECORD_META_DATA, oldRecordMetaData, recordMetaData));
+			}
+		}
+		return recordMetaData;
 	}
 
 	/**
@@ -442,10 +456,20 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public void setComplexFieldMetaData(List<FieldMetaData> newComplexFieldMetaData) {
-		// TODO: implement this method to set the 'Complex Field Meta Data' attribute
-		// Ensure that you remove @generated or mark it @generated NOT
-		throw new UnsupportedOperationException();
+	public RecordMetaData basicGetRecordMetaData() {
+		return recordMetaData;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setRecordMetaData(RecordMetaData newRecordMetaData) {
+		RecordMetaData oldRecordMetaData = recordMetaData;
+		recordMetaData = newRecordMetaData;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, RfcPackage.FIELD_META_DATA__RECORD_META_DATA, oldRecordMetaData, recordMetaData));
 	}
 
 	/**
@@ -488,8 +512,9 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 				return getDecimals();
 			case RfcPackage.FIELD_META_DATA__DESCRIPTION:
 				return getDescription();
-			case RfcPackage.FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				return getComplexFieldMetaData();
+			case RfcPackage.FIELD_META_DATA__RECORD_META_DATA:
+				if (resolve) return getRecordMetaData();
+				return basicGetRecordMetaData();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -531,8 +556,8 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 			case RfcPackage.FIELD_META_DATA__DESCRIPTION:
 				setDescription((String)newValue);
 				return;
-			case RfcPackage.FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				setComplexFieldMetaData((List<FieldMetaData>)newValue);
+			case RfcPackage.FIELD_META_DATA__RECORD_META_DATA:
+				setRecordMetaData((RecordMetaData)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -573,8 +598,8 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 			case RfcPackage.FIELD_META_DATA__DESCRIPTION:
 				setDescription(DESCRIPTION_EDEFAULT);
 				return;
-			case RfcPackage.FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				setComplexFieldMetaData((List<FieldMetaData>)null);
+			case RfcPackage.FIELD_META_DATA__RECORD_META_DATA:
+				setRecordMetaData((RecordMetaData)null);
 				return;
 		}
 		super.eUnset(featureID);
@@ -606,8 +631,8 @@ public class FieldMetaDataImpl extends EObjectImpl implements FieldMetaData {
 				return decimals != DECIMALS_EDEFAULT;
 			case RfcPackage.FIELD_META_DATA__DESCRIPTION:
 				return DESCRIPTION_EDEFAULT == null ? description != null : !DESCRIPTION_EDEFAULT.equals(description);
-			case RfcPackage.FIELD_META_DATA__COMPLEX_FIELD_META_DATA:
-				return getComplexFieldMetaData() != null;
+			case RfcPackage.FIELD_META_DATA__RECORD_META_DATA:
+				return recordMetaData != null;
 		}
 		return super.eIsSet(featureID);
 	}

@@ -81,7 +81,7 @@ public class FieldMetaDataItemProvider
 			addUnicodeByteOffsetPropertyDescriptor(object);
 			addDecimalsPropertyDescriptor(object);
 			addDescriptionPropertyDescriptor(object);
-			addComplexFieldMetaDataPropertyDescriptor(object);
+			addRecordMetaDataPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -263,23 +263,23 @@ public class FieldMetaDataItemProvider
 	}
 
 	/**
-	 * This adds a property descriptor for the Complex Field Meta Data feature.
+	 * This adds a property descriptor for the Record Meta Data feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	protected void addComplexFieldMetaDataPropertyDescriptor(Object object) {
+	protected void addRecordMetaDataPropertyDescriptor(Object object) {
 		itemPropertyDescriptors.add
 			(createItemPropertyDescriptor
 				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
 				 getResourceLocator(),
-				 getString("_UI_FieldMetaData_complexFieldMetaData_feature"),
-				 getString("_UI_PropertyDescriptor_description", "_UI_FieldMetaData_complexFieldMetaData_feature", "_UI_FieldMetaData_type"),
-				 RfcPackage.Literals.FIELD_META_DATA__COMPLEX_FIELD_META_DATA,
+				 getString("_UI_FieldMetaData_recordMetaData_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_FieldMetaData_recordMetaData_feature", "_UI_FieldMetaData_type"),
+				 RfcPackage.Literals.FIELD_META_DATA__RECORD_META_DATA,
 				 true,
 				 false,
 				 true,
-				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
 				 null,
 				 null));
 	}

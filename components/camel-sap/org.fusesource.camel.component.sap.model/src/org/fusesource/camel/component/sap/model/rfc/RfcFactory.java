@@ -126,6 +126,15 @@ public interface RfcFactory extends EFactory {
 	FunctionTemplate createFunctionTemplate();
 
 	/**
+	 * Returns a new object of class '<em>Record Meta Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return a new object of class '<em>Record Meta Data</em>'.
+	 * @generated
+	 */
+	RecordMetaData createRecordMetaData();
+
+	/**
 	 * Returns a new object of class '<em>Field Meta Data</em>'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->

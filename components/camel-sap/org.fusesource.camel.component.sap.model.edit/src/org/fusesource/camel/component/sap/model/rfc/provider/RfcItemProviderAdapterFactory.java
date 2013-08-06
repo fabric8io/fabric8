@@ -406,6 +406,29 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 	}
 
 	/**
+	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData} instances.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected RecordMetaDataItemProvider recordMetaDataItemProvider;
+
+	/**
+	 * This creates an adapter for a {@link org.fusesource.camel.component.sap.model.rfc.RecordMetaData}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Adapter createRecordMetaDataAdapter() {
+		if (recordMetaDataItemProvider == null) {
+			recordMetaDataItemProvider = new RecordMetaDataItemProvider(this);
+		}
+
+		return recordMetaDataItemProvider;
+	}
+
+	/**
 	 * This keeps track of the one adapter used for all {@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData} instances.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -679,6 +702,7 @@ public class RfcItemProviderAdapterFactory extends RfcAdapterFactory implements 
 		if (serverDataStoreEntryItemProvider != null) serverDataStoreEntryItemProvider.dispose();
 		if (serverDataStoreItemProvider != null) serverDataStoreItemProvider.dispose();
 		if (functionTemplateItemProvider != null) functionTemplateItemProvider.dispose();
+		if (recordMetaDataItemProvider != null) recordMetaDataItemProvider.dispose();
 		if (fieldMetaDataItemProvider != null) fieldMetaDataItemProvider.dispose();
 		if (listFieldMetaDataItemProvider != null) listFieldMetaDataItemProvider.dispose();
 		if (abapExceptionItemProvider != null) abapExceptionItemProvider.dispose();

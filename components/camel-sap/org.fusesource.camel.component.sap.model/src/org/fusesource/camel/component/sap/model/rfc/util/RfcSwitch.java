@@ -21,6 +21,7 @@ import java.util.Map;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.util.Switch;
+import org.fusesource.camel.component.sap.model.rfc.*;
 import org.fusesource.camel.component.sap.model.rfc.AbapException;
 import org.fusesource.camel.component.sap.model.rfc.Destination;
 import org.fusesource.camel.component.sap.model.rfc.DestinationData;
@@ -176,6 +177,12 @@ public class RfcSwitch<T> extends Switch<T> {
 			case RfcPackage.FUNCTION_TEMPLATE: {
 				FunctionTemplate functionTemplate = (FunctionTemplate)theEObject;
 				T result = caseFunctionTemplate(functionTemplate);
+				if (result == null) result = defaultCase(theEObject);
+				return result;
+			}
+			case RfcPackage.RECORD_META_DATA: {
+				RecordMetaData recordMetaData = (RecordMetaData)theEObject;
+				T result = caseRecordMetaData(recordMetaData);
 				if (result == null) result = defaultCase(theEObject);
 				return result;
 			}
@@ -432,6 +439,21 @@ public class RfcSwitch<T> extends Switch<T> {
 	 * @generated
 	 */
 	public T caseFunctionTemplate(FunctionTemplate object) {
+		return null;
+	}
+
+	/**
+	 * Returns the result of interpreting the object as an instance of '<em>Record Meta Data</em>'.
+	 * <!-- begin-user-doc -->
+	 * This implementation returns null;
+	 * returning a non-null result will terminate the switch.
+	 * <!-- end-user-doc -->
+	 * @param object the target of the switch.
+	 * @return the result of interpreting the object as an instance of '<em>Record Meta Data</em>'.
+	 * @see #doSwitch(org.eclipse.emf.ecore.EObject) doSwitch(EObject)
+	 * @generated
+	 */
+	public T caseRecordMetaData(RecordMetaData object) {
 		return null;
 	}
 

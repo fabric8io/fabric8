@@ -16,7 +16,6 @@
  */
 package org.fusesource.camel.component.sap.model.rfc;
 
-import java.util.List;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
@@ -37,7 +36,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getUnicodeByteOffset <em>Unicode Byte Offset</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getDecimals <em>Decimals</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getDescription <em>Description</em>}</li>
- *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getComplexFieldMetaData <em>Complex Field Meta Data</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getRecordMetaData <em>Record Meta Data</em>}</li>
  * </ul>
  * </p>
  *
@@ -73,7 +72,7 @@ public interface FieldMetaData extends EObject {
 	 * @return the value of the '<em>Name</em>' attribute.
 	 * @see #setName(String)
 	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFieldMetaData_Name()
-	 * @model
+	 * @model required="true"
 	 * @generated
 	 */
 	String getName();
@@ -101,7 +100,7 @@ public interface FieldMetaData extends EObject {
 	 * @see org.fusesource.camel.component.sap.model.rfc.DataType
 	 * @see #setType(DataType)
 	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFieldMetaData_Type()
-	 * @model
+	 * @model required="true"
 	 * @generated
 	 */
 	DataType getType();
@@ -274,29 +273,29 @@ public interface FieldMetaData extends EObject {
 	void setDescription(String value);
 
 	/**
-	 * Returns the value of the '<em><b>Complex Field Meta Data</b></em>' attribute.
+	 * Returns the value of the '<em><b>Record Meta Data</b></em>' reference.
 	 * <!-- begin-user-doc -->
 	 * <p>
-	 * If the meaning of the '<em>Complex Field Meta Data</em>' reference isn't clear,
+	 * If the meaning of the '<em>Record Meta Data</em>' reference isn't clear,
 	 * there really should be more of a description here...
 	 * </p>
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Complex Field Meta Data</em>' attribute.
-	 * @see #setComplexFieldMetaData(List)
-	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFieldMetaData_ComplexFieldMetaData()
-	 * @model dataType="org.fusesource.camel.component.sap.model.rfc.FieldList" transient="true" volatile="true" derived="true"
+	 * @return the value of the '<em>Record Meta Data</em>' reference.
+	 * @see #setRecordMetaData(RecordMetaData)
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFieldMetaData_RecordMetaData()
+	 * @model
 	 * @generated
 	 */
-	List<FieldMetaData> getComplexFieldMetaData();
+	RecordMetaData getRecordMetaData();
 
 	/**
-	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getComplexFieldMetaData <em>Complex Field Meta Data</em>}' attribute.
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.FieldMetaData#getRecordMetaData <em>Record Meta Data</em>}' reference.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @param value the new value of the '<em>Complex Field Meta Data</em>' attribute.
-	 * @see #getComplexFieldMetaData()
+	 * @param value the new value of the '<em>Record Meta Data</em>' reference.
+	 * @see #getRecordMetaData()
 	 * @generated
 	 */
-	void setComplexFieldMetaData(List<FieldMetaData> value);
+	void setRecordMetaData(RecordMetaData value);
 
 } // FieldMetaData

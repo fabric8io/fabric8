@@ -37,6 +37,7 @@ import org.fusesource.camel.component.sap.model.rfc.DestinationDataStore;
 import org.fusesource.camel.component.sap.model.rfc.FieldMetaData;
 import org.fusesource.camel.component.sap.model.rfc.FunctionTemplate;
 import org.fusesource.camel.component.sap.model.rfc.ListFieldMetaData;
+import org.fusesource.camel.component.sap.model.rfc.RecordMetaData;
 import org.fusesource.camel.component.sap.model.rfc.RepositoryData;
 import org.fusesource.camel.component.sap.model.rfc.RepositoryDataStore;
 import org.fusesource.camel.component.sap.model.rfc.RfcFactory;
@@ -151,6 +152,13 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * @generated
 	 */
 	private EClass functionTemplateEClass = null;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	private EClass recordMetaDataEClass = null;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -1265,6 +1273,42 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
+	public EClass getRecordMetaData() {
+		return recordMetaDataEClass;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EReference getRecordMetaData_FieldMetaData() {
+		return (EReference)recordMetaDataEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getRecordMetaData_Name() {
+		return (EAttribute)recordMetaDataEClass.getEStructuralFeatures().get(1);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getRecordMetaData_RecordFieldMetaData() {
+		return (EAttribute)recordMetaDataEClass.getEStructuralFeatures().get(2);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
 	public EClass getFieldMetaData() {
 		return fieldMetaDataEClass;
 	}
@@ -1355,8 +1399,8 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getFieldMetaData_ComplexFieldMetaData() {
-		return (EAttribute)fieldMetaDataEClass.getEStructuralFeatures().get(9);
+	public EReference getFieldMetaData_RecordMetaData() {
+		return (EReference)fieldMetaDataEClass.getEStructuralFeatures().get(9);
 	}
 
 	/**
@@ -1490,8 +1534,8 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getListFieldMetaData_ComplexFieldMetaData() {
-		return (EAttribute)listFieldMetaDataEClass.getEStructuralFeatures().get(13);
+	public EReference getListFieldMetaData_RecordMetaData() {
+		return (EReference)listFieldMetaDataEClass.getEStructuralFeatures().get(13);
 	}
 
 	/**
@@ -1814,6 +1858,11 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST);
 		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__EXCEPTION_LIST);
 
+		recordMetaDataEClass = createEClass(RECORD_META_DATA);
+		createEReference(recordMetaDataEClass, RECORD_META_DATA__FIELD_META_DATA);
+		createEAttribute(recordMetaDataEClass, RECORD_META_DATA__NAME);
+		createEAttribute(recordMetaDataEClass, RECORD_META_DATA__RECORD_FIELD_META_DATA);
+
 		fieldMetaDataEClass = createEClass(FIELD_META_DATA);
 		createEReference(fieldMetaDataEClass, FIELD_META_DATA__FIELD_META_DATA);
 		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__NAME);
@@ -1824,7 +1873,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__UNICODE_BYTE_OFFSET);
 		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__DECIMALS);
 		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__DESCRIPTION);
-		createEAttribute(fieldMetaDataEClass, FIELD_META_DATA__COMPLEX_FIELD_META_DATA);
+		createEReference(fieldMetaDataEClass, FIELD_META_DATA__RECORD_META_DATA);
 
 		listFieldMetaDataEClass = createEClass(LIST_FIELD_META_DATA);
 		createEReference(listFieldMetaDataEClass, LIST_FIELD_META_DATA__FIELD_META_DATA);
@@ -1840,7 +1889,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__EXPORT);
 		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__EXCEPTION);
 		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__OPTIONAL);
-		createEAttribute(listFieldMetaDataEClass, LIST_FIELD_META_DATA__COMPLEX_FIELD_META_DATA);
+		createEReference(listFieldMetaDataEClass, LIST_FIELD_META_DATA__RECORD_META_DATA);
 
 		abapExceptionEClass = createEClass(ABAP_EXCEPTION);
 		createEAttribute(abapExceptionEClass, ABAP_EXCEPTION__KEY);
@@ -2038,22 +2087,27 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		initEAttribute(getFunctionTemplate_ChangingParameterList(), this.getParameterList(), "changingParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionTemplate_ExceptionList(), this.getAbapExceptionList(), "exceptionList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
+		initEClass(recordMetaDataEClass, RecordMetaData.class, "RecordMetaData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
+		initEReference(getRecordMetaData_FieldMetaData(), this.getFieldMetaData(), null, "fieldMetaData", null, 0, -1, RecordMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRecordMetaData_Name(), ecorePackage.getEString(), "name", null, 1, 1, RecordMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getRecordMetaData_RecordFieldMetaData(), this.getFieldList(), "recordFieldMetaData", null, 0, 1, RecordMetaData.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+
 		initEClass(fieldMetaDataEClass, FieldMetaData.class, "FieldMetaData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getFieldMetaData_FieldMetaData(), this.getFieldMetaData(), null, "fieldMetaData", null, 0, -1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getFieldMetaData_Name(), ecorePackage.getEString(), "name", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getFieldMetaData_Type(), this.getDataType(), "type", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_Name(), ecorePackage.getEString(), "name", null, 1, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFieldMetaData_Type(), this.getDataType(), "type", null, 1, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFieldMetaData_ByteLength(), ecorePackage.getEInt(), "byteLength", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFieldMetaData_ByteOffset(), ecorePackage.getEInt(), "byteOffset", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFieldMetaData_UnicodeByteLength(), ecorePackage.getEInt(), "unicodeByteLength", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFieldMetaData_UnicodeByteOffset(), ecorePackage.getEInt(), "unicodeByteOffset", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFieldMetaData_Decimals(), ecorePackage.getEInt(), "decimals", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFieldMetaData_Description(), ecorePackage.getEString(), "description", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getFieldMetaData_ComplexFieldMetaData(), this.getFieldList(), "complexFieldMetaData", null, 0, 1, FieldMetaData.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEReference(getFieldMetaData_RecordMetaData(), this.getRecordMetaData(), null, "recordMetaData", null, 0, 1, FieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(listFieldMetaDataEClass, ListFieldMetaData.class, "ListFieldMetaData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEReference(getListFieldMetaData_FieldMetaData(), this.getFieldMetaData(), null, "fieldMetaData", null, 0, -1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getListFieldMetaData_Name(), ecorePackage.getEString(), "name", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getListFieldMetaData_Type(), this.getDataType(), "type", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Name(), ecorePackage.getEString(), "name", null, 1, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getListFieldMetaData_Type(), this.getDataType(), "type", null, 1, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getListFieldMetaData_ByteLength(), ecorePackage.getEInt(), "byteLength", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getListFieldMetaData_UnicodeByteLength(), ecorePackage.getEInt(), "unicodeByteLength", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getListFieldMetaData_Decimals(), ecorePackage.getEInt(), "decimals", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
@@ -2064,7 +2118,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		initEAttribute(getListFieldMetaData_Export(), ecorePackage.getEBoolean(), "export", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getListFieldMetaData_Exception(), ecorePackage.getEBoolean(), "exception", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getListFieldMetaData_Optional(), ecorePackage.getEBoolean(), "optional", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
-		initEAttribute(getListFieldMetaData_ComplexFieldMetaData(), this.getFieldList(), "complexFieldMetaData", null, 0, 1, ListFieldMetaData.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEReference(getListFieldMetaData_RecordMetaData(), this.getRecordMetaData(), null, "recordMetaData", null, 0, 1, ListFieldMetaData.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(abapExceptionEClass, AbapException.class, "AbapException", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getAbapException_Key(), ecorePackage.getEString(), "key", null, 0, 1, AbapException.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
