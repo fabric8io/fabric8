@@ -12,6 +12,7 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
+import org.fusesource.fabric.agent.utils.URLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.repository.*;
@@ -124,14 +125,16 @@ public class MavenUtils {
             }
             Server server = getSettings().getServer(repository.getId());
             if (server != null) {
-                Authentication authentication = new Authentication(server.getUsername(), server.getPassword(), server.getPrivateKey(), server.getPassphrase());
+                // Need to decode username/password because it may contain encoded characters (http://www.w3schools.com/tags/ref_urlencode.asp)
+                // A common encoding is to provide a username as an email address like user%40domain.org
+                String decodedUsername = URLUtils.decode(server.getUsername());                
+                Authentication authentication = new Authentication(decodedUsername, server.getPassword(), server.getPrivateKey(), server.getPassphrase());
                 remote.setAuthentication(authentication);
             }
             repositories.add(remote);
         }
         return repositories;
     }
-
 
     /**
      * Returns the default {@link ProxySelector} as configured in the maven settings.xml
@@ -199,7 +202,10 @@ public class MavenUtils {
         DefaultAuthenticationSelector selector = new DefaultAuthenticationSelector();
         Settings settings = getSettings();
         for (Server server : settings.getServers()) {
-            Authentication auth = new Authentication(server.getUsername(), server.getPassword(), server.getPrivateKey(), server.getPassphrase());
+            // Need to decode username/password because it may contain encoded characters (http://www.w3schools.com/tags/ref_urlencode.asp)
+            // A common encoding is to provide a username as an email address like user%40domain.org
+            String decodedUsername = URLUtils.decode(server.getUsername());           
+            Authentication auth = new Authentication(decodedUsername, server.getPassword(), server.getPrivateKey(), server.getPassphrase());
             selector.add(server.getId(), auth);
         }
 

@@ -93,6 +93,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-agent</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api-version}</version>

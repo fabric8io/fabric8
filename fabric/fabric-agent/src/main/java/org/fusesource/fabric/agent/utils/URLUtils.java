@@ -48,17 +48,57 @@ public class URLUtils {
      * Prepares an url connection for authentication if necessary.
      *
      * @param connection the connection to be prepared
+     *
      * @return the prepared conection
      */
     public static URLConnection prepareForAuthentication(final URLConnection connection) {
         NullArgumentException.validateNotNull(connection, "url connection cannot be null");
         if (connection.getURL().getUserInfo() != null) {
-            String base64Encoded = Base64Encoder.encode(connection.getURL().getUserInfo());
-            // sun bug 6459815: Long passwords cause Basic Auth to fail with a java.net.Authenticator
+            // Need to decode username/password because it may contain encoded
+            // characters (http://www.w3schools.com/tags/ref_urlencode.asp)
+            // A common encoding is to provide a username as an email address
+            // like user%40domain.org
+            String decodedUserInfo = decode(connection.getURL().getUserInfo());
+
+            String base64Encoded = Base64Encoder.encode(decodedUserInfo);
+            // sun bug 6459815: Long passwords cause Basic Auth to fail with a
+            // java.net.Authenticator
             base64Encoded = base64Encoded.replaceAll("\n", "");
             connection.setRequestProperty("Authorization", "Basic " + base64Encoded);
         }
         return connection;
+    }
+
+    /**
+     * Decodes the specified (portion of a) URL. <strong>Note:</strong> This decoder assumes that ISO-8859-1 is used to
+     * convert URL-encoded octets to characters.
+     * 
+     * @param url The URL to decode, may be <code>null</code>.
+     * @return The decoded URL or <code>null</code> if the input was <code>null</code>.
+     */
+    public static String decode(String url) {
+        if (url == null) {
+            return null;
+        }
+        StringBuilder decoded = new StringBuilder();
+        int pos = 0;
+        while (pos < url.length()) {
+            char ch = url.charAt(pos);
+            if (ch == '%') {
+                if (pos + 2 < url.length()) {
+                    String hexStr = url.substring(pos + 1, pos + 3);
+                    char hexChar = (char) Integer.parseInt(hexStr, 16);
+                    decoded.append(hexChar);
+                    pos += 3;
+                } else {
+                    throw new IllegalStateException("'%' escape must be followed by two hex digits");
+                }
+            } else {
+                decoded.append(ch);
+                pos++;
+            }
+        }
+        return decoded.toString();
     }
 
     /**
