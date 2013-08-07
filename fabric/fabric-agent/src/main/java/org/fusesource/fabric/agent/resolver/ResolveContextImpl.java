@@ -43,6 +43,8 @@ public class ResolveContextImpl extends ResolveContext {
     private final Map<Resource, Wiring> wirings;
     private final boolean resolveOptional;
 
+    private final CandidateComparator candidateComparator = new CandidateComparator();
+
     public ResolveContextImpl(Set<Resource> mandatory,
                               Set<Resource> optional,
                               Repository repository,
@@ -73,13 +75,20 @@ public class ResolveContextImpl extends ResolveContext {
         if (res != null) {
             caps.addAll(res);
         }
-        Collections.sort(caps, new CandidateComparator());
+        Collections.sort(caps, candidateComparator);
         return caps;
     }
     @Override
     public int insertHostedCapability(List capabilities, HostedCapability hostedCapability) {
-        // TODO: implement ?
-        throw new UnsupportedOperationException();
+        for (int i=0; i < capabilities.size(); i++) {
+            Capability cap = (Capability) capabilities.get(i);
+            if (candidateComparator.compare(hostedCapability, cap) <= 0) {
+                capabilities.add(i, hostedCapability);
+                return i;
+            }
+        }
+        capabilities.add(hostedCapability);
+        return capabilities.size() - 1;
     }
     @Override
     public boolean isEffective(Requirement requirement) {
