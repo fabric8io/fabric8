@@ -18,7 +18,6 @@
 package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
@@ -200,10 +199,9 @@ public final class ContainerProviderUtils {
                 }
             }
         }
-        if (options instanceof CreateJCloudsContainerOptions) {
 
-            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
-        }
+        sb.append("configure_hostnames").append(" ").append(options.getHostNameContext()).append("\n");
+
         String jvmOptions = options.getJvmOpts();
 
         if (jvmOptions == null ) {
@@ -241,9 +239,7 @@ public final class ContainerProviderUtils {
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(name).append("\n");
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
-        if (options instanceof CreateJCloudsContainerOptions) {
-            sb.append("configure_hostnames").append(" ").append(((CreateJCloudsContainerOptions) options).getProviderName()).append("\n");
-        }
+        sb.append("configure_hostnames").append(" ").append(options.getHostNameContext()).append("\n");
 
         String jvmOptions = options.getJvmOpts();
 

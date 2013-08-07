@@ -22,7 +22,6 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.utils.shell.ShellUtils;
@@ -58,7 +57,7 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
         // okay create child container
         String url = "child://" + parent;
-        CreateChildContainerOptions.Builder builder = CreateContainerOptionsBuilder.child()
+        CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder()
                 .name(name)
                 .parent(parent)
                 .bindAddress(bindAddress)

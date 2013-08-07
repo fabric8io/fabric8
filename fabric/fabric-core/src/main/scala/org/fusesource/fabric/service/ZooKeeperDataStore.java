@@ -51,7 +51,9 @@ import org.osgi.framework.FrameworkUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -284,15 +286,24 @@ public class ZooKeeperDataStore  implements DataStore, PathChildrenCacheListener
     }
 
     @Override
-    public CreateContainerMetadata getContainerMetadata(String containerId) {
+    public CreateContainerMetadata getContainerMetadata(String containerId, final ClassLoader classLoader) {
         try {
             byte[] encoded = getByteData(treeCache, ZkPath.CONTAINER_METADATA.getPath(containerId));
             if (encoded == null) {
                 return null;
             }
             byte[] decoded = Base64Encoder.decode(encoded);
-            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded));
+            ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded)) {
+                @Override
+                protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                    return classLoader.loadClass(desc.getName());
+                }
+            };
             return (CreateContainerMetadata) ois.readObject();
+        } catch (ClassNotFoundException e) {
+            return null;
+        } catch (InvalidClassException e) {
+            return null;
         } catch (KeeperException.NoNodeException e) {
             return null;
         } catch (Exception e) {

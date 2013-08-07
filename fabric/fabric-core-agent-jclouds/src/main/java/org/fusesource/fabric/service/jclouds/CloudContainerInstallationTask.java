@@ -24,8 +24,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import com.google.common.base.Strings;
-import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
-import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;

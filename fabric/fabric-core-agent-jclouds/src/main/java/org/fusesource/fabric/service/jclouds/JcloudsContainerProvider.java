@@ -41,12 +41,9 @@ import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateJCloudsContainerMetadata;
-import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
@@ -360,6 +357,16 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     @Override
     public String getScheme() {
         return SCHEME;
+    }
+
+    @Override
+    public Class<CreateJCloudsContainerOptions> getOptionsType() {
+        return CreateJCloudsContainerOptions.class;
+    }
+
+    @Override
+    public Class<CreateJCloudsContainerMetadata> getMetadataType() {
+        return CreateJCloudsContainerMetadata.class;
     }
 
     public Map<String, String> parseQuery(String uri) throws URISyntaxException {

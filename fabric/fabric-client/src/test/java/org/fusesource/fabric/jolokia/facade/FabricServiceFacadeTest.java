@@ -125,7 +125,7 @@ public class FabricServiceFacadeTest {
 
         FabricService service = getFabricService();
 
-        CreateChildContainerOptions options = CreateContainerOptionsBuilder.child().jmxUser(userName).jmxPassword(password).name("test").parent("root").build();
+        CreateChildContainerOptions options = CreateChildContainerOptions.builder().jmxUser(userName).jmxPassword(password).name("test").parent("root").build();
 
         service.createContainers(options);
 

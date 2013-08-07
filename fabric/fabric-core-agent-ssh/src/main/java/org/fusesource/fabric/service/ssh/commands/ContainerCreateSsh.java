@@ -14,21 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.commands;
+package org.fusesource.fabric.service.ssh.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
-import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
-import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
+import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 
-import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 import java.net.InetAddress;

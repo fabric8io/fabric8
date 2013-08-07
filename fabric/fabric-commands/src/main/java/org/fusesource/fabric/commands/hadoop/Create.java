@@ -28,9 +28,9 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
@@ -223,7 +223,7 @@ public class Create extends OsgiCommandSupport {
     }
 
     private Container createChild(String name) throws URISyntaxException {
-        CreateContainerOptions options = CreateContainerOptionsBuilder.child()
+        CreateContainerOptions options = CreateChildContainerOptions.builder()
                 .name(name)
                 .parent(service.getCurrentContainer().getId()).build();
         CreateContainerMetadata[] metadatas = service.createContainers(options);

@@ -142,6 +142,34 @@ public class CreateEnsembleOptions extends ContainerOptions {
             this.users = users;
         }
 
+        public int getZooKeeperServerPort() {
+            return zooKeeperServerPort;
+        }
+
+        public int getZooKeeperServerConnectionPort() {
+            return zooKeeperServerConnectionPort;
+        }
+
+        public String getZookeeperPassword() {
+            return zookeeperPassword;
+        }
+
+        public boolean isAgentEnabled() {
+            return agentEnabled;
+        }
+
+        public boolean isAutoImportEnabled() {
+            return autoImportEnabled;
+        }
+
+        public String getImportPath() {
+            return importPath;
+        }
+
+        public Map<String, String> getUsers() {
+            return users;
+        }
+
         /**
          * Generate a random String that can be used as a Zookeeper password.
          *

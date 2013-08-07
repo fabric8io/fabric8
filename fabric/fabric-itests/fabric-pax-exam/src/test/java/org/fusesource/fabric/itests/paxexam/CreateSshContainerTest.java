@@ -20,8 +20,7 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,9 +31,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-import org.osgi.framework.BundleContext;
-
-import javax.inject.Inject;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
@@ -83,7 +79,7 @@ public class CreateSshContainerTest extends FabricTestSupport {
         if (isReady()) {
             System.err.println(executeCommand("fabric:create -n"));
 
-            CreateContainerOptions options = CreateContainerOptionsBuilder.ssh().name("ssh1")
+            CreateContainerOptions options = CreateSshContainerOptions.builder().name("ssh1")
                     .host(host)
                     .port(Integer.parseInt(port))
                     .username(username)

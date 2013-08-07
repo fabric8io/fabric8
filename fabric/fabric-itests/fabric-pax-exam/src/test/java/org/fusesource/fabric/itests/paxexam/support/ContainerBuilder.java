@@ -16,10 +16,29 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerRegistration;
+import org.fusesource.fabric.api.CreateChildContainerOptions;
+import org.fusesource.fabric.api.CreateContainerBasicOptions;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions;
+import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
@@ -85,7 +104,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @return
      */
     public static ChildContainerBuilder child(int numberOfContainers) {
-        return new ChildContainerBuilder(CreateContainerOptionsBuilder.child().number(numberOfContainers));
+        return new ChildContainerBuilder(CreateChildContainerOptions.builder().number(numberOfContainers));
     }
 
 
@@ -95,7 +114,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @return
      */
     public static JcloudsContainerBuilder jclouds() {
-        return new JcloudsContainerBuilder(CreateContainerOptionsBuilder.jclouds());
+        return new JcloudsContainerBuilder(CreateJCloudsContainerOptions.builder());
     }
 
     /**
@@ -105,7 +124,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @return
      */
     public static JcloudsContainerBuilder jclouds(int numberOfContainers) {
-        return new JcloudsContainerBuilder(CreateContainerOptionsBuilder.jclouds().number(numberOfContainers));
+        return new JcloudsContainerBuilder(CreateJCloudsContainerOptions.builder().number(numberOfContainers));
     }
 
     /**
@@ -114,7 +133,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @return
      */
     public static SshContainerBuilder ssh() {
-        return new SshContainerBuilder(CreateContainerOptionsBuilder.ssh());
+        return new SshContainerBuilder(CreateSshContainerOptions.builder());
     }
 
     /**
@@ -124,7 +143,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * @return
      */
     public static SshContainerBuilder ssh(int numberOfContainers) {
-        return new SshContainerBuilder(CreateContainerOptionsBuilder.ssh().number(1));
+        return new SshContainerBuilder(CreateSshContainerOptions.builder().number(1));
     }
 
     public ContainerBuilder<T, B> withName(String name) {

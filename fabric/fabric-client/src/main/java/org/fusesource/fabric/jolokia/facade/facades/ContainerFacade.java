@@ -336,31 +336,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public CreateContainerMetadata<?> getMetadata() {
-        Map<Object, Object> obj = getFieldValue("metadata");
-
-        if (obj == null || obj.size() == 0) {
-            return null;
-        }
-
-        Map<Object, Object> createOptions = (Map<Object, Object>) obj.get("createOptions");
-        String providerType = (String) createOptions.get("providerType");
-
-        if (providerType == null) {
-            // we can't figure what this is
-            return null;
-        }
-
-        CreateContainerMetadata answer = null;
-        ObjectMapper mapper = Helpers.getObjectMapper();
-
-        if (providerType.equals("child")) {
-            answer = mapper.convertValue(obj, CreateChildContainerMetadata.class);
-        } else if (providerType.equals("ssh")) {
-            answer = mapper.convertValue(obj, CreateSshContainerMetadata.class);
-        } else if (providerType.equals("jclouds")) {
-            answer = mapper.convertValue(obj, CreateJCloudsContainerMetadata.class);
-        }
-        return answer;
+        throw new UnsupportedOperationException("This cannot be obtained from a remote process");
     }
 
     @Override

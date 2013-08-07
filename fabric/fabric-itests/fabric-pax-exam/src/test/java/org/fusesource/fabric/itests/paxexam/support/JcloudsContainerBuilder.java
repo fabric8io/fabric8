@@ -16,7 +16,8 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
-import org.fusesource.fabric.api.CreateJCloudsContainerOptions;
+
+import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions;
 
 public class JcloudsContainerBuilder extends ContainerBuilder<JcloudsContainerBuilder, CreateJCloudsContainerOptions.Builder> {
 

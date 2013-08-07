@@ -210,6 +210,16 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
         return SCHEME;
     }
 
+    @Override
+    public Class<CreateChildContainerOptions> getOptionsType() {
+        return CreateChildContainerOptions.class;
+    }
+
+    @Override
+    public Class<CreateChildContainerMetadata> getMetadataType() {
+        return CreateChildContainerMetadata.class;
+    }
+
     /**
      * Returns the {@link ContainerTemplate} of the parent of the specified child {@link Container}.
      *

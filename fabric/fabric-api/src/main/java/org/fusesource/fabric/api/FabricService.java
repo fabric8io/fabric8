@@ -20,6 +20,7 @@ package org.fusesource.fabric.api;
 import java.io.IOException;
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 
 public interface FabricService {
 
@@ -70,6 +71,10 @@ public interface FabricService {
      * @return          An array of metadata for the created {@llink Container}s
      */
     CreateContainerMetadata[] createContainers(CreateContainerOptions options);
+
+    Set<Class<? extends CreateContainerBasicOptions>> getSupportedCreateContainerOptionTypes();
+
+    Set<Class<? extends CreateContainerBasicMetadata>> getSupportedCreateContainerMetadataTypes();
 
     /**
      * Returns the default {@link Version}.

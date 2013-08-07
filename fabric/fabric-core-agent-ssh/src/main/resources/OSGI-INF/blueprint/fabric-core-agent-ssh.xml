@@ -18,12 +18,35 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command name="fabric/container-create-ssh">
+            <action class="org.fusesource.fabric.service.ssh.commands.ContainerCreateSsh">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+            <optional-completers>
+                <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--version" value-ref="versionCompleter"/>
+            </optional-completers>
+        </command>
+    </command-bundle>
+
+    <bean id="sshContainerProvider" class="org.fusesource.fabric.service.ssh.SshContainerProvider"/>
+
+    <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+
+    <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
+        <property name="fabricService" ref="fabricService"/>
+    </bean>
+
     <service ref="sshContainerProvider" auto-export="interfaces">
         <service-properties>
             <entry key="fabric.container.protocol" value="ssh" />
         </service-properties>
     </service>
 
-    <bean id="sshContainerProvider" class="org.fusesource.fabric.service.ssh.SshContainerProvider"/>
 
 </blueprint>

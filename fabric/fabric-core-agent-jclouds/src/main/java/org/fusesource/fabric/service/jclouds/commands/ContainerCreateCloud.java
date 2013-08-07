@@ -25,6 +25,8 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
+import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerMetadata;
+import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;

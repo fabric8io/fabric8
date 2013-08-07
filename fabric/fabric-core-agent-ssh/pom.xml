@@ -32,20 +32,14 @@
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.fabric.service.ssh
+          org.fusesource.fabric.service.ssh*;version="${project.version};-noimport:=true
         </fuse.osgi.export>
-      <!--
-        <fuse.osgi.import.before.defaults>
-            !org.apache.log4j.jmx,
-            !org.apache.log4j.spi,
-            !org.xml.*,
-            !javax.xml.parsers
-        </fuse.osgi.import.before.defaults>
-        <fuse.osgi.import.additional>
-            org.apache.log4j*;version="[1.2,2)"
-        </fuse.osgi.import.additional>
--->
         <fuse.osgi.private.pkg>
+            org.fusesource.fabric.boot.commands.support,
+            org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.utils,
+            org.fusesource.fabric.utils.shell,
+            org.jclouds.karaf.utils
         </fuse.osgi.private.pkg>
     </properties>
 
@@ -75,6 +69,18 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-boot-commands</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-commands</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-utils</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

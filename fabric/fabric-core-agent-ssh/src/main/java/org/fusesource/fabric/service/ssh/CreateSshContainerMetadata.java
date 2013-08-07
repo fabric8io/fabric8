@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.service.ssh;
+
+import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 
 public class CreateSshContainerMetadata extends CreateContainerBasicMetadata<CreateSshContainerOptions> {
 

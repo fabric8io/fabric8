@@ -24,6 +24,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.fusesource.fabric.jolokia.facade.utils.Helpers.toList;
 
@@ -108,6 +109,16 @@ public class FabricServiceFacade implements FabricService {
 
         // JMX API doesn't currently return this...
         return new CreateContainerMetadata[0];
+    }
+
+    @Override
+    public Set<Class<? extends CreateContainerBasicOptions>> getSupportedCreateContainerOptionTypes() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
+    public Set<Class<? extends CreateContainerBasicMetadata>> getSupportedCreateContainerMetadataTypes() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
     }
 
     @Override

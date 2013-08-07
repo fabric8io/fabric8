@@ -17,7 +17,6 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.fusesource.fabric.api.CreateChildContainerOptions;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 
 public class ChildContainerBuilder extends ContainerBuilder<ChildContainerBuilder, CreateChildContainerOptions.Builder> {
 
@@ -27,7 +26,7 @@ public class ChildContainerBuilder extends ContainerBuilder<ChildContainerBuilde
 	}
 
 	public static ChildContainerBuilder child() {
-		return new ChildContainerBuilder(CreateContainerOptionsBuilder.child());
+		return new ChildContainerBuilder(CreateChildContainerOptions.builder());
 	}
 
 	public ChildContainerBuilder ofParent(String parent) {

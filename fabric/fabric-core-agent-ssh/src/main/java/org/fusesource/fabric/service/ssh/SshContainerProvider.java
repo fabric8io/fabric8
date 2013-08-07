@@ -29,8 +29,6 @@ import com.jcraft.jsch.Session;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateSshContainerMetadata;
-import org.fusesource.fabric.api.CreateSshContainerOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -151,6 +149,16 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     @Override
     public String getScheme() {
         return SCHEME;
+    }
+
+    @Override
+    public Class<CreateSshContainerOptions> getOptionsType() {
+        return CreateSshContainerOptions.class;
+    }
+
+    @Override
+    public Class<CreateSshContainerMetadata> getMetadataType() {
+        return CreateSshContainerMetadata.class;
     }
 
     protected void runScriptOnHost(CreateSshContainerOptions options, String script) throws Exception {

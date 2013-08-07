@@ -19,7 +19,7 @@ package org.fusesource.fabric.api;
 import java.util.Map;
 
 public interface CreateRemoteContainerOptions extends CreateContainerOptions {
-
+    String getHostNameContext();
     String getPath();
     Map<String, String> getUsers();
     Map<String, String> getEnvironmentalVariables();

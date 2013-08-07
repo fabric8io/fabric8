@@ -149,6 +149,34 @@ public class ContainerOptions implements Serializable {
             this.profiles = profiles;
         }
 
+        public String getBindAddress() {
+            return bindAddress;
+        }
+
+        public String getResolver() {
+            return resolver;
+        }
+
+        public String getGlobalResolver() {
+            return globalResolver;
+        }
+
+        public String getManualIp() {
+            return manualIp;
+        }
+
+        public int getMinimumPort() {
+            return minimumPort;
+        }
+
+        public int getMaximumPort() {
+            return maximumPort;
+        }
+
+        public Set<String> getProfiles() {
+            return profiles;
+        }
+
         public ContainerOptions build() {
             return new ContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles);
         }

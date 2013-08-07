@@ -94,7 +94,14 @@
       <scope>provided</scope>
     </dependency>
 
-    <dependency>
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-core-agent-ssh</artifactId>
+          <version>${fabric.version}</version>
+          <scope>provided</scope>
+      </dependency>
+
+      <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core-agent-jclouds</artifactId>
       <version>${fabric.version}</version>

@@ -159,14 +159,7 @@ public class FabricManager implements FabricManagerMBean {
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 
-        if (providerType.equals("child")) {
-            builder = mapper.convertValue(options, CreateChildContainerOptions.Builder.class);
-            builder.resolver(null);
-        } else if (providerType.equals("ssh")) {
-            builder = mapper.convertValue(options, CreateSshContainerOptions.Builder.class);
-        } else if (providerType.equals("jclouds")) {
-            builder = mapper.convertValue(options, CreateJCloudsContainerOptions.Builder.class);
-        }
+        builder = (CreateContainerBasicOptions.Builder) mapper.convertValue(options, fabricService.getProviders().get(providerType).getOptionsType());
 
         if (builder == null) {
             throw new RuntimeException("Unknown provider type : " + providerType);

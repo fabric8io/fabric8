@@ -55,4 +55,12 @@ public interface ContainerProvider<O extends CreateContainerOptions, M extends C
 
     String getScheme();
 
+    /**
+     * Returns the options
+     * @return
+     */
+    Class<O> getOptionsType();
+    Class<M> getMetadataType();
+
+
 }

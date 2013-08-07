@@ -15,7 +15,9 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.service.jclouds;
+
+import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

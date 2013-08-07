@@ -648,6 +648,18 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-core-agent-ssh</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-core-agent-jclouds</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-configadmin</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>

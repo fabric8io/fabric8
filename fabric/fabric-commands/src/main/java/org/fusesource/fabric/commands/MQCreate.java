@@ -22,7 +22,6 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptionsBuilder;
 import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.MQService;
 import org.fusesource.fabric.api.Profile;
@@ -167,7 +166,7 @@ public class MQCreate extends FabricCommand {
                 String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
                 String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
 
-                CreateChildContainerOptions.Builder builder = CreateContainerOptionsBuilder.child()
+                CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder()
                         .name(container)
                         .parent(parent)
                         .number(1)

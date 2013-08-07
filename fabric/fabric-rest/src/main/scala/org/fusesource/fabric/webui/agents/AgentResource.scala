@@ -20,9 +20,10 @@ import javax.ws.rs._
 import core.Context
 import scala.Array._
 import org.fusesource.fabric.webui._
-import org.fusesource.fabric.api.{CreateJCloudsContainerMetadata, Container, CreateContainerMetadata}
+import org.fusesource.fabric.api.{Container, CreateContainerMetadata}
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.servlet.http.HttpServletRequest
+import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerMetadata
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>

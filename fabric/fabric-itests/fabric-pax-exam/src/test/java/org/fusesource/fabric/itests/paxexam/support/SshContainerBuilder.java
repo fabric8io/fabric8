@@ -17,6 +17,7 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.ArrayList;

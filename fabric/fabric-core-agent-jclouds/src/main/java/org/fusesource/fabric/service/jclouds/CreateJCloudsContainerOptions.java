@@ -14,7 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.service.jclouds;
+
+import org.fusesource.fabric.api.CreateContainerBasicOptions;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateRemoteContainerOptions;
+import org.fusesource.fabric.api.JCloudsInstanceType;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -316,10 +321,10 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         }
 
         public CreateJCloudsContainerOptions build() {
-            return new CreateJCloudsContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                    maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
-                    importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, osFamily, osVersion, imageId, hardwareId, locationId,
+            return new CreateJCloudsContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
+                    getMaximumPort(), getProfiles(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
+                    getImportPath(), getUsers(), getName(), getParent(), "jclouds", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getVersion(), osFamily, osVersion, imageId, hardwareId, locationId,
                     group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
                     owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
         }
@@ -393,10 +398,10 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     @Override
     public CreateContainerOptions updateCredentials(String newUser, String newPassword) {
-        return new CreateJCloudsContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
-                importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, osFamily, osVersion, imageId, hardwareId, locationId,
+        return new CreateJCloudsContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
+                getMaximumPort(), getProfiles(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
+                getImportPath(), getUsers(), getName(), getParent(), "jclouds", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getVersion(), osFamily, osVersion, imageId, hardwareId, locationId,
                 group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
                 contextName, providerName, apiName, endpoint, instanceType, identity, credential,
                 owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
@@ -405,6 +410,11 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public static Builder builder() {
         return new Builder();
+    }
+
+    @Override
+    public String getHostNameContext() {
+        return providerName;
     }
 
     public String getPath() {

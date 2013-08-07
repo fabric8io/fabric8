@@ -561,12 +561,29 @@ public class ContainerImpl implements Container {
     @Override
     public CreateContainerMetadata<?> getMetadata() {
         try {
-            if (metadata == null) {
-                metadata = service.getDataStore().getContainerMetadata(id);
+            if (metadata == getMetadata(getClass().getClassLoader())) {
+                for (Class type : service.getSupportedCreateContainerMetadataTypes()) {
+                    metadata = getMetadata(type.getClassLoader());
+                    if (metadata != null) {
+                        return metadata;
+                    }
+                }
             }
             return metadata;
         } catch (Exception e) {
             logger.warn("Error while retrieving metadata. This exception will be ignored.", e);
+            return null;
+        }
+    }
+
+    private CreateContainerMetadata<?> getMetadata(ClassLoader classLoader) {
+        try {
+            if (metadata == null) {
+                metadata = service.getDataStore().getContainerMetadata(id, classLoader);
+            }
+            return metadata;
+        } catch (Exception e) {
+            logger.debug("Error while retrieving metadata. This exception will be ignored.", e);
             return null;
         }
     }

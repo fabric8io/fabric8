@@ -14,7 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.service.ssh;
+
+import org.fusesource.fabric.api.CreateContainerBasicOptions;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreateRemoteContainerOptions;
 
 import java.io.File;
 import java.net.URI;
@@ -201,10 +205,10 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
 
         public CreateSshContainerOptions build() {
-            return new CreateSshContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                    maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
-                    importPath, users, name, parent, "ssh", ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+            return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
+                    getMaximumPort(), getProfiles(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
+                    getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getVersion(), username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
         }
     }
 
@@ -236,10 +240,10 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     @Override
     public CreateContainerOptions updateCredentials(String newUser, String newPassword) {
-        return new CreateSshContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
-                importPath, users, name, parent, "ssh", ensembleServer, preferredAddress, systemProperties,
-                number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version, newUser != null ? newUser : username,
+        return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
+                getMaximumPort(), getProfiles(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
+                getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getVersion(), newUser != null ? newUser : username,
                 newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
     }
 
@@ -283,6 +287,11 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public String getPassPhrase() {
         return passPhrase;
+    }
+
+    @Override
+    public String getHostNameContext() {
+        return "none";
     }
 
     public CreateSshContainerOptions clone() throws CloneNotSupportedException {

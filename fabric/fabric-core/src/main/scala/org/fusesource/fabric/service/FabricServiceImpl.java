@@ -25,6 +25,8 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerBasicMetadata;
+import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
@@ -58,6 +60,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -325,6 +328,24 @@ public class FabricServiceImpl implements FabricService {
         } catch (Exception e) {
             throw new FabricException(e);
         }
+    }
+
+    @Override
+    public Set<Class<? extends CreateContainerBasicOptions>> getSupportedCreateContainerOptionTypes() {
+        Set<Class<? extends CreateContainerBasicOptions>> optionTypes = new HashSet<Class<? extends CreateContainerBasicOptions>>();
+        for(Map.Entry<String, ContainerProvider> entry : providers.entrySet()) {
+            optionTypes.add(entry.getValue().getOptionsType());
+        }
+        return optionTypes;
+    }
+
+    @Override
+    public Set<Class<? extends CreateContainerBasicMetadata>> getSupportedCreateContainerMetadataTypes() {
+        Set<Class<? extends CreateContainerBasicMetadata>> metadataTypes = new HashSet<Class<? extends CreateContainerBasicMetadata>>();
+        for(Map.Entry<String, ContainerProvider> entry : providers.entrySet()) {
+            metadataTypes.add(entry.getValue().getMetadataType());
+        }
+        return metadataTypes;
     }
 
     public ContainerProvider getProvider(final String scheme) {

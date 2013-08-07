@@ -52,7 +52,7 @@ public interface DataStore {
 
     void createContainerConfig(CreateContainerMetadata metadata);
 
-    CreateContainerMetadata getContainerMetadata(String containerId);
+    CreateContainerMetadata getContainerMetadata(String containerId, ClassLoader classLoader);
 
     void setContainerMetadata(CreateContainerMetadata metadata);
 

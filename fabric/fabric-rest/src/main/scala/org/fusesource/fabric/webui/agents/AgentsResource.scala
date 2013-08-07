@@ -28,6 +28,8 @@ import org.fusesource.fabric.api._
 import javax.servlet.http.HttpServletRequest
 import java.util
 import collection.JavaConversions._
+import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions
+import org.fusesource.fabric.service.ssh.CreateSshContainerOptions
 
 /**
  * Resource representing root agents resource.
