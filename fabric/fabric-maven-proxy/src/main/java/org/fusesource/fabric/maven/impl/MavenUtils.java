@@ -12,7 +12,6 @@ import org.apache.maven.settings.crypto.DefaultSettingsDecrypter;
 import org.apache.maven.settings.crypto.DefaultSettingsDecryptionRequest;
 import org.apache.maven.settings.crypto.SettingsDecrypter;
 import org.apache.maven.settings.crypto.SettingsDecryptionResult;
-import org.fusesource.fabric.agent.utils.URLUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.repository.*;
@@ -127,7 +126,7 @@ public class MavenUtils {
             if (server != null) {
                 // Need to decode username/password because it may contain encoded characters (http://www.w3schools.com/tags/ref_urlencode.asp)
                 // A common encoding is to provide a username as an email address like user%40domain.org
-                String decodedUsername = URLUtils.decode(server.getUsername());                
+                String decodedUsername = decode(server.getUsername());                
                 Authentication authentication = new Authentication(decodedUsername, server.getPassword(), server.getPrivateKey(), server.getPassphrase());
                 remote.setAuthentication(authentication);
             }
@@ -204,7 +203,7 @@ public class MavenUtils {
         for (Server server : settings.getServers()) {
             // Need to decode username/password because it may contain encoded characters (http://www.w3schools.com/tags/ref_urlencode.asp)
             // A common encoding is to provide a username as an email address like user%40domain.org
-            String decodedUsername = URLUtils.decode(server.getUsername());           
+            String decodedUsername = decode(server.getUsername());           
             Authentication auth = new Authentication(decodedUsername, server.getPassword(), server.getPrivateKey(), server.getPassphrase());
             selector.add(server.getId(), auth);
         }
@@ -212,6 +211,37 @@ public class MavenUtils {
         return new ConservativeAuthenticationSelector(selector);
     }
 
+    /**
+     * Decodes the specified (portion of a) URL. <strong>Note:</strong> This decoder assumes that ISO-8859-1 is used to
+     * convert URL-encoded octets to characters.
+     * 
+     * @param url The URL to decode, may be <code>null</code>.
+     * @return The decoded URL or <code>null</code> if the input was <code>null</code>.
+     */
+    private static String decode(String url) {
+        if (url == null) {
+            return null;
+        }
+        StringBuilder decoded = new StringBuilder();
+        int pos = 0;
+        while (pos < url.length()) {
+            char ch = url.charAt(pos);
+            if (ch == '%') {
+                if (pos + 2 < url.length()) {
+                    String hexStr = url.substring(pos + 1, pos + 3);
+                    char hexChar = (char) Integer.parseInt(hexStr, 16);
+                    decoded.append(hexChar);
+                    pos += 3;
+                } else {
+                    throw new IllegalStateException("'%' escape must be followed by two hex digits");
+                }
+            } else {
+                decoded.append(ch);
+                pos++;
+            }
+        }
+        return decoded.toString();
+    }   
 
     private static SettingsDecrypter createSettingsDecrypter() {
         MavenSecDispatcher secDispatcher = new MavenSecDispatcher();
