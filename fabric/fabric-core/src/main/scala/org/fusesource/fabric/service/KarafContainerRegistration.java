@@ -431,7 +431,7 @@ public class
         if (configuration != null) {
             Dictionary dictionary = configuration.getProperties();
             if (dictionary != null) {
-                if (!dictionary.get(key).equals(String.valueOf(port))) {
+                if (!String.valueOf(port).equals(dictionary.get(key))) {
                     dictionary.put(key, String.valueOf(port));
                     configuration.update(dictionary);
                 }
