@@ -96,6 +96,12 @@
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-agent</artifactId>
             <version>${project.version}</version>
+            <exclusions>
+                <exclusion> 
+                    <groupId>org.fusesource.fabric.fab</groupId>
+                    <artifactId>fab-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
