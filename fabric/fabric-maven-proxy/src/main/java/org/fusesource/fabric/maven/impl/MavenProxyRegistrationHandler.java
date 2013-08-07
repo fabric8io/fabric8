@@ -159,7 +159,7 @@ public class MavenProxyRegistrationHandler {
     public void register(String type) {
         unregister(type);
         try {
-            String mavenProxyUrl = "http://${zk:" + name + "/http}/maven/" + type + "/";
+            String mavenProxyUrl = "${zk:" + name + "/http}/maven/" + type + "/";
             String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
             String path = parentPath + "/p_";
             registeredProxies.get(type).add(create(curator, path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));

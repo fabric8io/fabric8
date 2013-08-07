@@ -193,7 +193,7 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
     }
 
     GitNode createState() {
-        String fabricRepoUrl = "http://${zk:" + name + "/http}/git/fabric/";
+        String fabricRepoUrl = "${zk:" + name + "/http}/git/fabric/";
         GitNode state = new GitNode();
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
