@@ -34,9 +34,6 @@ class LogResource extends BaseResource {
   var servletContext: ServletContext = _
 
   @Context
-  var request: HttpServletRequest = _
-
-  @Context
   var response: HttpServletResponse = _
 
 

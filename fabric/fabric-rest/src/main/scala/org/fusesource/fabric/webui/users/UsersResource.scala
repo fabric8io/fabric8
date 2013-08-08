@@ -54,7 +54,7 @@ class RoleResource(@Context rc: ResourceContext, self: RolePrincipal, user: Stri
 
 }
 
-class UserResource(@Context rc: ResourceContext, val request:HttpServletRequest) extends BaseResource {
+class UserResource(@Context rc: ResourceContext) extends BaseResource {
 
   val backing_engine = rc.getResource(classOf[Authenticator]).auth_backing_engine
 
@@ -78,9 +78,8 @@ class UserResource(@Context rc: ResourceContext, val request:HttpServletRequest)
   def create(user: CreateUserDTO) = {
     backing_engine.addUser(id, user.password)
     if (id.equals(Services.jmx_username(request))) {
-      val session = Services.get_session(request);
-      session.setAttribute("password", user.password);
-      Services.jmx_template.clear();
+      val session = Services.get_session(request)
+      session.invalidate()
     }
   }
 
@@ -97,14 +96,12 @@ class UsersResource(@Context rc: ResourceContext) extends BaseResource {
 
   val backing_engine = rc.getResource(classOf[Authenticator]).auth_backing_engine
 
-  @Context
-  var request:HttpServletRequest = null
-
   @GET
   override def get(): Array[UserResource] = {
     iter(backing_engine.listUsers()).map {
       principal =>
-        val user = new UserResource(rc, request)
+        val user = new UserResource(rc)
+        user.request = request
         user.id = principal.getName
         user
     }.toArray
@@ -112,7 +109,8 @@ class UsersResource(@Context rc: ResourceContext) extends BaseResource {
 
   @Path("{id}")
   def assigned(@PathParam("id") id: String): UserResource = {
-    val user = new UserResource(rc, request)
+    val user = new UserResource(rc)
+    user.request = request
     user.id = id
     user
   }

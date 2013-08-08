@@ -48,12 +48,12 @@ class MigrateContainerDTO {
 @Path("/agents")
 class AgentsResource extends BaseResource {
 
-  @Context
-  var request:HttpServletRequest = null
-
-
   @GET
-  override def get: Array[AgentResource] = fabric_service.getContainers.map(new AgentResource(_, request)).sortWith(ByID(_, _))
+  override def get: Array[AgentResource] = fabric_service.getContainers.map((x) => {
+    val rc:AgentResource = new AgentResource(x)
+    rc.request = request
+    rc
+  }).sortWith(ByID(_, _))
 
   @Path("{id}")
   def get(@PathParam("id") id: String): AgentResource = {

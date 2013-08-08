@@ -28,6 +28,7 @@ import javax.servlet.http.{HttpSession, HttpServletRequest}
 import org.fusesource.fabric.webui.Services
 import java.util.zip.ZipInputStream
 import org.apache.commons.compress.archivers.zip.ZipFile
+import javax.security.auth.Subject
 
 /**
  *
@@ -176,7 +177,7 @@ class PatchFilesResource extends BaseUpgradeResource {
     patch_files.foreach((x) => {
       try {
         Services.LOG.info("Applying patch {} to version {}", x.getName, version.getId)
-        patch_service.applyFinePatch(version, x.toURI.toURL, session.getAttribute("username").asInstanceOf[String], session.getAttribute("password").asInstanceOf[String])
+        patch_service.applyFinePatch(version, x.toURI.toURL, Services.jmx_username(request), Services.jmx_password(request))
       } catch {
         case t: Throwable =>
           version.delete()

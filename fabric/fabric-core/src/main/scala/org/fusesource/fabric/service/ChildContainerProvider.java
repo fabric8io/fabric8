@@ -30,6 +30,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.utils.AuthenticationUtils;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -228,6 +229,14 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
      */
     protected ContainerTemplate getContainerTemplateForChild(Container container) {
         CreateChildContainerOptions options = (CreateChildContainerOptions) container.getMetadata().getCreateOptions();
+
+        String username = AuthenticationUtils.retrieveJaasUser();
+        String password = AuthenticationUtils.retrieveJaasPassword();
+
+        if (username != null && password != null) {
+            options = (CreateChildContainerOptions) options.updateCredentials(username, password);
+        }
+
         return new ContainerTemplate(container.getParent(), options.getJmxUser(), options.getJmxPassword(), false);
     }
 

@@ -28,6 +28,7 @@ import org.fusesource.fabric.api.Container
 import java.io.{PipedInputStream, PipedOutputStream, OutputStream}
 import concurrent.ops._
 import sun.management.resources.agent
+import javax.security.auth.Subject
 
 trait HasID {
   def id: String
@@ -68,6 +69,9 @@ class BaseResource {
   @Context
   protected val uriInfo: UriInfo = null
 
+  @Context
+  var request:HttpServletRequest = _
+
   protected val logger: Logger = LoggerFactory getLogger getClass
 
   /**
@@ -76,6 +80,15 @@ class BaseResource {
   @GET
   def get: Any = {
     this
+  }
+
+  def subject:Subject = {
+    Services.get_subject(request) match {
+      case Some(subject) =>
+        subject
+      case None =>
+        no_permission
+    }
   }
 
   /**
@@ -107,6 +120,8 @@ class BaseResource {
     rp.sendRedirect(rq.getContextPath + path)
     null
   }
+
+  protected def no_permission[T]: T = throw new WebApplicationException(Response.Status.FORBIDDEN)
 
   protected def not_found[T]: T = throw new WebApplicationException(Response.Status.NOT_FOUND)
 

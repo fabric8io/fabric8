@@ -28,6 +28,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs
 import org.jclouds.compute.reference.ComputeServiceConstants
 import scala.concurrent.ops._
 import collection.JavaConversions._
+import javax.security.auth.Subject
 
 
 class Principal extends BaseResource {
@@ -99,14 +100,15 @@ class SystemResource extends BaseResource {
   @POST
   @Path("login")
   def login(@Context request: HttpServletRequest, @Context response: HttpServletResponse, @FormParam("username") username: String, @FormParam("password") password: String): Boolean = {
-    val auth: Authenticator = resource_context.getResource(classOf[Authenticator]);
-    if (auth.authenticate(username, password)) {
-      val session: HttpSession = request.getSession(true)
-      session.setAttribute("username", username)
-      session.setAttribute("password", password)
-      return true
-    } else {
-      return false
+    val auth: Authenticator = resource_context.getResource(classOf[Authenticator])
+
+    Option[Subject](auth.authenticate(username, password)) match {
+      case Some(subject) =>
+        val session: HttpSession = request.getSession(true)
+        session.setAttribute("subject", subject);
+        true
+      case None =>
+        false
     }
   }
 
@@ -123,8 +125,8 @@ class SystemResource extends BaseResource {
   def whoami(@Context request: HttpServletRequest): Principal = {
     val session: HttpSession = request.getSession(false)
     val principal = new Principal()
-    if (session != null && session.getAttribute("username") != null) {
-      principal.username = session.getAttribute("username").asInstanceOf[String]
+    if (session != null) {
+      principal.username = Services.jmx_username(request);
     }
     return principal
   }

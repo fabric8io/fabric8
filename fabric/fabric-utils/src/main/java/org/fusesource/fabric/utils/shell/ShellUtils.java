@@ -1,13 +1,15 @@
 package org.fusesource.fabric.utils.shell;
 
-import java.io.IOException;
-import java.security.AccessController;
-import java.util.Set;
-import javax.security.auth.Subject;
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.jaas.boot.principal.UserPrincipal;
+import org.fusesource.fabric.utils.AuthenticationUtils;
+
+import javax.security.auth.Subject;
+import java.io.IOException;
+import java.security.AccessController;
+import java.util.Set;
 
 public class ShellUtils {
 
@@ -46,13 +48,10 @@ public class ShellUtils {
      * @return
      */
     public static String retrieveFabricUser(CommandSession session) {
-        Subject subject = Subject.getSubject(AccessController.getContext());
-        if (subject != null &&
-                subject.getPrivateCredentials(String.class) != null && !subject.getPrivateCredentials(String.class).isEmpty() &&
-                subject.getPrincipals(UserPrincipal.class) != null && !subject.getPrincipals(UserPrincipal.class).isEmpty()) {
-            Set<UserPrincipal> userPrincipals = subject.getPrincipals(UserPrincipal.class);
-            UserPrincipal userPrincipal = userPrincipals.iterator().next();
-            return userPrincipal.getName();
+        String answer = AuthenticationUtils.retrieveJaasUser();
+
+        if (answer != null) {
+            return answer;
         }
 
         if (session != null && session.get(FABRIC_USER) != null) {
@@ -68,12 +67,12 @@ public class ShellUtils {
      * @return
      */
     public static String retrieveFabricUserPassword(CommandSession session) {
-        Subject subject = Subject.getSubject(AccessController.getContext());
-        if (subject != null &&
-                subject.getPrivateCredentials(String.class) != null && !subject.getPrivateCredentials(String.class).isEmpty() &&
-                subject.getPrincipals(UserPrincipal.class) != null && !subject.getPrincipals(UserPrincipal.class).isEmpty()) {
-            return subject.getPrivateCredentials(String.class).iterator().next();
+        String answer = AuthenticationUtils.retrieveJaasPassword();
+
+        if (answer != null) {
+            return answer;
         }
+
         if (session != null && session.get(FABRIC_USER_PASSWORD) != null) {
             return (String) session.get(FABRIC_USER_PASSWORD);
         }

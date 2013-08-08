@@ -24,11 +24,13 @@ import org.fusesource.fabric.api.{Container, CreateContainerMetadata}
 import org.codehaus.jackson.annotate.JsonProperty
 import javax.servlet.http.HttpServletRequest
 import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerMetadata
+import javax.security.auth.Subject
+import java.security.PrivilegedExceptionAction
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-class AgentResource(val agent: Container, val request:HttpServletRequest) extends BaseResource with HasID {
+class AgentResource(val agent: Container) extends BaseResource with HasID {
 
   def parent_agent = agent.getParent
 
@@ -236,20 +238,42 @@ class AgentResource(val agent: Container, val request:HttpServletRequest) extend
   // common operations
   @POST
   @Path("stop")
-  def stop: Unit = agent.stop
+  def stop: Unit = {
+    Subject.doAs(subject, new PrivilegedExceptionAction[Object] {
+      def run():Object = {
+        agent.stop
+        null
+      }
+    })
+  }
 
   @POST
   @Path("start")
-  def start: Unit = agent.start
+  def start: Unit = {
+    Subject.doAs(subject, new PrivilegedExceptionAction[Object] {
+      def run():Object = {
+        agent.start
+        null
+      }
+    })
+  }
 
   @DELETE
-  def delete = destroy
+  def delete = {
+    Subject.doAs(subject, new PrivilegedExceptionAction[Object] {
+      def run():Object = {
+        agent.destroy
+        null
+      }
+    })
+    destroy
+  }
 
   @POST
   @Path("destroy")
   def destroy: Unit = {
-    agent.stop
-    agent.destroy
+    stop
+    delete
   }
 
 }

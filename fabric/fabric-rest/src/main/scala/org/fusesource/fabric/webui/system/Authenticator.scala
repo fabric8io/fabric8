@@ -42,7 +42,7 @@ class Authenticator(@Context servletContext: ServletContext) {
   protected var engine:BackingEngine = null
   protected var used_realm: JaasRealm = null
 
-  def authenticate(username: String, password: String): Boolean = {
+  def authenticate(username: String, password: String): Subject = {
     try {
       val callback = new LoginCallbackHandler(username, password)
       val lc = new LoginContext(domain, callback)
@@ -59,20 +59,24 @@ class Authenticator(@Context servletContext: ServletContext) {
       var hasRole = false
 
       subject.getPrincipals.toArray().foreach((x) => {
-         x match {
-           case rp:RolePrincipal =>
-             if (rp.getName.equals("admin")) {
-               hasRole = true
-             }
-           case _ =>
-         }
+        x match {
+         case rp:RolePrincipal =>
+           if (rp.getName.equals("admin")) {
+             hasRole = true
+           }
+         case _ =>
+        }
       })
 
-      hasRole
+      if (hasRole) {
+        subject
+      } else {
+        null
+      }
     } catch {
       case e:Throwable => {
         logger.info("Authentication failed", e)
-        false
+        null
       }
     }
   }

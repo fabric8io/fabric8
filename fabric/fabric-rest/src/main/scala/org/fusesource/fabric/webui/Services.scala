@@ -33,6 +33,7 @@ import javax.servlet.http.{HttpSession, HttpServletRequest}
 import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.Response.Status._
 import org.apache.curator.framework.CuratorFramework
+import javax.security.auth.Subject
 
 class Services {
 
@@ -146,6 +147,15 @@ object Services {
 
   def realm = _realm
 
+  def get_subject(request:HttpServletRequest) = {
+    Option[HttpSession](request.getSession(false)) match {
+      case Some(session) =>
+        Option[Subject](session.getAttribute("subject").asInstanceOf[Subject])
+      case None =>
+        null
+    }
+  }
+
   def get_session(request:HttpServletRequest) = {
     val session:HttpSession = request.getSession(false)
     if (session == null) {
@@ -162,9 +172,41 @@ object Services {
     true
   }
 
-  def jmx_username(request:HttpServletRequest) = get_session(request).getAttribute("username").asInstanceOf[String]
+  def username(subject:Subject):String = {
+    var answer:String = null;
+    subject.getPrincipals.asScala.find((x) => { x.getClass.getName.equals("org.apache.karaf.jaas.boot.principal.UserPrincipal")}) match {
+      case Some(principal) =>
+        answer = principal.getName();
+      case None =>
+    }
+    answer
+  }
 
-  def jmx_password(request:HttpServletRequest) = get_session(request).getAttribute("password").asInstanceOf[String]
+  def password(subject:Subject):String = {
+    var answer:String = null;
+    subject.getPrivateCredentials.asScala.foreach((x) => {
+      answer = x.asInstanceOf[String]
+    })
+    answer
+  }
+
+  def jmx_username(request:HttpServletRequest):String = {
+    get_subject(request) match {
+      case Some(subject) =>
+        username(subject)
+      case None =>
+        null
+    }
+  }
+
+  def jmx_password(request:HttpServletRequest):String = {
+    get_subject(request) match {
+      case Some(subject) =>
+        password(subject)
+      case None =>
+        null
+    }
+  }
 
   case class AgentTemplateHolder(agent: Container, jmx_username:String, jmx_password:String) {
     lazy val template = new ContainerTemplate(agent, jmx_username, jmx_password, true)

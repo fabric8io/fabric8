@@ -23,6 +23,7 @@ import javax.ws.rs.WebApplicationException
 import java.io.UnsupportedEncodingException
 import com.sun.jersey.core.util.Base64
 import com.sun.jersey.api.core.ResourceContext
+import javax.security.auth.Subject
 
 class AuthenticationFilter extends ContainerRequestFilter {
 
@@ -89,9 +90,11 @@ class AuthenticationFilter extends ContainerRequestFilter {
 
                 val auth: Authenticator = resource_context.getResource(classOf[Authenticator]);
 
-                if (auth.authenticate(username, password)) {
-                  return request
-                } 
+                Option[Subject](auth.authenticate(username, password)) match {
+                  case Some(subject) =>
+                    return request
+                  case None =>
+                }
               } catch {
                 case e: Exception =>
               }
