@@ -618,6 +618,8 @@ public class
                 int rmiRegistryConnectionPort = getRmiRegistryPort(current);
                 String jmxUrl = getJmxUrl(name, rmiServerConnectionPort, rmiRegistryConnectionPort);
                 setData(curator, CONTAINER_JMX.getPath(name), jmxUrl);
+                //Whenever the JMX URL changes we need to make sure that the java.rmi.server.hostname points to a valid address.
+                System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, current.getIp());
                 if (fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY) != rmiRegistryPort
                         || fabricService.getPortService().lookupPort(current, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY) != rmiServerPort) {
                     fabricService.getPortService().unRegisterPort(current, MANAGEMENT_PID);
