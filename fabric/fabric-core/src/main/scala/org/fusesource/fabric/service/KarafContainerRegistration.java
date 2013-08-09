@@ -315,7 +315,7 @@ public class
         boolean httpsEnabled = isHttpsEnabled();
         String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
         int httpPort = httpsEnabled && !httpEnabled ? getHttpsPort(container) : getHttpPort(container);
-        int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpConnectionPort(container) : getHttpsConnectionPort(container);
+        int httpConnectionPort = httpsEnabled && !httpEnabled ? getHttpsConnectionPort(container) : getHttpConnectionPort(container);
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator, CONTAINER_HTTP.getPath(container.getId()), httpUrl);
         fabricService.getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
