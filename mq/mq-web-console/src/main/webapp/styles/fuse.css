@@ -435,7 +435,8 @@ table tbody tr.selected:first-child td {
     margin-right: auto;
     margin-left: auto;
 }
-#header {
+
+div#header {
     background-image: url("../images/header-check.png");
     padding: 20px 20px 8px 20px;
     border-bottom: 1px solid #000000;
@@ -1527,6 +1528,12 @@ td.label {
   text-align: right;
   background: inherit;
   vertical-align: middle;
+  color: #000000;
+  padding: 0;
+}
+
+td.label:after {
+  content: ":";
 }
 
 textarea[name="JMSText"] {
