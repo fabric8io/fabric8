@@ -860,6 +860,18 @@ public class FabricManager implements FabricManagerMBean {
         return rc;
     }
 
+    @Override
+    public Map<String, String> registeredProviders() {
+        Map<String, ContainerProvider> providers = getFabricService().getProviders();
+
+        Map<String, String> answer = new HashMap<String, String>();
+
+        for (String name : providers.keySet()) {
+            answer.put(name, providers.get(name).getOptionsType().getName());
+        }
+        return answer;
+    }
+
 
     @Override
     public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {

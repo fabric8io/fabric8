@@ -200,6 +200,8 @@ public interface FabricManagerMBean {
 
     void stopContainer(String containerId);
 
+    Map<String, String> registeredProviders();
+
     void unregisterProvider(ContainerProvider provider, Map<String, Object> properties);
 
     void unregisterProvider(String scheme);
