@@ -16,28 +16,49 @@
  */
 package org.fusesource.fabric.api;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> extends CreateEnsembleOptions implements CreateContainerOptions {
 
 
     public static class Builder<B extends Builder> extends CreateEnsembleOptions.Builder<B> {
 
+        @JsonProperty
         String name;
+        @JsonProperty
         String parent;
+        @JsonProperty
         String providerType;
+        @JsonProperty
         boolean ensembleServer;
+        @JsonProperty
         String preferredAddress;
+        @JsonProperty
         Map<String, Properties> systemProperties = new HashMap<String, Properties>();
+        @JsonProperty
         Integer number = 0;
+        @JsonProperty
         URI proxyUri;
+        @JsonProperty
         String zookeeperUrl;
+        @JsonProperty
         String jvmOpts;
+        @JsonProperty
         boolean adminAccess = true;
+        @JsonProperty
         String version;
+
+        @JsonIgnore
         Map<String, CreateContainerMetadata> metadataMap = new HashMap<String, CreateContainerMetadata>();
+        @JsonIgnore
         transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
         public B preferredAddress(final String preferredAddress) {
@@ -171,19 +192,31 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         }
     }
 
-
+    @JsonProperty
     final String name;
+    @JsonProperty
     final String parent;
+    @JsonProperty
     final String providerType;
+    @JsonProperty
     final boolean ensembleServer;
+    @JsonProperty
     final String preferredAddress;
+    @JsonProperty
     final Map<String, Properties> systemProperties;
+    @JsonProperty
     final Integer number;
+    @JsonProperty
     final URI proxyUri;
+    @JsonProperty
     final String zookeeperUrl;
+    @JsonProperty
     final String jvmOpts;
+    @JsonProperty
     final boolean adminAccess;
+    @JsonProperty
     final String version;
+
     final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
     final transient CreationStateListener creationStateListener = new NullCreationStateListener();
 

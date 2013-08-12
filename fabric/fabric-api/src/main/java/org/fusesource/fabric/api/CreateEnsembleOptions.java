@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,12 +31,19 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
 
+        @JsonProperty
         int zooKeeperServerPort = 2181;
+        @JsonProperty
         int zooKeeperServerConnectionPort = 2181;
+        @JsonProperty
         String zookeeperPassword = generatePassword();
+        @JsonProperty
         boolean agentEnabled = true;
+        @JsonProperty
         boolean autoImportEnabled = true;
+        @JsonProperty
         String importPath = System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
+        @JsonProperty
         Map<String, String> users = new HashMap<String, String>();
 
         @Override
@@ -196,12 +205,19 @@ public class CreateEnsembleOptions extends ContainerOptions {
         }
     }
 
+    @JsonProperty
     final int zooKeeperServerPort;
+    @JsonProperty
     final int zooKeeperServerConnectionPort;
+    @JsonProperty
     final String zookeeperPassword;
+    @JsonProperty
     final boolean agentEnabled;
+    @JsonProperty
     final boolean autoImportEnabled;
+    @JsonProperty
     final String importPath;
+    @JsonProperty
     final Map<String, String> users;
 
     public static Builder<? extends Builder> builder() {

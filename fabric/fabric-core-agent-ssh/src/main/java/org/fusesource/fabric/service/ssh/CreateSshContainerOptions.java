@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.service.ssh;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
@@ -42,15 +44,25 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
 
+        @JsonProperty
         private String username;
+        @JsonProperty
         private String password;
+        @JsonProperty
         private String host;
+        @JsonProperty
         private int port = DEFAULT_SSH_PORT;
+        @JsonProperty
         private int sshRetries = DEFAULT_SSH_RETRIES;
+        @JsonProperty
         private int retryDelay = 1;
+        @JsonProperty
         private String privateKeyFile = DEFAULT_PRIVATE_KEY_FILE;
+        @JsonProperty
         private String passPhrase;
+        @JsonProperty
         private String path = "~/containers/";
+        @JsonProperty
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
 
 
@@ -212,16 +224,25 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
         }
     }
 
-
+    @JsonProperty
     private final String username;
+    @JsonProperty
     private final String password;
+    @JsonProperty
     private final String host;
+    @JsonProperty
     private final int port;
+    @JsonProperty
     private final int sshRetries;
+    @JsonProperty
     private final int retryDelay;
+    @JsonProperty
     private final String privateKeyFile;
+    @JsonProperty
     private final String passPhrase;
+    @JsonProperty
     private final String path;
+    @JsonProperty
     private final Map<String, String> environmentalVariables;
 
     public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String version, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {

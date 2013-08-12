@@ -17,6 +17,8 @@
 
 package org.fusesource.fabric.api;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.net.URI;
 import java.util.Map;
 import java.util.Properties;
@@ -25,7 +27,9 @@ import java.util.Set;
 public class CreateChildContainerOptions extends CreateContainerBasicOptions<CreateChildContainerOptions> {
 
     public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
+        @JsonProperty
         private String jmxUser;
+        @JsonProperty
         private String jmxPassword;
 
         public Builder jmxUser(final String jmxUser) {
@@ -54,7 +58,9 @@ public class CreateChildContainerOptions extends CreateContainerBasicOptions<Cre
         }
     }
 
+    @JsonProperty
     private final String jmxUser;
+    @JsonProperty
     private final String jmxPassword;
 
     public CreateChildContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, String version, String jmxUser, String jmxPassword) {

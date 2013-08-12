@@ -17,12 +17,22 @@
 
   <properties>
     <fuse.osgi.import>
+      org.codehaus.jackson.annotate.*,
       org.fusesource.fabric.api*;version=${project.version}
     </fuse.osgi.import>
     <fuse.osgi.export>
       org.fusesource.fabric.api*;version=${project.version}
     </fuse.osgi.export>
   </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.codehaus.jackson</groupId>
+      <artifactId>jackson-core-asl</artifactId>
+      <version>${jackson-version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 
 
 </project>

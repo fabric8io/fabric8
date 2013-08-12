@@ -149,6 +149,12 @@
             <version>${jclouds-version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-core-asl</artifactId>
+            <version>${jackson-version}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <dependency>
              <groupId>org.apache.jclouds.provider</groupId>

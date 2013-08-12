@@ -16,17 +16,15 @@
  */
 package org.fusesource.fabric.service.jclouds;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 
 import java.net.URI;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Arguments for creating a new container via JClouds
@@ -36,28 +34,50 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
     public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
 
+        @JsonProperty
         private String osFamily;
+        @JsonProperty
         private String osVersion;
+        @JsonProperty
         private String imageId;
+        @JsonProperty
         private String hardwareId;
+        @JsonProperty
         private String locationId;
+        @JsonProperty
         private String group;
+        @JsonProperty
         private String user;
+        @JsonProperty
         private String password;
+        @JsonProperty
         private String contextName;
+        @JsonProperty
         private String providerName;
+        @JsonProperty
         private String apiName;
+        @JsonProperty
         private String endpoint;
+        @JsonProperty
         private JCloudsInstanceType instanceType = JCloudsInstanceType.Fastest;
+        @JsonProperty
         private String identity;
+        @JsonProperty
         private String credential;
+        @JsonProperty
         private String owner;
+        @JsonProperty
         private final Map<String, String> serviceOptions = new HashMap<String, String>();
+        @JsonProperty
         private final Map<String, String> nodeOptions = new HashMap<String, String>();
+        @JsonProperty
         private int servicePort = 0;
+        @JsonProperty
         private String publicKeyFile;
         private transient Object computeService;
+        @JsonProperty
         private String path = "~/containers/";
+        @JsonProperty
         private Map<String, String> environmentalVariables = new HashMap<String, String>();
 
 
@@ -331,28 +351,51 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
     }
 
 
+    @JsonProperty
     private final String osFamily;
+    @JsonProperty
     private final String osVersion;
+    @JsonProperty
     private final String imageId;
+    @JsonProperty
     private final String hardwareId;
+    @JsonProperty
     private final String locationId;
+    @JsonProperty
     private final String group;
+    @JsonProperty
     private final String user;
+    @JsonProperty
     private final String password;
+    @JsonProperty
     private final String contextName;
+    @JsonProperty
     private final String providerName;
+    @JsonProperty
     private final String apiName;
+    @JsonProperty
     private final String endpoint;
+    @JsonProperty
     private final JCloudsInstanceType instanceType;
+    @JsonProperty
     private final String identity;
+    @JsonProperty
     private final String credential;
+    @JsonProperty
     private final String owner;
+    @JsonProperty
     private final Map<String, String> serviceOptions;
+    @JsonProperty
     private final Map<String, String> nodeOptions;
+    @JsonProperty
     private final int servicePort;
+    @JsonProperty
     private final String publicKeyFile;
+    @JsonIgnore
     private final transient Object computeService;
+    @JsonProperty
     private final String path;
+    @JsonProperty
     private final Map<String, String> environmentalVariables;
 
     public CreateJCloudsContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp,

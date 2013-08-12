@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,13 +30,24 @@ public class ContainerOptions implements Serializable {
 
     public static class Builder<B extends Builder> implements Cloneable {
 
+        @JsonProperty
         String bindAddress = "0.0.0.0";
+        @JsonProperty
         String resolver;
+        @JsonProperty
         String globalResolver;
+        @JsonProperty
         String manualIp;
+        @JsonProperty
         int minimumPort = 0;
+        @JsonProperty
         int maximumPort = 65535;
+        @JsonProperty
         Set<String> profiles = new LinkedHashSet<String>();
+
+        public Builder() {
+
+        }
 
         public B fromSystemProperties() {
             this.bindAddress = System.getProperty(BIND_ADDRESS, "0.0.0.0");
