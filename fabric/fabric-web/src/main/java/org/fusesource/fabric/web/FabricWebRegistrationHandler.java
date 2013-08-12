@@ -17,6 +17,8 @@
 package org.fusesource.fabric.web;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -42,8 +44,8 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 @Component(name = "org.fusesource.fabric.web",
         description = "Fabric Web Registration Handler",
         immediate = true)
-@Service({WebListener.class, ServletListener.class})
-public class FabricWebRegistrationHandler implements WebListener, ServletListener {
+@Service({WebListener.class, ServletListener.class, ConnectionStateListener.class})
+public class FabricWebRegistrationHandler implements WebListener, ServletListener, ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
@@ -56,9 +58,17 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
     private CuratorFramework curator;
 
     @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                replay();
+        }
+    }
+
+    @Override
     public void webEvent(WebEvent webEvent) {
         webEvents.put(webEvent.getBundle(), webEvent);
-        if (curator != null && curator.getZookeeperClient().isConnected()) {
             switch (webEvent.getType()) {
                 case WebEvent.DEPLOYING:
                     break;
@@ -68,7 +78,6 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
                 default:
                     unRegisterWebapp(fabricService.getCurrentContainer(), webEvent);
             }
-        }
     }
 
     @Override
@@ -94,6 +103,21 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
                 default:
                     unregisterServlet(fabricService.getCurrentContainer(), servletEvent);
                     break;
+            }
+        }
+    }
+
+    /**
+     * Replays again all events.
+     */
+    private void replay() {
+        for (Map.Entry<Bundle, WebEvent> entry : webEvents.entrySet()) {
+            webEvent(entry.getValue());
+        }
+        for (Map.Entry<Bundle, Map<String, ServletEvent>> entry : servletEvents.entrySet()) {
+            Map<String, ServletEvent> servletEventMap = entry.getValue();
+            for (Map.Entry<String, ServletEvent> sentry : servletEventMap.entrySet()) {
+                servletEvent(sentry.getValue());
             }
         }
     }

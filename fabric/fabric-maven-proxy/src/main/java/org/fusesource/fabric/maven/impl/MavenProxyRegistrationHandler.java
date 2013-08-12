@@ -29,11 +29,6 @@ import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.framework.Constants;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -54,7 +49,8 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 @Component(name = "org.fusesource.fabric.maven",
         description = "Fabric Maven Proxy Registration Handler",
         immediate = true)
-public class MavenProxyRegistrationHandler {
+@Service(ConnectionStateListener.class)
+public class MavenProxyRegistrationHandler implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
 
@@ -120,9 +116,6 @@ public class MavenProxyRegistrationHandler {
         } catch (Throwable t) {
             LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
         }
-        register(MavenProxy.DOWNLOAD_TYPE);
-        register(MavenProxy.UPLOAD_TYPE);
-
     }
 
     @Deactivate
@@ -217,5 +210,15 @@ public class MavenProxyRegistrationHandler {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public void stateChanged(CuratorFramework client, ConnectionState newState) {
+        switch (newState) {
+            case CONNECTED:
+            case RECONNECTED:
+                register(MavenProxy.DOWNLOAD_TYPE);
+                register(MavenProxy.UPLOAD_TYPE);
+        }
     }
 }
