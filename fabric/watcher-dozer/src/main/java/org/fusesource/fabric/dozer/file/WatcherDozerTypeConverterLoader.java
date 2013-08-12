@@ -42,7 +42,7 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
     }
 
     public void add() {
-        init(camelContext, getMapper());
+        init(camelContext, null);
     }
 
     public void update() {
@@ -64,9 +64,9 @@ public class WatcherDozerTypeConverterLoader extends DozerTypeConverterLoader {
         List<String> mappingFiles = new ArrayList<String>(1);
         mappingFiles.add(mappingFile);
 
-        DozerBeanMapper mapper = new DozerBeanMapper(mappingFiles);
+        getMapper().setMappingFiles(mappingFiles);
         Map<String, DozerBeanMapper> answer = new HashMap<String, DozerBeanMapper>(1);
-        answer.put("dozer", mapper);
+        answer.put("dozer", getMapper());
         return answer;
     }
 

@@ -33,7 +33,7 @@
 
   <bean id="dozerWatcher" class="org.fusesource.fabric.dozer.file.FileWatcherMapping" init-method="init" destroy-method="destroy">
     <property name="camelContext" ref="myCamel"/>
-    <property name="rootPath" value="src/test/resources"/>
+    <property name="rootPath" value="target/test-classes"/>
   </bean>
 
   <!--<bean id="myDataFormat" class="org.fusesource.fabric.jaxb.dynamic.DynamicJaxbDataFormat">-->

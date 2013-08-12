@@ -105,9 +105,10 @@ public class FileWatcherMapping extends FileWatcher {
     protected void removeMapping(Path path) {
         try {
             String url = toUrlString(path);
+
+            LOG.info("Removing Dozer Mapping file " + url);
             WatcherDozerTypeConverterLoader loader = loaders.remove(url);
             if (url != null) {
-                LOG.info("Removing Dozer Mapping file " + url);
                 loader.remove();
             }
         } catch (Exception e) {
@@ -123,9 +124,9 @@ public class FileWatcherMapping extends FileWatcher {
     }
 
     private void updateMapping(String url) {
+        LOG.info("Updating Dozer Mapping file " + url);
         WatcherDozerTypeConverterLoader loader = loaders.get(url);
         if (url != null) {
-            LOG.info("Updating Dozer Mapping file " + url);
             loader.update();
         }
     }
