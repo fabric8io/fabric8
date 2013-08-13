@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -120,6 +121,16 @@ public final class ZooKeeperUtils {
 
 
     public static List<String> getChildren(CuratorFramework curator, String path) throws Exception {
+        return curator.getChildren().forPath(path);
+    }
+
+    /**
+     * Returns an empty list if the given path doesn't exist in curator
+     */
+    public static List<String> getChildrenSafe(CuratorFramework curator, String path) throws Exception {
+        if (curator.checkExists().forPath(path) == null) {
+            return Collections.EMPTY_LIST;
+        }
         return curator.getChildren().forPath(path);
     }
 
