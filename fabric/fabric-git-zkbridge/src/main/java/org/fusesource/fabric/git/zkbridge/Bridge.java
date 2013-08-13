@@ -410,20 +410,20 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
     private static void syncVersionFromZkToGit(Git git, CuratorFramework curator, String zkNode) throws Exception {
         // Version metadata
         Properties versionProps = loadProps(curator, zkNode);
-        versionProps.save(new File(git.getRepository().getWorkTree(), METADATA));
+        versionProps.save(new File(getGitProfilesDirectory(git), METADATA));
         git.add().addFilepattern(METADATA).call();
         // Profiles
-        List<String> gitProfiles = list(git.getRepository().getWorkTree());
+        List<String> gitProfiles = list(getGitProfilesDirectory(git));
         gitProfiles.remove(".git");
         gitProfiles.remove(METADATA);
         gitProfiles.remove(CONTAINERS_PROPERTIES);
         List<String> zkProfiles = getChildren(curator, zkNode + "/profiles");
         for (String profile : zkProfiles) {
-            File profileDir = new File(git.getRepository().getWorkTree(), profile);
+            File profileDir = new File(getGitProfilesDirectory(git), profile);
             profileDir.mkdirs();
             // Profile metadata
             Properties profileProps = loadProps(curator, zkNode + "/profiles/" + profile);
-            profileProps.save(new File(git.getRepository().getWorkTree(), profile + "/" + METADATA));
+            profileProps.save(new File(getGitProfilesDirectory(git), profile + "/" + METADATA));
             git.add().addFilepattern(profile + "/" + METADATA).call();
             // Configs
             List<String> gitConfigs = list(profileDir);
@@ -431,7 +431,7 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
             List<String> zkConfigs = getChildren(curator, zkNode + "/profiles/" + profile);
             for (String file : zkConfigs) {
                 byte[] data = curator.getData().forPath(zkNode + "/profiles/" + profile + "/" + file);
-                Files.writeToFile(new File(git.getRepository().getWorkTree(), profile + "/" + file), data);
+                Files.writeToFile(new File(getGitProfilesDirectory(git), profile + "/" + file), data);
                 gitConfigs.remove(file);
                 git.add().addFilepattern(profile + "/" + file).call();
             }
@@ -442,7 +442,7 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
             gitProfiles.remove(profile);
         }
         for (String profile : gitProfiles) {
-            delete(new File(git.getRepository().getWorkTree(), profile));
+            delete(new File(getGitProfilesDirectory(git), profile));
             git.rm().addFilepattern(profile).call();
         }
         // Containers
@@ -453,8 +453,13 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
                 containerProps.setProperty(container, str);
             }
         }
-        containerProps.save(new File(git.getRepository().getWorkTree(), CONTAINERS_PROPERTIES));
+        containerProps.save(new File(getGitProfilesDirectory(git), CONTAINERS_PROPERTIES));
         git.add().addFilepattern(CONTAINERS_PROPERTIES).call();
+    }
+
+    protected static File getGitProfilesDirectory(Git git) {
+        // TODO allow us to move the profile tree to a sub directory in the git repo
+        return git.getRepository().getWorkTree();
     }
 
     private static void syncVersionFromGitToZk(Git git, CuratorFramework curator, String zkNode) throws Exception {
@@ -462,7 +467,7 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
         Properties versionProps = loadProps(git, METADATA);
         setData(curator, zkNode, toString(versionProps));
         // Profiles
-        List<String> gitProfiles = list(git.getRepository().getWorkTree());
+        List<String> gitProfiles = list(getGitProfilesDirectory(git));
         gitProfiles.remove(".git");
         gitProfiles.remove(METADATA);
         gitProfiles.remove(CONTAINERS_PROPERTIES);
@@ -473,10 +478,10 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
             setData(curator, zkNode + "/profiles/" + profile, toString(profileProps));
             // Configs
             List<String> zkConfigs = getChildren(curator, zkNode + "/profiles/" + profile);
-            List<String> gitConfigs = list(new File(git.getRepository().getWorkTree(), profile));
+            List<String> gitConfigs = list(new File(getGitProfilesDirectory(git), profile));
             gitConfigs.remove(METADATA);
             for (String file : gitConfigs) {
-                byte[] data = read(new File(git.getRepository().getWorkTree(), profile + "/" + file));
+                byte[] data = read(new File(getGitProfilesDirectory(git), profile + "/" + file));
                 setData(curator, zkNode + "/profiles/" + profile + "/" + file, data);
                 zkConfigs.remove(file);
             }
@@ -515,7 +520,7 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
 
     private static Properties loadProps(Git git, String path) throws IOException {
         Properties props = new Properties();
-        File file = new File(git.getRepository().getWorkTree(), path);
+        File file = new File(getGitProfilesDirectory(git), path);
         if (file.isFile()) {
             props.load(file);
         }
