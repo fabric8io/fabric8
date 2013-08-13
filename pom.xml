@@ -141,6 +141,7 @@
         <commons-lang-version>2.6</commons-lang-version>
         <common-math-version>2.2</common-math-version>
         <commons-pool-version>1.5.4_3</commons-pool-version>
+        <commons-httpclient-version>3.1</commons-httpclient-version>
         <cxf-version>2.7.0.redhat-${full-perfectus-build}</cxf-version>
         <curator.version>2.0.0-incubating</curator.version>
         <depends-maven-plugin.version>1.2</depends-maven-plugin.version>
@@ -1259,6 +1260,18 @@
                 <version>${asm.bundle.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.servicemix.specs</groupId>
+                <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
+                <version>${servicemix-specs-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.geronimo.specs</groupId>
+                <artifactId>geronimo-ws-metadata_2.0_spec</artifactId>
+                <version>${geronimo-ws-metadata.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>commons-lang</groupId>
                 <artifactId>commons-lang</artifactId>
                 <version>${commons-lang-version}</version>
@@ -1292,6 +1305,11 @@
               <version>6.1.26</version>
           </dependency>
 
+          <dependency>
+              <groupId>org.apache.activemq</groupId>
+              <artifactId>activemq-osgi</artifactId>
+              <version>${activemq-version}</version>
+          </dependency>
           <dependency>
              <groupId>org.apache.activemq</groupId>
              <artifactId>activemq-broker</artifactId>
@@ -1359,6 +1377,24 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-bundle</artifactId>
+                <version>${cxf-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>${commons-httpclient-version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit-version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
