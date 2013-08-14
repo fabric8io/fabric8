@@ -80,11 +80,11 @@ You can then login to your registry at: http://registry-$USERID.rhcloud.com/hawt
 
 ### 2 Create additional Fabric Containers
 
-    rhc create-app fuse https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml
+    rhc create-app myfuse https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml
 
 This will just create a plain fabric container (will not join it to
 the cluster. This is an openshift limitation)
 
 ### 3 Join the container to the Fabric Cluster
 
-    rhc cartridge-add --app fuse https://raw.github.com/jboss-fuse/fuse-client-openshift-cartridge/master/metadata/manifest.yml
+    rhc cartridge-add --app myfuse https://raw.github.com/jboss-fuse/fuse-client-openshift-cartridge/master/metadata/manifest.yml
