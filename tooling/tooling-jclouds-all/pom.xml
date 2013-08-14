@@ -54,7 +54,7 @@
       !com.google.inject.internal.asm.util*,
       !com.google.gdata*,
       !sun.misc,
-      !org.apache.log4j*,
+      org.apache.log4j*,
       !jline*,
       !org.xml.*,
       !org.w3c.dom*,
