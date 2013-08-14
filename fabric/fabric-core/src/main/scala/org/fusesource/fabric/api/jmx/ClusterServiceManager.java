@@ -1,10 +1,6 @@
 package org.fusesource.fabric.api.jmx;
 
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.*;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
@@ -21,6 +17,7 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +33,7 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private ZooKeeperClusterBootstrap bootstrap;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private ZooKeeperClusterService service;
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
@@ -128,11 +125,17 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
 
     @Override
     public List<String> getEnsembleContainers() {
+        if (service == null) {
+            return new ArrayList<String>();
+        }
         return service.getEnsembleContainers();
     }
 
     @Override
     public String getZooKeeperUrl() {
+        if (service == null) {
+            return null;
+        }
         return service.getZooKeeperUrl();
     }
 
@@ -176,27 +179,37 @@ public class ClusterServiceManager implements ClusterServiceManagerMBean {
 
     @Override
     public void addToCluster(List<String> containers) {
-        service.addToCluster(containers);
+        if (service != null) {
+            service.addToCluster(containers);
+        }
     }
 
     @Override
     public void addToCluster(List<String> containers, CreateEnsembleOptions options) {
-        service.addToCluster(containers, options);
+        if (service != null) {
+            service.addToCluster(containers, options);
+        }
     }
 
     @Override
     public void removeFromCluster(List<String> containers) {
-        service.removeFromCluster(containers);
+        if (service != null) {
+            service.removeFromCluster(containers);
+        }
     }
 
     @Override
     public void removeFromCluster(List<String> containers, CreateEnsembleOptions options) {
-        service.removeFromCluster(containers, options);
+        if (service != null) {
+            service.removeFromCluster(containers, options);
+        }
     }
 
     @Override
     public void clean() {
-        service.clean();
+        if (service != null) {
+            service.clean();
+        }
     }
 
     public ZooKeeperClusterService getService() {
