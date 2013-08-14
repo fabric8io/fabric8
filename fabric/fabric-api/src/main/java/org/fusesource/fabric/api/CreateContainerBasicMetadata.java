@@ -61,8 +61,8 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
         return createOptions;
     }
 
-    public void setCreateOptions(O createOptions) {
-        this.createOptions = createOptions;
+    public void setCreateOptions(CreateContainerOptions createOptions) {
+        this.createOptions = (O) createOptions;
     }
 
     @Override

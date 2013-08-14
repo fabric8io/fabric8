@@ -83,6 +83,11 @@ public interface FabricManagerMBean {
 
     List<Map<String, Object>> containers(List<String> fields);
 
+    String containerMetadataType(String id);
+
+    String containerCreateOptionsType(String id);
+
+    void changeCreateOptionsField(String containerId, String field, Object value);
 
     @Deprecated
     String[] containerIds();

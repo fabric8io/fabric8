@@ -17,8 +17,10 @@
 package org.fusesource.fabric.api.jmx;
 
 import org.apache.commons.codec.binary.Base64;
+import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.slf4j.Logger;
@@ -166,9 +168,7 @@ public class FabricManager implements FabricManagerMBean {
             throw new RuntimeException("Unknown provider type : " + providerType);
         }
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        ObjectMapper mapper = getObjectMapper();
 
         builder = mapper.convertValue(options, builder.getClass());
 
@@ -182,7 +182,7 @@ public class FabricManager implements FabricManagerMBean {
             builder.profiles(profiles);
         }
 
-        CreateContainerBasicOptions build = builder.build();
+        CreateContainerOptions build = builder.build();
 
         if (LOG.isDebugEnabled()) {
             LOG.debug("Created container options: " + build + " with profiles " + build.getProfiles());
@@ -199,6 +199,13 @@ public class FabricManager implements FabricManagerMBean {
         }
 
         return rc;
+    }
+
+    private ObjectMapper getObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        return mapper;
     }
 
     @Override
@@ -358,6 +365,77 @@ public class FabricManager implements FabricManagerMBean {
             answer.add(BeanUtils.convertContainerToMap(getFabricService(), c, fields));
         }
         return answer;
+    }
+
+    private CreateContainerMetadata<?> getContainerMetaData(String id) {
+        Container container = getFabricService().getContainer(id);
+        return container.getMetadata();
+    }
+
+    @Override
+    public String containerMetadataType(String id) {
+        CreateContainerMetadata<?> metadata = getContainerMetaData(id);
+        if (metadata == null) {
+            return null;
+        } else {
+            return metadata.getClass().getName();
+        }
+    }
+
+    @Override
+    public String containerCreateOptionsType(String id) {
+        CreateContainerMetadata<?> metadata = getContainerMetaData(id);
+        if (metadata == null) {
+            return null;
+        }
+        CreateContainerOptions options = metadata.getCreateOptions();
+        if (options == null) {
+            return null;
+        } else {
+            return options.getClass().getName();
+        }
+    }
+
+    @Override
+    public void changeCreateOptionsField(String containerId, String field, Object value) {
+        CreateContainerMetadata<? extends CreateContainerOptions> metadata = getContainerMetaData(containerId);
+        if (metadata == null) {
+            return;
+        }
+        CreateContainerOptions options = metadata.getCreateOptions();
+        if (options == null) {
+            return;
+        }
+
+        ObjectMapper mapper = getObjectMapper();
+        JsonNode optionsJson = mapper.convertValue(options, JsonNode.class);
+        JsonNode valueJson = mapper.convertValue(value, JsonNode.class);
+        ((ObjectNode)optionsJson).put(field, valueJson);
+
+        Object builder = null;
+
+        try {
+            builder = options.getClass().getMethod("builder").invoke(null);
+        } catch (Exception e) {
+            LOG.warn("Failed to get builder when setting " + field + " on container " + containerId, e);
+            throw new RuntimeException("Failed to get builder when setting " + field + " on container " + containerId, e);
+        }
+
+        builder = mapper.convertValue(optionsJson, builder.getClass());
+
+        CreateContainerOptions newOptions = null;
+        try {
+            newOptions = (CreateContainerOptions) builder.getClass().getMethod("build").invoke(builder);
+        } catch (Exception e) {
+            LOG.warn("Failed to build CreatecontainerOptions when setting " + field + " on container " + containerId, e);
+            throw new RuntimeException("Failed to build CreatecontainerOptions when setting " + field + " on container " + containerId, e);
+        }
+        metadata.setCreateOptions(newOptions);
+
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Create container metadata: " + metadata);
+        }
+        getFabricService().getDataStore().setContainerMetadata(metadata);
     }
     
     @Override
