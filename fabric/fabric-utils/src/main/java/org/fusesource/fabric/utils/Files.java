@@ -173,4 +173,15 @@ public class Files {
             Closeables.closeQuitely(os);
         }
     }
+
+
+    public static String getRelativePath(File rootDir, File file) throws IOException {
+        String rootPath = rootDir.getCanonicalPath();
+        String fullPath = file.getCanonicalPath();
+        if (fullPath.startsWith(rootPath)) {
+            return fullPath.substring(rootPath.length());
+        } else {
+            return fullPath;
+        }
+    }
 }

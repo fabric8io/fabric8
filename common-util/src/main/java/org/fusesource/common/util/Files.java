@@ -26,7 +26,7 @@ import java.util.LinkedHashSet;
  */
 public class Files {
 
-    
+
     private static final ThreadLocal<LinkedHashSet<URL>> ACTIVE_DOWNLOADS = new ThreadLocal<LinkedHashSet<URL>>();
 
     /**

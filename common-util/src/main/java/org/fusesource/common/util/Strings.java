@@ -154,4 +154,7 @@ public class Strings {
         return value == null || value.length() == 0 || value.trim().length() == 0;
     }
 
+    public static boolean isNotBlank(String text) {
+        return !isNullOrBlank(text);
+    }
 }
