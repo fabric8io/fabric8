@@ -47,6 +47,7 @@ import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.ObjectUtils;
@@ -575,4 +576,20 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         }
     }
 
+    @Override
+    public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
+        try {
+            Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
+            Map<String, byte[]> configs = getFileConfigurations(version, profile);
+            for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
+                if (entry.getKey().endsWith(".properties")) {
+                    String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
+                    configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
+                }
+            }
+            return configurations;
+        } catch (Exception e) {
+            throw new FabricException(e);
+        }
+    }
 }

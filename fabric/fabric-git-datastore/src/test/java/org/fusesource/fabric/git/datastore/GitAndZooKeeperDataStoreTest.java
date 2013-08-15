@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.junit.Assert.assertEquals;
@@ -120,6 +121,8 @@ public class GitAndZooKeeperDataStoreTest {
         String version = "1.1";
         assertCreateVersion(version);
 
+        assertProfileConfiguration(version, "example-dozer", "org.fusesource.fabric.agent", "parents", "camel");
+
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
         assertEquals("Should not create profile: " + profileNotCreated, null, dataStore.getProfile(version, profileNotCreated, false));
@@ -159,6 +162,44 @@ public class GitAndZooKeeperDataStoreTest {
         remote.checkout().setName("1.0").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + newProfile));
+
+
+    }
+
+    protected void assertProfileConfiguration(String version, String profile, String pid, String key, String expectedValue) {
+        String file = pid + ".properties";
+        byte[] fileConfiguration = dataStore.getFileConfiguration(version, profile, file);
+        assertNotNull("fileConfiguration", fileConfiguration);
+        Map<String, byte[]> fileConfigurations = dataStore.getFileConfigurations(version, profile);
+        assertNotNull("fileConfigurations", fileConfigurations);
+
+        Map<String, String> configuration = dataStore.getConfiguration(version, profile, pid);
+        assertNotNull("configuration", configuration);
+        Map<String, Map<String, String>> configurations = dataStore.getConfigurations(version, profile);
+        assertNotNull("configurations", configurations);
+
+        System.out.println("Configurations: " + configurations);
+        System.out.println(pid + " configuration: " + configuration);
+
+        assertMapContains("configuration", configuration, key, expectedValue);
+        assertFalse("configurations is empty!", configurations.isEmpty());
+        assertFalse("fileConfigurations is empty!", fileConfigurations.isEmpty());
+
+        Map<String, String> pidConfig = configurations.get(pid);
+        assertNotNull("configurations should have an entry for pid " + pid, pidConfig);
+        assertMapContains("configurations[" + pid + "]", pidConfig, key, expectedValue);
+
+        byte[] pidBytes = fileConfigurations.get(file);
+        assertNotNull("fileConfigurations should have an entry for file " + file, pidConfig);
+        assertTrue("should have found some bytes for fileConfigurations entry for pid " + pid, pidBytes.length > 0);
+
+        assertEquals("sizes of fileConfiguration.length and fileConfigurations[" + file + "].length", fileConfiguration.length, pidBytes.length);
+    }
+
+    protected void assertMapContains(String message, Map<String,String> map, String key,
+                                   String expectedValue) {
+        String value = map.get(key);
+        assertEquals(message + "[" +key + "]", expectedValue, value);
     }
 
     protected File getLocalGitFile(String path) {

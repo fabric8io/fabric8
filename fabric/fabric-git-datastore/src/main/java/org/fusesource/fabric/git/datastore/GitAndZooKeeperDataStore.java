@@ -26,13 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.TreeData;
-import org.apache.curator.utils.ZKPaths;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.KeeperException;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -56,16 +52,12 @@ import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.git.datastore.GitHelpers.getRootGitDirectory;
 import static org.fusesource.fabric.git.datastore.GitHelpers.hasGitHead;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
@@ -78,17 +70,20 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 @Service(DataStore.class)
 public class GitAndZooKeeperDataStore extends DataStoreSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitAndZooKeeperDataStore.class);
-    private final String masterBranch = "master";
+
+    private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
 
     public static final String CONFIGS = "/fabric";
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
     public static final String CONFIGS_METRICS = CONFIGS + "/metrics";
+    public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricGitService gitService;
 
-    private Object lock = new Object();
+    private final Object lock = new Object();
     private String remote = "remote";
+    private String masterBranch = "master";
 
     public FabricGitService getGitService() {
         return gitService;
@@ -153,6 +148,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
 
     @Override
     public void deleteVersion(String version) {
+        // TODO
         todo();
     }
 
@@ -258,6 +254,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
 
     @Override
     public Map<String, String> getVersionAttributes(String version) {
+        // TODO
         todo();
         try {
             String node = ZkPath.CONFIG_VERSION.getPath(version);
@@ -269,6 +266,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
 
     @Override
     public void setVersionAttribute(String version, String key, String value) {
+        // TODO
         todo();
         try {
             Map<String, String> props = getVersionAttributes(version);
@@ -287,17 +285,13 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
 
     @Override
     public Map<String, String> getProfileAttributes(String version, String profile) {
-        todo();
-        try {
-            String path = ZkProfiles.getPath(version, profile);
-            return getPropertiesAsMap(treeCache, path);
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+        return getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
     }
 
     @Override
     public void setProfileAttribute(String version, String profile, String key, String value) {
+        // TODO
+        todo();
         try {
             String path = ZkProfiles.getPath(version, profile);
             Properties props = getProperties(getCurator(), path);
@@ -313,177 +307,166 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
     }
 
     @Override
-    public long getLastModified(String version, String profile) {
-        try {
-            return lastModified(getCurator(), ZkProfiles.getPath(version, profile));
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
+    public long getLastModified(final String version, final String profile) {
+        Long answer = gitOperation(new GitOperation<Long>() {
+            public Long call(Git git) throws Exception {
+                checkoutVersion(git, version);
+                File profileDirectory = getProfileDirectory(git, profile);
+                File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
+                Long answer = null;
+                if (profileDirectory.exists()) {
+                    answer = profileDirectory.lastModified();
+                    if (metadataFile.exists()) {
+                        long modified = metadataFile.lastModified();
+                        if (modified > answer) {
+                            answer = modified;
+                        }
+                    }
+                }
+                return answer;
+            }
+        });
+        return answer != null ? answer.longValue() : 0;
     }
 
     @Override
-    public Map<String, byte[]> getFileConfigurations(String version, String profile) {
-        try {
-            Map<String, byte[]> configurations = new HashMap<String, byte[]>();
-            String path = ZkProfiles.getPath(version, profile);
-            List<String> children = getAllChildren(treeCache, path);
-            for (String child : children) {
-                TreeData data = treeCache.getCurrentData(child);
-                if (data.getData() != null && data.getData().length != 0) {
-                    String relativePath = child.substring(path.length() + 1);
-                    configurations.put(relativePath, getFileConfiguration(version, profile, relativePath));
+    public Map<String, byte[]> getFileConfigurations(final String version, final String profile) {
+        return gitOperation(new GitOperation<Map<String, byte[]>>() {
+            public Map<String, byte[]> call(Git git) throws Exception {
+                checkoutVersion(git, version);
+                return doGetFileConfigurations(git, profile);
+            }
+        });
+    }
+
+    protected Map<String, byte[]> doGetFileConfigurations(Git git, String profile) throws IOException {
+        Map<String, byte[]> configurations = new HashMap<String, byte[]>();
+        File profileDirectory = getProfileDirectory(git, profile);
+        File[] files = profileDirectory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    String relativePath = getFilePattern(profileDirectory, file);
+                    configurations.put(relativePath, doLoadFileConfiguration(file));
                 }
             }
-            return configurations;
-        } catch (Exception e) {
-            throw new FabricException(e);
         }
+        return configurations;
     }
 
     @Override
-    public byte[] getFileConfiguration(String version, String profile, String pid) {
-        try {
-            String path = ZkProfiles.getPath(version, profile) + "/" + pid;
-            if (treeCache.getCurrentData(path) == null) {
+    public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
+        return gitOperation(new GitOperation<byte[]>() {
+            public byte[] call(Git git) throws Exception {
+                checkoutVersion(git, version);
+                File profileDirectory = getProfileDirectory(git, profile);
+                File file = new File(profileDirectory, fileName);
+                return doLoadFileConfiguration(file);
+            }
+        });
+    }
+
+    @Override
+    public void setFileConfigurations(final String version, final String profile, final Map<String, byte[]> configurations) {
+        gitOperation(new GitOperation<Void>() {
+            public Void call(Git git) throws Exception {
+                checkoutVersion(git, version);
+                File profileDirectory = getProfileDirectory(git, profile);
+                doSetFileConfigurations(git, profileDirectory, profile, configurations);
                 return null;
             }
-            if (treeCache.getCurrentData(path).getData() == null) {
-                List<String> children = treeCache.getChildrenNames(path);
-                StringBuilder buf = new StringBuilder();
-                for (String child : children) {
-                    String value = new String(treeCache.getCurrentData(path + "/" + child).getData(),
-                            "UTF-8");
-                    buf.append(String.format("%s = %s\n", child, value));
-                }
-                return buf.toString().getBytes();
-            } else {
-                return getByteData(treeCache, path);
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
+        });
+    }
+
+    protected void doSetFileConfigurations(Git git, File profileDirectory, String profile,
+                                           Map<String, byte[]> configurations)
+            throws IOException, GitAPIException {
+        Map<String, byte[]> oldCfgs = doGetFileConfigurations(git, profile);
+
+        for (Map.Entry<String, byte[]> entry : configurations.entrySet()) {
+            String file = entry.getKey();
+            oldCfgs.remove(file);
+            byte[] newCfg = entry.getValue();
+            doSetFileConfiguration(git, profile, file, newCfg);
         }
+
+        for (String pid : oldCfgs.keySet()) {
+            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, pid));
+        }
+        git.commit().setMessage("Updated configuration for profile " + profile).call();
     }
 
     @Override
-    public void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations) {
-        try {
-            Map<String, byte[]> oldCfgs = getFileConfigurations(version, profile);
-            String path = ZkProfiles.getPath(version, profile);
-
-            for (Map.Entry<String, byte[]> entry : configurations.entrySet()) {
-                String pid = entry.getKey();
-                oldCfgs.remove(pid);
-                byte[] newCfg = entry.getValue();
-                setFileConfiguration(version, profile, pid, newCfg);
-            }
-
-            for (String pid : oldCfgs.keySet()) {
-                deleteSafe(getCurator(), path + "/" + pid);
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    @Override
-    public void setFileConfiguration(String version, String profile, String pid, byte[] configuration) {
-        try {
-            String path = ZkProfiles.getPath(version, profile);
-            String configPath = path + "/" + pid;
-            if (exists(getCurator(), configPath) != null
-                    && getChildren(getCurator(), configPath).size() > 0) {
-                List<String> kids = getChildren(getCurator(), configPath);
-                ArrayList<String> saved = new ArrayList<String>();
-                // old format, we assume that the byte stream is in
-                // a .properties format
-                for (String line : new String(configuration).split("\n")) {
-                    if (line.startsWith("#") || line.length() == 0) {
-                        continue;
-                    }
-                    String nameValue[] = line.split("=", 2);
-                    if (nameValue.length < 2) {
-                        continue;
-                    }
-                    String newPath = configPath + "/" + nameValue[0].trim();
-                    setData(getCurator(), newPath, nameValue[1].trim());
-                    saved.add(nameValue[0].trim());
-                }
-                for (String kid : kids) {
-                    if (!saved.contains(kid)) {
-                        deleteSafe(getCurator(), configPath + "/" + kid);
-                    }
-                }
-            } else {
-                setData(getCurator(), configPath, configuration);
-            }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    @Override
-    public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
-        try {
-            Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
-            Map<String, byte[]> configs = getFileConfigurations(version, profile);
-            for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
-                if (entry.getKey().endsWith(".properties")) {
-                    String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
-                    configurations.put(pid,
-                            DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
-                }
-            }
-            return configurations;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    @Override
-    public Map<String, String> getConfiguration(String version, String profile, String pid) {
-        try {
-            String path = ZkProfiles.getPath(version, profile) + "/" + pid + ".properties";
-            if (treeCache.getCurrentData(path) == null) {
+    public void setFileConfiguration(final String version, final String profile, final String fileName, final byte[] configuration) {
+        gitOperation(new GitOperation<Void>() {
+            public Void call(Git git) throws Exception {
+                checkoutVersion(git, version);
+                doSetFileConfiguration(git, profile, fileName, configuration);
+                git.commit().setMessage("Updated " + fileName + " for profile " + profile).call();
                 return null;
             }
-            byte[] data = getByteData(treeCache, path);
-            return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
-        } catch (Exception e) {
-            throw new FabricException(e);
+        });
+    }
+
+    protected void doSetFileConfiguration(Git git, String profile, String fileName, byte[] configuration)
+            throws IOException, GitAPIException {
+        File profileDirectory = getProfileDirectory(git, profile);
+        File file = new File(profileDirectory, fileName);
+        if (configuration == null) {
+            doRecursiveDeleteAndRemove(git, file);
+        } else {
+            Files.writeToFile(file, configuration);
         }
+    }
+
+    protected File getPidFile(File profileDirectory, String pid) {
+        return new File(profileDirectory, pid + ".properties");
+    }
+
+    protected String getPidFromFileName(String relativePath) throws IOException {
+        return DataStoreHelpers.stripSuffix(relativePath, ".properties");
+    }
+
+    @Override
+    public Map<String, String> getConfiguration(final String version, final String profile, final String pid) {
+        return gitOperation(new GitOperation<Map<String, String>>() {
+            public Map<String, String> call(Git git) throws Exception {
+                checkoutVersion(git, version);
+                File profileDirectory = getProfileDirectory(git, profile);
+                File file = getPidFile(profileDirectory, pid);
+                byte[] data = Files.readBytes(file);
+                return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
+            }
+        });
     }
 
     @Override
     public void setConfigurations(String version, String profile,
                                   Map<String, Map<String, String>> configurations) {
+        Map<String, byte[]> fileConfigs = new HashMap<String, byte[]>();
         try {
-            Map<String, Map<String, String>> oldCfgs = getConfigurations(version, profile);
-            // Store new configs
-            String path = ZkProfiles.getPath(version, profile);
-            for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
-                String pid = entry.getKey();
-                oldCfgs.remove(pid);
-                setConfiguration(version, profile, pid, entry.getValue());
-            }
-            for (String key : oldCfgs.keySet()) {
-                deleteSafe(getCurator(), path + "/" + key + ".properties");
-            }
-        } catch (Exception e) {
+        for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+            String pid = entry.getKey();
+            Map<String, String> map = entry.getValue();
+            byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(map));
+            fileConfigs.put(pid, data);
+        }
+        } catch (IOException e) {
             throw new FabricException(e);
         }
+        setFileConfigurations(version, profile, fileConfigs);
     }
 
     @Override
     public void setConfiguration(String version, String profile, String pid,
                                  Map<String, String> configuration) {
+        byte[] data;
         try {
-            String path = ZkProfiles.getPath(version, profile);
-            byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(configuration));
-            String p = path + "/" + pid + ".properties";
-            setData(getCurator(), p, data);
-        } catch (Exception e) {
+            data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(configuration));
+        } catch (IOException e) {
             throw new FabricException(e);
         }
+        setFileConfiguration(version, profile, pid, data);
     }
 
     @Override
@@ -561,16 +544,6 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
             throw new FabricException(e);
         }
         return containers;
-    }
-
-    private static String substituteZookeeperUrl(String key, CuratorFramework curator) {
-        try {
-            return new String(ZkPath.loadURL(curator, key), "UTF-8");
-        } catch (KeeperException.NoNodeException e) {
-            return key;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
     }
 
     public Git getGit() throws IOException {
@@ -654,7 +627,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
      */
     protected String doCreateProfile(Git git, String profile) throws IOException, GitAPIException {
         File profileDirectory = getProfileDirectory(git, profile);
-        File metadataFile = new File(profileDirectory, "org.fusesource.fabric.agent.properties");
+        File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
         if (metadataFile.exists()) {
             return null;
         }
@@ -723,6 +696,24 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
             git.rm().addFilepattern(relativePath).call();
         }
     }
+
+    protected byte[] doLoadFileConfiguration(File file) throws IOException {
+         if (file.isDirectory()) {
+             // Not sure why we do this, but for directory pids, lets recurse...
+             StringBuilder buf = new StringBuilder();
+             File[] files = file.listFiles();
+             if (files != null) {
+                 for (File child : files) {
+                     String value = Files.toString(child);
+                     buf.append(String.format("%s = %s\n", child.getName(), value));
+                 }
+             }
+             return buf.toString().getBytes();
+         } else if (file.exists() && file.isFile()) {
+             return Files.readBytes(file);
+         }
+         return null;
+     }
 
     protected String getFilePattern(File rootDir, File file) throws IOException {
         String relativePath = Files.getRelativePath(rootDir, file);

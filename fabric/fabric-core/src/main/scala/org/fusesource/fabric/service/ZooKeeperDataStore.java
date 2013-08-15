@@ -290,9 +290,9 @@ public class ZooKeeperDataStore extends DataStoreSupport {
     }
 
     @Override
-    public byte[] getFileConfiguration(String version, String profile, String pid) {
+    public byte[] getFileConfiguration(String version, String profile, String fileName) {
         try {
-            String path = ZkProfiles.getPath(version, profile) + "/" + pid;
+            String path = ZkProfiles.getPath(version, profile) + "/" + fileName;
             if (treeCache.getCurrentData(path) == null) {
                 return null;
             }
@@ -334,10 +334,10 @@ public class ZooKeeperDataStore extends DataStoreSupport {
     }
 
     @Override
-    public void setFileConfiguration(String version, String profile, String pid, byte[] configuration) {
+    public void setFileConfiguration(String version, String profile, String fileName, byte[] configuration) {
         try {
             String path = ZkProfiles.getPath(version, profile);
-            String configPath = path + "/" + pid;
+            String configPath = path + "/" + fileName;
             if (exists(getCurator(), configPath) != null && getChildren(getCurator(), configPath).size() > 0) {
                 List<String> kids = getChildren(getCurator(), configPath);
                 ArrayList<String> saved = new ArrayList<String>();
@@ -363,23 +363,6 @@ public class ZooKeeperDataStore extends DataStoreSupport {
             } else {
                 setData(getCurator(), configPath, configuration);
             }
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
-    }
-
-    @Override
-    public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
-        try {
-            Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
-            Map<String, byte[]> configs = getFileConfigurations(version, profile);
-            for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
-                if (entry.getKey().endsWith(".properties")) {
-                    String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
-                    configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
-                }
-            }
-            return configurations;
         } catch (Exception e) {
             throw new FabricException(e);
         }
