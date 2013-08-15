@@ -500,6 +500,19 @@
         <bundle>mvn:org.fusesource.fabric/fabric-git-zkbridge/${project.version}</bundle>
     </feature>
 
+    <!--
+    <feature name="fabric-git-datastore" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-git</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-git-datastore/${project.version}</bundle>
+    </feature>
+
+    <feature name="fabric-git-zkbridge" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-git</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-git-zkbridge/${project.version}</bundle>
+    </feature>
+-->
+
     <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${hawtio-version}">hawtio</feature>

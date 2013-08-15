@@ -35,8 +35,13 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.git.datastore;version=${project.version}
+            org.fusesource.fabric.git.datastore;version=${project.version},
+            org.gitective.core*;-noimport:=true
         </fuse.osgi.export>
+        <fuse.osgi.import>
+            org.fusesource.fabric.git.internal,
+            *
+        </fuse.osgi.import>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 

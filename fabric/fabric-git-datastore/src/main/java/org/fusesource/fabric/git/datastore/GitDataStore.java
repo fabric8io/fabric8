@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -38,7 +41,9 @@ import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.git.FabricGitService;
+import org.fusesource.fabric.git.internal.FabricGitServiceImpl;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
@@ -68,8 +73,8 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 @Component(name = "org.fusesource.fabric.git.datastore",
         description = "Fabric Git and ZooKeeper DataStore")
 @Service(DataStore.class)
-public class GitAndZooKeeperDataStore extends DataStoreSupport {
-    private static final transient Logger LOG = LoggerFactory.getLogger(GitAndZooKeeperDataStore.class);
+public class GitDataStore extends DataStoreSupport {
+    private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
 
@@ -79,11 +84,20 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private CuratorFramework curator;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+               referenceInterface = PlaceholderResolver.class,
+               bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC)
+    private final Map<String, PlaceholderResolver>
+            placeholderResolvers = new HashMap<String, PlaceholderResolver>();
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricGitService gitService;
 
     private final Object lock = new Object();
-    private String remote = "remote";
+    private String remote = "origin";
     private String masterBranch = "master";
+    private FabricGitServiceImpl bootstrapGitService;
 
     public FabricGitService getGitService() {
         return gitService;
@@ -92,6 +106,46 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
     public void setGitService(FabricGitService gitService) {
         this.gitService = gitService;
     }
+
+    public synchronized void init() throws Exception {
+        super.init();
+        if (gitService == null) {
+/*
+            TODO
+            // we are probably being called from a bootstrap in
+            // ZooKeeperClusterBootstrapImpl
+            // so lets lazily create it on the fly
+            bootstrapGitService = new FabricGitServiceImpl();
+            bootstrapGitService.setCurator(getCurator());
+            bootstrapGitService.init();
+            gitService = bootstrapGitService;
+*/
+        }
+    }
+
+    public synchronized void destroy() {
+        super.destroy();
+        if (bootstrapGitService != null) {
+            bootstrapGitService.destroy();
+            bootstrapGitService = null;
+        }
+    }
+
+    @Override
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    @Override
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    @Override
+    public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
+        return placeholderResolvers;
+    }
+
 
     @Override
     public void importFromFileSystem(final String from) {
@@ -203,7 +257,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
     }
 
     public File getProfilesDirectory(Git git) {
-        return new File(GitHelpers.getRootGitDirectory(git), GitAndZooKeeperDataStore.CONFIGS_PROFILES);
+        return new File(GitHelpers.getRootGitDirectory(git), GitDataStore.CONFIGS_PROFILES);
     }
 
     public File getProfileDirectory(Git git, String profile) {
@@ -289,21 +343,14 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
     }
 
     @Override
-    public void setProfileAttribute(String version, String profile, String key, String value) {
-        // TODO
-        todo();
-        try {
-            String path = ZkProfiles.getPath(version, profile);
-            Properties props = getProperties(getCurator(), path);
-            if (value != null) {
-                props.setProperty(key, value);
-            } else {
-                props.remove(key);
-            }
-            setProperties(getCurator(), path, props);
-        } catch (Exception e) {
-            throw new FabricException(e);
+    public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
+        Map<String, String> config = getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
+        if (value != null) {
+            config.put(key, value);
+        } else {
+            config.remove(key);
         }
+        setConfiguration(version, profile, PROFILE_ATTRIBUTES_PID, config);
     }
 
     @Override
@@ -434,8 +481,12 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
                 checkoutVersion(git, version);
                 File profileDirectory = getProfileDirectory(git, profile);
                 File file = getPidFile(profileDirectory, pid);
-                byte[] data = Files.readBytes(file);
-                return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
+                if (file.isFile() && file.exists()) {
+                    byte[] data = Files.readBytes(file);
+                    return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
+                } else {
+                    return new HashMap<String, String>();
+                }
             }
         });
     }
@@ -449,7 +500,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
             String pid = entry.getKey();
             Map<String, String> map = entry.getValue();
             byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(map));
-            fileConfigs.put(pid, data);
+            fileConfigs.put(pid + ".properties", data);
         }
         } catch (IOException e) {
             throw new FabricException(e);
@@ -466,7 +517,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
         } catch (IOException e) {
             throw new FabricException(e);
         }
-        setFileConfiguration(version, profile, pid, data);
+        setFileConfiguration(version, profile, pid + ".properties", data);
     }
 
     @Override
@@ -585,6 +636,14 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
      * Pushes any committed changes to the remote repo
      */
     protected void doPush(Git git) throws GitAPIException {
+        Repository repository = git.getRepository();
+        StoredConfig config = repository.getConfig();
+        String url = config.getString("remote", remote, "url");
+        if (Strings.isNullOrBlank(url)) {
+            LOG.warn("No remote repository defined for the git repository at " + getRootGitDirectory(git)
+                    + " so not doing a push");
+            return;
+        }
         git.push().call();
     }
 
@@ -595,7 +654,7 @@ public class GitAndZooKeeperDataStore extends DataStoreSupport {
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
-            String url = config.getString("remote", "origin", "url");
+            String url = config.getString("remote", remote, "url");
             if (Strings.isNullOrBlank(url)) {
                 LOG.warn("No remote repository defined for the git repository at " + getRootGitDirectory(git)
                         + " so not doing a pull");

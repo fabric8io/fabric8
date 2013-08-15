@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
@@ -41,6 +42,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -48,6 +50,7 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
+import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.ObjectUtils;
@@ -56,12 +59,15 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
@@ -69,33 +75,36 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 /**
  */
 public abstract class DataStoreSupport implements DataStore, PathChildrenCacheListener {
+    private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreSupport.class);
+
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-               referenceInterface = PlaceholderResolver.class,
-               bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC)
-    private final Map<String, PlaceholderResolver>
-            placeholderResolvers = new HashMap<String, PlaceholderResolver>();
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
-
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private CuratorFramework curator;
 
     //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
     private ExecutorService cacheExecutor;
 
     protected TreeCache treeCache;
+    private AtomicBoolean initialised = new AtomicBoolean(false);
+
+    public abstract CuratorFramework getCurator();
+
+    public abstract void setCurator(CuratorFramework curator);
+
+    public abstract Map<String, PlaceholderResolver> getPlaceholderResolvers();
 
     @Override
     public abstract void importFromFileSystem(String from);
 
-    @Activate
     public synchronized void init() throws Exception {
-      createCache(getCurator());
+        if (initialised.compareAndSet(false, true)) {
+            LOG.info("Starting up DataStore " + this);
+            Objects.notNull(getCurator(), "curator");
+            createCache(getCurator());
+        }
     }
 
-    @Deactivate
     public synchronized void destroy() {
         destroyCache();
     }
@@ -155,26 +164,18 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         this.setCurator(null);
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
-
     // PlaceholderResolver stuff
     //-------------------------------------------------------------------------
 
     public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
         if (resolver != null) {
-            placeholderResolvers.put(resolver.getScheme(), resolver);
+            getPlaceholderResolvers().put(resolver.getScheme(), resolver);
         }
     }
 
     public synchronized void unbindPlaceholderResolver(PlaceholderResolver resolver) {
         if (resolver != null) {
-            placeholderResolvers.remove(resolver.getScheme());
+            getPlaceholderResolvers().remove(resolver.getScheme());
         }
     }
 
@@ -198,6 +199,9 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
      * @param configs
      */
     public synchronized void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+        final Map<String, PlaceholderResolver> placeholderResolvers
+                = getPlaceholderResolvers();
+
         for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
             final String pid = entry.getKey();
             Map<String, String> props = entry.getValue();

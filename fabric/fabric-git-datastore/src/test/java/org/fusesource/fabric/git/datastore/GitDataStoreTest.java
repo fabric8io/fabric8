@@ -40,13 +40,13 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class GitAndZooKeeperDataStoreTest {
+public class GitDataStoreTest {
 
     private ZKServerFactoryBean sfb;
     private CuratorFramework curator;
     private Git git;
     private Git remote;
-    private GitAndZooKeeperDataStore dataStore = new GitAndZooKeeperDataStore();
+    private GitDataStore dataStore = new GitDataStore();
     private String basedir;
 
     @Before
@@ -115,13 +115,26 @@ public class GitAndZooKeeperDataStoreTest {
         dataStore.importFromFileSystem(metricsImport, "fabric");
         assertHasVersion(defaultVersion);
 
-        String profile = "example-dozer";
+        String importedProfile = "example-dozer";
+        String profile = importedProfile;
         assertProfileExists(defaultVersion, profile);
 
         String version = "1.1";
         assertCreateVersion(version);
 
-        assertProfileConfiguration(version, "example-dozer", "org.fusesource.fabric.agent", "parents", "camel");
+        assertProfileConfiguration(version, importedProfile, "org.fusesource.fabric.agent", "parents", "camel");
+        assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml", "http://camel.apache.org/schema/blueprint");
+
+        // lets test the profile attributes
+        Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
+        System.out.println("Profile attributes: " + profileAttributes);
+        String profileAttributeKey = "kyKey";
+        String expectedProfileAttributeValue = "myValue";
+        dataStore.setProfileAttribute(version, importedProfile, profileAttributeKey, expectedProfileAttributeValue);
+        profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
+        System.out.println("Profile attributes: " + profileAttributes);
+        assertMapContains("Profile attribute[" + profileAttributeKey + "]", profileAttributes, profileAttributeKey, expectedProfileAttributeValue);
+
 
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
@@ -164,6 +177,15 @@ public class GitAndZooKeeperDataStoreTest {
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + newProfile));
 
 
+    }
+
+    protected void assertProfileTextFileConfigurationContains(String version, String profile, String fileName, String expectedContents) {
+        byte[] bytes = dataStore.getFileConfiguration(version, profile, fileName);
+        String message = "file " + fileName + " in version " + version + " profile " + profile;
+        assertNotNull("should have got data for " + message, bytes);
+        assertTrue("empty file for file for " + message, bytes.length > 0);
+        String text = new String(bytes);
+        assertTrue("text file does not contain " + expectedContents + " was: " + text, text.contains(expectedContents));
     }
 
     protected void assertProfileConfiguration(String version, String profile, String pid, String key, String expectedValue) {

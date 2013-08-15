@@ -16,8 +16,14 @@
  */
 package org.fusesource.fabric.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.framework.recipes.cache.TreeData;
 import org.apache.curator.utils.ZKPaths;
 import org.apache.felix.scr.annotations.Activate;
@@ -28,43 +34,20 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
+import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.internal.RequirementsJson;
-import org.fusesource.fabric.utils.Base64Encoder;
-import org.fusesource.fabric.utils.Closeables;
-import org.fusesource.fabric.utils.ObjectUtils;
-import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.service.DataStoreSupport;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
-import org.fusesource.fabric.zookeeper.utils.InterpolationHelper;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
@@ -76,7 +59,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties;
@@ -85,10 +67,47 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 /**
  * @author Stan Lewis
  */
-@Component(name = "org.fusesource.fabric.datastore.zookeeper",
+@Component(name = "org.fusesource.fabric.zookeeper.datastore",
            description = "Fabric ZooKeeper DataStore")
 @Service(DataStore.class)
 public class ZooKeeperDataStore extends DataStoreSupport {
+    private static final transient Logger LOG = LoggerFactory.getLogger(ZooKeeperDataStore.class);
+
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private CuratorFramework curator;
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+               referenceInterface = PlaceholderResolver.class,
+               bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC)
+    private final Map<String, PlaceholderResolver>
+            placeholderResolvers = new HashMap<String, PlaceholderResolver>();
+
+
+    @Activate
+    public synchronized void init() throws Exception {
+        LOG.info("init()");
+        super.init();
+    }
+
+    @Deactivate
+    public synchronized void destroy() {
+        super.destroy();
+    }
+
+    @Override
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    @Override
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    @Override
+    public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
+        return placeholderResolvers;
+    }
 
     @Override
     public void importFromFileSystem(String from) {

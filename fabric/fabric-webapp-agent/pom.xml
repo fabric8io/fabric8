@@ -75,14 +75,7 @@
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
-<!--
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-zookeeper-spring</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
--->
+
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-framework</artifactId>
@@ -119,6 +112,12 @@
                     <artifactId>org.apache.karaf.admin.management</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-git-datastore</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
