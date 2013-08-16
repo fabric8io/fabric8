@@ -16,6 +16,12 @@
  */
 package org.fusesource.fabric.service.git;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
@@ -28,19 +34,17 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class GitDataStoreTest {
+
+    /**
+     * Should we use the old way of importing data into Fabric
+     */
+    protected boolean useOldImportFormat = true;
 
     private ZKServerFactoryBean sfb;
     private CuratorFramework curator;
@@ -67,7 +71,7 @@ public class GitDataStoreTest {
 
         // setup a local and remote git repo
         basedir = System.getProperty("basedir", ".");
-        File root =  new File(basedir + "/target/git").getCanonicalFile();
+        File root = new File(basedir + "/target/git").getCanonicalFile();
         delete(root);
 
         new File(root, "remote").mkdirs();
@@ -105,15 +109,22 @@ public class GitDataStoreTest {
         assertEquals("defaultVersion", "1.0", defaultVersion);
 
         // now lets import some data - using the old non-git file layout...
-        String prefix = basedir + "/../fuse-fabric/src/main/resources/distro/fabric/import/fabric";
-        String profileImport = prefix + "/configs/versions/1.0/profiles";
-        String metricsImport = prefix + "/metrics";
-        assertFolderExists(profileImport);
-        assertFolderExists(metricsImport);
+        String importPath = basedir + "/../fuse-fabric/src/main/resources/distro/fabric/import";
+        if (useOldImportFormat) {
+            assertFolderExists(importPath);
+            dataStore.importFromFileSystem(importPath);
+            assertHasVersion(defaultVersion);
+        } else {
+            String prefix = importPath + "/fabric";
+            String profileImport = prefix + "/configs/versions/1.0/profiles";
+            String metricsImport = prefix + "/metrics";
+            assertFolderExists(profileImport);
+            assertFolderExists(metricsImport);
 
-        dataStore.importFromFileSystem(profileImport, "fabric");
-        dataStore.importFromFileSystem(metricsImport, "fabric");
-        assertHasVersion(defaultVersion);
+            dataStore.importFromFileSystem(new File(profileImport), "fabric", "1.0");
+            dataStore.importFromFileSystem(new File(metricsImport), "fabric", "1.0");
+            assertHasVersion(defaultVersion);
+        }
 
         String importedProfile = "example-dozer";
         String profile = importedProfile;
@@ -122,23 +133,28 @@ public class GitDataStoreTest {
         String version = "1.1";
         assertCreateVersion(version);
 
-        assertProfileConfiguration(version, importedProfile, "org.fusesource.fabric.agent", "parents", "camel");
-        assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml", "http://camel.apache.org/schema/blueprint");
+        assertProfileConfiguration(version, importedProfile, "org.fusesource.fabric.agent", "parents",
+                "camel");
+        assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml",
+                "http://camel.apache.org/schema/blueprint");
 
         // lets test the profile attributes
         Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
         System.out.println("Profile attributes: " + profileAttributes);
         String profileAttributeKey = "myKey";
         String expectedProfileAttributeValue = "myValue";
-        dataStore.setProfileAttribute(version, importedProfile, profileAttributeKey, expectedProfileAttributeValue);
+        dataStore.setProfileAttribute(version, importedProfile, profileAttributeKey,
+                expectedProfileAttributeValue);
         profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
         System.out.println("Profile attributes: " + profileAttributes);
-        assertMapContains("Profile attribute[" + profileAttributeKey + "]", profileAttributes, profileAttributeKey, expectedProfileAttributeValue);
+        assertMapContains("Profile attribute[" + profileAttributeKey + "]", profileAttributes,
+                profileAttributeKey, expectedProfileAttributeValue);
 
 
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
-        assertEquals("Should not create profile: " + profileNotCreated, null, dataStore.getProfile(version, profileNotCreated, false));
+        assertEquals("Should not create profile: " + profileNotCreated, null,
+                dataStore.getProfile(version, profileNotCreated, false));
         assertProfileNotExists(defaultVersion, profileNotCreated);
         assertFolderNotExists(getLocalGitFile("fabric/profiles/" + profileNotCreated));
 
@@ -170,8 +186,10 @@ public class GitDataStoreTest {
 
         // we should pushed the property attributes file from the call to
         // dataStore.setProfileAttribute()
-        assertFolderExists("we should have pushed this file remotely due to the call to dataStore.setProfileAttribute()",
-                getRemoteGitFile("fabric/profiles/" + importedProfile + "/org.fusesource.fabric.datastore.properties"));
+        assertFolderExists(
+                "we should have pushed this file remotely due to the call to dataStore.setProfileAttribute()",
+                getRemoteGitFile("fabric/profiles/" + importedProfile
+                        + "/org.fusesource.fabric.datastore.properties"));
 
         remote.checkout().setName("1.2").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
@@ -184,16 +202,19 @@ public class GitDataStoreTest {
 
     }
 
-    protected void assertProfileTextFileConfigurationContains(String version, String profile, String fileName, String expectedContents) {
+    protected void assertProfileTextFileConfigurationContains(String version, String profile, String fileName,
+                                                              String expectedContents) {
         byte[] bytes = dataStore.getFileConfiguration(version, profile, fileName);
         String message = "file " + fileName + " in version " + version + " profile " + profile;
         assertNotNull("should have got data for " + message, bytes);
         assertTrue("empty file for file for " + message, bytes.length > 0);
         String text = new String(bytes);
-        assertTrue("text file does not contain " + expectedContents + " was: " + text, text.contains(expectedContents));
+        assertTrue("text file does not contain " + expectedContents + " was: " + text,
+                text.contains(expectedContents));
     }
 
-    protected void assertProfileConfiguration(String version, String profile, String pid, String key, String expectedValue) {
+    protected void assertProfileConfiguration(String version, String profile, String pid, String key,
+                                              String expectedValue) {
         String file = pid + ".properties";
         byte[] fileConfiguration = dataStore.getFileConfiguration(version, profile, file);
         assertNotNull("fileConfiguration", fileConfiguration);
@@ -218,15 +239,17 @@ public class GitDataStoreTest {
 
         byte[] pidBytes = fileConfigurations.get(file);
         assertNotNull("fileConfigurations should have an entry for file " + file, pidConfig);
-        assertTrue("should have found some bytes for fileConfigurations entry for pid " + pid, pidBytes.length > 0);
+        assertTrue("should have found some bytes for fileConfigurations entry for pid " + pid,
+                pidBytes.length > 0);
 
-        assertEquals("sizes of fileConfiguration.length and fileConfigurations[" + file + "].length", fileConfiguration.length, pidBytes.length);
+        assertEquals("sizes of fileConfiguration.length and fileConfigurations[" + file + "].length",
+                fileConfiguration.length, pidBytes.length);
     }
 
-    protected void assertMapContains(String message, Map<String,String> map, String key,
-                                   String expectedValue) {
+    protected void assertMapContains(String message, Map<String, String> map, String key,
+                                     String expectedValue) {
         String value = map.get(key);
-        assertEquals(message + "[" +key + "]", expectedValue, value);
+        assertEquals(message + "[" + key + "]", expectedValue, value);
     }
 
     protected File getLocalGitFile(String path) {
@@ -239,7 +262,8 @@ public class GitDataStoreTest {
 
     protected void assertProfileExists(String version, String profile) {
         List<String> profiles = dataStore.getProfiles(version);
-        assertTrue("Profile " + profile + " should exist but has: " + profiles + " for version " + version, profiles.contains(profile));
+        assertTrue("Profile " + profile + " should exist but has: " + profiles + " for version " + version,
+                profiles.contains(profile));
         assertFolderExists(getLocalGitFile("fabric/profiles/" + profile));
     }
 
@@ -284,7 +308,8 @@ public class GitDataStoreTest {
         Collection<String> remoteBranches = RepositoryUtils.getBranches(remote.getRepository());
         System.out.println("Remote branches: " + remoteBranches);
         String remoteBranch = "refs/heads/" + version;
-        assertTrue("Should contain " + remoteBranch + " but has remote branches " + remoteBranches, remoteBranches.contains(remoteBranch));
+        assertTrue("Should contain " + remoteBranch + " but has remote branches " + remoteBranches,
+                remoteBranches.contains(remoteBranch));
     }
 
     protected void assertHasVersion(String version) {

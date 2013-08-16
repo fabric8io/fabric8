@@ -62,7 +62,8 @@ public class GitDataStore extends DataStoreSupport {
 
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
 
-    public static final String CONFIGS = "/fabric";
+    private static final String CONFIG_ROOT_DIR = "fabric";
+    public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
     public static final String CONFIGS_METRICS = CONFIGS + "/metrics";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
@@ -87,13 +88,46 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public void importFromFileSystem(final String from) {
-        importFromFileSystem(from, "");
+        // lets try and detect the old ZooKeeper style file layout and transform it into the git layout
+        // so we may /fabric/configs/versions/1.0/profiles => /fabric/profiles in branch 1.0
+        File file = new File(from);
+        File fabricsDir = new File(file, "fabric");
+        File configs = new File(fabricsDir, "configs");
+        String defaultVersion = getDefaultVersion();
+        if (configs.exists()) {
+            LOG.info("Importing the old ZooKeeper layout");
+            File versions = new File(configs, "versions");
+            if (versions.exists() && versions.isDirectory()) {
+                File[] files = versions.listFiles();
+                if (files != null) {
+                    for (File versionFolder : files) {
+                        String version = versionFolder.getName();
+                        if (versionFolder.isDirectory()) {
+                            File[] versionFiles = versionFolder.listFiles();
+                            if (versionFiles != null) {
+                                for (File versionFile : versionFiles) {
+                                    LOG.info("Importing version configuration " + versionFile + " to branch " + version);
+                                    importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            File metrics = new File(fabricsDir, "metrics");
+            if (metrics.exists()) {
+                LOG.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
+                importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion);
+            }
+        } else {
+            LOG.info("Importing " + file + " as version " + defaultVersion);
+            importFromFileSystem(file, "", defaultVersion);
+        }
     }
 
-    public void importFromFileSystem(final String from, final String destinationPath) {
+    public void importFromFileSystem(final File from, final String destinationPath, final String version) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                String version = getDefaultVersion();
                 createVersion(version);
 
                 // now lets recursively add files
@@ -101,7 +135,7 @@ public class GitDataStore extends DataStoreSupport {
                 if (Strings.isNotBlank(destinationPath)) {
                     toDir = new File(toDir, destinationPath);
                 }
-                recursiveCopyAndAdd(git, new File(from), toDir, destinationPath);
+                recursiveCopyAndAdd(git, from, toDir, destinationPath);
                 context.commit("Imported from " + from);
                 return null;
             }

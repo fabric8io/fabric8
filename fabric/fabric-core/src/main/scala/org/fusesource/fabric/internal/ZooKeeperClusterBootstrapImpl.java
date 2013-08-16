@@ -140,7 +140,8 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
             // Import data into zookeeper
             if (options.isAutoImportEnabled()) {
-                ZookeeperImportUtils.importFromFileSystem(curator, options.getImportPath(), "/", null, null, false, false, false);
+                dataStore.importFromFileSystem(options.getImportPath());
+                //ZookeeperImportUtils.importFromFileSystem(curator, options.getImportPath(), "/", null, null, false, false, false);
             }
             createDefault(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
 
@@ -363,6 +364,17 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             }
         }
     }
+
+    private void loadPropertiesFrom(Hashtable hashtable, DataStore dataStore, String version, String profile,
+                                    String pid) {
+        Map<String, String> properties = dataStore.getConfiguration(version, profile, pid);
+        for (Map.Entry<String, String> entry : properties.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            hashtable.put(key, value);
+        }
+    }
+
 
     private static void delete(File dir) {
         if (dir.isDirectory()) {
