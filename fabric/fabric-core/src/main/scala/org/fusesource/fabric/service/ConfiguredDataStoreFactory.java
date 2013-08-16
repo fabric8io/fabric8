@@ -76,10 +76,12 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
     private Dictionary<String, String> properties = new Hashtable<String, String>();
     private ServiceRegistration<DataStore> registration;
     private boolean bootstrap;
+    private Map<String,String> configuration;
 
     @Activate
-    public synchronized void init(BundleContext bundleContext) throws Exception {
-        LOG.info("init() " + bundleContext);
+    public synchronized void init(BundleContext bundleContext, Map<String,String> configuration) throws Exception {
+        LOG.info("init() " + bundleContext + " with configuration: " + configuration);
+        setConfiguration(configuration);
         this.bundleContext = bundleContext;
         if (instance == null) {
             DataStore dataStore = createDataStore();
@@ -107,15 +109,19 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
 
     public DataStore createDataStore() throws Exception {
         DataStoreSupport instance;
-        String kind = System.getProperty(DATASTORE_KIND, "zookeeper").toLowerCase();
-        if (kind.startsWith("z")) {
+        //String kind = System.getProperty(DATASTORE_KIND, "zookeeper").toLowerCase();
+        String kind = "zookee";
+        if (configuration != null) {
+            kind = configuration.get("kind");
+        }
+        if (kind != null && kind.startsWith("z")) {
             properties.put("kind", "org.fusesource.datastore.zookeeper");
             instance = new ZooKeeperDataStore();
         } else {
             properties.put("kind", "org.fusesource.datastore.git");
             instance = new GitDataStore();
         }
-        LOG.info("Has system property " + DATASTORE_KIND + "=" + kind + " so created DataStore: " + instance);
+        LOG.info("Has system property " + DATASTORE_KIND + "=" + kind + " so created DataStore: " + instance + " from configuration " + configuration);
         Objects.notNull(curator, "curator");
         instance.setCurator(curator);
         instance.setPlaceholderResolvers(placeholderResolvers);
@@ -171,6 +177,13 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         }
     }
 
+    public Map<String, String> getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Map<String, String> configuration) {
+        this.configuration = configuration;
+    }
 
     public CuratorFramework getCurator() {
         return curator;

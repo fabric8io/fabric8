@@ -100,6 +100,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
                 //TODO: This is a temporary fix till we address the url handlers in the deployment agent.
                 features.add("war");
                 features.add("fabric-agent");
+                features.add("fabric-git");
                 //features.addAll(defaultProfile.getFeatures());
                 String originalName = options.getName();
 

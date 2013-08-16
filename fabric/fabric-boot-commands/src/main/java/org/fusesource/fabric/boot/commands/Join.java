@@ -245,8 +245,11 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
                     "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
             Bundle bundleFabricAgent = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
                     "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricGit = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-git",
+                    "mvn:org.fusesource.fabric/fabric-git/" + FabricConstants.FABRIC_VERSION);
             bundleFabricConfigAdmin.start();
             bundleFabricAgent.start();
+            bundleFabricGit.start();
         }
     }
 

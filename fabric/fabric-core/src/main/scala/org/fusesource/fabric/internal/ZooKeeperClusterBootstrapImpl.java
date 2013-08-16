@@ -78,9 +78,11 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
 	private ConfigurationAdmin configurationAdmin;
+    private Map<String, String> configuration;
 
     @Activate
-    public void init() {
+    public void init(Map<String,String> configuration) {
+        this.configuration = configuration;
         if (ensembleAutoStart) {
             new Thread(new Runnable() {
                 @Override
@@ -127,6 +129,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
             //Initialize a temporary DataStore
             ConfiguredDataStoreFactory dataStoreFactory = new ConfiguredDataStoreFactory();
+            dataStoreFactory.setConfiguration(configuration);
             dataStoreFactory.setBootstrap(true);
             dataStoreFactory.setCurator(curator);
             // TODO configure git service if required, usinga bootstrap implementation
