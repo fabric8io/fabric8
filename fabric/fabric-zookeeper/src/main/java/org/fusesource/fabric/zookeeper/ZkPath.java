@@ -65,6 +65,7 @@ public enum ZkPath {
 
     MAVEN_PROXY                    ("/fabric/registry/maven/proxy/{type}"),
 	GIT                            ("/fabric/registry/clusters/git"),
+	BOOTSTRAP                      ("/fabric/registry/clusters/bootstrap"),
     WEBAPPS_CLUSTER                ("/fabric/registry/clusters/webapps/{group}"),
     TASK                           ("/fabric/registry/clusters/task/{task}"),
     TAKS_MEMBERS                   ("/fabric/registry/clusters/task/{task}/0{member}"),

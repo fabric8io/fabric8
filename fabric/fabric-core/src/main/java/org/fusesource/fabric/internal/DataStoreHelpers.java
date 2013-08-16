@@ -55,6 +55,17 @@ public class DataStoreHelpers {
         return rc;
     }
 
+    public static Properties toStringProperties(Map<String, ?> source) {
+        Properties rc = new Properties();
+        for (Map.Entry<String, ?> entry : source.entrySet()) {
+            Object value = entry.getValue();
+            if (value != null) {
+                rc.put(entry.getKey(), value.toString());
+            }
+        }
+        return rc;
+    }
+
     public static String stripSuffix(String value, String suffix) throws IOException {
         if (value.endsWith(suffix)) {
             return value.substring(0, value.length() - suffix.length());

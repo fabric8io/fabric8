@@ -25,6 +25,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
@@ -35,7 +36,7 @@ import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -132,20 +133,18 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             dataStoreFactory.setConfiguration(configuration);
             dataStoreFactory.setBootstrap(true);
             dataStoreFactory.setCurator(curator);
-            // TODO configure git service if required, usinga bootstrap implementation
-            // which has no ZK / remote stuff?
             DataStore dataStore = dataStoreFactory.createDataStore();
-/*
-            ZooKeeperDataStore dataStore = new ZooKeeperDataStore();
-            dataStore.setCurator(curator);
-            dataStore.init();
-*/
 
-            // Import data into zookeeper
+            // import data into the DataStore
             if (options.isAutoImportEnabled()) {
                 dataStore.importFromFileSystem(options.getImportPath());
-                //ZookeeperImportUtils.importFromFileSystem(curator, options.getImportPath(), "/", null, null, false, false, false);
             }
+
+            // configure the registry
+            byte[] dataStoreData = DataStoreHelpers.toBytes(DataStoreHelpers.toStringProperties(configuration));
+            ZooKeeperUtils.create(curator, ZkPath.BOOTSTRAP.getPath(), dataStoreData, CreateMode.PERSISTENT);
+
+            // set the fabric configuration
             createDefault(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
 
             // configure default profile

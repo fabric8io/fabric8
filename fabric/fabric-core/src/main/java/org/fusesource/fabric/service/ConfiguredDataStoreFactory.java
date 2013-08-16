@@ -21,6 +21,9 @@ import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Properties;
+
+import com.google.common.base.Strings;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -36,6 +39,7 @@ import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.service.git.GitDataStore;
 import org.fusesource.fabric.service.git.GitService;
 import org.fusesource.fabric.service.git.LocalGitService;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -43,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY;
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
 
 /**
  * Factory of {@link DataStore} using configuration to decide which
@@ -109,19 +114,28 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
 
     public DataStore createDataStore() throws Exception {
         DataStoreSupport instance;
-        //String kind = System.getProperty(DATASTORE_KIND, "zookeeper").toLowerCase();
-        String kind = "zookee";
-        if (configuration != null) {
-            kind = configuration.get("kind");
+        // let try find the kind from zookeeper, then
+        // the osgi configuration and finally from
+        // system properties
+
+        String kind = configuration.get("kind");
+        Properties clusterProperties = new Properties();
+        if (curator.checkExists().forPath(ZkPath.BOOTSTRAP.getPath()) != null) {
+            clusterProperties = getProperties(curator, ZkPath.BOOTSTRAP.getPath());
         }
-        if (kind == null || kind.startsWith("z")) {
+        if (Strings.isNullOrEmpty(kind)) {
+            kind = clusterProperties.getProperty("kind", System.getProperty(DATASTORE_KIND, "zookeeper"));
+        }
+        kind = kind.toLowerCase();
+        if (kind.startsWith("z")) {
             properties.put("kind", "org.fusesource.datastore.zookeeper");
             instance = new ZooKeeperDataStore();
         } else {
             properties.put("kind", "org.fusesource.datastore.git");
             instance = new GitDataStore();
         }
-        LOG.info("Has system property " + DATASTORE_KIND + "=" + kind + " so created DataStore: " + instance + " from configuration " + configuration);
+        LOG.info("DataStore kind=" + kind + " so created DataStore: " + instance + " from clusterProperties "
+                + clusterProperties + " and configuration " + configuration);
         Objects.notNull(curator, "curator");
         instance.setCurator(curator);
         instance.setPlaceholderResolvers(placeholderResolvers);
