@@ -156,7 +156,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     }
 
 
-    private void runCallbacks() {
+    protected void runCallbacks() {
         for (Runnable callback : callbacks) {
             try {
                 callback.run();
