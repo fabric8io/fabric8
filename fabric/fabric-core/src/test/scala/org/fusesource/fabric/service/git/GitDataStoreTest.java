@@ -140,6 +140,9 @@ public class GitDataStoreTest {
 
         // lets test the profile attributes
         Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
+        String parent = profileAttributes.get("parents");
+        assertEquals(importedProfile + ".profileAttributes[parent]", "camel", parent);
+
         System.out.println("Profile attributes: " + profileAttributes);
         String profileAttributeKey = "myKey";
         String expectedProfileAttributeValue = "myValue";

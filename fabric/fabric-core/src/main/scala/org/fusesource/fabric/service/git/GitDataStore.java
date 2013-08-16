@@ -61,6 +61,7 @@ public class GitDataStore extends DataStoreSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
+    private static final String CONTAINER_CONFIG_PID = "org.fusesource.fabric.agent";
 
     private static final String CONFIG_ROOT_DIR = "fabric";
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
@@ -313,7 +314,14 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public Map<String, String> getProfileAttributes(String version, String profile) {
-        return getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
+        Map<String, String> configuration = getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
+        Map<String, String> containerConfiguration = getConfiguration(version, profile, CONTAINER_CONFIG_PID);
+        String parents = containerConfiguration.get("parents");
+        if (parents != null && !parents.isEmpty()) {
+            configuration.put("parents", parents);
+            //configuration.put(p.substring(0, p.lastIndexOf('/')), "parents=" + parents);
+        }
+        return configuration;
     }
 
     @Override
