@@ -10,8 +10,6 @@ import java.util.Map;
  */
 public interface ClusterServiceManagerMBean extends ZooKeeperClusterService {
 
-    public void createCluster(List<String> containers, Map<String, Object> options);
-
     public void addToCluster(List<String> containers, Map<String, Object> options);
 
     public void removeFromCluster(List<String> containers, Map<String, Object> options);
