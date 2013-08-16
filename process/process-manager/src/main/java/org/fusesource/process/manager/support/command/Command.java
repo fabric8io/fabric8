@@ -23,14 +23,13 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.CharStreams;
 import com.google.common.io.Closeables;
 import com.google.common.primitives.Ints;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.ListenableFutureTask;
-import scala.actors.threadpool.Arrays;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

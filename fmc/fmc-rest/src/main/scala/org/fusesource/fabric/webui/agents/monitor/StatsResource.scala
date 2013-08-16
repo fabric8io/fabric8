@@ -16,7 +16,7 @@
 package org.fusesource.fabric.webui.agents.monitor
 
 import org.fusesource.fabric.api.Container
-import org.fusesource.fabric.api.monitor._
+import org.fusesource.fabric.monitor.api._
 import org.fusesource.fabric.monitor.MonitorDeamon
 import org.fusesource.fabric.monitor.internal.{DefaultMonitor, ClassFinder}
 import org.fusesource.fabric.monitor.plugins.{DefaultJvmMonitorSetBuilder}

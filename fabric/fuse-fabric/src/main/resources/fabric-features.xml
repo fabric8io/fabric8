@@ -157,7 +157,6 @@
         <feature>scr</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
-        <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle dependency="true">mvn:commons-collections/commons-collections/${commons-collections-version}</bundle>
         <bundle dependency="true">mvn:commons-beanutils/commons-beanutils/${commons-beanutils-version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>

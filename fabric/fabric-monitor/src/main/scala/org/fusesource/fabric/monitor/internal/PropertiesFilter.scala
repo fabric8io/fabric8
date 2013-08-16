@@ -22,8 +22,8 @@ import javax.xml.stream.XMLStreamReader
 import javax.xml.stream.util.StreamReaderDelegate
 import java.io.InputStream
 import java.util.Properties
-import org.fusesource.fabric.api.monitor.XmlCodec
 import java.net.URL
+import org.fusesource.fabric.monitor.api.XmlCodec
 
 object PropertiesFilter {
 

@@ -19,12 +19,11 @@ package jmx
 
 import collection.JavaConversions._
 import collection.mutable.HashMap
-import org.fusesource.fabric.api.monitor.DataSourceDTO
 import javax.management.{MBeanAttributeInfo, QueryExp, ObjectName}
 import javax.management.openmbean.CompositeData
 import JmxConstants._
 import org.fusesource.scalate.util.Log
-import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.monitor.api.DataSourceDTO
 
 
 object JmxDataSourceRegistry {

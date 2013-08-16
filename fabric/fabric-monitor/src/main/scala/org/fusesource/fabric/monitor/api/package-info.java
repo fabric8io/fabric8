@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
@@ -15,29 +15,13 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.api.monitor
-
-import org.fusesource.fabric.service.JmxTemplateSupport
-
 /**
- * <p>
- * </p>
- *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ * The JAXB POJOs for the
+ * <a href="http://fusesource.org/schema/fabric/monitor/xml-configuration.html">XML Configuration</a>
+ * of the FON Launch module.
  */
-trait Monitor {
+@javax.xml.bind.annotation.XmlSchema(
+        namespace = "http://fusesource.org/schema/fabric/monitor",
+        elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
+package org.fusesource.fabric.monitor.api;
 
-  /**
-   * Updates the monitor's configuration with the data sources that need
-   * to be monitored.
-   */
-  def configure( value:Traversable[MonitoredSetDTO] ):Unit
-
-  def close:Unit
-
-  def fetch( fetch:FetchMonitoredViewDTO ):Option[MonitoredViewDTO]
-
-  def list: Array[MonitoredSetDTO]
-
-  var poller_factories:Seq[PollerFactory]
-}

@@ -17,8 +17,7 @@
 package org.fusesource.fabric.monitor.plugins
 
 import jmx.JmxDataSourceRegistry
-import org.fusesource.fabric.api.monitor.{ArchiveDTO, PollDTO, DataSourceDTO, MonitoredSetDTO}
-import org.fusesource.fabric.api.monitor._
+import org.fusesource.fabric.monitor.api.{PollDTO, MonitoredSetDTO, DataSourceDTO, ArchiveDTO}
 
 /**
  * A helper class for building a monitor set

@@ -15,10 +15,11 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.api.monitor
+package org.fusesource.fabric.monitor.api
 
 import javax.management.remote.JMXConnector
 import org.fusesource.fabric.service.JmxTemplateSupport
+import org.fusesource.fabric.monitor.api._
 
 object MonitorFacade {
 

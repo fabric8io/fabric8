@@ -21,7 +21,7 @@ import scala.Some
 import org.fusesource.fabric.webui.agents.{ManagementExtension, ManagementExtensionFactory}
 import org.fusesource.fabric.service.{ContainerTemplate, ContainerCachingJmxTemplate}
 import javax.ws.rs.{POST, Path}
-import org.fusesource.fabric.api.monitor.{MonitorFacade, FetchMonitoredViewDTO}
+import org.fusesource.fabric.monitor.api.{MonitorFacade, FetchMonitoredViewDTO}
 import javax.ws.rs.core.Response
 import org.fusesource.fabric.webui.BaseResource
 

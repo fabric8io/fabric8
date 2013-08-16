@@ -15,13 +15,19 @@
  * limitations under the License.
  */
 
-/**
- * The JAXB POJOs for the
- * <a href="http://fusesource.org/schema/fabric/monitor/xml-configuration.html">XML Configuration</a>
- * of the FON Launch module.
- */
-@javax.xml.bind.annotation.XmlSchema(
-        namespace = "http://fusesource.org/schema/fabric/monitor",
-        elementFormDefault = javax.xml.bind.annotation.XmlNsForm.QUALIFIED)
-package org.fusesource.fabric.api.monitor;
+package org.fusesource.fabric.monitor.api;
 
+import org.codehaus.jackson.annotate.JsonTypeInfo;
+
+import javax.xml.bind.annotation.XmlType;
+
+/**
+ * Defines a kind of polled value
+ *
+ * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
+ */
+@XmlType (name = "poll")
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="kind")
+public abstract class PollDTO {
+
+}

@@ -17,8 +17,7 @@
 package org.fusesource.fabric.monitor.plugins
 
 import jmx.{MBeanAttributePollDTO, JmxConstants}
-import org.fusesource.fabric.api.monitor.DataSourceDTO
-import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.monitor.api.DataSourceDTO
 
 object DataSourceEnricher {
   var enrichers: List[DataSourceEnricher] = List(new DefaultDataSourceEnricher)

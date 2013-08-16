@@ -21,7 +21,7 @@ import internal.DefaultMonitor
 import java.io.File
 import plugins.DefaultJvmMonitorSetBuilder
 import plugins.jmx.JmxDataSourceRegistry
-import org.fusesource.fabric.api.monitor._
+import org.fusesource.fabric.monitor.api._
 
 trait MonitorServiceMBean extends MonitorServiceFacade {
 }

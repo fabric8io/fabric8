@@ -67,7 +67,6 @@
         <module>fabric-jaas</module>
         <module>fabric-zookeeper-spring</module>
         <module>fabric-configadmin</module>
-        <module>fabric-zeroconf</module>
 
         <module>fabric-cxf</module>
         <module>fabric-camel</module>
@@ -77,8 +76,6 @@
         <module>fabric-camel-c24io</module>
         <module>fabric-camel-dslio</module>
 -->
-        <module>fabric-monitor</module>
-        <module>fabric-launcher</module>
         <module>fabric-dosgi</module>
         <module>fabric-hadoop</module>
         <module>fabric-virt</module>
@@ -100,6 +97,10 @@
         <module>fabric-webapp-agent</module>
 
         <module>fuse-fabric</module>
+
+        <module>fabric-zeroconf</module>
+        <module>fabric-monitor</module>
+        <module>fabric-launcher</module>
 
         <module>fabric-examples</module>
         <module>fabric-client</module>

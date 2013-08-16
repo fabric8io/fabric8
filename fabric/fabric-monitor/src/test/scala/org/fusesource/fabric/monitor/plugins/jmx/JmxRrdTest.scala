@@ -20,11 +20,11 @@ package jmx
 
 import java.io.File
 import org.fusesource.fabric.service.LocalJmxTemplate
-import org.fusesource.fabric.api.monitor.{FetchMonitoredViewDTO, MonitorFacade}
 
 import collection.JavaConversions._
 import management.ManagementFactory
 import javax.management.{MBeanServer, MBeanServerFactory, MBeanServerConnection, ObjectName}
+import org.fusesource.fabric.monitor.api.{MonitorFacade, FetchMonitoredViewDTO}
 
 /**
  * Test the default JVM RRD file generation

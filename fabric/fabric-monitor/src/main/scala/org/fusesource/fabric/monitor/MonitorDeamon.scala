@@ -18,15 +18,14 @@
 package org.fusesource.fabric.monitor
 
 
-import org.fusesource.fabric.api.monitor.{Monitor, PollerFactory, MonitoredSetDTO}
 import internal.IOSupport._
 import internal.{ClassFinder, DefaultMonitor}
 import java.net.URLClassLoader
 import java.util.zip.ZipFile
 import java.io._
-import org.fusesource.fabric.api.monitor.{XmlCodec, JsonCodec}
 import collection.mutable.HashMap
-import org.fusesource.fabric.api.monitor.MonitoredSetDTO
+import org.fusesource.fabric.monitor.api._
+import scala.Some
 
 /**
  * <p>

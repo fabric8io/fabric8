@@ -14,32 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api.monitor
+
+package org.fusesource.fabric.monitor.api
+
+import org.fusesource.fabric.service.JmxTemplateSupport
 
 /**
- * Creates a Poller for a given DataSourceDTO
+ * <p>
+ * </p>
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-trait PollerFactory {
+trait Monitor {
 
-  def jaxb_package: String
+  /**
+   * Updates the monitor's configuration with the data sources that need
+   * to be monitored.
+   */
+  def configure( value:Traversable[MonitoredSetDTO] ):Unit
 
-  def accepts(source: DataSourceDTO): Boolean
+  def close:Unit
 
-  def create(source: DataSourceDTO): Poller
+  def fetch( fetch:FetchMonitoredViewDTO ):Option[MonitoredViewDTO]
 
-}
+  def list: Array[MonitoredSetDTO]
 
-/**
- * Capable of polling for a value
- *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
- */
-trait Poller {
-  def close: Unit
-
-  def source: DataSourceDTO
-
-  def poll: Double
+  var poller_factories:Seq[PollerFactory]
 }

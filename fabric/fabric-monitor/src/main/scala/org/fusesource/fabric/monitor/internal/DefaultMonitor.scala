@@ -27,9 +27,10 @@ import org.linkedin.util.clock.Timespan
 import java.io.File
 import java.{util => ju}
 import FileSupport._
-import org.fusesource.fabric.api.monitor._
 import collection.JavaConversions._
 import org.fusesource.scalate.util.Log
+import org.fusesource.fabric.monitor.api._
+import scala.Some
 
 object DefaultMonitor {
   val log = Log(classOf[DefaultMonitor])

@@ -17,8 +17,7 @@
 package org.fusesource.fabric.monitor.plugins
 package jmx
 
-import org.fusesource.fabric.api.monitor.DataSourceDTO
-import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.monitor.api.DataSourceDTO
 
 class JmxPollerFactoryTest extends FunSuiteSupport {
 

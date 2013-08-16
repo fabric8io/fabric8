@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
  *
@@ -15,19 +15,10 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.api.monitor;
+package org.fusesource.fabric.monitor.api
 
-import org.codehaus.jackson.annotate.JsonTypeInfo;
+trait MonitorServiceFacade {
 
-import javax.xml.bind.annotation.XmlType;
-
-/**
- * Defines a kind of polled value
- *
- * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
- */
-@XmlType (name = "poll")
-@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="kind")
-public abstract class PollDTO {
-
+  def list:Array[Byte]
+  def fetch(fetch: Array[Byte]): Array[Byte]
 }

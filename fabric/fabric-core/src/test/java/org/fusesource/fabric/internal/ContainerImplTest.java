@@ -35,8 +35,8 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import scala.actors.threadpool.Arrays;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -214,7 +214,7 @@ public class ContainerImplTest {
         expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel")))).andReturn(null).anyTimes();
 
         expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "esb")))).andReturn(Collections.<String>emptyList()).anyTimes();
-        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")))).andReturn(Arrays.asList(new String[] { "pid1.properties", "pid2.properties" })).anyTimes();
+        expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")))).andReturn(Arrays.asList(new String[]{"pid1.properties", "pid2.properties"})).anyTimes();
         expect(getChildrenBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "camel")))).andReturn(Arrays.asList(new String[]{"pid1.properties"})).anyTimes();
 
         expect(getBuilder.forPath(eq(CONFIG_VERSIONS_PROFILE.getPath(version, "cxf")+ "/pid1.properties" ))).andReturn("k1=v1\nk2=v2".getBytes()).anyTimes();

@@ -17,11 +17,11 @@
 package org.fusesource.fabric.monitor.plugins
 package jmx
 
-import org.fusesource.fabric.api.monitor.{Poller, DataSourceDTO, PollerFactory}
-import org.fusesource.fabric.internal.Numbers._
+import org.fusesource.fabric.monitor.internal.Numbers
+import Numbers._
 import javax.management.ObjectName
 import javax.management.openmbean.CompositeData
-import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.monitor.api.{Poller, PollerFactory, DataSourceDTO}
 
 /**
  * A PollerFactory for dealing with JMX Attribute polls

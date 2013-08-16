@@ -19,10 +19,9 @@ package org.fusesource.fabric.monitor.internal
 
 import javax.management.ObjectName
 import org.fusesource.scalate.util.Measurements._
-import org.fusesource.fabric.internal.Numbers
 import org.fusesource.fabric.monitor.plugins.jmx.{JmxConstants, JmxDataSourceRegistry}
 import org.fusesource.fabric.monitor.MonitorDeamon
-import org.fusesource.fabric.api.monitor.DataSourceDTO
+import org.fusesource.fabric.monitor.api.DataSourceDTO
 
 object Value {
   val jmxFactory = new JmxDataSourceRegistry()
