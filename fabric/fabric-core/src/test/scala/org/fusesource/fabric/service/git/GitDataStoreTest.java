@@ -21,8 +21,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.fusesource.fabric.service.git.GitDataStore;
-import org.fusesource.fabric.service.git.GitHelpers;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
 import org.junit.After;
@@ -83,7 +82,7 @@ public class GitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        FabricGitService gitService = new FabricGitService() {
+        GitService gitService = new GitService() {
             public Git get() throws IOException {
                 return git;
             }
@@ -129,7 +128,7 @@ public class GitDataStoreTest {
         // lets test the profile attributes
         Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
         System.out.println("Profile attributes: " + profileAttributes);
-        String profileAttributeKey = "kyKey";
+        String profileAttributeKey = "myKey";
         String expectedProfileAttributeValue = "myValue";
         dataStore.setProfileAttribute(version, importedProfile, profileAttributeKey, expectedProfileAttributeValue);
         profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
@@ -168,6 +167,11 @@ public class GitDataStoreTest {
         remote.checkout().setName("1.1").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + newProfile));
+
+        // we should pushed the property attributes file from the call to
+        // dataStore.setProfileAttribute()
+        assertFolderExists("we should have pushed this file remotely due to the call to dataStore.setProfileAttribute()",
+                getRemoteGitFile("fabric/profiles/" + importedProfile + "/org.fusesource.fabric.datastore.properties"));
 
         remote.checkout().setName("1.2").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
@@ -252,11 +256,23 @@ public class GitDataStoreTest {
     }
 
     protected void assertFolderExists(File path) {
-        assertTrue("Cannot find folder: " + path, path.exists());
+        assertFolderExists("", path);
+    }
+
+    protected void assertFolderExists(String message, File path) {
+        assertTrue(messagePrefix(message) + "Cannot find folder: " + path, path.exists());
+    }
+
+    private String messagePrefix(String message) {
+        return message + (Strings.isNotBlank(message) ? ". " : "");
     }
 
     protected void assertFolderNotExists(File path) {
-        assertFalse("Should not have found folder: " + path, path.exists());
+        assertFolderNotExists("", path);
+    }
+
+    protected void assertFolderNotExists(String message, File path) {
+        assertFalse(messagePrefix(message) + "Should not have found folder: " + path, path.exists());
     }
 
     protected void assertCreateVersion(String version) {

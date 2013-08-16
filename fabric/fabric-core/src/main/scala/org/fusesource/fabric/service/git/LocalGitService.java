@@ -19,16 +19,19 @@ package org.fusesource.fabric.service.git;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.fusesource.fabric.service.git.FabricGitService;
+import org.fusesource.fabric.service.git.GitService;
 
 /**
- * A local git repository used either during boostrap where there is not yet
- * a ZooKeeper ensemble to connect to, or for implementation inheritence
+ * A local stand alone git repository
  */
-public class LocalGitService implements FabricGitService {
+@Component(name = "org.fusesource.fabric.git.local",description = "Local Git Service", immediate = true)
+@Service(GitService.class)
+public class LocalGitService implements GitService {
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
 
     @Override

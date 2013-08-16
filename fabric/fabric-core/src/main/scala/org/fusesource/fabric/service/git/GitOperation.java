@@ -22,5 +22,5 @@ import org.eclipse.jgit.api.Git;
  * Performs an operation on the given git repository
  */
 public interface GitOperation<T> {
-    T call(Git git) throws Exception;
+    T call(Git git, GitContext context) throws Exception;
 }

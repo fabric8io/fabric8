@@ -30,8 +30,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
-import org.fusesource.fabric.service.ZooKeeperDataStore;
-import org.fusesource.fabric.service.git.ConfiguredDataStoreFactory;
+import org.fusesource.fabric.service.ConfiguredDataStoreFactory;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -128,6 +127,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
             //Initialize a temporary DataStore
             ConfiguredDataStoreFactory dataStoreFactory = new ConfiguredDataStoreFactory();
+            dataStoreFactory.setBootstrap(true);
             dataStoreFactory.setCurator(curator);
             // TODO configure git service if required, usinga bootstrap implementation
             // which has no ZK / remote stuff?

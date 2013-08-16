@@ -17,14 +17,11 @@
 package org.fusesource.fabric.git.zkbridge;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.felix.utils.properties.Properties;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -39,11 +36,10 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.service.git.FabricGitService;
+import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

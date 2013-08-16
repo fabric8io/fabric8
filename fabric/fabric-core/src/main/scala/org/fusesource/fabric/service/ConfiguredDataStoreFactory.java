@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.service;
 
 import java.io.IOException;
 import java.util.Dictionary;
@@ -33,8 +33,9 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreFactory;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.Objects;
-import org.fusesource.fabric.service.DataStoreSupport;
-import org.fusesource.fabric.service.ZooKeeperDataStore;
+import org.fusesource.fabric.service.git.GitDataStore;
+import org.fusesource.fabric.service.git.GitService;
+import org.fusesource.fabric.service.git.LocalGitService;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -42,7 +43,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY;
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
-import static org.apache.felix.scr.annotations.ReferenceCardinality.*;
 
 /**
  * Factory of {@link DataStore} using configuration to decide which
@@ -68,13 +68,14 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
     private final Map<String, PlaceholderResolver>
             placeholderResolvers = new HashMap<String, PlaceholderResolver>();
 
-    @Reference(cardinality = OPTIONAL_UNARY)
-    private FabricGitService gitService;
+    @Reference(cardinality = MANDATORY_UNARY)
+    private GitService gitService;
 
     private BundleContext bundleContext;
     private DataStoreSupport instance;
     private Dictionary<String, String> properties = new Hashtable<String, String>();
     private ServiceRegistration<DataStore> registration;
+    private boolean bootstrap;
 
     @Activate
     public synchronized void init(BundleContext bundleContext) throws Exception {
@@ -120,12 +121,15 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         instance.setPlaceholderResolvers(placeholderResolvers);
         if (instance instanceof GitDataStore) {
             GitDataStore gitDataStore = (GitDataStore)instance;
-            if (gitService == null) {
-                LOG.info("Creating bootstrap GitService");
-                gitService = createBootstrapGitService();
+            if (isBootstrap()) {
+                if (gitService == null) {
+                    LOG.info("Creating bootstrap GitService");
+                    gitService = createBootstrapGitService();
+                }
             } else {
-                LOG.info("Using GitService: " + gitService);
+                Objects.notNull(gitService, "gitService");
             }
+            LOG.info("Using GitService: " + gitService);
             gitDataStore.setGitService(gitService);
         }
         instance.init();
@@ -135,7 +139,7 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
     /**
      * Lets create a GitService for use in bootstrap when there's no fabric yet, so we just make a local git repo
      */
-    protected FabricGitService createBootstrapGitService() {
+    protected GitService createBootstrapGitService() {
         return new LocalGitService();
     }
 
@@ -176,11 +180,22 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         this.curator = curator;
     }
 
-    public FabricGitService getGitService() {
+    public GitService getGitService() {
         return gitService;
     }
 
-    public void setGitService(FabricGitService gitService) {
+    public void setGitService(GitService gitService) {
         this.gitService = gitService;
+    }
+
+    /**
+     * Called when using this factory when bootstrapping a Fabric
+     */
+    public void setBootstrap(boolean bootstrap) {
+        this.bootstrap = bootstrap;
+    }
+
+    public boolean isBootstrap() {
+        return bootstrap;
     }
 }
