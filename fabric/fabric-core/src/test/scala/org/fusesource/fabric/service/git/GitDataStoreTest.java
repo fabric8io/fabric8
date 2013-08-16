@@ -86,7 +86,7 @@ public class GitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        GitService gitService = new GitService() {
+        GitService gitService = new LocalGitService() {
             public Git get() throws IOException {
                 return git;
             }

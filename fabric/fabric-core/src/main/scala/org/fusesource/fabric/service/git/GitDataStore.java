@@ -74,9 +74,36 @@ public class GitDataStore extends DataStoreSupport {
     private final Object lock = new Object();
     private String remote = "origin";
     private String masterBranch = "master";
+    private Runnable remoteChangeListener = new Runnable() {
+        public void run() {
+            // lets force a pull
+            LOG.info("Forcing a git pull");
+            gitOperation(new GitOperation<Object>() {
+                public Object call(Git git, GitContext context) throws Exception {
+
+                    return null;
+                }
+            });
+        }
+    };
 
     public String toString() {
         return "GitDataStore(" + gitService + ")";
+    }
+
+    public synchronized void init() throws Exception {
+        super.init();
+        if (gitService != null) {
+            gitService.addRemoteChangeListener(remoteChangeListener);
+        }
+    }
+
+    public synchronized void destroy() {
+        if (gitService != null) {
+            gitService.removeRemoteChangeListener(remoteChangeListener);
+        }
+        super.destroy();
+
     }
 
     public GitService getGitService() {
@@ -107,7 +134,8 @@ public class GitDataStore extends DataStoreSupport {
                             File[] versionFiles = versionFolder.listFiles();
                             if (versionFiles != null) {
                                 for (File versionFile : versionFiles) {
-                                    LOG.info("Importing version configuration " + versionFile + " to branch " + version);
+                                    LOG.info("Importing version configuration " + versionFile + " to branch "
+                                            + version);
                                     importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version);
                                 }
                             }
@@ -713,7 +741,8 @@ public class GitDataStore extends DataStoreSupport {
     /**
      * Creates the given profile directory in the currently checked out version branch
      */
-    protected String doCreateProfile(Git git, GitContext context, String profile) throws IOException, GitAPIException {
+    protected String doCreateProfile(Git git, GitContext context, String profile)
+            throws IOException, GitAPIException {
         File profileDirectory = getProfileDirectory(git, profile);
         File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
         if (metadataFile.exists()) {

@@ -18,6 +18,9 @@ package org.fusesource.fabric.service.git;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Service;
@@ -33,6 +36,7 @@ import org.fusesource.fabric.service.git.GitService;
 @Service(GitService.class)
 public class LocalGitService implements GitService {
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
+    private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
     @Override
     public Git get() throws IOException {
@@ -51,5 +55,25 @@ public class LocalGitService implements GitService {
                 throw new IOException(ex);
             }
         }
+    }
+
+    public void onRemoteChanged() {
+        for (Runnable callback : callbacks) {
+            try {
+                callback.run();
+            } catch (Throwable t) {
+                //ignore
+            }
+        }
+    }
+
+    @Override
+    public void addRemoteChangeListener(Runnable callback) {
+        callbacks.add(callback);
+    }
+
+    @Override
+    public void removeRemoteChangeListener(Runnable callback) {
+        callbacks.remove(callback);
     }
 }

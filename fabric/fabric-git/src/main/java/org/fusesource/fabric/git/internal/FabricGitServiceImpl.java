@@ -88,6 +88,9 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
                 config.unsetSection("remote", "origin");
             }
 			config.save();
+            if (gitService != null) {
+                gitService.onRemoteChanged();
+            }
 		} catch (Exception e) {
 			LOGGER.error("Failed to point origin to the new master.", e);
 		}

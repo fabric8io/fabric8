@@ -26,4 +26,14 @@ import org.eclipse.jgit.api.Git;
 public interface GitService {
 
     Git get() throws IOException;
+
+    /**
+     *
+     * A hook if the remote URI has been changed
+     */
+    void onRemoteChanged();
+
+    void addRemoteChangeListener(Runnable callback);
+
+    void removeRemoteChangeListener(Runnable callback);
 }
