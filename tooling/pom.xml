@@ -33,6 +33,9 @@
     <name>FuseSource :: Tooling</name>
 
     <modules>
+        <module>tooling-activemq-facade</module>
+        <module>tooling-camel-facade</module>
+        <module>tooling-servicemix-facade</module>
         <module>examples</module>
         <module>archetype-builder</module>
         <module>archetypes</module>

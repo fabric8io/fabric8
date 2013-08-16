@@ -1,8 +1,0 @@
-#!/bin/bash
-# The logic to stop your application should be put in this script.
-set -x
-export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk-1.7.0.5.x86_64
-export PATH=$JAVA_HOME/bin:$PATH
-cd $OPENSHIFT_RUNTIME_DIR/fabric
-bin/stop
-exit 0

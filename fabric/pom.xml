@@ -40,9 +40,6 @@
     </licenses>
 
     <modules>
-        <module>fabric-activemq-facade</module>
-        <module>fabric-camel-facade</module>
-        <module>fabric-servicemix-facade</module>
 
         <module>fabric-utils</module>
         <module>fabric-api</module>
@@ -83,12 +80,9 @@
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
         <module>fabric-dosgi</module>
-        <module>fabric-security</module>
         <module>fabric-hadoop</module>
         <module>fabric-virt</module>
         <module>fabric-branding</module>
-
-        <module>fabric-rest</module>
 
         <module>fabric-ldap</module>
 
@@ -100,29 +94,16 @@
         <module>watcher-spring-context</module>
         <module>watcher-blueprint-web</module>
 
-        <module>fmc-branding</module>
-        <module>fmc-webui</module>
-        <module>fmc-webui-branding-example</module>
-
         <module>fabric-features-service</module>
         <module>fabric-jolokia</module>
         <module>fabric-web</module>
         <module>fabric-webapp-agent</module>
 
-
         <module>fuse-fabric</module>
 
         <module>fabric-examples</module>
-
         <module>fabric-client</module>
-
         <module>fabric-itests</module>
-
-        <module>openshift</module>
-      <!--
-      <module>fmc-distro</module>
-      -->
-
 
     </modules>
 

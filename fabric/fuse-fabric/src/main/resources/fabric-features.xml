@@ -458,18 +458,18 @@
 -->
     </feature>
 
-    <feature name="fabric-rest" version="${project.version}" resolver="(obr)">
+    <feature name="fmc-rest" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <feature>fabric-core</feature>
         <feature>fabric-jaas</feature>
         <feature>fabric-boot-commands</feature>
         <feature>fabric-jclouds</feature>
-        <bundle>mvn:org.fusesource.fabric/fabric-rest/${project.version}/war</bundle>
+        <bundle>mvn:org.fusesource.fmc/fmc-rest/${project.version}/war</bundle>
     </feature>
 
     <feature name="fabric-webui" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
-        <feature>fabric-rest</feature>
+        <feature>fmc-rest</feature>
         <bundle>mvn:org.fusesource.fmc/fmc-webui/${project.version}/war</bundle>
     </feature>
 
@@ -539,10 +539,6 @@
     </feature>
 
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
-        <!--
-        <feature>war</feature>
-        <bundle>war:mvn:org.jolokia/jolokia-war/${jolokia-version}/war?WebappContext=/jolokia&amp;Bundle-SymbolicName=org.jolokia&amp;Bundle-Version=${jolokia-version}&amp;DynamicImport-Package=*&amp;Bundle-Name=jolokia&amp;Bundle-ClassPath=.,WEB-INF/classes&amp;Web-ContextPath=/jolokia</bundle>
-        -->
         <feature>http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>
     </feature>
