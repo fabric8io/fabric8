@@ -39,7 +39,9 @@
           org.fusesource.fabric.api.locks;version=${project.version},
           org.fusesource.fabric.api.monitor;version=${project.version},
           org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
-          org.fusesource.fabric.internal*;version=${project.version};-noimport:=true
+          org.fusesource.fabric.internal*;version=${project.version};-noimport:=true,
+          org.eclipse.jgit*;-noimport:=true,
+          org.gitective.core*;-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.internal,
@@ -158,6 +160,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- git stuff -->
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.gitective</groupId>
+          <artifactId>gitective-core</artifactId>
+          <version>0.9.9</version>
+        </dependency>
+
         <!--
 
         <dependency>
@@ -215,7 +229,12 @@
         <version>2.1</version>
         <scope>test</scope>
       </dependency>
-
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper-spring</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

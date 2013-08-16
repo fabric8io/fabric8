@@ -14,14 +14,13 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.fusesource.fabric.git;
+package org.fusesource.fabric.service.git;
+
+import java.io.IOException;
 
 import org.eclipse.jgit.api.Git;
 
-import java.io.File;
-import java.io.IOException;
-
 public interface FabricGitService {
 
-	Git get() throws IOException;
+    Git get() throws IOException;
 }

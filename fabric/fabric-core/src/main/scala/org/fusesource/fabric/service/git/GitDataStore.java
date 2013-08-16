@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.datastore;
+package org.fusesource.fabric.service.git;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
@@ -37,42 +36,34 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
-import org.fusesource.fabric.git.FabricGitService;
-import org.fusesource.fabric.git.internal.FabricGitServiceImpl;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
 import org.fusesource.fabric.utils.Files;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.git.datastore.GitHelpers.getRootGitDirectory;
-import static org.fusesource.fabric.git.datastore.GitHelpers.hasGitHead;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 /**
  * @author Stan Lewis
  */
+/*
 @Component(name = "org.fusesource.fabric.git.datastore",
         description = "Fabric Git and ZooKeeper DataStore")
 @Service(DataStore.class)
+*/
 public class GitDataStore extends DataStoreSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
@@ -83,21 +74,27 @@ public class GitDataStore extends DataStoreSupport {
     public static final String CONFIGS_METRICS = CONFIGS + "/metrics";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
 
+/*
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+*/
     private CuratorFramework curator;
+/*
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-               referenceInterface = PlaceholderResolver.class,
-               bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC)
+            referenceInterface = PlaceholderResolver.class,
+            bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver",
+            policy = ReferencePolicy.DYNAMIC)
+*/
     private final Map<String, PlaceholderResolver>
             placeholderResolvers = new HashMap<String, PlaceholderResolver>();
 
+/*
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+*/
     private FabricGitService gitService;
 
     private final Object lock = new Object();
     private String remote = "origin";
     private String masterBranch = "master";
-    private FabricGitServiceImpl bootstrapGitService;
 
     public FabricGitService getGitService() {
         return gitService;
@@ -105,30 +102,6 @@ public class GitDataStore extends DataStoreSupport {
 
     public void setGitService(FabricGitService gitService) {
         this.gitService = gitService;
-    }
-
-    public synchronized void init() throws Exception {
-        super.init();
-        if (gitService == null) {
-/*
-            TODO
-            // we are probably being called from a bootstrap in
-            // ZooKeeperClusterBootstrapImpl
-            // so lets lazily create it on the fly
-            bootstrapGitService = new FabricGitServiceImpl();
-            bootstrapGitService.setCurator(getCurator());
-            bootstrapGitService.init();
-            gitService = bootstrapGitService;
-*/
-        }
-    }
-
-    public synchronized void destroy() {
-        super.destroy();
-        if (bootstrapGitService != null) {
-            bootstrapGitService.destroy();
-            bootstrapGitService = null;
-        }
     }
 
     @Override
@@ -159,7 +132,7 @@ public class GitDataStore extends DataStoreSupport {
                 createVersion(version);
 
                 // now lets recursively add files
-                File toDir = getRootGitDirectory(git);
+                File toDir = GitHelpers.getRootGitDirectory(git);
                 if (Strings.isNotBlank(destinationPath)) {
                     toDir = new File(toDir, destinationPath);
                 }
@@ -343,7 +316,8 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     @Override
-    public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
+    public void setProfileAttribute(final String version, final String profile, final String key,
+                                    final String value) {
         Map<String, String> config = getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
         if (value != null) {
             config.put(key, value);
@@ -414,7 +388,8 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     @Override
-    public void setFileConfigurations(final String version, final String profile, final Map<String, byte[]> configurations) {
+    public void setFileConfigurations(final String version, final String profile,
+                                      final Map<String, byte[]> configurations) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git) throws Exception {
                 checkoutVersion(git, version);
@@ -444,7 +419,8 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     @Override
-    public void setFileConfiguration(final String version, final String profile, final String fileName, final byte[] configuration) {
+    public void setFileConfiguration(final String version, final String profile, final String fileName,
+                                     final byte[] configuration) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git) throws Exception {
                 checkoutVersion(git, version);
@@ -475,7 +451,8 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     @Override
-    public Map<String, String> getConfiguration(final String version, final String profile, final String pid) {
+    public Map<String, String> getConfiguration(final String version, final String profile,
+                                                final String pid) {
         return gitOperation(new GitOperation<Map<String, String>>() {
             public Map<String, String> call(Git git) throws Exception {
                 checkoutVersion(git, version);
@@ -496,12 +473,12 @@ public class GitDataStore extends DataStoreSupport {
                                   Map<String, Map<String, String>> configurations) {
         Map<String, byte[]> fileConfigs = new HashMap<String, byte[]>();
         try {
-        for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
-            String pid = entry.getKey();
-            Map<String, String> map = entry.getValue();
-            byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(map));
-            fileConfigs.put(pid + ".properties", data);
-        }
+            for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+                String pid = entry.getKey();
+                Map<String, String> map = entry.getValue();
+                byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(map));
+                fileConfigs.put(pid + ".properties", data);
+            }
         } catch (IOException e) {
             throw new FabricException(e);
         }
@@ -617,7 +594,7 @@ public class GitDataStore extends DataStoreSupport {
                     personIdent = new PersonIdent(git.getRepository());
                 }
 
-                if (hasGitHead(git)) {
+                if (GitHelpers.hasGitHead(git)) {
                     // lets stash any local changes just in case..
                     git.stashCreate().setPerson(personIdent)
                             .setWorkingDirectoryMessage("Stash before a write").setRef("HEAD").call();
@@ -640,7 +617,8 @@ public class GitDataStore extends DataStoreSupport {
         StoredConfig config = repository.getConfig();
         String url = config.getString("remote", remote, "url");
         if (Strings.isNullOrBlank(url)) {
-            LOG.warn("No remote repository defined for the git repository at " + getRootGitDirectory(git)
+            LOG.warn("No remote repository defined for the git repository at " + GitHelpers
+                    .getRootGitDirectory(git)
                     + " so not doing a push");
             return;
         }
@@ -656,7 +634,8 @@ public class GitDataStore extends DataStoreSupport {
             StoredConfig config = repository.getConfig();
             String url = config.getString("remote", remote, "url");
             if (Strings.isNullOrBlank(url)) {
-                LOG.warn("No remote repository defined for the git repository at " + getRootGitDirectory(git)
+                LOG.warn("No remote repository defined for the git repository at " + GitHelpers
+                        .getRootGitDirectory(git)
                         + " so not doing a pull");
                 return;
             }
@@ -664,19 +643,21 @@ public class GitDataStore extends DataStoreSupport {
             String mergeUrl = config.getString("branch", branch, "merge");
             if (Strings.isNullOrBlank(mergeUrl)) {
                 LOG.warn("No merge spec for branch." + branch + ".merge in the git repository at "
-                        + getRootGitDirectory(git) + " so not doing a pull");
+                        + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
                 return;
             }
             if (LOG.isDebugEnabled()) {
                 LOG.debug(
-                        "Performing a pull in git repository " + getRootGitDirectory(git) + " on remote URL: "
+                        "Performing a pull in git repository " + GitHelpers.getRootGitDirectory(git)
+                                + " on remote URL: "
                                 + url);
             }
             //git.pull().setCredentialsProvider(cp).setRebase(true).call();
             git.pull().setRebase(true).call();
         } catch (Throwable e) {
             LOG.error(
-                    "Failed to pull from the remote git repo " + getRootGitDirectory(git) + ". Reason: " + e,
+                    "Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git)
+                            + ". Reason: " + e,
                     e);
         }
     }
@@ -732,7 +713,7 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     protected void doAddFiles(Git git, File... files) throws GitAPIException, IOException {
-        File rootDir = getRootGitDirectory(git);
+        File rootDir = GitHelpers.getRootGitDirectory(git);
         for (File file : files) {
             String relativePath = getFilePattern(rootDir, file);
             git.add().addFilepattern(relativePath).call();
@@ -740,7 +721,7 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     protected void doRecursiveDeleteAndRemove(Git git, File file) throws IOException, GitAPIException {
-        File rootDir = getRootGitDirectory(git);
+        File rootDir = GitHelpers.getRootGitDirectory(git);
         String relativePath = getFilePattern(rootDir, file);
         if (file.exists() && !relativePath.equals(".git")) {
             if (file.isDirectory()) {
@@ -757,22 +738,22 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     protected byte[] doLoadFileConfiguration(File file) throws IOException {
-         if (file.isDirectory()) {
-             // Not sure why we do this, but for directory pids, lets recurse...
-             StringBuilder buf = new StringBuilder();
-             File[] files = file.listFiles();
-             if (files != null) {
-                 for (File child : files) {
-                     String value = Files.toString(child);
-                     buf.append(String.format("%s = %s\n", child.getName(), value));
-                 }
-             }
-             return buf.toString().getBytes();
-         } else if (file.exists() && file.isFile()) {
-             return Files.readBytes(file);
-         }
-         return null;
-     }
+        if (file.isDirectory()) {
+            // Not sure why we do this, but for directory pids, lets recurse...
+            StringBuilder buf = new StringBuilder();
+            File[] files = file.listFiles();
+            if (files != null) {
+                for (File child : files) {
+                    String value = Files.toString(child);
+                    buf.append(String.format("%s = %s\n", child.getName(), value));
+                }
+            }
+            return buf.toString().getBytes();
+        } else if (file.exists() && file.isFile()) {
+            return Files.readBytes(file);
+        }
+        return null;
+    }
 
     protected String getFilePattern(File rootDir, File file) throws IOException {
         String relativePath = Files.getRelativePath(rootDir, file);

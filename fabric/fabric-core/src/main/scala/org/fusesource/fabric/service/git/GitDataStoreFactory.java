@@ -14,21 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.datastore;
+package org.fusesource.fabric.service.git;
 
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreFactory;
-import org.fusesource.fabric.git.FabricGitService;
 
 /**
- * Factory of {@link ZooKeeperDataStore}
+ * Factory of {@link GitDataStore}
  */
+/*
 @Component(name = "org.fusesource.fabric.git.datastore.factory",
-           description = "Fabric Git DataStore Factory")
+        description = "Fabric Git DataStore Factory")
 @Service(DataStoreFactory.class)
+*/
 public class GitDataStoreFactory implements DataStoreFactory {
     public DataStore createDataStore() {
         return new GitDataStore();

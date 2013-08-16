@@ -85,7 +85,6 @@ public class ZooKeeperDataStore extends DataStoreSupport {
 
     @Activate
     public synchronized void init() throws Exception {
-        LOG.info("init()");
         super.init();
     }
 

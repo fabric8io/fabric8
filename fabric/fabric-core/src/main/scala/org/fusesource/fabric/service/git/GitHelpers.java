@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.datastore;
+package org.fusesource.fabric.service.git;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,11 +27,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.NoHeadException;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.fusesource.common.util.Strings;
+import org.fusesource.fabric.utils.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static org.fusesource.common.util.Strings.isNullOrBlank;
 
 /**
  * A bunch of helper methods for working with Git
@@ -108,7 +106,7 @@ public class GitHelpers {
         // lets update the merge config
         if (Strings.isNotBlank(branch)) {
             StoredConfig config = git.getRepository().getConfig();
-            if (isNullOrBlank(config.getString("branch", branch, "remote")) || isNullOrBlank(
+            if (Strings.isNullOrBlank(config.getString("branch", branch, "remote")) || Strings.isNullOrBlank(
                     config.getString("branch", branch, "merge"))) {
                 config.setString("branch", branch, "remote", remote);
                 config.setString("branch", branch, "merge", "refs/heads/" + branch);

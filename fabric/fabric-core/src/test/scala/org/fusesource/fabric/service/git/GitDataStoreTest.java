@@ -14,14 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.datastore;
+package org.fusesource.fabric.service.git;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.fusesource.fabric.git.FabricGitService;
+import org.fusesource.fabric.service.git.GitDataStore;
+import org.fusesource.fabric.service.git.GitHelpers;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
 import org.junit.After;

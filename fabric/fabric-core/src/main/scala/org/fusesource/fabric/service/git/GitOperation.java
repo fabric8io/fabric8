@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.datastore;
+package org.fusesource.fabric.service.git;
 
 import org.eclipse.jgit.api.Git;
 
