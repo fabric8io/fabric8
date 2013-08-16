@@ -27,12 +27,15 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
+import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
@@ -76,11 +79,9 @@ public class GitDataStore extends DataStoreSupport {
     private String masterBranch = "master";
     private Runnable remoteChangeListener = new Runnable() {
         public void run() {
-            // lets force a pull
-            LOG.info("Forcing a git pull");
+            LOG.info("Remote master git repo changed, lets do a git pull");
             gitOperation(new GitOperation<Object>() {
                 public Object call(Git git, GitContext context) throws Exception {
-
                     return null;
                 }
             });
@@ -689,7 +690,12 @@ public class GitDataStore extends DataStoreSupport {
                     + " so not doing a push");
             return;
         }
-        git.push().call();
+        PushCommand command = git.push();
+        CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
+        if (credentialsProvider != null) {
+            command = command.setCredentialsProvider(credentialsProvider);
+        }
+        command.call();
     }
 
     /**
@@ -724,8 +730,12 @@ public class GitDataStore extends DataStoreSupport {
                                 + url);
             }
             RevCommit statusBefore = CommitUtils.getHead(repository);
-            //git.pull().setCredentialsProvider(cp).setRebase(true).call();
-            PullResult result = git.pull().setRebase(true).call();
+            PullCommand command = git.pull().setRebase(true);
+            CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
+            if (credentialsProvider != null) {
+                command = command.setCredentialsProvider(credentialsProvider);
+            }
+            PullResult result = command.call();
             RevCommit statusAfter = CommitUtils.getHead(repository);
             if (hasChanged(statusBefore, statusAfter)) {
                 fireChangeNotifications();

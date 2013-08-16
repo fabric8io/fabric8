@@ -26,6 +26,8 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
@@ -38,6 +40,8 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true)
@@ -80,7 +84,8 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
             masterUrl = master.getUrl();
         }
 		try {
-			StoredConfig config = get().getRepository().getConfig();
+            Git git = get();
+            StoredConfig config = git.getRepository().getConfig();
             if (masterUrl != null) {
                 config.setString("remote", "origin", "url", getSubstitutedData(curator, masterUrl));
                 config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
@@ -88,7 +93,12 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
                 config.unsetSection("remote", "origin");
             }
 			config.save();
+            // lets register the current security
             if (gitService != null) {
+                String login = getContainerLogin();
+                String token = generateContainerToken(curator);
+                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
+                gitService.setCredentialsProvider(cp);
                 gitService.onRemoteChanged();
             }
 		} catch (Exception e) {

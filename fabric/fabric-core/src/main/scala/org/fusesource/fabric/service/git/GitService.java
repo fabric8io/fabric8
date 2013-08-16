@@ -19,6 +19,7 @@ package org.fusesource.fabric.service.git;
 import java.io.IOException;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.transport.CredentialsProvider;
 
 /**
  * Represents a local Git repository
@@ -36,4 +37,8 @@ public interface GitService {
     void addRemoteChangeListener(Runnable callback);
 
     void removeRemoteChangeListener(Runnable callback);
+
+    CredentialsProvider getCredentialsProvider();
+
+    void setCredentialsProvider(CredentialsProvider cp);
 }

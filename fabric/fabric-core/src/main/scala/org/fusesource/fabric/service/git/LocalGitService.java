@@ -27,6 +27,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.fusesource.fabric.service.git.GitService;
 
 /**
@@ -37,6 +38,7 @@ import org.fusesource.fabric.service.git.GitService;
 public class LocalGitService implements GitService {
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
+    private CredentialsProvider credentialsProvider;
 
     @Override
     public Git get() throws IOException {
@@ -75,5 +77,14 @@ public class LocalGitService implements GitService {
     @Override
     public void removeRemoteChangeListener(Runnable callback) {
         callbacks.remove(callback);
+    }
+
+    @Override
+    public CredentialsProvider getCredentialsProvider() {
+        return credentialsProvider;
+    }
+
+    public void setCredentialsProvider(CredentialsProvider credentialsProvider) {
+        this.credentialsProvider = credentialsProvider;
     }
 }
