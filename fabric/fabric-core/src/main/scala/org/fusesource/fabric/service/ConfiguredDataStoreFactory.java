@@ -114,7 +114,7 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         if (configuration != null) {
             kind = configuration.get("kind");
         }
-        if (kind != null && kind.startsWith("z")) {
+        if (kind == null || kind.startsWith("z")) {
             properties.put("kind", "org.fusesource.datastore.zookeeper");
             instance = new ZooKeeperDataStore();
         } else {
