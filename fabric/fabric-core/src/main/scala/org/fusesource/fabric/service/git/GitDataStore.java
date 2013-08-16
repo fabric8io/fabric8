@@ -57,13 +57,9 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 /**
- * @author Stan Lewis
+ * A git based implementation of {@link DataStore} which stores the profile configuration
+ * versions in a branch per version and directory per profile.
  */
-/*
-@Component(name = "org.fusesource.fabric.git.datastore",
-        description = "Fabric Git and ZooKeeper DataStore")
-@Service(DataStore.class)
-*/
 public class GitDataStore extends DataStoreSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
@@ -74,22 +70,6 @@ public class GitDataStore extends DataStoreSupport {
     public static final String CONFIGS_METRICS = CONFIGS + "/metrics";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
 
-/*
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-*/
-    private CuratorFramework curator;
-/*
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-            referenceInterface = PlaceholderResolver.class,
-            bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver",
-            policy = ReferencePolicy.DYNAMIC)
-*/
-    private final Map<String, PlaceholderResolver>
-            placeholderResolvers = new HashMap<String, PlaceholderResolver>();
-
-/*
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-*/
     private FabricGitService gitService;
 
     private final Object lock = new Object();
@@ -103,22 +83,6 @@ public class GitDataStore extends DataStoreSupport {
     public void setGitService(FabricGitService gitService) {
         this.gitService = gitService;
     }
-
-    @Override
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    @Override
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
-
-    @Override
-    public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
-        return placeholderResolvers;
-    }
-
 
     @Override
     public void importFromFileSystem(final String from) {

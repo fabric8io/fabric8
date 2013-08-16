@@ -25,5 +25,5 @@ import java.util.Map;
  */
 public interface DataStoreFactory {
 
-    DataStore createDataStore();
+    DataStore createDataStore() throws Exception;
 }

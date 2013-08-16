@@ -37,12 +37,6 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
@@ -67,7 +61,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
@@ -77,8 +70,10 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 public abstract class DataStoreSupport implements DataStore, PathChildrenCacheListener {
     private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreSupport.class);
 
-    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
-    public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
+    public static final String REQUIREMENTS_JSON_PATH
+            = "/fabric/configs/org.fusesource.fabric.requirements.json";
+    public static final String JVM_OPTIONS_PATH
+            = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
@@ -88,11 +83,9 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     protected TreeCache treeCache;
     private AtomicBoolean initialised = new AtomicBoolean(false);
 
-    public abstract CuratorFramework getCurator();
-
-    public abstract void setCurator(CuratorFramework curator);
-
-    public abstract Map<String, PlaceholderResolver> getPlaceholderResolvers();
+    private CuratorFramework curator;
+    private Map<String, PlaceholderResolver> placeholderResolvers
+            = new HashMap<String, PlaceholderResolver>();
 
     @Override
     public abstract void importFromFileSystem(String from);
@@ -107,6 +100,22 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
 
     public synchronized void destroy() {
         destroyCache();
+    }
+
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
+        return placeholderResolvers;
+    }
+
+    public void setPlaceholderResolvers(Map<String, PlaceholderResolver> placeholderResolvers) {
+        this.placeholderResolvers = placeholderResolvers;
     }
 
     private synchronized void createCache(CuratorFramework curator) throws Exception {
@@ -128,14 +137,15 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         switch (event.getType()) {
-            case CHILD_ADDED:
-            case CHILD_REMOVED:
-            case CHILD_UPDATED:
-            case INITIALIZED:
-                runCallbacks();
-                break;
+        case CHILD_ADDED:
+        case CHILD_REMOVED:
+        case CHILD_UPDATED:
+        case INITIALIZED:
+            runCallbacks();
+            break;
         }
     }
+
     public void trackConfiguration(Runnable callback) {
         callbacks.add(callback);
     }
@@ -156,34 +166,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         }
     }
 
-    public void bindCurator(CuratorFramework curator) throws Exception {
-        this.setCurator(curator);
-    }
-
-    public void unbindCurator(CuratorFramework curator) throws IOException {
-        this.setCurator(null);
-    }
-
     // PlaceholderResolver stuff
     //-------------------------------------------------------------------------
-
-    public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
-        if (resolver != null) {
-            getPlaceholderResolvers().put(resolver.getScheme(), resolver);
-        }
-    }
-
-    public synchronized void unbindPlaceholderResolver(PlaceholderResolver resolver) {
-        if (resolver != null) {
-            getPlaceholderResolvers().remove(resolver.getScheme());
-        }
-    }
-
-    public void setPlaceholderResolvers(List<PlaceholderResolver> resolvers) {
-        for (PlaceholderResolver resolver : resolvers) {
-            bindPlaceholderResolver(resolver);
-        }
-    }
 
     public BundleContext getBundleContext() {
         try {
@@ -296,7 +280,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             }
 
             setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
-            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
+            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId),
+                    sb.toString());
             setData(getCurator(), ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
 
             setContainerMetadata(metadata);
@@ -305,13 +290,16 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             for (Map.Entry<String, String> entry : configuration.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                setData(getCurator(), ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key), value);
+                setData(getCurator(), ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key),
+                        value);
             }
 
             // If no resolver specified but a resolver is already present in the registry, use the registry value
-            String resolver = metadata.getOverridenResolver() != null ? metadata.getOverridenResolver() : options.getResolver();
+            String resolver = metadata.getOverridenResolver() != null ? metadata.getOverridenResolver()
+                    : options.getResolver();
 
-            if (resolver == null && exists(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
+            if (resolver == null
+                    && exists(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
                 resolver = getStringData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId));
             } else if (options.getResolver() != null) {
                 // Use the resolver specified in the options and do nothing.
@@ -341,11 +329,12 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             byte[] decoded = Base64Encoder.decode(encoded);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded)) {
                 @Override
-                protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+                protected Class<?> resolveClass(ObjectStreamClass desc)
+                        throws IOException, ClassNotFoundException {
                     return classLoader.loadClass(desc.getName());
                 }
             };
-            return (CreateContainerMetadata) ois.readObject();
+            return (CreateContainerMetadata)ois.readObject();
         } catch (ClassNotFoundException e) {
             return null;
         } catch (InvalidClassException e) {
@@ -361,8 +350,9 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     public void setContainerMetadata(CreateContainerMetadata metadata) {
         //We encode the metadata so that they are more friendly to import/export.
         try {
-            setData(getCurator(), ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(
-                    ObjectUtils.toBytes(metadata)));
+            setData(getCurator(), ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()),
+                    Base64Encoder.encode(
+                            ObjectUtils.toBytes(metadata)));
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -381,9 +371,11 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     public void setContainerVersion(String containerId, String versionId) {
         try {
             String oldVersionId = getStringData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            String oldProfileIds = getStringData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(oldVersionId, containerId));
+            String oldProfileIds = getStringData(getCurator(),
+                    ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(oldVersionId, containerId));
 
-            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), oldProfileIds);
+            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId),
+                    oldProfileIds);
             setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
         } catch (Exception e) {
             throw new FabricException(e);
@@ -394,7 +386,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     public List<String> getContainerProfiles(String containerId) {
         try {
             String versionId = getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            String str = getStringData(treeCache, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+            String str = getStringData(treeCache,
+                    ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
             return str == null || str.isEmpty() ? Collections.<String>emptyList() : Arrays
                     .asList(str.trim().split(" +"));
         } catch (Exception e) {
@@ -413,7 +406,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
                 }
                 sb.append(profileId);
             }
-            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
+            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId),
+                    sb.toString());
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -431,10 +425,12 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     }
 
     @Override
-    public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted) {
+    public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def,
+                                        boolean mandatory, boolean substituted) {
         if (attribute == ContainerAttribute.Domains) {
             try {
-                List<String> list = getCurator().getChildren().forPath(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+                List<String> list = getCurator().getChildren()
+                        .forPath(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
                 Collections.sort(list);
                 StringBuilder sb = new StringBuilder();
                 for (String l : list) {
@@ -472,7 +468,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         // TODO: something like ${zk:container/${zk:container/resolver}}
         if (attribute == ContainerAttribute.Resolver) {
             try {
-                setData(getCurator(), ZkPath.CONTAINER_IP.getPath(containerId), "${zk:" + containerId + "/" + value + "}");
+                setData(getCurator(), ZkPath.CONTAINER_IP.getPath(containerId),
+                        "${zk:" + containerId + "/" + value + "}");
                 setData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId), value);
             } catch (Exception e) {
                 throw new FabricException(e);
@@ -502,7 +499,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
                 setData(getCurator(), ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
-                setData(getCurator(), ZkPath.CONFIG_VERSION.getPath(version), (String) null);
+                setData(getCurator(), ZkPath.CONFIG_VERSION.getPath(version), (String)null);
             }
             return version;
         } catch (Exception e) {
@@ -520,7 +517,6 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     }
 
 
-
     // Profile methods
     //-------------------------------------------------------------------------
 
@@ -530,53 +526,52 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     }
 
 
-
     // Implementation
     //-------------------------------------------------------------------------
 
 
     private String getAttributePath(String containerId, ContainerAttribute attribute) {
         switch (attribute) {
-            case ProvisionStatus:
-                return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
-            case ProvisionException:
-                return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
-            case ProvisionList:
-                return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
-            case Location:
-                return ZkPath.CONTAINER_LOCATION.getPath(containerId);
-            case GeoLocation:
-                return ZkPath.CONTAINER_GEOLOCATION.getPath(containerId);
-            case Resolver:
-                return ZkPath.CONTAINER_RESOLVER.getPath(containerId);
-            case Ip:
-                return ZkPath.CONTAINER_IP.getPath(containerId);
-            case LocalIp:
-                return ZkPath.CONTAINER_LOCAL_IP.getPath(containerId);
-            case LocalHostName:
-                return ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(containerId);
-            case PublicIp:
-                return ZkPath.CONTAINER_PUBLIC_IP.getPath(containerId);
-            case PublicHostName:
-                return ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId);
-            case ManualIp:
-                return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
-            case BindAddress:
-                return ZkPath.CONTAINER_BINDADDRESS.getPath(containerId);
-            case JmxUrl:
-                return ZkPath.CONTAINER_JMX.getPath(containerId);
-            case JolokiaUrl:
-                return ZkPath.CONTAINER_JOLOKIA.getPath(containerId);
-            case HttpUrl:
-                return ZkPath.CONTAINER_HTTP.getPath(containerId);
-            case SshUrl:
-                return ZkPath.CONTAINER_SSH.getPath(containerId);
-            case PortMin:
-                return ZkPath.CONTAINER_PORT_MIN.getPath(containerId);
-            case PortMax:
-                return ZkPath.CONTAINER_PORT_MAX.getPath(containerId);
-            default:
-                throw new IllegalArgumentException("Unsupported container attribute " + attribute);
+        case ProvisionStatus:
+            return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
+        case ProvisionException:
+            return ZkPath.CONTAINER_PROVISION_EXCEPTION.getPath(containerId);
+        case ProvisionList:
+            return ZkPath.CONTAINER_PROVISION_LIST.getPath(containerId);
+        case Location:
+            return ZkPath.CONTAINER_LOCATION.getPath(containerId);
+        case GeoLocation:
+            return ZkPath.CONTAINER_GEOLOCATION.getPath(containerId);
+        case Resolver:
+            return ZkPath.CONTAINER_RESOLVER.getPath(containerId);
+        case Ip:
+            return ZkPath.CONTAINER_IP.getPath(containerId);
+        case LocalIp:
+            return ZkPath.CONTAINER_LOCAL_IP.getPath(containerId);
+        case LocalHostName:
+            return ZkPath.CONTAINER_LOCAL_HOSTNAME.getPath(containerId);
+        case PublicIp:
+            return ZkPath.CONTAINER_PUBLIC_IP.getPath(containerId);
+        case PublicHostName:
+            return ZkPath.CONTAINER_PUBLIC_HOSTNAME.getPath(containerId);
+        case ManualIp:
+            return ZkPath.CONTAINER_MANUAL_IP.getPath(containerId);
+        case BindAddress:
+            return ZkPath.CONTAINER_BINDADDRESS.getPath(containerId);
+        case JmxUrl:
+            return ZkPath.CONTAINER_JMX.getPath(containerId);
+        case JolokiaUrl:
+            return ZkPath.CONTAINER_JOLOKIA.getPath(containerId);
+        case HttpUrl:
+            return ZkPath.CONTAINER_HTTP.getPath(containerId);
+        case SshUrl:
+            return ZkPath.CONTAINER_SSH.getPath(containerId);
+        case PortMin:
+            return ZkPath.CONTAINER_PORT_MIN.getPath(containerId);
+        case PortMax:
+            return ZkPath.CONTAINER_PORT_MAX.getPath(containerId);
+        default:
+            throw new IllegalArgumentException("Unsupported container attribute " + attribute);
         }
     }
 
@@ -588,7 +583,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
                 if (entry.getKey().endsWith(".properties")) {
                     String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
-                    configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
+                    configurations.put(pid,
+                            DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
                 }
             }
             return configurations;

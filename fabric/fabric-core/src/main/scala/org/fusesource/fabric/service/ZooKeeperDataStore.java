@@ -65,48 +65,14 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 /**
- * @author Stan Lewis
+ * A pure ZooKeeper based implementation.
+ *
+ * This implementation requires the fabric-git-zkbridge if you wish to be able to use
+ * git to store configuration
  */
-@Component(name = "org.fusesource.fabric.zookeeper.datastore",
-           description = "Fabric ZooKeeper DataStore")
-@Service(DataStore.class)
 public class ZooKeeperDataStore extends DataStoreSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(ZooKeeperDataStore.class);
 
-
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private CuratorFramework curator;
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-               referenceInterface = PlaceholderResolver.class,
-               bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC)
-    private final Map<String, PlaceholderResolver>
-            placeholderResolvers = new HashMap<String, PlaceholderResolver>();
-
-
-    @Activate
-    public synchronized void init() throws Exception {
-        super.init();
-    }
-
-    @Deactivate
-    public synchronized void destroy() {
-        super.destroy();
-    }
-
-    @Override
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    @Override
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
-    }
-
-    @Override
-    public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
-        return placeholderResolvers;
-    }
 
     @Override
     public void importFromFileSystem(String from) {

@@ -27,9 +27,11 @@ import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.service.ZooKeeperDataStore;
+import org.fusesource.fabric.service.git.ConfiguredDataStoreFactory;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -125,9 +127,16 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
 
             //Initialize a temporary DataStore
+            ConfiguredDataStoreFactory dataStoreFactory = new ConfiguredDataStoreFactory();
+            dataStoreFactory.setCurator(curator);
+            // TODO configure git service if required, usinga bootstrap implementation
+            // which has no ZK / remote stuff?
+            DataStore dataStore = dataStoreFactory.createDataStore();
+/*
             ZooKeeperDataStore dataStore = new ZooKeeperDataStore();
             dataStore.setCurator(curator);
             dataStore.init();
+*/
 
             // Import data into zookeeper
             if (options.isAutoImportEnabled()) {
