@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Repository;
@@ -212,7 +213,7 @@ public class GitDataStore extends DataStoreSupport {
                 File profileDirectory = getProfileDirectory(git, profile);
                 if (!profileDirectory.exists()) {
                     if (create) {
-                        return doCreateProfile(git, profile);
+                        return doCreateProfile(git, context, profile);
                     }
                     return null;
                 }
@@ -226,7 +227,7 @@ public class GitDataStore extends DataStoreSupport {
         gitOperation(new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
-                return doCreateProfile(git, profile);
+                return doCreateProfile(git, context, profile);
             }
         });
     }
@@ -582,12 +583,17 @@ public class GitDataStore extends DataStoreSupport {
                 }
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
                     doPush(git);
+                    fireChangeNotifications();
                 }
                 return answer;
             } catch (Exception e) {
                 throw new FabricException(e);
             }
         }
+    }
+
+    protected void fireChangeNotifications() {
+        runCallbacks();
     }
 
     /**
@@ -647,8 +653,13 @@ public class GitDataStore extends DataStoreSupport {
                                 + " on remote URL: "
                                 + url);
             }
+            RevCommit statusBefore = CommitUtils.getHead(repository);
             //git.pull().setCredentialsProvider(cp).setRebase(true).call();
-            git.pull().setRebase(true).call();
+            PullResult result = git.pull().setRebase(true).call();
+            RevCommit statusAfter = CommitUtils.getHead(repository);
+            if (hasChanged(statusBefore, statusAfter)) {
+                fireChangeNotifications();
+            }
         } catch (Throwable e) {
             LOG.error(
                     "Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git)
@@ -660,7 +671,7 @@ public class GitDataStore extends DataStoreSupport {
     /**
      * Creates the given profile directory in the currently checked out version branch
      */
-    protected String doCreateProfile(Git git, String profile) throws IOException, GitAPIException {
+    protected String doCreateProfile(Git git, GitContext context, String profile) throws IOException, GitAPIException {
         File profileDirectory = getProfileDirectory(git, profile);
         File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
         if (metadataFile.exists()) {
@@ -669,7 +680,7 @@ public class GitDataStore extends DataStoreSupport {
         profileDirectory.mkdirs();
         Files.writeToFile(metadataFile, "#Profile:" + profile + "\n", Charset.defaultCharset());
         doAddFiles(git, profileDirectory, metadataFile);
-        git.commit().setMessage("Added profile " + profile).call();
+        context.commit("Added profile " + profile);
         return profile;
     }
 
