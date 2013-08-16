@@ -25,12 +25,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -39,7 +33,6 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
@@ -598,16 +591,20 @@ public class GitDataStore extends DataStoreSupport {
             StoredConfig config = repository.getConfig();
             String url = config.getString("remote", remote, "url");
             if (Strings.isNullOrBlank(url)) {
-                LOG.warn("No remote repository defined for the git repository at " + GitHelpers
-                        .getRootGitDirectory(git)
-                        + " so not doing a pull");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("No remote repository defined for the git repository at " + GitHelpers
+                            .getRootGitDirectory(git)
+                            + " so not doing a pull");
+                }
                 return;
             }
             String branch = repository.getBranch();
             String mergeUrl = config.getString("branch", branch, "merge");
             if (Strings.isNullOrBlank(mergeUrl)) {
-                LOG.warn("No merge spec for branch." + branch + ".merge in the git repository at "
-                        + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("No merge spec for branch." + branch + ".merge in the git repository at "
+                            + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
+                }
                 return;
             }
             if (LOG.isDebugEnabled()) {

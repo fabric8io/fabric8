@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY;
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.*;
 
 /**
  * Factory of {@link DataStore} using configuration to decide which
@@ -54,6 +55,9 @@ import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MUL
 public class ConfiguredDataStoreFactory implements DataStoreFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ConfiguredDataStoreFactory.class);
 
+    public static final String DATASTORE_KIND = "org.fusesource.fabric.datastore";
+
+
     @Reference(cardinality = MANDATORY_UNARY)
     private CuratorFramework curator;
 
@@ -64,9 +68,7 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
     private final Map<String, PlaceholderResolver>
             placeholderResolvers = new HashMap<String, PlaceholderResolver>();
 
-    /*
-        @Reference(cardinality = OPTIONAL_UNARY)
-    */
+    @Reference(cardinality = OPTIONAL_UNARY)
     private FabricGitService gitService;
 
     private BundleContext bundleContext;
@@ -104,24 +106,42 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
 
     public DataStore createDataStore() throws Exception {
         DataStoreSupport instance;
-        if (true) {
+        String kind = System.getProperty(DATASTORE_KIND, "zookeeper").toLowerCase();
+        if (kind.startsWith("z")) {
             properties.put("kind", "org.fusesource.datastore.zookeeper");
             instance = new ZooKeeperDataStore();
         } else {
             properties.put("kind", "org.fusesource.datastore.git");
             instance = new GitDataStore();
         }
+        LOG.info("Has system property " + DATASTORE_KIND + "=" + kind + " so created DataStore: " + instance);
         Objects.notNull(curator, "curator");
         instance.setCurator(curator);
         instance.setPlaceholderResolvers(placeholderResolvers);
         if (instance instanceof GitDataStore) {
             GitDataStore gitDataStore = (GitDataStore)instance;
-            Objects.notNull(gitService, "gitService");
+            if (gitService == null) {
+                LOG.info("Creating bootstrap GitService");
+                gitService = createBootstrapGitService();
+            } else {
+                LOG.info("Using GitService: " + gitService);
+            }
             gitDataStore.setGitService(gitService);
         }
         instance.init();
         return instance;
     }
+
+    /**
+     * Lets create a GitService for use in bootstrap when there's no fabric yet, so we just make a local git repo
+     */
+    protected FabricGitService createBootstrapGitService() {
+        return new LocalGitService();
+    }
+
+
+    // Properties
+    //-------------------------------------------------------------------------
 
     public void bindCurator(CuratorFramework curator) throws Exception {
         this.setCurator(curator);
