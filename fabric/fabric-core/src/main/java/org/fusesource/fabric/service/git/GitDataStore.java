@@ -97,6 +97,10 @@ public class GitDataStore extends DataStoreSupport {
         if (gitService != null) {
             gitService.addRemoteChangeListener(remoteChangeListener);
         }
+        // lets check if we have at least one profile so our git repo isn't empty
+        if (getProfiles(getDefaultVersion()).size() > 0) {
+            fireOnInitialised();
+        }
     }
 
     public synchronized void destroy() {
@@ -240,17 +244,19 @@ public class GitDataStore extends DataStoreSupport {
     public List<String> getProfiles(final String version) {
         return gitOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
-                File profilesDir = getProfilesDirectory(git);
                 List<String> answer = new ArrayList<String>();
-                if (profilesDir.exists()) {
-                    File[] files = profilesDir.listFiles();
-                    if (files != null) {
-                        for (File file : files) {
-                            if (file.isDirectory()) {
-                                // TODO we could recursively scan for magic ".profile" files or something
-                                // then we could put profiles into nicer tree structure?
-                                answer.add(file.getName());
+                if (hasVersion(version)) {
+                    checkoutVersion(git, version);
+                    File profilesDir = getProfilesDirectory(git);
+                    if (profilesDir.exists()) {
+                        File[] files = profilesDir.listFiles();
+                        if (files != null) {
+                            for (File file : files) {
+                                if (file.isDirectory()) {
+                                    // TODO we could recursively scan for magic ".profile" files or something
+                                    // then we could put profiles into nicer tree structure?
+                                    answer.add(file.getName());
+                                }
                             }
                         }
                     }
@@ -664,6 +670,7 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     protected void fireChangeNotifications() {
+        LOG.info("Firing change notifications!");
         runCallbacks();
     }
 
@@ -738,6 +745,11 @@ public class GitDataStore extends DataStoreSupport {
             PullResult result = command.call();
             RevCommit statusAfter = CommitUtils.getHead(repository);
             if (hasChanged(statusBefore, statusAfter)) {
+                if (credentialsProvider != null) {
+                    // TODO lets test if the profiles directory is present after checking out version 1.0?
+                    File profilesDirectory = getProfilesDirectory(git);
+                    fireOnInitialised();
+                }
                 fireChangeNotifications();
             }
         } catch (Throwable e) {

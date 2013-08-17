@@ -73,6 +73,10 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 public class ZooKeeperDataStore extends DataStoreSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(ZooKeeperDataStore.class);
 
+    public synchronized void init() throws Exception {
+        super.init();
+        fireOnInitialised();
+    }
 
     @Override
     public void importFromFileSystem(String from) {

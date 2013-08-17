@@ -85,7 +85,6 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
 
     @Activate
     public synchronized void init(BundleContext bundleContext, Map<String,String> configuration) throws Exception {
-        LOG.info("init() " + bundleContext + " with configuration: " + configuration);
         setConfiguration(configuration);
         this.bundleContext = bundleContext;
         if (instance == null) {
@@ -93,12 +92,6 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
             if (dataStore instanceof DataStoreSupport) {
                 instance = (DataStoreSupport)dataStore;
             }
-        }
-        LOG.info("created: " + instance);
-        if (instance != null) {
-            Objects.notNull(bundleContext, "bundleContext");
-            registration = bundleContext.registerService(DataStore.class, instance, properties);
-            LOG.info("Registered DataStore " + instance + " with " + properties);
         }
     }
 
@@ -113,7 +106,7 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
     }
 
     public DataStore createDataStore() throws Exception {
-        DataStoreSupport instance;
+        final DataStoreSupport instance;
         // let try find the kind from zookeeper, then
         // the osgi configuration and finally from
         // system properties
@@ -139,6 +132,20 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         Objects.notNull(curator, "curator");
         instance.setCurator(curator);
         instance.setPlaceholderResolvers(placeholderResolvers);
+
+        Runnable onInitialised = new Runnable() {
+            public void run() {
+                Objects.notNull(bundleContext, "bundleContext");
+                registration = bundleContext.registerService(DataStore.class, instance, properties);
+                LOG.info("Registered DataStore " + instance + " with " + properties);
+            }
+        };
+        if (isBootstrap()) {
+            // no need to register during bootstrap
+            //onInitialised.run();
+        } else {
+            instance.setOnInitialised(onInitialised);
+        }
         if (instance instanceof GitDataStore) {
             GitDataStore gitDataStore = (GitDataStore)instance;
             if (isBootstrap()) {
@@ -166,6 +173,14 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
 
     // Properties
     //-------------------------------------------------------------------------
+
+    public BundleContext getBundleContext() {
+        return bundleContext;
+    }
+
+    public void setBundleContext(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+    }
 
     public void bindCurator(CuratorFramework curator) throws Exception {
         this.setCurator(curator);

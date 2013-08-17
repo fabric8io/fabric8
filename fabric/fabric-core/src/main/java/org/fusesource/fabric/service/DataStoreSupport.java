@@ -86,6 +86,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     private CuratorFramework curator;
     private Map<String, PlaceholderResolver> placeholderResolvers
             = new HashMap<String, PlaceholderResolver>();
+    private Runnable onInitialised;
 
     @Override
     public abstract void importFromFileSystem(String from);
@@ -590,6 +591,22 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             return configurations;
         } catch (Exception e) {
             throw new FabricException(e);
+        }
+    }
+
+    public void setOnInitialised(Runnable onInitialised) {
+        this.onInitialised = onInitialised;
+    }
+
+    public Runnable getOnInitialised() {
+        return onInitialised;
+    }
+
+    protected void fireOnInitialised() {
+        Runnable callback = onInitialised;
+        if (callback != null) {
+            onInitialised = null;
+            callback.run();
         }
     }
 }

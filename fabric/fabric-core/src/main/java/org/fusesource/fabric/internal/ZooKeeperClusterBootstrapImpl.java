@@ -130,6 +130,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
             //Initialize a temporary DataStore
             ConfiguredDataStoreFactory dataStoreFactory = new ConfiguredDataStoreFactory();
+            dataStoreFactory.setBundleContext(bundleContext);
             dataStoreFactory.setConfiguration(configuration);
             dataStoreFactory.setBootstrap(true);
             dataStoreFactory.setCurator(curator);
