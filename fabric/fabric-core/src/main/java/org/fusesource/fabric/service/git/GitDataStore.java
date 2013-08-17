@@ -22,18 +22,26 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
+import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.ListBranchCommand;
+import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.PullCommand;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.api.PushCommand;
+import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
+import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.fusesource.fabric.api.DataStore;
@@ -670,7 +678,7 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     protected void fireChangeNotifications() {
-        LOG.info("Firing change notifications!");
+        LOG.debug("Firing change notifications!");
         runCallbacks();
     }
 
@@ -721,6 +729,7 @@ public class GitDataStore extends DataStoreSupport {
                 }
                 return;
             }
+/*
             String branch = repository.getBranch();
             String mergeUrl = config.getString("branch", branch, "merge");
             if (Strings.isNullOrBlank(mergeUrl)) {
@@ -730,21 +739,80 @@ public class GitDataStore extends DataStoreSupport {
                 }
                 return;
             }
+*/
             if (LOG.isDebugEnabled()) {
                 LOG.debug(
-                        "Performing a pull in git repository " + GitHelpers.getRootGitDirectory(git)
+                        "Performing a fetch in git repository " + GitHelpers.getRootGitDirectory(git)
                                 + " on remote URL: "
                                 + url);
             }
+
+
             RevCommit statusBefore = CommitUtils.getHead(repository);
+
+            CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
+            try {
+                FetchCommand fetch = git.fetch();
+                if (credentialsProvider != null) {
+                    fetch = fetch.setCredentialsProvider(credentialsProvider);
+                }
+                fetch.setRemote(remote).call();
+            } catch (Exception e) {
+                LOG.debug("Fetch failed: " + e, e);
+            }
+
+            // Get local and remote branches
+            Map<String, Ref> localBranches = new HashMap<String, Ref>();
+            Map<String, Ref> remoteBranches = new HashMap<String, Ref>();
+            Set<String> gitVersions = new HashSet<String>();
+            for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
+                if (ref.getName().startsWith("refs/remotes/" + remote + "/")) {
+                    String name = ref.getName().substring(("refs/remotes/" + remote + "/").length());
+                    if (!"master".equals(name) && !name.endsWith("-tmp")) {
+                        remoteBranches.put(name, ref);
+                        gitVersions.add(name);
+                    }
+                } else if (ref.getName().startsWith("refs/heads/")) {
+                    String name = ref.getName().substring(("refs/heads/").length());
+                    if (!name.equals("master") && !name.endsWith("-tmp")) {
+                        localBranches.put(name, ref);
+                        gitVersions.add(name);
+                    }
+                }
+            }
+
+            // Check git commmits
+            for (String version : gitVersions) {
+                // Delete unneeded local branches
+                if (!remoteBranches.containsKey(version)) {
+                    git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                }
+                // Create new local branches
+                else if (!localBranches.containsKey(version)) {
+                    git.branchCreate().setName(version).call();
+                    git.reset().setMode(ResetCommand.ResetType.HARD).setRef(remoteBranches.get(version).getName()).call();
+                } else {
+                    String localCommit = localBranches.get(version).getObjectId().getName();
+                    String remoteCommit = remoteBranches.get(version).getObjectId().getName();
+                    if (!localCommit.equals(remoteCommit)) {
+                        git.clean().setCleanDirectories(true).call();
+                        git.checkout().setName("HEAD").setForce(true).call();
+                        git.checkout().setName(version).setForce(true).call();
+                        MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
+                        // TODO: handle conflicts
+                    }
+                }
+            }
+            /*
             PullCommand command = git.pull().setRebase(true);
             CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
             if (credentialsProvider != null) {
                 command = command.setCredentialsProvider(credentialsProvider);
             }
-            PullResult result = command.call();
+            */
             RevCommit statusAfter = CommitUtils.getHead(repository);
             if (hasChanged(statusBefore, statusAfter)) {
+                LOG.debug("Changed after pull!");
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
                     File profilesDirectory = getProfilesDirectory(git);
