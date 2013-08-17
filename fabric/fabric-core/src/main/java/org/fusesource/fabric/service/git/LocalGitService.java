@@ -38,7 +38,6 @@ import org.fusesource.fabric.service.git.GitService;
 public class LocalGitService implements GitService {
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
-    private CredentialsProvider credentialsProvider;
 
     @Override
     public Git get() throws IOException {
@@ -79,12 +78,4 @@ public class LocalGitService implements GitService {
         callbacks.remove(callback);
     }
 
-    @Override
-    public CredentialsProvider getCredentialsProvider() {
-        return credentialsProvider;
-    }
-
-    public void setCredentialsProvider(CredentialsProvider credentialsProvider) {
-        this.credentialsProvider = credentialsProvider;
-    }
 }

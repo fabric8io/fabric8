@@ -44,6 +44,8 @@ import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
@@ -59,6 +61,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
@@ -643,6 +647,7 @@ public class GitDataStore extends DataStoreSupport {
             try {
                 Git git = getGit();
                 Repository repository = git.getRepository();
+                CredentialsProvider credentialsProvider = getcredentialsProvider();
                 // lets default the identity if none specified
                 if (personIdent == null) {
                     personIdent = new PersonIdent(repository);
@@ -653,7 +658,7 @@ public class GitDataStore extends DataStoreSupport {
                     git.stashCreate().setPerson(personIdent)
                             .setWorkingDirectoryMessage("Stash before a write").setRef("HEAD").call();
                 }
-                doPull(git);
+                doPull(git, credentialsProvider);
                 RevCommit statusBefore = CommitUtils.getHead(repository);
                 GitContext context = new GitContext();
                 T answer = operation.call(git, context);
@@ -667,7 +672,7 @@ public class GitDataStore extends DataStoreSupport {
                     git.commit().setMessage(message).call();
                 }
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
-                    doPush(git);
+                    doPush(git, credentialsProvider);
                     fireChangeNotifications();
                 }
                 return answer;
@@ -695,7 +700,7 @@ public class GitDataStore extends DataStoreSupport {
     /**
      * Pushes any committed changes to the remote repo
      */
-    protected void doPush(Git git) throws GitAPIException {
+    protected Iterable<PushResult> doPush(Git git, CredentialsProvider credentialsProvider) throws Exception {
         Repository repository = git.getRepository();
         StoredConfig config = repository.getConfig();
         String url = config.getString("remote", remote, "url");
@@ -703,20 +708,21 @@ public class GitDataStore extends DataStoreSupport {
             LOG.info("No remote repository defined yet for the git repository at " + GitHelpers
                     .getRootGitDirectory(git)
                     + " so not doing a push");
-            return;
+            return null;
         }
-        PushCommand command = git.push();
-        CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
-        if (credentialsProvider != null) {
-            command = command.setCredentialsProvider(credentialsProvider);
-        }
-        command.call();
+        return git.push().setCredentialsProvider(credentialsProvider).call();
+    }
+
+    protected CredentialsProvider getcredentialsProvider() throws Exception {
+        String login = getContainerLogin();
+        String token = generateContainerToken(getCurator());
+        return new UsernamePasswordCredentialsProvider(login, token);
     }
 
     /**
      * Performs a pull so the git repo is pretty much up to date before we start performing operations on it
      */
-    protected void doPull(Git git) {
+    protected void doPull(Git git, CredentialsProvider credentialsProvider) {
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
@@ -750,13 +756,8 @@ public class GitDataStore extends DataStoreSupport {
 
             RevCommit statusBefore = CommitUtils.getHead(repository);
 
-            CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
             try {
-                FetchCommand fetch = git.fetch();
-                if (credentialsProvider != null) {
-                    fetch = fetch.setCredentialsProvider(credentialsProvider);
-                }
-                fetch.setRemote(remote).call();
+                git.fetch().setCredentialsProvider(credentialsProvider).setRemote(remote).call();
             } catch (Exception e) {
                 LOG.debug("Fetch failed: " + e, e);
             }
@@ -803,13 +804,6 @@ public class GitDataStore extends DataStoreSupport {
                     }
                 }
             }
-            /*
-            PullCommand command = git.pull().setRebase(true);
-            CredentialsProvider credentialsProvider = gitService.getCredentialsProvider();
-            if (credentialsProvider != null) {
-                command = command.setCredentialsProvider(credentialsProvider);
-            }
-            */
             RevCommit statusAfter = CommitUtils.getHead(repository);
             if (hasChanged(statusBefore, statusAfter)) {
                 LOG.debug("Changed after pull!");

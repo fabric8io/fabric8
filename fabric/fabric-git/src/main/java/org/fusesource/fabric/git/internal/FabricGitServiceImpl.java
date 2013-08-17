@@ -95,10 +95,6 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
 			config.save();
             // lets register the current security
             if (gitService != null) {
-                String login = getContainerLogin();
-                String token = generateContainerToken(curator);
-                CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
-                gitService.setCredentialsProvider(cp);
                 gitService.onRemoteChanged();
             }
 		} catch (Exception e) {

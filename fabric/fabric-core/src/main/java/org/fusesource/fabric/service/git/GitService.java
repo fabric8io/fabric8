@@ -38,7 +38,4 @@ public interface GitService {
 
     void removeRemoteChangeListener(Runnable callback);
 
-    CredentialsProvider getCredentialsProvider();
-
-    void setCredentialsProvider(CredentialsProvider cp);
 }
