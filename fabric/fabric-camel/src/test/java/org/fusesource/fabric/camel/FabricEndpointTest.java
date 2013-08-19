@@ -24,6 +24,7 @@ import org.apache.camel.component.mock.MockEndpoint;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -70,6 +71,15 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
 
         MockEndpoint.assertIsSatisfied(camelContext);
 
+        System.out.println("  ==== testing NoExitFabricEndpoint !");
+        try {
+            template.sendBody("fabric:noExist", "Test");
+            Assert.fail("Expect exception here");
+        } catch (Exception ex) {
+            Assert.assertTrue("Get a wrong exception. ", ex.getCause() instanceof IllegalStateException);
+        }
+
         System.out.println("===== completed test of Camel Fabric!");
     }
+
 }
