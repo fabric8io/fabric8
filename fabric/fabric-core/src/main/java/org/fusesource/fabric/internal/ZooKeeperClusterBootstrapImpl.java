@@ -226,6 +226,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
                 props.put(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
                 props.save();
             }
+            dataStore.destroy();
             startBundles(options);
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);

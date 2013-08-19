@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -87,6 +88,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     private Map<String, PlaceholderResolver> placeholderResolvers
             = new HashMap<String, PlaceholderResolver>();
     private Runnable onInitialised;
+    private Properties dataStoreProperties;
 
     @Override
     public abstract void importFromFileSystem(String from);
@@ -99,6 +101,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         }
     }
 
+    @Override
     public synchronized void destroy() {
         destroyCache();
     }
@@ -109,6 +112,17 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
 
     public void setCurator(CuratorFramework curator) {
         this.curator = curator;
+    }
+
+    public Properties getDataStoreProperties() {
+        return dataStoreProperties;
+    }
+
+    /**
+     * Sets the configuration properties for this DataStore implementation
+     */
+    public void setDataStoreProperties(Properties dataStoreProperties) {
+        this.dataStoreProperties = dataStoreProperties;
     }
 
     public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
@@ -609,4 +623,5 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             callback.run();
         }
     }
+
 }

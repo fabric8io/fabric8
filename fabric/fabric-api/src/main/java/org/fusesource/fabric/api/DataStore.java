@@ -35,6 +35,8 @@ public interface DataStore {
     // Tracking
     //
 
+    void destroy();
+
     void trackConfiguration(Runnable callback);
     void unTrackConfiguration(Runnable callback);
 

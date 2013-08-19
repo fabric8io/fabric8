@@ -116,6 +116,7 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         if (curator.checkExists().forPath(ZkPath.BOOTSTRAP.getPath()) != null) {
             clusterProperties = getProperties(curator, ZkPath.BOOTSTRAP.getPath());
         }
+        clusterProperties.putAll(configuration);
         if (Strings.isNullOrEmpty(kind)) {
             kind = clusterProperties.getProperty("kind", System.getProperty(DATASTORE_KIND, "zookeeper"));
         }
@@ -132,6 +133,7 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
         Objects.notNull(curator, "curator");
         instance.setCurator(curator);
         instance.setPlaceholderResolvers(placeholderResolvers);
+        instance.setDataStoreProperties(clusterProperties);
 
         Runnable onInitialised = new Runnable() {
             public void run() {
@@ -141,8 +143,8 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
             }
         };
         if (isBootstrap()) {
-            // no need to register during bootstrap
-            //onInitialised.run();
+            // no need to register during bootstrap as we start it up
+            // normally after the bootstrap phase
         } else {
             instance.setOnInitialised(onInitialised);
         }

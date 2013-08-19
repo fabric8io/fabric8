@@ -26,17 +26,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jgit.api.FetchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.PullCommand;
-import org.eclipse.jgit.api.PullResult;
-import org.eclipse.jgit.api.PushCommand;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -53,6 +54,7 @@ import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
 import org.fusesource.fabric.utils.Files;
+import org.fusesource.fabric.utils.PropertiesHelper;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.gitective.core.CommitUtils;
@@ -91,14 +93,13 @@ public class GitDataStore extends DataStoreSupport {
     private String masterBranch = "master";
     private Runnable remoteChangeListener = new Runnable() {
         public void run() {
-            LOG.info("Remote master git repo changed, lets do a git pull");
-            gitOperation(new GitOperation<Object>() {
-                public Object call(Git git, GitContext context) throws Exception {
-                    return null;
-                }
-            });
+            LOG.debug("Remote master git repo changed, lets do a git pull");
+            pull();
         }
     };
+    private long pullPeriod = 1000;
+
+    private ScheduledExecutorService threadPool;
 
     public String toString() {
         return "GitDataStore(" + gitService + ")";
@@ -106,9 +107,26 @@ public class GitDataStore extends DataStoreSupport {
 
     public synchronized void init() throws Exception {
         super.init();
+
         if (gitService != null) {
             gitService.addRemoteChangeListener(remoteChangeListener);
         }
+        if (threadPool == null) {
+            this.threadPool = Executors.newSingleThreadScheduledExecutor();
+        }
+        Properties properties = getDataStoreProperties();
+        if (properties != null) {
+            this.pullPeriod = PropertiesHelper.getLongValue(properties, "gitPullPeriod", this.pullPeriod);
+        }
+        LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
+        threadPool.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                LOG.debug("Performing timed pull");
+                pull();
+            }
+        }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
+
         // lets check if we have at least one profile so our git repo isn't empty
         if (getProfiles(getDefaultVersion()).size() > 0) {
             fireOnInitialised();
@@ -116,6 +134,9 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     public synchronized void destroy() {
+        if (threadPool != null) {
+            threadPool.shutdown();
+        }
         if (gitService != null) {
             gitService.removeRemoteChangeListener(remoteChangeListener);
         }
@@ -129,6 +150,14 @@ public class GitDataStore extends DataStoreSupport {
 
     public void setGitService(GitService gitService) {
         this.gitService = gitService;
+    }
+
+    public ScheduledExecutorService getThreadPool() {
+        return threadPool;
+    }
+
+    public void setThreadPool(ScheduledExecutorService threadPool) {
+        this.threadPool = threadPool;
     }
 
     @Override
@@ -867,6 +896,18 @@ public class GitDataStore extends DataStoreSupport {
             Files.copy(from, toFile);
         }
         git.add().addFilepattern(pattern).call();
+    }
+
+    protected void pull() {
+        try {
+            gitOperation(new GitOperation<Object>() {
+                public Object call(Git git, GitContext context) throws Exception {
+                    return null;
+                }
+            });
+        } catch (Exception e) {
+            LOG.warn("Failed to perform a pull " + e, e);
+        }
     }
 
     protected void checkoutVersion(Git git, String version) throws GitAPIException {
