@@ -257,7 +257,7 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public List<String> getVersions() {
-        return gitOperation(new GitOperation<List<String>>() {
+        return gitReadOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
                 List<String> answer = new ArrayList<String>();
@@ -283,7 +283,7 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public List<String> getProfiles(final String version) {
-        return gitOperation(new GitOperation<List<String>>() {
+        return gitReadOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 List<String> answer = new ArrayList<String>();
                 if (hasVersion(version)) {
@@ -390,6 +390,8 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public Map<String, String> getProfileAttributes(String version, String profile) {
+        // TODO we should probably remove this hack at some point and just let the
+        // ProfileImpl delegate the getParent() mechanism to the DataStore so we don't have to look in 2 files
         Map<String, String> configuration = getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
         Map<String, String> containerConfiguration = getConfiguration(version, profile, CONTAINER_CONFIG_PID);
         String parents = containerConfiguration.get("parents");
@@ -414,7 +416,7 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public long getLastModified(final String version, final String profile) {
-        Long answer = gitOperation(new GitOperation<Long>() {
+        Long answer = gitReadOperation(new GitOperation<Long>() {
             public Long call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 File profileDirectory = getProfileDirectory(git, profile);
@@ -437,7 +439,7 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public Map<String, byte[]> getFileConfigurations(final String version, final String profile) {
-        return gitOperation(new GitOperation<Map<String, byte[]>>() {
+        return gitReadOperation(new GitOperation<Map<String, byte[]>>() {
             public Map<String, byte[]> call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 return doGetFileConfigurations(git, profile);
@@ -462,7 +464,7 @@ public class GitDataStore extends DataStoreSupport {
 
     @Override
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
-        return gitOperation(new GitOperation<byte[]>() {
+        return gitReadOperation(new GitOperation<byte[]>() {
             public byte[] call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 File profileDirectory = getProfileDirectory(git, profile);
@@ -539,7 +541,7 @@ public class GitDataStore extends DataStoreSupport {
     @Override
     public Map<String, String> getConfiguration(final String version, final String profile,
                                                 final String pid) {
-        return gitOperation(new GitOperation<Map<String, String>>() {
+        return gitReadOperation(new GitOperation<Map<String, String>>() {
             public Map<String, String> call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, version);
                 File profileDirectory = getProfileDirectory(git, profile);
@@ -668,10 +670,18 @@ public class GitDataStore extends DataStoreSupport {
      * Performs a set of operations on the git repository & avoids concurrency issues
      */
     protected <T> T gitOperation(GitOperation<T> operation) {
-        return gitOperation(null, operation);
+        return gitOperation(null, operation, true);
     }
 
-    protected <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation) {
+    /**
+     * Performs a read only set of operations on the git repository
+     * so that a pull is not done first
+     */
+    protected <T> T gitReadOperation(GitOperation<T> operation) {
+        return gitOperation(null, operation, false);
+    }
+
+    protected <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
         synchronized (lock) {
             try {
                 Git git = getGit();
@@ -687,7 +697,9 @@ public class GitDataStore extends DataStoreSupport {
                     git.stashCreate().setPerson(personIdent)
                             .setWorkingDirectoryMessage("Stash before a write").setRef("HEAD").call();
                 }
-                doPull(git, credentialsProvider);
+                if (pullFirst) {
+                    doPull(git, credentialsProvider);
+                }
                 RevCommit statusBefore = CommitUtils.getHead(repository);
                 GitContext context = new GitContext();
                 T answer = operation.call(git, context);
