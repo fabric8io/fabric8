@@ -16,21 +16,22 @@
  */
 package org.fusesource.fabric.camel;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.impl.SimpleRegistry;
 import org.apache.camel.util.ServiceHelper;
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class MasterEndpointFailoverTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
@@ -43,26 +44,35 @@ public class MasterEndpointFailoverTest {
     protected MockEndpoint result2Endpoint;
     protected AtomicInteger messageCounter = new AtomicInteger(1);
     protected ZKServerFactoryBean serverFactoryBean = new ZKServerFactoryBean();
+    protected CuratorFactoryBean zkClientBean = new CuratorFactoryBean();
 
     @Before
     public void beforeRun() throws Exception {
         System.out.println("Starting ZK server!");
         serverFactoryBean.setPurge(true);
+        serverFactoryBean.setPort(9004);
         serverFactoryBean.afterPropertiesSet();
         
-        System.setProperty("zookeeper.url", "0.0.0.0:2181");
+        // Create the zkClientBean
+        zkClientBean.setConnectString("localhost:9004");
+        CuratorFramework client = zkClientBean.getObject();
 
-        producerContext = new DefaultCamelContext();
+        // Need to bind the zookeeper client with the name "curator"
+        SimpleRegistry registry = new SimpleRegistry();
+        registry.put("curator", client);
+
+        producerContext = new DefaultCamelContext(registry);
+
         template = producerContext.createProducerTemplate();
 
-        consumerContext1 = new DefaultCamelContext();
+        consumerContext1 = new DefaultCamelContext(registry);
         consumerContext1.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
                 from("master:MasterEndpointFailoverTest:vm:start").to("mock:result1");
             }
         });
-        consumerContext2 = new DefaultCamelContext();
+        consumerContext2 = new DefaultCamelContext(registry);
         consumerContext2.addRoutes(new RouteBuilder() {
             @Override
             public void configure() throws Exception {
@@ -80,12 +90,11 @@ public class MasterEndpointFailoverTest {
     public void afterRun() throws Exception {
         ServiceHelper.stopServices(consumerContext1);
         ServiceHelper.stopServices(producerContext);
-
+        zkClientBean.destroy();
         serverFactoryBean.destroy();
     }
 
     @Test
-    @Ignore
     public void testEndpoint() throws Exception {
         System.out.println("Starting consumerContext1");
 
