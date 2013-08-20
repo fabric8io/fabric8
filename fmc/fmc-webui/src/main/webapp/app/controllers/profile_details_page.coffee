@@ -111,7 +111,7 @@ define [
           FON.model_backed_template
             model: model
             tagName: "li"
-            template: _.template("""<a href="#" class="delete"><img src="img/x-16.png"></a><a href="#" class="view">{{id}}</a>""")
+            template: _.template("""<a href="#" class="delete"><img src="img/x-16.png"></a><a href="#" class="view">{{FON.escapeHtml(id)}}</a>""")
             elements:
               ".delete": "delete"
               ".view": "view"
@@ -166,7 +166,7 @@ define [
           FON.model_backed_template
             model: model
             tagName: "li"
-            template: _.template('<a href=#/containers/{{id}}>{{id}}</a>')
+            template: _.template('<a href=#/containers/{{id}}>{{FON.escapeHtml(id)}}</a>')
 
 
   class ValueListEntry extends FON.TemplateController

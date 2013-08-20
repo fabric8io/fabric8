@@ -137,7 +137,7 @@ define [
   class RoleEntry extends FON.ModelBackedTemplate
     tagName:"li"
 
-    template: _.template("""<a href="#" class="delete-role" title="Delete role"><img src="img/x-16.png"></a>{{id}}""")
+    template: _.template("""<a href="#" class="delete-role" title="Delete role"><img src="img/x-16.png"></a>{{FON.escapeHtml(id)}}""")
     elements:
       "a.delete-role": "delete"
 

@@ -129,7 +129,7 @@ define [
             tagName: "option"
             attr:
               "value": model.id
-            template: _.template("#{model.id}")
+            template: _.template("#{FON.escapeHtml(model.id)}")
         on_render: =>
           super
           if @versions.get(@version.id)
@@ -150,7 +150,7 @@ define [
           FON.model_backed_template
             model: model
             tagName: "li"
-            template: _.template("""<a href="#" class="delete"><img src="img/x-16.png"></a>#{model.id}""")
+            template: _.template("""<a href="#" class="delete"><img src="img/x-16.png"></a>#{FON.escapeHtml(model.id)}""")
             elements:
               ".delete": "delete"
             on_render: (controller) ->
