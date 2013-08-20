@@ -1472,17 +1472,19 @@ span.pending\.gif {
   text-overflow: ellipsis;
 }
 
+.inline-block {
+  display: inline-block;
+}
+
 .versions.nav_buttons ul li {
   max-width: 432px;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
 .profiles.nav_buttons ul li {
   max-width: 432px;
   overflow: hidden;
-  white-space: nowrap;
   text-overflow: ellipsis;
 }
 
