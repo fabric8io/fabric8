@@ -140,6 +140,11 @@
                <artifactId>fab-osgi</artifactId>
                <version>${project.version}</version>
            </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-core-agent-ssh</artifactId>
+               <version>${project.version}</version>
+           </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
                 to get this building in offline mode -->
