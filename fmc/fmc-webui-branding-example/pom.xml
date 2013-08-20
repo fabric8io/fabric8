@@ -17,8 +17,8 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric</groupId>
-    <artifactId>fabric-project</artifactId>
+    <groupId>org.fusesource.fmc</groupId>
+    <artifactId>fmc-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
