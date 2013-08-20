@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -37,7 +38,6 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.GitAPIException;
-import org.eclipse.jgit.dircache.DirCache;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
@@ -142,6 +142,17 @@ public class GitDataStore extends DataStoreSupport {
         }
         super.destroy();
 
+    }
+
+    public String getRemote() {
+        return remote;
+    }
+
+    /**
+     * Sets the name of the remote repository
+     */
+    public void setRemote(String remote) {
+        this.remote = remote;
     }
 
     public GitService getGitService() {
@@ -360,7 +371,6 @@ public class GitDataStore extends DataStoreSupport {
     @Override
     public Map<String, String> getVersionAttributes(String version) {
         // TODO
-        todo();
         try {
             String node = ZkPath.CONFIG_VERSION.getPath(version);
             return getPropertiesAsMap(treeCache, node);
@@ -372,7 +382,6 @@ public class GitDataStore extends DataStoreSupport {
     @Override
     public void setVersionAttribute(String version, String key, String value) {
         // TODO
-        todo();
         try {
             Map<String, String> props = getVersionAttributes(version);
             if (value != null) {
@@ -669,7 +678,7 @@ public class GitDataStore extends DataStoreSupport {
     /**
      * Performs a set of operations on the git repository & avoids concurrency issues
      */
-    protected <T> T gitOperation(GitOperation<T> operation) {
+    public <T> T gitOperation(GitOperation<T> operation) {
         return gitOperation(null, operation, true);
     }
 
@@ -677,16 +686,16 @@ public class GitDataStore extends DataStoreSupport {
      * Performs a read only set of operations on the git repository
      * so that a pull is not done first
      */
-    protected <T> T gitReadOperation(GitOperation<T> operation) {
+    public <T> T gitReadOperation(GitOperation<T> operation) {
         return gitOperation(null, operation, false);
     }
 
-    protected <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
+    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
         synchronized (lock) {
             try {
                 Git git = getGit();
                 Repository repository = git.getRepository();
-                CredentialsProvider credentialsProvider = getcredentialsProvider();
+                CredentialsProvider credentialsProvider = getCredentialsProvider();
                 // lets default the identity if none specified
                 if (personIdent == null) {
                     personIdent = new PersonIdent(repository);
@@ -739,6 +748,14 @@ public class GitDataStore extends DataStoreSupport {
     }
 
     /**
+     * Pushes any changes - assumed to be invoked within a gitOperation method!
+     */
+    public Iterable<PushResult> doPush(Git git) throws Exception {
+        return doPush(git, getCredentialsProvider());
+    }
+
+
+    /**
      * Pushes any committed changes to the remote repo
      */
     protected Iterable<PushResult> doPush(Git git, CredentialsProvider credentialsProvider) throws Exception {
@@ -749,12 +766,12 @@ public class GitDataStore extends DataStoreSupport {
             LOG.info("No remote repository defined yet for the git repository at " + GitHelpers
                     .getRootGitDirectory(git)
                     + " so not doing a push");
-            return null;
+            return Collections.EMPTY_LIST;
         }
         return git.push().setCredentialsProvider(credentialsProvider).call();
     }
 
-    protected CredentialsProvider getcredentialsProvider() throws Exception {
+    protected CredentialsProvider getCredentialsProvider() throws Exception {
         String login = getContainerLogin();
         String token = generateContainerToken(getCurator());
         return new UsernamePasswordCredentialsProvider(login, token);
@@ -976,4 +993,5 @@ public class GitDataStore extends DataStoreSupport {
         }
         return relativePath;
     }
+
 }
