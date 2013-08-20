@@ -19,6 +19,8 @@ package org.fusesource.mq.fabric;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryAgentFactory;
 import org.apache.activemq.util.IOExceptionSupport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
@@ -28,10 +30,29 @@ import static org.apache.activemq.util.URISupport.*;
 
 public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryAgentFactory.class);
+
     protected DiscoveryAgent doCreateDiscoveryAgent(URI uri) throws IOException {
         try {
-            
-            FabricDiscoveryAgent rc = new FabricDiscoveryAgent();
+
+            FabricDiscoveryAgent rc = null;
+            boolean osgi = false;
+
+            // detect osgi
+            try {
+                if (OsgiUtil.isOsgi()) {
+                    LOG.info("OSGi environment detected!");
+                    osgi = true;
+                }
+            } catch (NoClassDefFoundError ignore) {
+            }
+
+            if (osgi) {
+                rc = OsgiUtil.createOsgiDiscoveryAgent();
+            } else {
+                rc = new FabricDiscoveryAgent();
+            }
+
             if( uri.getSchemeSpecificPart()!=null && uri.getSchemeSpecificPart().length() > 0 ){
                 String ssp = stripPrefix(uri.getSchemeSpecificPart(), "//");
                 Map<String, String> query = parseQuery(ssp);
@@ -45,6 +66,16 @@ public class FabricDiscoveryAgentFactory extends DiscoveryAgentFactory {
             
         } catch (Throwable e) {
             throw IOExceptionSupport.create("Could not create discovery agent: " + uri, e);
+        }
+    }
+
+    static class OsgiUtil {
+        static boolean isOsgi() {
+            return (org.osgi.framework.FrameworkUtil.getBundle(FabricDiscoveryAgentFactory.class) != null);
+        }
+
+        static FabricDiscoveryAgent createOsgiDiscoveryAgent() {
+            return new org.fusesource.mq.fabric.OsgiFabricDiscoveryAgent();
         }
     }
 }

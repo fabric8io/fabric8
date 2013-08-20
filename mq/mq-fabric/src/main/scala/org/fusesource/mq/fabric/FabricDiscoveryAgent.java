@@ -39,19 +39,14 @@ import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceReference;
-import org.osgi.util.tracker.ServiceTracker;
-import org.osgi.util.tracker.ServiceTrackerCustomizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCustomizer {
+public class FabricDiscoveryAgent implements DiscoveryAgent {
     
     private static final Logger LOG = LoggerFactory.getLogger(FabricDiscoveryAgent.class);
 
-    private CuratorFramework curator;
+    protected CuratorFramework curator;
     private boolean managedZkClient;
 
     private String groupName = "default";
@@ -72,28 +67,12 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
     private String id;
     private String agent;
 
-    BundleContext context;
-    ServiceTracker tracker;
     Group<ActiveMQNode> group;
 
     List<String> services = new ArrayList<String>();
 
     public void setGroupName(String groupName) {
         this.groupName = groupName;
-    }
-
-    @Override
-    public Object addingService(ServiceReference serviceReference) {
-        curator = (CuratorFramework) context.getService(serviceReference);
-        return curator;
-    }
-
-    @Override
-    public void modifiedService(ServiceReference serviceReference, Object o) {
-    }
-
-    @Override
-    public void removedService(ServiceReference serviceReference, Object o) {
     }
 
     static class ActiveMQNode extends NodeState {
@@ -108,15 +87,6 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
         state.services = services.toArray(new String[services.size()]);
         return state;
     }
-    
-    public FabricDiscoveryAgent() {
-        if (FrameworkUtil.getBundle(getClass()) != null) {
-            context = FrameworkUtil.getBundle(getClass()).getBundleContext();
-            tracker = new ServiceTracker(context, CuratorFramework.class.getName(), this);
-            tracker.open();
-        }
-    }
-
 
     class SimpleDiscoveryEvent extends DiscoveryEvent {
 
@@ -274,10 +244,6 @@ public class FabricDiscoveryAgent implements DiscoveryAgent, ServiceTrackerCusto
                 }
                 curator = null;
             }
-        }
-        if (tracker != null) {
-            LOG.info("closing tracker");
-            tracker.close();
         }
     }
 
