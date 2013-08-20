@@ -19,7 +19,7 @@
     <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fabric.security</groupId>
+    <groupId>org.fusesource.security</groupId>
     <artifactId>fabric-security-project</artifactId>
     <version>99-master-SNAPSHOT</version>
     <relativePath>..</relativePath>
