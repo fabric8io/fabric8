@@ -36,7 +36,7 @@ import org.fusesource.fabric.service.git.GitService;
 @Component(name = "org.fusesource.fabric.git.local",description = "Local Git Service", immediate = true)
 @Service(GitService.class)
 public class LocalGitService implements GitService {
-    public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "fabric";
+    public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + File.separator + "git";
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
     @Override
