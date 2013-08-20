@@ -34,11 +34,13 @@ import org.springframework.osgi.mock.MockBundleContext;
 import org.springframework.osgi.mock.MockServiceReference;
 
 import javax.jms.ConnectionFactory;
+
 import java.util.Hashtable;
 
 /**
  * @author Dhiraj Bokde
  */
+@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
 public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSupport {
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();
