@@ -36,30 +36,27 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-520] Fix esb-itests")
 public class EsbFeaturesTest extends EsbTestSupport {
 
-	@Ignore // JIRA xxxx
     @Test
     public void testConnector() throws Exception {
         installAndCheckFeature("connector");
         unInstallAndCheckFeature("connector");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testSaaj() throws Exception {
         installAndCheckFeature("saaj");
         unInstallAndCheckFeature("saaj");
     }
 	
-	@Ignore // JIRA xxxx
     @Test
     public void testCxfOsgi() throws Exception {
         installAndCheckFeature("cxf-osgi");
         unInstallAndCheckFeature("cxf-osgi");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testCxfJaxrs() throws Exception {
         FeaturesService s;
@@ -67,21 +64,18 @@ public class EsbFeaturesTest extends EsbTestSupport {
         unInstallAndCheckFeature("cxf-jaxrs");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testCxfNmr() throws Exception {
         installAndCheckFeature("cxf-nmr");
         unInstallAndCheckFeature("cxf-nmr");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testCamelNmr() throws Exception {
         installAndCheckFeature("camel-nmr");
         unInstallAndCheckFeature("camel-nmr");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testCamelActivemq() throws Exception {
         installAndCheckFeature("activmq-camel");
@@ -94,91 +88,78 @@ public class EsbFeaturesTest extends EsbTestSupport {
         unInstallAndCheckFeature("jpa-hibernate");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixShared() throws Exception {
         installAndCheckFeature("servicemix-shared");
         unInstallAndCheckFeature("servicemix-shared");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixCxfBc() throws Exception {
         installAndCheckFeature("servicemix-cxf-bc");
         unInstallAndCheckFeature("servicemix-cxf-bc");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixFile() throws Exception {
         installAndCheckFeature("servicemix-file");
         unInstallAndCheckFeature("servicemix-file");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixFtp() throws Exception {
         installAndCheckFeature("servicemix-ftp");
         unInstallAndCheckFeature("servicemix-ftp");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixHttp() throws Exception {
         installAndCheckFeature("servicemix-http");
         unInstallAndCheckFeature("servicemix-http");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixJms() throws Exception {
         installAndCheckFeature("servicemix-jms");
         unInstallAndCheckFeature("servicemix-jms");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixMail() throws Exception {
         installAndCheckFeature("servicemix-mail");
         unInstallAndCheckFeature("servicemix-mail");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixDrools() throws Exception {
         installAndCheckFeature("servicemix-drools");
         unInstallAndCheckFeature("servicemix-drools");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixCxfSe() throws Exception {
         installAndCheckFeature("servicemix-cxf-se");
         unInstallAndCheckFeature("servicemix-cxf-se");
     }
 
-	@Ignore // JIRA xxxx
     @Test
     public void testServicemixEip() throws Exception {
         installAndCheckFeature("servicemix-eip");
         unInstallAndCheckFeature("servicemix-eip");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixOsWorkflow() throws Exception {
         installAndCheckFeature("servicemix-osworkflow");
         unInstallAndCheckFeature("servicemix-osworkflow");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixQuartz() throws Exception {
         installAndCheckFeature("servicemix-quartz");
         unInstallAndCheckFeature("servicemix-quartz");
     }
 
-    
     @Test
     @Ignore("This makes the test hung")
     public void testServicemixScripting() throws Exception {
@@ -186,14 +167,12 @@ public class EsbFeaturesTest extends EsbTestSupport {
         unInstallAndCheckFeature("servicemix-scripting");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixValidation() throws Exception {
         installAndCheckFeature("servicemix-validation");
         unInstallAndCheckFeature("servicemix-validation");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixSaxon() throws Exception {
         installAndCheckFeature("servicemix-saxon");
@@ -208,21 +187,18 @@ public class EsbFeaturesTest extends EsbTestSupport {
         unInstallAndCheckFeature("servicemix-wsn2005");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixSnmp() throws Exception {
         installAndCheckFeature("servicemix-snmp");
         unInstallAndCheckFeature("servicemix-snmp");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixVfs() throws Exception {
         installAndCheckFeature("servicemix-vfs");
         unInstallAndCheckFeature("servicemix-vfs");
     }
 
-    @Ignore // JIRA xxxx
     @Test
     public void testServicemixSmpp() throws Exception {
         installAndCheckFeature("servicemix-smpp");
