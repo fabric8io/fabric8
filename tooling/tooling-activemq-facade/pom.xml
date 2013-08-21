@@ -26,6 +26,7 @@
     <relativePath>..</relativePath>
   </parent>
 
+  <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-activemq-facade</artifactId>
   <name>${project.artifactId}</name>
   <packaging>bundle</packaging>

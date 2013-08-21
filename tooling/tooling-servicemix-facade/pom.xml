@@ -25,6 +25,7 @@
     <relativePath>..</relativePath>
   </parent>
 
+  <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-servicemix-facade</artifactId>
   <name>${project.artifactId}</name>
   <packaging>bundle</packaging>

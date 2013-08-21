@@ -289,13 +289,13 @@
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource</groupId>
+      <groupId>org.fusesource.fabric</groupId>
       <artifactId>tooling-camel-facade</artifactId>
       <version>${project.version}</version>
     </dependency>
 
     <dependency>
-      <groupId>org.fusesource</groupId>
+      <groupId>org.fusesource.fabric</groupId>
       <artifactId>tooling-activemq-facade</artifactId>
       <version>${project.version}</version>
     </dependency>
