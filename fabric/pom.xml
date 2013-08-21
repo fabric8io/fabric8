@@ -41,34 +41,45 @@
 
     <modules>
 
-    </modules>
+        <module>fabric-utils</module>
+        <module>fabric-api</module>
 
-  <profiles>
-    <profile>
-      <id>everything</id>
-      <activation>
-        <file>
-          <exists>pom.xml</exists>
-        </file>
-      </activation>
-      <modules>
-
+        <module>fabric-core</module>
+        <module>fabric-linkedin-zookeeper</module>
+        <module>fabric-zookeeper</module>
+        <module>fabric-zookeeper-commands</module>
+        <module>fabric-maven-proxy</module>
+        <module>fabric-core-agent-ssh</module>
         <module>fabric-core-agent-jclouds</module>
+        <module>fabric-boot-commands</module>
+        <module>fabric-commands</module>
+
+        <module>fabric-git</module>
+        <module>fabric-git-server</module>
+        <module>fabric-git-zkbridge</module>
         <module>fabric-git-hawtio</module>
+        <module>fabric-partition</module>
+        <module>fabric-groups</module>
 
         <module>fabric-osgimetadata</module>
         <module>fabric-agent</module>
         <module>fabric-scala</module>
-        <module>fabric-cxf</module>
-        <!--
-                TODO disabled until they work in 2.12 of camel
+        <module>fabric-jaas</module>
+        <module>fabric-zookeeper-spring</module>
+        <module>fabric-configadmin</module>
 
-                <module>fabric-camel-c24io</module>
-                <module>fabric-camel-dslio</module>
-        -->
+        <module>fabric-cxf</module>
+        <module>fabric-camel</module>
+<!--
+        TODO disabled until they work in 2.12 of camel
+
+        <module>fabric-camel-c24io</module>
+        <module>fabric-camel-dslio</module>
+-->
         <module>fabric-dosgi</module>
         <module>fabric-hadoop</module>
         <module>fabric-virt</module>
+        <module>fabric-branding</module>
 
         <module>fabric-ldap</module>
 
@@ -80,6 +91,13 @@
         <module>watcher-spring-context</module>
         <module>watcher-blueprint-web</module>
 
+        <module>fabric-features-service</module>
+        <module>fabric-jolokia</module>
+        <module>fabric-web</module>
+        <module>fabric-webapp-agent</module>
+
+        <module>fuse-fabric</module>
+
         <module>fabric-zeroconf</module>
         <module>fabric-monitor</module>
         <module>fabric-launcher</module>
@@ -88,47 +106,6 @@
         <module>fabric-client</module>
         <module>fabric-itests</module>
 
-      </modules>
-    </profile>
-    <profile>
-      <id>quick</id>
-      <activation>
-        <file>
-          <exists>pom.xml</exists>
-        </file>
-      </activation>
-      <modules>
-        <module>fabric-utils</module>
-        <module>fabric-api</module>
-
-        <module>fabric-core</module>
-        <module>fabric-linkedin-zookeeper</module>
-        <module>fabric-zookeeper</module>
-        <module>fabric-zookeeper-commands</module>
-        <module>fabric-maven-proxy</module>
-        <module>fabric-core-agent-ssh</module>
-        <module>fabric-boot-commands</module>
-        <module>fabric-commands</module>
-
-        <module>fabric-git</module>
-        <module>fabric-git-server</module>
-        <module>fabric-git-zkbridge</module>
-        <module>fabric-partition</module>
-        <module>fabric-groups</module>
-        <module>fabric-jaas</module>
-        <module>fabric-zookeeper-spring</module>
-        <module>fabric-configadmin</module>
-        <module>fabric-camel</module>
-        <module>fabric-branding</module>
-        <module>fabric-features-service</module>
-        <module>fabric-jolokia</module>
-        <module>fabric-web</module>
-        <module>fabric-webapp-agent</module>
-
-        <module>fuse-fabric</module>
-
-      </modules>
-    </profile>
-  </profiles>
+    </modules>
 
 </project>
