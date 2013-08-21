@@ -155,6 +155,16 @@
                <artifactId>fabric-jolokia</artifactId>
                <version>${project.version}</version>
            </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-web</artifactId>
+               <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.jboss.amq</groupId>
+               <artifactId>mq-fabric</artifactId>
+               <version>${project.version}</version>
+           </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
                 to get this building in offline mode -->
