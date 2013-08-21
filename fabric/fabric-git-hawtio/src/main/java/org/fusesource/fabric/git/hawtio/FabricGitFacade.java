@@ -76,6 +76,9 @@ public class FabricGitFacade extends GitFacadeSupport {
         super.destroy();
     }
 
+    protected String getDefaultObjectName() {
+        return "io.hawt.git:type=GitFacade,repo=fabric";
+    }
 
     public DataStore getDataStore() {
         return dataStore;
