@@ -18,6 +18,7 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import junit.framework.Assert;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
@@ -31,6 +32,7 @@ import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -53,6 +55,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class FabricMavenProxyTest extends FabricTestSupport {
 
     @After

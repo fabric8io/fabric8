@@ -2,6 +2,7 @@ package org.fusesource.fabric.itests.paxexam.camel;
 
 
 import junit.framework.Assert;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
@@ -10,6 +11,7 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -19,6 +21,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+
 import scala.actors.threadpool.Arrays;
 
 import java.util.LinkedHashSet;
@@ -31,6 +34,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class FabricCamelComponentTest extends FabricTestSupport {
 
 
