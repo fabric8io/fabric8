@@ -102,7 +102,7 @@ public class GitDataStore extends DataStoreSupport {
     private ScheduledExecutorService threadPool;
 
     public String toString() {
-        return "GitDataStore(" + gitService + ")";
+        return "GitDataStore(" + getGitService() + ")";
     }
 
     public synchronized void init() throws Exception {

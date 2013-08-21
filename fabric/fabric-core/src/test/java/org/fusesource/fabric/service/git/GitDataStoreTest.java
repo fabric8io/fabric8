@@ -50,7 +50,7 @@ public class GitDataStoreTest {
     private CuratorFramework curator;
     private Git git;
     private Git remote;
-    private GitDataStore dataStore = new GitDataStore();
+    private GitDataStore dataStore = new CachingGitDataStore();
     private String basedir;
 
     @Before

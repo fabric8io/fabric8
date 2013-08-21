@@ -36,6 +36,7 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreFactory;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.Objects;
+import org.fusesource.fabric.service.git.CachingGitDataStore;
 import org.fusesource.fabric.service.git.GitDataStore;
 import org.fusesource.fabric.service.git.GitService;
 import org.fusesource.fabric.service.git.LocalGitService;
@@ -126,7 +127,11 @@ public class ConfiguredDataStoreFactory implements DataStoreFactory {
             instance = new ZooKeeperDataStore();
         } else {
             properties.put("kind", "org.fusesource.datastore.git");
-            instance = new GitDataStore();
+            if (clusterProperties.getProperty("gitUseCache", "true").equals("false")) {
+                instance = new GitDataStore();
+            } else {
+                instance = new CachingGitDataStore();
+            }
         }
         LOG.info("DataStore kind=" + kind + " so created DataStore: " + instance + " from clusterProperties "
                 + clusterProperties + " and configuration " + configuration);
