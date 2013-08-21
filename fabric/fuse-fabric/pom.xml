@@ -310,7 +310,10 @@
                                    <feature>fabric-zeroconf</feature>
                                    -->
                                    <feature>fabric-web</feature>
+<!--
+TODO - zapped to try fix perfectus!
                                    <feature>mq-fabric</feature>
+-->
                                    <feature>insight-elasticsearch</feature>
                                    <feature>insight-log-storage</feature>
                                    <feature>process-manager</feature>
