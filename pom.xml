@@ -215,6 +215,7 @@
         <mongo-java-driver-version>2.7.3</mongo-java-driver-version>
         <mvel-version>2.1.4.Final</mvel-version>
         <mvnplugins-version>1.14</mvnplugins-version>
+        <openshift.client.version>2.1.0</openshift.client.version>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>

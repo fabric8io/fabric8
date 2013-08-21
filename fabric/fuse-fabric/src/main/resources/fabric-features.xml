@@ -528,6 +528,11 @@
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
     </feature>
 
+    <feature name="fabric-openshift" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-openshift/${project.version}</bundle>
+    </feature>
+
     <feature name="jolokia" version="${project.version}" resolver="(obr)">
         <feature>http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>

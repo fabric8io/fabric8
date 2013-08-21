@@ -1,0 +1,71 @@
+<!--
+  Copyright (C) FuseSource, Inc.
+  http://fusesource.com
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
+
+    <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+    <reference id="openshiftConnection" interface="com.openshift.client.IOpenShiftConnection" availability="optional">
+        <reference-listener ref="connectionListener" bind-method="bindConnection" unbind-method="unbindConnection"/>
+    </reference>
+
+    <bean id="connectionListener" class="org.fusesource.fabric.openshift.commands.support.OpenshiftConnectionListener"/>
+
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command name="openshift/domain-list">
+            <action class="org.fusesource.fabric.openshift.commands.ListDomainsCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="openshift/application-list">
+            <action class="org.fusesource.fabric.openshift.commands.ListApplicationsCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="openshift/application-info">
+            <action class="org.fusesource.fabric.openshift.commands.ApplicationInfoCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="openshift/application-create">
+            <action class="org.fusesource.fabric.openshift.commands.ApplicationCreateCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="openshift/application-start">
+            <action class="org.fusesource.fabric.openshift.commands.ApplicationStartCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="openshift/application-stop">
+            <action class="org.fusesource.fabric.openshift.commands.ApplicationStopCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="openshift/application-destroy">
+            <action class="org.fusesource.fabric.openshift.commands.ApplicationDestroyCommand">
+                <property name="connectionListener" ref="connectionListener"/>
+            </action>
+        </command>
+        <command name="fabric/container-create-openshift">
+            <action class="org.fusesource.fabric.openshift.commands.ContainerCreateOpenshift">
+                <property name="fabricService" ref="fabricService"/>
+            </action>
+        </command>
+    </command-bundle>
+
+</blueprint>

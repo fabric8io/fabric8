@@ -106,6 +106,12 @@
         <module>fabric-client</module>
         <module>fabric-itests</module>
 
+        <module>fabric-openshift</module>
+        <!--
+        <module>fmc-distro</module>
+        -->
+
+
     </modules>
 
 </project>
