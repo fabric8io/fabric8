@@ -273,6 +273,11 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               return_pool(ClusteredConfiguration.this)
               info("Broker %s is now a slave, stopping the broker.", name)
               stop()
+            } else {
+              if (event.equals(GroupEvent.CONNECTED)) {
+                info("Broker %s is now slave", name)
+                discoveryAgent.setServices(Array[String]())
+              }
             }
           }
         }
@@ -422,13 +427,6 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
             s._1.close()
           } catch {
             case e:Throwable => LOG.debug("Exception on close: " + e,  e)
-          }
-          try {
-            if ( pool_enabled || (replicating && discoveryAgent!=null) ) {
-              discoveryAgent.stop()
-            }
-          } catch {
-            case e:Throwable => LOG.debug("Exception on stop: " + e,  e)
           }
           server = null
         }
