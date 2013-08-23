@@ -15,7 +15,7 @@
 	<parent>
 		<artifactId>components</artifactId>
 		<groupId>org.fusesource</groupId>
-		<version>99-master-SNAPSHOT</version>
+		<version>7.3.0.redhat-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>camel-sap-parent</artifactId>

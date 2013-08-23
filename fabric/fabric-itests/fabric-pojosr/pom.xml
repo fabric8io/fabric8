@@ -21,13 +21,13 @@
   <parent>
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-scala</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.3.0.redhat-SNAPSHOT</version>
     <relativePath>../../fabric-scala</relativePath>
   </parent>
 
     <groupId>org.fusesource.fabric.itests</groupId>
     <artifactId>fabric-pojosr</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.3.0.redhat-SNAPSHOT</version>
     <name>Fuse Fabric :: Integration Tests :: PojoSR</name>
     <description>Fabric Integration tests with PojoSR</description>
     <packaging>jar</packaging>

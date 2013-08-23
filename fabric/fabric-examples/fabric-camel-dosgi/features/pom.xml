@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.fusesource.examples</groupId>
         <artifactId>fabric-camel-dosgi</artifactId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
     <name>Fuse Fabric :: Example :: Camel DOSGI :: Features</name>
