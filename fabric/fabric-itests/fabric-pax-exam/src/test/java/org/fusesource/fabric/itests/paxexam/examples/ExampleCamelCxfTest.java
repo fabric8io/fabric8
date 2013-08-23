@@ -20,12 +20,17 @@ import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+
 import static org.ops4j.pax.exam.OptionUtils.combine;
+
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -34,6 +39,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ExampleCamelCxfTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {

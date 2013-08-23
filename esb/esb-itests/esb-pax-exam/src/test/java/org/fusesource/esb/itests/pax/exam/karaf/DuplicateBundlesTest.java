@@ -27,6 +27,7 @@ import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
@@ -48,6 +49,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
  */
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-520] Fix esb-itests")
 public class DuplicateBundlesTest extends EsbTestSupport {
 
     @Test

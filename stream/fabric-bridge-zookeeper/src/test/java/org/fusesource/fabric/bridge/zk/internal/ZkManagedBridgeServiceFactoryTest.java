@@ -41,6 +41,7 @@ import java.util.Hashtable;
 /**
  * @author Dhiraj Bokde
  */
+@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
 public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupport {
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();

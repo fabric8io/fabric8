@@ -2,6 +2,7 @@ package org.fusesource.insight.maven
 
 import org.fusesource.scalate.test.{WebDriverMixin, WebServerMixin}
 import org.junit.runner.RunWith
+import org.junit.Ignore
 import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 
@@ -9,6 +10,7 @@ import org.scalatest.FunSuite
  * Unit test for My Ap
  */
 @RunWith(classOf[JUnitRunner])
+@Ignore("[FABRIC-512] Fix insight-maven-web tests")
 class AppTest extends FunSuite with WebServerMixin with WebDriverMixin {
 
   test("home page") {

@@ -19,12 +19,19 @@ package org.fusesource.fabric.itests.paxexam.examples;
 import org.fusesource.fabric.demo.cxf.client.Client;
 import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.junit.After;
+import org.junit.Ignore;
+
 import static org.junit.Assert.assertNotSame;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import static org.ops4j.pax.exam.CoreOptions.systemProperty;
+
 import org.ops4j.pax.exam.Option;
+
 import static org.ops4j.pax.exam.OptionUtils.combine;
+
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
@@ -33,6 +40,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ExampleCxfProfileTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {

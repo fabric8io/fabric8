@@ -50,6 +50,7 @@ import static org.junit.Assert.*;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class GitBridgeTest extends FabricGitTestSupport {
 
     File testrepo = new File("testRepo");
