@@ -75,7 +75,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.openshift</groupId>
+            <groupId>${openshift.client.groupId}</groupId>
             <artifactId>openshift-java-client</artifactId>
             <version>${openshift.client.version}</version>
         </dependency>

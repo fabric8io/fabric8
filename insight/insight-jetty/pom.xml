@@ -33,7 +33,7 @@
     <fuse.osgi.export>
     </fuse.osgi.export>
     <fuse.osgi.private.pkg>
-        org.fusesource.insight.jetty*;version=${project.version}
+        org.fusesource.insight.jetty*;version=${fabric.version}
     </fuse.osgi.private.pkg>
   </properties>
 

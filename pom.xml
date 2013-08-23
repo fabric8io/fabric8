@@ -216,6 +216,10 @@
         <mvel-version>2.1.4.Final</mvel-version>
         <mvnplugins-version>1.14</mvnplugins-version>
         <openshift.client.version>2.1.0</openshift.client.version>
+<!--
+        <openshift.client.version>2.1.0-beta1</openshift.client.version>
+-->
+        <openshift.client.groupId>com.openshift</openshift.client.groupId>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
         <ops4j-pax-swissbox-property.version>1.6.0</ops4j-pax-swissbox-property.version>
@@ -623,115 +627,115 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-utils</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
               <groupId>org.fusesource.fabric</groupId>
               <artifactId>fabric-api</artifactId>
-              <version>${project.version}</version>
+              <version>${fabric.version}</version>
               <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-linkedin-zookeeper</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core-agent-ssh</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core-agent-jclouds</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-configadmin</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-agent</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-camel</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-boot-commands</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-commands</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-commands</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-features-service</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git-server</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git-zkbridge</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric.virt</groupId>
                 <artifactId>org.fusesource.fabric.virt.commands</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric.virt</groupId>
                 <artifactId>org.fusesource.fabric.virt.services</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
@@ -749,73 +753,73 @@
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-spring</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-maven-proxy</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-groups</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-partition</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-monitor</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>watcher-core</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
                 <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-storage</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-elasticsearch</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-log</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-graph</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                <groupId>org.fusesource.insight</groupId>
                <artifactId>insight-log-storage</artifactId>
-               <version>${project.version}</version>
+               <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>process-manager</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.amq</groupId>

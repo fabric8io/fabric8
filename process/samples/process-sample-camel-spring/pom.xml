@@ -100,7 +100,7 @@
                             <artifacts>
                                 <artifact>
                                     <file>
-                                        ${project.build.directory}/${project.artifactId}-${project.version}-distribution.tar.gz
+                                        ${project.build.directory}/${project.artifactId}-${fabric.version}-distribution.tar.gz
                                     </file>
                                     <type>tar.gz</type>
                                 </artifact>

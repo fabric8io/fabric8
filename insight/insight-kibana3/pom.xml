@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.fusesource.insight</groupId>
             <artifactId>insight-elasticsearch</artifactId>
-            <version>${project.version}</version>
+            <version>${fabric.version}</version>
         </dependency>
 
         <dependency>

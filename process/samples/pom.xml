@@ -42,7 +42,7 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>process-launcher</artifactId>
-            <version>${project.version}</version>
+            <version>${fabric.version}</version>
             <classifier>bin</classifier>
             <type>tar.gz</type>
         </dependency>
@@ -64,7 +64,7 @@
                                 <useUniqueVersions>false</useUniqueVersions>
                             </manifest>
                             <manifestEntries>
-                                <Implementation-Version>${project.version}</Implementation-Version>
+                                <Implementation-Version>${fabric.version}</Implementation-Version>
                             </manifestEntries>
                         </archive>
                     </configuration>
@@ -85,7 +85,7 @@
                         <dependency>
                             <groupId>org.fusesource.fabric</groupId>
                             <artifactId>process-packaging</artifactId>
-                            <version>${project.version}</version>
+                            <version>${fabric.version}</version>
                         </dependency>
                     </dependencies>
                     <executions>
