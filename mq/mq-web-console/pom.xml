@@ -5,7 +5,7 @@
     <parent>
         <artifactId>mq-project</artifactId>
         <groupId>org.jboss.amq</groupId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>6.1.0.redhat-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
