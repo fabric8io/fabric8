@@ -360,7 +360,7 @@
 		                             <excludeDependencies>org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon</excludeDependencies>
 		                             <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version},org.apache.servicemix.bundles:org.apache.servicemix.bundles.saxon:${saxon.bundle.version}</extraDependencies>
 		                             <noticeSupplements>shared/notice-supplements.xml</noticeSupplements>
-		                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/system</repositories>
+		                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
 		                             <defaultParent>org.jboss.fuse:esb-project:${project.version}:../..</defaultParent>
 		                        </configuration>
 		                     </execution>
