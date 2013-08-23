@@ -46,6 +46,7 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
@@ -62,6 +63,7 @@ import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.fusesource.fabric.service.git.GitHelpers.currentBranch;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
@@ -768,7 +770,9 @@ public class GitDataStore extends DataStoreSupport {
                     + " so not doing a push");
             return Collections.EMPTY_LIST;
         }
-        return git.push().setCredentialsProvider(credentialsProvider).call();
+
+        String branch = currentBranch(git);
+        return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
     }
 
     protected CredentialsProvider getCredentialsProvider() throws Exception {

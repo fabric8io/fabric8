@@ -17,10 +17,9 @@
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
-    <groupId>org.fusesource.fmc</groupId>
-    <artifactId>fmc-project</artifactId>
-    <version>99-master-SNAPSHOT</version>
-    <relativePath>../</relativePath>
+	<groupId>org.fusesource.fmc</groupId>
+	<artifactId>fmc-project</artifactId>
+    <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
   <groupId>org.fusesource.fmc</groupId>

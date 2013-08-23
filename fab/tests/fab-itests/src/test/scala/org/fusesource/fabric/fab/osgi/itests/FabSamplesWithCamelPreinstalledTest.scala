@@ -3,6 +3,7 @@ package org.fusesource.fabric.fab.osgi.itests
 import javax.inject.Inject
 
 import org.junit.Test
+import org.junit.Ignore
 import org.junit.Assert._
 import org.osgi.framework.{Bundle, BundleContext}
 import org.ops4j.pax.exam.{Configuration, Option}
@@ -17,6 +18,7 @@ import org.fusesource.fabric.fab.osgi.internal.Bundles
  * Integration test to ensure pre-installed Camel bundles are used
  */
 @RunWith (classOf[PaxExam] )
+@Ignore("[FABRIC-510] Fix fab.osgi.itests")
 class FabSamplesWithCamelPreinstalledTest extends FabIntegrationTestSupport {
 
   @Inject

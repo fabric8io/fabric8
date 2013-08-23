@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.fusesource.fabric.bridge</groupId>
     <artifactId>fabric-bridge-project</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
   <artifactId>fabric-bridge-zookeeper</artifactId>

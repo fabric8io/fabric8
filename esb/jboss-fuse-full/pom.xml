@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.jboss.fuse</groupId>
         <artifactId>jboss-fuse</artifactId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.3.0.redhat-SNAPSHOT</version>
         <relativePath>../jboss-fuse/pom.xml</relativePath>
     </parent>
 
@@ -32,42 +32,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.karaf.tooling</groupId>
-                <artifactId>features-maven-plugin</artifactId>
-                <version>${karaf-version}</version>
-                <executions>
-                    <execution>
-                        <id>add-features-to-repo</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>add-features-to-repo</goal>
-                        </goals>
-                        <configuration>
-                            <descriptors>
-                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix-nmr-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
-                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
-                                <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
-<!--
-                                <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
--->
-
-                                <!-- FuseSource only : Fabric -->
-                                <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
-                            </descriptors>
-                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
-                            <repository>target/features-repo</repository>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -108,5 +72,47 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+		            <plugin>
+		                <groupId>org.apache.karaf.tooling</groupId>
+		                <artifactId>features-maven-plugin</artifactId>
+		                <version>${karaf-version}</version>
+		                <executions>
+		                    <execution>
+		                        <id>add-features-to-repo</id>
+		                        <phase>generate-resources</phase>
+		                        <goals>
+		                            <goal>add-features-to-repo</goal>
+		                        </goals>
+		                        <configuration>
+		                            <descriptors>
+		                                <descriptor>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.apache.servicemix.nmr/apache-servicemix-nmr/${servicemix-nmr-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
+		                                <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
+		                                <!--descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor-->
+		                                <!-- FuseSource only : Fabric -->
+		                                <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
+		                            </descriptors>
+		                            <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
+		                            <repository>target/features-repo</repository>
+		                        </configuration>
+		                    </execution>
+		                </executions>
+		            </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
 

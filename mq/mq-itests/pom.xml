@@ -21,7 +21,7 @@ limitations under the License.
     <parent>
         <artifactId>mq-project</artifactId>
         <groupId>org.jboss.amq</groupId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 

@@ -19,7 +19,7 @@
   <parent>
     <groupId>org.fusesource.fmc</groupId>
     <artifactId>fmc-webui-branding-example</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.3.0.redhat-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
 

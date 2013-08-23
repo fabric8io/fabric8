@@ -21,11 +21,13 @@ import de.kalpatec.pojosr.framework.PojoServiceRegistryFactoryImpl;
 import de.kalpatec.pojosr.framework.launch.ClasspathScanner;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistry;
 import de.kalpatec.pojosr.framework.launch.PojoServiceRegistryFactory;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.server.ServerStats;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -77,6 +79,7 @@ public class ZooKeeperTest {
     }
 
     @Test
+    @Ignore("[FABRIC-511] Fix fabric-pojosr tests")
     public void testZooKeeper() throws Exception {
 
         Bundle zooKeeperBundle = null;

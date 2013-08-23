@@ -28,7 +28,7 @@
     <parent>
         <groupId>org.jboss.fuse.examples</groupId>
         <artifactId>project</artifactId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
     <artifactId>secure-rest</artifactId>

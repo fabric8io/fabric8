@@ -5,13 +5,13 @@
     <parent>
         <artifactId>fabric-project</artifactId>
         <groupId>org.fusesource.fabric</groupId>
-        <version>99-master-SNAPSHOT</version>
+        <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-features-service</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.3.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>${project.artifactId}</name>
