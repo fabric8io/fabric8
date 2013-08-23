@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.fusesource.examples</groupId>
     <artifactId>examples</artifactId>
-    <version>99-master-SNAPSHOT</version>
+    <version>7.3.0.redhat-SNAPSHOT</version>
   </parent>
 
   <artifactId>camel-webservice-example</artifactId>
