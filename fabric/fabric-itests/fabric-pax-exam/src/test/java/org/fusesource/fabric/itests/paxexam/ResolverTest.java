@@ -18,6 +18,7 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import junit.framework.Assert;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
@@ -26,6 +27,7 @@ import org.fusesource.fabric.zookeeper.IZKClient;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -44,6 +46,7 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ResolverTest extends FabricTestSupport {
 
     @After

@@ -24,6 +24,7 @@ import org.apache.zookeeper.server.ServerConfig;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -138,6 +139,7 @@ public class GroupTest {
     }
 
     @Test
+    @Ignore("[FABRIC-509] Fix fabric-groups tests")
     public void testRejoinAfterDisconnect() throws Exception {
         int port = findFreePort();
 

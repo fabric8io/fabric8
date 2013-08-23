@@ -31,6 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import javax.jms.JMSException;
 import javax.jms.TextMessage;
 
+@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
 public class ZkBridgeNamespaceHandlerTest extends AbstractZkConnectorTestSupport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeNamespaceHandlerTest.class);

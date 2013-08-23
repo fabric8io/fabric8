@@ -18,11 +18,14 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import java.util.Map;
+
 import static junit.framework.Assert.assertNotNull;
+
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -34,6 +37,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ProfileEditTest extends FabricTestSupport {
 
     @Test

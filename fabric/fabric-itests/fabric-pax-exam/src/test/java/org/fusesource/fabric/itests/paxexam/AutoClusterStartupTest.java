@@ -26,6 +26,7 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.WaitForConfigurationChange;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.utils.SystemProperties;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -49,6 +50,7 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class AutoClusterStartupTest extends FabricTestSupport {
 
     @Test
