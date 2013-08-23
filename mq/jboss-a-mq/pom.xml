@@ -40,13 +40,6 @@
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
                <version>${fabric.version}</version>
-               <type>tar.gz</type>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fuse-fabric</artifactId>
-               <version>${fabric.version}</version>
-               <type>zip</type>
            </dependency>
          <dependency>
              <groupId>org.fusesource.patch</groupId>
