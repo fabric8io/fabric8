@@ -39,43 +39,50 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
-               <version>${project.version}</version>
+               <version>${fabric.version}</version>
+               <type>tar.gz</type>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fuse-fabric</artifactId>
+               <version>${fabric.version}</version>
+               <type>zip</type>
            </dependency>
          <dependency>
              <groupId>org.fusesource.patch</groupId>
              <artifactId>patch-client</artifactId>
-             <version>${project.version}</version>
+             <version>${fabric.version}</version>
          </dependency>
          <dependency>
              <groupId>org.fusesource.patch</groupId>
              <artifactId>patch-features</artifactId>
-             <version>${project.version}</version>
+             <version>${fabric.version}</version>
              <type>xml</type>
              <classifier>features</classifier>
          </dependency>
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-client</artifactId>
-               <version>${project.version}</version>
+               <version>${fuse.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
-               <version>${project.version}</version>
+               <version>${fabric.version}</version>
                <type>zip</type>
            </dependency>
 
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-web-console</artifactId>
-               <version>${project.version}</version>
+               <version>${fuse.version}</version>
                <type>war</type>
            </dependency>
 
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>org.jboss.amq.karaf.branding</artifactId>
-                <version>${project.version}</version>
+                <version>${fuse.version}</version>
            </dependency>
 
            <!-- Scala support -->
@@ -152,7 +159,7 @@
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
                                    <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                                </descriptors>
                                <features>

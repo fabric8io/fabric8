@@ -831,17 +831,17 @@
             <dependency>
                 <groupId>org.fusesource.patch</groupId>
                 <artifactId>patch-core</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.patch</groupId>
                 <artifactId>patch-commands</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.patch</groupId>
                 <artifactId>patch-management</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <!-- OSGi -->
             <dependency>
