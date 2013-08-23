@@ -103,7 +103,7 @@
         <fmc-port>8107</fmc-port>
 
         <fabric.version>${project.version}</fabric.version>
-        <fuse.version>${project.version}</fuse.version>
+        <fuse.version>6.1.0.redhat-SNAPSHOT</fuse.version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
 
@@ -820,12 +820,12 @@
             <dependency>
                 <groupId>org.jboss.amq</groupId>
                 <artifactId>mq-fabric</artifactId>
-                <version>${project.version}</version>
+                <version>${fuse.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.jboss.amq</groupId>
                 <artifactId>mq-client</artifactId>
-                <version>${project.version}</version>
+                <version>${fuse.version}</version>
             </dependency>
 
             <dependency>
