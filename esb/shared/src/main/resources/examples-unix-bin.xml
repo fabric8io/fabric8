@@ -30,8 +30,8 @@
             </excludes>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
+            <directoryMode>0644</directoryMode>
         </fileSet>
-
 
         <!-- Copy over the examples' pom.xml and README files (with filtering) -->
         <fileSet>
