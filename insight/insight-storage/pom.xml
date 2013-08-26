@@ -31,7 +31,7 @@
 
   <properties>
     <fuse.osgi.export>
-        org.fusesource.insight.storage;version=${project.version}
+        org.fusesource.insight.storage;version=${fabric.version}
     </fuse.osgi.export>
   </properties>
 

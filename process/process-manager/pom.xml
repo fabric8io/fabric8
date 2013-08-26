@@ -38,7 +38,7 @@
 -->
         <fuse.osgi.resource>${basedir}/target/classes/process-launcher.tar.gz,{maven-resources}</fuse.osgi.resource>
         <fuse.osgi.export>
-            org.fusesource.process.manager*;version=${project.version};-noimport:=true,
+            org.fusesource.process.manager*;version=${fabric.version};-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.import>
             org.apache.felix.service.command,
@@ -58,12 +58,12 @@
         <dependency>
             <groupId>org.fusesource.fabric.fab</groupId>
             <artifactId>fab-osgi</artifactId>
-            <version>${project.version}</version>
+            <version>${fabric.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>process-launcher</artifactId>
-            <version>${project.version}</version>
+            <version>${fabric.version}</version>
             <classifier>bin</classifier>
             <type>tar.gz</type>
             <scope>test</scope>
@@ -118,7 +118,7 @@
         <dependency>
             <groupId>org.fusesource.fabric.samples</groupId>
             <artifactId>process-sample-camel-spring</artifactId>
-            <version>${project.version}</version>
+            <version>${fabric.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -183,7 +183,7 @@
                         </systemProperty>
                         <systemProperty>
                             <key>version</key>
-                            <value>${project.version}</value>
+                            <value>${fabric.version}</value>
                         </systemProperty>
                     </systemProperties>
                 </configuration>

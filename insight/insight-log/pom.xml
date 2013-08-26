@@ -32,8 +32,8 @@
 
   <properties>
     <fuse.osgi.export>
-      org.fusesource.insight.log*;version=${project.version},
-      org.fusesource.insight.log.service*;version=${project.version};-noimport:=true
+      org.fusesource.insight.log*;version=${fabric.version},
+      org.fusesource.insight.log.service*;version=${fabric.version};-noimport:=true
     </fuse.osgi.export>
     <fuse.osgi.import>
       org.apache.karaf.shell.log*;resolution:=optional,
@@ -62,7 +62,7 @@
     <dependency>
       <groupId>org.fusesource.insight</groupId>
       <artifactId>insight-log-core</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
     </dependency>
 
     <dependency>

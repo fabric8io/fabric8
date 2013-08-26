@@ -20,7 +20,7 @@
     <parent>
         <groupId>org.jboss.amq</groupId>
         <artifactId>mq-project</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
+        <version>6.1.0.redhat-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -39,43 +39,43 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
-               <version>${project.version}</version>
+               <version>${fabric.version}</version>
            </dependency>
          <dependency>
              <groupId>org.fusesource.patch</groupId>
              <artifactId>patch-client</artifactId>
-             <version>${project.version}</version>
+             <version>${fabric.version}</version>
          </dependency>
          <dependency>
              <groupId>org.fusesource.patch</groupId>
              <artifactId>patch-features</artifactId>
-             <version>${project.version}</version>
+             <version>${fabric.version}</version>
              <type>xml</type>
              <classifier>features</classifier>
          </dependency>
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-client</artifactId>
-               <version>${project.version}</version>
+               <version>${fuse.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
-               <version>${project.version}</version>
+               <version>${fabric.version}</version>
                <type>zip</type>
            </dependency>
 
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-web-console</artifactId>
-               <version>${project.version}</version>
+               <version>${fuse.version}</version>
                <type>war</type>
            </dependency>
 
            <dependency>
                <groupId>org.jboss.amq</groupId>
                <artifactId>org.jboss.amq.karaf.branding</artifactId>
-                <version>${project.version}</version>
+                <version>${fuse.version}</version>
            </dependency>
 
            <!-- Scala support -->
@@ -152,7 +152,7 @@
                                    <descriptor>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
-                                   <descriptor>mvn:org.fusesource.patch/patch-features/${project.version}/xml/features</descriptor>
+                                   <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
                                    <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
                                </descriptors>
                                <features>
@@ -200,7 +200,7 @@
                                <outputDirectory>target/features-repo</outputDirectory>
                                <resources>
                                    <resource>
-                                       <directory>target/dependencies/unix/fuse-fabric-${project.version}/system</directory>
+                                       <directory>target/dependencies/unix/fuse-fabric-${fabric.version}/system</directory>
                                    </resource>
                                </resources>
                            </configuration>
@@ -274,7 +274,7 @@
                              <listDependencies>true</listDependencies>
                              <extraDependencies>org.apache.xerces:xercesImpl:${xerces.version},xalan:xalan:${xalan.version},xalan:serializer:${xalan.version},org.apache.servicemix.specs:org.apache.servicemix.specs.activator:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxp-api-1.4:${servicemix-specs-version},org.apache.servicemix.specs:org.apache.servicemix.specs.jaxws-api-2.2:${servicemix-specs-version}</extraDependencies>
                              <noticeSupplements>classes/notice-supplements.xml</noticeSupplements>
-                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${project.version}/system</repositories>
+                             <repositories>${project.basedir}/target/features-repo,${project.basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/system</repositories>
                              <defaultParent>org.jboss.amq:mq-project:${project.version}:../..</defaultParent>
                         </configuration>
                      </execution>
@@ -318,19 +318,19 @@
                            <configuration>
                                <target name="update-properties">
                                    <echo message="Fixing start/stop scripts in windows assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start.bat" token="fusefabric.bat" value="amq.bat"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop.bat" token="fusefabric.bat" value="amq.bat"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/start.bat" token="fusefabric.bat" value="amq.bat"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/stop.bat" token="fusefabric.bat" value="amq.bat"/>
                                    <echo message="Fixing start/stop scripts in unix assembly" />
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/start" token="bin/fusefabric" value="bin/amq"/>
-                                   <replace file="target/dependencies/unix/fuse-fabric-${project.version}/bin/stop" token="bin/fusefabric" value="bin/amq"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/start" token="bin/fusefabric" value="bin/amq"/>
+                                   <replace file="target/dependencies/unix/fuse-fabric-${fabric.version}/bin/stop" token="bin/fusefabric" value="bin/amq"/>
                                    <echo message="Updating etc/system.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/system-mq.properties" />
                                    </concat>
-                                   <echo file="target/dependencies/unix/fuse-fabric-${project.version}/etc/system.properties" append="true">profile=mq</echo>
+                                   <echo file="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties" append="true">profile=mq</echo>
                                    <echo message="Updating etc/system.properties in windows assembly" />
                                    <echo message="Updating etc/config.properties in unix assembly" />
-                                   <concat destfile="target/dependencies/unix/fuse-fabric-${project.version}/etc/config.properties" append="true" eol="unix">
+                                   <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/config.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/config-mq.properties" />
                                    </concat>
                                </target>

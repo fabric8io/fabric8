@@ -25,7 +25,7 @@
     <fileSets>
         <!-- Expanded Karaf Runtime -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
             <outputDirectory>/</outputDirectory>
             <excludes>
                 <exclude>system/**</exclude>
@@ -70,7 +70,7 @@
 
         <!-- Copy over bin/* scripts separately to get the correct file mode -->
         <fileSet>
-            <directory>target/dependencies/unix/fuse-fabric-${project.version}</directory>
+            <directory>target/dependencies/unix/fuse-fabric-${fabric.version}</directory>
             <outputDirectory>/</outputDirectory>
             <includes>
                 <include>bin/*</include>
@@ -124,14 +124,14 @@
 
     <files>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric</source>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/fusefabric</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>amq</destName>
             <fileMode>0755</fileMode>
             <lineEnding>unix</lineEnding>
         </file>
         <file>
-            <source>${basedir}/target/dependencies/unix/fuse-fabric-${project.version}/bin/fusefabric.bat</source>
+            <source>${basedir}/target/dependencies/unix/fuse-fabric-${fabric.version}/bin/fusefabric.bat</source>
             <outputDirectory>/bin/</outputDirectory>
             <destName>amq.bat</destName>
             <fileMode>0755</fileMode>

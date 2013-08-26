@@ -35,7 +35,7 @@
       </fuse.osgi.import.additional>
       <fuse.osgi.export>
           org.elasticsearch*;-noimport:=true;version=0.20.5;-split-package:=merge-first,
-          org.fusesource.insight.elasticsearch;version=${project.version}
+          org.fusesource.insight.elasticsearch;version=${fabric.version}
       </fuse.osgi.export>
       <fuse.osgi.private.pkg>
           org.apache.lucene*,
