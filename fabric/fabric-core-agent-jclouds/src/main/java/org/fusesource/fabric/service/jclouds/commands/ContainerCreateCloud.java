@@ -91,7 +91,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     private int maximumPort = Ports.MAX_PORT_NUMBER;
 
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
-    private String newUser;
+    private String newUser="admin";
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
@@ -108,10 +108,9 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         preCreateContainer(name);
         validateProfileName(profiles);
 
-        CreateEnsembleOptions ensembleOptions = CreateEnsembleOptions.builder()
-                .zookeeperPassword(zookeeperPassword)
-                .withUser(newUser, newUserPassword , newUserRole)
-                .build();
+        if (isEnsembleServer && newUserPassword == null) {
+            newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();
+        }
 
         CreateJCloudsContainerOptions.Builder builder = CreateJCloudsContainerOptions.builder()
         .name(name)
@@ -144,6 +143,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .environmentalVariable(environmentalVariables)
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
         .version(version)
+        .withUser(newUser, newUserPassword , newUserRole)
         .profiles(getProfileNames());
 
         if (path != null && !path.isEmpty()) {

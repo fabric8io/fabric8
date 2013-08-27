@@ -60,7 +60,7 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
     private String passPhrase;
 
     @Option(name = "--new-user", multiValued = false, description = "The username of a new user. The option refers to karaf user (ssh, http, jmx).")
-    private String newUser;
+    private String newUser="admin";
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
@@ -79,6 +79,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         preCreateContainer(name);
         validateProfileName(profiles);
 
+        if (isEnsembleServer && newUserPassword == null) {
+            newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();
+        }
 
         CreateSshContainerOptions.Builder builder = CreateSshContainerOptions.builder()
         .name(name)
@@ -104,7 +107,6 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts != null ? jvmOpts : fabricService.getDefaultJvmOptions())
         .environmentalVariable(environmentalVariables)
-        .zookeeperPassword(zookeeperPassword)
         .withUser(newUser, newUserPassword , newUserRole)
         .version(version)
         .profiles(getProfileNames());
