@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;

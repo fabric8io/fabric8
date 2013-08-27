@@ -14,11 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -29,9 +28,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.eclipse.jgit.transport.CredentialsProvider;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.service.git.GitService;
 
 /**
  * A local stand alone git repository

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -75,7 +75,6 @@ import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.service.git.GitHelpers.currentBranch;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
@@ -812,7 +811,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             return Collections.EMPTY_LIST;
         }
 
-        String branch = currentBranch(git);
+        String branch = GitHelpers.currentBranch(git);
         return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
     }
 

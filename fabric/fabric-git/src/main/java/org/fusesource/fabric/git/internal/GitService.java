@@ -14,12 +14,11 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
 
 import java.io.IOException;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.transport.CredentialsProvider;
 
 /**
  * Represents a local Git repository

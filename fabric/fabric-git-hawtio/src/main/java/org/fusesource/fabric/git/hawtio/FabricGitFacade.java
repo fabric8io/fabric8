@@ -31,12 +31,11 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.internal.Objects;
-import org.fusesource.fabric.service.git.GitContext;
-import org.fusesource.fabric.service.git.GitDataStore;
-import org.fusesource.fabric.service.git.GitHelpers;
-import org.fusesource.fabric.service.git.GitOperation;
+import org.fusesource.fabric.git.internal.GitContext;
+import org.fusesource.fabric.git.internal.GitDataStore;
+import org.fusesource.fabric.git.internal.GitHelpers;
+import org.fusesource.fabric.git.internal.GitOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,7 @@ import io.hawt.git.GitFacadeMXBean;
 import io.hawt.git.GitFacadeSupport;
 import io.hawt.util.Strings;
 
-import static org.fusesource.fabric.service.git.GitHelpers.getRootGitDirectory;
+import static org.fusesource.fabric.git.internal.GitHelpers.getRootGitDirectory;
 
 /**
  */

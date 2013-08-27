@@ -26,22 +26,16 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.git.FabricGitService;
-import org.fusesource.fabric.service.git.GitService;
-import org.fusesource.fabric.service.git.LocalGitService;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 @Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true)
