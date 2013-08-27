@@ -120,8 +120,13 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
 
     @Deactivate
     public void destroy() {
-        this.mavenDownloadProxyServlet.stop();
-        this.mavenUploadProxyServlet.stop();
+        if (mavenDownloadProxyServlet != null) {
+            this.mavenDownloadProxyServlet.stop();
+        }
+
+        if (mavenUploadProxyServlet != null) {
+            this.mavenUploadProxyServlet.stop();
+        }
 
         unregister(MavenProxy.DOWNLOAD_TYPE);
         unregister(MavenProxy.UPLOAD_TYPE);
