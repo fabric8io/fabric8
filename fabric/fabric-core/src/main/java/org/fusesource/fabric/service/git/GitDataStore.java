@@ -747,7 +747,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 if (GitHelpers.hasGitHead(git)) {
                     // lets stash any local changes just in case..
                     git.stashCreate().setPerson(personIdent)
-                            .setWorkingDirectoryMessage("Stash before a write").setRef("HEAD").call();
+                            .setWorkingDirectoryMessage("Stash before a write").call();
                 }
                 if (pullFirst) {
                     doPull(git, credentialsProvider);
