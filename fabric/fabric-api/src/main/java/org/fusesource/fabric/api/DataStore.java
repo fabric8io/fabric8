@@ -19,6 +19,7 @@ package org.fusesource.fabric.api;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @author Stan Lewis
@@ -35,7 +36,15 @@ public interface DataStore {
     // Tracking
     //
 
-    void destroy();
+    /**
+     * Lifecycle method to be called, when DataStore is started.
+     */
+    void start();
+
+    /**
+     * Lifecycle method to be called when DataStore is stopped.
+     */
+    void stop();
 
     void trackConfiguration(Runnable callback);
     void unTrackConfiguration(Runnable callback);
@@ -177,5 +186,11 @@ public interface DataStore {
     String getClusterId();
     List<String> getEnsembleContainers();
 
+    Properties getDataStoreProperties();
+
+    /**
+     * Sets the configuration properties for this DataStore implementation
+     */
+    void setDataStoreProperties(Properties dataStoreProperties);
 
 }

@@ -16,14 +16,15 @@
  */
 package org.fusesource.fabric.api;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-
 /**
- * Factory of {@link DataStore} instance
+ * Describes an {@link DataStore} operation.
  */
-public interface DataStoreFactory {
+public interface DataStoreTemplate {
 
-    DataStore createDataStore() throws Exception;
+    /**
+     * Perform an operation on the specified {@link DataStore}.
+     * @param dataStore
+     * @throws Exception
+     */
+    void doWith(DataStore dataStore) throws Exception;
 }

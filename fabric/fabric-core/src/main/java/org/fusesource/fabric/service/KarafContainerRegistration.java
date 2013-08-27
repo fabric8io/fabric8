@@ -162,7 +162,6 @@ public class
         String profiles = System.getProperty("fabric.profiles");
 
         try {
-
             if (profiles != null) {
                 String versionNode = CONFIG_CONTAINER.getPath(name);
                 String profileNode = CONFIG_VERSIONS_CONTAINER.getPath(version, name);
@@ -271,16 +270,24 @@ public class
         return getOrAllocatePortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, Ports.DEFAULT_RMI_REGISTRY_PORT);
     }
 
+    private int getRmiRegistryConnectionPort(Container container, int defaultValue) throws IOException, KeeperException, InterruptedException {
+        return getPortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_CONNECTION_PORT_KEY, defaultValue);
+    }
+
     private int getRmiRegistryConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, MANAGEMENT_PID, RMI_REGISTRY_CONNECTION_PORT_KEY, getRmiRegistryPort(container));
+        return getRmiRegistryConnectionPort(container, getRmiRegistryPort(container));
     }
 
     private int getRmiServerPort(Container container) throws IOException, KeeperException, InterruptedException {
         return getOrAllocatePortForKey(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, Ports.DEFAULT_RMI_SERVER_PORT);
     }
 
+    private int getRmiServerConnectionPort(Container container, int defaultValue) throws IOException, KeeperException, InterruptedException {
+        return getPortForKey(container, MANAGEMENT_PID, RMI_SERVER_CONNECTION_PORT_KEY, defaultValue);
+    }
+
     private int getRmiServerConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, MANAGEMENT_PID, RMI_SERVER_CONNECTION_PORT_KEY, getRmiServerPort(container));
+        return getRmiServerConnectionPort(container, getRmiServerPort(container));
     }
 
     private String getJmxUrl(String name, int serverConnectionPort, int registryConnectionPort) throws IOException, KeeperException, InterruptedException {
@@ -302,7 +309,11 @@ public class
     }
 
     private int getSshConnectionPort(Container container) throws IOException, KeeperException, InterruptedException {
-        return getPortForKey(container, SSH_PID, SSH_CONNECTION_PORT_KEY, getSshPort(container));
+        return getSshConnectionPort(container, getSshPort(container));
+    }
+
+    private int getSshConnectionPort(Container container, int defaultValue) throws IOException, KeeperException, InterruptedException {
+        return getPortForKey(container, SSH_PID, SSH_CONNECTION_PORT_KEY, defaultValue);
     }
 
     private String getSshUrl(String name, int sshPort) throws IOException, KeeperException, InterruptedException {
@@ -347,8 +358,12 @@ public class
         return getOrAllocatePortForKey(container, HTTP_PID, HTTP_BINDING_PORT_KEY, Ports.DEFAULT_HTTP_PORT);
     }
 
+    private int getHttpConnectionPort(Container container, int defaultValue) throws KeeperException, InterruptedException, IOException {
+        return getPortForKey(container, HTTP_PID, HTTP_CONNECTION_PORT_KEY, defaultValue);
+    }
+
     private int getHttpConnectionPort(Container container) throws KeeperException, InterruptedException, IOException {
-        return getPortForKey(container, HTTP_PID, HTTP_CONNECTION_PORT_KEY, getHttpPort(container));
+        return getHttpConnectionPort(container, getHttpPort(container));
     }
 
     private String getHttpUrl(String protocol, String name, int httpConnectionPort) throws IOException, KeeperException, InterruptedException {
@@ -588,7 +603,7 @@ public class
             if (event.getPid().equals(SSH_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                 Configuration config = configurationAdmin.getConfiguration(SSH_PID);
                 int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_BINDING_PORT_KEY));
-                int sshConnectionPort = getSshConnectionPort(current);
+                int sshConnectionPort = getSshConnectionPort(current, sshPort);
                 String sshUrl = getSshUrl(name, sshConnectionPort);
                 setData(curator, CONTAINER_SSH.getPath(name), sshUrl);
                 if (fabricService.getPortService().lookupPort(current, SSH_PID, SSH_BINDING_PORT_KEY) != sshPort) {
@@ -602,7 +617,7 @@ public class
                 boolean httpsEnabled = isHttpsEnabled();
                 String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
                 int httpPort = httpsEnabled && !httpEnabled ? Integer.parseInt((String) config.getProperties().get(HTTPS_BINDING_PORT_KEY)) : Integer.parseInt((String) config.getProperties().get(HTTP_BINDING_PORT_KEY)) ;
-                int httpConnectionPort =  httpsEnabled && !httpEnabled ? getHttpsConnectionPort(current) : getHttpConnectionPort(current);
+                int httpConnectionPort =  httpsEnabled && !httpEnabled ? getHttpsConnectionPort(current) : getHttpConnectionPort(current, httpPort);
                 String httpUrl = getHttpUrl(protocol, name, httpConnectionPort);
                 setData(curator, CONTAINER_HTTP.getPath(name), httpUrl);
                 if (fabricService.getPortService().lookupPort(current, HTTP_PID, HTTP_BINDING_PORT_KEY) != httpPort) {
@@ -613,9 +628,9 @@ public class
             if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
                 Configuration config = configurationAdmin.getConfiguration(MANAGEMENT_PID);
                 int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_BINDING_PORT_KEY));
-                int rmiServerConnectionPort = getRmiServerConnectionPort(current);
+                int rmiServerConnectionPort = getRmiServerConnectionPort(current, rmiServerPort);
                 int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_BINDING_PORT_KEY));
-                int rmiRegistryConnectionPort = getRmiRegistryPort(current);
+                int rmiRegistryConnectionPort = getRmiRegistryConnectionPort(current, rmiRegistryPort);
                 String jmxUrl = getJmxUrl(name, rmiServerConnectionPort, rmiRegistryConnectionPort);
                 setData(curator, CONTAINER_JMX.getPath(name), jmxUrl);
                 //Whenever the JMX URL changes we need to make sure that the java.rmi.server.hostname points to a valid address.

@@ -94,7 +94,7 @@ public class GitDataStoreTest {
 
         dataStore.setCurator(curator);
         dataStore.setGitService(gitService);
-        dataStore.init();
+        dataStore.start();
     }
 
     @After

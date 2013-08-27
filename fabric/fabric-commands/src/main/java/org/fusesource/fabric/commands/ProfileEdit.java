@@ -33,6 +33,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import org.fusesource.fabric.commands.support.DatastoreContentManager;
 import org.fusesource.fabric.commands.support.ZookeeperContentManager;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.jledit.ConsoleEditor;
@@ -259,13 +260,13 @@ public class ProfileEdit extends FabricCommand {
     private void openInEditor(Profile profile, String resource) throws Exception {
         String id = profile.getId();
         String version = profile.getVersion();
-        String path = ZkProfiles.getPath(version, id) + "/" + resource;
+        String location = id + " " + version + " " + resource;
         //Call the editor
         ConsoleEditor editor = editorFactory.create(getTerminal());
         editor.setTitle("Profile");
         editor.setOpenEnabled(false);
-        editor.setContentManager(new ZookeeperContentManager(getCurator()));
-        editor.open(path, id + " " + version);
+        editor.setContentManager(new DatastoreContentManager(getFabricService().getDataStore()));
+        editor.open(location, id + " " + version);
         editor.start();
     }
 
