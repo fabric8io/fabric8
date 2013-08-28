@@ -1,8 +1,8 @@
 {
   "queries" : [ {
     "name" : "camel",
-	"template": "zk:/fabric/metrics/camel.mvel",
-	"metadata": "zk:/fabric/metrics/camel.json",
+	"template": "profile:camel.mvel",
+	"metadata": "profile:camel.json",
     "requests" : [ {
       "name": "contexts",
       "obj" : "org.apache.camel:type=context,*",

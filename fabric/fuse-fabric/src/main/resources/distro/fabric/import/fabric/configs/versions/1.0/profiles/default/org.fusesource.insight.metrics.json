@@ -1,8 +1,8 @@
 {
   "queries" : [ {
     "name" : "jvm",
-	"template": "zk:/fabric/metrics/jvm.mvel",
-	"metadata": "zk:/fabric/metrics/jvm.json",
+	"template": "profile:jvm.mvel",
+	"metadata": "profile:jvm.json",
     "requests" : [ {
       "name": "memory",
       "obj" : "java.lang:type=Memory",
@@ -40,8 +40,8 @@
     } ]
   }, {
     "name": "zookeeper",
-	"template": "zk:/fabric/metrics/zookeeper.mvel",
-	"metadata": "zk:/fabric/metrics/zookeeper.json",
+	"template": "profile:zookeeper.mvel",
+	"metadata": "profile:zookeeper.json",
     "requests": [ {
       "name": "peer",
       "obj" : "org.apache.zookeeper:name0=*,name1=*,name2=*",

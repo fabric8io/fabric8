@@ -108,7 +108,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private static final String CONFIG_ROOT_DIR = "fabric";
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
-    public static final String CONFIGS_METRICS = CONFIGS + "/metrics";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
 
     private GitService gitService;

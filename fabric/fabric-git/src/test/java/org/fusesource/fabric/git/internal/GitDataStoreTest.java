@@ -117,12 +117,9 @@ public class GitDataStoreTest {
         } else {
             String prefix = importPath + "/fabric";
             String profileImport = prefix + "/configs/versions/1.0/profiles";
-            String metricsImport = prefix + "/metrics";
             assertFolderExists(profileImport);
-            assertFolderExists(metricsImport);
 
             dataStore.importFromFileSystem(new File(profileImport), "fabric", "1.0");
-            dataStore.importFromFileSystem(new File(metricsImport), "fabric", "1.0");
             assertHasVersion(defaultVersion);
         }
 
