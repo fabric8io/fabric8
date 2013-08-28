@@ -356,26 +356,26 @@
     <profile>
       <id>snapshots</id>
       <properties>
-        <perfectus-build>029</perfectus-build>
-        <activemq-version>5.8.0.fuse-72-${perfectus-build}</activemq-version>
-        <aries.blueprint.version>1.0.1.fuse-72-${perfectus-build}</aries.blueprint.version>
-        <aries.jmx.version>1.0.1.fuse-72-${perfectus-build}</aries.jmx.version>
-        <aries.transaction.version>1.0.1.fuse-72-${perfectus-build}</aries.transaction.version>
-        <aries.util.version>1.0.1.fuse-72-${perfectus-build}</aries.util.version>
-        <aries.proxy.version>1.0.1.fuse-72-${perfectus-build}</aries.proxy.version>
-        <camel-version>2.10.0.fuse-72-${perfectus-build}</camel-version>
-        <cxf-version>2.6.0.fuse-72-${perfectus-build}</cxf-version>
-        <felix-configadmin-version>1.4.0.fuse-72-${perfectus-build}</felix-configadmin-version>
-        <felix-eventadmin-version>1.3.0.fuse-72-${perfectus-build}</felix-eventadmin-version>
-        <felix-fileinstall-version>3.3.11.fuse-72-${perfectus-build}</felix-fileinstall-version>
-        <felix-framework-version>4.0.3.fuse-72-${perfectus-build}</felix-framework-version>
-        <felix-framework-security-version>2.0.1.fuse-72-${perfectus-build}</felix-framework-security-version>
-        <karaf-version>2.3.0.fuse-72-${perfectus-build}</karaf-version>
-        <servicemix.components.version>2012.01.0.fuse-72-${perfectus-build}</servicemix.components.version>
-        <servicemix.features.version>4.5.0-fuse-${perfectus-build}</servicemix.features.version>
-        <servicemix-nmr-version>1.6.0.fuse-72-${perfectus-build}</servicemix-nmr-version>
-        <servicemix-specs-version>2.0.0.fuse-72-${perfectus-build}</servicemix-specs-version>
-        <servicemix.utils.version>1.5.1.fuse-72-${perfectus-build}</servicemix.utils.version>
+        <snapshot-build>redhat-610-SNAPSHOT</snapshot-build>
+        <activemq-version>5.9.0.${snapshot-build}</activemq-version>
+        <aries.blueprint.version>1.0.1.${snapshot-build}</aries.blueprint.version>
+        <aries.jmx.version>1.0.1.${snapshot-build}</aries.jmx.version>
+        <aries.transaction.version>1.0.1.${snapshot-build}</aries.transaction.version>
+        <aries.util.version>1.0.1.${snapshot-build}</aries.util.version>
+        <aries.proxy.version>1.0.1.${snapshot-build}</aries.proxy.version>
+        <camel-version>2.12.0.${snapshot-build}</camel-version>
+        <cxf-version>2.7.0.${snapshot-build}</cxf-version>
+        <felix-configadmin-version>1.4.0.${snapshot-build}</felix-configadmin-version>
+        <felix-eventadmin-version>1.3.0.${snapshot-build}</felix-eventadmin-version>
+        <felix-fileinstall-version>3.3.11.${snapshot-build}</felix-fileinstall-version>
+        <felix-framework-version>4.0.3.${snapshot-build}</felix-framework-version>
+        <felix-framework-security-version>2.0.1.${snapshot-build}</felix-framework-security-version>
+        <karaf-version>2.3.0.${snapshot-build}</karaf-version>
+        <servicemix.components.version>2013.01.0.${snapshot-build}</servicemix.components.version>
+        <servicemix.features.version>4.5.0.${snapshot-build}</servicemix.features.version>
+        <servicemix-nmr-version>1.6.0.${snapshot-build}</servicemix-nmr-version>
+        <servicemix-specs-version>2.3.0.${snapshot-build}</servicemix-specs-version>
+        <servicemix.utils.version>1.6.0.${snapshot-build}</servicemix.utils.version>
       </properties>
     </profile>
 
