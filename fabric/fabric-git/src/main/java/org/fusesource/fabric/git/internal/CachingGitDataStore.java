@@ -14,7 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
+
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.DataStorePlugin;
+import org.fusesource.fabric.api.PlaceholderResolver;
 
 import java.util.List;
 import java.util.Map;
@@ -24,12 +36,45 @@ import java.util.concurrent.ConcurrentHashMap;
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
  * and speed things up a little
  */
-public class CachingGitDataStore extends GitDataStore {
+
+@Component(name = "org.fusesource.datastore.git.caching",
+        description = "Fabric Git Caching DataStore")
+@References({
+        @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+                referenceInterface = PlaceholderResolver.class,
+                bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
+        @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY),
+        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+}
+)
+@Service(DataStorePlugin.class)
+public class CachingGitDataStore extends GitDataStore implements DataStorePlugin<GitDataStore> {
+
+    public static final String TYPE = "caching-git";
 
     private List<String> cachedVersions;
     private Map<String, List<String>> profilesCache = new ConcurrentHashMap<String, List<String>>();
     private Map<String, Map<String, Map<String, String>>> configurationsCache = new ConcurrentHashMap<String, Map<String, Map<String, String>>>();
     private Map<String, Map<String, String>> configurationCache = new ConcurrentHashMap<String, Map<String, String>>();
+
+    @Activate
+    public void init() {
+
+    }
+
+    @Deactivate
+    public void destroy() {
+        stop();
+    }
+
+    public synchronized void start() {
+        super.start();
+    }
+
+
+    public synchronized void stop() {
+        super.stop();
+    }
 
     public String toString() {
         return "CachingGitDataStore(" + getGitService() + ")";
@@ -82,5 +127,15 @@ public class CachingGitDataStore extends GitDataStore {
         profilesCache.clear();
         configurationsCache.clear();
         configurationCache.clear();
+    }
+
+    @Override
+    public String getName() {
+        return TYPE;
+    }
+
+    @Override
+    public CachingGitDataStore getDataStore() {
+        return this;
     }
 }

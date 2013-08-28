@@ -1,8 +1,8 @@
 {
   "queries" : [ {
     "name" : "jetty",
-	"template": "zk:/fabric/metrics/jetty.mvel",
-	"metadata": "zk:/fabric/metrics/jetty.json",
+	"template": "profile:jetty.mvel",
+	"metadata": "profile:jetty.json",
     "requests" : [ {
       "name": "requests",
       "obj" : "org.eclipse.jetty.server.handler:type=statisticshandler,id=0",

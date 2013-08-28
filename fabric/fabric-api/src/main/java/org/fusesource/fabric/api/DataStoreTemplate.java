@@ -14,13 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
-
-import org.eclipse.jgit.api.Git;
+package org.fusesource.fabric.api;
 
 /**
- * Performs an operation on the given git repository
+ * Describes an {@link DataStore} operation.
  */
-public interface GitOperation<T> {
-    T call(Git git, GitContext context) throws Exception;
+public interface DataStoreTemplate {
+
+    /**
+     * Perform an operation on the specified {@link DataStore}.
+     * @param dataStore
+     * @throws Exception
+     */
+    void doWith(DataStore dataStore) throws Exception;
 }

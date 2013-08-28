@@ -36,7 +36,9 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.git*;version=${fuse.osgi.version};-noimport:=true
+            org.fusesource.fabric.git*;version=${fuse.osgi.version};-noimport:=true,
+            org.eclipse.jgit*;-noimport:=true,
+            org.gitective.core*;-noimport:=true,
         </fuse.osgi.export>
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
@@ -60,6 +62,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.gitective</groupId>
+            <artifactId>gitective-core</artifactId>
+            <version>0.9.9</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>${servlet-api-version}</version>
@@ -76,6 +84,12 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-groups</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -121,6 +135,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.codehaus.jackson</groupId>
+            <artifactId>jackson-mapper-asl</artifactId>
+            <version>${jackson-version}</version>
+        </dependency>
+
+        <!-- logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
         </dependency>
@@ -135,24 +162,20 @@
             <artifactId>commons-logging-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-mapper-asl</artifactId>
-            <version>${jackson-version}</version>
-        </dependency>
 
+        <!-- Testing -->
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
             <scope>test</scope>
         </dependency>
 
-        <!-- logging -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-version}</version>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper-spring</artifactId>
+            <scope>test</scope>
         </dependency>
+
     </dependencies>
 
     <build>

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,10 +33,20 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
+import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand;
+import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
@@ -49,8 +59,10 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
@@ -63,7 +75,6 @@ import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.service.git.GitHelpers.currentBranch;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
@@ -76,8 +87,20 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * A git based implementation of {@link DataStore} which stores the profile configuration
  * versions in a branch per version and directory per profile.
  */
-public class GitDataStore extends DataStoreSupport {
+@Component(name = "org.fusesource.datastore.git",
+        description = "Fabric Git DataStore")
+@References({
+        @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+                referenceInterface = PlaceholderResolver.class,
+                bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
+        @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY),
+        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+}
+)
+@Service(DataStorePlugin.class)
+public class GitDataStore extends DataStoreSupport implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
+    public static final String TYPE = "git";
 
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
     private static final String CONTAINER_CONFIG_PID = "org.fusesource.fabric.agent";
@@ -85,7 +108,6 @@ public class GitDataStore extends DataStoreSupport {
     private static final String CONFIG_ROOT_DIR = "fabric";
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
-    public static final String CONFIGS_METRICS = CONFIGS + "/metrics";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
 
     private GitService gitService;
@@ -107,42 +129,51 @@ public class GitDataStore extends DataStoreSupport {
         return "GitDataStore(" + getGitService() + ")";
     }
 
-    public synchronized void init() throws Exception {
-        super.init();
+    @Activate
+    public void init() {
 
-        if (gitService != null) {
-            gitService.addRemoteChangeListener(remoteChangeListener);
-        }
-        if (threadPool == null) {
-            this.threadPool = Executors.newSingleThreadScheduledExecutor();
-        }
-        Properties properties = getDataStoreProperties();
-        if (properties != null) {
-            this.pullPeriod = PropertiesHelper.getLongValue(properties, "gitPullPeriod", this.pullPeriod);
-        }
-        LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
-        threadPool.scheduleWithFixedDelay(new Runnable() {
-            @Override
-            public void run() {
-                LOG.debug("Performing timed pull");
-                pull();
+    }
+
+    @Deactivate
+    public void destroy() {
+        stop();
+    }
+
+    public synchronized void start() {
+        try {
+            super.start();
+
+            if (gitService != null) {
+                gitService.addRemoteChangeListener(remoteChangeListener);
             }
-        }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
-
-        // lets check if we have at least one profile so our git repo isn't empty
-        if (getProfiles(getDefaultVersion()).size() > 0) {
-            fireOnInitialised();
+            if (threadPool == null) {
+                this.threadPool = Executors.newSingleThreadScheduledExecutor();
+            }
+            Properties properties = getDataStoreProperties();
+            if (properties != null) {
+                this.pullPeriod = PropertiesHelper.getLongValue(properties, "gitPullPeriod", this.pullPeriod);
+            }
+            LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
+            threadPool.scheduleWithFixedDelay(new Runnable() {
+                @Override
+                public void run() {
+                    LOG.debug("Performing timed pull");
+                    pull();
+                }
+            }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
+        } catch (Exception ex) {
+            throw new FabricException("Failed to start GitDataStore:",ex);
         }
     }
 
-    public synchronized void destroy() {
+    public synchronized void stop() {
         if (threadPool != null) {
             threadPool.shutdown();
         }
         if (gitService != null) {
             gitService.removeRemoteChangeListener(remoteChangeListener);
         }
-        super.destroy();
+        super.stop();
 
     }
 
@@ -163,6 +194,14 @@ public class GitDataStore extends DataStoreSupport {
 
     public void setGitService(GitService gitService) {
         this.gitService = gitService;
+    }
+
+    public void bindGitService(GitService gitService) {
+        this.gitService = gitService;
+    }
+
+    public void unbindGitService(GitService gitService) {
+        this.gitService = null;
     }
 
     public ScheduledExecutorService getThreadPool() {
@@ -706,7 +745,7 @@ public class GitDataStore extends DataStoreSupport {
                 if (GitHelpers.hasGitHead(git)) {
                     // lets stash any local changes just in case..
                     git.stashCreate().setPerson(personIdent)
-                            .setWorkingDirectoryMessage("Stash before a write").setRef("HEAD").call();
+                            .setWorkingDirectoryMessage("Stash before a write").call();
                 }
                 if (pullFirst) {
                     doPull(git, credentialsProvider);
@@ -771,7 +810,7 @@ public class GitDataStore extends DataStoreSupport {
             return Collections.EMPTY_LIST;
         }
 
-        String branch = currentBranch(git);
+        String branch = GitHelpers.currentBranch(git);
         return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
     }
 
@@ -848,7 +887,12 @@ public class GitDataStore extends DataStoreSupport {
             for (String version : gitVersions) {
                 // Delete unneeded local branches
                 if (!remoteBranches.containsKey(version)) {
-                    git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                    try {
+                        git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                    } catch (CannotDeleteCurrentBranchException ex) {
+                        git.checkout().setName("master").setForce(true).call();
+                        git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                    }
                 }
                 // Create new local branches
                 else if (!localBranches.containsKey(version)) {
@@ -872,7 +916,6 @@ public class GitDataStore extends DataStoreSupport {
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
                     File profilesDirectory = getProfilesDirectory(git);
-                    fireOnInitialised();
                 }
                 fireChangeNotifications();
             }
@@ -998,4 +1041,13 @@ public class GitDataStore extends DataStoreSupport {
         return relativePath;
     }
 
+    @Override
+    public String getName() {
+        return TYPE;
+    }
+
+    @Override
+    public GitDataStore getDataStore() {
+        return this;
+    }
 }

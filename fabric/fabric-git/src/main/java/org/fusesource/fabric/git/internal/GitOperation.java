@@ -14,16 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.git.internal;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import org.eclipse.jgit.api.Git;
 
 /**
- * Factory of {@link DataStore} instance
+ * Performs an operation on the given git repository
  */
-public interface DataStoreFactory {
-
-    DataStore createDataStore() throws Exception;
+public interface GitOperation<T> {
+    T call(Git git, GitContext context) throws Exception;
 }

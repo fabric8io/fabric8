@@ -1,8 +1,8 @@
 {
   "queries" : [ {
     "name" : "activemq",
-	"template": "zk:/fabric/metrics/activemq.mvel",
-	"metadata": "zk:/fabric/metrics/activemq.json",
+	"template": "profile:activemq.mvel",
+	"metadata": "profile:activemq.json",
     "requests" : [ {
       "name": "broker",
       "obj" : "org.apache.activemq:type=Broker,brokerName=*",

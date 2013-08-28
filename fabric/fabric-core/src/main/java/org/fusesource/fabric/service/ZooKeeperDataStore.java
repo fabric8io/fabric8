@@ -16,13 +16,6 @@
  */
 package org.fusesource.fabric.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.TreeData;
 import org.apache.curator.utils.ZKPaths;
@@ -32,21 +25,27 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
-import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.internal.RequirementsJson;
-import org.fusesource.fabric.service.DataStoreSupport;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
@@ -70,13 +69,39 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * This implementation requires the fabric-git-zkbridge if you wish to be able to use
  * git to store configuration
  */
-public class ZooKeeperDataStore extends DataStoreSupport {
+@Component(name = "org.fusesource.datastore.zookeeper",
+           description = "Fabric ZooKeeper DataStore")
+@Service(DataStorePlugin.class)
+@References({
+        @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
+                referenceInterface = PlaceholderResolver.class,
+                bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
+        @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+}
+)
+public class ZooKeeperDataStore extends DataStoreSupport implements DataStorePlugin<ZooKeeperDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(ZooKeeperDataStore.class);
+    public static final String TYPE = "zookeeper";
 
-    public synchronized void init() throws Exception {
-        super.init();
-        fireOnInitialised();
+    @Activate
+    public void init() {
+
     }
+
+    @Deactivate
+    public void destroy() {
+        stop();
+    }
+
+    public synchronized void start() {
+        super.start();
+    }
+
+
+    public synchronized void stop() {
+        super.stop();
+    }
+
 
     @Override
     public void importFromFileSystem(String from) {
@@ -487,4 +512,13 @@ public class ZooKeeperDataStore extends DataStoreSupport {
         }
     }
 
+    @Override
+    public String getName() {
+        return TYPE;
+    }
+
+    @Override
+    public ZooKeeperDataStore getDataStore() {
+        return this;
+    }
 }

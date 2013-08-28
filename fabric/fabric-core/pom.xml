@@ -39,8 +39,6 @@
           org.fusesource.fabric.api.locks;version=${project.version},
           org.fusesource.fabric.service*;version=${project.version};-noimport:=true,
           org.fusesource.fabric.internal*;version=${project.version};-noimport:=true,
-          org.eclipse.jgit*;-noimport:=true,
-          org.gitective.core*;-noimport:=true
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.fusesource.fabric.internal,
@@ -118,26 +116,11 @@
         <version>${commons-beanutils-version}</version>
       </dependency>
 
-<!--
-        <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>0.1.42</version>
-        </dependency>
--->
-
         <dependency>
           <groupId>org.codehaus.jackson</groupId>
           <artifactId>jackson-mapper-asl</artifactId>
           <version>${jackson-version}</version>
         </dependency>
-
-      <dependency>
-          <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-linkedin-zookeeper</artifactId>
-          <version>${project.version}</version>
-          <scope>provided</scope>
-      </dependency>
 
       <dependency>
         <groupId>org.fusesource.fabric</groupId>
@@ -159,59 +142,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- git stuff -->
-        <dependency>
-            <groupId>org.eclipse.jgit</groupId>
-            <artifactId>org.eclipse.jgit</artifactId>
-            <version>${jgit.version}</version>
-        </dependency>
-        <dependency>
-          <groupId>org.gitective</groupId>
-          <artifactId>gitective-core</artifactId>
-          <version>0.9.9</version>
-        </dependency>
-
-        <!--
-
-        <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.zookeeper-impl</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.linkedin</groupId>
-            <artifactId>org.linkedin.util-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-impl</artifactId>
-            <version>1.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-connector-wagon</artifactId>
-            <version>1.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-spi</artifactId>
-            <version>1.11</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-aether-provider</artifactId>
-            <version>3.0.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.maven.wagon</groupId>
-            <artifactId>wagon-file</artifactId>
-            <version>1.0-beta-7</version>
-        </dependency>
-
--->
       <dependency>
           <groupId>org.easymock</groupId>
           <artifactId>easymock</artifactId>

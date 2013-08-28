@@ -17,26 +17,20 @@
 package org.fusesource.fabric.internal;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.karaf.jaas.modules.Encryption;
-import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
-import org.fusesource.fabric.service.ConfiguredDataStoreFactory;
 import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.utils.OsgiUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -52,20 +46,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.utils.BundleUtils.instalBundle;
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
+import static org.fusesource.fabric.utils.Ports.mapPortToRange;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap",
            description = "Fabric ZooKeeper Cluster Bootstrap",
@@ -79,6 +67,10 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
 	private ConfigurationAdmin configurationAdmin;
+
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private DataStoreRegistrationHandler dataStoreRegistrationHandler;
+
     private Map<String, String> configuration;
 
     @Activate
@@ -109,10 +101,6 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
     public void create(CreateEnsembleOptions options) {
         try {
-
-            Hashtable<String, Object> properties;
-            String version = ZkDefs.DEFAULT_VERSION;
-            String karafName = System.getProperty(SystemProperties.KARAF_NAME);
             int minimumPort = options.getMinimumPort();
             int maximumPort = options.getMaximumPort();
             String zooKeeperServerHost = options.getBindAddress();
@@ -121,100 +109,9 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             int mappedPort = mapPortToRange(zooKeeperServerPort, minimumPort, maximumPort);
 			String connectionUrl = getConnectionAddress() + ":" + zooKeeperServerConnectionPort;
 
-
             // Create configuration
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
-            CuratorFramework curator = createCuratorFramework(connectionUrl, options);
-            curator.start();
-            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-
-            //Initialize a temporary DataStore
-            ConfiguredDataStoreFactory dataStoreFactory = new ConfiguredDataStoreFactory();
-            dataStoreFactory.setBundleContext(bundleContext);
-            dataStoreFactory.setConfiguration(configuration);
-            dataStoreFactory.setBootstrap(true);
-            dataStoreFactory.setCurator(curator);
-            DataStore dataStore = dataStoreFactory.createDataStore();
-
-            // import data into the DataStore
-            if (options.isAutoImportEnabled()) {
-                dataStore.importFromFileSystem(options.getImportPath());
-            }
-
-            // configure the registry
-            byte[] dataStoreData = DataStoreHelpers.toBytes(DataStoreHelpers.toStringProperties(configuration));
-            ZooKeeperUtils.create(curator, ZkPath.BOOTSTRAP.getPath(), dataStoreData, CreateMode.PERSISTENT);
-
-            // set the fabric configuration
-            createDefault(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
-
-            // configure default profile
-            String defaultProfile = dataStore.getProfile(version, "default", true);
-
-            setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), "${zk:" + karafName + "/ip}:" + zooKeeperServerConnectionPort);
-            setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-
-            Properties zkProps = new Properties();
-            zkProps.setProperty("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-            zkProps.setProperty("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-            dataStore.setFileConfiguration(version, defaultProfile, "org.fusesource.fabric.zookeeper.properties", DataStoreHelpers.toBytes(zkProps));
-
-            // configure the ensemble
-            String ensembleProfile = dataStore.getProfile(version, "fabric-ensemble-0000", true);
-            dataStore.setProfileAttribute(version, ensembleProfile, "abstract", "true");
-            dataStore.setProfileAttribute(version, ensembleProfile, "hidden", "true");
-
-            Properties ensembleProps = new Properties();
-            ensembleProps.put("tickTime", "2000");
-            ensembleProps.put("initLimit", "10");
-            ensembleProps.put("syncLimit", "5");
-            ensembleProps.put("dataDir", "data/zookeeper/0000");
-
-            loadPropertiesFrom(ensembleProps, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
-            dataStore.setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(ensembleProps));
-
-            // configure this server in the ensemble
-            String ensembleServerProfile = dataStore.getProfile(version, "fabric-ensemble-0000-1", true);
-            dataStore.setProfileAttribute(version, ensembleServerProfile, "hidden", "true");
-            dataStore.setProfileAttribute(version, ensembleServerProfile, "parents", ensembleProfile);
-            Properties serverProps = new Properties();
-            serverProps.put("clientPort", String.valueOf(mappedPort));
-            serverProps.put("clientPortAddress", zooKeeperServerHost);
-            dataStore.setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(serverProps));
-
-            setData(curator, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
-            setData(curator, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), karafName);
-
-            // configure fabric profile
-            String fabricProfile = dataStore.getProfile(version, "fabric", true);
-            Properties agentProps = DataStoreHelpers.toProperties(dataStore.getFileConfiguration(version, fabricProfile, "org.fusesource.fabric.agent.properties"));
-            agentProps.put("feature.fabric-commands", "fabric-commands");
-            dataStore.setFileConfiguration(version, "fabric", "org.fusesource.fabric.agent.properties", DataStoreHelpers.toBytes(agentProps));
-
-            createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
-
-
-            StringBuilder profilesBuilder = new StringBuilder();
-            Set<String> profiles = options.getProfiles();
-            profilesBuilder.append("fabric").append(" ").append("fabric-ensemble-0000-1");
-            for (String p : profiles) {
-                profilesBuilder.append(" ").append(p);
-            }
-
-            createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), profilesBuilder.toString());
-
-            // add auth
-            Map<String, String> configs = new HashMap<String, String>();
-            configs.put("encryption.enabled", "${zk:/fabric/authentication/encryption.enabled}" );
-            dataStore.setConfiguration(version, defaultProfile, "org.fusesource.fabric.jaas", configs);
-
-            // outside of the profile storage area, so we'll keep these in zk
-            createDefault(curator, "/fabric/authentication/encryption.enabled", "true");
-            createDefault(curator, "/fabric/authentication/domain", "karaf");
-            addUsersToZookeeper(curator, options.getUsers());
-
-            createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), "PBEWithMD5AndDES");
-            createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), options.getZookeeperPassword());
+            dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
 
             // Create the client configuration
             createZooKeeeperConfig(connectionUrl, options);
@@ -226,8 +123,9 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
                 props.put(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
                 props.save();
             }
-            dataStore.destroy();
             startBundles(options);
+            //Wait until Fabric Service becomes available.
+            OsgiUtils.waitForSerice(FabricService.class);
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
 		}
@@ -310,22 +208,6 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
     }
 
 
-    /**
-     * Creates ZooKeeper client configuration.
-     * @param connectionUrl
-     * @param options
-     * @throws IOException
-     */
-    private CuratorFramework createCuratorFramework(String connectionUrl, CreateEnsembleOptions options) throws IOException {
-        return CuratorFrameworkFactory.builder()
-                .connectString(connectionUrl)
-                .connectionTimeoutMs(15000)
-                .sessionTimeoutMs(60000)
-                .authorization("digest",  ("fabric:" + options.getZookeeperPassword()).getBytes())
-                .retryPolicy(new RetryNTimes(3,500)).build();
-    }
-
-
     public void startBundles(CreateEnsembleOptions options) throws BundleException {
         // Install or stop the fabric-configadmin bridge
         Bundle bundleFabricAgent = instalBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
@@ -369,16 +251,6 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
         }
     }
 
-    private void loadPropertiesFrom(Hashtable hashtable, DataStore dataStore, String version, String profile,
-                                    String pid) {
-        Map<String, String> properties = dataStore.getConfiguration(version, profile, pid);
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            hashtable.put(key, value);
-        }
-    }
-
 
     private static void delete(File dir) {
         if (dir.isDirectory()) {
@@ -389,44 +261,6 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
         if (dir.exists()) {
             dir.delete();
         }
-    }
-    /**
-     * Adds users to the Zookeeper registry.
-     *
-     * @param curator
-     * @param users
-     * @throws KeeperException
-     * @throws InterruptedException
-     */
-    private void addUsersToZookeeper(CuratorFramework curator, Map<String, String> users) throws Exception {
-        Pattern p = Pattern.compile("(.+),(.+)");
-        Map<String, Object> options = new HashMap<String, Object>();
-        options.put("encryption.prefix", "{CRYPT}");
-        options.put("encryption.suffix", "{CRYPT}");
-        options.put("encryption.enabled", "true");
-        options.put("encryption.enabled", "true");
-        options.put("encryption.algorithm", "MD5");
-        options.put("encryption.encoding", "hexadecimal");
-        options.put(BundleContext.class.getName(), FrameworkUtil.getBundle(getClass()).getBundleContext());
-        EncryptionSupport encryptionSupport = new EncryptionSupport(options);
-        Encryption encryption = encryptionSupport.getEncryption();
-
-        StringBuilder sb = new StringBuilder();
-
-        for (Map.Entry<String, String> entry : users.entrySet()) {
-            String user = entry.getKey();
-            Matcher m = p.matcher(entry.getValue());
-            if (m.matches() && m.groupCount() >= 2) {
-                String password = m.group(1).trim();
-                if (!password.startsWith(encryptionSupport.getEncryptionPrefix()) || !password.endsWith(encryptionSupport.getEncryptionSuffix())) {
-                    password = encryptionSupport.getEncryptionPrefix() + encryption.encryptPassword(m.group(1)).trim() + encryptionSupport.getEncryptionSuffix();
-                }
-                String role = m.group(2).trim();
-                sb.append(user).append("=").append(password).append(",").append(role).append("\n");
-            }
-        }
-        String allUsers = sb.toString();
-        createDefault(curator, "/fabric/authentication/users", allUsers);
     }
 
     private static String getConnectionAddress() throws UnknownHostException {

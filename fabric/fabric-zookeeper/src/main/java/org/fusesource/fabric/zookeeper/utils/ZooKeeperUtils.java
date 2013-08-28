@@ -447,7 +447,11 @@ public final class ZooKeeperUtils {
         long time = System.currentTimeMillis();
         String password = null;
         if (time - lastTokenGenerationTime < 60 * 1000) {
-            password = getStringData(curator, CONTAINERS_NODE + "/" + container);
+            try {
+                password = getStringData(curator, CONTAINERS_NODE + "/" + container);
+            } catch (KeeperException.NoNodeException ex) {
+                //Node hasn't been created yet. It's safe to ignore.
+            }
         }
         if (password == null) {
             password = generatePassword();

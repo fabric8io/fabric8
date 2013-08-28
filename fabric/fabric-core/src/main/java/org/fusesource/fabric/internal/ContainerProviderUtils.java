@@ -174,6 +174,7 @@ public final class ContainerProviderUtils {
             appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.AGENT_AUTOSTART + "=true"));
             appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
             if (options != null && options.getUsers() != null) {
+                appendFile(sb, "etc/users.properties",  Arrays.asList("\n"));
                 for (Map.Entry<String, String> entry : options.getUsers().entrySet()) {
                     appendFile(sb, "etc/users.properties", Arrays.asList(entry.getKey() + "=" + entry.getValue()));
                 }

@@ -76,33 +76,35 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     public static final String JVM_OPTIONS_PATH
             = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
+    private Map<String, PlaceholderResolver> placeholderResolvers = new HashMap<String, PlaceholderResolver>();
+
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
     //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
     private ExecutorService cacheExecutor;
 
     protected TreeCache treeCache;
-    private AtomicBoolean initialised = new AtomicBoolean(false);
+    private AtomicBoolean started = new AtomicBoolean(false);
 
     private CuratorFramework curator;
-    private Map<String, PlaceholderResolver> placeholderResolvers
-            = new HashMap<String, PlaceholderResolver>();
-    private Runnable onInitialised;
     private Properties dataStoreProperties;
 
     @Override
     public abstract void importFromFileSystem(String from);
 
-    public synchronized void init() throws Exception {
-        if (initialised.compareAndSet(false, true)) {
+    public synchronized void start() {
+        try {
+        if (started.compareAndSet(false, true)) {
             LOG.info("Starting up DataStore " + this);
             Objects.notNull(getCurator(), "curator");
             createCache(getCurator());
         }
+        }catch (Exception ex) {
+            throw new FabricException("Failed to start data store.", ex);
+        }
     }
 
-    @Override
-    public synchronized void destroy() {
+    public synchronized void stop() {
         destroyCache();
     }
 
@@ -131,6 +133,27 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
 
     public void setPlaceholderResolvers(Map<String, PlaceholderResolver> placeholderResolvers) {
         this.placeholderResolvers = placeholderResolvers;
+    }
+
+
+    public void bindCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
+
+    public void unbindCurator(CuratorFramework curator) {
+        this.curator = null;
+    }
+
+    public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
+        if (resolver != null) {
+            getPlaceholderResolvers().put(resolver.getScheme(), resolver);
+        }
+    }
+
+    public synchronized void unbindPlaceholderResolver(PlaceholderResolver resolver) {
+        if (resolver != null) {
+            getPlaceholderResolvers().remove(resolver.getScheme());
+        }
     }
 
     private synchronized void createCache(CuratorFramework curator) throws Exception {
@@ -607,21 +630,4 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             throw new FabricException(e);
         }
     }
-
-    public void setOnInitialised(Runnable onInitialised) {
-        this.onInitialised = onInitialised;
-    }
-
-    public Runnable getOnInitialised() {
-        return onInitialised;
-    }
-
-    protected void fireOnInitialised() {
-        Runnable callback = onInitialised;
-        if (callback != null) {
-            onInitialised = null;
-            callback.run();
-        }
-    }
-
 }

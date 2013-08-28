@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.git;
+package org.fusesource.fabric.git.internal;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,7 +94,7 @@ public class GitDataStoreTest {
 
         dataStore.setCurator(curator);
         dataStore.setGitService(gitService);
-        dataStore.init();
+        dataStore.start();
     }
 
     @After
@@ -117,12 +117,9 @@ public class GitDataStoreTest {
         } else {
             String prefix = importPath + "/fabric";
             String profileImport = prefix + "/configs/versions/1.0/profiles";
-            String metricsImport = prefix + "/metrics";
             assertFolderExists(profileImport);
-            assertFolderExists(metricsImport);
 
             dataStore.importFromFileSystem(new File(profileImport), "fabric", "1.0");
-            dataStore.importFromFileSystem(new File(metricsImport), "fabric", "1.0");
             assertHasVersion(defaultVersion);
         }
 
