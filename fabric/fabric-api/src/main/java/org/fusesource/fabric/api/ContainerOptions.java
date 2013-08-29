@@ -47,7 +47,7 @@ public class ContainerOptions implements Serializable {
         @JsonProperty
         Set<String> profiles = new LinkedHashSet<String>();
         @JsonProperty
-        String version;
+        String version = ContainerOptions.DEFAULT_VERSION;
 
         public Builder() {
 
