@@ -532,6 +532,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 checkoutVersion(git, version);
                 File profileDirectory = getProfileDirectory(git, profile);
                 doSetFileConfigurations(git, profileDirectory, profile, configurations);
+                context.commit("Updated configuration for profile " + profile);
                 return null;
             }
         });
@@ -550,9 +551,8 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         }
 
         for (String pid : oldCfgs.keySet()) {
-            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, pid));
+            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, getPidFromFileName(pid)));
         }
-        git.commit().setMessage("Updated configuration for profile " + profile).call();
     }
 
     @Override
