@@ -100,21 +100,23 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 @Service(DataStorePlugin.class)
 public class GitDataStore extends DataStoreSupport implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
-    public static final String TYPE = "git";
 
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
     private static final String CONTAINER_CONFIG_PID = "org.fusesource.fabric.agent";
 
+    private static final String MASTER_BRANCH = "master";
     private static final String CONFIG_ROOT_DIR = "fabric";
+
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
+    public static final String TYPE = "git";
 
     private GitService gitService;
 
     private final Object lock = new Object();
     private String remote = "origin";
-    private String masterBranch = "master";
+
     private Runnable remoteChangeListener = new Runnable() {
         public void run() {
             LOG.debug("Remote master git repo changed, lets do a git pull");
@@ -256,7 +258,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 createVersion(version);
-
+                checkoutVersion(git, version);
                 // now lets recursively add files
                 File toDir = GitHelpers.getRootGitDirectory(git);
                 if (Strings.isNotBlank(destinationPath)) {
@@ -319,7 +321,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     if (name.startsWith(prefix)) {
                         name = name.substring(prefix.length());
                     }
-                    if (!name.equals(masterBranch)) {
+                    if (!name.equals(MASTER_BRANCH)) {
                         answer.add(name);
                     }
                 }
@@ -338,9 +340,10 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         return gitReadOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 List<String> answer = new ArrayList<String>();
+                File profilesDir = getProfilesDirectory(git);
                 if (hasVersion(version)) {
-                    checkoutVersion(git, version);
-                    File profilesDir = getProfilesDirectory(git);
+                    //We are also checking the master branch for non versioned profiles (e.g. ensemble profiles).
+                    checkoutVersion(git, "master");
                     if (profilesDir.exists()) {
                         File[] files = profilesDir.listFiles();
                         if (files != null) {
@@ -353,6 +356,21 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                             }
                         }
                     }
+
+                    checkoutVersion(git, version);
+                    if (profilesDir.exists()) {
+                        File[] files = profilesDir.listFiles();
+                        if (files != null) {
+                            for (File file : files) {
+                                if (file.isDirectory()) {
+                                    // TODO we could recursively scan for magic ".profile" files or something
+                                    // then we could put profiles into nicer tree structure?
+                                    answer.add(file.getName());
+                                }
+                            }
+                        }
+                    }
+
                 }
                 return answer;
             }
@@ -372,7 +390,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public String getProfile(final String version, final String profile, final boolean create) {
         return gitOperation(new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 if (!profileDirectory.exists()) {
                     if (create) {
@@ -389,7 +407,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public void createProfile(final String version, final String profile) {
         gitOperation(new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 return doCreateProfile(git, context, profile);
             }
         });
@@ -399,7 +417,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public void deleteProfile(final String version, final String profile) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doRecursiveDeleteAndRemove(git, profileDirectory);
                 context.commit("Removed profile " + profile);
@@ -468,7 +486,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public long getLastModified(final String version, final String profile) {
         Long answer = gitReadOperation(new GitOperation<Long>() {
             public Long call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
                 Long answer = null;
@@ -491,7 +509,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public Map<String, byte[]> getFileConfigurations(final String version, final String profile) {
         return gitReadOperation(new GitOperation<Map<String, byte[]>>() {
             public Map<String, byte[]> call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 return doGetFileConfigurations(git, profile);
             }
         });
@@ -516,7 +534,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
         return gitReadOperation(new GitOperation<byte[]>() {
             public byte[] call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 File file = new File(profileDirectory, fileName);
                 return doLoadFileConfiguration(file);
@@ -529,7 +547,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                                       final Map<String, byte[]> configurations) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doSetFileConfigurations(git, profileDirectory, profile, configurations);
                 context.commit("Updated configuration for profile " + profile);
@@ -560,7 +578,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                                      final byte[] configuration) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 doSetFileConfiguration(git, profile, fileName, configuration);
                 context.commit("Updated " + fileName + " for profile " + profile);
                 return null;
@@ -593,7 +611,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                                                 final String pid) {
         return gitReadOperation(new GitOperation<Map<String, String>>() {
             public Map<String, String> call(Git git, GitContext context) throws Exception {
-                checkoutVersion(git, version);
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 File file = getPidFile(profileDirectory, pid);
                 if (file.isFile() && file.exists()) {
@@ -736,6 +754,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             try {
                 Git git = getGit();
                 Repository repository = git.getRepository();
+                String originalBranch = repository.getBranch();
                 CredentialsProvider credentialsProvider = getCredentialsProvider();
                 // lets default the identity if none specified
                 if (personIdent == null) {
@@ -762,6 +781,8 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     }
                     git.commit().setMessage(message).call();
                 }
+
+                git.checkout().setName(originalBranch).call();
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
                     doPush(git, credentialsProvider);
                     fireChangeNotifications();
@@ -870,13 +891,13 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
                 if (ref.getName().startsWith("refs/remotes/" + remote + "/")) {
                     String name = ref.getName().substring(("refs/remotes/" + remote + "/").length());
-                    if (!"master".equals(name) && !name.endsWith("-tmp")) {
+                    if (!name.endsWith("-tmp")) {
                         remoteBranches.put(name, ref);
                         gitVersions.add(name);
                     }
                 } else if (ref.getName().startsWith("refs/heads/")) {
                     String name = ref.getName().substring(("refs/heads/").length());
-                    if (!name.equals("master") && !name.endsWith("-tmp")) {
+                    if (!name.endsWith("-tmp")) {
                         localBranches.put(name, ref);
                         gitVersions.add(name);
                     }
