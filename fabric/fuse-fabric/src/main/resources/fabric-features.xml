@@ -461,7 +461,6 @@
     <feature name="fmc-rest" version="${project.version}" resolver="(obr)">
         <feature>war</feature>
         <feature>fabric-core</feature>
-        <feature>fabric-jaas</feature>
         <feature>fabric-boot-commands</feature>
         <feature>fabric-jclouds</feature>
         <bundle>mvn:org.fusesource.fmc/fmc-rest/${project.version}/war</bundle>
