@@ -23,7 +23,7 @@ import org.osgi.framework.FrameworkUtil
 import system.Principal
 import org.slf4j.{Logger, LoggerFactory}
 import java.lang.ExceptionInInitializerError
-import org.fusesource.fabric.api.{ZooKeeperClusterService, Container, FabricService}
+import org.fusesource.fabric.api._
 import java.io.File
 import org.jclouds.providers.Providers
 import org.jclouds.apis.Apis
@@ -54,6 +54,8 @@ class Services {
   def setFabricService(service: FabricService) = _fabric_service = service
 
   def setZooKeeperClusterService(service: ZooKeeperClusterService) = _zoo_keeper_cluster_service = service
+
+  def setZooKeeperClusterBootstrap(service: ZooKeeperClusterBootstrap) = _zoo_keeper_cluster_bootstrap = service
 
   def setConfigurationAdmin(service: ConfigurationAdmin): Unit = _config_admin = service
 
@@ -110,6 +112,7 @@ object Services {
   protected var _managed: Boolean = _
   protected var _fabric_service: FabricService = _
   protected var _zoo_keeper_cluster_service: ZooKeeperClusterService = _
+  protected var _zoo_keeper_cluster_bootstrap: ZooKeeperClusterBootstrap = _
   protected var _config_admin: ConfigurationAdmin = _
   protected var _curator: CuratorFramework = _
   protected var _compute_service_listener: ComputeServiceListener = _
@@ -126,6 +129,8 @@ object Services {
   def fabric_service = _fabric_service
 
   def zk_cluster_service = _zoo_keeper_cluster_service
+
+  def zk_cluster_bootstrap = _zoo_keeper_cluster_bootstrap
 
   def curator = _curator
 
