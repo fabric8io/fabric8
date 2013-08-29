@@ -44,6 +44,11 @@ public class StaticManagedGroupFactory implements ManagedGroupFactory {
     }
 
     @Override
+    public <T> Group<T> createMultiGroup(String path, Class<T> clazz) {
+        return new ZooKeeperMultiGroup<T>(curator, path, clazz);
+    }
+
+    @Override
     public void close() {
         if (shouldClose) {
             curator.close();
