@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
@@ -56,11 +55,18 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
 
     public static final String TYPE = "caching-git";
 
-    private List<String> cachedVersions;
-    private Map<String, Boolean> loadedVersions = new ConcurrentHashMap<String, Boolean>();
-    private Map<String, List<String>> profilesCache = new ConcurrentHashMap<String, List<String>>();
-    private Map<String, Long> profileLastModified = new ConcurrentHashMap<String, Long>();
-    private Map<String, Map<String, byte[]>> configurationsCache = new ConcurrentHashMap<String, Map<String, byte[]>>();
+    private static class VersionData {
+        Map<String, ProfileData> profiles;
+    }
+
+    private static class ProfileData {
+        long lastModified;
+        Map<String, byte[]> configurations;
+    }
+
+    private static final VersionData NOT_LOADED = new VersionData();
+
+    private final Map<String, VersionData> cachedVersions = new HashMap<String, VersionData>();
 
     @Activate
     public void init() {
@@ -72,12 +78,12 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
         stop();
     }
 
-    public synchronized void start() {
+    public void start() {
         super.start();
     }
 
 
-    public synchronized void stop() {
+    public void stop() {
         super.stop();
     }
 
@@ -85,23 +91,53 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
         return "CachingGitDataStore(" + getGitService() + ")";
     }
 
-    protected void ensureVersionLoaded(String version) {
-        if (getVersions().contains(version)) {
-            if (!loadedVersions.containsKey(version)) {
-                synchronized (this) {
-                    if (!loadedVersions.containsKey(version)) {
-                        loadVersion(version);
-                        loadedVersions.put(version, Boolean.TRUE);
+    public List<String> getVersions() {
+        List<String> versions = null;
+        // See if we already have the list of versions
+        synchronized (cachedVersions) {
+            if (!cachedVersions.isEmpty()) {
+                versions = new ArrayList<String>(cachedVersions.keySet());
+            }
+        }
+        // If not, load them
+        if (versions == null) {
+            versions = super.getVersions();
+            // and update the cache with NOT_LOADED version data
+            synchronized (cachedVersions) {
+                if (cachedVersions.isEmpty()) {
+                    for (String version : versions) {
+                        cachedVersions.put(version, NOT_LOADED);
                     }
                 }
             }
         }
+        return versions;
     }
 
-    protected void loadVersion(final String version) {
-        gitReadOperation(new GitOperation<Object>() {
-            public Object call(Git git, GitContext context) throws Exception {
-                List<String> profiles = new ArrayList<String>();
+    protected VersionData getVersionData(String version) {
+        // Ensure the list of versions is loaded
+        getVersions();
+        VersionData data;
+        // Check if the version has already been loaded
+        synchronized (cachedVersions) {
+            data = cachedVersions.get(version);
+        }
+        if (data == NOT_LOADED) {
+            // If not, load it ...
+            data = loadVersion(version);
+            // ... and update the cache
+            synchronized (cachedVersions) {
+                cachedVersions.put(version, data);
+            }
+        }
+        return data;
+    }
+
+    protected VersionData loadVersion(final String version) {
+        return gitReadOperation(new GitOperation<VersionData>() {
+            public VersionData call(Git git, GitContext context) throws Exception {
+                VersionData data = new VersionData();
+                data.profiles = new HashMap<String, ProfileData>();
                 checkoutVersion(git, version);
                 File profilesDir = getProfilesDirectory(git);
                 if (profilesDir.exists()) {
@@ -112,67 +148,57 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
                                 // TODO we could recursively scan for magic ".profile" files or something
                                 // then we could put profiles into nicer tree structure?
                                 String profile = file.getName();
-                                profiles.add(profile);
+                                ProfileData profileData = new ProfileData();
+                                data.profiles.put(profile, profileData);
                                 // configurations
-                                Map<String, byte[]> configs = doGetFileConfigurations(git, profile);
-                                configurationsCache.put(version + "/" + profile, configs);
+                                profileData.configurations = doGetFileConfigurations(git, profile);
                                 // last modified
                                 File profileDirectory = file;
                                 File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
-                                Long answer = null;
-                                if (profileDirectory.exists()) {
-                                    answer = profileDirectory.lastModified();
-                                    if (metadataFile.exists()) {
-                                        long modified = metadataFile.lastModified();
-                                        if (modified > answer) {
-                                            answer = modified;
-                                        }
-                                    }
+                                profileData.lastModified = profileDirectory.lastModified();
+                                if (metadataFile.exists()) {
+                                    long modified = metadataFile.lastModified();
+                                    profileData.lastModified = Math.max(profileData.lastModified, modified);
                                 }
-                                profileLastModified.put(version + "/" + profile, answer);
                             }
                         }
                     }
                 }
-                profilesCache.put(version, profiles);
-                return null;
+                return data;
             }
         });
     }
 
-    public List<String> getVersions() {
-        if (cachedVersions == null) {
-            synchronized (this) {
-                if (cachedVersions == null) {
-                    cachedVersions = super.getVersions();
-                }
-            }
-        }
-        return cachedVersions;
-    }
-
     public List<String> getProfiles(String version) {
-        ensureVersionLoaded(version);
-        return profilesCache.get(version);
+        VersionData data = getVersionData(version);
+        return data != null && data.profiles != null
+                ? new ArrayList<String>(data.profiles.keySet())
+                : new ArrayList<String>();
     }
 
     public boolean hasProfile(String version, String profile) {
-        return getProfiles(version).contains(profile);
+        VersionData v = getVersionData(version);
+        ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
+        return p != null;
     }
 
     @Override
     public long getLastModified(String version, String profile) {
-        ensureVersionLoaded(version);
-        return profileLastModified.get(version + "/" + profile);
+        VersionData v = getVersionData(version);
+        ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
+        return p.lastModified;
     }
 
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
-        return getFileConfigurations(version, profile).get(fileName);
+        VersionData v = getVersionData(version);
+        ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
+        return p.configurations != null ? p.configurations.get(fileName) : null;
     }
 
     public Map<String, byte[]> getFileConfigurations(String version, String profile) {
-        ensureVersionLoaded(version);
-        return configurationsCache.get(version + "/" + profile);
+        VersionData v = getVersionData(version);
+        ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
+        return p.configurations;
     }
 
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
@@ -190,10 +216,9 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     protected void clearCaches() {
-        cachedVersions = null;
-        profilesCache.clear();
-        loadedVersions.clear();
-        configurationsCache.clear();
+        synchronized (cachedVersions) {
+            cachedVersions.clear();
+        }
     }
 
     @Override
