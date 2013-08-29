@@ -53,8 +53,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         String jvmOpts;
         @JsonProperty
         boolean adminAccess = true;
-        @JsonProperty
-        String version;
 
         @JsonIgnore
         Map<String, CreateContainerMetadata> metadataMap = new HashMap<String, CreateContainerMetadata>();
@@ -122,11 +120,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return (B) this;
         }
 
-        public B version(String version) {
-            this.version = version;
-            return (B) this;
-        }
-
         public String getName() {
             return name;
         }
@@ -171,10 +164,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return adminAccess;
         }
 
-        public String getVersion() {
-            return version;
-        }
-
         public Map<String, CreateContainerMetadata> getMetadataMap() {
             return metadataMap;
         }
@@ -186,9 +175,9 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
         public CreateContainerBasicOptions build() {
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                    maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                    maximumPort, profiles, version, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, version);
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
         }
     }
 
@@ -214,21 +203,20 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     final String jvmOpts;
     @JsonProperty
     final boolean adminAccess;
-    @JsonProperty
-    final String version;
+
 
     final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
     final transient CreationStateListener creationStateListener = new NullCreationStateListener();
 
     public CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
-                                       int minimumPort, int maximumPort, Set<String> profiles, int getZooKeeperServerPort, int zooKeeperServerConnectionPort,
+                                       int minimumPort, int maximumPort, Set<String> profiles, String version, int getZooKeeperServerPort, int zooKeeperServerConnectionPort,
                                        String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled,
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
                                        Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
-                                       String jvmOpts, boolean adminAccess, String version) {
+                                       String jvmOpts, boolean adminAccess) {
 
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, getZooKeeperServerPort,
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, getZooKeeperServerPort,
                 zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users);
 
         this.name = name;
@@ -242,7 +230,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.zookeeperUrl = zookeeperUrl;
         this.jvmOpts = jvmOpts;
         this.adminAccess = adminAccess;
-        this.version = version;
     }
 
     public static Builder<? extends Builder> builder() {

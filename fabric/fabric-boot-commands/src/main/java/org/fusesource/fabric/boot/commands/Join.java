@@ -24,6 +24,7 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.ContainerOptions;
 import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.Ports;
@@ -46,7 +47,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 public class Join extends OsgiCommandSupport implements org.fusesource.fabric.boot.commands.service.Join {
 
     ConfigurationAdmin configurationAdmin;
-    private String version = ZkDefs.DEFAULT_VERSION;
     private BundleContext bundleContext;
 
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
@@ -57,6 +57,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
     @Option(name = "-p", aliases = "--profile", multiValued = false, description = "Chooses the profile of the container")
     private String profile = "fabric";
+
+    @Option(name = "-v", aliases = "--version", multiValued = false, description = "Chooses the version of the container.")
+    private String version = ContainerOptions.DEFAULT_VERSION;
 
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = Ports.MIN_PORT_NUMBER;

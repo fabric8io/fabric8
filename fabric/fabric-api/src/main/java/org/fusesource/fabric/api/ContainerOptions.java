@@ -27,6 +27,8 @@ public class ContainerOptions implements Serializable {
 
     public static String BIND_ADDRESS = "bind.address";
     public static String PROFILES = "profiles";
+    public static String VERSION = "version";
+    public static String DEFAULT_VERSION = "1.0";
 
     public static class Builder<B extends Builder> implements Cloneable {
 
@@ -44,6 +46,8 @@ public class ContainerOptions implements Serializable {
         int maximumPort = 65535;
         @JsonProperty
         Set<String> profiles = new LinkedHashSet<String>();
+        @JsonProperty
+        String version;
 
         public Builder() {
 
@@ -54,6 +58,7 @@ public class ContainerOptions implements Serializable {
             this.minimumPort = Integer.parseInt(System.getProperty("minimum.port", String.valueOf(minimumPort)));
             this.maximumPort = Integer.parseInt(System.getProperty("maximum.port", String.valueOf(maximumPort)));
             this.profiles(System.getProperty(PROFILES, ""));
+            this.profiles(System.getProperty(VERSION, DEFAULT_VERSION));
             return (B) this;
         }
 
@@ -134,6 +139,11 @@ public class ContainerOptions implements Serializable {
             return (B) this;
         }
 
+        public B version(final String version) {
+            this.version = version;
+            return (B) this;
+        }
+
         public void setBindAddress(String bindAddress) {
             this.bindAddress = bindAddress;
         }
@@ -160,6 +170,10 @@ public class ContainerOptions implements Serializable {
 
         public void setProfiles(Set<String> profiles) {
             this.profiles = profiles;
+        }
+
+        public void setVersion(String version) {
+            this.version = version;
         }
 
         public String getBindAddress() {
@@ -190,8 +204,12 @@ public class ContainerOptions implements Serializable {
             return profiles;
         }
 
+        public String getVersion() {
+            return version;
+        }
+
         public ContainerOptions build() {
-            return new ContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles);
+            return new ContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version);
         }
 
         public B clone() throws CloneNotSupportedException {
@@ -206,12 +224,13 @@ public class ContainerOptions implements Serializable {
     final int minimumPort;
     final int maximumPort;
     final Set<String> profiles;
+    final String version;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles) {
+    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version) {
         this.bindAddress = bindAddress;
         this.resolver = resolver;
         this.globalResolver = globalResolver;
@@ -219,6 +238,7 @@ public class ContainerOptions implements Serializable {
         this.minimumPort = minimumPort;
         this.maximumPort = maximumPort;
         this.profiles = profiles;
+        this.version = version;
     }
 
 
@@ -248,6 +268,10 @@ public class ContainerOptions implements Serializable {
 
     public Set<String> getProfiles() {
         return profiles;
+    }
+
+    public String getVersion() {
+        return version;
     }
 
     @Override

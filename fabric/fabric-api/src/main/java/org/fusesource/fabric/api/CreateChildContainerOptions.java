@@ -52,9 +52,9 @@ public class CreateChildContainerOptions extends CreateContainerBasicOptions<Cre
 
         public CreateChildContainerOptions build() {
             return new CreateChildContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                    maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                    maximumPort, profiles, version, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, "child", ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, version, jmxUser, jmxPassword);
+                    number, proxyUri, zookeeperUrl, jvmOpts, jmxUser, jmxPassword);
         }
     }
 
@@ -63,8 +63,8 @@ public class CreateChildContainerOptions extends CreateContainerBasicOptions<Cre
     @JsonProperty
     private final String jmxPassword;
 
-    public CreateChildContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, String version, String jmxUser, String jmxPassword) {
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, false, version);
+    public CreateChildContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, String jmxUser, String jmxPassword) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, false);
         this.jmxUser = jmxUser;
         this.jmxPassword = jmxPassword;
     }
@@ -72,9 +72,9 @@ public class CreateChildContainerOptions extends CreateContainerBasicOptions<Cre
     @Override
     public CreateContainerOptions updateCredentials(String newJmxUser, String newJmxPassword) {
         return new CreateChildContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                maximumPort, profiles, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
+                maximumPort, profiles, version, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled,
                 importPath, users, name, parent, "child", ensembleServer, preferredAddress, systemProperties,
-                number, proxyUri, zookeeperUrl, jvmOpts, version, newJmxUser != null ? newJmxUser : jmxUser, newJmxPassword != null ? newJmxPassword : jmxPassword);
+                number, proxyUri, zookeeperUrl, jvmOpts, newJmxUser != null ? newJmxUser : jmxUser, newJmxPassword != null ? newJmxPassword : jmxPassword);
     }
 
     public static Builder builder() {

@@ -63,6 +63,7 @@
                 <null/>
             </completers>
             <optional-completers>
+                <entry key="--version" value-ref="versionCompleter"/>
                 <entry key="--profile" value-ref="profileCompleter"/>
                 <entry key="--resolver" value-ref="resolverCompleter"/>
             </optional-completers>
