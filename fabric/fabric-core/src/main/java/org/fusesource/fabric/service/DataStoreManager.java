@@ -154,7 +154,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     public synchronized void bindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {
             dataStorePlugins.put(dataStorePlugin.getName(), dataStorePlugin);
-            if (type.equals(dataStorePlugin.getName())) {
+            if (type != null && type.equals(dataStorePlugin.getName())) {
                 updateServiceRegistration();
             }
         }
@@ -163,7 +163,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     public synchronized void unbindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {
             dataStorePlugins.remove(dataStorePlugin.getName());
-            if (type.equals(dataStorePlugin.getName())) {
+            if (type != null && type.equals(dataStorePlugin.getName())) {
                 updateServiceRegistration();
             }
         }
