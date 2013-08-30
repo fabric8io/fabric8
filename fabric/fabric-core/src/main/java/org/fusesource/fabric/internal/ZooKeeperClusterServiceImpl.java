@@ -316,12 +316,6 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 					setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
 
-
-                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
-                    setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-                    setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
-                    setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-
                     //Add a registration callback to perform cleanup when the new datastore has been registered.
                     dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreTemplate() {
                         @Override
@@ -332,12 +326,10 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                         }
                     });
 
-                    for (String v : dataStore.getVersions()) {
-                        Map<String, String> zkConfig = dataStore.getConfiguration(v, "default", "org.fusesource.fabric.zookeeper");
-                        zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-                        zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                        dataStore.setConfiguration(v, "default", "org.fusesource.fabric.zookeeper", zkConfig);
-                    }
+                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
+                    setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 
                 } finally {
 					dst.close();
