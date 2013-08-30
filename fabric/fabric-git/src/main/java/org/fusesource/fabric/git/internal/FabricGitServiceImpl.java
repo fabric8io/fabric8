@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.git.internal;
 
-import java.io.IOException;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -25,17 +23,18 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.StoredConfig;
+import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -79,7 +78,7 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
                 updateMasterUrl(group);
                 break;
             case DISCONNECTED:
-                disconnect();
+                fireRemoteChangedEvent(null);
         }
     }
 
@@ -96,40 +95,19 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
             masterUrl = master.getUrl();
         }
         try {
-            Git git = get();
-            StoredConfig config = git.getRepository().getConfig();
             if (masterUrl != null) {
-                String currentMasterUrl = config.getString("remote", "origin", "url");
-                if (!masterUrl.equals(currentMasterUrl)) {
-                    config.setString("remote", "origin", "url", getSubstitutedData(curator, masterUrl));
-                    config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
-                    fireRemoteChangedEvent();
-                }
+                fireRemoteChangedEvent(getSubstitutedData(curator, masterUrl));
             } else {
-                config.unsetSection("remote", "origin");
+                fireRemoteChangedEvent(null);
             }
-            config.save();
         } catch (Exception e) {
             LOGGER.error("Failed to point origin to the new master.", e);
         }
     }
 
-    /**
-     * Handle disconnection from the group.
-     */
-    public void disconnect() {
-        try {
-            Git git = get();
-            StoredConfig config = git.getRepository().getConfig();
-            config.unsetSection("remote", "origin");
-        } catch (Exception e) {
-            LOGGER.error("Failed to disconnect from the master repo.", e);
-        }
-    }
-
-    private void fireRemoteChangedEvent() {
+    private void fireRemoteChangedEvent(String masterUrl) {
         if (gitService != null) {
-            gitService.onRemoteChanged();
+            gitService.onRemoteChanged(masterUrl);
         }
     }
 }

@@ -63,6 +63,7 @@ import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
@@ -80,6 +81,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateConta
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
@@ -117,9 +119,26 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private final Object lock = new Object();
     private String remote = "origin";
 
-    private Runnable remoteChangeListener = new Runnable() {
-        public void run() {
-            LOG.debug("Remote master git repo changed, lets do a git pull");
+    private GitListener remoteChangeListener = new GitListener() {
+        @Override
+        public void onRemoteUrlChanged(final String remoteUrl) {
+            gitOperation(new GitOperation<Void>() {
+                @Override
+                public Void call(Git git, GitContext context) throws Exception {
+                    Repository repository = git.getRepository();
+                    StoredConfig config = repository.getConfig();
+                    String currentUrl = config.getString("remote", "origin", "url");
+                    if (remoteUrl == null) {
+                        config.unsetSection("remote", "origin");
+                        config.save();
+                    } else if (!remoteUrl.equals(currentUrl)) {
+                        config.setString("remote", "origin", "url", remoteUrl);
+                        config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                        config.save();
+                    }
+                    return null;
+                }
+            });
             pull();
         }
     };
@@ -169,14 +188,22 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     }
 
     public synchronized void stop() {
-        if (threadPool != null) {
-            threadPool.shutdown();
+        try {
+            if (gitService != null) {
+                gitService.removeRemoteChangeListener(remoteChangeListener);
+            }
+            if (threadPool != null) {
+                threadPool.shutdown();
+                try {
+                    //Give some time to the running task to complete.
+                    threadPool.awaitTermination(5, TimeUnit.SECONDS);
+                } catch (Exception ex) {
+                    throw new FabricException(ex);
+                }
+            }
+        } finally {
+            super.stop();
         }
-        if (gitService != null) {
-            gitService.removeRemoteChangeListener(remoteChangeListener);
-        }
-        super.stop();
-
     }
 
     public String getRemote() {

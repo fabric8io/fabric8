@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.http;
+package org.fusesource.fabric.git;
 
 /**
  * Provide a hook that the Fabric git repository
@@ -22,5 +22,4 @@ package org.fusesource.fabric.git.http;
  */
 public interface GitListener {
     void onRemoteUrlChanged(String remoteUrl);
-    void onRepositoryChanged();
 }
