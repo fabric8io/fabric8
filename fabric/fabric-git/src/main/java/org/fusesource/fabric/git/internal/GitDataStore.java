@@ -320,9 +320,9 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     String prefix = "refs/heads/";
                     if (name.startsWith(prefix)) {
                         name = name.substring(prefix.length());
-                    }
-                    if (!name.equals(MASTER_BRANCH)) {
-                        answer.add(name);
+                        if (!name.equals(MASTER_BRANCH)) {
+                            answer.add(name);
+                        }
                     }
                 }
                 return answer;
