@@ -32,6 +32,7 @@ import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.utils.Closeables;
+import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,13 +72,27 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
 
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
+        switch (event) {
+            case CONNECTED:
+            case CHANGED:
+                updateMasterUrl(group);
+                break;
+            case DISCONNECTED:
+        }
+	}
+
+    /**
+     * Updates the git master url, if needed.
+     * @param group
+     */
+    private void updateMasterUrl(Group<GitNode> group) {
         String masterUrl = null;
-		GitNode master = group.master();
-		if (master != null
-                && !master.getContainer().equals(System.getProperty("karaf.name"))) {
+        GitNode master = group.master();
+        if (master != null
+                && !master.getContainer().equals(System.getProperty(SystemProperties.KARAF_NAME))) {
             masterUrl = master.getUrl();
         }
-		try {
+        try {
             Git git = get();
             StoredConfig config = git.getRepository().getConfig();
             if (masterUrl != null) {
@@ -90,11 +105,11 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
             } else {
                 config.unsetSection("remote", "origin");
             }
-			config.save();
-		} catch (Exception e) {
-			LOGGER.error("Failed to point origin to the new master.", e);
-		}
-	}
+            config.save();
+        } catch (Exception e) {
+            LOGGER.error("Failed to point origin to the new master.", e);
+        }
+    }
 
     private void fireRemoteChangedEvent() {
         if (gitService != null) {
