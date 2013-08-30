@@ -57,7 +57,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
 
     public static final String DATASTORE_TYPE_PID = "org.fusesource.fabric.datastore";
     public static final String DATASTORE_TYPE_PROPERTY = "type";
-    public static final String DEFAULT_DATASTORE_TYPE = "git";
+    public static final String DEFAULT_DATASTORE_TYPE = "caching-git";
 
 
     @Reference(cardinality = OPTIONAL_MULTIPLE,
