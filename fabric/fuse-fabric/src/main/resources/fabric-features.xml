@@ -344,6 +344,12 @@
         <bundle>mvn:org.fusesource.insight/insight-kibana3/${project.version}</bundle>
     </feature>
 
+    <feature name="insight-eshead" version="${project.version}" resolver="(obr)">
+        <feature>war</feature>
+        <feature>insight-elasticsearch</feature>
+        <bundle>mvn:org.fusesource.insight/insight-eshead/${project.version}</bundle>
+    </feature>
+
     <feature name="insight-log-storage" version="${project.version}" resolver="(obr)">
         <config name="org.fusesource.insight.log.storage">
             #
