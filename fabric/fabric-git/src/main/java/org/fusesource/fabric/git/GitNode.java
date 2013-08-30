@@ -23,12 +23,23 @@ public class GitNode extends NodeState {
 	@JsonProperty
 	String url;
 
+    @JsonProperty
+    String[] services;
+
     public String getUrl() {
         return url;
     }
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String[] getServices() {
+        return services;
+    }
+
+    public void setServices(String[] services) {
+        this.services = services;
     }
 
     @Override

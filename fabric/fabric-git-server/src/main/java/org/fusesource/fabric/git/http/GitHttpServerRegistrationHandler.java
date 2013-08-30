@@ -198,6 +198,9 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
         state.setContainer(name);
+        if (group != null && group.isMaster()) {
+            state.setServices(new String[] { fabricRepoUrl });
+        }
         return state;
     }
 
