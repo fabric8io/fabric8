@@ -195,6 +195,8 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val replicating:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("replicating")).getOrElse("false"))
     val standalone:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("standalone")).getOrElse("false"))
     val registerService:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("registerService")).getOrElse("true"))
+    val config_check = "true".equalsIgnoreCase(Option(properties.getProperty("config.check")).getOrElse("true"))
+
 
     val started = new AtomicBoolean
 
@@ -465,7 +467,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     override def run() {
       while (running) {
         configurations.values.foreach(c => {
-          if (c.last_modified != -1 && c.server._3.lastModified() != c.last_modified) {
+          if (c.config_check && c.last_modified != -1 && c.server._3.lastModified() != c.last_modified) {
             c.last_modified = c.server._3.lastModified()
             info("updating " + c.properties)
             updated(c.properties.get("service.pid").asInstanceOf[String], c.properties.asInstanceOf[Dictionary[java.lang.String, _]])
