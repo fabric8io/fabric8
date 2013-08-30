@@ -907,11 +907,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             // Check git commmits
             for (String version : gitVersions) {
                 // Delete unneeded local branches
-                if (!remoteBranches.containsKey(version)) {
+                if (!version.equals(MASTER_BRANCH) && !remoteBranches.containsKey(version)) {
                     try {
                         git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                     } catch (CannotDeleteCurrentBranchException ex) {
-                        git.checkout().setName("master").setForce(true).call();
+                        git.checkout().setName(MASTER_BRANCH).setForce(true).call();
                         git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                     }
                 }

@@ -155,6 +155,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     }
 
     public void createCluster(final List<String> containers, CreateEnsembleOptions options) {
+        final List<String> oldContainers = getEnsembleContainers();
         try {
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
@@ -321,12 +322,11 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
                     setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 
-
-                    //Add a registration callback to perform cleanup when the new datastore has been initialized.
+                    //Add a registration callback to perform cleanup when the new datastore has been registered.
                     dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreTemplate() {
                         @Override
                         public void doWith(DataStore dataStore) throws Exception {
-                            for (String container : containers) {
+                            for (String container : oldContainers) {
                                 cleanUpEnsembleProfiles(dataStore, container, oldClusterId);
                             }
                         }

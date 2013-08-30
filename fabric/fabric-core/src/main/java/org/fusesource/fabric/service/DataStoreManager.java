@@ -131,7 +131,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
      * @return
      */
     private static String readType(Map<String, String> configuration) {
-        if (configuration.containsKey(DATASTORE_TYPE_PROPERTY)) {
+        if (configuration.containsKey(DATASTORE_TYPE_PROPERTY) && configuration.get(DATASTORE_TYPE_PROPERTY) != null) {
             return configuration.get(DATASTORE_TYPE_PROPERTY);
         } else {
             return System.getProperty(DATASTORE_TYPE_PID + "." + DATASTORE_TYPE_PROPERTY, DEFAULT_DATASTORE_TYPE);

@@ -55,7 +55,6 @@ public class LocalGitService implements GitService {
 
     @Deactivate
     public void destroy() {
-
     }
 
     private Git openOrInit(File repo) throws IOException {

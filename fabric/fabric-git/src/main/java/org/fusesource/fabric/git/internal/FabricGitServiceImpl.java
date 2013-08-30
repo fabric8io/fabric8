@@ -81,18 +81,24 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
             Git git = get();
             StoredConfig config = git.getRepository().getConfig();
             if (masterUrl != null) {
-                config.setString("remote", "origin", "url", getSubstitutedData(curator, masterUrl));
-                config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                String currentMasterUrl = config.getString("remote", "origin", "url");
+                if (!masterUrl.equals(currentMasterUrl)) {
+                    config.setString("remote", "origin", "url", getSubstitutedData(curator, masterUrl));
+                    config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                    fireRemoteChangedEvent();
+                }
             } else {
                 config.unsetSection("remote", "origin");
             }
 			config.save();
-            // lets register the current security
-            if (gitService != null) {
-                gitService.onRemoteChanged();
-            }
 		} catch (Exception e) {
 			LOGGER.error("Failed to point origin to the new master.", e);
 		}
 	}
+
+    private void fireRemoteChangedEvent() {
+        if (gitService != null) {
+            gitService.onRemoteChanged();
+        }
+    }
 }

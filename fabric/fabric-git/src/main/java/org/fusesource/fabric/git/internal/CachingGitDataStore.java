@@ -138,35 +138,40 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
             public VersionData call(Git git, GitContext context) throws Exception {
                 VersionData data = new VersionData();
                 data.profiles = new HashMap<String, ProfileData>();
-                checkoutVersion(git, version);
-                File profilesDir = getProfilesDirectory(git);
-                if (profilesDir.exists()) {
-                    File[] files = profilesDir.listFiles();
-                    if (files != null) {
-                        for (File file : files) {
-                            if (file.isDirectory()) {
-                                // TODO we could recursively scan for magic ".profile" files or something
-                                // then we could put profiles into nicer tree structure?
-                                String profile = file.getName();
-                                ProfileData profileData = new ProfileData();
-                                data.profiles.put(profile, profileData);
-                                // configurations
-                                profileData.configurations = doGetFileConfigurations(git, profile);
-                                // last modified
-                                File profileDirectory = file;
-                                File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
-                                profileData.lastModified = profileDirectory.lastModified();
-                                if (metadataFile.exists()) {
-                                    long modified = metadataFile.lastModified();
-                                    profileData.lastModified = Math.max(profileData.lastModified, modified);
-                                }
-                            }
-                        }
-                    }
-                }
+                pouplateVersionData(git, version, data);
+                pouplateVersionData(git, "master", data);
                 return data;
             }
         });
+    }
+
+    protected void pouplateVersionData(Git git, String branch, VersionData data) throws Exception {
+        checkoutVersion(git, branch);
+        File profilesDir = getProfilesDirectory(git);
+        if (profilesDir.exists()) {
+            File[] files = profilesDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        // TODO we could recursively scan for magic ".profile" files or something
+                        // then we could put profiles into nicer tree structure?
+                        String profile = file.getName();
+                        ProfileData profileData = new ProfileData();
+                        data.profiles.put(profile, profileData);
+                        // configurations
+                        profileData.configurations = doGetFileConfigurations(git, profile);
+                        // last modified
+                        File profileDirectory = file;
+                        File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
+                        profileData.lastModified = profileDirectory.lastModified();
+                        if (metadataFile.exists()) {
+                            long modified = metadataFile.lastModified();
+                            profileData.lastModified = Math.max(profileData.lastModified, modified);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public List<String> getProfiles(String version) {
