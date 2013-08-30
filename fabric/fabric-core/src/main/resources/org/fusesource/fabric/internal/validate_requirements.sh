@@ -8,14 +8,6 @@ function validate_requirements() {
   else
     check_java_version
   fi
-  if ! which tar &> /dev/null; then
-        echo "Command Failed:Tar is not installed.";
-        exit -1;
-  fi
-  if ! which unzip &> /dev/null; then
-        echo "Command Failed:Unzip is not installed.";
-        exit -1;
-  fi
   if ! which telnet &> /dev/null; then
         echo "Command Failed:Telnet is not installed.";
         exit -1;
