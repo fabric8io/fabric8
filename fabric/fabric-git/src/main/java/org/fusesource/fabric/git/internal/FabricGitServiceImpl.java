@@ -46,10 +46,10 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-	private CuratorFramework curator;
+    private CuratorFramework curator;
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-	private GitService gitService;
+    private GitService gitService;
 
     private Group<GitNode> group;
 
@@ -62,6 +62,7 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
 
     @Deactivate
     public void destroy() {
+        group.remove(this);
         Closeables.closeQuitely(group);
         group = null;
     }
@@ -78,11 +79,13 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
                 updateMasterUrl(group);
                 break;
             case DISCONNECTED:
+                disconnect();
         }
-	}
+    }
 
     /**
      * Updates the git master url, if needed.
+     *
      * @param group
      */
     private void updateMasterUrl(Group<GitNode> group) {
@@ -108,6 +111,19 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
             config.save();
         } catch (Exception e) {
             LOGGER.error("Failed to point origin to the new master.", e);
+        }
+    }
+
+    /**
+     * Handle disconnection from the group.
+     */
+    public void disconnect() {
+        try {
+            Git git = get();
+            StoredConfig config = git.getRepository().getConfig();
+            config.unsetSection("remote", "origin");
+        } catch (Exception e) {
+            LOGGER.error("Failed to disconnect from the master repo.", e);
         }
     }
 
