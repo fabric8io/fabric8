@@ -89,7 +89,9 @@ public class ChildProcessFactory implements ManagedServiceFactory {
         processRequirements.setUrl(url);
         processRequirements.setLayout(layout);
         for (String profile : profiles) {
-            processRequirements.addProfile(profile);
+            if (profile != null && !profile.isEmpty()) {
+                processRequirements.addProfile(profile);
+            }
         }
 
         //Apply properties
