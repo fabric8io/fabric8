@@ -9,7 +9,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
     <artifactId>process-fabric</artifactId>
     <packaging>bundle</packaging>
     <name>${project.artifactId}</name>
