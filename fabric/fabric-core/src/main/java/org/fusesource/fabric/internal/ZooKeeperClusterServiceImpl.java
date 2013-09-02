@@ -51,6 +51,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
@@ -168,6 +170,13 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 }
                 bootstrap.create(options);
                 return;
+            }
+
+            Container[] allContainers = fabricService.getContainers();
+            for (Container container : allContainers) {
+                if (!container.isAliveAndOK()) {
+                    throw new FabricException("Can not modify the zookeeper ensemble if all containers are not running");
+                }
             }
 
             String version = getDataStore().getDefaultVersion();
@@ -316,20 +325,49 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 					setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
 
-                    //Add a registration callback to perform cleanup when the new datastore has been registered.
+                    // Perform cleanup when the new datastore has been registered.
+                    final AtomicReference<DataStore> result = new AtomicReference<DataStore>();
                     dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreTemplate() {
                         @Override
                         public void doWith(DataStore dataStore) throws Exception {
-                            for (String container : oldContainers) {
-                                cleanUpEnsembleProfiles(dataStore, container, oldClusterId);
+                            synchronized (result) {
+                                result.set(dataStore);
+                                result.notifyAll();
                             }
                         }
                     });
 
-                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
-                    setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+                    setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
                     setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
+                    setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
+
+                    // Wait until all containers switched
+                    long t0 = System.currentTimeMillis();
+                    boolean allStarted = false;
+                    while (!allStarted && System.currentTimeMillis() - t0 < 60 * 1000) {
+                        allStarted = true;
+                        for (Container container : allContainers) {
+                            allStarted &= exists(dst, ZkPath.CONTAINER_ALIVE.getPath(container.getId())) != null;
+                        }
+                        if (!allStarted) {
+                            Thread.sleep(1000);
+                        }
+                    }
+                    if (!allStarted) {
+                        throw new FabricException("Timeout waiting for containers to join the new ensemble");
+                    }
+
+                    // Wait until the new datastore has been registered
+                    synchronized (result) {
+                        if (result.get() == null) {
+                            result.wait();
+                        }
+                    }
+                    // Remove old profiles
+                    for (String container : oldContainers) {
+                        cleanUpEnsembleProfiles(result.get(), container, oldClusterId);
+                    }
 
                 } finally {
 					dst.close();
