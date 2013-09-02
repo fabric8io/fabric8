@@ -25,7 +25,6 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.fusesource.fabric</groupId>
     <artifactId>fuse-fabric</artifactId>
     <name>Fuse Fabric :: Binary Distribution</name>
     <description>Fuse Fabric :: Binary Distribution</description>
@@ -101,6 +100,10 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fabric-jaas</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>process-fabric</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric.virt</groupId>

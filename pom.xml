@@ -733,6 +733,12 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>process-fabric</artifactId>
+                <version>${fabric.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.fusesource.fabric.virt</groupId>
                 <artifactId>org.fusesource.fabric.virt.commands</artifactId>
                 <version>${fabric.version}</version>
