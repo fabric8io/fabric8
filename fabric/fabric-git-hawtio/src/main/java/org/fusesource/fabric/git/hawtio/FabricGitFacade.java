@@ -249,7 +249,7 @@ public class FabricGitFacade extends GitFacadeSupport {
     }
 
     protected Iterable<PushResult> doPush(Git git) throws Exception {
-        return gitDataStore.doPush(git);
+        return gitDataStore.doPush(git, null);
     }
 
     protected <T> T gitReadOperation(GitOperation<T> operation) {
