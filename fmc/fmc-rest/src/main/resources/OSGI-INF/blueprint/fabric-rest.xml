@@ -20,11 +20,13 @@
 
   <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin" availability="optional"/>
 
-  <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" />
+  <reference id="curator" interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
 
-  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService"/>
+  <reference id="fabricService" interface="org.fusesource.fabric.api.FabricService" availability="optional"/>
 
   <reference id="zooKeeperClusterService" interface="org.fusesource.fabric.api.ZooKeeperClusterService" availability="optional"/>
+
+  <reference id="zooKeeperClusterBootstrap" interface="org.fusesource.fabric.api.ZooKeeperClusterBootstrap" availability="optional"></reference>
 
   <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
     <reference-listener ref="computeServiceListener" bind-method="bind" unbind-method="unbind"/>
@@ -33,7 +35,7 @@
   <cm:property-placeholder id="placeholder" persistent-id="org.fusesource.fabric.rest" update-strategy="reload">
     <cm:default-properties>
       <cm:property name="profileName" value="fmc" />
-      <cm:property name="managed" value="false"/>
+      <cm:property name="managed" value="true"/>
       <cm:property name="tempDirectoryPath" value=""/>
       <cm:property name="patchDirectoryName" value="patches"/>
       <cm:property name="realm" value="karaf"/>
@@ -52,6 +54,7 @@
     <property name="fabricService" ref="fabricService"/>
     <property name="curator" ref="curator"/>
     <property name="zooKeeperClusterService" ref="zooKeeperClusterService"/>
+    <property name="zooKeeperClusterBootstrap" ref="zooKeeperClusterBootstrap"/>
     <property name="computeServiceListener" ref="computeServiceListener"/>
   </bean>
 

@@ -23,6 +23,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.eclipse.jgit.http.server.GitServlet;
+import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
@@ -198,6 +199,9 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
         state.setContainer(name);
+        if (group != null && group.isMaster()) {
+            state.setServices(new String[] { fabricRepoUrl });
+        }
         return state;
     }
 

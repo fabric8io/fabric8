@@ -255,7 +255,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
         if (options.getManualIp() != null) {
             service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, options.getManualIp());
         } else {
-            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, "${zk:" + parent + "/manulaip}");
+            service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.ManualIp, "${zk:" + parent + "/manualip}");
         }
 
         //Link to the addresses from the parent container.

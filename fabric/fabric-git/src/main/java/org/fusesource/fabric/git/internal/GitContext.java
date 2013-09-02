@@ -21,7 +21,9 @@ package org.fusesource.fabric.git.internal;
  * can automatically
  */
 public class GitContext {
+
     private boolean requirePush;
+    private String pushBranch;
     private boolean requireCommit;
     private StringBuilder commitMessage = new StringBuilder();
 
@@ -55,6 +57,14 @@ public class GitContext {
 
     public void setRequireCommit(boolean requireCommit) {
         this.requireCommit = requireCommit;
+    }
+
+    public String getPushBranch() {
+        return pushBranch;
+    }
+
+    public void setPushBranch(String pushBranch) {
+        this.pushBranch = pushBranch;
     }
 
     /**

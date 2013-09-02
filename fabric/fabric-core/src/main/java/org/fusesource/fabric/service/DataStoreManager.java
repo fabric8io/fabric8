@@ -57,7 +57,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
 
     public static final String DATASTORE_TYPE_PID = "org.fusesource.fabric.datastore";
     public static final String DATASTORE_TYPE_PROPERTY = "type";
-    public static final String DEFAULT_DATASTORE_TYPE = "git";
+    public static final String DEFAULT_DATASTORE_TYPE = "caching-git";
 
 
     @Reference(cardinality = OPTIONAL_MULTIPLE,
@@ -131,7 +131,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
      * @return
      */
     private static String readType(Map<String, String> configuration) {
-        if (configuration.containsKey(DATASTORE_TYPE_PROPERTY)) {
+        if (configuration.containsKey(DATASTORE_TYPE_PROPERTY) && configuration.get(DATASTORE_TYPE_PROPERTY) != null) {
             return configuration.get(DATASTORE_TYPE_PROPERTY);
         } else {
             return System.getProperty(DATASTORE_TYPE_PID + "." + DATASTORE_TYPE_PROPERTY, DEFAULT_DATASTORE_TYPE);
@@ -154,7 +154,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     public synchronized void bindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {
             dataStorePlugins.put(dataStorePlugin.getName(), dataStorePlugin);
-            if (type.equals(dataStorePlugin.getName())) {
+            if (dataStorePlugin.getName().equals(type)) {
                 updateServiceRegistration();
             }
         }
@@ -163,7 +163,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     public synchronized void unbindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {
             dataStorePlugins.remove(dataStorePlugin.getName());
-            if (type.equals(dataStorePlugin.getName())) {
+            if (dataStorePlugin.getName().equals(type)) {
                 updateServiceRegistration();
             }
         }

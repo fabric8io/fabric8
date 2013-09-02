@@ -48,6 +48,7 @@
     <module>insight-maven-web</module>
     <module>insight-kibana</module>
     <module>insight-kibana3</module>
+    <module>insight-eshead</module>
     <module>insight-jetty</module>
   </modules>
 

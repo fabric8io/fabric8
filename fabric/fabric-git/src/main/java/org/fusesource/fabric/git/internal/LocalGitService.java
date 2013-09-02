@@ -29,6 +29,7 @@ import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.git.GitListener;
 
 /**
  * A local stand alone git repository
@@ -40,7 +41,7 @@ public class LocalGitService implements GitService {
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + DEFAULT_GIT_PATH;
 
     private final File localRepo = new File(DEFAULT_LOCAL_LOCATION);
-    private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
+    private final List<GitListener> callbacks = new CopyOnWriteArrayList<GitListener>();
 
     private Git git;
 
@@ -55,7 +56,6 @@ public class LocalGitService implements GitService {
 
     @Deactivate
     public void destroy() {
-
     }
 
     private Git openOrInit(File repo) throws IOException {
@@ -77,23 +77,21 @@ public class LocalGitService implements GitService {
         return git;
     }
 
-    public void onRemoteChanged() {
-        for (Runnable callback : callbacks) {
-            try {
-                callback.run();
-            } catch (Throwable t) {
-                //ignore
-            }
+    @Override
+    public void onRemoteChanged(String remoteUrl) {
+        for (GitListener listener : callbacks) {
+            listener.onRemoteUrlChanged(remoteUrl);
         }
     }
 
+
     @Override
-    public void addRemoteChangeListener(Runnable callback) {
+    public void addRemoteChangeListener(GitListener callback) {
         callbacks.add(callback);
     }
 
     @Override
-    public void removeRemoteChangeListener(Runnable callback) {
+    public void removeRemoteChangeListener(GitListener callback) {
         callbacks.remove(callback);
     }
 

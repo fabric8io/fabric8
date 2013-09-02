@@ -36,4 +36,8 @@ public class ZooKeeperGroupFactory implements GroupFactory {
         return new ZooKeeperGroup<T>(curator, path, clazz);
     }
 
+    @Override
+    public <T> Group<T> createMultiGroup(String path, Class<T> clazz) {
+        return new ZooKeeperMultiGroup<T>(curator, path, clazz);
+    }
 }

@@ -55,19 +55,19 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final CreateEnsembleOptions options;
 
     private final String karafName = System.getProperty(SystemProperties.KARAF_NAME);
-    private final String version = ZkDefs.DEFAULT_VERSION;
+    private final String version;
 
 
     public DataStoreBootstrapTemplate(String connectionUrl, Map<String, String> bootstrapConfiguration, CreateEnsembleOptions options) {
         this.connectionUrl = connectionUrl;
         this.bootstrapConfiguration = bootstrapConfiguration;
         this.options = options;
+        this.version = options.getVersion();
     }
 
 
     @Override
     public void doWith(DataStore dataStore) throws Exception {
-
         int minimumPort = options.getMinimumPort();
         int maximumPort = options.getMaximumPort();
         String zooKeeperServerHost = options.getBindAddress();
@@ -91,7 +91,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ZooKeeperUtils.create(curator, ZkPath.BOOTSTRAP.getPath(), dataStoreData, CreateMode.PERSISTENT);
 
             // set the fabric configuration
-            createDefault(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
+            setData(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
 
             // configure default profile
             String defaultProfile = dataStore.getProfile(version, "default", true);

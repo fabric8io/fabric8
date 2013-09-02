@@ -48,6 +48,7 @@
             <filtered>true</filtered>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
+            <directoryMode>0644</directoryMode>
         </fileSet>
     </fileSets>
 

@@ -86,9 +86,9 @@ public class ZooKeeperGroup<T> implements Group<T> {
     private final EnsurePath ensurePath;
     private final BlockingQueue<Operation> operations = new LinkedBlockingQueue<Operation>();
     private final ListenerContainer<GroupListener<T>> listeners = new ListenerContainer<GroupListener<T>>();
-    private final ConcurrentMap<String, ChildData<T>> currentData = Maps.newConcurrentMap();
+    protected final ConcurrentMap<String, ChildData<T>> currentData = Maps.newConcurrentMap();
     private final AtomicBoolean started = new AtomicBoolean();
-    private final SequenceComparator sequenceComparator = new SequenceComparator();
+    protected final SequenceComparator sequenceComparator = new SequenceComparator();
 
 
     private final Watcher childrenWatcher = new Watcher() {
@@ -120,7 +120,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
         }
     };
 
-    private String id;
+    protected String id;
     private T state;
 
     /**

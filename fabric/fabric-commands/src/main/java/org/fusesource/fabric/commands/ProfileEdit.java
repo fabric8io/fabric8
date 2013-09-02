@@ -17,7 +17,6 @@
 package org.fusesource.fabric.commands;
 
 
-import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -34,14 +33,14 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.commands.support.DatastoreContentManager;
-import org.fusesource.fabric.commands.support.ZookeeperContentManager;
-import org.fusesource.fabric.zookeeper.ZkProfiles;
+import org.fusesource.fabric.utils.Strings;
 import org.jledit.ConsoleEditor;
 import org.jledit.EditorFactory;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
+import static org.fusesource.fabric.utils.Strings.*;
 
 /**
  *
@@ -146,35 +145,35 @@ public class ProfileEdit extends FabricCommand {
 
         if (featuresList != null && !featuresList.isEmpty()) {
             editInLine = true;
-            String[] features = featuresList.split(DELIMETER);
+            List<String> features = Strings.parseDelimitedString(featuresList, DELIMETER);
             for (String feature : features) {
                 updateConfig(pidConfig, FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
             }
         }
         if (repositoryUriList != null && !repositoryUriList.isEmpty()) {
             editInLine = true;
-            String[] repositoryURIs = repositoryUriList.split(DELIMETER);
+            List<String> repositoryURIs = Strings.parseDelimitedString(repositoryUriList, DELIMETER);
             for (String repopsitoryURI : repositoryURIs) {
                 updateConfig(pidConfig, REPOSITORY_PREFIX + repopsitoryURI.replace('/', '_'), repopsitoryURI, set, delete);
             }
         }
         if (bundlesList != null && !bundlesList.isEmpty()) {
             editInLine = true;
-            String[] bundles = bundlesList.split(DELIMETER);
+            List<String> bundles = Strings.parseDelimitedString(bundlesList, DELIMETER);
             for (String bundlesLocation : bundles) {
                 updateConfig(pidConfig, BUNDLE_PREFIX + bundlesLocation.replace('/', '_'), bundlesLocation, set, delete);
             }
         }
         if (fabsList != null && !fabsList.isEmpty()) {
             editInLine = true;
-            String[] fabs = fabsList.split(DELIMETER);
+            List<String> fabs = Strings.parseDelimitedString(fabsList, DELIMETER);
             for (String fabsLocation : fabs) {
                 updateConfig(pidConfig, FAB_PREFIX + fabsLocation.replace('/', '_'), fabsLocation, set, delete);
             }
         }
         if (overridesList != null && !overridesList.isEmpty()) {
             editInLine = true;
-            String[] overrides = overridesList.split(DELIMETER);
+            List<String> overrides = Strings.parseDelimitedString(overridesList, DELIMETER);
             for (String overridesLocation : overrides) {
                 updateConfig(pidConfig, OVERRIDE_PREFIX + overridesLocation.replace('/', '_'), overridesLocation, set, delete);
             }
@@ -274,7 +273,7 @@ public class ProfileEdit extends FabricCommand {
     public void updatedDelimitedList(Map<String, String> map, String key, String value, String delimeter, boolean set, boolean delete, boolean append, boolean remove) {
         if (append || remove) {
             String oldValue = map.containsKey(key) ? map.get(key) : "";
-            List<String> parts = new LinkedList(Arrays.asList(oldValue.split(delimeter)));
+            List<String> parts = new LinkedList<String>(Arrays.asList(oldValue.split(delimeter)));
             //We need to remove any possible blanks.
             parts.remove("");
             if (append) {

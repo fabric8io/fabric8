@@ -64,6 +64,7 @@ public final class ContainerProviderUtils {
     private static final String CONFIGURE_HOSTNAMES = loadFunction("configure_hostname.sh");
 	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
     private static final String WAIT_FOR_PORT = loadFunction("wait_for_port.sh");
+    private static final String EXTRACT_ZIP = loadFunction("extract_zip.sh");
 
     public static final int DEFAULT_SSH_PORT = 8101;
     public static final int DEFAULT_RMI_SERVER_PORT = 44444;
@@ -109,6 +110,7 @@ public final class ContainerProviderUtils {
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
 		sb.append(FIND_FREE_PORT).append("\n");
         sb.append(WAIT_FOR_PORT).append("\n");
+        sb.append(EXTRACT_ZIP).append("\n");
         sb.append("run mkdir -p ").append(options.getPath()).append("\n");
         sb.append("run cd ").append(options.getPath()).append("\n");
         sb.append("run mkdir -p ").append(name).append("\n");
@@ -126,6 +128,7 @@ public final class ContainerProviderUtils {
         sb.append("validate_requirements").append("\n");
         extractZipIntoDirectory(sb, options.getProxyUri(), "org.fusesource.fabric", "fuse-fabric", FabricConstants.FABRIC_VERSION);
         sb.append("run cd `").append(FIRST_FABRIC_DIRECTORY).append("`\n");
+        sb.append("run chmod +x bin/*").append("\n");
         List<String> lines = new ArrayList<String>();
         String globalResolver = options.getResolver() != null ? options.getResolver() : ZkDefs.DEFAULT_RESOLVER;
         lines.add(ZkDefs.GLOBAL_RESOLVER_PROPERTY + "=" + globalResolver);
@@ -354,7 +357,7 @@ public final class ContainerProviderUtils {
                     .append("zip").append(" ; fi \n");
         }
         sb.append("exit_if_not_exists ").append(file).append("\n");
-        sb.append("run unzip ").append(file).append("\n");
+        sb.append("run extract_zip ").append(file).append("\n");
     }
 
     private static String loadFunction(String function) {

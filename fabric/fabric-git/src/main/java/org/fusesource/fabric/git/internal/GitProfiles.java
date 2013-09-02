@@ -14,13 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.git.http;
+package org.fusesource.fabric.git.internal;
 
-/**
- * Provide a hook that the Fabric git repository
- * has moved or that it has changed
- */
-public interface GitListener {
-    void onRemoteUrlChanged(String remoteUrl);
-    void onRepositoryChanged();
+import java.util.regex.Pattern;
+
+public class GitProfiles {
+
+    private static final Pattern ENSEMBLE_PROFILE_PATTERN = Pattern.compile("fabric-ensemble-[0-9]+|fabric-ensemble-[0-9]+-[0-9]+");
+
+    private GitProfiles() {
+        //Utility Class
+    }
+
+    /**
+     * Returns the git branch of the profile.
+     * @param version
+     * @param id
+     * @return
+     */
+    public static String getBranch(String version, String id) {
+        if (ENSEMBLE_PROFILE_PATTERN.matcher(id).matches()) {
+            return "master";
+        } else return version;
+    }
 }

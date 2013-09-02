@@ -20,6 +20,7 @@ import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.apache.felix.utils.properties.Properties;
+import org.fusesource.fabric.api.ContainerOptions;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.boot.commands.support.EnsembleCommandSupport;
@@ -58,6 +59,8 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     long ensembleStartupTime = 2000L;
     @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container.")
     private Set<String> profiles = null;
+    @Option(name = "-v", aliases = "--version", multiValued = false, description = "Chooses the default version.")
+    private String version = ContainerOptions.DEFAULT_VERSION;
     @Option(name = "--min-port", multiValued = false, description = "The minimum port of the allowed port range")
     private int minimumPort = Ports.MIN_PORT_NUMBER;
     @Option(name = "--max-port", multiValued = false, description = "The maximum port of the allowed port range")
@@ -81,7 +84,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
     @Override
     protected Object doExecute() throws Exception {
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder();
+        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder().version(version);
         String name = System.getProperty(SystemProperties.KARAF_NAME);
         if (containers == null || containers.isEmpty()) {
             containers = Arrays.asList(name);

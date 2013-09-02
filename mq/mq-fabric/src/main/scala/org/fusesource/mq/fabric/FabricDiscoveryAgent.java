@@ -36,8 +36,11 @@ import org.apache.curator.retry.RetryOneTime;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
+import org.fusesource.fabric.groups.MultiGroup;
 import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroupFactory;
+import org.fusesource.fabric.groups.internal.ZooKeeperMultiGroup;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +70,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     private String id;
     private String agent;
 
-    Group<ActiveMQNode> group;
+    MultiGroup<ActiveMQNode> group;
 
     List<String> services = new ArrayList<String>();
 
@@ -314,9 +317,9 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         updateClusterState();
     }
 
-    public Group<ActiveMQNode> getGroup() {
+    public MultiGroup<ActiveMQNode> getGroup() {
         if (group == null) {
-            group = new ZooKeeperGroup<ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
+            group = new ZooKeeperMultiGroup<ActiveMQNode>(curator, "/fabric/registry/clusters/fusemq/" + groupName, ActiveMQNode.class);
         }
 
         return group;

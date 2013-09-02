@@ -50,6 +50,11 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
     }
 
     @Override
+    public <T> Group<T> createMultiGroup(String path, Class<T> clazz) {
+        throw new IllegalStateException("not supported");
+    }
+
+    @Override
     public void close() {
         delegate.close();
     }
@@ -117,6 +122,11 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
                     super.close();
                 }
             };
+        }
+
+        @Override
+        public <T> Group<T> createMultiGroup(String path, Class<T> clazz) {
+            throw new IllegalStateException("not supported");
         }
 
         @Override

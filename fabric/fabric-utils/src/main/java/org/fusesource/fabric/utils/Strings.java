@@ -113,6 +113,7 @@ public class Strings {
         }
         return buffer.toString();
     }
+
     /**
      * joins a collection of objects together as a String using a separator, filtering out null values
      */
@@ -141,7 +142,7 @@ public class Strings {
             return object.toString();
         }
     }
-    
+
     public static String unquote(String text) {
         if (text != null && text.startsWith("\"") && text.endsWith("\"")) {
             return text.substring(1, text.length() - 1);
@@ -156,5 +157,82 @@ public class Strings {
 
     public static boolean isNotBlank(String text) {
         return !isNullOrBlank(text);
+    }
+
+    public static List<String> parseDelimitedString(String value, String delim) {
+        return parseDelimitedString(value, delim, true);
+    }
+
+    /**
+     * Parses delimited string and returns an array containing the tokens. This
+     * parser obeys quotes, so the delimiter character will be ignored if it is
+     * inside of a quote. This method assumes that the quote character is not
+     * included in the set of delimiter characters.
+     *
+     * @param value the delimited string to parse.
+     * @param delim the characters delimiting the tokens.
+     * @return a list of string or an empty list if there are none.
+     */
+    public static List<String> parseDelimitedString(String value, String delim, boolean trim) {
+        if (value == null) {
+            value = "";
+        }
+
+        List<String> list = new ArrayList();
+
+        int CHAR = 1;
+        int DELIMITER = 2;
+        int STARTQUOTE = 4;
+        int ENDQUOTE = 8;
+
+        StringBuffer sb = new StringBuffer();
+
+        int expecting = (CHAR | DELIMITER | STARTQUOTE);
+
+        boolean isEscaped = false;
+        for (int i = 0; i < value.length(); i++) {
+            char c = value.charAt(i);
+
+            boolean isDelimiter = (delim.indexOf(c) >= 0);
+
+            if (!isEscaped && (c == '\\')) {
+                isEscaped = true;
+                continue;
+            }
+
+            if (isEscaped) {
+                sb.append(c);
+            } else if (isDelimiter && ((expecting & DELIMITER) > 0)) {
+                if (trim) {
+                    list.add(sb.toString().trim());
+                } else {
+                    list.add(sb.toString());
+                }
+                sb.delete(0, sb.length());
+                expecting = (CHAR | DELIMITER | STARTQUOTE);
+            } else if ((c == '"') && ((expecting & STARTQUOTE) > 0)) {
+                sb.append(c);
+                expecting = CHAR | ENDQUOTE;
+            } else if ((c == '"') && ((expecting & ENDQUOTE) > 0)) {
+                sb.append(c);
+                expecting = (CHAR | STARTQUOTE | DELIMITER);
+            } else if ((expecting & CHAR) > 0) {
+                sb.append(c);
+            } else {
+                throw new IllegalArgumentException("Invalid delimited string: " + value);
+            }
+
+            isEscaped = false;
+        }
+
+        if (sb.length() > 0) {
+            if (trim) {
+                list.add(sb.toString().trim());
+            } else {
+                list.add(sb.toString());
+            }
+        }
+
+        return list;
     }
 }

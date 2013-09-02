@@ -282,6 +282,22 @@ define [
         rc
       )
 
+    escapeHtml: (str) ->
+      div = document.createElement 'div'
+      div.appendChild(document.createTextNode(str))
+      div.innerHtml
+
+    unescapeHtml: (escapedStr) ->
+      div = document.createElement 'div'
+      div.innerHtml = escapedStr
+      child = div.childNodes[0]
+      if !child
+        ''
+      else
+        child.nodeValue
+
+
+
   class ModelBackedTemplate extends FON.TemplateController
     template_data: -> @model.toJSON()
 

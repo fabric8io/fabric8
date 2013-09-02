@@ -1,0 +1,21 @@
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+    <display-name>ElasticSearch Head</display-name>
+
+    <servlet>
+        <servlet-name>es</servlet-name>
+        <servlet-class>org.fusesource.insight.eshead.ElasticSearchServlet</servlet-class>
+    </servlet>
+
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+
+    <servlet-mapping>
+        <servlet-name>es</servlet-name>
+        <url-pattern>/es/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>default</servlet-name>
+        <url-pattern>*</url-pattern>
+    </servlet-mapping>
+</web-app>

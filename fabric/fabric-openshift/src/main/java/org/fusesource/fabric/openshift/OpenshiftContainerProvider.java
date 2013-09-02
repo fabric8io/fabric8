@@ -21,8 +21,8 @@ import com.openshift.client.IDomain;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
 import com.openshift.client.OpenShiftConnectionFactory;
-import com.openshift.internal.client.Cartridge;
 import com.openshift.internal.client.GearProfile;
+import com.openshift.internal.client.StandaloneCartridge;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -54,7 +54,7 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         IUser user = getOrCreateConnection(options).getUser();
         IDomain domain =  getOrCreateDomain(user, options);
         int number = Math.max(options.getNumber(), 1);
-        Cartridge cartridge = options.isEnsembleServer() ? new Cartridge(REGISTRY_CART) : new Cartridge(PLAIN_CART);
+        StandaloneCartridge cartridge = options.isEnsembleServer() ? new StandaloneCartridge(REGISTRY_CART) : new StandaloneCartridge(PLAIN_CART);
         for (int i = 1; i <= number; i++) {
 
             IApplication application = domain.createApplication(options.getName(),cartridge, new GearProfile(options.getGearProfile()));

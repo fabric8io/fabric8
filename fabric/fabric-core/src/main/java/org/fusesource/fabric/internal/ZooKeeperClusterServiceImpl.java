@@ -26,6 +26,8 @@ import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStoreRegistrationHandler;
+import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
@@ -45,19 +47,17 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.add;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.remove;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.service",
@@ -75,6 +75,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 	private FabricService fabricService;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private DataStore dataStore;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private DataStoreRegistrationHandler dataStoreRegistrationHandler;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private ZooKeeperClusterBootstrap bootstrap;
 
@@ -152,7 +154,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
         createCluster(containers, CreateEnsembleOptions.builder().fromSystemProperties().build());
     }
 
-    public void createCluster(List<String> containers, CreateEnsembleOptions options) {
+    public void createCluster(final List<String> containers, CreateEnsembleOptions options) {
+        final List<String> oldContainers = getEnsembleContainers();
         try {
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
@@ -182,7 +185,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 
 			// Find used zookeeper ports
 			Map<String, List<Integer>> usedPorts = new HashMap<String, List<Integer>>();
-			String oldClusterId = getStringData(curator, ZkPath.CONFIG_ENSEMBLES.getPath());
+			final String oldClusterId = getStringData(curator, ZkPath.CONFIG_ENSEMBLES.getPath());
 			if (oldClusterId != null) {
                 String profile = "fabric-ensemble-" + oldClusterId;
                 String pid = "org.fusesource.fabric.zookeeper.server-" + oldClusterId;
@@ -196,7 +199,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				for (Object n : p.keySet()) {
 					String node = (String) n;
 					if (node.startsWith("server.")) {
-						String data = getSubstitutedPath(curator, ZkPath.CONFIG_ENSEMBLE_PROFILE.getPath("fabric-ensemble-" + oldClusterId) + "/org.fusesource.fabric.zookeeper.server-" + oldClusterId + ".properties#" + node);
+                        String data = getSubstitutedData(curator, dataStore.getConfigurations(version, "fabric-ensemble-" + oldClusterId).get("org.fusesource.fabric.zookeeper.server-" + oldClusterId).get(node));
 						addUsedPorts(usedPorts, data);
 					}
 				}
@@ -252,7 +255,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                     bindAddress= getSubstitutedPath(curator, ZkPath.CONTAINER_BINDADDRESS.getPath(container));
                 }
 
-                String ensembleMemberPid = "org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
+                String ensembleMemberConfigName = "org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
                 Properties ensembleMemberProperties = new Properties();
 
                 // configure this server in the ensemble
@@ -270,7 +273,7 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
                 ensembleMemberProperties.put("clientPort", port1);
                 ensembleMemberProperties.put("clientPortAddress", bindAddress);
 
-                getDataStore().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberPid, DataStoreHelpers.toBytes(ensembleMemberProperties));
+                getDataStore().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberConfigName, DataStoreHelpers.toBytes(ensembleMemberProperties));
 
 				if (connectionUrl.length() > 0) {
 					connectionUrl += ",";
@@ -291,7 +294,9 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
             index = 1;
             for (String container : containers) {
                 // add this container to the ensemble
-                add(curator, "/fabric/configs/versions/" + version + "/containers/" + container, "fabric-ensemble-" + newClusterId + "-" + Integer.toString(index));
+                List<String> profiles = new LinkedList<String>(dataStore.getContainerProfiles(container));
+                profiles.add("fabric-ensemble-" + newClusterId + "-" + Integer.toString(index));
+                dataStore.setContainerProfiles(container, profiles);
                 index++;
             }
 
@@ -311,35 +316,52 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 					setData(dst, ZkPath.CONFIG_ENSEMBLES.getPath(), newClusterId);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE.getPath(newClusterId), containerList);
 
+                    //Add a registration callback to perform cleanup when the new datastore has been registered.
+                    dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreTemplate() {
+                        @Override
+                        public void doWith(DataStore dataStore) throws Exception {
+                            for (String container : oldContainers) {
+                                cleanUpEnsembleProfiles(dataStore, container, oldClusterId);
+                            }
+                        }
+                    });
 
                     setData(dst, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
                     setData(dst, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
                     setData(curator, ZkPath.CONFIG_ENSEMBLE_URL.getPath(), connectionUrl);
                     setData(curator, ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath(), options.getZookeeperPassword());
 
-
-                    for (String v : getChildren(curator, "/fabric/configs/versions")) {
-                        for (String container : getChildren(dst, "/fabric/configs/versions/" + v + "/containers")) {
-                            remove(dst, "/fabric/configs/versions/" + v + "/containers/" + container, "fabric-ensemble-" + oldClusterId + "-.*");
-                        }
-                        setConfigProperty(dst, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-                        setConfigProperty(dst, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                        setConfigProperty(curator, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-                        setConfigProperty(curator, "/fabric/configs/versions/" + v + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                    }
-
-
                 } finally {
 					dst.close();
 				}
 			} else {
-				setConfigProperty(curator, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-				setConfigProperty(curator, "/fabric/configs/versions/" + version + "/profiles/default/org.fusesource.fabric.zookeeper.properties", "zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
+                Map<String, String> zkConfig = dataStore.getConfiguration(version, "default", "org.fusesource.fabric.zookeeper");
+                zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
+                zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
+                dataStore.setConfiguration(version, "default", "org.fusesource.fabric.zookeeper", zkConfig);
 			}
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper quorum: " + e.getMessage(), e);
 		}
 	}
+
+    /**
+     * Removes all ensemble profiles matching the clusterId from the container.
+     * @param dataStore The dataStore to use.
+     * @param container The target container.
+     * @param clusterId The clusterId to be removed.
+     */
+    private void cleanUpEnsembleProfiles(DataStore dataStore, String container, String clusterId) {
+        List<String> profiles = new LinkedList<String>(dataStore.getContainerProfiles(container));
+        List<String> toRemove = new LinkedList<String>();
+        for (String p : profiles) {
+            if (p.startsWith("fabric-ensemble-" + clusterId)) {
+                toRemove.add(p);
+            }
+        }
+        profiles.removeAll(toRemove);
+        dataStore.setContainerProfiles(container, profiles);
+    }
 
 	public static String toString(Properties source) throws IOException {
 		StringWriter writer = new StringWriter();

@@ -173,7 +173,7 @@ class SystemResource extends BaseResource {
         rc.managed = false
     }
     try {
-      rc.zk_cluster_service_available = Services.zk_cluster_service != null
+      rc.zk_cluster_service_available = Services.zk_cluster_bootstrap != null
     } catch {
       case t: Throwable =>
         rc.zk_cluster_service_available = false

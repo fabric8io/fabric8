@@ -16,12 +16,6 @@
  */
 package org.fusesource.fabric.git.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
@@ -33,6 +27,12 @@ import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -123,12 +123,13 @@ public class GitDataStoreTest {
             assertHasVersion(defaultVersion);
         }
 
+        remote.checkout().setName("1.0").call();
         String importedProfile = "example-dozer";
         String profile = importedProfile;
         assertProfileExists(defaultVersion, profile);
 
         String version = "1.1";
-        assertCreateVersion(version);
+        assertCreateVersion("1.0", version);
 
         assertProfileConfiguration(version, importedProfile, "org.fusesource.fabric.agent", "parents",
                 "camel");
@@ -169,7 +170,7 @@ public class GitDataStoreTest {
         assertProfileExists(version, anotherNewProfile);
 
         version = "1.2";
-        assertCreateVersion(version);
+        assertCreateVersion("1.1", version);
 
         // check this version has the profile too
         assertProfileExists(version, newProfile);
@@ -181,6 +182,8 @@ public class GitDataStoreTest {
 
         // lets check the remote repo
         remote.checkout().setName("1.1").call();
+        assertProfileExists("1.1", profile);
+        assertProfileExists("1.1", newProfile);
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + newProfile));
 
@@ -192,6 +195,8 @@ public class GitDataStoreTest {
                         + "/org.fusesource.fabric.datastore.properties"));
 
         remote.checkout().setName("1.2").call();
+        assertProfileExists("1.2", profile);
+        assertProfileNotExists("1.2", newProfile);
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + newProfile));
 
@@ -260,10 +265,11 @@ public class GitDataStoreTest {
         return new File(GitHelpers.getRootGitDirectory(remote), path);
     }
 
-    protected void assertProfileExists(String version, String profile) {
+    protected void assertProfileExists(String version, String profile) throws Exception {
         List<String> profiles = dataStore.getProfiles(version);
         assertTrue("Profile " + profile + " should exist but has: " + profiles + " for version " + version,
                 profiles.contains(profile));
+        git.checkout().setName(version).call();
         assertFolderExists(getLocalGitFile("fabric/profiles/" + profile));
     }
 
@@ -299,8 +305,8 @@ public class GitDataStoreTest {
         assertFalse(messagePrefix(message) + "Should not have found folder: " + path, path.exists());
     }
 
-    protected void assertCreateVersion(String version) {
-        dataStore.createVersion(version);
+    protected void assertCreateVersion(String parrentVersion, String version) {
+        dataStore.createVersion(parrentVersion, version);
 
         assertHasVersion(version);
 

@@ -195,6 +195,8 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val replicating:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("replicating")).getOrElse("false"))
     val standalone:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("standalone")).getOrElse("false"))
     val registerService:Boolean = "true".equalsIgnoreCase(Option(properties.getProperty("registerService")).getOrElse("true"))
+    val config_check = "true".equalsIgnoreCase(Option(properties.getProperty("config.check")).getOrElse("true"))
+
 
     val started = new AtomicBoolean
 
@@ -258,27 +260,30 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       discoveryAgent.setCurator(curator)
       discoveryAgent.getGroup.add(new GroupListener[ActiveMQNode]() {
         def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
-          if (discoveryAgent.getGroup.isMaster) {
-            if (started.compareAndSet(false, true)) {
-              if (take_pool(ClusteredConfiguration.this)) {
-                info("Broker %s is now the master, starting the broker.", name)
-                start
-              } else {
-                update_pool_state
-                started.set(false)
+          if (event.equals(GroupEvent.CONNECTED) || event.equals(GroupEvent.CHANGED)) {
+            if (discoveryAgent.getGroup.isMaster(name)) {
+              if (started.compareAndSet(false, true)) {
+                if (take_pool(ClusteredConfiguration.this)) {
+                  info("Broker %s is now the master, starting the broker.", name)
+                  start
+                } else {
+                  update_pool_state
+                  started.set(false)
+                }
               }
-            }
-          } else {
-            if (started.compareAndSet(true, false)) {
-              return_pool(ClusteredConfiguration.this)
-              info("Broker %s is now a slave, stopping the broker.", name)
-              stop()
             } else {
-              if (event.equals(GroupEvent.CONNECTED)) {
-                info("Broker %s is now slave", name)
+              if (started.compareAndSet(true, false)) {
+                return_pool(ClusteredConfiguration.this)
+                info("Broker %s is now a slave, stopping the broker.", name)
+                stop()
+              } else {
+                info("Broker %s is slave", name)
                 discoveryAgent.setServices(Array[String]())
               }
             }
+          } else {
+            info("Disconnected from the group", name)
+            discoveryAgent.setServices(Array[String]())
           }
         }
       })
@@ -462,7 +467,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     override def run() {
       while (running) {
         configurations.values.foreach(c => {
-          if (c.last_modified != -1 && c.server._3.lastModified() != c.last_modified) {
+          if (c.config_check && c.last_modified != -1 && c.server._3.lastModified() != c.last_modified) {
             c.last_modified = c.server._3.lastModified()
             info("updating " + c.properties)
             updated(c.properties.get("service.pid").asInstanceOf[String], c.properties.asInstanceOf[Dictionary[java.lang.String, _]])

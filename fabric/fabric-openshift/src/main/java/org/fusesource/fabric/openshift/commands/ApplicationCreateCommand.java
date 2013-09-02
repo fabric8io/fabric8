@@ -4,7 +4,7 @@ import com.openshift.client.IApplication;
 import com.openshift.client.IDomain;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
-import com.openshift.internal.client.Cartridge;
+import com.openshift.internal.client.StandaloneCartridge;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
@@ -32,7 +32,7 @@ public class ApplicationCreateCommand extends OpenshiftCommandSupport {
             domain = user.createDomain(domainId);
         }
 
-        IApplication application = domain.createApplication(applicationName, new Cartridge(cartridge));
+        IApplication application = domain.createApplication(applicationName, new StandaloneCartridge(cartridge));
         System.out.println(application.getCreationLog());
         return null;
     }

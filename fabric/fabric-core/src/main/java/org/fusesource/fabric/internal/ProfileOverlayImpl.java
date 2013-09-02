@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -198,11 +199,22 @@ public class ProfileOverlayImpl implements Profile {
         Properties props;
     }
 
-    private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
-        for (Profile p : profile.getParents()) {
-            supplement(p, aggregate);
-        }
+    private List<Profile> getInheritedProfiles() {
+        List<Profile> profiles = new ArrayList<Profile>();
+        fillParentProfiles(self, profiles);
+        return profiles;
+    }
 
+    private void fillParentProfiles(Profile profile, List<Profile> profiles) {
+        for (Profile p : profile.getParents()) {
+            fillParentProfiles(p, profiles);
+        }
+        if (!profiles.contains(profile)) {
+            profiles.add(profile);
+        }
+    }
+
+    private void supplement(Profile profile, Map<String, SupplementControl> aggregate) throws Exception {
         // TODO fix this, should this every happen???
         if (profile instanceof ProfileOverlayImpl) {
             if (((ProfileOverlayImpl) profile).self.equals(self)) {
@@ -253,7 +265,9 @@ public class ProfileOverlayImpl implements Profile {
     public Map<String, byte[]> getFileConfigurations() {
         try {
             Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
-            supplement(self, aggregate);
+            for (Profile profile : getInheritedProfiles()) {
+                supplement(profile, aggregate);
+            }
 
             Map<String, byte[]> rc = new HashMap<String, byte[]>();
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
@@ -273,7 +287,9 @@ public class ProfileOverlayImpl implements Profile {
     public Map<String, Map<String, String>> getConfigurations() {
         try {
             Map<String, SupplementControl> aggregate = new HashMap<String, SupplementControl>();
-            supplement(self, aggregate);
+            for (Profile profile : getInheritedProfiles()) {
+                supplement(profile, aggregate);
+            }
 
             Map<String, Map<String, String>> rc = new HashMap<String, Map<String, String>>();
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
