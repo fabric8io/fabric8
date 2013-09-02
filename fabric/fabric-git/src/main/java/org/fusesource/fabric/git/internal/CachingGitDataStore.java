@@ -31,6 +31,7 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,7 +204,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     public Map<String, byte[]> getFileConfigurations(String version, String profile) {
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
-        return p.configurations;
+        return p != null ? p.configurations : Collections.<String, byte[]>emptyMap();
     }
 
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
