@@ -292,6 +292,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     toDir = new File(toDir, destinationPath);
                 }
                 recursiveCopyAndAdd(git, from, toDir, destinationPath);
+                context.setPushBranch(version);
                 context.commit("Imported from " + from);
                 return null;
             }
@@ -310,6 +311,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             public Void call(Git git, GitContext context) throws Exception {
                 // TODO lets checkout the previous versionu first!
                 checkoutVersion(git, version);
+                context.setPushBranch(version);
                 context.requirePush();
                 return null;
             }
@@ -324,6 +326,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 // lets checkout the parent version first
                 checkoutVersion(git, parentVersionId);
                 checkoutVersion(git, toVersion);
+                context.setPushBranch(toVersion);
                 context.requirePush();
                 return null;
             }
@@ -421,7 +424,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 File profileDirectory = getProfileDirectory(git, profile);
                 if (!profileDirectory.exists()) {
                     if (create) {
-                        return doCreateProfile(git, context, profile);
+                        return doCreateProfile(git, context, profile, version);
                     }
                     return null;
                 }
@@ -435,7 +438,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         gitOperation(new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
-                return doCreateProfile(git, context, profile);
+                return doCreateProfile(git, context, profile, version);
             }
         });
     }
@@ -447,6 +450,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doRecursiveDeleteAndRemove(git, profileDirectory);
+                context.setPushBranch(version);
                 context.commit("Removed profile " + profile);
                 return null;
             }
@@ -577,6 +581,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doSetFileConfigurations(git, profileDirectory, profile, configurations);
+                context.setPushBranch(version);
                 context.commit("Updated configuration for profile " + profile);
                 return null;
             }
@@ -607,6 +612,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 doSetFileConfiguration(git, profile, fileName, configuration);
+                context.setPushBranch(version);
                 context.commit("Updated " + fileName + " for profile " + profile);
                 return null;
             }
@@ -811,7 +817,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
                 git.checkout().setName(originalBranch).call();
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
-                    doPush(git, credentialsProvider);
+                    doPush(git, context, credentialsProvider);
                     fireChangeNotifications();
                 }
                 return answer;
@@ -839,15 +845,15 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     /**
      * Pushes any changes - assumed to be invoked within a gitOperation method!
      */
-    public Iterable<PushResult> doPush(Git git) throws Exception {
-        return doPush(git, getCredentialsProvider());
+    public Iterable<PushResult> doPush(Git git, GitContext gitContext) throws Exception {
+        return doPush(git, gitContext, getCredentialsProvider());
     }
 
 
     /**
      * Pushes any committed changes to the remote repo
      */
-    protected Iterable<PushResult> doPush(Git git, CredentialsProvider credentialsProvider) throws Exception {
+    protected Iterable<PushResult> doPush(Git git, GitContext gitContext, CredentialsProvider credentialsProvider) throws Exception {
         Repository repository = git.getRepository();
         StoredConfig config = repository.getConfig();
         String url = config.getString("remote", remote, "url");
@@ -858,7 +864,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             return Collections.EMPTY_LIST;
         }
 
-        String branch = GitHelpers.currentBranch(git);
+        String branch = gitContext != null && gitContext.getPushBranch() != null ? gitContext.getPushBranch() : GitHelpers.currentBranch(git);
         return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
     }
 
@@ -978,7 +984,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     /**
      * Creates the given profile directory in the currently checked out version branch
      */
-    protected String doCreateProfile(Git git, GitContext context, String profile)
+    protected String doCreateProfile(Git git, GitContext context, String profile, String version)
             throws IOException, GitAPIException {
         File profileDirectory = getProfileDirectory(git, profile);
         File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
@@ -988,6 +994,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         profileDirectory.mkdirs();
         Files.writeToFile(metadataFile, "#Profile:" + profile + "\n", Charset.defaultCharset());
         doAddFiles(git, profileDirectory, metadataFile);
+        context.setPushBranch(version);
         context.commit("Added profile " + profile);
         return profile;
     }
