@@ -18,9 +18,11 @@ package org.fusesource.fabric.openshift;
 
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.OpenShiftConnectionFactory;
+import com.openshift.internal.client.utils.Assert;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.fusesource.fabric.utils.Strings;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -44,13 +46,27 @@ public class ManagedOpenshiftConnection  {
 
     @Activate
     public void init(BundleContext bundleContext, Map<String, String> properties) {
-        String serverUrl = properties.get(SERVER_URL);
-        String login = properties.get(LOGIN);
-        String password = properties.get(PASSWORD);
-        if (serverUrl != null && login != null && password != null) {
-            connection = connectionFactory.getConnection(FABRIC_CLIENT_ID, login, password, serverUrl);
-            registration = bundleContext.registerService(IOpenShiftConnection.class, connection, null);
+        if (registration != null) {
+            registration.unregister();
         }
+
+        if (isConfigurationValid(properties)) {
+            String serverUrl = properties.get(SERVER_URL);
+            String login = properties.get(LOGIN);
+            String password = properties.get(PASSWORD);
+
+            if (serverUrl != null && login != null && password != null) {
+                connection = connectionFactory.getConnection(FABRIC_CLIENT_ID, login, password, serverUrl);
+                registration = bundleContext.registerService(IOpenShiftConnection.class, connection, null);
+            }
+        }
+    }
+
+    private boolean isConfigurationValid(Map<String, String> properties) {
+        return properties != null
+                && properties.containsKey(SERVER_URL) && Strings.isNotBlank(properties.get(SERVER_URL))
+                && properties.containsKey(LOGIN) && Strings.isNotBlank(properties.get(LOGIN))
+                && properties.containsKey(PASSWORD) && Strings.isNotBlank(properties.get(PASSWORD));
     }
 
     @Deactivate

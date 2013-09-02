@@ -29,17 +29,19 @@ import java.util.Set;
 public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions<CreateOpenshiftContainerOptions> implements CreateRemoteContainerOptions {
     private static final long serialVersionUID = 4489740280396972109L;
 
+    public static String OPENSHIFT_BROKER_HOST = "OPENSHIFT_BROKER_HOST";
+    public static String OPENSHIFT_NAMESPACE = "OPENSHIFT_NAMESPACE";
+
+
     public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
         @JsonProperty
-        private String serverUrl;
+        private String serverUrl = System.getenv(OPENSHIFT_BROKER_HOST);
         @JsonProperty
         private String login;
         @JsonProperty
         private String password;
         @JsonProperty
-        private String domain;
-        @JsonProperty
-        private String application;
+        private String domain = System.getenv(OPENSHIFT_NAMESPACE);
         @JsonProperty
         private String gearProfile = "small";
         @JsonProperty
@@ -62,11 +64,6 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
 
         public Builder domain(final String domain) {
             this.domain = domain;
-            return this;
-        }
-
-        public Builder application(final String application) {
-            this.application = application;
             return this;
         }
 
@@ -114,14 +111,6 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
             this.domain = domain;
         }
 
-        public String getApplication() {
-            return application;
-        }
-
-        public void setApplication(String application) {
-            this.application = application;
-        }
-
         public Map<String, String> getEnvironmentalVariables() {
             return environmentalVariables;
         }
@@ -134,7 +123,7 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
             return new CreateOpenshiftContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "openshift", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), serverUrl, login, password, domain, application, gearProfile, environmentalVariables);
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), serverUrl, login, password, domain, gearProfile, environmentalVariables);
         }
     }
 
@@ -151,20 +140,17 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
     @JsonProperty
     private final String domain;
     @JsonProperty
-    private final String application;
-    @JsonProperty
     private final String gearProfile;
     @JsonProperty
     private final Map<String, String> environmentalVariables;
 
 
-    public CreateOpenshiftContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String serverUrl, String login, String password, String domain, String application, String gearProfile, Map<String, String> environmentalVariables) {
+    public CreateOpenshiftContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String serverUrl, String login, String password, String domain, String gearProfile, Map<String, String> environmentalVariables) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
         this.serverUrl = serverUrl;
         this.login = login;
         this.password = password;
         this.domain = domain;
-        this.application = application;
         this.gearProfile = gearProfile;
         this.environmentalVariables = environmentalVariables;
     }
@@ -174,7 +160,7 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
         return new CreateOpenshiftContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "openshift", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), serverUrl, user, password, domain, application, gearProfile, environmentalVariables);
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), serverUrl, user, password, domain, gearProfile, environmentalVariables);
     }
 
     public String getServerUrl() {
@@ -191,10 +177,6 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
 
     public String getDomain() {
         return domain;
-    }
-
-    public String getApplication() {
-        return application;
     }
 
     public String getGearProfile() {
