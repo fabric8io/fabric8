@@ -17,12 +17,14 @@
 package org.fusesource.fabric.camel;
 
 import junit.framework.Assert;
+
 import org.apache.camel.CamelContext;
 import org.apache.camel.Route;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -31,6 +33,7 @@ import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 import java.util.List;
 
 @ContextConfiguration
+@Ignore("[FABRIC-528] Fix fabric/fabric-camel tests")
 public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTests {
     private static final String ROUTE_NAME = "test_route_1";
 
