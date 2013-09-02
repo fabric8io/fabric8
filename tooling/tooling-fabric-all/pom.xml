@@ -35,7 +35,7 @@
 
   <properties>
     <fuse.osgi.export>
-      org.fusesource.fabric*;version=${project.version},
+      org.fusesource.fabric*;version=${fabric.version},
       org.apache.zookeeper*;version=${zookeeper-version},
       org.apache.curator.*;version=${curator.version}
     </fuse.osgi.export>
@@ -83,47 +83,47 @@
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-client</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-api</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-zookeeper</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-linkedin-zookeeper</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core-agent-ssh</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-core-agent-jclouds</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>tooling-jclouds-all</artifactId>
-      <version>${project.version}</version>
+      <version>${fabric.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -155,6 +155,12 @@
         <groupId>org.jledit</groupId>
         <artifactId>core</artifactId>
         <version>${jledit.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${zookeeper-version}</version>
+        <scope>compile</scope>
     </dependency>
   </dependencies>
 

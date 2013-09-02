@@ -16,13 +16,10 @@
 
 package org.fusesource.fabric.camel.facade;
 
-import java.util.List;
-
+import org.apache.camel.api.management.mbean.ManagedBacklogTracerMBean;
 import org.fusesource.fabric.camel.facade.mbean.*;
-import org.fusesource.fabric.camel.facade.mbean.CamelContextMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelEndpointMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelConsumerMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelFabricTracerMBean;
+
+import java.util.List;
 
 /**
  *
@@ -42,6 +39,13 @@ public interface CamelFacade {
      * @param managementName  the camel context management name (<b>not</b> context id)
      */
     CamelFabricTracerMBean getFabricTracer(String managementName) throws Exception;
+
+	/**
+	 * Gets the camel tracer
+	 *
+	 * @param managementName  the camel context management name (<b>not</b> context id)
+	 */
+	ManagedBacklogTracerMBean getCamelTracer(String managementName) throws Exception;
 
     /**
      * Gets the CamelContext

@@ -16,19 +16,13 @@
 
 package org.fusesource.fabric.camel.facade;
 
-import java.util.List;
+import org.apache.camel.api.management.mbean.ManagedBacklogTracerMBean;
+import org.fusesource.fabric.camel.facade.mbean.*;
+import org.fusesource.fabric.service.JmxTemplateSupport;
+
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
-
-import org.fusesource.fabric.service.JmxTemplateSupport;
-import org.fusesource.fabric.camel.facade.mbean.CamelComponentMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelConsumerMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelEndpointMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelFabricTracerMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelProcessorMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelRouteMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelThreadPoolMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelContextMBean;
+import java.util.List;
 
 /**
  *
@@ -76,6 +70,14 @@ public class JmxTemplateCamelFacade implements CamelFacade {
             }
         });
     }
+
+	public ManagedBacklogTracerMBean getCamelTracer(final String managementName) throws Exception {
+		return execute(new CamelFacadeCallback<ManagedBacklogTracerMBean>() {
+			public ManagedBacklogTracerMBean doWithCamelFacade(CamelFacade camel) throws Exception {
+				return camel.getCamelTracer(managementName);
+			}
+		});
+	}
 
     public List<CamelComponentMBean> getComponents(final String managementName) throws Exception {
         return execute(new CamelFacadeCallback<List<CamelComponentMBean>>() {

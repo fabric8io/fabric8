@@ -16,6 +16,11 @@
 
 package org.fusesource.fabric.camel.facade;
 
+import org.apache.camel.api.management.mbean.ManagedBacklogTracerMBean;
+import org.apache.camel.management.mbean.*;
+import org.fusesource.fabric.camel.facade.mbean.*;
+
+import javax.management.*;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -23,32 +28,6 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import javax.management.MBeanServerConnection;
-import javax.management.MBeanServerInvocationHandler;
-import javax.management.ObjectInstance;
-import javax.management.ObjectName;
-import javax.management.QueryExp;
-
-import org.apache.camel.management.mbean.ManagedBrowsableEndpoint;
-import org.apache.camel.management.mbean.ManagedDelayer;
-import org.apache.camel.management.mbean.ManagedScheduledPollConsumer;
-import org.apache.camel.management.mbean.ManagedSendProcessor;
-import org.apache.camel.management.mbean.ManagedSuspendableRoute;
-import org.apache.camel.management.mbean.ManagedThrottler;
-import org.fusesource.fabric.camel.facade.mbean.CamelBrowsableEndpointMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelComponentMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelConsumerMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelContextMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelDelayProcessorMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelEndpointMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelFabricTracerMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelProcessorMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelRouteMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelScheduledPollConsumerMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelSendProcessorMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelSuspendableRouteMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelThreadPoolMBean;
-import org.fusesource.fabric.camel.facade.mbean.CamelThrottleProcessorMBean;
 
 /**
  * Common facade support for both local and remote.
@@ -162,6 +141,24 @@ public abstract class CamelFacadeSupport implements CamelFacade {
         // tracer not found
         return null;
     }
+
+	@Override
+	public ManagedBacklogTracerMBean getCamelTracer(String managementName) throws Exception {
+		String id = managementName != null ? managementName : camelContextManagementName;
+
+		ObjectName query = ObjectName.getInstance("org.apache.camel:context=*/" + id + ",type=tracer,*");
+
+		Set<ObjectInstance> names = queryNames(query, null);
+		for (ObjectInstance on : names) {
+			if (on.getClassName().equals("org.apache.camel.management.mbean.ManagedBacklogTracer")) {
+				ManagedBacklogTracerMBean tracer = (ManagedBacklogTracerMBean) newProxyInstance(on.getObjectName(), ManagedBacklogTracerMBean.class, true);
+				return tracer;
+			}
+		}
+
+		// tracer not found
+		return null;
+	}
 
     @Override
     public List<CamelComponentMBean> getComponents(String managementName) throws Exception {
