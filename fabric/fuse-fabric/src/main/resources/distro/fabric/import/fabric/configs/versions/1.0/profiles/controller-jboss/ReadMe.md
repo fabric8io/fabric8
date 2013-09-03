@@ -1,1 +1,0 @@
-Runs a child JBoss AS container with a set of profiles provisioned inside
