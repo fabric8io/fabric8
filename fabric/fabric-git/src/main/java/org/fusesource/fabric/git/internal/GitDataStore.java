@@ -16,26 +16,6 @@
  */
 package org.fusesource.fabric.git.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -79,6 +59,23 @@ import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
@@ -108,13 +105,13 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
     private static final String CONTAINER_CONFIG_PID = "org.fusesource.fabric.agent";
 
-    private static final String GIT_PULL_PERIOD = "gitPullPeriod";
-    private static final String GIT_REMOTE_URL = "gitRemoteUrl";
-    private static final String GIT_REMOTE_USER = "gitRemoteUser";
-    private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
-
     private static final String MASTER_BRANCH = "master";
     private static final String CONFIG_ROOT_DIR = "fabric";
+
+    public static final String GIT_PULL_PERIOD = "gitPullPeriod";
+    public static final String GIT_REMOTE_URL = "gitRemoteUrl";
+    public static final String GIT_REMOTE_USER = "gitRemoteUser";
+    public static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
 
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
@@ -844,6 +841,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
                 git.checkout().setName(originalBranch).call();
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
+                    doPush(git, context, credentialsProvider);
                     fireChangeNotifications();
                 }
                 return answer;

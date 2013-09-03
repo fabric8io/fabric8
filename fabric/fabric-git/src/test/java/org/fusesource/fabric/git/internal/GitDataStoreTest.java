@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -77,12 +78,13 @@ public class GitDataStoreTest {
         new File(root, "remote").mkdirs();
         remote = Git.init().setDirectory(new File(root, "remote")).call();
         remote.commit().setMessage("First Commit").setCommitter("fabric", "user@fabric").call();
+        String remoteUrl = "file://" + new File(root, "remote").getCanonicalPath();
 
         new File(root, "local").mkdirs();
         git = Git.init().setDirectory(new File(root, "local")).call();
         git.commit().setMessage("First Commit").setCommitter("fabric", "user@fabric").call();
         StoredConfig config = git.getRepository().getConfig();
-        config.setString("remote", "origin", "url", "file://" + new File(root, "remote").getCanonicalPath());
+        config.setString("remote", "origin", "url", remoteUrl);
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
@@ -92,6 +94,9 @@ public class GitDataStoreTest {
             }
         };
 
+        Properties datastoreProperties = new Properties();
+        datastoreProperties.setProperty(GitDataStore.GIT_REMOTE_URL, remoteUrl);
+        dataStore.setDataStoreProperties(datastoreProperties);
         dataStore.setCurator(curator);
         dataStore.setGitService(gitService);
         dataStore.start();
