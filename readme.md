@@ -69,7 +69,7 @@ Running Fuse Fabric on OpenShift
 
 If you want to try out Fuse on OpenShift here's the current instructions:
 
-### 1 Create a Fabric Registry (based on EA 6.1 build of Fuse).
+### 1 Create a Fuse Registry (based on EA 6.1 build of Fuse).
 
     rhc create-app registry https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml
 
