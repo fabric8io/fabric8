@@ -152,6 +152,10 @@ public class GitDataStoreTest {
                 profileAttributeKey, expectedProfileAttributeValue);
 
 
+        // lets check that the file configurations recurses into folders
+        Map<String, byte[]> tomcatFileConfigurations = dataStore.getFileConfigurations("1.0", "controller-tomcat");
+        assertHasFileConfiguration(tomcatFileConfigurations, "tomcat/conf/server.xml.mvel");
+
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
         assertEquals("Should not create profile: " + profileNotCreated, null,
@@ -205,6 +209,13 @@ public class GitDataStoreTest {
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + newProfile));
 
 
+    }
+
+    public static void assertHasFileConfiguration(Map<String, byte[]> fileConfigurations, String pid) {
+        byte[] data = fileConfigurations.get(pid);
+        assertNotNull("has no file config for " + pid, data);
+        assertTrue("empty file config for " + pid, data.length > 0);
+        System.out.println("" + pid + " has " + data.length + " bytes");
     }
 
     protected void assertProfileTextFileConfigurationContains(String version, String profile, String fileName,

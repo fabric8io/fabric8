@@ -81,7 +81,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateConta
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
@@ -549,16 +548,24 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     protected Map<String, byte[]> doGetFileConfigurations(Git git, String profile) throws IOException {
         Map<String, byte[]> configurations = new HashMap<String, byte[]>();
         File profileDirectory = getProfileDirectory(git, profile);
-        File[] files = profileDirectory.listFiles();
+        doPutFileConfigurations(configurations, profileDirectory, profileDirectory);
+        return configurations;
+    }
+
+    private void doPutFileConfigurations(Map<String, byte[]> configurations, File profileDirectory,
+                                         File directory)
+            throws IOException {
+        File[] files = directory.listFiles();
         if (files != null) {
             for (File file : files) {
                 if (file.isFile()) {
                     String relativePath = getFilePattern(profileDirectory, file);
                     configurations.put(relativePath, doLoadFileConfiguration(file));
+                } else if (file.isDirectory()) {
+                    doPutFileConfigurations(configurations, profileDirectory, file);
                 }
             }
         }
-        return configurations;
     }
 
     @Override
