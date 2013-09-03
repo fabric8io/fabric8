@@ -61,7 +61,9 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData
 @Service(ZooKeeperClusterBootstrap.class)
 public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap {
 
+    private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
+
     private final boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
     private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
@@ -125,7 +127,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             }
             startBundles(options);
             //Wait until Fabric Service becomes available.
-            OsgiUtils.waitForSerice(FabricService.class);
+            OsgiUtils.waitForSerice(FabricService.class, null, FABRIC_SERVICE_TIMEOUT );
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
 		}
