@@ -78,13 +78,14 @@ url for hawtio. You can log in using admin/<generated password>.
 
 You can then login to your registry at: http://registry-$USERID.rhcloud.com/hawtio/ where $USERID is your openshift account name.
 
-### 2 Create additional Fabric Containers
+### 2 Open the **Fabric** tab and you should be able to see the containers running (only 1 at the moment).
 
-    rhc create-app myfuse https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml
+### 3 click on the + icon on the Containers tab to add a new container using the openshift creation form
 
-This will just create a plain fabric container (will not join it to
-the cluster. This is an openshift limitation)
+Enter something like these details:
 
-### 3 Join the container to the Fabric Cluster
-
-    rhc cartridge-add --app myfuse https://raw.github.com/jboss-fuse/fuse-client-openshift-cartridge/master/metadata/manifest.yml
+    name:      someContainerName
+    serverUrl: openshift.redhat.com
+    domain:    mydomain
+    login:     myname@foo.com
+    password:  *********
