@@ -812,7 +812,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             try {
                 Git git = getGit();
                 Repository repository = git.getRepository();
-                String originalBranch = repository.getBranch();
                 CredentialsProvider credentialsProvider = getCredentialsProvider();
                 // lets default the identity if none specified
                 if (personIdent == null) {
@@ -827,7 +826,10 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 if (pullFirst) {
                     doPull(git, credentialsProvider);
                 }
+
+                String originalBranch = repository.getBranch();
                 RevCommit statusBefore = CommitUtils.getHead(repository);
+
                 GitContext context = new GitContext();
                 T answer = operation.call(git, context);
                 boolean requirePush = context.isRequirePush();
@@ -842,7 +844,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
                 git.checkout().setName(originalBranch).call();
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
-                    doPush(git, context, credentialsProvider);
                     fireChangeNotifications();
                 }
                 return answer;
@@ -962,9 +963,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                                 + url);
             }
 
-
-            RevCommit statusBefore = CommitUtils.getHead(repository);
-
+            boolean hasChanged = false;
             try {
                 git.fetch().setCredentialsProvider(credentialsProvider).setRemote(remote).call();
             } catch (Exception e) {
@@ -998,13 +997,16 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     try {
                         git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                     } catch (CannotDeleteCurrentBranchException ex) {
-                        git.checkout().setName(MASTER_BRANCH).setForce(true).call();                        git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                        git.checkout().setName(MASTER_BRANCH).setForce(true).call();
+                        git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                     }
+                    hasChanged = true;
                 }
                 // Create new local branches
                 else if (!localBranches.containsKey(version)) {
                     git.branchCreate().setName(version).call();
                     git.reset().setMode(ResetCommand.ResetType.HARD).setRef(remoteBranches.get(version).getName()).call();
+                    hasChanged = true;
                 } else {
                     String localCommit = localBranches.get(version).getObjectId().getName();
                     String remoteCommit = remoteBranches.get(version).getObjectId().getName();
@@ -1013,12 +1015,14 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                         git.checkout().setName("HEAD").setForce(true).call();
                         git.checkout().setName(version).setForce(true).call();
                         MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
+                        if (result.getMergeStatus() != MergeResult.MergeStatus.ALREADY_UP_TO_DATE) {
+                            hasChanged = true;
+                        }
                         // TODO: handle conflicts
                     }
                 }
             }
-            RevCommit statusAfter = CommitUtils.getHead(repository);
-            if (hasChanged(statusBefore, statusAfter)) {
+            if (hasChanged) {
                 LOG.debug("Changed after pull!");
                 if (credentialsProvider != null) {
                     // TODO lets test if the profiles directory is present after checking out version 1.0?
