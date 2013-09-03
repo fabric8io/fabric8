@@ -19,7 +19,6 @@ package org.fusesource.fabric.git.internal;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 import org.eclipse.jgit.api.CheckoutCommand;
 import org.eclipse.jgit.api.Git;
@@ -50,7 +49,7 @@ public class GitHelpers {
         boolean localBranchExists = false;
         for (Ref ref : list) {
             String name = ref.getName();
-            if (Objects.equals(name, fullName)) {
+            if (equals(name, fullName)) {
                 localBranchExists = true;
             }
         }
@@ -81,7 +80,7 @@ public class GitHelpers {
 
     public static void checkoutBranch(Git git, String branch, String remote) throws GitAPIException {
         String current = currentBranch(git);
-        if (Objects.equals(current, branch)) {
+        if (equals(current, branch)) {
             return;
         }
         // lets check if the branch exists
@@ -118,5 +117,9 @@ public class GitHelpers {
                 }
             }
         }
+    }
+
+    static boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 }
