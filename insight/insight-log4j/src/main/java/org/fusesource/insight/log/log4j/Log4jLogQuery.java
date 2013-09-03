@@ -66,11 +66,29 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
     private AetherBasedResolver resolver;
     private Properties properties = new Properties();
     private MavenConfigurationImpl config;
+    private Appender appender = new AppenderSkeleton() {
+        protected void append(LoggingEvent loggingEvent) {
+            logMessage(loggingEvent);
+        }
+
+        public void close() {
+        }
+
+        public boolean requiresLayout() {
+            return true;
+        }
+    };
+
 
     @PostConstruct
     public void start() {
         super.start();
 
+        reconnectAppender();
+    }
+
+    @Override
+    public void reconnectAppender() {
         ILoggerFactory loggerFactory = LoggerFactory.getILoggerFactory();
         AppenderAttachable appenderAttachable = null;
         if (loggerFactory instanceof AppenderAttachable) {
@@ -80,18 +98,6 @@ public class Log4jLogQuery extends LogQuerySupport implements Log4jLogQueryMBean
             appenderAttachable = LogManager.getRootLogger();
         }
         if (appenderAttachable != null) {
-            Appender appender = new AppenderSkeleton() {
-                protected void append(LoggingEvent loggingEvent) {
-                    logMessage(loggingEvent);
-                }
-
-                public void close() {
-                }
-
-                public boolean requiresLayout() {
-                    return true;
-                }
-            };
             appender.setName("LogQuery");
             appenderAttachable.addAppender(appender);
         } else {

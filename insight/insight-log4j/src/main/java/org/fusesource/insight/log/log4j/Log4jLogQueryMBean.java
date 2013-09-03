@@ -24,5 +24,13 @@ import org.fusesource.insight.log.support.LogQuerySupportMBean;
  * The MBean operations for {@link Log4jLogQuery}
  */
 public interface Log4jLogQueryMBean extends LogQuerySupportMBean {
-	public void logMessage(LoggingEvent record);
+
+    /**
+     * Provides a hook you can call if the underlying log4j
+     * configuration is reloaded so that you can force the appender
+     * to get re-registered.
+     */
+    void reconnectAppender();
+
+    public void logMessage(LoggingEvent record);
 }
