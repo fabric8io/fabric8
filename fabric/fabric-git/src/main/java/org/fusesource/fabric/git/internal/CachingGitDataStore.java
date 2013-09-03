@@ -228,7 +228,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     @Override
-    public String getName() {
+    public String getType() {
         return TYPE;
     }
 

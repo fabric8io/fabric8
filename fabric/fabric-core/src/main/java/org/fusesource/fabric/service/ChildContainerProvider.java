@@ -36,7 +36,9 @@ import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
@@ -92,6 +94,15 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
 
                 if (options.getManualIp() != null && !options.getManualIp().isEmpty()) {
                     jvmOptsBuilder.append(" -D" + ZkDefs.MANUAL_IP + "=" + options.getManualIp());
+                }
+
+                Map<String, String> dataStoreProperties = new HashMap<String, String>(options.getDataStoreProperties());
+                dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, service.getDataStore().getType());
+
+                for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
+                    String key = dataStoreEntries.getKey();
+                    String value = dataStoreEntries.getValue();
+                    jvmOptsBuilder.append(" -D" + DataStore.DATASTORE_TYPE_PID +"." + key + "=" + value);
                 }
 
                 Profile defaultProfile = parent.getVersion().getProfile("default");

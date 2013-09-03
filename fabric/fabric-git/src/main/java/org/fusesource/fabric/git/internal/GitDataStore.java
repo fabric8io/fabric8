@@ -63,6 +63,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -70,7 +71,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -102,7 +102,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 public class GitDataStore extends DataStoreSupport implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
-    private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.datastore";
+    private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.profile.attributes";
     private static final String CONTAINER_CONFIG_PID = "org.fusesource.fabric.agent";
 
     private static final String MASTER_BRANCH = "master";
@@ -112,6 +112,8 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public static final String GIT_REMOTE_URL = "gitRemoteUrl";
     public static final String GIT_REMOTE_USER = "gitRemoteUser";
     public static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
+    public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY, GIT_REMOTE_URL, GIT_REMOTE_USER, GIT_REMOTE_PASSWORD, GIT_PULL_PERIOD};
+
 
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
@@ -126,24 +128,29 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private GitListener remoteChangeListener = new GitListener() {
         @Override
         public void onRemoteUrlChanged(final String remoteUrl) {
-            gitOperation(new GitOperation<Void>() {
+            getThreadPool().submit(new Runnable() {
                 @Override
-                public Void call(Git git, GitContext context) throws Exception {
-                    Repository repository = git.getRepository();
-                    StoredConfig config = repository.getConfig();
-                    String currentUrl = config.getString("remote", "origin", "url");
-                    if (remoteUrl == null) {
-                        config.unsetSection("remote", "origin");
-                        config.save();
-                    } else if (!remoteUrl.equals(currentUrl)) {
-                        config.setString("remote", "origin", "url", remoteUrl);
-                        config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
-                        config.save();
-                    }
-                    return null;
+                public void run() {
+                    gitOperation(new GitOperation<Void>() {
+                        @Override
+                        public Void call(Git git, GitContext context) throws Exception {
+                            Repository repository = git.getRepository();
+                            StoredConfig config = repository.getConfig();
+                            String currentUrl = config.getString("remote", "origin", "url");
+                            if (remoteUrl == null) {
+                                config.unsetSection("remote", "origin");
+                                config.save();
+                            } else if (!remoteUrl.equals(currentUrl)) {
+                                config.setString("remote", "origin", "url", remoteUrl);
+                                config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                                config.save();
+                            }
+                            return null;
+                        }
+                    });
+                    pull();
                 }
             });
-            pull();
         }
     };
 
@@ -158,7 +165,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
     @Activate
     public void init() {
-
     }
 
     @Deactivate
@@ -169,10 +175,10 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public synchronized void start() {
         try {
             super.start();
-            Properties properties = getDataStoreProperties();
+            Map<String, String> properties = getDataStoreProperties();
             if (properties != null) {
                 this.pullPeriod = PropertiesHelper.getLongValue(properties, GIT_PULL_PERIOD, this.pullPeriod);
-                this.gitRemoteUrl = properties.getProperty(GIT_REMOTE_URL);
+                this.gitRemoteUrl = properties.get(GIT_REMOTE_URL);
             }
 
             if (gitRemoteUrl != null) {
@@ -184,12 +190,8 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 pull();
             }
 
-            if (threadPool == null) {
-                this.threadPool = Executors.newSingleThreadScheduledExecutor();
-            }
-
             LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
-            threadPool.scheduleWithFixedDelay(new Runnable() {
+            getThreadPool().scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
                     LOG.debug("Performing timed pull");
@@ -197,7 +199,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 }
             }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
         } catch (Exception ex) {
-            throw new FabricException("Failed to start GitDataStore:",ex);
+            throw new FabricException("Failed to start GitDataStore:", ex);
         }
     }
 
@@ -247,8 +249,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         this.gitService = null;
     }
 
-    public ScheduledExecutorService getThreadPool() {
-        return threadPool;
+    private synchronized ScheduledExecutorService getThreadPool() {
+        if (threadPool == null) {
+            this.threadPool = Executors.newSingleThreadScheduledExecutor();
+        }
+        return this.threadPool;
     }
 
     public void setThreadPool(ScheduledExecutorService threadPool) {
@@ -893,7 +898,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     }
 
     protected CredentialsProvider getCredentialsProvider() throws Exception {
-        Properties properties = getDataStoreProperties();
+        Map<String, String> properties = getDataStoreProperties();
         String username = null;
         String password = null;
         if (isExternalGitConfigured(properties)) {
@@ -909,21 +914,22 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
     /**
      * Check if the datastore has been configured with an external git repository.
+     *
      * @param properties
      * @return
      */
-    private boolean isExternalGitConfigured(Properties properties) {
+    private boolean isExternalGitConfigured(Map<String, String> properties) {
         return properties != null
                 && properties.containsKey(GIT_REMOTE_USER)
                 && properties.containsKey(GIT_REMOTE_PASSWORD);
     }
 
-    private String getExternalUser(Properties properties) {
-        return properties.getProperty(GIT_REMOTE_USER);
+    private String getExternalUser(Map<String, String> properties) {
+        return properties.get(GIT_REMOTE_USER);
     }
 
-    private String getExternalCredential(Properties properties) throws IOException {
-       return properties.getProperty(GIT_REMOTE_PASSWORD);
+    private String getExternalCredential(Map<String, String> properties) throws IOException {
+        return properties.get(GIT_REMOTE_PASSWORD);
     }
 
 
@@ -1152,12 +1158,29 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     }
 
     @Override
-    public String getName() {
+    public String getType() {
         return TYPE;
     }
 
     @Override
     public GitDataStore getDataStore() {
         return this;
+    }
+
+    @Override
+    public Map<String, String> getDataStoreProperties() {
+        return super.getDataStoreProperties();
+    }
+
+    @Override
+    public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (Map.Entry<String, String> entry : dataStoreProperties.entrySet()) {
+            String key = entry.getKey();
+            if (Arrays.asList(SUPPORTED_CONFIGURATION).contains(key)) {
+                properties.put(key, entry.getValue());
+            }
+        }
+        super.setDataStoreProperties(properties);
     }
 }

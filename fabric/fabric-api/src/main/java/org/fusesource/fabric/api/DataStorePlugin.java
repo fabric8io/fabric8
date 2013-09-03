@@ -17,6 +17,8 @@
 package org.fusesource.fabric.api;
 
 
+import java.util.Map;
+
 /**
  * An interface that describes DataStore plugins.
  * The plugins are published in the OSGi registry using this interface, so that the {@link DataStoreRegistrationHandler}
@@ -28,7 +30,7 @@ public interface DataStorePlugin<T extends DataStore> {
      * Return the DataStore name.
      * @return
      */
-    String getName();
+    String getType();
 
     /**
      * Return the {@link DataStore} instance this plugin provides.

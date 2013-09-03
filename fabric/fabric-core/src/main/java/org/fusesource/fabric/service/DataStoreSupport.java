@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -87,7 +86,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     private AtomicBoolean started = new AtomicBoolean(false);
 
     private CuratorFramework curator;
-    private Properties dataStoreProperties;
+    private Map<String, String> dataStoreProperties;
 
     @Override
     public abstract void importFromFileSystem(String from);
@@ -116,14 +115,14 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         this.curator = curator;
     }
 
-    public Properties getDataStoreProperties() {
+    public Map<String, String> getDataStoreProperties() {
         return dataStoreProperties;
     }
 
     /**
      * Sets the configuration properties for this DataStore implementation
      */
-    public void setDataStoreProperties(Properties dataStoreProperties) {
+    public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
         this.dataStoreProperties = dataStoreProperties;
     }
 

@@ -143,8 +143,10 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .environmentalVariable(environmentalVariables)
         .creationStateListener(new PrintStreamCreationStateListener(System.out))
         .version(version)
-        .withUser(newUser, newUserPassword , newUserRole)
-        .profiles(getProfileNames());
+        .withUser(newUser, newUserPassword, newUserRole)
+        .profiles(getProfileNames())
+        .dataStoreProperties(getDataStoreProperties())
+        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
 
         if (path != null && !path.isEmpty()) {
             builder.path(path);

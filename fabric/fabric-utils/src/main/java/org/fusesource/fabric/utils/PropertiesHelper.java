@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.utils;
 
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -37,6 +38,12 @@ public class PropertiesHelper {
     }
 
     public static long getLongValue(Properties properties, String key, long defaultValue) {
+        return getLong(properties, key, defaultValue);
+    }
+
+    public static long getLongValue(Map<String, String> map, String key, long defaultValue) {
+        Properties properties = new Properties();
+        properties.putAll(map);
         return getLong(properties, key, defaultValue);
     }
 }

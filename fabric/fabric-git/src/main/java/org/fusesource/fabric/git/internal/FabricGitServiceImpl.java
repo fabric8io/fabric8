@@ -23,6 +23,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
+import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
@@ -49,6 +50,11 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private GitService gitService;
+
+    //We need to wait for the container registration, so that substitution of master url works.
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private ContainerRegistration containerRegistration;
+
 
     private Group<GitNode> group;
 

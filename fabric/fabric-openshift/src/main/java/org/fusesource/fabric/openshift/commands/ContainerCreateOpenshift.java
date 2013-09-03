@@ -51,7 +51,9 @@ public class ContainerCreateOpenshift extends ContainerCreateSupport {
                 .zookeeperUrl(fabricService.getZookeeperUrl())
                 .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
                 .proxyUri(proxyUri != null ? proxyUri : fabricService.getMavenRepoURI())
-                .profiles(getProfileNames());
+                .profiles(getProfileNames())
+                .dataStoreProperties(getDataStoreProperties())
+                .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
 
         CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
 

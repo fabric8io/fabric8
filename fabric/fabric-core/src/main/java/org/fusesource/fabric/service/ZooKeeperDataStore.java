@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,6 +83,8 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 public class ZooKeeperDataStore extends DataStoreSupport implements DataStorePlugin<ZooKeeperDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(ZooKeeperDataStore.class);
     public static final String TYPE = "zookeeper";
+
+    public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY};
 
     @Activate
     public void init() {
@@ -513,12 +516,30 @@ public class ZooKeeperDataStore extends DataStoreSupport implements DataStorePlu
     }
 
     @Override
-    public String getName() {
+    public String getType() {
         return TYPE;
     }
 
     @Override
     public ZooKeeperDataStore getDataStore() {
         return this;
+    }
+
+
+    @Override
+    public Map<String, String> getDataStoreProperties() {
+        return super.getDataStoreProperties();
+    }
+
+    @Override
+    public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (Map.Entry<String, String> entry : dataStoreProperties.entrySet()) {
+            String key = entry.getKey();
+            if (Arrays.asList(SUPPORTED_CONFIGURATION).contains(key)) {
+                properties.put(key, entry.getValue());
+            }
+        }
+        super.setDataStoreProperties(properties);
     }
 }

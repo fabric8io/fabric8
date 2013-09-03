@@ -38,6 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PID;
+import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PROPERTY;
+import static org.fusesource.fabric.api.DataStore.DEFAULT_DATASTORE_TYPE;
+
 public final class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";
     public static final String RESOLVER_OVERRIDE = "RESOLVER OVERRIDE:";
@@ -61,6 +65,7 @@ public final class ContainerProviderUtils {
     private static final String KARAF_CHECK = loadFunction("karaf_check.sh");
     private static final String KARAF_KILL = loadFunction("karaf_kill.sh");
     private static final String REPLACE_IN_FILE = loadFunction("replace_in_file.sh");
+    private static final String REPLACE_PROPERTY_VALUE = loadFunction("replace_property_value.sh");
     private static final String CONFIGURE_HOSTNAMES = loadFunction("configure_hostname.sh");
 	private static final String FIND_FREE_PORT = loadFunction("find_free_port.sh");
     private static final String WAIT_FOR_PORT = loadFunction("wait_for_port.sh");
@@ -107,6 +112,7 @@ public final class ContainerProviderUtils {
         sb.append(COPY_NODE_METADATA).append("\n");
         sb.append(KARAF_CHECK).append("\n");
         sb.append(REPLACE_IN_FILE).append("\n");
+        sb.append(REPLACE_PROPERTY_VALUE).append("\n");
         sb.append(CONFIGURE_HOSTNAMES).append("\n");
 		sb.append(FIND_FREE_PORT).append("\n");
         sb.append(WAIT_FOR_PORT).append("\n");
@@ -140,6 +146,11 @@ public final class ContainerProviderUtils {
         }
         appendFile(sb, "etc/system.properties", lines);
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + name);
+        for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getKey();
+            replacePropertyValue(sb, "etc/" + DATASTORE_TYPE_PID + ".cfg", key, value);
+        }
         //Apply port range
 		sb.append("SSH_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
 		sb.append("RMI_REGISTRY_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_RMI_REGISTRY_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");
@@ -312,6 +323,14 @@ public final class ContainerProviderUtils {
         return sb.toString();
     }
 
+
+    private static void replacePropertyValue(StringBuilder sb, String path, String key, String value) {
+        sb.append("replace_property_value ")
+                .append("\"").append(key).append("\" ")
+                .append("\"").append(value).append("\" ")
+                .append(path)
+                .append("\n");
+    }
 
     private static void replaceLineInFile(StringBuilder sb, String path, String pattern, String line) {
         sb.append("replace_in_file ")

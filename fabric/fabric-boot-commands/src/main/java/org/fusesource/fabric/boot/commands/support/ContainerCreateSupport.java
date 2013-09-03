@@ -16,20 +16,20 @@
  */
 package org.fusesource.fabric.boot.commands.support;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.osgi.framework.ServiceReference;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
@@ -50,6 +50,10 @@ public abstract class ContainerCreateSupport extends FabricCommand {
     protected String zookeeperPassword;
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
+    @Option(name = "--datastore-type", multiValued = false, required = false, description = "Options to pass to the container's datastore type.")
+    protected String dataStoreType;
+    @Option(name = "--datastore-option", multiValued = true, required = false, description = "Options to pass to the container's datastore.")
+    protected String[] dataStoreOption;
 
     public Set<String> getProfileNames() {
         Set<String> names = this.profiles;
@@ -139,5 +143,18 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
 
         return null;
+    }
+
+
+
+    public Map<String, String> getDataStoreProperties() {
+        Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());
+        if (dataStoreOption != null) {
+            for (String opt : dataStoreOption) {
+                String[] parts = opt.trim().split(" +");
+                options.put(parts[0], parts[1]);
+            }
+        }
+        return options;
     }
 }

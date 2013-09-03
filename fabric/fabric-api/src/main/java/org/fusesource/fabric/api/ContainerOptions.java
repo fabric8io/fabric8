@@ -19,8 +19,10 @@ package org.fusesource.fabric.api;
 import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class ContainerOptions implements Serializable {
@@ -48,6 +50,9 @@ public class ContainerOptions implements Serializable {
         Set<String> profiles = new LinkedHashSet<String>();
         @JsonProperty
         String version = ContainerOptions.DEFAULT_VERSION;
+        @JsonProperty
+        Map<String, String> dataStoreProperties = new HashMap<String, String>();
+
 
         public Builder() {
 
@@ -144,6 +149,21 @@ public class ContainerOptions implements Serializable {
             return (B) this;
         }
 
+        public B dataStoreProperties(Map<String, String> dataStoreType) {
+            this.dataStoreProperties = dataStoreType;
+            return (B) this;
+        }
+
+        public B dataStoreProperty(String key, String value) {
+            this.dataStoreProperties.put(key, value);
+            return (B) this;
+        }
+
+        public B dataStoreType(String type) {
+            this.dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, type);
+            return (B) this;
+        }
+
         public void setBindAddress(String bindAddress) {
             this.bindAddress = bindAddress;
         }
@@ -208,8 +228,16 @@ public class ContainerOptions implements Serializable {
             return version;
         }
 
+        public Map<String, String> getDataStoreProperties() {
+            return dataStoreProperties;
+        }
+
+        public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
+            this.dataStoreProperties = dataStoreProperties;
+        }
+
         public ContainerOptions build() {
-            return new ContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version);
+            return new ContainerOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         }
 
         public B clone() throws CloneNotSupportedException {
@@ -225,12 +253,13 @@ public class ContainerOptions implements Serializable {
     final int maximumPort;
     final Set<String> profiles;
     final String version;
+    final Map<String, String> dataStoreProperties;
 
     public static Builder builder() {
         return new Builder();
     }
 
-    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version) {
+    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties) {
         this.bindAddress = bindAddress;
         this.resolver = resolver;
         this.globalResolver = globalResolver;
@@ -239,6 +268,7 @@ public class ContainerOptions implements Serializable {
         this.maximumPort = maximumPort;
         this.profiles = profiles;
         this.version = version;
+        this.dataStoreProperties = dataStoreProperties != null ? dataStoreProperties : new HashMap<String, String>();
     }
 
 
@@ -274,6 +304,10 @@ public class ContainerOptions implements Serializable {
         return version;
     }
 
+    public Map<String, String> getDataStoreProperties() {
+        return dataStoreProperties;
+    }
+
     @Override
     public String toString() {
         return "ContainerOptions{" +
@@ -284,6 +318,7 @@ public class ContainerOptions implements Serializable {
                 ", minimumPort=" + minimumPort +
                 ", maximumPort=" + maximumPort +
                 ", profiles=" + profiles +
+                ", dataStoreProperties=" + dataStoreProperties +
                 '}';
     }
 }

@@ -26,6 +26,17 @@ import java.util.Properties;
  */
 public interface DataStore {
 
+    public static final String DATASTORE_TYPE_PID = "org.fusesource.fabric.datastore";
+    public static final String DATASTORE_TYPE_PROPERTY = "type";
+    public static final String DEFAULT_DATASTORE_TYPE = "caching-git";
+
+    /**
+     * Return the DataStore type.
+     * @return
+     */
+    String getType();
+
+
     //
     // Import
     //
@@ -186,11 +197,11 @@ public interface DataStore {
     String getClusterId();
     List<String> getEnsembleContainers();
 
-    Properties getDataStoreProperties();
+    Map<String, String> getDataStoreProperties();
 
     /**
      * Sets the configuration properties for this DataStore implementation
      */
-    void setDataStoreProperties(Properties dataStoreProperties);
+    void setDataStoreProperties(Map<String, String> dataStoreProperties);
 
 }

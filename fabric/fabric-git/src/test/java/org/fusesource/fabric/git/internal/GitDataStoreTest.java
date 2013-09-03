@@ -31,9 +31,9 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -94,8 +94,8 @@ public class GitDataStoreTest {
             }
         };
 
-        Properties datastoreProperties = new Properties();
-        datastoreProperties.setProperty(GitDataStore.GIT_REMOTE_URL, remoteUrl);
+        Map<String, String> datastoreProperties = new HashMap<String, String>();
+        datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.setDataStoreProperties(datastoreProperties);
         dataStore.setCurator(curator);
         dataStore.setGitService(gitService);

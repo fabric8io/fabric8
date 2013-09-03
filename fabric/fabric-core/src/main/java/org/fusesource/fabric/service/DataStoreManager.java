@@ -16,14 +16,6 @@
  */
 package org.fusesource.fabric.service;
 
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -35,29 +27,33 @@ import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.PlaceholderResolver;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
+import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PID;
+import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PROPERTY;
+import static org.fusesource.fabric.api.DataStore.DEFAULT_DATASTORE_TYPE;
 
 /**
  * Manager of {@link DataStore} using configuration to decide which
  * implementation to export.
  */
-@Component(name = "org.fusesource.fabric.datastore.manager",
+@Component(name = DataStore.DATASTORE_TYPE_PID,
         description = "Configured DataStore Factory",
         immediate = true)
 @Service(DataStoreRegistrationHandler.class)
 public class DataStoreManager implements DataStoreRegistrationHandler {
     private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreManager.class);
-
-    public static final String DATASTORE_TYPE_PID = "org.fusesource.fabric.datastore";
-    public static final String DATASTORE_TYPE_PROPERTY = "type";
-    public static final String DEFAULT_DATASTORE_TYPE = "caching-git";
 
 
     @Reference(cardinality = OPTIONAL_MULTIPLE,
@@ -80,7 +76,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     @Activate
     public synchronized void init(BundleContext bundleContext, Map<String,String> configuration) throws Exception {
         this.bundleContext = bundleContext;
-        this.configuration = configuration;
+        this.configuration = new HashMap<String, String>(configuration);
         this.type = readType(configuration);
         updateServiceRegistration();
     }
@@ -94,7 +90,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
         unregister();
         if (dataStorePlugins.containsKey(type)) {
             dataStore = dataStorePlugins.get(type).getDataStore();
-            Properties dataStoreProperties = new Properties();
+            Map<String, String> dataStoreProperties = new HashMap<String, String>();
             dataStoreProperties.putAll(configuration);
             dataStore.setDataStoreProperties(dataStoreProperties);
             dataStore.start();
@@ -153,8 +149,8 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
 
     public synchronized void bindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {
-            dataStorePlugins.put(dataStorePlugin.getName(), dataStorePlugin);
-            if (dataStorePlugin.getName().equals(type)) {
+            dataStorePlugins.put(dataStorePlugin.getType(), dataStorePlugin);
+            if (dataStorePlugin.getType().equals(type)) {
                 updateServiceRegistration();
             }
         }
@@ -162,8 +158,8 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
 
     public synchronized void unbindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {
-            dataStorePlugins.remove(dataStorePlugin.getName());
-            if (dataStorePlugin.getName().equals(type)) {
+            dataStorePlugins.remove(dataStorePlugin.getType());
+            if (dataStorePlugin.getType().equals(type)) {
                 updateServiceRegistration();
             }
         }

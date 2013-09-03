@@ -29,7 +29,9 @@ import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 import java.net.InetAddress;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Command(name = "container-create-ssh", scope = "fabric", description = "Creates one or more new containers via SSH", detailedDescription = "classpath:containerCreateSsh.txt")
 public class ContainerCreateSsh extends ContainerCreateSupport {
@@ -79,6 +81,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         preCreateContainer(name);
         validateProfileName(profiles);
 
+        Map<String, String> datastoreProperties = new HashMap<String, String>();
+
+
         if (isEnsembleServer && newUserPassword == null) {
             newUserPassword = zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword();
         }
@@ -109,7 +114,9 @@ public class ContainerCreateSsh extends ContainerCreateSupport {
         .environmentalVariable(environmentalVariables)
         .withUser(newUser, newUserPassword , newUserRole)
         .version(version)
-        .profiles(getProfileNames());
+        .profiles(getProfileNames())
+        .dataStoreProperties(getDataStoreProperties())
+        .dataStoreType(dataStoreType != null && isEnsembleServer ? dataStoreType : fabricService.getDataStore().getType());
 
 
         if (path != null && !path.isEmpty()) {
