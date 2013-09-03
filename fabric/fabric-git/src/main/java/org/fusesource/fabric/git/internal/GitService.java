@@ -28,6 +28,8 @@ public interface GitService {
 
     Git get() throws IOException;
 
+    String getRemoteUrl();
+
     /**
      *
      * A hook if the remote URI has been changed

@@ -43,6 +43,7 @@ public class LocalGitService implements GitService {
     private final File localRepo = new File(DEFAULT_LOCAL_LOCATION);
     private final List<GitListener> callbacks = new CopyOnWriteArrayList<GitListener>();
 
+    private String remoteUrl;
     private Git git;
 
 
@@ -78,7 +79,13 @@ public class LocalGitService implements GitService {
     }
 
     @Override
+    public String getRemoteUrl() {
+        return remoteUrl;
+    }
+
+    @Override
     public void onRemoteChanged(String remoteUrl) {
+        this.remoteUrl = remoteUrl;
         for (GitListener listener : callbacks) {
             listener.onRemoteUrlChanged(remoteUrl);
         }
