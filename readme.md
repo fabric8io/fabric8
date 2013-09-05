@@ -31,7 +31,7 @@ From the distro, start up the Fuse container via:
 
 Once the container starts up, create a Fabric:
 
-    fabric:create -r manualip -m localhost --new-user admin --new-user-password admin
+    fabric:create --new-user admin --new-user-password admin
 
 then to enable the [hawtio console](http://hawt.io/):
 
