@@ -226,23 +226,20 @@ public class Command {
         }
 
         @Override
-        public Integer call()
-                throws CommandFailedException, InterruptedException {
+        public Integer call() throws CommandFailedException, InterruptedException {
             ProcessBuilder processBuilder = new ProcessBuilder(command.getCommand());
             processBuilder.directory(command.getDirectory());
             processBuilder.redirectErrorStream(true);
+            Map<String, String> processenv = processBuilder.environment();
             Set<Map.Entry<String, String>> entries = command.getEnvironment().entrySet();
             for (Map.Entry<String, String> entry : entries) {
                 String name = entry.getKey();
                 String value = entry.getValue();
-                if (value != null && value.startsWith("$")) {
-                    String envVar = value.substring(1);
-                    value = System.getenv(envVar);
-                    if (value == null && name.equals("USER")) {
-                        value = System.getProperty("user.name", "");
-                    }
+				if ("__unset".equals(value)) {
+                    processenv.remove(name);
+                } else {
+                    processenv.put(name, value);
                 }
-                processBuilder.environment().put(name, value);
             }
 
             // start the process

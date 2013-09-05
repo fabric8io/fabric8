@@ -19,13 +19,14 @@ package org.fusesource.fabric.itests.paxexam.git;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.runner.RunWith;

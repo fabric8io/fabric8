@@ -29,6 +29,8 @@ public interface Container extends HasId {
 
     Container getParent();
 
+    FabricService getFabricService();
+
     boolean isAlive();
 
     boolean isEnsembleServer();
@@ -134,7 +136,7 @@ public interface Container extends HasId {
 
     List<String> getProvisionList();
     void setProvisionList(List<String> bundles);
-    
+
     String getProvisionStatus();
 
     CreateContainerMetadata<?> getMetadata();

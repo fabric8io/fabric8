@@ -57,7 +57,7 @@ public class FabricServiceFacade implements FabricService {
             List<Map<String, Object>> values = response.getValue();
 
             for (Map<String, Object> value : values) {
-                containers.add(new ContainerFacade(getJolokiaClient(), (String)value.get("id")));
+                containers.add(new ContainerFacade(this, getJolokiaClient(), (String)value.get("id")));
             }
         } catch (Exception e) {
             throw new RuntimeException ("Failed to fetch container list", e);
@@ -67,7 +67,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public Container getContainer(String containerId) {
-        return new ContainerFacade(getJolokiaClient(), containerId);
+        return new ContainerFacade(this, getJolokiaClient(), containerId);
     }
 
     @Override
@@ -231,7 +231,7 @@ public class FabricServiceFacade implements FabricService {
     @Override
     public Container getCurrentContainer() {
         JSONObject obj = Helpers.exec(getJolokiaClient(), "currentContainer()");
-        return new ContainerFacade(getJolokiaClient(), (String)obj.get("id"));
+        return new ContainerFacade(this, getJolokiaClient(), (String)obj.get("id"));
     }
 
     @Override

@@ -1,23 +1,23 @@
 package org.fusesource.fabric.jolokia.facade.facades;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.jolokia.facade.utils.Helpers;
 import org.jolokia.client.J4pClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Stan Lewis
  */
 public class ContainerFacade implements Container, HasId {
 
+	private final FabricService fabricService;
     private J4pClient j4p;
     private String id;
 
-    public ContainerFacade(J4pClient j4p, String id) {
+    public ContainerFacade(FabricService fabricService, J4pClient j4p, String id) {
+    	this.fabricService = fabricService;
         this.j4p = j4p;
         this.id = id;
     }
@@ -37,6 +37,11 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+	public FabricService getFabricService() {
+		return fabricService;
+	}
+
+	@Override
     public String getType() {
         return getFieldValue("type");
     }
@@ -52,7 +57,7 @@ public class ContainerFacade implements Container, HasId {
         if (parentId == null) {
             return null;
         }
-        return new ContainerFacade(j4p, parentId);
+        return new ContainerFacade(fabricService, j4p, parentId);
     }
 
     @Override
@@ -108,7 +113,7 @@ public class ContainerFacade implements Container, HasId {
 
     @Override
     public void setVersion(Version version) {
-        Void v = Helpers.exec(j4p, "applyVersionToContainers(java.lang.String, java.util.List)", version.getId(), Helpers.toList(id));
+        Helpers.exec(j4p, "applyVersionToContainers(java.lang.String, java.util.List)", version.getId(), Helpers.toList(id));
     }
 
     @Override
@@ -279,7 +284,7 @@ public class ContainerFacade implements Container, HasId {
         }
         List<Container> answer = new ArrayList<Container>();
         for (String childId : childIds) {
-            answer.add(new ContainerFacade(j4p, childId));
+            answer.add(new ContainerFacade(fabricService, j4p, childId));
         }
         return answer.toArray(new Container[answer.size()]);
     }

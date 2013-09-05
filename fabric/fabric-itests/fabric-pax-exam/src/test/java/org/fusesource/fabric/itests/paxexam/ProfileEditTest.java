@@ -23,6 +23,7 @@ import static junit.framework.Assert.assertNotNull;
 
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Ignore;

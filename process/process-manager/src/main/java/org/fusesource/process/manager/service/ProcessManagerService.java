@@ -18,7 +18,6 @@ package org.fusesource.process.manager.service;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -44,6 +43,7 @@ import org.slf4j.LoggerFactory;
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -129,7 +129,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                                     lastId = id;
                                 }
 
-                                String url = "TODO";
+                                // String url = "TODO";
                                 ProcessConfig config = JsonHelper.loadProcessConfig(file);
                                 createInstallation(id, ProcessUtils.findInstallDir(file), config);
                             }
@@ -161,7 +161,8 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
     @Override
     public Installation install(final InstallOptions options, final InstallTask postInstall) throws Exception {
-        InstallTask installTask = new InstallTask() {
+        @SuppressWarnings("serial")
+		InstallTask installTask = new InstallTask() {
             @Override
             public void install(ProcessConfig config, int id, File installDir) throws Exception {
                 config.setName(options.getName());
@@ -176,6 +177,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
 
     @Override
     public Installation installJar(final InstallOptions parameters) throws Exception {
+        @SuppressWarnings("serial")
         InstallTask installTask = new InstallTask() {
             @Override
             public void install(ProcessConfig config, int id, File installDir) throws Exception {
@@ -297,7 +299,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
     }
 
     protected ProcessController createController(int id, ProcessConfig config, File rootDir, File installDir) {
-        return new DefaultProcessController(id, config, executor, installDir);
+        return new DefaultProcessController(id, config, installDir);
     }
 
 
