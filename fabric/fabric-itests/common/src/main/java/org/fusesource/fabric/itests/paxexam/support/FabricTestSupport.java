@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.itests.paxexam;
+package org.fusesource.fabric.itests.paxexam.support;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
@@ -25,8 +25,6 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
-import org.fusesource.fabric.itests.paxexam.support.SshContainerBuilder;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
@@ -40,10 +38,12 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
@@ -105,7 +105,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Profile profile = version.getProfile(profileName);
             assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[]{profile});
-            waitForProvisionSuccess(container, PROVISION_TIMEOUT);
+            waitForProvisionSuccess(container, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
             return container;
         }
         throw new Exception("Could container not created");
@@ -130,25 +130,31 @@ public class FabricTestSupport extends FuseTestSupport {
 
     /**
      * Waits for a container to successfully provision.
-     *
-     * @param container
-     * @param timeout
-     * @throws Exception
      */
-    public void waitForProvisionSuccess(Container container, Long timeout) throws Exception {
+    protected void waitForProvisionSuccess(Container container) throws Exception {
+    	waitForProvisionSuccess(container, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * Waits for a container to successfully provision.
+     */
+    protected void waitForProvisionSuccess(Container container, long timeout, TimeUnit unit) throws Exception {
         System.err.println("Waiting for container: " + container.getId() + " to succesfully provision");
-        for (long t = 0; (!(container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null) && t < timeout); t += 2000L) {
+        boolean success = container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null;
+        for (long t = 0; !success && t < unit.toMillis(timeout); t += 1000) {
             if (container.getProvisionException() != null) {
                 throw new Exception(container.getProvisionException());
             }
-            Thread.sleep(2000L);
-            System.err.println("Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " SSH URL:" + container.getSshUrl());
+            Thread.sleep(1000);
+            System.err.println("DataStore:" + container.getFabricService().getDataStore());
+            success = container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null;
+            System.err.println("Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus());
         }
-        if (!container.isAlive() || !container.getProvisionStatus().equals("success") || container.getSshUrl() == null) {
-            throw new Exception("Could not provision " + container.getId() + " after " + timeout + " seconds. Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Ssh URL:" + container.getSshUrl());
+        System.err.println("Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Ssh URL:" + container.getSshUrl());
+        if (!success) {
+            throw new Exception("Could not provision " + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Ssh URL:" + container.getSshUrl());
         }
     }
-
 
     /**
      * Creates a child container, waits for succesfull provisioning and asserts, its asigned the right profile.
@@ -216,7 +222,7 @@ public class FabricTestSupport extends FuseTestSupport {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
             setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);
-            waitForProvisionSuccess(container, PROVISION_TIMEOUT);
+            waitForProvisionSuccess(container, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
         }
         return same;
     }
@@ -283,6 +289,7 @@ public class FabricTestSupport extends FuseTestSupport {
 
                 editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
+                mavenBundle("org.fusesource.fabric.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("org.fusesource.fabric.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
                 logLevel(LogLevelOption.LogLevel.ERROR),
                 keepRuntimeFolder()

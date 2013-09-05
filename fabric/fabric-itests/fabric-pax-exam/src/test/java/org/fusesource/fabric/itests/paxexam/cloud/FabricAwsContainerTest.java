@@ -18,7 +18,8 @@
 package org.fusesource.fabric.itests.paxexam.cloud;
 
 import com.google.common.base.Predicate;
-import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
+
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;
 import org.jclouds.compute.domain.NodeMetadata;

@@ -14,12 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.itests.paxexam;
+package org.fusesource.fabric.itests.wildfly;
 
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -43,13 +41,16 @@ public class WildflyStartupTest extends WildflyTestSupport {
 		Container container = getFabricService().getContainers()[0];
 		assertEquals("Expected to find the root container", "root", container.getId());
 
-		waitForProvisionSuccess(container);
-
-		executeCommand("container-add-profile root controller-wildfly");
-		waitForProvisionSuccess(container);
-
-		Profile profile = getProfile(container, "controller-wildfly");
-		Assert.assertNotNull("Profile not null", profile);
+//      container = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build().iterator().next();
+//		assertEquals("Expected to find the child container", "child", container.getId());
+//
+//		waitForProvisionSuccess(container);
+//
+//		executeCommand("container-add-profile child controller-wildfly");
+//		waitForProvisionSuccess(container);
+//
+//		Profile profile = getProfile(container, "controller-wildfly");
+//		Assert.assertNotNull("Profile not null", profile);
 	}
 
 	@Configuration
