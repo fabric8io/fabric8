@@ -60,6 +60,8 @@ public class ProfileEdit extends FabricCommand {
     static final String DELIMETER = ",";
     static final String PID_KEY_SEPARATOR = "/";
 
+    static final String FILE_INSTALL_FILENAME_PROPERTY = "felix.fileinstall.filename";
+
 
     @Option(name = "-r", aliases = {"--repositories"}, description = "Edit the features repositories", required = false, multiValued = false)
     private String repositoryUriList;
@@ -319,8 +321,11 @@ public class ProfileEdit extends FabricCommand {
                 Enumeration keyEnumeration = dictionary.keys();
                 while (keyEnumeration.hasMoreElements()) {
                     String key = String.valueOf(keyEnumeration.nextElement());
-                    String value = String.valueOf(dictionary.get(key));
-                    target.put(key, value);
+                    //file.install.filename needs to be skipped as it specific to the current container.
+                    if (!key.equals(FILE_INSTALL_FILENAME_PROPERTY)) {
+                        String value = String.valueOf(dictionary.get(key));
+                        target.put(key, value);
+                    }
                 }
             }
         } catch (Exception e) {
