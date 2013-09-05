@@ -24,7 +24,6 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.itests.paxexam.support.WaitForConfigurationChange;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Ignore;
@@ -62,7 +61,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         Thread.sleep(5000);
         CuratorFramework curator = getCurator();
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-        Provision.waitForContainerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", (FabricServiceImpl) fabricService)), PROVISION_TIMEOUT);
+        Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", (FabricServiceImpl) fabricService)), PROVISION_TIMEOUT);
         Container[] containers = fabricService.getContainers();
         assertNotNull(containers);
         assertEquals("Expected to find 1 container", 1, containers.length);

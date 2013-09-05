@@ -75,10 +75,10 @@ public class FabricCamelComponentTest extends FabricTestSupport {
             System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " fabric-camel-server-" + (index++)));
         }
 
-        Provision.assertSuccess(camelServerContainers, PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(camelServerContainers, PROVISION_TIMEOUT);
         setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(camelClientContainer.getId()), "changing");
         System.err.println(executeCommand("fabric:container-change-profile " + camelClientContainer.getId() + " fabric-camel-client"));
-        Provision.assertSuccess(Arrays.asList(new Container[]{camelClientContainer}), PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(Arrays.asList(new Container[]{camelClientContainer}), PROVISION_TIMEOUT);
 
         System.err.println(executeCommand("fabric:container-list"));
         System.err.println(executeCommand("fabric:profile-display --overlay fabric-camel-server"));

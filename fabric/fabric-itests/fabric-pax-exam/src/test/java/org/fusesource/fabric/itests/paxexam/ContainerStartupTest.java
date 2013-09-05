@@ -43,7 +43,7 @@ public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricCluster() throws Exception {
-        executeCommand("fabric:create -n --clean root");
+        System.out.println(executeCommand("fabric:create -n --clean root"));
         //Wait for zookeeper service to become available.
         Container[] containers = getFabricService().getContainers();
 
@@ -62,7 +62,7 @@ public class ContainerStartupTest extends FabricTestSupport {
 
     @Test
     public void testLocalFabricClusterWithPassword() throws Exception {
-        executeCommand("fabric:create -n --clean --zookeeper-password testpassword root");
+        System.out.println(executeCommand("fabric:create -n --clean --zookeeper-password testpassword root"));
 
         //Wait for zookeeper service to become available.
         Container[] containers = getFabricService().getContainers();

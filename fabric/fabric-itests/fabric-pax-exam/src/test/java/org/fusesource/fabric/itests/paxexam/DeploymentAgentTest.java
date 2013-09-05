@@ -65,7 +65,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 			System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
 			System.out.flush();
 		}
-		Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+		Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
 		System.out.println(executeCommand("fabric:container-list"));
 
 		for (Container container : containers) {
@@ -102,7 +102,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 			System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
 			System.out.flush();
 		}
-		Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+		Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
 		System.out.println(executeCommand("fabric:container-list"));
 
 		for (Container container : containers) {
@@ -142,7 +142,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 			System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
 			System.out.flush();
 		}
-		Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+		Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
 		System.out.println(executeCommand("fabric:container-list"));
 
 		for (Container container : containers) {

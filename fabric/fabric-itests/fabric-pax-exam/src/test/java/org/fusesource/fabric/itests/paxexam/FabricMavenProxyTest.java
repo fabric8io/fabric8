@@ -99,7 +99,7 @@ public class FabricMavenProxyTest extends FabricTestSupport {
 
         System.err.println(executeCommand("fabric:profile-edit --repositories mvn:itest/itest/1.0/xml/features default"));
         System.err.println(executeCommand("fabric:profile-edit --features example-cbr default"));
-        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+        Provision.containerStatus(containers, PROVISION_TIMEOUT);
     }
 
 

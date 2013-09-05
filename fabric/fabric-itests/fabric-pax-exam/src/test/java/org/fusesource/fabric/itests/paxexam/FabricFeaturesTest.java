@@ -77,7 +77,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
             //We set container to default to clean the container up.
             container.setProfiles(new Profile[]{defaultProfile});
         }
-        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+        Provision.containerStatus(containers, PROVISION_TIMEOUT);
 
         for (String featureName : featureNames.split(" ")) {
             System.out.println(executeCommand("fabric:profile-edit --features "+featureName+" "+targetProfile.getId()));
@@ -92,7 +92,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
             //containerSetProfile(container.getId(), profileName, false);
         }
 
-        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+        Provision.containerStatus(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:profile-display "+ profileName));
         System.out.println(executeCommand("fabric:container-list"));
 
@@ -115,7 +115,7 @@ public abstract class FabricFeaturesTest extends FabricTestSupport {
             container.setProfiles(new Profile[]{defaultProfile});
         }
 
-        Provision.waitForContainerStatus(containers, PROVISION_TIMEOUT);
+        Provision.containerStatus(containers, PROVISION_TIMEOUT);
         for (String featureName : featureNames.split(" ")) {
             System.out.println(executeCommand("fabric:profile-edit --delete --features "+featureName+" "+targetProfile.getId()));
         }

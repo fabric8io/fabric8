@@ -17,6 +17,8 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -35,7 +37,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void waitForContainerStatus(Collection<Container> containers, String status, Long timeout) throws Exception {
+    public static void containersStatus(Collection<Container> containers, String status, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
         StringBuilder sb = new StringBuilder();
@@ -56,8 +58,8 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void waitForContainerStatus(Collection<Container> containers, Long timeout) throws Exception {
-        waitForContainerStatus(containers, "success", timeout);
+    public static void containerStatus(Collection<Container> containers, Long timeout) throws Exception {
+        containersStatus(containers, "success", timeout);
     }
 
 
@@ -68,7 +70,7 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void waitForContainerAlive(Collection<Container> containers, boolean alive, Long timeout) throws Exception {
+    public static void containersAlive(Collection<Container> containers, boolean alive, Long timeout) throws Exception {
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
         StringBuilder sb = new StringBuilder();
@@ -92,8 +94,8 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void waitForContainerAlive(Collection<Container> containers, Long timeout) throws Exception {
-        waitForContainerAlive(containers, true, timeout);
+    public static void containerAlive(Collection<Container> containers, Long timeout) throws Exception {
+        containersAlive(containers, true, timeout);
     }
 
     /**
@@ -103,12 +105,20 @@ public class Provision {
      * @param timeout
      * @throws Exception
      */
-    public static void assertSuccess(Collection<Container> containers, Long timeout) throws Exception {
-        waitForContainerStatus(containers, timeout);
+    public static void provisioningSuccess(Collection<Container> containers, Long timeout) throws Exception {
+        containerStatus(containers, timeout);
         for (Container container : containers) {
             if (!"success".equals(container.getProvisionStatus())) {
 				throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
 			}
         }
+    }
+
+    public static Boolean profileAvailable(String profile, String version, Long timeout) throws Exception {
+        FabricService service = ServiceLocator.getOsgiService(FabricService.class);
+        for (long t = 0; (!service.getDataStore().hasProfile(version, profile)  && t < timeout); t += 2000L) {
+            Thread.sleep(2000L);
+        }
+        return service.getDataStore().hasProfile(version, profile);
     }
 }

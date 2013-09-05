@@ -231,10 +231,10 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
             }
             try {
                 if (waitForProvisioning) {
-                    Provision.waitForContainerStatus(containers, provisionTimeOut);
+                    Provision.containerStatus(containers, provisionTimeOut);
                 }
                 if (assertProvisioningResult) {
-                    Provision.assertSuccess(containers, provisionTimeOut);
+                    Provision.provisioningSuccess(containers, provisionTimeOut);
                 }
             } catch (Exception e) {
                 throw new FabricException(e);

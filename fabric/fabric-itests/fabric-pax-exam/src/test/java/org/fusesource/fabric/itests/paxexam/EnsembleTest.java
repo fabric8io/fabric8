@@ -20,13 +20,11 @@ import junit.framework.Assert;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.WaitForServiceAddingTask;
-import org.fusesource.fabric.itests.paxexam.support.WaitForZookeeperUrlChange;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Ignore;
@@ -62,9 +60,7 @@ public class EnsembleTest extends FabricTestSupport {
     @Test
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        //TODO: fix ensemble issues with git bridge
-        System.err.println(executeCommand("fabric:profile-edit --delete --features fabric-git default"));
-
+        Thread.sleep(5000);
         Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
         Deque<Container> addedContainers = new LinkedList<Container>();
 
@@ -88,7 +84,7 @@ public class EnsembleTest extends FabricTestSupport {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.waitForContainerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
 
 
@@ -112,23 +108,21 @@ public class EnsembleTest extends FabricTestSupport {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.waitForContainerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
     }
 
     @Test
     public void testAddAndRemoveWithVersions() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        //TODO: fix ensemble issues with git bridge
-        System.err.println(executeCommand("fabric:profile-edit --delete --features fabric-git default"));
-
-        System.err.println(executeCommand("fabric:version-create"));
+        System.err.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.err.println(executeCommand("fabric:container-upgrade --all 1.1"));
 
-        Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
+        Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").withProfiles("default").assertProvisioningResult().build());
         Deque<Container> addedContainers = new LinkedList<Container>();
 
         System.err.println(executeCommand("fabric:version-create"));
+        Thread.sleep(5000);
         System.err.println(executeCommand("fabric:container-upgrade --all 1.2"));
 
         for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
@@ -151,7 +145,7 @@ public class EnsembleTest extends FabricTestSupport {
             Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
             Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
             System.err.println(executeCommand("fabric:container-list"));
-            Provision.waitForContainerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+            Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
         }
 
 
@@ -175,7 +169,7 @@ public class EnsembleTest extends FabricTestSupport {
             List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
             Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
             Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-            Provision.waitForContainerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+            Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
         }
     }
 
@@ -186,14 +180,11 @@ public class EnsembleTest extends FabricTestSupport {
     @Test
     public void testAddAndRemoveWithPartialVersionUpgrades() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-
-        //TODO: fix ensemble issues with git bridge
-        System.err.println(executeCommand("fabric:profile-edit --delete --features fabric-git default"));
-
+        Thread.sleep(5000);
         System.err.println(executeCommand("fabric:version-create"));
         System.err.println(executeCommand("fabric:container-upgrade --all 1.1"));
 
-        LinkedList<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
+        LinkedList<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").withProfiles("fabric").assertProvisioningResult().build());
         LinkedList<Container> addedContainers = new LinkedList<Container>();
 
         System.err.println(executeCommand("fabric:version-create"));
@@ -204,8 +195,8 @@ public class EnsembleTest extends FabricTestSupport {
 
         for (int version = 3; version < 6; version++) {
 
-            Provision.waitForContainerAlive(containerQueue, PROVISION_TIMEOUT);
-            Provision.waitForContainerAlive(addedContainers, PROVISION_TIMEOUT);
+            Provision.containerAlive(containerQueue, PROVISION_TIMEOUT);
+            Provision.containerAlive(addedContainers, PROVISION_TIMEOUT);
             for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
                 Container cnt1 = containerQueue.removeFirst();
                 Container cnt2 = containerQueue.removeFirst();
@@ -226,7 +217,7 @@ public class EnsembleTest extends FabricTestSupport {
                 Assert.assertTrue(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertTrue(ensembleContainersResult.contains(cnt2.getId()));
                 System.err.println(executeCommand("fabric:container-list"));
-                Provision.waitForContainerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
 
 
@@ -235,8 +226,8 @@ public class EnsembleTest extends FabricTestSupport {
             System.err.println(executeCommand("fabric:version-create 1." + version));
             System.err.println(executeCommand("fabric:container-upgrade 1." + version + " " + randomContainer));
 
-            Provision.waitForContainerAlive(containerQueue, PROVISION_TIMEOUT);
-            Provision.waitForContainerAlive(addedContainers, PROVISION_TIMEOUT);
+            Provision.containerAlive(containerQueue, PROVISION_TIMEOUT);
+            Provision.containerAlive(addedContainers, PROVISION_TIMEOUT);
             for (int e = 0; e < 3 && addedContainers.size() >= 2 && addedContainers.size() % 2 == 0; e++) {
                 Container cnt1 = addedContainers.removeFirst();
                 Container cnt2 = addedContainers.removeFirst();
@@ -256,7 +247,7 @@ public class EnsembleTest extends FabricTestSupport {
                 List<String> ensembleContainersResult = zooKeeperClusterService.getEnsembleContainers();
                 Assert.assertFalse(ensembleContainersResult.contains(cnt1.getId()));
                 Assert.assertFalse(ensembleContainersResult.contains(cnt2.getId()));
-                Provision.waitForContainerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
+                Provision.containerAlive(Arrays.asList(getFabricService().getContainers()), PROVISION_TIMEOUT);
             }
 
             System.err.println(executeCommand("fabric:container-rollback --all 1."+(version-1)));

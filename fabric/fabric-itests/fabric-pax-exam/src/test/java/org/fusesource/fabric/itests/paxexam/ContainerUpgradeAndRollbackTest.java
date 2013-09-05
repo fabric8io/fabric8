@@ -2,7 +2,6 @@ package org.fusesource.fabric.itests.paxexam;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
@@ -24,14 +23,13 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
 
     @After
@@ -51,6 +49,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      *
      * @throws Exception
      */
+    @Ignore
     @Test
     public void testContainerUpgradeAndRollback() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
@@ -64,9 +63,10 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
 
         System.out.println(executeCommand("fabric:profile-display --version 1.1 camel"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
-        Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
         for (Container container : containers) {
+            assertEquals("Container should have version 1.1", "1.1", container.getVersion().getId());
             String bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
             System.out.println(executeCommand("fabric:container-list"));
             assertNotNull(bundles);
@@ -75,10 +75,11 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         }
 
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
-        Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
 
         for (Container container : containers) {
+            assertEquals("Container should have version 1.0",   "1.0", container.getVersion().getId());
             String bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
             assertNotNull(bundles);
             System.out.println(bundles);
@@ -92,9 +93,12 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      *
      * @throws Exception
      */
+    @Ignore
     @Test
     public void testContainerAfterVersionUpgradeAndDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        //TODO: We have sporadic failures here, due to containers not being upgraded, without a tiny little sleep period.
+        Thread.sleep(5000);
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
         //Make sure that the profile change has been applied before changing the version
@@ -102,10 +106,11 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
         latch.await(5, TimeUnit.SECONDS);
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
-        Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
 
         for (Container container : containers) {
+            assertEquals("Container should have version 1.1",   "1.1", container.getVersion().getId());
             String bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
             System.out.println(executeCommand("fabric:container-list"));
             assertNotNull(bundles);
@@ -113,9 +118,10 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
             assertFalse("Expected camel-hazelcast installed.", bundles.isEmpty());
         }
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
-        Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
         for (Container container : containers) {
+            assertEquals("Container should have version 1.0",   "1.0", container.getVersion().getId());
             String bundles = executeCommand("container-connect -u admin -p admin " + container.getId() + " osgi:list -s | grep camel-hazelcast");
             assertNotNull(bundles);
             System.out.println(bundles);
@@ -137,8 +143,9 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
 
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
-        Provision.assertSuccess(containers, PROVISION_TIMEOUT);
+        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         for (Container container : containers) {
+            assertEquals("Container should have version 1.0",   "1.0", container.getVersion().getId());
             assertNotNull(exists(ServiceLocator.getOsgiService(CuratorFramework.class), "/fabric/configs/versions/1.0/containers/" + container.getId()));
         }
     }
@@ -147,8 +154,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration()),
-                debugConfiguration("5005", false)
+                new DefaultCompositeOption(fabricDistributionConfiguration())
         };
     }
 }
