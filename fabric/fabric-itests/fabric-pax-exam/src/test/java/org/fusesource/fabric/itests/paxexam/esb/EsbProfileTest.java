@@ -1,8 +1,8 @@
 package org.fusesource.fabric.itests.paxexam.esb;
 
 import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;

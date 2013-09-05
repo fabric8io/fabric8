@@ -22,8 +22,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import com.google.common.base.Predicate;
+
 import org.apache.commons.io.IOUtils;
-import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.ComputeMetadata;

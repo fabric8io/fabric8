@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
 import org.junit.Ignore;
 import org.junit.Test;

@@ -18,7 +18,7 @@
 package org.fusesource.fabric.itests.paxexam.examples;
 
 
-import org.fusesource.fabric.itests.paxexam.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;

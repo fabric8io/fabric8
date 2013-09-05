@@ -3,6 +3,7 @@ package org.fusesource.fabric.itests.paxexam;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -16,6 +17,7 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import javax.inject.Inject;
+
 import java.util.Set;
 
 /**

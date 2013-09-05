@@ -32,7 +32,22 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>common</module>
         <module>fabric-pax-exam</module>
         <module>fabric-pojosr</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>ts.wildfly</id>
+            <activation>
+                <property>
+                    <name>!skip.wildfly</name>
+                </property>
+            </activation>
+            <modules>
+                <module>wildfly</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

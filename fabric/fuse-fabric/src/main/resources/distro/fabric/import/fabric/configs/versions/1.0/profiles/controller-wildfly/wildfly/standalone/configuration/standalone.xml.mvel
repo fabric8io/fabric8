@@ -37,6 +37,9 @@
                     <local default-user="$local"/>
                     <properties path="mgmt-users.properties" relative-to="jboss.server.config.dir"/>
                 </authentication>
+                <authorization map-groups-to-roles="false">
+                    <properties path="mgmt-groups.properties" relative-to="jboss.server.config.dir"/>
+                </authorization>
             </security-realm>
             <security-realm name="ApplicationRealm">
                 <authentication>
@@ -48,6 +51,19 @@
                 </authorization>
             </security-realm>
         </security-realms>
+        <audit-log>
+            <formatters>
+                <json-formatter name="json-formatter"/>
+            </formatters>
+            <handlers>
+                <file-handler name="file" formatter="json-formatter" relative-to="jboss.server.data.dir" path="audit-log.log"/>
+            </handlers>
+            <logger log-boot="true" log-read-only="false" enabled="false">
+                <handlers>
+                    <handler name="file"/>
+                </handlers>
+            </logger>
+        </audit-log>
         <management-interfaces>
             <native-interface security-realm="ManagementRealm">
                 <socket-binding native="management-native"/>
@@ -56,18 +72,27 @@
                 <socket-binding http="management-http"/>
             </http-interface>
         </management-interfaces>
+        <access-control provider="simple">
+            <role-mapping>
+                <role name="SuperUser">
+                    <include>
+                        <user name="$local"/>
+                    </include>
+                </role>
+            </role-mapping>
+        </access-control>
     </management>
     <profile>
-        <subsystem xmlns="urn:jboss:domain:logging:1.2">
+        <subsystem xmlns="urn:jboss:domain:logging:2.0">
             <console-handler name="CONSOLE">
                 <level name="INFO"/>
                 <formatter>
-                    <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
+                    <named-formatter name="COLOR-PATTERN"/>
                 </formatter>
             </console-handler>
             <periodic-rotating-file-handler name="FILE" autoflush="true">
                 <formatter>
-                    <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
+                    <named-formatter name="PATTERN"/>
                 </formatter>
                 <file relative-to="jboss.server.log.dir" path="server.log"/>
                 <suffix value=".yyyy-MM-dd"/>
@@ -98,6 +123,12 @@
                     <handler name="FILE"/>
                 </handlers>
             </root-logger>
+            <formatter name="PATTERN">
+                <pattern-formatter pattern="%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
+            </formatter>
+            <formatter name="COLOR-PATTERN">
+                <pattern-formatter pattern="%K{level}%d{HH:mm:ss,SSS} %-5p [%c] (%t) %s%E%n"/>
+            </formatter>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:datasources:2.0">
             <datasources>
@@ -150,7 +181,7 @@
                     <file-data-store name="default-file-store" path="timer-service-data" relative-to="jboss.server.data.dir"/>
                 </data-stores>
             </timer-service>
-            <remote connector-ref="remoting-connector" thread-pool-name="default"/>
+            <remote connector-ref="http-remoting-connector" thread-pool-name="default"/>
             <thread-pools>
                 <thread-pool name="default">
                     <max-threads count="10"/>
@@ -164,13 +195,13 @@
             <worker name="default" io-threads="3"/>
             <buffer-pool name="default" buffer-size="16384" buffers-per-slice="128"/>
         </subsystem>
-        <subsystem xmlns="urn:jboss:domain:infinispan:1.4">
-            <cache-container name="web" aliases="standard-session-cache" default-cache="local-web" module="org.jboss.as.clustering.web.infinispan">
+        <subsystem xmlns="urn:jboss:domain:infinispan:2.0">
+            <cache-container name="web" aliases="standard-session-cache" default-cache="local-web" module="org.wildfly.clustering.web.infinispan">
                 <local-cache name="local-web" batching="true">
                     <file-store passivation="false" purge="false"/>
                 </local-cache>
             </cache-container>
-            <cache-container name="hibernate" default-cache="local-query" module="org.jboss.as.jpa.hibernate:4">
+            <cache-container name="hibernate" default-cache="local-query" module="org.hibernate">
                 <local-cache name="entity">
                     <transaction mode="NON_XA"/>
                     <eviction strategy="LRU" max-entries="10000"/>
@@ -208,7 +239,7 @@
             <cached-connection-manager/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:jdr:1.0"/>
-        <subsystem xmlns="urn:jboss:domain:jmx:1.2">
+        <subsystem xmlns="urn:jboss:domain:jmx:2.0">
             <expose-resolved-model/>
             <expose-expression-model/>
             <remoting-connector/>
@@ -226,8 +257,8 @@
             <remote-naming/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:pojo:1.0"/>
-        <subsystem xmlns="urn:jboss:domain:remoting:1.1">
-            <connector name="remoting-connector" socket-binding="remoting" security-realm="ApplicationRealm"/>
+        <subsystem xmlns="urn:jboss:domain:remoting:2.0">
+            <http-connector name="http-remoting-connector" connector-ref="default" security-realm="ApplicationRealm"/>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:resource-adapters:1.1"/>
         <subsystem xmlns="urn:jboss:domain:sar:1.0"/>
@@ -270,21 +301,22 @@
                 <buffer-cache name="default" buffer-size="1024" buffers-per-region="1024" max-regions="10"/>
             </buffer-caches>
             <server name="default-server">
-                <http-listener name="default" socket-binding="http"/>
+                <http-listener name="default" socket-binding="http" max-post-size="10485760"/>
                 <host name="default-host" alias="localhost">
                     <location name="/" handler="welcome-content"/>
                 </host>
             </server>
-            <servlet-container name="default">
+            <servlet-container name="default" default-buffer-cache="default" stack-trace-on-error="local-only">
                 <jsp-config/>
+                <persistent-sessions path="persistent-web-sessions" relative-to="jboss.server.data.dir"/>
             </servlet-container>
             <handlers>
-                <file name="welcome-content" path="${jboss.home.dir}/welcome-content" directory-listing="true"/>
+                <file name="welcome-content" path="./welcome-content" directory-listing="true"/>
             </handlers>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:webservices:1.2">
             <modify-wsdl-address>true</modify-wsdl-address>
-            <wsdl-host>${jboss.bind.address:127.0.0.1}</wsdl-host>
+            <wsdl-host>127.0.0.1</wsdl-host>
             <endpoint-config name="Standard-Endpoint-Config"/>
             <endpoint-config name="Recording-Endpoint-Config">
                 <pre-handler-chain name="recording-handlers" protocol-bindings="##SOAP11_HTTP ##SOAP11_HTTP_MTOM ##SOAP12_HTTP ##SOAP12_HTTP_MTOM">
@@ -297,10 +329,10 @@
     </profile>
     <interfaces>
         <interface name="management">
-            <inet-address value="${jboss.bind.address.management:127.0.0.1}"/>
+            <inet-address value="127.0.0.1"/>
         </interface>
         <interface name="public">
-            <inet-address value="${jboss.bind.address:127.0.0.1}"/>
+            <inet-address value="127.0.0.1"/>
         </interface>
         <!-- TODO - only show this if the jacorb subsystem is added  -->
         <interface name="unsecure">
@@ -308,19 +340,18 @@
               ~  Used for IIOP sockets in the standard configuration.
               ~                  To secure JacORB you need to setup SSL 
               -->
-            <inet-address value="${jboss.bind.address.unsecure:127.0.0.1}"/>
+            <inet-address value="127.0.0.1"/>
         </interface>
     </interfaces>
-    <socket-binding-group name="standard-sockets" default-interface="public" port-offset="${jboss.socket.binding.port-offset:0}">
-        <socket-binding name="management-native" interface="management" port="${jboss.management.native.port:9999}"/>
-        <socket-binding name="management-http" interface="management" port="${jboss.management.http.port:9990}"/>
-        <socket-binding name="management-https" interface="management" port="${jboss.management.https.port:9443}"/>
-        <socket-binding name="ajp" port="${jboss.ajp.port:8009}"/>
-        <socket-binding name="http" port="${jboss.http.port:8080}"/>
-        <socket-binding name="https" port="${jboss.https.port:8443}"/>
-        <socket-binding name="remoting" port="${jboss.remoting.port:4447}"/>
-        <socket-binding name="txn-recovery-environment" port="4712"/>
-        <socket-binding name="txn-status-manager" port="4713"/>
+    <socket-binding-group name="standard-sockets" default-interface="public" port-offset="0">
+        <socket-binding name="management-native" interface="management" port="@{managementNativePort}"/>
+        <socket-binding name="management-http" interface="management" port="@{managementHttpPort}"/>
+        <socket-binding name="management-https" interface="management" port="@{managementHttpsPort}"/>
+        <socket-binding name="ajp" port="@{ajpPort}"/>
+        <socket-binding name="http" port="@{httpPort}"/>
+        <socket-binding name="https" port="@{httpsPort}"/>
+        <socket-binding name="txn-recovery-environment" port="@{txnRecoveryPort}"/>
+        <socket-binding name="txn-status-manager" port="@{txnStatusPort}"/>
         <outbound-socket-binding name="mail-smtp">
             <remote-destination host="localhost" port="25"/>
         </outbound-socket-binding>

@@ -1,0 +1,17 @@
+{
+    "launchScript": "bin/fabric-process.sh",
+    "pidFile": "standalone/data/wildfly.pid",
+
+    "deployPath": "standalone/deployments",
+    "sharedLibraryPath": "standalone/lib/ext",
+
+    "environment": {
+        "JBOSS_HOME": ".",
+        "JAVA_OPTS": "__unset"
+    },
+    
+    "installCommands": [
+        "chmod +x bin/fabric-process.sh",
+        "mkdir standalone/data"
+    ]
+}

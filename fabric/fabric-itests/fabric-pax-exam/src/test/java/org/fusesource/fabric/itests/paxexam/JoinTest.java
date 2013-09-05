@@ -16,9 +16,12 @@
  */
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.concurrent.TimeUnit;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,7 +34,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 
 @RunWith(JUnit4TestRunner.class)
@@ -52,7 +54,7 @@ public class JoinTest extends FabricTestSupport {
 		try {
 			System.err.println(executeCommand("admin:start child1"));
 			Container child1 = fabricService.getContainer("child1");
-			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
+			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
 			System.err.println(executeCommand("admin:stop child1"));
@@ -78,8 +80,8 @@ public class JoinTest extends FabricTestSupport {
 
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
-			waitForProvisionSuccess(child1, PROVISION_TIMEOUT);
-			waitForProvisionSuccess(child2, PROVISION_TIMEOUT);
+			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+			waitForProvisionSuccess(child2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
 			Thread.sleep(5000);
 			curator.getZookeeperClient().blockUntilConnectedOrTimedOut();

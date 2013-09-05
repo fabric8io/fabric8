@@ -18,9 +18,10 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import java.io.File;
+import java.util.concurrent.TimeUnit;
 
-import com.google.inject.Inject;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -33,7 +34,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
 
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
@@ -71,7 +71,7 @@ public class SelfUpdateTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:profile-display --version 1.1 default"));
         System.out.println(executeCommand("fabric:container-upgrade 1.1 child1"));
         Thread.sleep(5000);
-        waitForProvisionSuccess(fabricService.getContainer("child1"), PROVISION_TIMEOUT);
+        waitForProvisionSuccess(fabricService.getContainer("child1"), PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
         System.out.println(executeCommand("fabric:container-list"));
     }
 

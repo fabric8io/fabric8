@@ -17,6 +17,7 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;

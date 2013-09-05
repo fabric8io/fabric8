@@ -26,9 +26,7 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
 import org.fusesource.fabric.api.data.ServiceInfo;
 import org.fusesource.fabric.service.ContainerTemplate;
-import org.fusesource.fabric.service.FabricServiceImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.jmx.framework.BundleStateMBean;
 import org.osgi.jmx.framework.ServiceStateMBean;
 import org.slf4j.Logger;
@@ -42,9 +40,6 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
 public class ContainerImpl implements Container {
 
@@ -66,7 +61,11 @@ public class ContainerImpl implements Container {
         this.service = service;
     }
 
-    public Container getParent() {
+    public FabricService getFabricService() {
+		return service;
+	}
+
+	public Container getParent() {
         return parent;
     }
 

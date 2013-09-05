@@ -18,6 +18,8 @@ package org.fusesource.process.manager.support;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Files;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+
 import org.fusesource.process.manager.ProcessController;
 import org.fusesource.process.manager.config.ProcessConfig;
 import org.fusesource.process.manager.support.command.CommandFailedException;
@@ -29,6 +31,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * A default implementation of {@link ProcessController} which assumes a launch script which takes opertions as the first argument
@@ -41,13 +44,12 @@ public class DefaultProcessController implements ProcessController
     private final int id;
     private final File baseDir;
     private final ProcessConfig config;
-    private transient final Executor executor;
+    private transient Executor executor;
 
 
-    public DefaultProcessController(int id, ProcessConfig config, Executor executor, File baseDir) {
+    public DefaultProcessController(int id, ProcessConfig config, File baseDir) {
         this.id = id;
         this.config = config;
-        this.executor = executor;
         this.baseDir = baseDir;
     }
 
@@ -134,6 +136,9 @@ public class DefaultProcessController implements ProcessController
     }
 
     public Executor getExecutor() {
+    	if (executor == null) {
+    	    executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-controller-%s").build());
+    	}
         return executor;
     }
 
@@ -215,7 +220,7 @@ public class DefaultProcessController implements ProcessController
         if (command != null) {
             return runCommandLine(command);
         } else {
-            return config.runCommand(executor, baseDir, getLaunchScript(), launchArgument);
+            return config.runCommand(getExecutor(), baseDir, getLaunchScript(), launchArgument);
         }
     }
 
@@ -226,7 +231,7 @@ public class DefaultProcessController implements ProcessController
         if (command != null) {
             // TODO warning this doesn't handle quoted strings as a single argument
             List<String> commandArgs = ExecParseUtils.splitToWhiteSpaceSeparatedTokens(command);
-            return config.runCommand(executor, baseDir, commandArgs.toArray(new String[commandArgs.size()]));
+            return config.runCommand(getExecutor(), baseDir, commandArgs.toArray(new String[commandArgs.size()]));
         } else {
             return 0;
         }

@@ -22,6 +22,7 @@ import java.util.Dictionary;
 
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.FeaturesService;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;

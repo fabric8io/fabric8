@@ -18,9 +18,11 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import junit.framework.Assert;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
@@ -33,6 +35,7 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+
 import scala.actors.threadpool.Arrays;
 
 import java.util.Set;
