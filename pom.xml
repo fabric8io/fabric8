@@ -426,6 +426,12 @@
             <name>Maven Central Repo</name>
             <url>http://repo1.maven.org/maven2/</url>
         </repository>
+        <!-- lets include the OSS sonatype repo in case releases haven't sync'd yet ;) -->
+        <repository>
+            <id>sonatype.releases</id>
+            <name>Sonatype Releases Repo</name>
+            <url>https://oss.sonatype.org/content/repositories/releases</url>
+        </repository>
         <repository> <!-- Temporary repo for accessing Fuse 6.1 RCs -->
             <id>fusesource.61</id>
             <name>FuseSource Community Early Access 61 Repository</name>
