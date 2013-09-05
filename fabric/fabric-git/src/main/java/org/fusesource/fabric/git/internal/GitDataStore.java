@@ -25,6 +25,8 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
+import org.eclipse.jgit.api.CheckoutResult;
+import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
@@ -997,19 +999,21 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             // Check git commmits
             for (String version : gitVersions) {
                 // Delete unneeded local branches
-                if (!version.equals(MASTER_BRANCH) && !remoteBranches.containsKey(version)) {
-                    try {
-                        git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
-                    } catch (CannotDeleteCurrentBranchException ex) {
-                        git.checkout().setName(MASTER_BRANCH).setForce(true).call();
-                        git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                if (!remoteBranches.containsKey(version)) {
+                    //We never want to delete the master branch.
+                    if (!version.equals(MASTER_BRANCH)) {
+                        try {
+                            git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                        } catch (CannotDeleteCurrentBranchException ex) {
+                            git.checkout().setName(MASTER_BRANCH).setForce(true).call();
+                            git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
+                        }
+                        hasChanged = true;
                     }
-                    hasChanged = true;
                 }
                 // Create new local branches
                 else if (!localBranches.containsKey(version)) {
-                    git.branchCreate().setName(version).call();
-                    git.reset().setMode(ResetCommand.ResetType.HARD).setRef(remoteBranches.get(version).getName()).call();
+                    git.checkout().setCreateBranch(true).setName(version).setStartPoint(remote +"/" + version).setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).setForce(true).call();
                     hasChanged = true;
                 } else {
                     String localCommit = localBranches.get(version).getObjectId().getName();
