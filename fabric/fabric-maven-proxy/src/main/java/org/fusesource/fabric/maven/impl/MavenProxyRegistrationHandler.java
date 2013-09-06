@@ -66,6 +66,13 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
     private static final String PROXY_PASSWORD_PROPERTY = "proxy.password";
     private static final String NON_PROXY_HOSTS_PROPERTY = "proxy.nonProxyHosts";
 
+    private static final String REQUIRED_ROLE = "role";
+    private static final String REQUIRED_REALM = "realm";
+
+    private static final String DEFAULT_ROLE = "admin";
+    private static final String DEFAULT_REALM = "karaf";
+
+
     private static final String DEFAULT_LOCAL_REPOSITORY = System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
 
 
@@ -103,6 +110,8 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
         String proxyPassword = readProperty(properties, PROXY_PASSWORD_PROPERTY, "");
         String nonProxyHosts = readProperty(properties, NON_PROXY_HOSTS_PROPERTY, "");
 
+        this.role = readProperty(properties, REQUIRED_ROLE, DEFAULT_ROLE);
+        this.realm = readProperty(properties, REQUIRED_REALM, DEFAULT_REALM);
         this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
         this.mavenDownloadProxyServlet.start();
         this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
