@@ -125,7 +125,6 @@ public class
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private volatile MBeanServer mbeanServer;
-    Long processId;
 
 
     public CuratorFramework getCurator() {
@@ -157,16 +156,6 @@ public class
         LOGGER.trace("init");
         String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = System.getProperty("fabric.profiles");
-
-        String name = null;
-
-        try {
-            MBeanServer mbean_server = ManagementFactory.getPlatformMBeanServer();
-            name = (String)mbean_server.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
-            processId = Long.parseLong(name.split("@")[0]);
-        } catch (Throwable e) {
-        }
-
         try {
             if (profiles != null) {
                 String versionNode = CONFIG_CONTAINER.getPath(name);
@@ -260,6 +249,9 @@ public class
     }
 
     public void checkProcessId() throws Exception {
+        String processName = (String) mbeanServer.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+        Long processId = Long.parseLong(processName.split("@")[0]);
+
         String path = ZkPath.CONTAINER_PROCESS_ID.getPath(name);
         Stat stat = exists(curator, path);
         if (stat != null) {
