@@ -18,7 +18,7 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.karaf.tooling.exam.options.LogLevelOption;
+import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
@@ -50,7 +50,6 @@ import static junit.framework.Assert.assertNotNull;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
@@ -291,7 +290,7 @@ public class FabricTestSupport extends FuseTestSupport {
                 editConfigurationFilePut("etc/users.properties", "admin", "admin,admin"),
                 mavenBundle("org.fusesource.fabric.itests", "fabric-itests-common", MavenUtils.getArtifactVersion("org.fusesource.fabric.itests", "fabric-itests-common")),
                 mavenBundle("org.fusesource.tooling.testing", "pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                logLevel(LogLevelOption.LogLevel.ERROR),
+                new DoNotModifyLogOption(),
                 keepRuntimeFolder()
         };
     }
