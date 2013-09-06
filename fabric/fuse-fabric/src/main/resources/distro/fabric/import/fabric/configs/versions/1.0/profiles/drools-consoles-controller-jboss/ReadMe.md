@@ -1,1 +1,0 @@
-Runs a child JBoss AS container to provision the Drools consoles
