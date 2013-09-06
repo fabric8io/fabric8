@@ -89,6 +89,31 @@ public class Provision {
     }
 
     /**
+     * Wait for all containers to become registered.
+     * @param containers
+     * @param alive
+     * @param timeout
+     * @throws Exception
+     */
+    public static void containersExist(Collection<String> containers, Long timeout) throws Exception {
+        CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
+        List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ");
+        for (String container : containers) {
+            waitForProvisionTasks.add(completionService.submit(new WaitForContainerCreationTask(container, timeout)));
+            sb.append(container).append(" ");
+        }
+        System.out.println("Waiting for containers: [" + sb.toString() + "] to become created.");
+        for (String container : containers) {
+            Future<Boolean> f = completionService.poll(timeout, TimeUnit.MILLISECONDS);
+            if ( f == null || !f.get()) {
+                throw new Exception("Container " + container + " failed to become created.");
+            }
+        }
+    }
+
+    /**
      * Wait for all containers to become alive.
      * @param containers
      * @param timeout

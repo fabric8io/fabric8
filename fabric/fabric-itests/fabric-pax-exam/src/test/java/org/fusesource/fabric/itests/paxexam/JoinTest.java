@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.itests.paxexam;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -23,6 +24,7 @@ import org.apache.karaf.admin.AdminService;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Ignore;
@@ -58,9 +60,9 @@ public class JoinTest extends FabricTestSupport {
             Thread.sleep(DEFAULT_TIMEOUT);
             System.err.println(executeCommand("admin:list"));
             String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
-
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
-			Container child1 = fabricService.getContainer("child1");
+            Provision.containersExist(Arrays.asList("child1"), PROVISION_TIMEOUT);
+            Container child1 = fabricService.getContainer("child1");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
@@ -91,7 +93,7 @@ public class JoinTest extends FabricTestSupport {
 
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
-
+            Provision.containersExist(Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
