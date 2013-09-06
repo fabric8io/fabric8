@@ -23,7 +23,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 
-public class WildflyTestSupport extends FabricTestSupport {
+public class WildFlyTestSupport extends FabricTestSupport {
 
 
 	protected Profile getProfile(Container container, String name) throws Exception {

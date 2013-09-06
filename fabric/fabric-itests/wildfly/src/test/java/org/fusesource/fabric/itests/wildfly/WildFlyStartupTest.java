@@ -19,6 +19,8 @@ package org.fusesource.fabric.itests.wildfly;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
@@ -36,10 +38,10 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-public class WildflyStartupTest extends WildflyTestSupport {
+public class WildFlyStartupTest extends WildFlyTestSupport {
 
 	@Test
-	public void testWildflyProcess() throws Exception {
+	public void testWildFlyProcess() throws Exception {
 
 		executeCommand("fabric:create -n");
 		Container container = getFabricService().getContainers()[0];
@@ -49,19 +51,36 @@ public class WildflyStartupTest extends WildflyTestSupport {
 		try {
 			Assert.assertEquals("Expected to find the child container", "child1", container.getId());
 
-			// Add the wildfly profile and start the process
+			// Add the WildFly profile and start the process
 			executeCommand("container-add-profile child1 controller-wildfly");
 			waitForProvisionSuccess(container);
 
 			// FIXME: [FABRIC-541] process-list broken for remote containers
 			// String response = executeCommand("process-list child1");
 
+			SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss:SSS");
+
 			// FIXME: [FABRIC-543] Provide a Process API that allows testing of managed processes
 			File childHome = new File(System.getProperty("karaf.home") + "/instances/" + container.getId());
-			File pidFile = new File(childHome + "/processes/1/wildfly-8.0.0.Alpha4/standalone/data/wildfly.pid");
+			Assert.assertTrue("[" + df.format(new Date()) + "] Child home exists: " + childHome, childHome.exists());
 
-			System.out.println("Waiting for: " + pidFile);
-			for (int i=0; !pidFile.exists() && i < 10; i++) {
+			File procHome = new File(childHome + "/processes/1");
+			System.out.println("[" + df.format(new Date()) + "] Waiting for: " + procHome);
+			for (int i=0; !procHome.exists() && i < 30; i++) {
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue("Process home exists: " + procHome, procHome.exists());
+
+			File wildflyHome = new File(procHome + "/wildfly-8.0.0.Alpha4");
+			System.out.println("[" + df.format(new Date()) + "] Waiting for: " + wildflyHome);
+			for (int i=0; !wildflyHome.exists() && i < 30; i++) {
+				Thread.sleep(1000);
+			}
+			Assert.assertTrue("WildFly home exists: " + wildflyHome, wildflyHome.exists());
+
+			File pidFile = new File(wildflyHome + "/standalone/data/wildfly.pid");
+			System.out.println("[" + df.format(new Date()) + "] Waiting for: " + pidFile);
+			for (int i=0; !pidFile.exists() && i < 30; i++) {
 				Thread.sleep(1000);
 			}
 			Assert.assertTrue("PID file exists", pidFile.exists());
@@ -71,9 +90,12 @@ public class WildflyStartupTest extends WildflyTestSupport {
 			Assert.assertNotNull("PID not null", pid);
 			pidr.close();
 
-			System.out.println("WildFly PID: " + pid);
+			System.out.println("[" + df.format(new Date()) + "] WildFly PID: " + pid);
 
-			// Stop the wildfly process
+			// TODO Check that WildFly started up properly
+
+			// Stop the WildFly process
+			// FIXME: [FABRIC-542] executeCommand may only return the first line of the cmd output
 			// FIXME: [FABRIC-544] Cannot stop managed process in child container
 			// executeCommands("container-connect child1", "process:stop 1");
 			// for (int i=0; pidFile.exists() && i < 10; i++) {
@@ -81,13 +103,13 @@ public class WildflyStartupTest extends WildflyTestSupport {
 			// }
 			// Assert.assertFalse("PID file removed", pidFile.exists());
 
-			// Hack to stop the wildfly process brute force
+			// Hack to stop the WildFly process brute force
 			Runtime runtime = Runtime.getRuntime();
 			runtime.exec("kill -9 " + pid);
 			pidFile.delete();
 
 		} finally {
-			container.destroy();
+			container.stop();
 		}
 	}
 
