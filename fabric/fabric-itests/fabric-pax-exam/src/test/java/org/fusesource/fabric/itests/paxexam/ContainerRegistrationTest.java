@@ -42,7 +42,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-edit --import-pid --pid org.apache.karaf.shell child-profile"));
         System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.shell/sshPort=8105 child-profile"));
         Thread.sleep(DEFAULT_TIMEOUT);
-        System.err.println(executeCommand("fabric:container-connect "+child1.getId()+" config:proplist --pid org.apache.karaf.shell | grep sshPort"));
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+child1.getId()+" config:proplist --pid org.apache.karaf.shell | grep sshPort"));
         String sshUrl = child1.getSshUrl();
         Assert.assertTrue(sshUrl.endsWith("8105"));
     }
@@ -62,7 +62,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-edit --pid org.apache.karaf.management/serviceUrl=service:jmx:rmi://localhost:55555/jndi/rmi://localhost:1099/karaf-"+child1.getId()+" child-profile"));
         System.err.println(executeCommand("fabric:profile-display child-profile"));
         Thread.sleep(DEFAULT_TIMEOUT);
-        System.err.println(executeCommand("fabric:container-connect "+child1.getId()+" config:proplist --pid org.apache.karaf.management | grep rmiServerPort"));
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+child1.getId()+" config:proplist --pid org.apache.karaf.management | grep rmiServerPort"));
         String jmxUrl = child1.getJmxUrl();
         System.out.println(jmxUrl);
         Assert.assertTrue(jmxUrl.contains("55555"));

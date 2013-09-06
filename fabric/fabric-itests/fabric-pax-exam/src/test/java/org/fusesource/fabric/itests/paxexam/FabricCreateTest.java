@@ -17,16 +17,9 @@
 
 package org.fusesource.fabric.itests.paxexam;
 
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.curator.framework.state.ConnectionStateListener;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
-import org.fusesource.fabric.zookeeper.internal.OsgiZkClient;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -36,22 +29,21 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import static junit.framework.Assert.assertEquals;
+import java.util.LinkedList;
+import java.util.List;
+
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class FabricCreateTest extends FabricTestSupport {
 
     @Test
     public void testImportedProfiles() throws Exception {
+        System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
-
-        System.err.println(executeCommand("fabric:create -n"));
 
         Profile karafProfile = fabricService.getDefaultVersion().getProfile("karaf");
         assertNotNull(karafProfile);
@@ -64,55 +56,16 @@ public class FabricCreateTest extends FabricTestSupport {
     }
 
 
-    /*
-    @Test
-    public void testCreateWithConnectionLoss() throws Exception {
-        FabricService fabricService = getFabricService();
-        assertNotNull(fabricService);
-
-        //Generate a connection loss right after the client is connected
-        bundleContext.registerService(ConnectionStateListener.class.getName(),
-                new ConnectionStateListener() {
-                    private boolean first = true;
-
-                    @Override
-                    public void onConnected() {
-                        System.err.println("Connected");
-                        System.err.flush();
-                        if (first) {
-                            first = false;
-                            try {
-                                final OsgiZkClient zooKeeper = (OsgiZkClient) getCurator();
-                                Thread.sleep(200);
-                                zooKeeper.testGenerateConnectionLoss();
-                            } catch (Exception e) {
-                                e.printStackTrace(System.err);
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onDisconnected() {
-                        System.err.println("Disconnected");
-                        System.err.flush();
-                    }
-                }, new Hashtable<String, Object>());
-
-        System.err.println(executeCommand("fabric:create -n", 90000L, false));
-        System.err.println(executeCommand("fabric:container-list", 90000L, false));
-
-    }*/
-
     @Test
     public void testCreateWithProfileSelection() throws Exception {
+        System.err.println(executeCommand("fabric:create -n --profile camel"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
 
-        System.err.println(executeCommand("fabric:create -n --profile camel"));
 
         Profile[] profiles = fabricService.getCurrentContainer().getProfiles();
         List<String> profileNames = new LinkedList<String>();
-        for (Profile profile:profiles) {
+        for (Profile profile : profiles) {
             profileNames.add(profile.getId());
         }
 
@@ -123,7 +76,8 @@ public class FabricCreateTest extends FabricTestSupport {
     @Configuration
     public Option[] config() {
         return new Option[]{
-                new DefaultCompositeOption(fabricDistributionConfiguration())
+                new DefaultCompositeOption(fabricDistributionConfiguration()),
+                // debugConfiguration("5005", true)
         };
     }
 }

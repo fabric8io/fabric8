@@ -24,7 +24,6 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -41,12 +40,11 @@ import java.util.Set;
 
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @After
@@ -57,16 +55,9 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
     @Test
     public void testFeatureProvisioning() throws Exception {
         System.err.println(executeCommand("fabric:create -n root"));
-        executeCommand("fabric:profile-create --parents dosgi dosgi-provider");
-        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features dosgi-provider");
-        executeCommand("fabric:profile-edit --features fabric-example-dosgi dosgi-provider");
+        waitForFabricCommands();
 
-
-        executeCommand("fabric:profile-create --parents dosgi --parents camel dosgi-camel");
-        executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features dosgi-camel");
-        executeCommand("fabric:profile-edit --features fabric-example-camel-dosgi dosgi-camel");
-
-        Set<Container> containers = ContainerBuilder.create(2).withName("dosgi").withProfiles("dosgi").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create(2).withName("dosgi").withProfiles("example-dosgi-camel").assertProvisioningResult().build();
         List<Container> containerList = new ArrayList<Container>(containers);
         List<Container> dosgiProviderContainers = containerList.subList(0, containerList.size() / 2);
         List<Container> dosgiCamelContainers = containerList.subList(containerList.size() / 2, containerList.size());
@@ -75,20 +66,20 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
 
         for (Container c : dosgiProviderContainers) {
             setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
-            Profile p = c.getVersion().getProfile("dosgi-provider");
+            Profile p = c.getVersion().getProfile("example-dosgi-camel-provider");
             c.setProfiles(new Profile[]{p});
         }
 
         for (Container c : dosgiCamelContainers) {
             setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
-            Profile p = c.getVersion().getProfile("dosgi-camel");
+            Profile p = c.getVersion().getProfile("example-dosgi-camel-consumer");
             c.setProfiles(new Profile[]{p});
         }
 
         Provision.provisioningSuccess(dosgiProviderContainers, PROVISION_TIMEOUT);
         Provision.provisioningSuccess(dosgiCamelContainers, PROVISION_TIMEOUT);
 
-        Thread.sleep(10000L);
+        Thread.sleep(20000L);
         for (Container c : dosgiCamelContainers) {
             String response = executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " log:display | grep \"Message from distributed service to\"");
             System.err.println(executeCommand("fabric:container-connect -u admin -p admin " + c.getId() + " camel:route-info fabric-client"));

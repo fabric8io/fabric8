@@ -56,7 +56,6 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class FabricMavenProxyTest extends FabricTestSupport {
 
     @After

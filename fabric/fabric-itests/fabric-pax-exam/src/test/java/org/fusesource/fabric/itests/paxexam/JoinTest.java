@@ -19,9 +19,11 @@ package org.fusesource.fabric.itests.paxexam;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.karaf.admin.AdminService;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,7 +40,6 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class JoinTest extends FabricTestSupport {
 
 	@After
@@ -47,12 +48,18 @@ public class JoinTest extends FabricTestSupport {
 
 	@Test
 	public void testJoin() throws Exception {
-        FabricService fabricService = getFabricService();
-		String version = System.getProperty("fabric.version");
         System.err.println(executeCommand("fabric:create -n"));
-		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
+        FabricService fabricService = getFabricService();
+        AdminService adminService = ServiceLocator.getOsgiService(AdminService.class);
+        String version = System.getProperty("fabric.version");
+        System.err.println(executeCommand("admin:create --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-boot-commands child1"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
+            Thread.sleep(DEFAULT_TIMEOUT);
+            System.err.println(executeCommand("admin:list"));
+            String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
+
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
 			Container child1 = fabricService.getContainer("child1");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 			System.err.println(executeCommand("fabric:container-list"));
@@ -68,15 +75,22 @@ public class JoinTest extends FabricTestSupport {
 	 */
 	@Test
 	public void testJoinAndAddToEnsemble() throws Exception {
-        FabricService fabricService = getFabricService();
         System.err.println(executeCommand("fabric:create -n"));
-        CuratorFramework curator = getCurator();
+        FabricService fabricService = getFabricService();
+        AdminService adminService = ServiceLocator.getOsgiService(AdminService.class);
+
 		String version = System.getProperty("fabric.version");
-		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child1"));
-		System.err.println(executeCommand("admin:create --java-opts \"-Dzookeeper.url=localhost:2181 -Dzookeeper.password=admin\" --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-agent child2"));
+        System.err.println(executeCommand("admin:create --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-boot-commands child1"));
+        System.err.println(executeCommand("admin:create --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-boot-commands child2"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
 			System.err.println(executeCommand("admin:start child2"));
+            Thread.sleep(DEFAULT_TIMEOUT);
+            System.err.println(executeCommand("admin:list"));
+            String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
+
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
 
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
@@ -84,11 +98,11 @@ public class JoinTest extends FabricTestSupport {
 			waitForProvisionSuccess(child2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
 			Thread.sleep(5000);
-			curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+            getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
 			System.err.println(executeCommand("fabric:ensemble-remove --force child1 child2"));
 			Thread.sleep(5000);
-            curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+            getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
 			System.err.println(executeCommand("admin:stop child1"));

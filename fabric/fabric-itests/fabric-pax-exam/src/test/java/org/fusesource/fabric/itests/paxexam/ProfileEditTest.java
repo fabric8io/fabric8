@@ -38,14 +38,13 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ProfileEditTest extends FabricTestSupport {
 
     @Test
     public void testManipulatePid() throws Exception {
+        System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
-        System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key=value default"));
 
@@ -111,10 +110,10 @@ public class ProfileEditTest extends FabricTestSupport {
     
     @Test
     public void testImportPid() throws Exception {
-        FabricService fabricService = getFabricService();
-        assertNotNull(fabricService);
         System.err.println(executeCommands("config:edit my.pid","config:propset key1 value1","config:propset key2 value2", "config:update"));        
         System.err.println(executeCommand("fabric:create -n"));
+        FabricService fabricService = getFabricService();
+        assertNotNull(fabricService);
         waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid --import-pid default"));
 
