@@ -30,14 +30,12 @@ import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @ContextConfiguration
-@Ignore("[FABRIC-528] Fix fabric/fabric-camel tests")
 public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
 
     @Autowired
