@@ -35,7 +35,7 @@ public class PortPlaceholderResolver implements PlaceholderResolver {
     private static final String PORT_SCHEME = "port";
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
 
     /**

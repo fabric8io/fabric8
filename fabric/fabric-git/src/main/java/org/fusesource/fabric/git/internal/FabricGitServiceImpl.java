@@ -45,14 +45,14 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private GitService gitService;
 
     //We need to wait for the container registration, so that substitution of master url works.
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ContainerRegistration containerRegistration;
 
 

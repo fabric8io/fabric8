@@ -106,14 +106,12 @@ public class KarafContainerRegistration implements ContainerRegistration, Config
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
-
-
 
     public CuratorFramework getCurator() {
         return curator;

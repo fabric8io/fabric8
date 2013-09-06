@@ -35,7 +35,7 @@ public class ZookeeperPlaceholderResolver implements PlaceholderResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
     private static final String ZOOKEEPER_SCHEME = "zk";
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
     @Override

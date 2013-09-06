@@ -56,7 +56,6 @@ import static org.fusesource.fabric.utils.BundleUtils.instalBundle;
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY;
 
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap",
            description = "Fabric ZooKeeper Cluster Bootstrap",
@@ -69,11 +68,10 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
     private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-    @Reference(cardinality = MANDATORY_UNARY)
+    @Reference
 	private ConfigurationAdmin configurationAdmin;
 
-    @Reference(cardinality = MANDATORY_UNARY,
-            referenceInterface = DataStoreRegistrationHandler.class, bind = "bindDataStoreRegistrationHandler", unbind = "unbindDataStoreRegistrationHandler")
+    @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindDataStoreRegistrationHandler", unbind = "unbindDataStoreRegistrationHandler")
     private DataStoreRegistrationHandler dataStoreRegistrationHandler;
 
     private Map<String, String> configuration;

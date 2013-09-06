@@ -44,7 +44,7 @@ import java.util.Map;
 })
 public class ProfileUrlHandler extends AbstractURLStreamHandlerService {
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
     private static final String SYNTAX = "profile:<resource name>";
 

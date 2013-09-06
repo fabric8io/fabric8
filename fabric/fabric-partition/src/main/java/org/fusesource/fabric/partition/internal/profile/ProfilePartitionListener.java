@@ -63,7 +63,7 @@ public class ProfilePartitionListener implements PartitionListener {
 
 
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
 
     public ProfilePartitionListener() {

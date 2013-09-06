@@ -19,10 +19,10 @@ import java.util.Map;
 public class ClusterServiceManager implements ClusterServiceManagerMBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(ClusterServiceManager.class);
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ZooKeeperClusterService service;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    @Reference(bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
     private ObjectName objectName;

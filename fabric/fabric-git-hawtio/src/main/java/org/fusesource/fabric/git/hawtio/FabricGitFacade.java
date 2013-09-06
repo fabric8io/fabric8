@@ -55,7 +55,7 @@ import static org.fusesource.fabric.git.internal.GitHelpers.getRootGitDirectory;
 public class FabricGitFacade extends GitFacadeSupport {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGitFacade.class);
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)    private DataStore dataStore;
+    @Reference    private DataStore dataStore;
     private GitDataStore gitDataStore;
 
     @Activate

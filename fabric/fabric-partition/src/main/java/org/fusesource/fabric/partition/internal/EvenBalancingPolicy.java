@@ -41,7 +41,7 @@ public class EvenBalancingPolicy implements BalancingPolicy {
     private static final String TYPE = "even";
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
     public EvenBalancingPolicy() {

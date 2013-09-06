@@ -82,9 +82,9 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
     public static final String METADATA = ".metadata";
 
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricGitService gitService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
     private Group<GitZkBridgeNode> group;
 

@@ -29,10 +29,10 @@ public class ClusterBootstrapManager implements ClusterBootstrapManagerMBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ClusterBootstrapManager.class);
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ZooKeeperClusterBootstrap bootstrap;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    @Reference(bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
     private ObjectName objectName;

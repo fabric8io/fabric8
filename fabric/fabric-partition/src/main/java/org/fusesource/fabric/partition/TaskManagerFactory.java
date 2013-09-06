@@ -75,7 +75,7 @@ public class TaskManagerFactory {
     private final ConcurrentMap<String, PartitionListener> partitionListeners = new ConcurrentHashMap<String, PartitionListener>();
 
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
 

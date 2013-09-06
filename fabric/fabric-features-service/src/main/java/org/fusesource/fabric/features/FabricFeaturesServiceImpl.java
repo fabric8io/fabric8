@@ -41,7 +41,7 @@ public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
 
     private final Set<Repository> repositories = new HashSet<Repository>();

@@ -81,9 +81,9 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private HttpService httpService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
     private String realm;

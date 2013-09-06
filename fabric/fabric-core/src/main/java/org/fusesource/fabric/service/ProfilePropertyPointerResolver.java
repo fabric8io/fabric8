@@ -44,9 +44,9 @@ public class ProfilePropertyPointerResolver implements PlaceholderResolver {
 
     private static final String EMPTY = "";
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private DataStore dataStore;
 
     /**

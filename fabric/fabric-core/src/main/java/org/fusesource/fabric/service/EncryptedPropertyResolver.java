@@ -35,7 +35,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData
 public class EncryptedPropertyResolver implements PlaceholderResolver {
 
     private static final String CRYPT_SCHEME = "crypt";
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
     @Override

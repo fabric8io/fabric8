@@ -64,11 +64,11 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
 
     private Group<GitNode> group;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private HttpService httpService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
     private final GitServlet gitServlet = new GitServlet();

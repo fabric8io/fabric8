@@ -46,7 +46,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 @Service(PortService.class)
 public class ZookeeperPortService implements PortService {
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
     private InterProcessLock lock;
 

@@ -51,7 +51,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
 
     private static final String SCHEME = "child";
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService service;
 
 

@@ -48,8 +48,8 @@ import java.util.Map;
         @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
                 referenceInterface = PlaceholderResolver.class,
                 bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
-        @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY),
-        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService", cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+        @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
+        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
 }
 )
 @Service(DataStorePlugin.class)

@@ -16,7 +16,26 @@
  */
 package org.fusesource.fabric.service;
 
-import com.google.common.base.Strings;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.management.MBeanServer;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
@@ -54,25 +73,9 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import com.google.common.base.Strings;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY;
-import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import java.util.Collection;
 
 
 @Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
@@ -84,14 +87,16 @@ public class FabricServiceImpl implements FabricService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
-    @Reference(cardinality = MANDATORY_UNARY, referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
     private CuratorFramework curator;
-    @Reference(cardinality = MANDATORY_UNARY, referenceInterface = DataStore.class, bind = "bindDataStore", unbind = "unbindDataStore")
+    @Reference(referenceInterface = DataStore.class, bind = "bindDataStore", unbind = "unbindDataStore")
     private DataStore dataStore;
-    @Reference(cardinality = MANDATORY_UNARY, referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
+    @Reference(referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
     private PortService portService;
-    @Reference(cardinality = MANDATORY_UNARY, referenceInterface = ConfigurationAdmin.class, bind = "bindConfigurationAdmin", unbind = "unbindConfigurationAdmin")
+    @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigurationAdmin", unbind = "unbindConfigurationAdmin")
     private ConfigurationAdmin configurationAdmin;
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private MBeanServer mbeanServer;
     @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "registerProvider", unbind = "unregisterProvider", referenceInterface = ContainerProvider.class, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 

@@ -32,7 +32,7 @@ import java.util.Map;
 @Service(LockService.class)
 public class LockServiceImpl implements LockService {
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
     private final Map<String, InterProcessLock> locks = new HashMap<String, InterProcessLock>();
 

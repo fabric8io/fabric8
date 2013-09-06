@@ -51,11 +51,11 @@ public class FabricConfigAdminBridge implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ConfigurationAdmin configAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private ContainerRegistration registration;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 

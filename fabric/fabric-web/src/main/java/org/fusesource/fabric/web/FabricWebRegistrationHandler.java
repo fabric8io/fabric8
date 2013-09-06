@@ -52,9 +52,9 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
     private final Map<Bundle, WebEvent> webEvents = new HashMap<Bundle, WebEvent>();
     private final Map<Bundle, Map<String, ServletEvent>> servletEvents = new HashMap<Bundle, Map<String, ServletEvent>>();
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private CuratorFramework curator;
 
     @Override
