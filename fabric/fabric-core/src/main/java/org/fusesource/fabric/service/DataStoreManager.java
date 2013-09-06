@@ -57,10 +57,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreManager.class);
 
 
-    @Reference(cardinality = OPTIONAL_MULTIPLE,
-            referenceInterface = DataStorePlugin.class,
-            bind = "bindDataStore", unbind = "unbindDataStore",
-            policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = OPTIONAL_MULTIPLE, referenceInterface = DataStorePlugin.class, bind = "bindDataStore", unbind = "unbindDataStore", policy = ReferencePolicy.DYNAMIC)
     private final Map<String, DataStorePlugin> dataStorePlugins = new HashMap<String, DataStorePlugin>();
 
     private BundleContext bundleContext;

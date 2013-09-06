@@ -91,9 +91,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 @Component(name = "org.fusesource.datastore.git",
         description = "Fabric Git DataStore")
 @References({
-        @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE,
-                referenceInterface = PlaceholderResolver.class,
-                bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
+        @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
 }
