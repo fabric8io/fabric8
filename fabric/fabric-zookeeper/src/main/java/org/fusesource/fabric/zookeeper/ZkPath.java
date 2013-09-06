@@ -77,6 +77,7 @@ public enum ZkPath {
     CONTAINER_DOMAINS              ("/fabric/registry/containers/domains/{container}"),
     CONTAINER_DOMAIN               ("/fabric/registry/containers/domains/{container}/{domain}"),
     CONTAINER_ALIVE                ("/fabric/registry/containers/alive/{container}"),
+    CONTAINER_PROCESS_ID           ("/fabric/registry/containers/status/{container}/pid"),
     CONTAINER_PROVISION            ("/fabric/registry/containers/provision/{container}"),
     CONTAINER_PROVISION_LIST       ("/fabric/registry/containers/provision/{container}/list"),
     CONTAINER_PROVISION_RESULT     ("/fabric/registry/containers/provision/{container}/result"),

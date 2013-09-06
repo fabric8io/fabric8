@@ -109,6 +109,7 @@ public interface DataStore {
         PortMin,
         PortMax,
         Domains,
+        ProcessId,
     }
 
     String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted);

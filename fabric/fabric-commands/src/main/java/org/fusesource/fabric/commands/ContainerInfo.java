@@ -24,7 +24,7 @@ import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.utils.SystemProperties;
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
-@Command(name = "container-info", scope = "fabric", description = "Dispalys information about the containers")
+@Command(name = "container-info", scope = "fabric", description = "Displays information about the containers")
 public class ContainerInfo extends FabricCommand {
 
 	static final String FORMAT = "%-30s %s";
@@ -49,6 +49,7 @@ public class ContainerInfo extends FabricCommand {
 		System.out.println(String.format(FORMAT, "Network Address:", container.getIp()));
 		System.out.println(String.format(FORMAT, "SSH Url:", container.getSshUrl()));
 		System.out.println(String.format(FORMAT, "JMX Url:", container.getJmxUrl()));
+        System.out.println(String.format(FORMAT, "Process ID:", container.getProcessId()));
 		StringBuilder sb = new StringBuilder();
 		Profile[] profiles = container.getProfiles();
 

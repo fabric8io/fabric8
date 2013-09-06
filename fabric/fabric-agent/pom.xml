@@ -32,6 +32,7 @@
 
     <properties>
         <fuse.osgi.import>
+            javax.management;
             javax.net.ssl;
             javax.xml.namespace;
             javax.xml.parsers;

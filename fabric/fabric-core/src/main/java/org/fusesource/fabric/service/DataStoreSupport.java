@@ -607,6 +607,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             return ZkPath.CONTAINER_PORT_MIN.getPath(containerId);
         case PortMax:
             return ZkPath.CONTAINER_PORT_MAX.getPath(containerId);
+        case ProcessId:
+            return ZkPath.CONTAINER_PROCESS_ID.getPath(containerId);
         default:
             throw new IllegalArgumentException("Unsupported container attribute " + attribute);
         }

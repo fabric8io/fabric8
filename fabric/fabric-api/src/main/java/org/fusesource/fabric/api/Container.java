@@ -49,6 +49,9 @@ public interface Container extends HasId {
     Version getVersion();
     void setVersion(Version version);
 
+    Long getProcessId();
+    void setProcessId(Long processId);
+
     Profile[] getProfiles();
     void setProfiles(Profile[] profiles);
     void addProfiles(Profile... profiles);

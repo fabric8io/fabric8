@@ -212,6 +212,16 @@ public class ContainerFacade implements Container, HasId {
     }
 
     @Override
+    public Long getProcessId() {
+        return getFieldValue("getProcessId");
+    }
+
+    @Override
+    public void setProcessId(Long s) {
+        Helpers.exec(j4p, "setContainerProperty(java.lang.String, java.lang.String, java.lang.Object)", id, "processId", s);
+    }
+
+    @Override
     public String getPublicIp() {
         return getFieldValue("publicIp");
     }

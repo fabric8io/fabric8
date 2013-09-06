@@ -54,6 +54,7 @@ public class ContainerImpl implements Container {
     private final String id;
     private final FabricService service;
     private CreateContainerMetadata<?> metadata;
+    private long processId;
 
     public ContainerImpl(Container parent, String id, FabricService service) {
         this.parent = parent;
@@ -166,6 +167,23 @@ public class ContainerImpl implements Container {
             }
             service.getDataStore().setContainerVersion(id, version.getId());
         }
+    }
+
+    @Override
+    public Long getProcessId() {
+        String pid = service.getDataStore().getContainerAttribute(id, DataStore.ContainerAttribute.ProcessId, null, false, false);
+        if( pid == null )
+            return null;
+        return new Long(pid);
+    }
+
+    @Override
+    public void setProcessId(Long processId) {
+        String value=null;
+        if( processId!=null ) {
+            value = processId.toString();
+        }
+        setAttribute(DataStore.ContainerAttribute.ProcessId, value);
     }
 
     public Profile[] getProfiles() {

@@ -60,6 +60,8 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -67,6 +69,7 @@ import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -185,6 +188,13 @@ public class DeploymentAgent implements ManagedService {
             }
         }
         checksums.save();
+
+        new Thread("Publishing process id"){
+            @Override
+            public void run() {
+                publishProcessId();
+            }
+        }.run();
     }
 
     public void stop() throws InterruptedException {
@@ -224,6 +234,23 @@ public class DeploymentAgent implements ManagedService {
 
     private void updateStatus(String status, Throwable result) {
         updateStatus(status, result, null, false);
+    }
+
+    private void publishProcessId() {
+        try {
+            MBeanServer mbean_server = ManagementFactory.getPlatformMBeanServer();
+            String name = (String)mbean_server.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+            Long id = Long.parseLong(name.split("@")[0]);
+            FabricService fs = fabricService.waitForService(0);
+            if (fs != null) {
+                Container container = fs.getCurrentContainer();
+                container.setProcessId(id);
+            } else {
+                LOGGER.info("FabricService not available");
+            }
+        } catch (Throwable e) {
+            LOGGER.warn("Unable to set process id", e);
+        }
     }
 
     private void updateStatus(String status, Throwable result, Collection<Resource> resources, boolean force) {
