@@ -66,5 +66,9 @@
       "total": @{total},
       "used": @{((total - free) * 100) / total}
     }@end{}
+  },
+  "load": {
+    "process": @{result.results['os'].results[0].attrs['ProcessCpuLoad'] * 100},
+    "system": @{result.results['os'].results[0].attrs['SystemCpuLoad'] * 100}
   }@end{}
 }
