@@ -157,7 +157,7 @@ public class Manager implements ServiceListener, ListenerHook, EventHook, FindHo
         } catch (KeeperException.NodeExistsException e) {
             // The node already exists, that's fine
         }
-        this.tree = new TreeCache(curator,  DOSGI_REGISTRY, false);
+        this.tree = new TreeCache(curator,  DOSGI_REGISTRY, true);
         this.tree.getListenable().addListener(this);
         this.tree.start();
         // UUID
