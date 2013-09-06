@@ -528,8 +528,8 @@ public class
      */
     private static String getContainerPointer(CuratorFramework curator, String container) throws Exception {
         String pointer = "${zk:%s/%s}";
-        String policy = getContainerResolutionPolicy(curator, container);
-        return String.format(pointer, container, policy);
+        String resolver = "${zk:%s/resolver}";
+        return String.format(pointer, container, String.format(resolver, container));
     }
 
     public synchronized void registerMBeanServer(ServiceReference ref) {

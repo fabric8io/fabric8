@@ -286,7 +286,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
             service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.BindAddress,  "${zk:" + parent + "/bindaddress}");
         }
 
-        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + parent + "/resolver}");
+        service.getDataStore().setContainerAttribute(name, DataStore.ContainerAttribute.Ip, "${zk:" + name + "/${zk:" + name + "/resolver}}");
     }
 
     private static String collectionAsString(Collection<String> value) {
