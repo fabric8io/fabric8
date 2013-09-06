@@ -49,12 +49,9 @@ import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MBeanServerNotification;
-import javax.management.Notification;
-import javax.management.NotificationListener;
-import javax.management.ObjectName;
+import javax.management.*;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
@@ -128,6 +125,7 @@ public class
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private volatile MBeanServer mbeanServer;
+    Long processId;
 
 
     public CuratorFramework getCurator() {
@@ -154,12 +152,20 @@ public class
         this.fabricService = fabricService;
     }
 
-
     @Activate
     public void init() {
         LOGGER.trace("init");
         String version = System.getProperty("fabric.version", ZkDefs.DEFAULT_VERSION);
         String profiles = System.getProperty("fabric.profiles");
+
+        String name = null;
+
+        try {
+            MBeanServer mbean_server = ManagementFactory.getPlatformMBeanServer();
+            name = (String)mbean_server.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+            processId = Long.parseLong(name.split("@")[0]);
+        } catch (Throwable e) {
+        }
 
         try {
             if (profiles != null) {
@@ -249,6 +255,24 @@ public class
             }
         } else {
             create(curator, nodeAlive, CreateMode.EPHEMERAL);
+        }
+        checkProcessId();
+    }
+
+    public void checkProcessId() throws Exception {
+        String path = ZkPath.CONTAINER_PROCESS_ID.getPath(name);
+        Stat stat = exists(curator, path);
+        if (stat != null) {
+            if (stat.getEphemeralOwner() != curator.getZookeeperClient().getZooKeeper().getSessionId()) {
+                delete(curator, path);
+                if( processId!=null ) {
+                    create(curator, path, processId.toString(),CreateMode.EPHEMERAL);
+                }
+            }
+        } else {
+            if( processId!=null ) {
+                create(curator, path, processId.toString(), CreateMode.EPHEMERAL);
+            }
         }
     }
 

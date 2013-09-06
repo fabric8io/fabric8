@@ -22,12 +22,7 @@ import org.apache.felix.utils.version.VersionRange;
 import org.apache.karaf.features.Repository;
 import org.apache.karaf.features.internal.FeaturesServiceImpl;
 import org.fusesource.fabric.agent.download.DownloadManager;
-import org.fusesource.fabric.agent.mvn.DictionaryPropertyResolver;
-import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
-import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
-import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
-import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
-import org.fusesource.fabric.agent.mvn.PropertyStore;
+import org.fusesource.fabric.agent.mvn.*;
 import org.fusesource.fabric.agent.repository.HttpMetadataProvider;
 import org.fusesource.fabric.agent.repository.MetadataRepository;
 import org.fusesource.fabric.agent.sort.RequirementSort;
@@ -40,13 +35,7 @@ import org.fusesource.fabric.fab.osgi.ServiceConstants;
 import org.fusesource.fabric.fab.osgi.internal.Configuration;
 import org.fusesource.fabric.fab.osgi.internal.FabResolverFactoryImpl;
 import org.fusesource.fabric.utils.ChecksumUtils;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
-import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkEvent;
-import org.osgi.framework.FrameworkListener;
-import org.osgi.framework.ServiceReference;
+import org.osgi.framework.*;
 import org.osgi.framework.Version;
 import org.osgi.framework.namespace.PackageNamespace;
 import org.osgi.framework.wiring.BundleCapability;
@@ -60,30 +49,9 @@ import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InterruptedIOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.management.ManagementFactory;
+import java.io.*;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -95,6 +63,8 @@ import static org.apache.felix.resolver.Util.getVersion;
 import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.addMavenProxies;
 import static org.fusesource.fabric.agent.utils.AgentUtils.loadRepositories;
+
+import org.apache.felix.utils.version.VersionRange;
 
 public class DeploymentAgent implements ManagedService {
 
@@ -188,13 +158,6 @@ public class DeploymentAgent implements ManagedService {
             }
         }
         checksums.save();
-
-        new Thread("Publishing process id"){
-            @Override
-            public void run() {
-                publishProcessId();
-            }
-        }.run();
     }
 
     public void stop() throws InterruptedException {
@@ -234,23 +197,6 @@ public class DeploymentAgent implements ManagedService {
 
     private void updateStatus(String status, Throwable result) {
         updateStatus(status, result, null, false);
-    }
-
-    private void publishProcessId() {
-        try {
-            MBeanServer mbean_server = ManagementFactory.getPlatformMBeanServer();
-            String name = (String)mbean_server.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
-            Long id = Long.parseLong(name.split("@")[0]);
-            FabricService fs = fabricService.waitForService(0);
-            if (fs != null) {
-                Container container = fs.getCurrentContainer();
-                container.setProcessId(id);
-            } else {
-                LOGGER.info("FabricService not available");
-            }
-        } catch (Throwable e) {
-            LOGGER.warn("Unable to set process id", e);
-        }
     }
 
     private void updateStatus(String status, Throwable result, Collection<Resource> resources, boolean force) {

@@ -177,15 +177,6 @@ public class ContainerImpl implements Container {
         return new Long(pid);
     }
 
-    @Override
-    public void setProcessId(Long processId) {
-        String value=null;
-        if( processId!=null ) {
-            value = processId.toString();
-        }
-        setAttribute(DataStore.ContainerAttribute.ProcessId, value);
-    }
-
     public Profile[] getProfiles() {
         Version version = getVersion();
         List<String> profileIds = service.getDataStore().getContainerProfiles(id);
