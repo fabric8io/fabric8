@@ -16,6 +16,22 @@
  */
 package org.fusesource.fabric.git.internal;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -25,12 +41,10 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
-import org.eclipse.jgit.api.CheckoutResult;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
-import org.eclipse.jgit.api.ResetCommand;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
@@ -60,23 +74,6 @@ import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
@@ -870,7 +867,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
      * @param statusAfter
      */
     private boolean hasChanged(RevCommit statusBefore, RevCommit statusAfter) {
-        return !Objects.equals(statusBefore.getId(), statusAfter.getId());
+        return !equals(statusBefore.getId(), statusAfter.getId());
     }
 
     /**
@@ -1186,5 +1183,9 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             }
         }
         super.setDataStoreProperties(properties);
+    }
+
+    private static boolean equals(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 }
