@@ -17,7 +17,6 @@
 package org.fusesource.fabric.camel;
 
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.apache.camel.CamelContext;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.builder.RouteBuilder;
@@ -30,12 +29,10 @@ import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore("[FABRIC-528] Fix fabric/fabric-camel tests")
 public class MasterEndpointFailoverTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
 
@@ -83,7 +80,7 @@ public class MasterEndpointFailoverTest {
             }
         });
 
-        ServiceHelper.startServices(producerContext);
+        ServiceHelper.startServices(consumerContext1, consumerContext2, producerContext);
 
         result1Endpoint = consumerContext1.getEndpoint("mock:result1", MockEndpoint.class);
         result2Endpoint = consumerContext2.getEndpoint("mock:result2", MockEndpoint.class);
