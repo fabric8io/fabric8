@@ -67,7 +67,14 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
         private final List<DelegateZooKeeperGroup<?>> groups = new ArrayList<DelegateZooKeeperGroup<?>>();
 
         OsgiTrackingManagedGroupFactory(ClassLoader loader) {
-            this(((BundleReference) loader).getBundle().getBundleContext());
+            this(getBundleContext(loader));
+        }
+
+        static BundleContext getBundleContext(ClassLoader loader) {
+            if (!(loader instanceof BundleReference)) {
+                throw new IllegalStateException("Not an OSGi ClassLoader");
+            }
+            return ((BundleReference) loader).getBundle().getBundleContext();
         }
 
         OsgiTrackingManagedGroupFactory(BundleContext bundleContext) {

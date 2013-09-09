@@ -128,9 +128,9 @@ public abstract class ZKComponentSupport extends DefaultComponent implements Cal
             builder.authorization("digest", ("fabric:"+password).getBytes());
         }
 
-        CuratorFramework client = builder.build();
+        curator = builder.build();
         LOG.debug("Starting curator " + curator);
-        client.start();
+        curator.start();
         return curator;
     }
 

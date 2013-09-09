@@ -35,6 +35,8 @@ public class ManagedGroupFactoryBuilder {
             return new OsgiManagedGroupFactory(loader);
         } catch (NoClassDefFoundError e) {
             // Ignore if we'e not in OSGi
+        } catch (IllegalStateException e) {
+            // Ignore if we'e not in OSGi
         }
         return new StaticManagedGroupFactory(factory.call(), true);
     }
