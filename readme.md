@@ -76,11 +76,17 @@ If you want to try out Fuse on OpenShift here's the current instructions:
 This will output the generated password for fabric and also the http
 url for hawtio.
 
+If you prefer to specify your own password (which can be handy in development to reuse the same password across fabrics) try this:
+
+    rhc create-app -e OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD=admin registry https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml
+
+You probably want to use a safer password than 'admin' though ;)
+
 You can then login to your registry at: **http://registry-$USERID.rhcloud.com/hawtio/** where $USERID is your openshift account name. Use the following login:
 
 ```
 user:     admin
-password: $generatedPassword
+password: $password
 ```
 
 ### 2 Open the **Fabric** tab and you should be able to see the containers running (only 1 at the moment).
