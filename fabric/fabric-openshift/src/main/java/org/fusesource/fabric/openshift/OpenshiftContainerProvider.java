@@ -31,6 +31,7 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.FabricService;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +53,9 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private IOpenShiftConnection connection;
 
+    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    private FabricService fabricService;
+
     @Override
     public Set<CreateOpenshiftContainerMetadata> create(CreateOpenshiftContainerOptions options) throws Exception {
         Set<CreateOpenshiftContainerMetadata> metadata = new HashSet<CreateOpenshiftContainerMetadata>();
@@ -60,9 +64,12 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         int number = Math.max(options.getNumber(), 1);
         StandaloneCartridge cartridge = options.isEnsembleServer() ? new StandaloneCartridge(REGISTRY_CART) : new StandaloneCartridge(PLAIN_CART);
 
-        // TODO fill these in with the correct ZK stuff & credentials
+        String zookeeperUrl = fabricService.getZookeeperUrl();
+        String zookeeperPassword = fabricService.getZookeeperPassword();
+
         Map<String,String> userEnvVars = new HashMap<String, String>();
-        userEnvVars.put("MY_FOO", "bar!");
+        userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_URL", zookeeperUrl);
+        userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD", zookeeperPassword);
 
         String initGitUrl = null;
         int timeout = IHttpClient.NO_TIMEOUT;
