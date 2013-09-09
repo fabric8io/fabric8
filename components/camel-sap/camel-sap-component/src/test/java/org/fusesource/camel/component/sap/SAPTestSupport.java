@@ -658,7 +658,7 @@ public abstract class SAPTestSupport extends CamelSpringTestSupport {
 		request.put(PARAM_LIST_TIME_PARAM, TIME_PARAM_IN_VAL);
 		request.put(PARAM_LIST_STRING_PARAM, STRING_PARAM_IN_VAL);
 		
-		Structure structure = (Structure) request.get(PARAM_LIST_STRUCTURE_PARAM);
+		Structure structure = request.get(PARAM_LIST_STRUCTURE_PARAM, Structure.class);
 		structure.put(CHAR_PARAM, CHAR_PARAM_IN_VAL);
 		structure.put(NUM_PARAM, NUM_PARAM_IN_VAL);
 		structure.put(INT_PARAM, INT_PARAM_IN_VAL);
@@ -671,7 +671,7 @@ public abstract class SAPTestSupport extends CamelSpringTestSupport {
 		structure.put(STRING_PARAM, STRING_PARAM_IN_VAL);
 		
 		@SuppressWarnings("unchecked")
-		Table<? extends Structure> table = (Table<? extends Structure>) request.get(PARAM_LIST_TABLE_PARAM);
+		Table<Structure> table = request.get(PARAM_LIST_TABLE_PARAM, Table.class);
 		Structure row = table.add();
 		row.put(CHAR_PARAM, CHAR_PARAM_IN_VAL);
 		row.put(NUM_PARAM, NUM_PARAM_IN_VAL);

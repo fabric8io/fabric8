@@ -30,4 +30,18 @@ import org.eclipse.emf.ecore.EObject;
  * @generated
  */
 public interface Structure extends EObject, java.util.Map<String, Object> {
+
+	/**
+	 * <!-- begin-user-doc -->
+     * Returns the value to which the specified key is mapped,
+     * or {@code null} if this {@link Structure} contains no mapping for the key.
+	 * @param key - the key whose associated value is to be returned
+	 * @param type - the type of required value
+	 * @return the value to which the specified key is mapped, or
+     *         {@code null} if this map contains no mapping for the key
+	 * <!-- end-user-doc -->
+	 * @model
+	 * @generated
+	 */
+	<T> T get(Object key, Class<T> type);
 } // Structure

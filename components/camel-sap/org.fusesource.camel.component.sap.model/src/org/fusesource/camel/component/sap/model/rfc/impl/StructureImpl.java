@@ -61,6 +61,23 @@ public class StructureImpl extends EObjectImpl implements Structure {
 		return RfcPackage.Literals.STRUCTURE;
 	}
 
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public <T> T get(Object key, Class<T> type) {
+		Object value = get(key);
+		if (value == null) {
+			return null;
+		}
+		if (type.isInstance(value)) {
+			return type.cast(value);
+		} else {
+			throw new IllegalArgumentException("The value is not of type: " + type + " but is : " + value.getClass().getCanonicalName());
+		}
+	}
+
 	public static class Entry implements Map.Entry<String,Object> {
 		
 		private String key;

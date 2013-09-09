@@ -133,7 +133,7 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertThat("structure.get(STRING_PARAM) returned '" +  structure.get(STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) structure.get(STRING_PARAM), is(STRING_PARAM_OUT_VAL));
 		
 		@SuppressWarnings("unchecked")
-		Table<? extends Structure> table = (Table<? extends Structure>) response.get(PARAM_LIST_TABLE_PARAM);
+		Table<? extends Structure> table = response.get(PARAM_LIST_TABLE_PARAM, Table.class);
 		assertThat("response.get(PARAM_LIST_TABLE_PARAM) returned unexpected null value", table, notNullValue());
 		List<? extends Structure> rows = table.getRows();
 		assertThat("rows.size() returned '" + rows.size() + "' instead of expected value of '1'", rows.size(), is(1));
@@ -218,7 +218,7 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertThat("response.get(PARAM_LIST_TIME_PARAM) returned '" +  response.get(PARAM_LIST_TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) response.get(PARAM_LIST_TIME_PARAM), is(TIME_PARAM_OUT_VAL));
 		assertThat("response.get(PARAM_LIST_STRING_PARAM) returned '" +  response.get(PARAM_LIST_STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) response.get(PARAM_LIST_STRING_PARAM), is(STRING_PARAM_OUT_VAL));
 		
-		structure = (Structure) response.get(PARAM_LIST_STRUCTURE_PARAM);
+		structure = response.get(PARAM_LIST_STRUCTURE_PARAM,Structure.class);
 		assertThat("structure.get(PARAM_LIST_STRUCTURE_PARAM) returned unexpected null value", structure, notNullValue());
 		assertThat("structure.get(CHAR_PARAM) returned '" +  structure.get(CHAR_PARAM) + "' instead of expected value '" + CHAR_PARAM_OUT_VAL + "'", (String) structure.get(CHAR_PARAM), is(CHAR_PARAM_OUT_VAL));
 		assertThat("structure.get(NUM_PARAM) returned '" +  structure.get(NUM_PARAM) + "' instead of expected value '" + NUM_PARAM_OUT_VAL + "'", (String) structure.get(NUM_PARAM), is(NUM_PARAM_OUT_VAL));
@@ -231,7 +231,7 @@ public class SAPComponentTest extends SAPTestSupport {
 		assertThat("structure.get(TIME_PARAM) returned '" +  structure.get(TIME_PARAM) + "' instead of expected value '" + TIME_PARAM_OUT_VAL + "'", (Date) structure.get(TIME_PARAM), is(TIME_PARAM_OUT_VAL));
 		assertThat("structure.get(STRING_PARAM) returned '" +  structure.get(STRING_PARAM) + "' instead of expected value '" + STRING_PARAM_OUT_VAL + "'", (String) structure.get(STRING_PARAM), is(STRING_PARAM_OUT_VAL));
 		
-		table = (Table<? extends Structure>) response.get(PARAM_LIST_TABLE_PARAM);
+		table = response.get(PARAM_LIST_TABLE_PARAM, Table.class);
 		assertThat("response.get(PARAM_LIST_TABLE_PARAM) returned unexpected null value", table, notNullValue());
 		List<? extends Structure> rows = table.getRows();
 		assertThat("rows.size() returned '" + rows.size() + "' instead of expected value of '1'", rows.size(), is(1));
