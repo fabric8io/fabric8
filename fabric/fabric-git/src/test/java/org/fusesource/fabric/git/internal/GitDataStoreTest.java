@@ -42,7 +42,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("[FABRIC-535] Fix fabric/fabric-git tests")
 public class GitDataStoreTest {
 
     /**
