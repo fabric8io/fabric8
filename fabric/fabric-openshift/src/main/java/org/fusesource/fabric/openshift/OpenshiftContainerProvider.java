@@ -16,8 +16,10 @@
  */
 package org.fusesource.fabric.openshift;
 
+import com.openshift.client.ApplicationScale;
 import com.openshift.client.IApplication;
 import com.openshift.client.IDomain;
+import com.openshift.client.IHttpClient;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
 import com.openshift.client.OpenShiftConnectionFactory;
@@ -30,7 +32,9 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -55,9 +59,17 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         IDomain domain =  getOrCreateDomain(user, options);
         int number = Math.max(options.getNumber(), 1);
         StandaloneCartridge cartridge = options.isEnsembleServer() ? new StandaloneCartridge(REGISTRY_CART) : new StandaloneCartridge(PLAIN_CART);
-        for (int i = 1; i <= number; i++) {
 
-            IApplication application = domain.createApplication(options.getName(),cartridge, new GearProfile(options.getGearProfile()));
+        // TODO fill these in with the correct ZK stuff & credentials
+        Map<String,String> userEnvVars = new HashMap<String, String>();
+        userEnvVars.put("MY_FOO", "bar!");
+
+        String initGitUrl = null;
+        int timeout = IHttpClient.NO_TIMEOUT;
+        ApplicationScale scale = null;
+
+        for (int i = 1; i <= number; i++) {
+            IApplication application = domain.createApplication(options.getName(),cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
             String containerName = application.getName() + "-" + application.getUUID();
             if (!options.isEnsembleServer()) {
                 application.restart();
