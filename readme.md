@@ -92,7 +92,7 @@ Enter something like these details:
 ```
 name:      someContainerName
 serverUrl: openshift.redhat.com
-domain:    mydomain
 login:     myname@foo.com
 password:  *********
+domain:    mydomain
 ```
