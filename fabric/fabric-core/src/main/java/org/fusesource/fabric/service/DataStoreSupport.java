@@ -104,7 +104,9 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     }
 
     public synchronized void stop() {
-        destroyCache();
+        if (started.compareAndSet(true, false)) {
+            destroyCache();
+        }
     }
 
     public CuratorFramework getCurator() {
