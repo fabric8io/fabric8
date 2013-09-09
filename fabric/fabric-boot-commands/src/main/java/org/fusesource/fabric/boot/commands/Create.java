@@ -37,6 +37,10 @@ import java.util.Set;
 @Command(name = "create", scope = "fabric", description = "Creates a new fabric ensemble (ZooKeeper ensemble) and imports fabric profiles", detailedDescription = "classpath:create.txt")
 public class Create extends EnsembleCommandSupport implements org.fusesource.fabric.boot.commands.service.Create {
 
+    private static final String GIT_REMOTE_URL = "gitRemoteUrl";
+    private static final String GIT_REMOTE_USER = "gitRemoteUser";
+    private static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
+
     @Option(name = "--clean", description = "Clean local zookeeper cluster and configurations")
     private boolean clean;
     @Option(name = "--no-import", description = "Disable the import of the sample registry data")
@@ -73,6 +77,12 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     private String newUser;
     @Option(name = "--new-user-password", multiValued = false, description = "The password of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserPassword;
+    @Option(name = "--external-git-url", multiValued = false, description = "Specify an external git url.")
+    private String externalGitUrl;
+    @Option(name = "--external-git-user", multiValued = false, description = "Specify an external git user.")
+    private String externalGitUser;
+    @Option(name = "--external-git-passowrd", multiValued = false, description = "Specify an external git password.")
+    private String externalGitPassword;
     @Option(name = "--new-user-role", multiValued = false, description = "The role of the new user. The option refers to karaf user (ssh, http, jmx).")
     private String newUserRole = "admin";
 
@@ -125,6 +135,18 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
                 System.setProperty(ZkDefs.BIND_ADDRESS, parts[0]);
             }
         }
+
+        //Configure External Git Repository.
+        if (externalGitUrl != null) {
+            builder.dataStoreProperty(GIT_REMOTE_URL, externalGitUrl);
+        }
+        if (externalGitUser != null) {
+            builder.dataStoreProperty(GIT_REMOTE_USER, externalGitUser);
+        }
+        if (externalGitPassword != null) {
+            builder.dataStoreProperty(GIT_REMOTE_PASSWORD, externalGitPassword);
+        }
+
 
         if (profiles != null && profiles.size() > 0) {
             builder.profiles(profiles);

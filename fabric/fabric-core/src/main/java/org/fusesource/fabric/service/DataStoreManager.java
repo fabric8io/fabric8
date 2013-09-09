@@ -19,6 +19,7 @@ package org.fusesource.fabric.service;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
@@ -76,6 +77,11 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
     @Activate
     public synchronized void init(BundleContext bundleContext, Map<String,String> configuration) throws Exception {
         this.bundleContext = bundleContext;
+        update(configuration);
+    }
+
+    @Modified
+    public synchronized void update(Map<String,String> configuration) {
         this.configuration = new HashMap<String, String>(configuration);
         this.type = readType(configuration);
         updateServiceRegistration();

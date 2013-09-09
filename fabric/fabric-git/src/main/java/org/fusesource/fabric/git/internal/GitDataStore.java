@@ -127,6 +127,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private GitListener remoteChangeListener = new GitListener() {
         @Override
         public void onRemoteUrlChanged(final String remoteUrl) {
+            final String actualUrl = gitRemoteUrl != null ? gitRemoteUrl : remoteUrl;
             getThreadPool().submit(new Runnable() {
                 @Override
                 public void run() {
@@ -136,11 +137,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                             Repository repository = git.getRepository();
                             StoredConfig config = repository.getConfig();
                             String currentUrl = config.getString("remote", "origin", "url");
-                            if (remoteUrl == null) {
+                            if (actualUrl == null) {
                                 config.unsetSection("remote", "origin");
                                 config.save();
-                            } else if (!remoteUrl.equals(currentUrl)) {
-                                config.setString("remote", "origin", "url", remoteUrl);
+                            } else if (!actualUrl.equals(currentUrl)) {
+                                config.setString("remote", "origin", "url", actualUrl);
                                 config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                                 config.save();
                             }
@@ -174,6 +175,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public synchronized void start() {
         try {
             super.start();
+            this.threadPool = Executors.newSingleThreadScheduledExecutor();
             Map<String, String> properties = getDataStoreProperties();
             if (properties != null) {
                 this.pullPeriod = PropertiesHelper.getLongValue(properties, GIT_PULL_PERIOD, this.pullPeriod);
@@ -249,9 +251,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     }
 
     private synchronized ScheduledExecutorService getThreadPool() {
-        if (threadPool == null) {
-            this.threadPool = Executors.newSingleThreadScheduledExecutor();
-        }
         return this.threadPool;
     }
 
@@ -921,6 +920,10 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         return properties != null
                 && properties.containsKey(GIT_REMOTE_USER)
                 && properties.containsKey(GIT_REMOTE_PASSWORD);
+    }
+
+    private String getExternalUrl(Map<String, String> properties) {
+        return properties.get(GIT_REMOTE_URL);
     }
 
     private String getExternalUser(Map<String, String> properties) {

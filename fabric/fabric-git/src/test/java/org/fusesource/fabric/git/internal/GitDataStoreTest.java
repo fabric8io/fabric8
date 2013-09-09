@@ -21,6 +21,7 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
@@ -203,7 +204,7 @@ public class GitDataStoreTest {
         assertFolderExists(
                 "we should have pushed this file remotely due to the call to dataStore.setProfileAttribute()",
                 getRemoteGitFile("fabric/profiles/" + importedProfile
-                        + "/org.fusesource.fabric.datastore.properties"));
+                        + "/org.fusesource.fabric.profile.attributes.properties"));
 
         remote.checkout().setName("1.2").call();
         assertProfileExists("1.2", profile);

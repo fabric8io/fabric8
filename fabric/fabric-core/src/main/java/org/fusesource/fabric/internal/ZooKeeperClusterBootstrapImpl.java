@@ -23,6 +23,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
@@ -46,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
@@ -54,6 +56,7 @@ import static org.fusesource.fabric.utils.BundleUtils.instalBundle;
 import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY;
 
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap",
            description = "Fabric ZooKeeper Cluster Bootstrap",
@@ -67,10 +70,11 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
     private final boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
     private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = MANDATORY_UNARY)
 	private ConfigurationAdmin configurationAdmin;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = MANDATORY_UNARY,
+            referenceInterface = DataStoreRegistrationHandler.class, bind = "bindDataStoreRegistrationHandler", unbind = "unbindDataStoreRegistrationHandler")
     private DataStoreRegistrationHandler dataStoreRegistrationHandler;
 
     private Map<String, String> configuration;
@@ -112,6 +116,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 			String connectionUrl = getConnectionAddress() + ":" + zooKeeperServerConnectionPort;
 
             // Create configuration
+            updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
             dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
 
@@ -162,6 +167,26 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             bundleFabricZooKeeper.start();
         } catch (Exception e) {
             throw new FabricException("Unable to delete zookeeper configuration", e);
+        }
+    }
+
+
+    private void updateDataStoreConfig(Map<String, String> dataStoreConfiguration) throws IOException {
+        boolean updated = false;
+        Configuration config = configurationAdmin.getConfiguration(DataStore.DATASTORE_TYPE_PID);
+        Dictionary<String, Object> properties = config.getProperties();
+        for (Map.Entry<String, String> entry : dataStoreConfiguration.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            if (!value.equals(properties.put(key, value))) {
+                updated = true;
+            }
+        }
+        if (updated) {
+            //We unbind, so that we know exactly when we get the re-configured instance.
+            //dataStoreRegistrationHandler.unbind();
+            config.setBundleLocation(null);
+            config.update(properties);
         }
     }
 
@@ -301,5 +326,13 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
+    }
+
+    public void bindDataStoreRegistrationHandler(DataStoreRegistrationHandler dataStoreRegistrationHandler) {
+        this.dataStoreRegistrationHandler = dataStoreRegistrationHandler;
+    }
+
+    public void unbindDataStoreRegistrationHandler(DataStoreRegistrationHandler dataStoreRegistrationHandler) {
+        this.dataStoreRegistrationHandler = null;
     }
 }
