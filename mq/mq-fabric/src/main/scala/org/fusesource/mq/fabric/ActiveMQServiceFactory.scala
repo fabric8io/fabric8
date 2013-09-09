@@ -386,7 +386,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
                     warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
                     None
                   } else {
-                    Some(connector.getConnectUri.getScheme + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getConnectUri.getPort)
+                    Some(connector.getConnectUri.getScheme + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getPublishableConnectURI.getPort)
                   }
                 })
               }
