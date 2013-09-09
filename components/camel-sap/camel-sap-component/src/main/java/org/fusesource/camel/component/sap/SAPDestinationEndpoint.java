@@ -19,6 +19,8 @@ package org.fusesource.camel.component.sap;
 import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
+import org.fusesource.camel.component.sap.model.rfc.Structure;
+import org.fusesource.camel.component.sap.util.RfcUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,6 +86,16 @@ public class SAPDestinationEndpoint extends SAPEndpoint {
 		this.transacted = transacted;
 	}
 
+	@Override
+	public Structure getRequest() throws Exception {
+		return RfcUtil.getRequest(getDestination().getRepository(), getRfcName());
+	}
+
+	@Override
+	public Structure getResponse() throws Exception {
+		return RfcUtil.getResponse(getDestination().getRepository(), getRfcName());
+	}
+
 	protected JCoDestination getDestination() {
 		if (destination == null) {
 			try {
@@ -94,4 +106,5 @@ public class SAPDestinationEndpoint extends SAPEndpoint {
 		}
 		return destination;
 	}
+
 }

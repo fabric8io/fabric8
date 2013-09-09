@@ -20,13 +20,25 @@ import org.apache.camel.Consumer;
 import org.apache.camel.Processor;
 import org.apache.camel.Producer;
 import org.fusesource.camel.component.sap.SAPComponent.FunctionHandlerFactory;
+import org.fusesource.camel.component.sap.model.rfc.Structure;
+import org.fusesource.camel.component.sap.util.RfcUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sap.conn.jco.JCoException;
+import com.sap.conn.jco.server.JCoServer;
+import com.sap.conn.jco.server.JCoServerFactory;
 
 /**
  * Represents an SAP server endpoint for inbound communication from SAP.
  */
 public class SAPServerEndpoint extends SAPEndpoint {
+	
+    private static final Logger LOG = LoggerFactory.getLogger(SAPServerEndpoint.class);
+
 
 	protected String serverName;
+	protected JCoServer server;
 	
 	public SAPServerEndpoint() {
 		super();
@@ -69,5 +81,26 @@ public class SAPServerEndpoint extends SAPEndpoint {
 		SAPConsumer consumer = new SAPConsumer(this, processor);
 		handlerFactory.registerHandler(getRfcName(), consumer);
 		return consumer;
+	}
+
+	@Override
+	public Structure getRequest() throws Exception {
+		return RfcUtil.getRequest(getServer().getRepository(), getRfcName());
+	}
+
+	@Override
+	public Structure getResponse() throws Exception {
+		return RfcUtil.getResponse(getServer().getRepository(), getRfcName());
+	}
+	
+	protected JCoServer getServer() {
+		if (server == null) {
+			try {
+				server = JCoServerFactory.getServer(serverName);
+			} catch (JCoException e) {
+				LOG.warn("Failed to get server object for endpoint. This exception will be ignored.", e);
+			}
+		}
+		return server;
 	}
 }

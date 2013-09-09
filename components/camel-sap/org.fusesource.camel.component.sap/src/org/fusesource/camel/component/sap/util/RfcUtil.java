@@ -18,7 +18,11 @@ package org.fusesource.camel.component.sap.util;
 
 import static org.fusesource.camel.component.sap.model.rfc.RfcPackage.eNS_URI;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -38,6 +42,7 @@ import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.EcorePackage;
+import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.XMLResource;
 import org.eclipse.emf.ecore.xmi.impl.XMLResourceImpl;
 import org.eclipse.emf.edit.command.SetCommand;
@@ -996,6 +1001,33 @@ public class RfcUtil {
 			return EcorePackage.Literals.EBYTE_ARRAY;
 		}
 	}
+	
+	public static void print(EObject eObject) throws IOException {
+		XMLResource resource = new XMLResourceImpl();
+		resource.getContents().add(eObject);
+		resource.save(System.out, null);
+	}
+	
+	public static OutputStream toOutputStream(EObject eObject) throws IOException {
+		XMLResource resource = new XMLResourceImpl();
+		eObject = EcoreUtil.copy(eObject);
+		resource.getContents().add(eObject);
+		OutputStream out = new ByteArrayOutputStream();
+		resource.save(out, null);
+		return out;
+	}
+	
+	public static InputStream toInputStream(EObject eObject) throws IOException {
+		String string = marshal(eObject);
+		ByteArrayInputStream in = new ByteArrayInputStream(string.getBytes());
+		return in;
+	}
+	
+	public static EObject fromInputStream(InputStream in) throws IOException {
+		XMLResource resource = new XMLResourceImpl();
+		resource.load(in, null);
+		return resource.getContents().get(0);
+	}
 
 	/**
 	 * Marshals the given {@link EObject} into a string.
@@ -1007,6 +1039,7 @@ public class RfcUtil {
 	 */
 	public static String marshal(EObject eObject) throws IOException {
 		XMLResource resource = new XMLResourceImpl();
+		eObject = EcoreUtil.copy(eObject);
 		resource.getContents().add(eObject);
 		StringWriter out = new StringWriter();
 		resource.save(out, null);
@@ -1041,9 +1074,9 @@ public class RfcUtil {
 	
 	public static JCoFunctionTemplate createJCoFunctionTemplate(String name, FunctionTemplate functionTemplate) {
 		JCoListMetaData importsMetaData= createJCoListMetaData("IMPORTS", functionTemplate.getImportParameterList());
-		JCoListMetaData exportsMetaData = createJCoListMetaData("EXPORTS", functionTemplate.getImportParameterList());
-		JCoListMetaData changingMetaData = createJCoListMetaData("CHANGING", functionTemplate.getImportParameterList());
-		JCoListMetaData tablesMetaData = createJCoListMetaData("TABLES", functionTemplate.getImportParameterList());
+		JCoListMetaData exportsMetaData = createJCoListMetaData("EXPORTS", functionTemplate.getExportParameterList());
+		JCoListMetaData changingMetaData = createJCoListMetaData("CHANGING", functionTemplate.getChangingParameterList());
+		JCoListMetaData tablesMetaData = createJCoListMetaData("TABLES", functionTemplate.getTables());
 		com.sap.conn.jco.AbapException[] jcoAbapExceptions = createAbapExceptions(functionTemplate.getExceptionList());
 		JCoFunctionTemplate jcoFunctionTemplate = JCo.createFunctionTemplate(name, importsMetaData, exportsMetaData, changingMetaData, tablesMetaData, jcoAbapExceptions);
 		

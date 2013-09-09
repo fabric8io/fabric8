@@ -1,5 +1,9 @@
 package org.fusesource.camel.component.sap.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
 import junit.framework.Assert;
 
 import org.eclipse.emf.common.util.EList;
@@ -99,12 +103,14 @@ public class RfcUtilTest {
 		for(EStructuralFeature f: list) {
 			System.out.println(f);
 		}
+		@SuppressWarnings("unused")
 		Structure newRow = (Structure) rowType.getEPackage().getEFactoryInstance().create(rowType);
 		
 		EClass tableClass = RfcPackage.eINSTANCE.getTable();
 		System.out.println("Table class: " + tableClass);
 		EList<ETypeParameter> tableClassTypeParameters = tableClass.getETypeParameters();
 		System.out.println("Table class type parameters " + tableClassTypeParameters);
+		@SuppressWarnings("unused")
 		ETypeParameter typeParameter = tableClassTypeParameters.get(0);
 	}
 	
@@ -158,6 +164,7 @@ public class RfcUtilTest {
 	}
 	
 	//@Test
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void testApplesAndOranges() throws Exception {
 		// Create and initialize package
 		EcoreFactory ecoreFactory = EcoreFactory.eINSTANCE;
@@ -257,7 +264,8 @@ public class RfcUtilTest {
         System.out.println("Apple instance: " + apple);
         EObject orange = ePackage.getEFactoryInstance().create(orangeClass);
         System.out.println("Orange instance: " + orange);
-        EList contents = (EList) appleBasket.eGet(feature);
+        @SuppressWarnings("unused")
+		EList contents = (EList) appleBasket.eGet(feature);
         System.out.println("Apple basket contents: " + appleBasket.eGet(feature));
         ((EList)appleBasket.eGet(feature)).add(apple);
         System.out.println("Apple basket contents: " + appleBasket.eGet(feature));
@@ -276,13 +284,53 @@ public class RfcUtilTest {
         
 	}
 	
-	@Test
+	//@Test
 	public void testPackage() throws Exception {
 		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination");
-		EPackage ePackage = RfcUtil.getEPackage(jcoDestination.getRepository(), "http://sap.fusesource.org/rfc/NPL/ZJBOSS_PARAM_TEST");
+		EPackage ePackage = RfcUtil.getEPackage(jcoDestination.getRepository(), "http://sap.fusesource.org/rfc/NPL/BAPI_FLCONN_GETDETAIL");
         Resource res = new XMLResourceImpl();
         res.getContents().add(ePackage);
         res.save(System.out, null);
+	}
+	
+	//@Test
+	public void testRequest() throws Exception {
+		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination");
+		Structure request = RfcUtil.getRequest(jcoDestination.getRepository(), "BAPI_FLCONN_GETDETAIL");
+		request.put("TRAVELAGENCYNUMBER", "00000110");
+		request.put("CONNECTIONNUMBER", "0002");
+		request.put("FLIGHTDATE", new GregorianCalendar(2012, 01, 01).getTime());
+		
+        Resource res = new XMLResourceImpl();
+        res.getContents().add(request);
+        res.save(System.out, null);
+	}
+	
+	@Test
+	public void testFlightConnectionGetListRequest() throws Exception {
+
+		JCoDestination jcoDestination = JCoDestinationManager.getDestination("TestDestination");
+		Structure request = RfcUtil.getRequest(jcoDestination.getRepository(), "BAPI_FLCONN_GETLIST");
+		request.put("TRAVELAGENCY", "00000110");
+
+		@SuppressWarnings("unchecked")
+		Table<Structure> table = (Table<Structure>) request.get("DATE_RANGE");
+		Structure date_range = table.add();
+		date_range.put("SIGN", "I");
+		date_range.put("OPTION", "EQ");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		Date flightDate = dateFormat.parse("2012-02-01T00:00:00.000-0500");
+		date_range.put("LOW", flightDate);
+		
+		Structure destination_from = (Structure) request.get("DESTINATION_FROM");
+		destination_from.put("AIRPORTID", "SFO");
+		
+		Structure destination_to = (Structure) request.get("DESTINATION_TO");
+		destination_to.put("AIRPORTID", "FRA");
+		
+		String requestString = RfcUtil.marshal(request);
+		
+		System.out.println(requestString);
 	}
 
 }

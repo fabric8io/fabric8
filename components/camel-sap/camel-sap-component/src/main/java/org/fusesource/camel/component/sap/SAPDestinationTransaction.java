@@ -58,14 +58,14 @@ public class SAPDestinationTransaction extends SynchronizationAdapter {
 	public void commit() throws Exception {
 		// Invoke BAPI_TRANSACTION_COMMIT
 		RfcUtil.commitTransaction(destination);
-		LOG.debug("Committed SAP Transaction for destination '{0}'",
+		LOG.debug("Committed SAP Transaction for destination '{}'",
 				destinationName);
 	}
 
 	public void rollback() throws Exception {
 		// Invoke BAPI_TRANSACTION_ROLLBACK
 		RfcUtil.rollbackTransaction(destination);
-		LOG.debug("Rolledback SAP Transaction for destination '{0}'",
+		LOG.debug("Rolledback SAP Transaction for destination '{}'",
 				destinationName);
 	}
 

@@ -17,10 +17,12 @@
 package org.fusesource.camel.component.sap.converter;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import org.apache.camel.Converter;
 import org.eclipse.emf.ecore.EObject;
-import org.fusesource.camel.component.sap.model.rfc.Structure;
+import org.fusesource.camel.component.sap.model.rfc.impl.StructureImpl;
 import org.fusesource.camel.component.sap.util.RfcUtil;
 
 @Converter
@@ -28,7 +30,7 @@ public enum StructureConverter {
 	INSTANCE;
 	
 	@Converter
-	public static String toString(Structure structure) {
+	public static String toString(StructureImpl structure) {
 		try {
 			return RfcUtil.marshal(structure);
 		} catch (IOException e) {
@@ -37,12 +39,12 @@ public enum StructureConverter {
 	}
 	
 	@Converter
-	public static Structure toStructure(String string) {
+	public static StructureImpl toStructure(String string) {
 		try {
 			EObject eObject = RfcUtil.unmarshal(string);
 			
-			if (Structure.class.isInstance(eObject)) {
-				return (Structure) eObject;
+			if (StructureImpl.class.isInstance(eObject)) {
+				return (StructureImpl) eObject;
 			}
 		} catch (IOException e) {
 			// Ignore
@@ -50,4 +52,30 @@ public enum StructureConverter {
 		return null; 
 	}
 
+	@Converter
+	public static OutputStream toOutputStream(StructureImpl structure) {
+		try {
+			return RfcUtil.toOutputStream(structure);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	@Converter
+	public static InputStream toInputStream(StructureImpl structure) {
+		try {
+			return RfcUtil.toInputStream(structure);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
+	@Converter
+	public static StructureImpl fromInputStream(InputStream in) {
+		try {
+			return (StructureImpl) RfcUtil.fromInputStream(in);
+		} catch (IOException e) {
+			return null;
+		}
+	}
 }

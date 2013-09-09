@@ -42,10 +42,18 @@ public class SAPProducer extends DefaultProducer {
 		checkIfTransacted(exchange);
 		Structure request = exchange.getIn().getBody(Structure.class);
 		if (LOG.isDebugEnabled()) {
-			LOG.debug("Calling '{}' RFC", getEndpoint().getRfcName());
+			try {
+				LOG.debug("Calling '{}' RFC", getEndpoint().getRfcName());
+				LOG.debug("Request: " + (request == null ? request : RfcUtil.marshal(request)));
+			} catch (Exception e) {
+				LOG.warn("Failed to log request", e);
+			}
 		}
 		Structure response = RfcUtil.executeFunction(getEndpoint()
 				.getDestination(), getEndpoint().getRfcName(), request);
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Response: " + (response == null ? response : RfcUtil.marshal(response)));
+		}
 		exchange.setOut(exchange.getIn().copy());
 		exchange.getOut().setBody(response);
 	}
@@ -72,4 +80,5 @@ public class SAPProducer extends DefaultProducer {
 			}
 		}
 	}
+	
 }

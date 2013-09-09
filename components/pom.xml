@@ -23,7 +23,7 @@
   </parent>
   <artifactId>components</artifactId>
   <packaging>pom</packaging>
-  <name>Camel Components Parent</name>
+  <name>components</name>
   <description>Builds Fuse Camel Components</description>
   <modules>
   	<!-- 

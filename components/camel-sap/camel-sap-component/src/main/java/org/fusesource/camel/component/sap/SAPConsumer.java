@@ -26,6 +26,8 @@ import org.apache.camel.Processor;
 import org.apache.camel.impl.DefaultConsumer;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.util.RfcUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sap.conn.jco.AbapClassException;
 import com.sap.conn.jco.AbapException;
@@ -37,13 +39,15 @@ import com.sap.conn.jco.server.JCoServerFunctionHandler;
  * The SAP consumer.
  */
 public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHandler {
-	
-	Map<String, Object> sessionData = new HashMap<String,Object>();
+
+	private static final Logger LOG = LoggerFactory.getLogger(SAPConsumer.class);
+
+	Map<String, Object> sessionData = new HashMap<String, Object>();
 
 	public SAPConsumer(SAPServerEndpoint endpoint, Processor processor) {
 		super(endpoint, processor);
 	}
-	
+
 	@Override
 	public SAPServerEndpoint getEndpoint() {
 		return (SAPServerEndpoint) super.getEndpoint();
@@ -54,26 +58,36 @@ public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHan
 	}
 
 	@Override
-	public void handleRequest(JCoServerContext serverContext, JCoFunction jcoFunction)
-			throws AbapException, AbapClassException {
-		
+	public void handleRequest(JCoServerContext serverContext, JCoFunction jcoFunction) throws AbapException, AbapClassException {
+
+		if (LOG.isDebugEnabled()) {
+			LOG.debug("Handling request for RFC '{}'", jcoFunction.getName());
+		}
+
 		SAPServerEndpoint sapEndpoint = (SAPServerEndpoint) getEndpoint();
 		Exchange exchange = getEndpoint().createExchange(sapEndpoint.getMep());
-		
+
 		// Create Request structure
 		Structure request = RfcUtil.getRequest(serverContext.getRepository(), jcoFunction.getName());
 		RfcUtil.extractJCoParameterListsIntoRequest(jcoFunction, request);
-		
-        try {
+		if (LOG.isDebugEnabled()) {
+			try {
+				LOG.debug("Request: " + (request == null ? request : RfcUtil.marshal(request)));
+			} catch (IOException e) {
+				LOG.warn("Failed to log request", e);
+			}
+		}
 
-        	// Populated request
-            Message message = exchange.getIn();
-            message.setHeader("sap.sessionData", sessionData);
-        	message.setBody(request);
-			
-        	// Process exchange
+		try {
+
+			// Populated request
+			Message message = exchange.getIn();
+			message.setHeader("sap.sessionData", sessionData);
+			message.setBody(request);
+
+			// Process exchange
 			getProcessor().process(exchange);
-			
+
 			// Return response if appropriate
 			if (exchange.getPattern().isOutCapable()) {
 
@@ -82,8 +96,15 @@ public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHan
 				} else {
 					message = exchange.getIn();
 				}
-				
+
 				Structure response = message.getBody(Structure.class);
+				if (LOG.isDebugEnabled()) {
+					try {
+						LOG.debug("Response: " + (response == null ? response : RfcUtil.marshal(response)));
+					} catch (Exception e) {
+						LOG.warn("Failed to log response", e);
+					}
+				}
 				RfcUtil.fillJCoParameterListsFromResponse(response, jcoFunction);
 			}
 		} catch (IOException e) {
@@ -91,7 +112,7 @@ public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHan
 		} catch (Exception e) {
 			getExceptionHandler().handleException("Failed to process request", e);
 		}
-		
+
 	}
 
 }

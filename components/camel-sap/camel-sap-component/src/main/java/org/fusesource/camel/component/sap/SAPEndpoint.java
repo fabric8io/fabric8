@@ -18,6 +18,7 @@ package org.fusesource.camel.component.sap;
 
 import org.apache.camel.ExchangePattern;
 import org.apache.camel.impl.DefaultEndpoint;
+import org.fusesource.camel.component.sap.model.rfc.Structure;
 
 /**
  * Represents an SAP endpoint.
@@ -55,5 +56,9 @@ public abstract class SAPEndpoint extends DefaultEndpoint {
 	public void setMep(ExchangePattern mep) {
 		this.mep = mep;
 	}
+	
+	public abstract Structure getRequest() throws Exception;
+	
+	public abstract Structure getResponse() throws Exception;
 	
 }
