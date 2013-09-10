@@ -118,24 +118,19 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
 
                 System.setProperty(SystemProperties.KARAF_NAME, containerName);
                 System.setProperty("zookeeper.url", zookeeperUrl);
+                System.setProperty("zookeeper.password", zookeeperPassword);
                 //Rename the container
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
                 props.put(SystemProperties.KARAF_NAME, containerName);
+                //Also pass zookeeper information so that the container can auto-join after the restart.
                 props.put("zookeeper.url", zookeeperUrl);
                 props.put("zookeeper.password", zookeeperPassword);
                 props.save();
-                //Install required bundles
+
                 if (!nonManaged) {
                     installBundles();
                 }
-                org.osgi.service.cm.Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
-                Hashtable<String, Object> properties = new Hashtable<String, Object>();
-                properties.put("zookeeper.url", zookeeperUrl);
-                properties.put("zookeeper.password", zookeeperPassword);
-                config.setBundleLocation(null);
-                config.update(properties);
-
                 //Restart the container
                 System.setProperty("karaf.restart", "true");
                 System.setProperty("karaf.restart.clean", "false");
@@ -156,9 +151,9 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
             properties.put("zookeeper.password", zookeeperPassword);
             config.setBundleLocation(null);
             config.update(properties);
-
-            installBundles();
-
+            if (!nonManaged) {
+                installBundles();
+            }
             return null;
         }
     }
