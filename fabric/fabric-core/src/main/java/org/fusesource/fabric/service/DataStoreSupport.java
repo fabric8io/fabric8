@@ -16,23 +16,6 @@
  */
 package org.fusesource.fabric.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.ObjectInputStream;
-import java.io.ObjectStreamClass;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
@@ -41,6 +24,7 @@ import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
@@ -56,7 +40,29 @@ import org.osgi.framework.FrameworkUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamClass;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
+import static org.fusesource.fabric.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
+import static org.fusesource.fabric.internal.PlaceholderResolverHelpers.waitForPlaceHolderResolvers;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
@@ -75,12 +81,13 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     public static final String JVM_OPTIONS_PATH
             = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
-    private Map<String, PlaceholderResolver> placeholderResolvers = new HashMap<String, PlaceholderResolver>();
 
+    private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
     private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
     //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
     private ExecutorService cacheExecutor;
+    private ExecutorService placeholderExecutor;
 
     protected TreeCache treeCache;
     private AtomicBoolean started = new AtomicBoolean(false);
@@ -97,6 +104,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
             LOG.info("Starting up DataStore " + this);
             Objects.notNull(getCurator(), "curator");
             createCache(getCurator());
+            placeholderExecutor = Executors.newCachedThreadPool();
         }
         }catch (Exception ex) {
             throw new FabricException("Failed to start data store.", ex);
@@ -106,6 +114,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     public synchronized void stop() {
         if (started.compareAndSet(true, false)) {
             destroyCache();
+            placeholderExecutor.shutdownNow();
         }
     }
 
@@ -128,14 +137,9 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
         this.dataStoreProperties = dataStoreProperties;
     }
 
-    public Map<String, PlaceholderResolver> getPlaceholderResolvers() {
+    public ConcurrentMap<String, DynamicReference<PlaceholderResolver>> getPlaceholderResolvers() {
         return placeholderResolvers;
     }
-
-    public void setPlaceholderResolvers(Map<String, PlaceholderResolver> placeholderResolvers) {
-        this.placeholderResolvers = placeholderResolvers;
-    }
-
 
     public void bindCurator(CuratorFramework curator) {
         this.curator = curator;
@@ -147,13 +151,14 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
 
     public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
         if (resolver != null) {
-            getPlaceholderResolvers().put(resolver.getScheme(), resolver);
+            placeholderResolvers.putIfAbsent(resolver.getScheme(), new DynamicReference<PlaceholderResolver>());
+            placeholderResolvers.get(resolver.getScheme()).bind(resolver);
         }
     }
 
     public synchronized void unbindPlaceholderResolver(PlaceholderResolver resolver) {
         if (resolver != null) {
-            getPlaceholderResolvers().remove(resolver.getScheme());
+            placeholderResolvers.get(resolver.getScheme()).unbind();
         }
     }
 
@@ -222,8 +227,10 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
      * @param configs
      */
     public synchronized void substituteConfigurations(final Map<String, Map<String, String>> configs) {
-        final Map<String, PlaceholderResolver> placeholderResolvers
-                = getPlaceholderResolvers();
+        //Check for all required resolver schemes.
+        Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
+        //Wait for resolvers before starting to resolve.
+        final Map<String, PlaceholderResolver> availablePlaceholderResolvers = waitForPlaceHolderResolvers(placeholderExecutor, requiredSchemes, placeholderResolvers);
 
         for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
             final String pid = entry.getKey();
@@ -237,8 +244,8 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
                             public String getValue(String toSubstitute) {
                                 if (toSubstitute != null && toSubstitute.contains(":")) {
                                     String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
-                                    if (placeholderResolvers.containsKey(scheme)) {
-                                        return placeholderResolvers.get(scheme)
+                                    if (availablePlaceholderResolvers.containsKey(scheme)) {
+                                        return availablePlaceholderResolvers.get(scheme)
                                                 .resolve(pid, key, toSubstitute);
                                     }
                                 }

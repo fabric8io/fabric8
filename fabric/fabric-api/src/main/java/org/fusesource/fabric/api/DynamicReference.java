@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.concurrent.Callable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -27,9 +28,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * a reference to a deactivated component with unbound references.
  * @param <T>
  */
-public class DynamicReference<T> {
+public class DynamicReference<T> implements Callable<T> {
 
-    private static final long DEFAULT_TIMEOUT = 3000;
+    private static final long DEFAULT_TIMEOUT = 5000;
     private static final TimeUnit DEFAULT_TIMEUNIT = TimeUnit.MILLISECONDS;
 
     private final AtomicReference<T> ref = new AtomicReference<T>();
@@ -100,5 +101,10 @@ public class DynamicReference<T> {
     public void unbind() {
         this.semaphore.drainPermits();
         this.ref.set(null);
+    }
+
+    @Override
+    public T call() throws Exception {
+        return get();
     }
 }
