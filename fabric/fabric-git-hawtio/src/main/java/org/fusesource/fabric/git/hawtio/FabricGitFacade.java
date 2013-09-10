@@ -226,10 +226,10 @@ public class FabricGitFacade extends GitFacadeSupport {
         });
     }
 
-    public List<CommitInfo> history(final String objectId, final String path, final int limit) {
+    public List<CommitInfo> history(final String branch, final String objectId, final String path, final int limit) {
         return gitReadOperation(new GitOperation<List<CommitInfo>>() {
             public List<CommitInfo> call(Git git, GitContext context) throws Exception {
-                return doHistory(git, objectId, path, limit);
+                return doHistory(git, branch, objectId, path, limit);
             }
         });
     }
