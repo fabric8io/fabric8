@@ -31,7 +31,7 @@
     <bean id="addressPolicy" class="org.apache.activemq.broker.PublishedAddressPolicy">
         <property name="portMapping">
           <map>
-            <entry key="61616" value="${bindPort}"/>
+            <entry key="${bindPort}" value="${connectionPort}"/>
           </map>
         </property>
     </bean>
@@ -79,7 +79,7 @@
         </systemUsage>
 
         <transportConnectors>
-            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${bindAddress}:61616"/>
+            <transportConnector name="openwire" publishedAddressPolicy="#addressPolicy" uri="tcp://${bindAddress}:${bindPort}"/>
         </transportConnectors>
     </broker>
 
