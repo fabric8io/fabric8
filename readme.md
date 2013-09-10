@@ -71,6 +71,10 @@ If you want to try out Fuse on OpenShift here's the current instructions:
 
 ### 1 Create a Fuse Registry (based on EA 6.1 build of Fuse).
 
+If you use the web UI to create an application then enter the cartridge URI of **https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml** in the entry field (at the bottom left of the form).
+
+Or if you want to use the [rhc command line](https://www.openshift.com/developers/rhc-client-tools-install) type:
+
     rhc create-app registry https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml
 
 This will output the generated password for fabric and also the http
