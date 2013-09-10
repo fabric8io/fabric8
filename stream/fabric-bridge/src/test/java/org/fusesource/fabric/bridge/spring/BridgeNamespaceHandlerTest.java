@@ -26,6 +26,7 @@ import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.DispatchPolicy;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class BridgeNamespaceHandlerTest extends Assert {
 	private AbstractApplicationContext applicationContext = new ClassPathXmlApplicationContext("test-spring-context.xml");
 
 	@Test
+	@Ignore("[FABRIC-555] Fix stream/fabric-bridge tests")
 	public void testDispatchPolicyParser() {
 		DispatchPolicy bean = applicationContext.getBean("mypolicy", DispatchPolicy.class);
 		LOG.info(bean.toString());
