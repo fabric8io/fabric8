@@ -45,7 +45,6 @@ public class GroupTest {
             System.err.println("GroupEvent: " + event + " (connected=" + connected + ", master=" + master + ", members=" + members + ")");
         }
     };
-    ;
 
     private int findFreePort() throws Exception {
         ServerSocket ss = new ServerSocket(0);
@@ -139,7 +138,6 @@ public class GroupTest {
     }
 
     @Test
-    @Ignore("[FABRIC-509] Fix fabric-groups tests")
     public void testRejoinAfterDisconnect() throws Exception {
         int port = findFreePort();
 

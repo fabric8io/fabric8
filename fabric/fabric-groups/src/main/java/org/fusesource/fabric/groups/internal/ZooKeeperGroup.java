@@ -425,7 +425,6 @@ public class ZooKeeperGroup<T> implements Group<T> {
         switch (newState) {
             case SUSPENDED:
             case LOST: {
-                this.state = null;
                 clear();
                 offerOperation(new EventOperation(this, GroupListener.GroupEvent.DISCONNECTED));
                 break;
