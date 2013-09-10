@@ -29,7 +29,6 @@ import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
@@ -85,15 +84,15 @@ public class FabricServiceImpl implements FabricService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
     @Reference(cardinality = MANDATORY_UNARY, referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
-    private final DynamicReference<CuratorFramework> curator = new DynamicReference<CuratorFramework>();
+    private CuratorFramework curator;
     @Reference(cardinality = MANDATORY_UNARY, referenceInterface = DataStore.class, bind = "bindDataStore", unbind = "unbindDataStore")
-    private final DynamicReference<DataStore> dataStore = new DynamicReference<DataStore>();
+    private DataStore dataStore;
     @Reference(cardinality = MANDATORY_UNARY, referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
-    private final DynamicReference<PortService> portService = new DynamicReference<PortService>();
+    private PortService portService;
     @Reference(cardinality = MANDATORY_UNARY, referenceInterface = ConfigurationAdmin.class, bind = "bindConfigurationAdmin", unbind = "unbindConfigurationAdmin")
-    private final DynamicReference<ConfigurationAdmin> configurationAdmin = new DynamicReference<ConfigurationAdmin>();
+    private ConfigurationAdmin configurationAdmin;
     @Reference(cardinality = MANDATORY_UNARY, referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
-    private final DynamicReference<MBeanServer> mbeanServer = new DynamicReference<MBeanServer>();
+    private MBeanServer mbeanServer;
     @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "registerProvider", unbind = "unregisterProvider", referenceInterface = ContainerProvider.class, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
@@ -105,7 +104,7 @@ public class FabricServiceImpl implements FabricService {
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
 
     public void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.bind(mbeanServer);
+        this.mbeanServer = mbeanServer;
         if (mbeanServer != null) {
             healthCheck.registerMBeanServer(mbeanServer);
             managerMBean.registerMBeanServer(mbeanServer);
@@ -120,16 +119,16 @@ public class FabricServiceImpl implements FabricService {
             fileSystemMBean.unregisterMBeanServer(mbeanServer);
             managerMBean.unregisterMBeanServer(mbeanServer);
             healthCheck.unregisterMBeanServer(mbeanServer);
-            this.mbeanServer.unbind();
+            this.mbeanServer = null;
         }
     }
 
     public CuratorFramework getCurator() {
-        return curator.get();
+        return curator;
     }
 
     public void setCurator(CuratorFramework curator) {
-        this.curator.bind(curator);
+        this.curator = curator;
     }
 
     public void bindCurator(CuratorFramework curator) {
@@ -137,15 +136,15 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void unbindCurator(CuratorFramework curator) {
-        this.curator.unbind();
+        this.curator = null;
     }
 
     public void setDataStore(DataStore dataStore) {
-        this.dataStore.bind(dataStore);
+        this.dataStore = dataStore;
     }
 
     public DataStore getDataStore() {
-        return dataStore.get();
+        return dataStore;
     }
 
     public void bindDataStore(DataStore dataStore) {
@@ -153,42 +152,42 @@ public class FabricServiceImpl implements FabricService {
     }
 
     public void unbindDataStore(DataStore dataStore) {
-        this.dataStore.unbind();
+        this.dataStore = null;
     }
 
 
     public PortService getPortService() {
-        return portService.get();
+        return portService;
     }
 
     public void setPortService(PortService portService) {
-        this.portService.bind(portService);
+        this.portService = portService;
     }
 
 
     public void bindPortService(PortService portService) {
-        this.portService.bind(portService);
+        this.portService = portService;
     }
 
     public void unbindPortService(PortService portService) {
-        this.portService.unbind();
+        this.portService = null;
     }
 
 
     public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin.get();
+        return configurationAdmin;
     }
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin.bind(configurationAdmin);
+        this.configurationAdmin = configurationAdmin;
     }
 
     public void bindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin.bind(configurationAdmin);
+        this.configurationAdmin = configurationAdmin;
     }
 
     public void unbindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin.unbind();
+        this.configurationAdmin = null;
     }
 
     public HealthCheck getHealthCheck() {
@@ -312,7 +311,7 @@ public class FabricServiceImpl implements FabricService {
         ContainerProvider provider = getProvider(container);
         provider.destroy(container);
         try {
-            portService.get().unRegisterPort(container);
+            portService.unRegisterPort(container);
             getDataStore().deleteContainer(container.getId());
         } catch (Exception e) {
            LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
@@ -397,13 +396,13 @@ public class FabricServiceImpl implements FabricService {
     public URI getMavenRepoURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
-                List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
+            if (curator != null && exists(curator, ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
+                String mavenRepo = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
                 if (mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo += "/";
                 }
@@ -419,14 +418,14 @@ public class FabricServiceImpl implements FabricService {
     public List<URI> getMavenRepoURIs() {
         try {
             List<URI> uris = new ArrayList<URI>();
-            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
-                List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
+            if (curator != null && exists(curator, ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
                 if (children != null) {
                     for (String child : children) {
-                        String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
+                        String mavenRepo = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
                         if (mavenRepo != null && !mavenRepo.endsWith("/")) {
                             mavenRepo += "/";
                         }
@@ -444,13 +443,13 @@ public class FabricServiceImpl implements FabricService {
     public URI getMavenRepoUploadURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
-                List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload"));
+            if (curator != null && exists(curator, ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+                List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("upload"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
+                String mavenRepo = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
                 if (mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo += "/";
                 }
@@ -466,14 +465,14 @@ public class FabricServiceImpl implements FabricService {
         String answer = null;
         try {
             String versionsPath = ZkPath.WEBAPPS_CLUSTER.getPath(webAppId);
-            if (curator != null && exists(curator.get(), versionsPath) != null) {
-                List<String> children = getChildren(curator.get(), versionsPath);
+            if (curator != null && exists(curator, versionsPath) != null) {
+                List<String> children = getChildren(curator, versionsPath);
                 if (children != null && !children.isEmpty()) {
                     for (String child : children) {
                         if (Strings.isNullOrEmpty(name)) {
                             // lets just use the first container we find
                             String parentPath = versionsPath + "/" + child;
-                            List<String> grandChildren = getChildren(curator.get(), parentPath);
+                            List<String> grandChildren = getChildren(curator, parentPath);
                             if (!grandChildren.isEmpty()) {
                                 String containerPath = parentPath + "/" + grandChildren.get(0);
                                 answer = getWebUrl(containerPath);
@@ -500,8 +499,8 @@ public class FabricServiceImpl implements FabricService {
     }
 
     protected String getWebUrl(String containerPath) throws Exception {
-        if (curator.get().checkExists().forPath(containerPath) != null) {
-            byte[] bytes = ZkPath.loadURL(curator.get(), containerPath);
+        if (curator.checkExists().forPath(containerPath) != null) {
+            byte[] bytes = ZkPath.loadURL(curator, containerPath);
             String text = new String(bytes);
             // NOTE this is a bit naughty, we should probably be doing
             // Jackson parsing here; but we only need 1 String and
@@ -563,7 +562,7 @@ public class FabricServiceImpl implements FabricService {
         //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
         //Also this is required for the integration with the IDE.
         try {
-            if (curator != null && curator.get().getZookeeperClient().isConnected()) {
+            if (curator != null && curator.getZookeeperClient().isConnected()) {
                 Version defaultVersion = getDefaultVersion();
                 if (defaultVersion != null) {
                     Profile profile = defaultVersion.getProfile("default");
@@ -572,7 +571,7 @@ public class FabricServiceImpl implements FabricService {
                         if (configurations != null) {
                             Map<String, String> zookeeperConfig = configurations.get("org.fusesource.fabric.zookeeper");
                             if (zookeeperConfig != null) {
-                                zooKeeperUrl = getSubstitutedData(curator.get(), zookeeperConfig.get(name));
+                                zooKeeperUrl = getSubstitutedData(curator, zookeeperConfig.get(name));
                             }
                         }
                     }
@@ -584,7 +583,7 @@ public class FabricServiceImpl implements FabricService {
 
         if (zooKeeperUrl == null) {
             try {
-                Configuration config = configurationAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper", null);
+                Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
                 zooKeeperUrl = (String) config.getProperties().get(name);
             } catch (Exception e) {
                 //Ignore it.
@@ -691,7 +690,7 @@ public class FabricServiceImpl implements FabricService {
 
     @Override
     public PatchService getPatchService() {
-        return new PatchServiceImpl(this, configurationAdmin.get());
+        return new PatchServiceImpl(this, configurationAdmin);
     }
 
     @Override
