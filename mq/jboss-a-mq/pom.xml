@@ -327,7 +327,6 @@
                                    <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties" append="true" eol="unix">
                                        <fileset file="src/main/resources/etc/system-mq.properties" />
                                    </concat>
-                                   <echo file="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/system.properties" append="true">profile=mq</echo>
                                    <echo message="Updating etc/system.properties in windows assembly" />
                                    <echo message="Updating etc/config.properties in unix assembly" />
                                    <concat destfile="target/dependencies/unix/fuse-fabric-${fabric.version}/etc/config.properties" append="true" eol="unix">
