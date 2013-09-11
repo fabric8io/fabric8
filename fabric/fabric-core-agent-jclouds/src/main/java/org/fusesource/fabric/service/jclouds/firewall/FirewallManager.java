@@ -28,7 +28,7 @@ public class FirewallManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(FirewallManager.class);
 
     private final ComputeService computeService;
-    private final ProviderFirewallSupport firewallSupport;
+    private final ApiFirewallSupport firewallSupport;
 
     /**
      * Constructor
@@ -36,7 +36,7 @@ public class FirewallManager {
      * @param computeService
      * @param firewallSupport
      */
-    public FirewallManager(ComputeService computeService, ProviderFirewallSupport firewallSupport) {
+    public FirewallManager(ComputeService computeService, ApiFirewallSupport firewallSupport) {
         this.computeService = computeService;
         this.firewallSupport = firewallSupport;
     }

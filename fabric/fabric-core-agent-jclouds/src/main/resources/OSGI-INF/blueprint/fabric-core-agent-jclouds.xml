@@ -45,7 +45,7 @@
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
 
-    <!--reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport" availability="optional">
+    <!--reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupportilability="optional">
         <reference-listener ref="firewallManagerFactory" bind-method="bind" unbind-method="unbind"/>
     </reference-list-->
 
@@ -162,7 +162,7 @@
 
     <service ref="cloudProviderBridge" interface="org.apache.curator.framework.state.ConnectionStateListener"/>
 
-    <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport"/>
+    <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport"/>
 
     <service ref="zookeeperCredentialStore">
         <interfaces>

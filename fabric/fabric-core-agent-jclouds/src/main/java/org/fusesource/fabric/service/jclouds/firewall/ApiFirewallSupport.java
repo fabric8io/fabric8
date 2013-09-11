@@ -17,10 +17,11 @@
 
 package org.fusesource.fabric.service.jclouds.firewall;
 
+import com.google.common.reflect.TypeToken;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 
-public interface ProviderFirewallSupport {
+public interface ApiFirewallSupport {
 
     /**
      * Authorizes access to the specified ports of the node, from the specified source.
@@ -45,5 +46,5 @@ public interface ProviderFirewallSupport {
      */
     void flush(ComputeService service, NodeMetadata node);
 
-    String[] getProviders();
+    boolean supports(ComputeService computeService);
 }

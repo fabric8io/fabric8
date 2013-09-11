@@ -17,20 +17,21 @@
 
 package org.fusesource.fabric.service.jclouds.firewall.internal;
 
-import java.util.Map;
-import java.util.Set;
-import org.fusesource.fabric.service.jclouds.firewall.ProviderFirewallSupport;
+import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.ec2.EC2ApiMetadata;
 import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.domain.IpPermission;
 import org.jclouds.ec2.domain.IpProtocol;
 import org.jclouds.ec2.domain.SecurityGroup;
 
-public class Ec2FirewallSupport implements ProviderFirewallSupport {
+import java.util.Set;
 
-    ProviderFirewallSupport delegate;
+public class Ec2FirewallSupport implements ApiFirewallSupport {
+
+    ApiFirewallSupport delegate;
 
     /**
      * Authorizes access to the specified ports of the node, from the specified source.
@@ -45,7 +46,6 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         try {
             getDelegate().authorize(service, node, source, ports);
         } catch (NoClassDefFoundError ex) {
-            ex.printStackTrace(System.out);
             //ignore
         }
     }
@@ -63,7 +63,6 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         try {
             getDelegate().revoke(service, node, source, ports);
         } catch (NoClassDefFoundError ex) {
-            ex.printStackTrace(System.out);
             //ignore
         }
     }
@@ -80,11 +79,15 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
     }
 
     @Override
-    public String[] getProviders() {
-        return new String[]{"aws-ec2"};
+    public boolean supports(ComputeService computeService) {
+        try {
+            return getDelegate().supports(computeService);
+        } catch (NoClassDefFoundError ex) {
+            return false;
+        }
     }
 
-    private synchronized ProviderFirewallSupport getDelegate() {
+    private synchronized ApiFirewallSupport getDelegate() {
         if (this.delegate == null) {
             this.delegate = new Ec2SupportDelegate();
         }
@@ -92,7 +95,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
     }
 
 
-    private static final class Ec2SupportDelegate implements ProviderFirewallSupport {
+    private static final class Ec2SupportDelegate implements ApiFirewallSupport {
 
         /**
          * Authorizes access to the specified ports of the node, from the specified source.
@@ -105,7 +108,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         @Override
         public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = EC2Client.class.cast(service.getContext().unwrap().getProviderMetadata().getApiMetadata());
+            EC2Client ec2Client = service.getContext().unwrap(EC2ApiMetadata.CONTEXT_TOKEN).getApi();
             String groupName = "jclouds#" + node.getGroup();
             for (int port : ports) {
                 try {
@@ -129,7 +132,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         @Override
         public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = EC2Client.class.cast(service.getContext().unwrap().getProviderMetadata().getApiMetadata());
+            EC2Client ec2Client = service.getContext().unwrap(EC2ApiMetadata.CONTEXT_TOKEN).getApi();
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
             for (int port : ports) {
                 try {
@@ -148,7 +151,7 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         @Override
         public void flush(ComputeService service, NodeMetadata node) {
             String region = AWSUtils.parseHandle(node.getId())[0];
-            EC2Client ec2Client = EC2Client.class.cast(service.getContext().unwrap().getProviderMetadata().getApiMetadata());
+            EC2Client ec2Client = service.getContext().unwrap(EC2ApiMetadata.CONTEXT_TOKEN).getApi();
             String groupName = "jclouds#" + node.getGroup() + "#" + region;
             Set<SecurityGroup> matchedSecurityGroups = ec2Client.getSecurityGroupServices().describeSecurityGroupsInRegion(region, groupName);
             for (SecurityGroup securityGroup : matchedSecurityGroups) {
@@ -166,8 +169,8 @@ public class Ec2FirewallSupport implements ProviderFirewallSupport {
         }
 
         @Override
-        public String[] getProviders() {
-            return new String[]{"aws-ec2"};
+        public boolean supports(ComputeService computeService) {
+            return EC2ApiMetadata.CONTEXT_TOKEN.isAssignableFrom(computeService.getContext().getBackendType());
         }
     }
 }
