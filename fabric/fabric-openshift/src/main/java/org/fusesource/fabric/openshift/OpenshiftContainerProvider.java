@@ -78,9 +78,12 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         for (int i = 1; i <= number; i++) {
             IApplication application = domain.createApplication(options.getName(),cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
             String containerName = application.getName() + "-" + application.getUUID();
+/*
+            // now we pass in the environemnt variables we don't need to restart
             if (!options.isEnsembleServer()) {
                 application.restart();
             }
+*/
             CreateOpenshiftContainerMetadata meta = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog());
             meta.setContainerName(containerName);
             meta.setCreateOptions(options);
