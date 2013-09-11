@@ -1,11 +1,11 @@
 function install_openjdk_deb() {
   sudo -n apt-get update
-  sudo -n apt-get -y install openjdk-6-jdk
+  sudo -n apt-get -y install openjdk-7-jdk
   
   # Try to set JAVA_HOME in a number of commonly used locations
   # Lifting JAVA_HOME detection from jclouds
   if [ -z "$JAVA_HOME" ]; then
-      for CANDIDATE in `ls -d /usr/lib/jvm/java-1.6.0-openjdk-* /usr/lib/jvm/java-6-openjdk-* /usr/lib/jvm/java-6-openjdk 2>&-`; do
+      for CANDIDATE in `ls -d /usr/lib/jvm/java-1.7.0-openjdk-* /usr/lib/jvm/java-7-openjdk-* /usr/lib/jvm/java-7-openjdk 2>&-`; do
           if [ -n "$CANDIDATE" -a -x "$CANDIDATE/bin/java" ]; then
               export JAVA_HOME=$CANDIDATE
               break
@@ -35,12 +35,12 @@ function install_openjdk_deb() {
 }
 
 function install_openjdk_rpm() {
-  sudo -n  yum install -y java-1.6.0-openjdk java-1.6.0-openjdk-devel
+  sudo -n  yum install -y java-1.7.0-openjdk java-1.7.0-openjdk-devel
   
   # Try to set JAVA_HOME in a number of commonly used locations
   # Lifting JAVA_HOME detection from jclouds
   if [ -z "$JAVA_HOME" ]; then
-      for CANDIDATE in `ls -d /usr/lib/jvm/java-1.6.0-openjdk-* /usr/lib/jvm/java-6-openjdk-* /usr/lib/jvm/java-6-openjdk 2>&-`; do
+      for CANDIDATE in `ls -d /usr/lib/jvm/java-1.7.0-openjdk-* /usr/lib/jvm/java-7-openjdk-* /usr/lib/jvm/java-7-openjdk 2>&-`; do
           if [ -n "$CANDIDATE" -a -x "$CANDIDATE/bin/java" ]; then
               export JAVA_HOME=$CANDIDATE
               break
