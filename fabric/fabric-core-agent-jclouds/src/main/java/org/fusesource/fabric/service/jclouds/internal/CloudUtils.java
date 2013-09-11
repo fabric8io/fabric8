@@ -44,6 +44,7 @@ public class CloudUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudUtils.class);
 
     private static final String FACTORY_FILTER = "(service.factoryPid=%s)";
+    private static final String AMI_QUERY_FORMAT = "owner-id=%s;state=available;image-type=machine;root-device-type=ebs";
 
 
     private CloudUtils() {
@@ -91,8 +92,8 @@ public class CloudUtils {
                         //Required workaround for some images (e.g. Red Hat) on Amazon EC2.
                         dictionary.put("jclouds.ssh.max-retries", "40");
                         if (provider != null && provider.equals("aws-ec2") && props != null && props.containsKey("owner") && props.get("owner") != null) {
-                            dictionary.put("jclouds.ec2.ami-owners", props.get("owner"));
-
+                            dictionary.put("jclouds.ec2.ami-query", String.format(AMI_QUERY_FORMAT,props.get("owner")));
+                            dictionary.put("jclouds.ec2.cc-ami-query", String.format(AMI_QUERY_FORMAT,props.get("owner")));
                         }
                         for (Map.Entry<String, String> entry : props.entrySet()) {
                             String key = entry.getKey();
