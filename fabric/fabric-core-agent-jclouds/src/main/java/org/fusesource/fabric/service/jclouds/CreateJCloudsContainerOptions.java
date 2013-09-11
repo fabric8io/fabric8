@@ -21,6 +21,7 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
+import org.fusesource.fabric.api.CreationStateListener;
 import org.fusesource.fabric.api.JCloudsInstanceType;
 
 import java.net.URI;
@@ -344,7 +345,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
             return new CreateJCloudsContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "jclouds", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), osFamily, osVersion, imageId, hardwareId, locationId,
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getCreationStateListener(),
+                    osFamily, osVersion, imageId, hardwareId, locationId,
                     group, user, password, contextName, providerName, apiName, endpoint, instanceType, identity, credential,
                     owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);
         }
@@ -404,7 +406,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                                          String importPath, Map<String, String> users, String name, String parent,
                                          String providerType, boolean ensembleServer, String preferredAddress,
                                          Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl,
-                                         String jvmOpts, boolean adminAccess, String osFamily, String osVersion, String imageId,
+                                         String jvmOpts, boolean adminAccess, CreationStateListener creationStateListener,
+                                         String osFamily, String osVersion, String imageId,
                                          String hardwareId, String locationId, String group, String user, String password,
                                          String contextName, String providerName, String apiName, String endpoint,
                                          JCloudsInstanceType instanceType, String identity, String credential, String owner, Map<String, String> serviceOptions, Map<String, String> nodeOptions, int servicePort, String publicKeyFile,
@@ -412,7 +415,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort,
                 zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType,
-                ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
+                ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, creationStateListener);
 
         this.osFamily = osFamily;
         this.osVersion = osVersion;
@@ -444,7 +447,8 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
         return new CreateJCloudsContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "jclouds", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), osFamily, osVersion, imageId, hardwareId, locationId,
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getCreationStateListener(),
+                osFamily, osVersion, imageId, hardwareId, locationId,
                 group, newUser != null ? newUser : user, newPassword != null ? newPassword : password,
                 contextName, providerName, apiName, endpoint, instanceType, identity, credential,
                 owner, serviceOptions, nodeOptions, servicePort, publicKeyFile, computeService, path, environmentalVariables);

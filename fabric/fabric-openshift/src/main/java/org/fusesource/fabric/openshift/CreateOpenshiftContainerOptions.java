@@ -19,6 +19,7 @@ package org.fusesource.fabric.openshift;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
+import org.fusesource.fabric.api.CreationStateListener;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -123,7 +124,8 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
             return new CreateOpenshiftContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                     getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
                     getImportPath(), getUsers(), getName(), getParent(), "openshift", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), serverUrl, login, password, domain, gearProfile, environmentalVariables);
+                    getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getCreationStateListener(),
+                    serverUrl, login, password, domain, gearProfile, environmentalVariables);
         }
     }
 
@@ -145,8 +147,8 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
     private final Map<String, String> environmentalVariables;
 
 
-    public CreateOpenshiftContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String serverUrl, String login, String password, String domain, String gearProfile, Map<String, String> environmentalVariables) {
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
+    public CreateOpenshiftContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, CreationStateListener creationStateListener, String serverUrl, String login, String password, String domain, String gearProfile, Map<String, String> environmentalVariables) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, creationStateListener);
         this.serverUrl = serverUrl;
         this.login = login;
         this.password = password;
@@ -160,7 +162,8 @@ public class CreateOpenshiftContainerOptions extends CreateContainerBasicOptions
         return new CreateOpenshiftContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
                 getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(),  getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isAgentEnabled(), isAutoImportEnabled(),
                 getImportPath(), getUsers(), getName(), getParent(), "openshift", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), serverUrl, user, password, domain, gearProfile, environmentalVariables);
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), getCreationStateListener(),
+                serverUrl, user, password, domain, gearProfile, environmentalVariables);
     }
 
     public String getServerUrl() {
