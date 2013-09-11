@@ -16,9 +16,6 @@
  */
 package org.fusesource.fabric.bridge.internal;
 
-import javax.jms.ConnectionFactory;
-
-import junit.framework.Assert;
 import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.junit.After;
@@ -27,9 +24,12 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
+import javax.jms.ConnectionFactory;
 
-public class ConnectionFactoryAdapterTest extends Assert {
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
+public class ConnectionFactoryAdapterTest  {
 	
 	private AmqJNDIPooledConnectionFactory connectionFactory;
 	private ConnectionFactoryAdapter adapter;

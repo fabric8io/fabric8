@@ -160,7 +160,6 @@ public class BridgeConnectorTest extends AbstractConnectorTestSupport {
 
 	}
 
-        @Ignore // JIRA ESB-1687
 	@Test
 	public void testDispatch() throws Exception {
 		connector.afterPropertiesSet();

@@ -16,9 +16,7 @@
  */
 package org.fusesource.fabric.bridge.model;
 
-import junit.framework.Assert;
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +29,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import static org.junit.Assert.assertEquals;
 
-public class BrokerConfigJaxbTest extends Assert {
+public class BrokerConfigJaxbTest {
 
 	private static final String TEST_CLIENT_ID = "testClient";
 	private static final String TEST_USER_NAME = "testUser";

@@ -16,8 +16,7 @@
  */
 package org.fusesource.fabric.bridge.model;
 
-import junit.framework.Assert;
-import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
+
 import org.fusesource.fabric.bridge.spring.TestMessageConverter;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -31,8 +30,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 
+import static org.junit.Assert.assertEquals;
 
-public class DispatchPolicyJaxbTest extends Assert {
+public class DispatchPolicyJaxbTest {
 
     private static final String TEST_MESSAGE_SELECTOR = "test1 = test2";
     private static final Logger LOG = LoggerFactory.getLogger(DispatchPolicyJaxbTest.class);

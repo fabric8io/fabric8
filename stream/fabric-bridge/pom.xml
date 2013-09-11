@@ -33,7 +33,6 @@
 
   <properties>
     <commons-pool-version>1.5.4</commons-pool-version>
-    <!--fon.osgi.activator>org.fusesource.fabric.bridge.Activator</fon.osgi.activator-->
     <fuse.osgi.import>
       *
     </fuse.osgi.import>
@@ -67,16 +66,6 @@
       <artifactId>xbean-spring</artifactId>
       <version>3.14</version>
     </dependency>
-    <!--
-        <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
-          <groupId>org.osgi</groupId>
-          <artifactId>org.osgi.compendium</artifactId>
-        </dependency>
-    -->
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-pool</artifactId>
