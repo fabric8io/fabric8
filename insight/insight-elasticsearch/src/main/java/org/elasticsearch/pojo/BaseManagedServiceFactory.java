@@ -74,7 +74,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
                 try {
                     internalUpdate(pid, properties);
                 } catch (Throwable t) {
-                    LOGGER.warn("Error destroying service for ManagedServiceFactory " + getName(), t);
+                    LOGGER.warn("Error destroying service for ManagedServiceFactory " + getName() + ". " + t, t);
                 }
             }
         });
@@ -91,7 +91,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
                 try {
                     internalDelete(pid);
                 } catch (Throwable throwable) {
-                    LOGGER.warn("Error destroying service for ManagedServiceFactory " + getName(), throwable);
+                    LOGGER.warn("Error destroying service for ManagedServiceFactory " + getName() + ". " + throwable, throwable);
                 }
             }
         });
@@ -131,7 +131,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
                 pair.getSecond().setProperties(properties);
             } catch (Throwable throwable) {
                 internalDelete(pid);
-                LOGGER.warn("Error updating service for ManagedServiceFactory " + getName(), throwable);
+                LOGGER.warn("Error updating service for ManagedServiceFactory " + getName() + ". " + throwable, throwable);
             }
         } else {
             if (destroyed.get()) {
@@ -155,7 +155,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
                 }
             } catch (Throwable throwable) {
                 if (!destroyed.get()) {
-                    LOGGER.warn("Error creating service for ManagedServiceFactory " + getName(), throwable);
+                    LOGGER.warn("Error creating service for ManagedServiceFactory " + getName() + " " + throwable, throwable);
                 }
             }
         }
