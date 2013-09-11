@@ -228,6 +228,16 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     @Override
+    public <T> T gitOperation(GitOperation<T> operation) {
+        // lets make sure that any non-readonly git operations
+        // forces the cache to be cleared
+        T answer = super.gitOperation(operation);
+        clearCaches();
+        return answer;
+
+    }
+
+    @Override
     public String getType() {
         return TYPE;
     }
