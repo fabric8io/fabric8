@@ -30,6 +30,7 @@ public class BeanUtils {
             answer.add("versionId");
             answer.add("profileIds");
             answer.add("childrenIds");
+            answer.remove("fabricService");
         } else if (clazz.getSimpleName().equals("Profile")) {
             answer.add("id");
             answer.add("parentIds");
