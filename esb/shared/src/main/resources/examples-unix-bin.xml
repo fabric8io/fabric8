@@ -17,38 +17,19 @@
 -->
 <component>
     <fileSets>
-        <!-- Copy over the examples' files (except POM files and READMEs) -->
+        <!-- Copy over the examples with filtering -->
         <fileSet>
             <directory>../../examples</directory>
             <outputDirectory>/examples</outputDirectory>
             <excludes>
                 <exclude>pom.xml</exclude>
-                <exclude>**/pom.xml</exclude>
-                <exclude>**/README.md</exclude>
                 <exclude>**/target/</exclude>
                 <exclude>**/target/*</exclude>
             </excludes>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0644</fileMode>
-            <directoryMode>0644</directoryMode>
-        </fileSet>
-
-        <!-- Copy over the examples' pom.xml and README files (with filtering) -->
-        <fileSet>
-            <directory>../../examples</directory>
-            <outputDirectory>/examples</outputDirectory>
-            <excludes>
-                <exclude>pom.xml</exclude>
-            </excludes>
-            <includes>
-                <include>README.md</include>
-                <include>**/pom.xml</include>
-                <include>**/README.md</include>
-            </includes>
             <filtered>true</filtered>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
-            <directoryMode>0644</directoryMode>
+            <directoryMode>0775</directoryMode>
         </fileSet>
     </fileSets>
 
