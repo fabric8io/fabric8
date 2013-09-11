@@ -148,7 +148,7 @@ public final class ContainerProviderUtils {
         replaceLineInFile(sb, "etc/system.properties", "karaf.name=root", "karaf.name=" + name);
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
-            String value = entry.getKey();
+            String value = entry.getValue();
             replacePropertyValue(sb, "etc/" + DATASTORE_TYPE_PID + ".cfg", key, value);
         }
         //Apply port range
