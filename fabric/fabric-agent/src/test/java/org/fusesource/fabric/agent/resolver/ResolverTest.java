@@ -54,13 +54,13 @@ public class ResolverTest {
     public void testResolve() throws Exception {
         System.setProperty("karaf.data", new File("target/karaf/data").getAbsolutePath());
         System.setProperty("karaf.home", new File("target/karaf").getAbsolutePath());
-
+        String home = System.getProperty("user.home");
         Properties properties = new Properties();
-        properties.setProperty("mvn.localRepository", "/Users/gnodet/.m2/repository/@snapshots");
-        properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repo.fusesource.com/nexus/content/repositories/ea");
+        properties.setProperty("mvn.localRepository", home+"/.m2/repository/@snapshots");
+        properties.setProperty("mvn.repositories", "http://repo1.maven.org/maven2/,http://repo.fusesource.com/nexus/content/repositories/ea,http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x");
         PropertiesPropertyResolver propertyResolver = new PropertiesPropertyResolver(properties);
         MavenConfigurationImpl mavenConfiguration = new MavenConfigurationImpl(propertyResolver, "mvn");
-        mavenConfiguration.setSettings(new MavenSettingsImpl(new URL("file:/Users/gnodet/.m2/settings.xml")));
+        mavenConfiguration.setSettings(new MavenSettingsImpl(new URL("file:"+home+"/.m2/settings.xml")));
 
         DownloadManager manager = new DownloadManager(mavenConfiguration, Executors.newFixedThreadPool(2));
 
