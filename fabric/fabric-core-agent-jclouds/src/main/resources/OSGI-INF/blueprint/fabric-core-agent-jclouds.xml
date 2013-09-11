@@ -43,15 +43,10 @@
     <reference id="activeNodeCompleter" interface="org.apache.karaf.shell.console.Completer"
                filter="(completer-type=active-node)" availability="optional"/>
 
+    <reference id="firewallManagerFactory" availability="optional" interface="org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory"/>
+
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
-
-    <!--reference-list interface="org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupportilability="optional">
-        <reference-listener ref="firewallManagerFactory" bind-method="bind" unbind-method="unbind"/>
-    </reference-list-->
-
-    <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService">
-        <reference-listener ref="jcloudsContainerProvider" bind-method="bind" unbind-method="unbind"/>
-    </reference-list>
+    <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService"/>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command name="fabric/container-create-cloud">
@@ -135,52 +130,5 @@
     <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">
         <property name="fabricService" ref="fabricService"/>
     </bean>
-
-    <bean id="zookeeperCredentialStore" class="org.fusesource.fabric.service.jclouds.modules.ZookeeperCredentialStore" init-method="init">
-        <property name="curator" ref="curator"/>
-    </bean>
-
-
-    <bean id="firewallManagerFactory" class="org.fusesource.fabric.service.jclouds.firewall.internal.FirewallManagerFactoryImpl" init-method="init" destroy-method="destroy">
-        <property name="bundleContext" ref="blueprintBundleContext"/>
-    </bean>
-
-    <bean id="ec2FirewallSupport" class="org.fusesource.fabric.service.jclouds.firewall.internal.Ec2FirewallSupport"/>
-
-    <bean id="jcloudsContainerProvider" class="org.fusesource.fabric.service.jclouds.JcloudsContainerProvider" destroy-method="destroy">
-        <property name="firewallManagerFactory" ref="firewallManagerFactory"/>
-        <property name="credentialStore" ref="zookeeperCredentialStore"/>
-        <property name="configurationAdmin" ref="configurationAdmin"/>
-        <property name="curator" ref="curator"/>
-        <property name="bundleContext" ref="blueprintBundleContext"/>
-    </bean>
-
-    <bean id="cloudProviderBridge" class="org.fusesource.fabric.service.jclouds.CloudProviderBridge">
-        <property name="curator" ref="curator"/>
-        <property name="configurationAdmin" ref="configurationAdmin"/>
-    </bean>
-
-    <service ref="cloudProviderBridge" interface="org.apache.curator.framework.state.ConnectionStateListener"/>
-
-    <service ref="ec2FirewallSupport" interface="org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport"/>
-
-    <service ref="zookeeperCredentialStore">
-        <interfaces>
-            <value>org.jclouds.karaf.core.CredentialStore</value>
-            <value>org.apache.curator.framework.state.ConnectionStateListener</value>
-        </interfaces>
-        <service-properties>
-            <entry key="credential-store-type" value="zookeeper"/>
-        </service-properties>
-    </service>
-
-    <service ref="jcloudsContainerProvider" auto-export="interfaces">
-        <service-properties>
-            <entry key="fabric.container.protocol" value="jclouds"/>
-        </service-properties>
-    </service>
-
-    <service ref="firewallManagerFactory" interface="org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory"/>
-
 
 </blueprint>

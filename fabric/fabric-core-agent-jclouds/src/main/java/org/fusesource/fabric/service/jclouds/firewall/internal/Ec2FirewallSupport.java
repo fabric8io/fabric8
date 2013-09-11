@@ -17,6 +17,8 @@
 
 package org.fusesource.fabric.service.jclouds.firewall.internal;
 
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
@@ -29,6 +31,10 @@ import org.jclouds.ec2.domain.SecurityGroup;
 
 import java.util.Set;
 
+@Component(name = "org.fusesource.fabric.jclouds.firewall.ec2",
+        description = "Fabric Firewall Support for EC2",
+        immediate = true)
+@Service(ApiFirewallSupport.class)
 public class Ec2FirewallSupport implements ApiFirewallSupport {
 
     ApiFirewallSupport delegate;

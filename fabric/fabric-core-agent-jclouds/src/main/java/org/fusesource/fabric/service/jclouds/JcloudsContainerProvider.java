@@ -38,10 +38,16 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.common.base.Strings;
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
+import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.jclouds.compute.ComputeService;
@@ -56,60 +62,52 @@ import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.scriptbuilder.statements.login.AdminAccess;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
 
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
  */
+@Component(name = "org.fusesource.fabric.container.provider.jclouds",
+        description = "Fabric Jclouds Container Provider",
+        immediate = true)
+@Service(ContainerProvider.class)
 public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
     private static final String SCHEME = "jclouds";
+
+    @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
+    @Reference
     private FirewallManagerFactory firewallManagerFactory;
+    @Reference
     private CredentialStore credentialStore;
+    @Reference
     private ConfigurationAdmin configurationAdmin;
+    @Reference
     private CuratorFramework curator;
     private BundleContext bundleContext;
 
-    private ServiceReference computeReference = null;
-
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
-    public synchronized void bind(ComputeService computeService) {
-        if (computeService != null) {
-            String name = (String) computeService.getContext().unwrap().getName();
-            if (name != null) {
-                computeServiceMap.put(name, computeService);
-            }
-        }
+    @Activate
+    public void init() {
     }
 
-    public void unbind(ComputeService computeService) {
-        if (computeService != null) {
-            String serviceId = (String) computeService.getContext().unwrap().getName();
-            if (serviceId != null) {
-                computeServiceMap.remove(serviceId);
-            }
-        }
-    }
-
+    @Deactivate
     public void destroy() {
-        if (computeReference != null) {
-            bundleContext.ungetService(computeReference);
-        }
+        executorService.shutdown();
     }
 
-    public ConcurrentMap<String, ComputeService> getComputeServiceMap() {
-        return computeServiceMap;
-    }
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
         int number = Math.max(options.getNumber(), 1);
@@ -528,5 +526,23 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    public synchronized void bindComputeService(ComputeService computeService) {
+        if (computeService != null) {
+            String name = (String) computeService.getContext().unwrap().getName();
+            if (name != null) {
+                computeServiceMap.put(name, computeService);
+            }
+        }
+    }
+
+    public void unbindComputeService(ComputeService computeService) {
+        if (computeService != null) {
+            String serviceId = (String) computeService.getContext().unwrap().getName();
+            if (serviceId != null) {
+                computeServiceMap.remove(serviceId);
+            }
+        }
     }
 }

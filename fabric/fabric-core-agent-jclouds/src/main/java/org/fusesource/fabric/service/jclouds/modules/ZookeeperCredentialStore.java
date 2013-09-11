@@ -22,6 +22,11 @@ import com.google.common.cache.CacheBuilder;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
@@ -48,17 +53,29 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
  * This module supports up to 100 node credential store in memory.
  * Credentials stored in memory will be pushed to Zookeeper when it becomes available.
  */
+@Component(name = "org.fusesource.fabric.jclouds.credentialstore.zookeeper",
+        description = "Fabric Jclouds ZooKeeper Credential Store",
+        immediate = true)
+@Service({CredentialStore.class, ConnectionStateListener.class})
 @ConfiguresCredentialStore
 public class ZookeeperCredentialStore extends CredentialStore implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCredentialStore.class);
 
+    @Reference
     private CuratorFramework curator;
     private Cache<String, Credentials> cache;
 
+    @Activate
     public void init() {
         this.cache = CacheBuilder.newBuilder().maximumSize(100).build();
         this.store = new ZookeeperBacking(curator, cache);
+    }
+
+    @Deactivate
+    public void destroy() {
+        this.cache.cleanUp();
+        this.cache = null;
     }
 
     /**

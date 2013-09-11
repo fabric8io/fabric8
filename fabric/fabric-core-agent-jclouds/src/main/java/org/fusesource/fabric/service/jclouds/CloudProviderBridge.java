@@ -20,6 +20,10 @@ package org.fusesource.fabric.service.jclouds;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.karaf.core.Constants;
 import org.osgi.service.cm.Configuration;
@@ -35,7 +39,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
- * A {@link LifecycleListener} that makes sure that whenever it connect to a new ensemble, it updates it with the cloud
+ * A {@link ConnectionStateListener} that makes sure that whenever it connect to a new ensemble, it updates it with the cloud
  * provider information that are present in the {
  * @link ConfigurationAdmin}.
  *
@@ -44,6 +48,10 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
  *
  * If for any reason the new ensemble already has registered information for a provider, the provider will be skipped.
  */
+@Component(name = "org.fusesource.fabric.jclouds.bridge",
+        description = "Fabric Jclouds Service Bridge",
+        immediate = true)
+@Service(ConnectionStateListener.class)
 public class CloudProviderBridge implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudProviderBridge.class);
@@ -51,7 +59,9 @@ public class CloudProviderBridge implements ConnectionStateListener {
     private static final String COMPUTE_FILTER = "(service.factoryPid=org.jclouds.compute)";
     private static final String BLOBSTORE_FILTER = "(service.factoryPid=org.jclouds.blobstore)";
 
+    @Reference
     private ConfigurationAdmin configurationAdmin;
+    @Reference
     private CuratorFramework curator;
 
 
