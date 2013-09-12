@@ -838,12 +838,12 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     git.stashCreate().setPerson(personIdent)
                             .setWorkingDirectoryMessage("Stash before a write").call();
                 }
+                String originalBranch = repository.getBranch();
+                RevCommit statusBefore = CommitUtils.getHead(repository);
+
                 if (pullFirst) {
                     doPull(git, credentialsProvider);
                 }
-
-                String originalBranch = repository.getBranch();
-                RevCommit statusBefore = CommitUtils.getHead(repository);
 
                 GitContext context = new GitContext();
                 T answer = operation.call(git, context);
@@ -858,7 +858,12 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 }
 
                 git.checkout().setName(originalBranch).call();
-                if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
+
+                boolean changed = hasChanged(statusBefore, CommitUtils.getHead(repository));
+                if (changed) {
+                    clearCaches();
+                }
+                if (requirePush || changed) {
                     doPush(git, context, credentialsProvider);
                     fireChangeNotifications();
                 }
@@ -869,8 +874,15 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         }
     }
 
+    /**
+     * Allow derived classes to cache stuff
+     */
+    protected void clearCaches() {
+    }
+
     protected void fireChangeNotifications() {
         LOG.debug("Firing change notifications!");
+        clearCaches();
         runCallbacks();
     }
 

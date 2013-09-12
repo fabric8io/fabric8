@@ -21,13 +21,11 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -164,8 +162,6 @@ public class GitDataStoreTest {
                 profileAttributeKey, expectedProfileAttributeValue);
 
 
-        doSleep();
-
         // lets check that the file configurations recurses into folders
         Map<String, byte[]> tomcatFileConfigurations = dataStore.getFileConfigurations("1.0", "controller-tomcat");
         assertHasFileConfiguration(tomcatFileConfigurations, "tomcat/conf/server.xml.mvel");
@@ -200,7 +196,6 @@ public class GitDataStoreTest {
 
         // lets check the remote repo
         remote.checkout().setName("1.1").call();
-        doSleep();
 
         assertProfileExists("1.1", profile);
         assertProfileExists("1.1", newProfile);
@@ -215,7 +210,6 @@ public class GitDataStoreTest {
                         + "/org.fusesource.fabric.profile.attributes.properties"));
 
         remote.checkout().setName("1.2").call();
-        doSleep();
 
 
         assertProfileExists("1.2", profile);
@@ -226,11 +220,6 @@ public class GitDataStoreTest {
         remote.checkout().setName("1.0").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
-    }
-
-    protected void doSleep() throws InterruptedException {
-        // Timing issue - lets sleep a little bit :)
-        Thread.sleep(2000);
     }
 
     public static void assertHasFileConfiguration(Map<String, byte[]> fileConfigurations, String pid) {
