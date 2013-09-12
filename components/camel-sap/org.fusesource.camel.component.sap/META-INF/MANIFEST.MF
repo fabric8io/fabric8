@@ -7,7 +7,11 @@ Bundle-Activator: org.fusesource.camel.component.sap.Activator
 Bundle-Vendor: http://www.fusesource.org
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore.xmi;visibility:=reexport,
- com.sap.conn.jco;bundle-version="3.0.8",
  org.fusesource.camel.component.sap.model.edit;bundle-version="1.0.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
+Import-Package: com.sap.conn.jco,
+ com.sap.conn.jco.ext,
+ com.sap.conn.jco.monitor,
+ com.sap.conn.jco.rt,
+ com.sap.conn.jco.server

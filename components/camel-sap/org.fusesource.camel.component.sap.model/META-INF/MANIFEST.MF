@@ -11,6 +11,6 @@ Export-Package: org.fusesource.camel.component.sap.model.rfc,
  org.fusesource.camel.component.sap.model.rfc.impl,
  org.fusesource.camel.component.sap.model.rfc.util
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.emf.ecore;visibility:=reexport,
- com.sap.conn.jco;bundle-version="3.0.8"
+ org.eclipse.emf.ecore;visibility:=reexport
 Bundle-ActivationPolicy: lazy
+Import-Package: com.sap.conn.jco.ext

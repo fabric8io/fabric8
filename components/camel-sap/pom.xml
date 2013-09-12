@@ -124,7 +124,7 @@
 
 		</dependencies>
 	</dependencyManagement>
-
+<!-- 
 	<profiles>
 		<profile>
 			<id>linux-amd64</id>
@@ -163,7 +163,8 @@
 			</modules>
 		</profile>
 	</profiles>
-
+ -->
+ 
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -218,7 +219,9 @@
 		</pluginManagement>
 	</build>
 	<modules>
+		<!-- 
 		<module>com.sap.conn.jco</module>
+		 -->
 		<module>org.fusesource.camel.component.sap.model</module>
 		<module>org.fusesource.camel.component.sap.model.edit</module>
 		<module>org.fusesource.camel.component.sap</module>
