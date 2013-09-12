@@ -48,8 +48,8 @@ public class ZookeeperPlaceholderResolver implements PlaceholderResolver {
         try {
             return new String(ZkPath.loadURL(curator, value), "UTF-8");
         } catch (KeeperException.NoNodeException e) {
-            LOGGER.debug("Could not load property value: {}. Ignoring.", value, e);
-            return value;
+            LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
+            return "";
         } catch (Exception e) {
             throw new FabricException(e);
         }
