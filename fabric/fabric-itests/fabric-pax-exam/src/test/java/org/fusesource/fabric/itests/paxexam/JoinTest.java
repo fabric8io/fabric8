@@ -44,6 +44,8 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 public class JoinTest extends FabricTestSupport {
 
+    private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service org.fusesource.fabric.boot.commands.service.Join";
+
 	@After
 	public void tearDown() throws InterruptedException {
 	}
@@ -60,6 +62,7 @@ public class JoinTest extends FabricTestSupport {
             Thread.sleep(DEFAULT_TIMEOUT);
             System.err.println(executeCommand("admin:list"));
             String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE));
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
             Provision.containersExist(Arrays.asList("child1"), PROVISION_TIMEOUT);
             Container child1 = fabricService.getContainer("child1");
@@ -91,7 +94,9 @@ public class JoinTest extends FabricTestSupport {
             System.err.println(executeCommand("admin:list"));
             String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
 
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE));
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE));
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
             Provision.containersExist(Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
 			Container child1 = fabricService.getContainer("child1");
