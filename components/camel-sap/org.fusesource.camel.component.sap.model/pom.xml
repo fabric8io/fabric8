@@ -23,7 +23,7 @@
   <dependencies>
 	<dependency>
 		<groupId>com.sap.conn.jco</groupId>
-		<artifactId>com.sap.conn.jco</artifactId>
+		<artifactId>sapjco3</artifactId>
 		<scope>compile</scope>
 	</dependency>
   </dependencies>
