@@ -49,6 +49,7 @@
             org.fusesource.fabric.utils,
             org.fusesource.fabric.utils.shell,
             org.fusesource.fabric.service.jclouds.commands.completers,
+            org.fusesource.fabric.service.jclouds.functions,
             org.jclouds.aws.util,
             org.jclouds.karaf.utils
         </fuse.osgi.private.pkg>

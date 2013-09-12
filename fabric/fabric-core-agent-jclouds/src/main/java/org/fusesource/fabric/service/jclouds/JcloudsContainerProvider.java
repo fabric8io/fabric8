@@ -17,15 +17,37 @@
 
 package org.fusesource.fabric.service.jclouds;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Field;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.internal.ContainerProviderUtils;
+import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
+import org.fusesource.fabric.service.jclouds.functions.ToRunScriptOptions;
+import org.fusesource.fabric.service.jclouds.functions.ToTemplate;
+import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
+import org.jclouds.compute.ComputeService;
+import org.jclouds.compute.RunNodesException;
+import org.jclouds.compute.domain.ExecResponse;
+import org.jclouds.compute.domain.NodeMetadata;
+import org.jclouds.compute.domain.Template;
+import org.jclouds.compute.options.RunScriptOptions;
+import org.jclouds.karaf.core.CredentialStore;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Deactivate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URLDecoder;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -35,38 +57,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import com.google.common.base.Strings;
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerProvider;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.internal.ContainerProviderUtils;
-import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
-import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
-import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
-import org.jclouds.compute.ComputeService;
-import org.jclouds.compute.RunNodesException;
-import org.jclouds.compute.domain.ExecResponse;
-import org.jclouds.compute.domain.NodeMetadata;
-import org.jclouds.compute.domain.OsFamily;
-import org.jclouds.compute.domain.TemplateBuilder;
-import org.jclouds.compute.options.RunScriptOptions;
-import org.jclouds.compute.options.TemplateOptions;
-import org.jclouds.domain.LoginCredentials;
-import org.jclouds.karaf.core.CredentialStore;
-import org.jclouds.scriptbuilder.statements.login.AdminAccess;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Deactivate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
@@ -100,7 +90,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Activate
-    public void init() {
+    public void init(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
     @Deactivate
@@ -109,9 +100,13 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     }
 
 
-    public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions options) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+    public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions input) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+        CreateJCloudsContainerOptions options = input.updateComputeService(getOrCreateComputeService(input));
         int number = Math.max(options.getNumber(), 1);
+
         final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
+        StringBuilder overview = new StringBuilder();
+
         try {
             options.getCreationStateListener().onStateChange("Looking up for compute service.");
             ComputeService computeService = getOrCreateComputeService(options);
@@ -119,90 +114,13 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (computeService == null) {
                 throw new IllegalStateException("Compute service could not be found or created.");
             }
+            overview.append(String.format("Creating %s nodes in the cloud.", number));
 
-            TemplateBuilder builder = computeService.templateBuilder();
-            builder.any();
-
-            //If no options about hardware has been specified ...
-            if (options.getInstanceType() == null && Strings.isNullOrEmpty(options.getHardwareId())) {
-                builder.minRam(1024);
-            } else if (!Strings.isNullOrEmpty(options.getHardwareId())) {
-                builder.hardwareId(options.getHardwareId());
-            }
-            else if (options.getInstanceType() != null) {
-                switch (options.getInstanceType()) {
-                    case Smallest:
-                        builder.smallest();
-                        break;
-                    case Biggest:
-                        builder.biggest();
-                        break;
-                    case Fastest:
-                        builder.fastest();
-                        break;
-                    default:
-                        builder.fastest();
-                }
-            }
-            StringBuilder overviewBuilder = new StringBuilder();
-
-            overviewBuilder.append(String.format("Creating %s nodes in the cloud. Using", number));
-
-
-            //Define ImageId
-            if (!Strings.isNullOrEmpty(options.getImageId())) {
-                overviewBuilder.append(" image id: ").append(options.getImageId());
-                builder.imageId(options.getImageId());
-            }
-            //or define Image by OS & Version or By ImageId
-            else if (!Strings.isNullOrEmpty(options.getOsFamily())) {
-                overviewBuilder.append(" operating system: ").append(options.getOsFamily());
-                builder.osFamily(OsFamily.fromValue(options.getOsFamily()));
-                if (!Strings.isNullOrEmpty(options.getOsVersion())) {
-                    overviewBuilder.append(" and version: ").append(options.getOsVersion());
-                    builder.osVersionMatches(options.getOsVersion());
-                }
-            } else {
-                throw new IllegalArgumentException("Required Image id or Operation System and version predicates.");
-            }
-
-            overviewBuilder.append(".");
-
-            //Define Location & Hardware
-            if (!Strings.isNullOrEmpty(options.getLocationId())) {
-                overviewBuilder.append(" On location: ").append(options.getLocationId()).append(".");
-                builder.locationId(options.getLocationId());
-            }
-
-            AdminAccess.Builder adminAccess = AdminAccess.builder();
-            TemplateOptions templateOptions = computeService.templateOptions();
-            applyProviderSpecificOptions(templateOptions, options);
-
-            //There are images that have issues with copying of public keys, creation of admin user accounts,etc
-            //To allow
-            if (options.isAdminAccess()) {
-                if (!Strings.isNullOrEmpty(options.getPublicKeyFile())) {
-                    File publicKey = new File(options.getPublicKeyFile());
-                    if (publicKey.exists()) {
-                        adminAccess.adminPublicKey(publicKey);
-                    } else {
-                        templateOptions.runScript(AdminAccess.standard());
-                        LOGGER.warn("Public key has been specified file: {} files cannot be found. Ignoring.", publicKey.getAbsolutePath());
-                    }
-                }
-
-                if (!Strings.isNullOrEmpty(options.getUser())) {
-                    adminAccess.adminUsername(options.getUser());
-                }
-
-                templateOptions.runScript(adminAccess.build());
-            }
-            builder = builder.options(templateOptions);
-
+            Template template = ToTemplate.apply(options);
             Set<? extends NodeMetadata> metadatas = null;
-            overviewBuilder.append(" It may take a while ...");
-            options.getCreationStateListener().onStateChange(overviewBuilder.toString());
-            metadatas = computeService.createNodesInGroup(options.getGroup(), number, builder.build());
+            overview.append(" It may take a while ...");
+            options.getCreationStateListener().onStateChange(overview.toString());
+            metadatas = computeService.createNodesInGroup(options.getGroup(), number, template);
 
             if (metadatas != null) {
                 for (NodeMetadata metadata : metadatas) {
@@ -225,7 +143,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                         containerName = originalName;
                     }
                     CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(containerName,
-                            nodeMetadata, options, computeService, firewallManagerFactory, templateOptions, result,
+                            nodeMetadata, options, computeService, firewallManagerFactory, template.getOptions(), result,
                             countDownLatch);
                     executorService.execute(installationTask);
                 }
@@ -249,36 +167,20 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         } else {
             CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
             CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
-
+            ComputeService computeService = getOrCreateComputeService(options);
             try {
 
                 String nodeId = jCloudsContainerMetadata.getNodeId();
-                ComputeService computeService = getOrCreateComputeService(options);
-                NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
-                LoginCredentials credentials = nodeMetadata.getCredentials();
-
-                LoginCredentials.Builder loginBuilder;
-                if (options.getUser() != null) {
-
-                    if (credentials == null) {
-                        loginBuilder = LoginCredentials.builder();
-                    } else {
-                        loginBuilder = credentials.toBuilder();
-                    }
-                    if (options.getPassword() != null) {
-                        credentials = loginBuilder.user(options.getUser()).password(options.getPassword()).build();
-                    } else {
-                        credentials = loginBuilder.user(options.getUser()).build();
-                    }
-                }
-
+                Optional<RunScriptOptions> runScriptOptions = ToRunScriptOptions.withComputeService(computeService).apply(jCloudsContainerMetadata);
                 String script = buildStartScript(container.getId(), options);
-                ExecResponse response = null;
-                if (credentials != null) {
-                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
+                ExecResponse response;
+
+                if (runScriptOptions.isPresent()) {
+                    response = computeService.runScriptOnNode(nodeId, script, runScriptOptions.get());
                 } else {
                     response = computeService.runScriptOnNode(nodeId, script);
                 }
+
                 if (response == null) {
                     jCloudsContainerMetadata.setFailure(new Exception("No response received for fabric install script."));
                 } else if (response.getOutput() != null && response.getOutput().contains(ContainerProviderUtils.FAILURE_PREFIX)) {
@@ -299,30 +201,14 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             CreateJCloudsContainerMetadata jCloudsContainerMetadata = (CreateJCloudsContainerMetadata) metadata;
             CreateJCloudsContainerOptions options = jCloudsContainerMetadata.getCreateOptions();
             try {
-                String nodeId = jCloudsContainerMetadata.getNodeId();
                 ComputeService computeService = getOrCreateComputeService(options);
-                NodeMetadata nodeMetadata = computeService.getNodeMetadata(nodeId);
-                LoginCredentials credentials = nodeMetadata.getCredentials();
-
-                LoginCredentials.Builder loginBuilder;
-                if (options.getUser() != null) {
-
-                    if (credentials == null) {
-                        loginBuilder = LoginCredentials.builder();
-                    } else {
-                        loginBuilder = credentials.toBuilder();
-                    }
-                    if (options.getPassword() != null) {
-                        credentials = loginBuilder.user(options.getUser()).password(options.getPassword()).build();
-                    } else {
-                        credentials = loginBuilder.user(options.getUser()).build();
-                    }
-                }
-
+                String nodeId = jCloudsContainerMetadata.getNodeId();
+                Optional<RunScriptOptions> runScriptOptions = ToRunScriptOptions.withComputeService(computeService).apply(jCloudsContainerMetadata);
                 String script = buildStopScript(container.getId(), options);
-                ExecResponse response = null;
-                if (credentials != null) {
-                    response = computeService.runScriptOnNode(nodeId, script, RunScriptOptions.Builder.overrideLoginCredentials(credentials).runAsRoot(false));
+                ExecResponse response;
+
+                if (runScriptOptions.isPresent()) {
+                    response = computeService.runScriptOnNode(nodeId, script, runScriptOptions.get());
                 } else {
                     response = computeService.runScriptOnNode(nodeId, script);
                 }
@@ -349,44 +235,6 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             String nodeId = jCloudsContainerMetadata.getNodeId();
             ComputeService computeService = getOrCreateComputeService(options);
             computeService.destroyNode(nodeId);
-        }
-    }
-
-    @Override
-    public String getScheme() {
-        return SCHEME;
-    }
-
-    @Override
-    public Class<CreateJCloudsContainerOptions> getOptionsType() {
-        return CreateJCloudsContainerOptions.class;
-    }
-
-    @Override
-    public Class<CreateJCloudsContainerMetadata> getMetadataType() {
-        return CreateJCloudsContainerMetadata.class;
-    }
-
-    public Map<String, String> parseQuery(String uri) throws URISyntaxException {
-        //TODO: This is copied form URISupport. We should move URISupport to core so that we don't have to copy stuff arround.
-        try {
-            Map<String, String> rc = new HashMap<String, String>();
-            if (uri != null) {
-                String[] parameters = uri.split("&");
-                for (int i = 0; i < parameters.length; i++) {
-                    int p = parameters[i].indexOf("=");
-                    if (p >= 0) {
-                        String name = URLDecoder.decode(parameters[i].substring(0, p), "UTF-8");
-                        String value = URLDecoder.decode(parameters[i].substring(p + 1), "UTF-8");
-                        rc.put(name, value);
-                    } else {
-                        rc.put(parameters[i], null);
-                    }
-                }
-            }
-            return rc;
-        } catch (UnsupportedEncodingException e) {
-            throw (URISyntaxException) new URISyntaxException(e.toString(), "Invalid encoding").initCause(e);
         }
     }
 
@@ -426,68 +274,24 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 }
             }
         }
-
-        //If a service has been found, make sure that the options are updated with provider id and api id.
-        //if (computeService != null) {
-        //    if (Strings.isNullOrEmpty(options.getProviderName())) {
-        //        options.setProviderName(computeService.getContext().unwrap().getProviderMetadata().getId());
-        //    }
-        //    if (Strings.isNullOrEmpty(options.getApiName())) {
-        //        options.setApiName(computeService.getContext().unwrap().getProviderMetadata().getApiMetadata().getId());
-        //    }
-        //}
         return computeService;
     }
 
-    private String readFile(String path) {
-        byte[] bytes = null;
-        FileInputStream fin = null;
-
-        File file = new File(path);
-        if (path != null && file.exists()) {
-            try {
-                fin = new FileInputStream(file);
-                bytes = new byte[(int) file.length()];
-                fin.read(bytes);
-            } catch (IOException e) {
-                LOGGER.warn("Error reading file {}.", path);
-            } finally {
-                if (fin != null) {
-                    try {
-                        fin.close();
-                    } catch (Exception ex) {
-                    }
-                }
-            }
-        }
-        return new String(bytes);
+    @Override
+    public String getScheme() {
+        return SCHEME;
     }
 
-
-    /**
-     * Applies node options to the template options. Currently only works for String key value pairs.
-     *
-     * @param templateOptions
-     * @param options
-     */
-    private void applyProviderSpecificOptions(TemplateOptions templateOptions, CreateJCloudsContainerOptions options) {
-        if (options != null && templateOptions != null) {
-            for (Map.Entry<String, String> entry : options.getNodeOptions().entrySet()) {
-                String key = entry.getKey();
-                String value = entry.getValue();
-                try {
-                    Field field = templateOptions.getClass().getDeclaredField(key);
-                    if (field != null) {
-                        field.setAccessible(true);
-                        field.set(templateOptions, value);
-                    }
-                } catch (Exception ex) {
-                    //noop
-                }
-
-            }
-        }
+    @Override
+    public Class<CreateJCloudsContainerOptions> getOptionsType() {
+        return CreateJCloudsContainerOptions.class;
     }
+
+    @Override
+    public Class<CreateJCloudsContainerMetadata> getMetadataType() {
+        return CreateJCloudsContainerMetadata.class;
+    }
+
     public FirewallManagerFactory getFirewallManagerFactory() {
         return firewallManagerFactory;
     }
