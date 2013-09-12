@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Copyright (C) FuseSource, Inc.
   http://fusesource.com
@@ -14,7 +15,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -23,18 +25,9 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.fusesource.fabric.itests</groupId>
-    <artifactId>fabric-itests</artifactId>
+    <artifactId>fabric-aggregator</artifactId>
+    <name>Fuse Fabric :: Aggregator</name>
     <packaging>pom</packaging>
-
-    <name>Fuse Fabric :: Integration Tests</name>
-    <description>Fabric Integration tests</description>
-
-    <modules>
-        <module>common</module>
-        <module>fabric-pax-exam</module>
-        <module>fabric-pojosr</module>
-    </modules>
 
     <dependencies>
         <dependency>
@@ -43,19 +36,24 @@
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric.itests</groupId>
+            <artifactId>fabric-pax-exam</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric.itests</groupId>
+            <artifactId>fabric-pojosr</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric.itests</groupId>
+            <artifactId>fabric-itests-wildfly</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
-    <profiles>
-        <profile>
-            <id>ts.wildfly</id>
-            <activation>
-                <property>
-                    <name>!skip.wildfly</name>
-                </property>
-            </activation>
-            <modules>
-                <module>wildfly</module>
-            </modules>
-        </profile>
-    </profiles>
 </project>
