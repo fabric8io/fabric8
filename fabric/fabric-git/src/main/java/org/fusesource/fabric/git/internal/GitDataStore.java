@@ -119,6 +119,13 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
     public static final String TYPE = "git";
 
+    /**
+     * Should we convert a directory of profiles called "foo-bar" into a directory "foo/bar.profile" structure to use
+     * the file system better, to better organise profiles into folders and make it easier to work with profiles in the wiki
+     */
+    public static final boolean useDirectoriesForProfiles = true;
+    public static final String PROFILE_FOLDER_SUFFIX = ".profile";
+
     private GitService gitService;
 
     private final Object lock = new Object();
@@ -280,7 +287,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                                 for (File versionFile : versionFiles) {
                                     LOG.info("Importing version configuration " + versionFile + " to branch "
                                             + version);
-                                    importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version);
+                                    importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version, true);
                                 }
                             }
                         }
@@ -290,15 +297,15 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             File metrics = new File(fabricsDir, "metrics");
             if (metrics.exists()) {
                 LOG.info("Importing metrics from " + metrics + " to branch " + defaultVersion);
-                importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion);
+                importFromFileSystem(metrics, CONFIG_ROOT_DIR, defaultVersion, false);
             }
         } else {
             LOG.info("Importing " + file + " as version " + defaultVersion);
-            importFromFileSystem(file, "", defaultVersion);
+            importFromFileSystem(file, "", defaultVersion, false);
         }
     }
 
-    public void importFromFileSystem(final File from, final String destinationPath, final String version) {
+    public void importFromFileSystem(final File from, final String destinationPath, final String version, final boolean isProfileDir) {
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 createVersion(version);
@@ -308,7 +315,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 if (Strings.isNotBlank(destinationPath)) {
                     toDir = new File(toDir, destinationPath);
                 }
-                recursiveCopyAndAdd(git, from, toDir, destinationPath);
+                if (isProfileDir && useDirectoriesForProfiles) {
+                    recursiveAddLegacyProfileDirectoryFiles(git, from, toDir, destinationPath);
+                } else {
+                    recursiveCopyAndAdd(git, from, toDir, destinationPath, true);
+                }
                 context.setPushBranch(version);
                 context.commit("Imported from " + from);
                 return null;
@@ -391,37 +402,40 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 if (hasVersion(version)) {
                     //We are also checking the master branch for non versioned profiles (e.g. ensemble profiles).
                     checkoutVersion(git, "master");
-                    if (profilesDir.exists()) {
-                        File[] files = profilesDir.listFiles();
-                        if (files != null) {
-                            for (File file : files) {
-                                if (file.isDirectory()) {
-                                    // TODO we could recursively scan for magic ".profile" files or something
-                                    // then we could put profiles into nicer tree structure?
-                                    answer.add(file.getName());
-                                }
-                            }
-                        }
-                    }
+                    doAddProfileNames(answer, profilesDir, "");
 
                     checkoutVersion(git, version);
-                    if (profilesDir.exists()) {
-                        File[] files = profilesDir.listFiles();
-                        if (files != null) {
-                            for (File file : files) {
-                                if (file.isDirectory()) {
-                                    // TODO we could recursively scan for magic ".profile" files or something
-                                    // then we could put profiles into nicer tree structure?
-                                    answer.add(file.getName());
-                                }
-                            }
-                        }
-                    }
+                    doAddProfileNames(answer, profilesDir, "");
 
                 }
                 return answer;
             }
         });
+    }
+
+    protected void doAddProfileNames(List<String> answer, File profilesDir, String prefix) {
+        if (profilesDir.exists()) {
+            File[] files = profilesDir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        // TODO we could recursively scan for magic ".profile" files or something
+                        // then we could put profiles into nicer tree structure?
+                        String name = file.getName();
+                        if (useDirectoriesForProfiles) {
+                            if (name.endsWith(PROFILE_FOLDER_SUFFIX)) {
+                                name = name.substring(0, name.length() - PROFILE_FOLDER_SUFFIX.length());
+                                answer.add(prefix + name);
+                            } else {
+                                doAddProfileNames(answer, file, prefix + name + "-");
+                            }
+                        } else {
+                            answer.add(name);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     public File getProfilesDirectory(Git git) {
@@ -430,7 +444,8 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
     public File getProfileDirectory(Git git, String profile) {
         File profilesDirectory = getProfilesDirectory(git);
-        return new File(profilesDirectory, profile);
+        String path = convertProfileIdToDirectory(profile);
+        return new File(profilesDirectory, path);
     }
 
     @Override
@@ -1069,29 +1084,72 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
      * Recursively copies the given files from the given directory to the specified directory
      * adding them to the git repo along the way
      */
-    protected void recursiveCopyAndAdd(Git git, File from, File toDir, String path)
+    protected void recursiveCopyAndAdd(Git git, File from, File toDir, String path,
+                                       boolean useToDirAsDestination)
             throws GitAPIException, IOException {
         String name = from.getName();
         String pattern = path + (path.length() > 0 ? "/" : "") + name;
         File toFile = new File(toDir, name);
 
         if (from.isDirectory()) {
-            // lets assume the contents of the first directory go directly into toDir
-            // rather than, say, creating an 'import' directory when importing ;)
-            if (path.length() == 0) {
+            if (useToDirAsDestination) {
                 toFile = toDir;
             }
             toFile.mkdirs();
             File[] files = from.listFiles();
             if (files != null) {
                 for (File file : files) {
-                    recursiveCopyAndAdd(git, file, toFile, pattern);
+                    recursiveCopyAndAdd(git, file, toFile, pattern, false);
                 }
             }
         } else {
             Files.copy(from, toFile);
         }
         git.add().addFilepattern(pattern).call();
+    }
+
+    /**
+     * Recursively copies the profiles in a single flat directory into the new
+     * directory layout; changing "foo-bar" directory into "foo/bar.profile" along the way
+     */
+    protected void recursiveAddLegacyProfileDirectoryFiles(Git git, File from, File toDir, String path)
+            throws GitAPIException, IOException {
+
+        if (!from.isDirectory()) {
+            throw new IllegalStateException(
+                    "Should only be invoked on the profiles directory but was given file " + from);
+        }
+        String name = from.getName();
+        String pattern = path + (path.length() > 0 ? "/" : "") + name;
+        File[] profiles = from.listFiles();
+        File toFile = new File(toDir, name);
+        if (profiles != null) {
+            for (File profileDir : profiles) {
+                // TODO should we try and detect regular folders somehow using some naming convention?
+                if (profileDir.isDirectory()) {
+                    String profileId = profileDir.getName();
+                    String toProfileDirName = convertProfileIdToDirectory(profileId);
+                    File toProfileDir = new File(toFile, toProfileDirName);
+                    toProfileDir.mkdirs();
+                    recursiveCopyAndAdd(git, profileDir, toProfileDir, pattern, true);
+                } else {
+                    recursiveCopyAndAdd(git, profileDir, toFile, pattern, true);
+                }
+            }
+        }
+        git.add().addFilepattern(pattern).call();
+    }
+
+    /**
+     * Takes a profile ID of the form "foo-bar" and if we are using directory trees for profiles then
+     * converts it to "foo/bar.profile"
+     */
+    public String convertProfileIdToDirectory(String profileId) {
+        if (useDirectoriesForProfiles) {
+            return profileId.replace('-', '/') + PROFILE_FOLDER_SUFFIX;
+        } else {
+            return profileId;
+        }
     }
 
     protected void pull() {

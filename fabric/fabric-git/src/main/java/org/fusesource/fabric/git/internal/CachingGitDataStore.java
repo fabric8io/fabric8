@@ -30,6 +30,7 @@ import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.PlaceholderResolver;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -154,24 +155,45 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
             if (files != null) {
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        // TODO we could recursively scan for magic ".profile" files or something
-                        // then we could put profiles into nicer tree structure?
-                        String profile = file.getName();
-                        ProfileData profileData = new ProfileData();
-                        data.profiles.put(profile, profileData);
-                        // configurations
-                        profileData.configurations = doGetFileConfigurations(git, profile);
-                        // last modified
-                        File profileDirectory = file;
-                        File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
-                        profileData.lastModified = profileDirectory.lastModified();
-                        if (metadataFile.exists()) {
-                            long modified = metadataFile.lastModified();
-                            profileData.lastModified = Math.max(profileData.lastModified, modified);
-                        }
+                        addProfileData(git, data, file, "");
                     }
                 }
             }
+        }
+    }
+
+    private void addProfileData(Git git, VersionData data, File file, String prefix) throws IOException {
+        // TODO we could recursively scan for magic ".profile" files or something
+        // then we could put profiles into nicer tree structure?
+        String profile = file.getName();
+        if (useDirectoriesForProfiles) {
+            if (profile.endsWith(PROFILE_FOLDER_SUFFIX)) {
+                profile = prefix + profile.substring(0, profile.length() - PROFILE_FOLDER_SUFFIX.length());
+            } else {
+                // lets recurse all children
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File child : files) {
+                        if (child.isDirectory()) {
+                            addProfileData(git, data, child, prefix + file.getName() + "-");
+                        }
+                    }
+                }
+                return;
+            }
+        }
+
+        ProfileData profileData = new ProfileData();
+        data.profiles.put(profile, profileData);
+        // configurations
+        profileData.configurations = doGetFileConfigurations(git, profile);
+        // last modified
+        File profileDirectory = file;
+        File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
+        profileData.lastModified = profileDirectory.lastModified();
+        if (metadataFile.exists()) {
+            long modified = metadataFile.lastModified();
+            profileData.lastModified = Math.max(profileData.lastModified, modified);
         }
     }
 

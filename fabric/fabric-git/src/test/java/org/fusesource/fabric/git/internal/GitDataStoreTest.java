@@ -53,7 +53,7 @@ public class GitDataStoreTest {
     private CuratorFramework curator;
     private Git git;
     private Git remote;
-    private GitDataStore dataStore = new CachingGitDataStore();
+    protected GitDataStore dataStore;
     private String basedir;
 
     @Before
@@ -96,12 +96,17 @@ public class GitDataStoreTest {
             }
         };
 
+        dataStore = createDataStore();
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.setDataStoreProperties(datastoreProperties);
         dataStore.setCurator(curator);
         dataStore.setGitService(gitService);
         dataStore.start();
+    }
+
+    protected GitDataStore createDataStore() {
+        return new GitDataStore();
     }
 
     @After
@@ -126,7 +131,7 @@ public class GitDataStoreTest {
             String profileImport = prefix + "/configs/versions/1.0/profiles";
             assertFolderExists(profileImport);
 
-            dataStore.importFromFileSystem(new File(profileImport), "fabric", "1.0");
+            dataStore.importFromFileSystem(new File(profileImport), "fabric", "1.0", true);
             assertHasVersion(defaultVersion);
         }
 
@@ -159,6 +164,8 @@ public class GitDataStoreTest {
                 profileAttributeKey, expectedProfileAttributeValue);
 
 
+        doSleep();
+
         // lets check that the file configurations recurses into folders
         Map<String, byte[]> tomcatFileConfigurations = dataStore.getFileConfigurations("1.0", "controller-tomcat");
         assertHasFileConfiguration(tomcatFileConfigurations, "tomcat/conf/server.xml.mvel");
@@ -168,7 +175,7 @@ public class GitDataStoreTest {
         assertEquals("Should not create profile: " + profileNotCreated, null,
                 dataStore.getProfile(version, profileNotCreated, false));
         assertProfileNotExists(defaultVersion, profileNotCreated);
-        assertFolderNotExists(getLocalGitFile("fabric/profiles/" + profileNotCreated));
+        assertFolderNotExists(getLocalGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profileNotCreated)));
 
         // now lets create some profiles in this new version
         String newProfile = "myNewProfile";
@@ -193,29 +200,37 @@ public class GitDataStoreTest {
 
         // lets check the remote repo
         remote.checkout().setName("1.1").call();
+        doSleep();
+
         assertProfileExists("1.1", profile);
         assertProfileExists("1.1", newProfile);
-        assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
-        assertFolderExists(getRemoteGitFile("fabric/profiles/" + newProfile));
+        assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
+        assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
 
         // we should pushed the property attributes file from the call to
         // dataStore.setProfileAttribute()
         assertFolderExists(
                 "we should have pushed this file remotely due to the call to dataStore.setProfileAttribute()",
-                getRemoteGitFile("fabric/profiles/" + importedProfile
+                getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(importedProfile)
                         + "/org.fusesource.fabric.profile.attributes.properties"));
 
         remote.checkout().setName("1.2").call();
+        doSleep();
+
+
         assertProfileExists("1.2", profile);
         assertProfileNotExists("1.2", newProfile);
-        assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
-        assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + newProfile));
+        assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
+        assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
 
         remote.checkout().setName("1.0").call();
-        assertFolderExists(getRemoteGitFile("fabric/profiles/" + profile));
-        assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + newProfile));
+        assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
+        assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
+    }
 
-
+    protected void doSleep() throws InterruptedException {
+        // Timing issue - lets sleep a little bit :)
+        Thread.sleep(2000);
     }
 
     public static void assertHasFileConfiguration(Map<String, byte[]> fileConfigurations, String pid) {
@@ -288,7 +303,7 @@ public class GitDataStoreTest {
         assertTrue("Profile " + profile + " should exist but has: " + profiles + " for version " + version,
                 profiles.contains(profile));
         git.checkout().setName(version).call();
-        assertFolderExists(getLocalGitFile("fabric/profiles/" + profile));
+        assertFolderExists(getLocalGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
     }
 
     protected void assertProfileNotExists(String version, String profile) {
@@ -296,7 +311,7 @@ public class GitDataStoreTest {
         assertFalse(
                 "Profile " + profile + " should not exist but has: " + profiles + " for version " + version,
                 profiles.contains(profile));
-        assertFolderNotExists(getLocalGitFile("fabric/profiles/" + profile));
+        assertFolderNotExists(getLocalGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
     }
 
     protected void assertFolderExists(String path) {
