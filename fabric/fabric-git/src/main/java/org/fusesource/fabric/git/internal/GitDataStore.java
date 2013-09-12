@@ -823,6 +823,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     }
 
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
+        return gitOperation(personIdent, operation, pullFirst, new GitContext());
+    }
+
+    public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst,
+                              GitContext context) {
         synchronized (lock) {
             try {
                 Git git = getGit();
@@ -845,7 +850,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     doPull(git, credentialsProvider);
                 }
 
-                GitContext context = new GitContext();
                 T answer = operation.call(git, context);
                 boolean requirePush = context.isRequirePush();
                 if (context.isRequireCommit()) {
@@ -859,11 +863,8 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
                 git.checkout().setName(originalBranch).call();
 
-                boolean changed = hasChanged(statusBefore, CommitUtils.getHead(repository));
-                if (changed) {
+                if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
                     clearCaches();
-                }
-                if (requirePush || changed) {
                     doPush(git, context, credentialsProvider);
                     fireChangeNotifications();
                 }

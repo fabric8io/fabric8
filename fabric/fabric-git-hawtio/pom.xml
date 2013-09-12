@@ -124,6 +124,14 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
         </dependency>
+
+        <!-- testing -->
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-zookeeper-spring</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
