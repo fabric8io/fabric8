@@ -1176,6 +1176,11 @@
               <artifactId>aws-ec2</artifactId>
               <version>${jclouds-version}</version>
           </dependency>
+            <dependency>
+                <groupId>org.apache.jclouds.api</groupId>
+                <artifactId>openstack-nova</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
           <!-- LibVirt -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
