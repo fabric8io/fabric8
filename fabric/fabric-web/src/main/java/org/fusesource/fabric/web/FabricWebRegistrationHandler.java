@@ -131,8 +131,11 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
-            String path = createServletPath(servletEvent, id);
-            setData(curator, path, json, CreateMode.EPHEMERAL);
+            //We don't want to register / it's fabric-redirect for hawtio
+            if (!servletEvent.getAlias().equals("/")) {
+                String path = createServletPath(servletEvent, id);
+                setData(curator, path, json, CreateMode.EPHEMERAL);
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to register servlet {}.", servletEvent.getAlias(), e);
         }
@@ -144,8 +147,11 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
             clearJolokiaUrl(container, name);
 
             String id = container.getId();
-            String path = createServletPath(servletEvent, id);
-            delete(curator, path);
+            //We don't want to register / it's fabric-redirect for hawtio
+            if (!servletEvent.getAlias().equals("/")) {
+                String path = createServletPath(servletEvent, id);
+                delete(curator, path);
+            }
         } catch (KeeperException.NoNodeException e) {
             // If the node does not exists, ignore the exception
         } catch (Exception e) {
@@ -200,12 +206,8 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
         path.append("/fabric/registry/clusters/servlets/")
                 .append(servletEvent.getBundle().getSymbolicName()).append("/")
                 .append(servletEvent.getBundle().getVersion().toString())
-                .append(servletEvent.getAlias());
-
-        if (!servletEvent.getAlias().endsWith("/")) {
-            path.append("/");
-        }
-        path.append(id);
+                .append(servletEvent.getAlias()).append("/")
+                .append(id);
         return path.toString();
     }
 
