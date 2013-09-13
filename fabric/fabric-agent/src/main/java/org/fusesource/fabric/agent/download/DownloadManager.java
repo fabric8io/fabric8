@@ -20,11 +20,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 
 public class DownloadManager {
+
+    private static final Pattern IGNORED_PROTOCOL_PATTERN = Pattern.compile("^(jar|war|war-i|warref|webbundle|wrap|spring|blueprint):.*$");
 
     /**
      * Thread pool for downloads
@@ -60,22 +64,8 @@ public class DownloadManager {
     }
 
     public DownloadFuture download(final String url) throws MalformedURLException {
-        String mvnUrl = url;
-        if (mvnUrl.startsWith("wrap:")) {
-            mvnUrl = mvnUrl.substring("wrap:".length());
-            if (mvnUrl.contains("$")) {
-                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('$'));
-            }
-        }
-        if (mvnUrl.startsWith("war:")) {
-            mvnUrl = mvnUrl.substring("war:".length());
-            if (mvnUrl.contains("?")) {
-                mvnUrl = mvnUrl.substring(0, mvnUrl.lastIndexOf('?'));
-            }
-        }
-        if (mvnUrl.startsWith("blueprint:") || mvnUrl.startsWith("spring:")) {
-            mvnUrl = mvnUrl.substring(mvnUrl.indexOf(':') + 1);
-        }
+        String mvnUrl = stripUrl(url);
+
         if (mvnUrl.startsWith("mvn:")) {
             MavenDownloadTask task = new MavenDownloadTask(mvnUrl, cache, system, configuration, executor);
             executor.submit(task);
@@ -114,6 +104,24 @@ public class DownloadManager {
             executor.submit(download);
             return download;
         }
+    }
+    
+    public static String stripUrl(String url) {
+        String strippedUrl = url;
+        Matcher matcher = IGNORED_PROTOCOL_PATTERN.matcher(strippedUrl);
+        while (matcher.matches()) {
+            String protocol = matcher.group(1);
+            strippedUrl = strippedUrl.substring(protocol.length() + 1);
+            matcher = IGNORED_PROTOCOL_PATTERN.matcher(strippedUrl);
+        }
+        if (strippedUrl.contains("?")) {
+            strippedUrl = strippedUrl.substring(0, strippedUrl.lastIndexOf('?'));
+        }
+        if (strippedUrl.contains("#")) {
+            strippedUrl = strippedUrl.substring(0, strippedUrl.lastIndexOf('#'));
+        }
+
+        return strippedUrl;
     }
 
     static class DummyDownloadTask extends AbstractDownloadTask {
