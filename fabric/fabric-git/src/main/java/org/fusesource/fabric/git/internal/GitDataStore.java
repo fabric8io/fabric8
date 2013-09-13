@@ -64,6 +64,7 @@ import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.internal.DataStoreHelpers;
+import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
 import org.fusesource.fabric.utils.Files;
@@ -1139,18 +1140,32 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         if (profiles != null) {
             for (File profileDir : profiles) {
                 // TODO should we try and detect regular folders somehow using some naming convention?
-                if (profileDir.isDirectory()) {
+                if (isProfileDirectory(profileDir)) {
                     String profileId = profileDir.getName();
                     String toProfileDirName = convertProfileIdToDirectory(profileId);
                     File toProfileDir = new File(toFile, toProfileDirName);
                     toProfileDir.mkdirs();
                     recursiveCopyAndAdd(git, profileDir, toProfileDir, pattern, true);
                 } else {
-                    recursiveCopyAndAdd(git, profileDir, toFile, pattern, true);
+                    recursiveCopyAndAdd(git, profileDir, toFile, pattern, false);
                 }
             }
         }
         git.add().addFilepattern(pattern).call();
+    }
+
+    protected boolean isProfileDirectory(File profileDir) {
+        if (profileDir.isDirectory()) {
+            String[] list = profileDir.list();
+            if (list != null) {
+                for (String file : list) {
+                    if (file.endsWith(".properties") || file.endsWith(".mvel")) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /**

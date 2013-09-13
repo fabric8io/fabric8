@@ -139,6 +139,8 @@ public class GitDataStoreTest {
         String profile = importedProfile;
         assertProfileExists(defaultVersion, profile);
 
+        assertFolderExists("Should have imported an mq/ReadMe.md file!", getLocalGitFile("fabric/profiles/mq/ReadMe.md"));
+
         String version = "1.1";
         assertCreateVersion("1.0", version);
 
