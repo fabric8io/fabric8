@@ -28,7 +28,8 @@
   <modules>
   	<!-- 
   	<module>camel-sap</module>
-	 -->
+  	 -->
+  	<module>examples</module>
   </modules>
   <url>http://www.fusesource.org</url>
 </project>
