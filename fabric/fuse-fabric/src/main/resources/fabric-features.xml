@@ -521,6 +521,7 @@
         <feature version="${hawtio-version}">hawtio</feature>
         <feature version="${karaf-version}">http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-git-hawtio/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-redirect/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-partition" version="${project.version}" resolver="(obr)">
