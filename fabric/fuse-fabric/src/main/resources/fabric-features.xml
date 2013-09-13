@@ -516,12 +516,16 @@
         <bundle>mvn:org.fusesource.fabric/fabric-git-zkbridge/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-redirect" version="${project.version}" resolver="(obr)">
+      <bundle>mvn:org.fusesource.fabric/fabric-redirect/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${hawtio-version}">hawtio</feature>
         <feature version="${karaf-version}">http</feature>
+        <feature version="${project-version}">fabric-redirect</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-git-hawtio/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.fabric/fabric-redirect/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-partition" version="${project.version}" resolver="(obr)">

@@ -100,6 +100,7 @@
 		                                <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
 		                                <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
 		                                <descriptor>mvn:org.fusesource.patch/patch-features/${fabric.version}/xml/features</descriptor>
+                                    <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
 		                                <!--descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor-->
 		                                <!-- FuseSource only : Fabric -->
 		                                <descriptor>mvn:org.fusesource.fabric/fuse-fabric/${fabric.version}/xml/features</descriptor>
