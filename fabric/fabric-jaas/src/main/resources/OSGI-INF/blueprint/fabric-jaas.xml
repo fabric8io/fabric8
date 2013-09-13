@@ -15,44 +15,12 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
-           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
-           xmlns:jaas="http://karaf.apache.org/xmlns/jaas/v1.1.0">
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="jasypt/encrypt">
             <action class="org.fusesource.fabric.jaas.EncryptPasswordCommand"/>
         </command>
     </command-bundle>
-
-    <!-- AdminConfig property place holder for the org.apache.karaf.jaas  -->
-    <cm:property-placeholder persistent-id="org.fusesource.fabric.jaas" update-strategy="reload">
-        <cm:default-properties>
-            <cm:property name="encryption.name" value=""/>
-            <cm:property name="encryption.enabled" value="true"/>
-            <cm:property name="encryption.prefix" value="{CRYPT}"/>
-            <cm:property name="encryption.suffix" value="{CRYPT}"/>
-            <cm:property name="encryption.algorithm" value="MD5"/>
-            <cm:property name="encryption.encoding" value="hexadecimal"/>
-        </cm:default-properties>
-    </cm:property-placeholder>
-
-    <jaas:config name="karaf" rank="1">
-        <jaas:module className="org.fusesource.fabric.jaas.ZookeeperLoginModule" flags="required">
-            path = /fabric/authentication/users
-            encryption.name = ${encryption.name}
-            encryption.enabled = ${encryption.enabled}
-            encryption.prefix = ${encryption.prefix}
-            encryption.suffix = ${encryption.suffix}
-            encryption.algorithm = ${encryption.algorithm}
-            encryption.encoding = ${encryption.encoding}
-        </jaas:module>
-    </jaas:config>
-
-    <!-- The Backing Engine Factory Service for the ZookeeperLoginModule -->
-    <service interface="org.apache.karaf.jaas.modules.BackingEngineFactory">
-        <bean class="org.fusesource.fabric.jaas.ZookeeperBackingEngineFactory"/>
-    </service>
 
 </blueprint>

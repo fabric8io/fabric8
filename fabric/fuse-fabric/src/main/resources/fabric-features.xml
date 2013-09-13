@@ -135,7 +135,6 @@
         <!--feature version="${project.version}">fabric-bundle</feature-->
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
-        <feature version="${project.version}">fabric-jaas</feature>
 <!--
         <feature version="${project.version}">insight-graph</feature>
 -->
@@ -155,6 +154,7 @@
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric/fabric-api/${project.version}</bundle>
         <feature>scr</feature>
+        <feature version="${project.version}">fabric-jaas</feature>
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
@@ -258,7 +258,6 @@
     </feature>
 
     <feature name="fabric-jaas" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
