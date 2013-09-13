@@ -740,6 +740,12 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-dosgi</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git-server</artifactId>
                 <version>${fabric.version}</version>
                 <scope>provided</scope>
