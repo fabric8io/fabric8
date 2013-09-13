@@ -156,7 +156,13 @@
             </exclusions>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
+            <artifactId>features</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
         <!-- Testing Dependencies -->
         <dependency>
             <groupId>junit</groupId>
