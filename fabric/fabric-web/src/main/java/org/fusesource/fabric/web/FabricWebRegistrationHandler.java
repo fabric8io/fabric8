@@ -124,10 +124,7 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
 
     void registerServlet(Container container, ServletEvent servletEvent) {
         String id = container.getId();
-        String url = container.getHttpUrl() + servletEvent.getAlias();
-        if (!url.startsWith("http")) {
-            url = "http://" + url;
-        }
+        String url = "${zk:" + id + "/http}" + servletEvent.getAlias();
 
         String name = servletEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
@@ -171,11 +168,7 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
      */
     void registerWebapp(Container container, WebEvent webEvent) {
         String id = container.getId();
-        String url = container.getHttpUrl() + webEvent.getContextPath();
-
-        if (!url.startsWith("http")) {
-            url = "http://" + url;
-        }
+        String url = "${zk:" + id + "/http}" + webEvent.getContextPath();
 
         String name = webEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
