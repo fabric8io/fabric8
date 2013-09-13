@@ -135,7 +135,6 @@
         <!--feature version="${project.version}">fabric-bundle</feature-->
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
-        <feature version="${project.version}">fabric-jaas</feature>
 <!--
         <feature version="${project.version}">insight-graph</feature>
 -->
@@ -155,6 +154,7 @@
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric/fabric-api/${project.version}</bundle>
         <feature>scr</feature>
+        <feature version="${project.version}">fabric-jaas</feature>
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
@@ -171,9 +171,6 @@
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
         <feature version="${project.version}">fabric-core</feature>
-        
-        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
-        <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-boot-commands/${project.version}</bundle>
     </feature>
 
@@ -261,12 +258,17 @@
     </feature>
 
     <feature name="fabric-jaas" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle dependency='true'>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
         <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-jaas/${project.version}</bundle>
+    </feature>
+
+
+    <feature name="fabric-ssh" version="${project.version}" resolver="(obr)">
+        <bundle dependency="true">mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch-smx-version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-core-agent-ssh/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-jclouds" version="${project.version}" resolver="(obr)">
@@ -516,10 +518,15 @@
         <bundle>mvn:org.fusesource.fabric/fabric-git-zkbridge/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-redirect" version="${project.version}" resolver="(obr)">
+      <bundle>mvn:org.fusesource.fabric/fabric-redirect/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-hawtio" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${hawtio-version}">hawtio</feature>
         <feature version="${karaf-version}">http</feature>
+        <feature version="${project-version}">fabric-redirect</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-git-hawtio/${project.version}</bundle>
     </feature>
 

@@ -29,6 +29,27 @@
     <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
     <artifactId>features</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
+            <artifactId>camel-route</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
+            <artifactId>dosgi-service</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
+            <artifactId>service</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+    
     <build>
         <!-- enable filtering of the features file -->
         <resources>

@@ -231,11 +231,8 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     }
 
     public void installBundles() throws BundleException {
-        Bundle bundleFabricJaas = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-jaas",
-                "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricCommands = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-commands",
                 "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
-        bundleFabricJaas.start();
         bundleFabricCommands.start();
 
         if (!nonManaged) {

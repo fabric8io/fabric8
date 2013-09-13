@@ -124,22 +124,18 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
 
     void registerServlet(Container container, ServletEvent servletEvent) {
         String id = container.getId();
-        String url = container.getHttpUrl() + servletEvent.getAlias();
-        if (!url.startsWith("http")) {
-            url = "http://" + url;
-        }
+        String url = "${zk:" + id + "/http}" + servletEvent.getAlias();
 
         String name = servletEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
-            String path = "/fabric/registry/clusters/servlets/"
-                    + servletEvent.getBundle().getSymbolicName() + "/"
-                    + servletEvent.getBundle().getVersion().toString()
-                    + servletEvent.getAlias() + "/"
-                    + id;
-            setData(curator, path, json, CreateMode.EPHEMERAL);
+            //We don't want to register / it's fabric-redirect for hawtio
+            if (!servletEvent.getAlias().equals("/")) {
+                String path = createServletPath(servletEvent, id);
+                setData(curator, path, json, CreateMode.EPHEMERAL);
+            }
         } catch (Exception e) {
             LOGGER.error("Failed to register servlet {}.", servletEvent.getAlias(), e);
         }
@@ -151,12 +147,11 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
             clearJolokiaUrl(container, name);
 
             String id = container.getId();
-            String path = "/fabric/registry/clusters/servlets/"
-                    + servletEvent.getBundle().getSymbolicName() + "/"
-                    + servletEvent.getBundle().getVersion().toString()
-                    + servletEvent.getAlias() + "/"
-                    + id;
-            delete(curator, path);
+            //We don't want to register / it's fabric-redirect for hawtio
+            if (!servletEvent.getAlias().equals("/")) {
+                String path = createServletPath(servletEvent, id);
+                delete(curator, path);
+            }
         } catch (KeeperException.NoNodeException e) {
             // If the node does not exists, ignore the exception
         } catch (Exception e) {
@@ -171,11 +166,7 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
      */
     void registerWebapp(Container container, WebEvent webEvent) {
         String id = container.getId();
-        String url = container.getHttpUrl() + webEvent.getContextPath();
-
-        if (!url.startsWith("http")) {
-            url = "http://" + url;
-        }
+        String url = "${zk:" + id + "/http}" + webEvent.getContextPath();
 
         String name = webEvent.getBundle().getSymbolicName();
         setJolokiaUrl(container, url, name);
@@ -207,6 +198,17 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
         }
+    }
+
+
+    private String createServletPath(ServletEvent servletEvent, String id) {
+        StringBuilder path = new StringBuilder();
+        path.append("/fabric/registry/clusters/servlets/")
+                .append(servletEvent.getBundle().getSymbolicName()).append("/")
+                .append(servletEvent.getBundle().getVersion().toString())
+                .append(servletEvent.getAlias()).append("/")
+                .append(id);
+        return path.toString();
     }
 
     private void setJolokiaUrl(Container container, String url, String symbolicName) {

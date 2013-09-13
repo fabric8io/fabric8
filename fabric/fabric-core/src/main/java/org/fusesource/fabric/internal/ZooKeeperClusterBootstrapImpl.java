@@ -241,12 +241,9 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
                 "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricConfigAdmin = instalBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
                 "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
-        Bundle bundleFabricJaas = instalBundle(bundleContext, "org.fusesource.fabric.fabric-jaas  ",
-                "mvn:org.fusesource.fabric/fabric-jaas/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricCommands = instalBundle(bundleContext, "org.fusesource.fabric.fabric-commands  ",
                 "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
 
-        bundleFabricJaas.start();
         bundleFabricCommands.start();
         bundleFabricConfigAdmin.start();
         //Check if the agent is configured to auto start.

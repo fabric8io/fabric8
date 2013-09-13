@@ -168,6 +168,11 @@
              <artifactId>aws-ec2</artifactId>
             <optional>true</optional>
          </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.api</groupId>
+            <artifactId>openstack-nova</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 
     <build>

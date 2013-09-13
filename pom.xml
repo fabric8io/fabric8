@@ -52,7 +52,7 @@
     </prerequisites>
 
     <properties>
-        <perfectus-build>071</perfectus-build>
+        <perfectus-build>075</perfectus-build>
         <forge-project-id>fabric</forge-project-id>
         <maven.compiler.source>1.6</maven.compiler.source>
         <maven.compiler.target>1.6</maven.compiler.target>
@@ -740,6 +740,12 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-dosgi</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git-server</artifactId>
                 <version>${fabric.version}</version>
                 <scope>provided</scope>
@@ -1170,6 +1176,11 @@
               <artifactId>aws-ec2</artifactId>
               <version>${jclouds-version}</version>
           </dependency>
+            <dependency>
+                <groupId>org.apache.jclouds.api</groupId>
+                <artifactId>openstack-nova</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
           <!-- LibVirt -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>

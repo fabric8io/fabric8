@@ -258,7 +258,9 @@ public class FabricGitFacade extends GitFacadeSupport {
 
     protected <T> T gitWriteOperation(PersonIdent personIdent,
                               GitOperation<T> operation) {
-        return gitDataStore.gitOperation(personIdent, operation, true);
+        GitContext context = new GitContext();
+        context.requireCommit();
+        return gitDataStore.gitOperation(personIdent, operation, true, context);
     }
 
     protected <T> T gitOperation(PersonIdent personIdent,

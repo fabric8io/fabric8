@@ -55,6 +55,7 @@
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.jboss.fuse/jboss-fuse/${project.version}/xml/features</descriptor>
+                                <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
 <!--
                                 <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
 -->
@@ -115,6 +116,8 @@
                                 <feature>insight-log-storage</feature>
                                 <feature>process-manager</feature>
                                 <feature>jolokia</feature>
+                                <feature>fabric-redirect</feature>
+                                <feature>hawtio</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>

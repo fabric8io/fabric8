@@ -129,6 +129,7 @@
                                 <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</descriptor>
                                 <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
+                                <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
                                 <descriptor>file:${basedir}/target/classes/features.xml</descriptor>
 
                                 <!-- FuseSource only : Fabric -->
@@ -147,6 +148,8 @@
                                 <feature>camel-cxf</feature>
                                 <feature>camel-blueprint</feature>
                                 <feature>war</feature>
+                                <feature>fabric-redirect</feature>
+                                <feature>hawtio</feature>
 
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>

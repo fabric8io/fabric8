@@ -107,6 +107,10 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-dosgi</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>process-fabric</artifactId>
            </dependency>
            <dependency>
@@ -298,6 +302,7 @@
                                    <descriptor>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</descriptor>
                                    <descriptor>mvn:org.drools/drools-karaf-features/${drools-version}/xml/features</descriptor>
+                                   <descriptor>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</descriptor>
                                    <descriptor>file:${basedir}/target/classes/fabric-features.xml</descriptor>
                                </descriptors>
                                <features>
@@ -324,6 +329,7 @@ TODO - zapped to try fix perfectus!
                                    <feature>insight-log-storage</feature>
                                    <feature>process-manager</feature>
                                    <feature>jolokia</feature>
+                                   <feature>fabric-redirect</feature>
                                    <feature>hawtio</feature>
                                </features>
                                <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>

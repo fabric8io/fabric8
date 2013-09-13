@@ -20,6 +20,8 @@ import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 
 public class CreateOpenshiftContainerMetadata extends CreateContainerBasicMetadata<CreateOpenshiftContainerOptions> {
 
+    private final String OPENSHIFT_RESOLVER_OVERRIDE = "publichostname";
+
     private final String domainId;
     private final String uuid;
     private final String createLog;
@@ -30,6 +32,10 @@ public class CreateOpenshiftContainerMetadata extends CreateContainerBasicMetada
         this.createLog = createLog;
     }
 
+    @Override
+    public String getOverridenResolver() {
+        return OPENSHIFT_RESOLVER_OVERRIDE;
+    }
 
     public String getDomainId() {
         return domainId;
