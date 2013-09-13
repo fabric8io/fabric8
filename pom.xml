@@ -170,7 +170,7 @@
         <felix-scr-version>1.9.4</felix-scr-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
-        <hadoop-version>1.0.3</hadoop-version>
+        <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.17</hawtdispatch-version>
         <hawtio-version>1.2-SNAPSHOT</hawtio-version>

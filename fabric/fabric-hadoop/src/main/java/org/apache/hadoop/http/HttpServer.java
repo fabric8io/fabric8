@@ -15,11 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * gnodet: this file contains a few modifications to make it work on osgi,
- * such as modifying a few parameters when creating the web application
- * (war extraction, direct buffers, ...).
- */
 package org.apache.hadoop.http;
 
 import java.io.IOException;
@@ -47,6 +42,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.ConfServlet;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.CommonConfigurationKeys;
 import org.apache.hadoop.jmx.JMXJsonServlet;
@@ -56,9 +52,12 @@ import org.apache.hadoop.security.Krb5AndCertsSslSocketConnector.MODE;
 import org.apache.hadoop.security.UserGroupInformation;
 import org.apache.hadoop.security.authorize.AccessControlList;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.mortbay.io.Buffer;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.MimeTypes;
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.ContextHandler;
 import org.mortbay.jetty.handler.ContextHandlerCollection;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.security.SslSocketConnector;
@@ -74,6 +73,12 @@ import org.mortbay.util.MultiException;
 
 import com.sun.jersey.spi.container.servlet.ServletContainer;
 
+ /**
+  * gnodet: this file contains a few modifications to make it work on osgi,
+  * such as modifying a few parameters when creating the web application
+  * (war extraction, direct buffers, ...).
+  */
+
 /**
  * Create a Jetty embedded server to answer http requests. The primary goal
  * is to serve up status information for the server.
@@ -87,11 +92,13 @@ public class HttpServer implements FilterContainer {
 
   static final String FILTER_INITIALIZER_PROPERTY
       = "hadoop.http.filter.initializers";
-
+ 
   // The ServletContext attribute where the daemon Configuration
   // gets stored.
-  static final String CONF_CONTEXT_ATTRIBUTE = "hadoop.conf";
+  public static final String CONF_CONTEXT_ATTRIBUTE = "hadoop.conf";
   static final String ADMINS_ACL = "admins.acl";
+  public static final String SPNEGO_FILTER = "SpnegoFilter";
+  public static final String KRB5_FILTER = "krb5Filter";
 
   private AccessControlList adminsAcl;
 
@@ -122,15 +129,15 @@ public class HttpServer implements FilterContainer {
       boolean findPort, Configuration conf, Connector connector) throws IOException {
     this(name, bindAddress, port, findPort, conf, null, connector);
   }
-
+  
   /**
    * Create a status server on the given port.
    * The jsp scripts are taken from src/webapps/<name>.
    * @param name The name of the server
    * @param port The port to use on the server
-   * @param findPort whether the server should start at the given port and
+   * @param findPort whether the server should start at the given port and 
    *        increment by 1 until it finds a free port.
-   * @param conf Configuration
+   * @param conf Configuration 
    * @param adminsAcl {@link AccessControlList} of the admins
    */
   public HttpServer(String name, String bindAddress, int port,
@@ -140,7 +147,7 @@ public class HttpServer implements FilterContainer {
   }
 
   public HttpServer(String name, String bindAddress, int port,
-      boolean findPort, Configuration conf, AccessControlList adminsAcl,
+      boolean findPort, Configuration conf, AccessControlList adminsAcl, 
       Connector connector) throws IOException{
     webServer = new Server();
     this.findPort = findPort;
@@ -156,7 +163,7 @@ public class HttpServer implements FilterContainer {
       listenerStartedExternally = true;
       listener = connector;
     }
-
+    
     webServer.addConnector(listener);
 
     webServer.setThreadPool(new QueuedThreadPool());
@@ -177,13 +184,13 @@ public class HttpServer implements FilterContainer {
     webServer.addHandler(webAppContext);
 
     addDefaultApps(contexts, appDir);
-
-    defineFilter(webAppContext, "krb5Filter",
-        Krb5AndCertsSslSocketConnector.Krb5SslFilter.class.getName(),
+    
+    defineFilter(webAppContext, KRB5_FILTER, 
+        Krb5AndCertsSslSocketConnector.Krb5SslFilter.class.getName(), 
         null, null);
-
+    
     addGlobalFilter("safety", QuotingInputFilter.class.getName(), null);
-    final FilterInitializer[] initializers = getFilterInitializers(conf);
+    final FilterInitializer[] initializers = getFilterInitializers(conf); 
     if (initializers != null) {
       for(FilterInitializer c : initializers) {
         c.initFilter(this, conf);
@@ -201,7 +208,7 @@ public class HttpServer implements FilterContainer {
       throws IOException {
     return HttpServer.createDefaultChannelConnector();
   }
-
+  
   // LimitedPrivate for creating secure datanodes
   public static Connector createDefaultChannelConnector() {
     SelectChannelConnector ret = new SelectChannelConnector();
@@ -209,9 +216,9 @@ public class HttpServer implements FilterContainer {
     ret.setAcceptQueueSize(128);
     ret.setResolveNames(false);
     ret.setUseDirectBuffers(false);
-    return ret;
+    return ret;   
   }
-
+  
   /** Get an array of FilterConfiguration specified in the conf */
   private static FilterInitializer[] getFilterInitializers(Configuration conf) {
     if (conf == null) {
@@ -238,12 +245,18 @@ public class HttpServer implements FilterContainer {
    */
   protected void addDefaultApps(ContextHandlerCollection parent,
       final String appDir) throws IOException {
-    // set up the context for "/logs/" if "hadoop.log.dir" property is defined.
+    // set up the context for "/logs/" if "hadoop.log.dir" property is defined. 
     String logDir = System.getProperty("hadoop.log.dir");
     if (logDir != null) {
       Context logContext = new Context(parent, "/logs");
       logContext.setResourceBase(logDir);
       logContext.addServlet(AdminAuthorizedServlet.class, "/");
+      if (conf.getBoolean(
+          CommonConfigurationKeys.HADOOP_JETTY_LOGS_SERVE_ALIASES,
+          CommonConfigurationKeys.DEFAULT_HADOOP_JETTY_LOGS_SERVE_ALIASES)) {
+        logContext.getInitParams().put(
+            "org.mortbay.jetty.servlet.Default.aliases", "true");
+      }
       logContext.setDisplayName("logs");
       setContextAttributes(logContext);
       defaultContexts.put(logContext, true);
@@ -256,7 +269,7 @@ public class HttpServer implements FilterContainer {
     setContextAttributes(staticContext);
     defaultContexts.put(staticContext, true);
   }
-
+  
   private void setContextAttributes(Context context) {
     context.getServletContext().setAttribute(CONF_CONTEXT_ATTRIBUTE, conf);
     context.getServletContext().setAttribute(ADMINS_ACL, adminsAcl);
@@ -270,6 +283,7 @@ public class HttpServer implements FilterContainer {
     addServlet("stacks", "/stacks", StackServlet.class);
     addServlet("logLevel", "/logLevel", LogLevel.Servlet.class);
     addServlet("jmx", "/jmx", JMXJsonServlet.class);
+    addServlet("conf", "/conf", ConfServlet.class);
   }
 
   public void addContext(Context ctxt, boolean isFiltered)
@@ -279,10 +293,10 @@ public class HttpServer implements FilterContainer {
   }
 
   /**
-   * Add a context
+   * Add a context 
    * @param pathSpec The path spec for the context
    * @param dir The directory containing the context
-   * @param isFiltered if true, the servlet is added to the filter path mapping
+   * @param isFiltered if true, the servlet is added to the filter path mapping 
    * @throws IOException
    */
   protected void addContext(String pathSpec, String dir, boolean isFiltered) throws IOException {
@@ -316,7 +330,7 @@ public class HttpServer implements FilterContainer {
     context.setAttribute(name, value);
   }
 
-  /**
+  /** 
    * Add a Jersey resource package.
    * @param packageName The Java package name containing the Jersey resource.
    * @param pathSpec The path spec for the servlet
@@ -340,7 +354,7 @@ public class HttpServer implements FilterContainer {
    */
   public void addServlet(String name, String pathSpec,
       Class<? extends HttpServlet> clazz) {
-    addInternalServlet(name, pathSpec, clazz, false);
+    addInternalServlet(name, pathSpec, clazz, false, false);
     addFilterPathMapping(pathSpec, webAppContext);
   }
 
@@ -354,35 +368,43 @@ public class HttpServer implements FilterContainer {
   @Deprecated
   public void addInternalServlet(String name, String pathSpec,
       Class<? extends HttpServlet> clazz) {
-    addInternalServlet(name, pathSpec, clazz, false);
+    addInternalServlet(name, pathSpec, clazz, false, false);
   }
 
   /**
    * Add an internal servlet in the server, specifying whether or not to
-   * protect with Kerberos authentication.
+   * protect with Kerberos authentication. 
    * Note: This method is to be used for adding servlets that facilitate
    * internal communication and not for user facing functionality. For
-   * servlets added using this method, filters (except internal Kerberized
-   * filters) are not enabled.
-   *
+   * servlets added using this method, filters (except internal Kerberos
+   * filters) are not enabled. 
+   * 
    * @param name The name of the servlet (can be passed as null)
    * @param pathSpec The path spec for the servlet
    * @param clazz The servlet class
+   * @param requireAuth Require Kerberos authenticate to access servlet
+   * @param useKsslForAuth true to use KSSL for auth, false to use SPNEGO
    */
-  public void addInternalServlet(String name, String pathSpec,
-      Class<? extends HttpServlet> clazz, boolean requireAuth) {
+  public void addInternalServlet(String name, String pathSpec, 
+      Class<? extends HttpServlet> clazz, boolean requireAuth,
+      boolean useKsslForAuth) {
     ServletHolder holder = new ServletHolder(clazz);
     if (name != null) {
       holder.setName(name);
     }
     webAppContext.addServlet(holder, pathSpec);
-
+    
     if(requireAuth && UserGroupInformation.isSecurityEnabled()) {
-       LOG.info("Adding Kerberos filter to " + name);
        ServletHandler handler = webAppContext.getServletHandler();
        FilterMapping fmap = new FilterMapping();
        fmap.setPathSpec(pathSpec);
-       fmap.setFilterName("krb5Filter");
+       if (useKsslForAuth) {
+         LOG.info("Adding Kerberos (KSSL) filter to " + name);
+         fmap.setFilterName(KRB5_FILTER);
+       } else {
+         LOG.info("Adding Kerberos (SPNEGO) filter to " + name);
+         fmap.setFilterName(SPNEGO_FILTER);
+       }
        fmap.setDispatches(Handler.ALL);
        handler.addFilterMapping(fmap);
     }
@@ -453,7 +475,7 @@ public class HttpServer implements FilterContainer {
       handler.addFilterMapping(fmap);
     }
   }
-
+  
   /**
    * Get the value in the webapp context.
    * @param name The name of the attribute
@@ -470,8 +492,8 @@ public class HttpServer implements FilterContainer {
    */
   protected String getWebAppsPath() throws IOException {
     URL url = getClass().getClassLoader().getResource("webapps");
-    if (url == null)
-      throw new IOException("webapps not found in CLASSPATH");
+    if (url == null) 
+      throw new IOException("webapps not found in CLASSPATH"); 
     return url.toString();
   }
 
@@ -584,11 +606,11 @@ public class HttpServer implements FilterContainer {
           try {
             port = webServer.getConnectors()[0].getLocalPort();
             LOG.info("Port returned by webServer.getConnectors()[0]." +
-            		"getLocalPort() before open() is "+ port +
+            		"getLocalPort() before open() is "+ port + 
             		". Opening the listener on " + oriPort);
             listener.open();
             port = listener.getLocalPort();
-            LOG.info("listener.getLocalPort() returned " + listener.getLocalPort() +
+            LOG.info("listener.getLocalPort() returned " + listener.getLocalPort() + 
                   " webServer.getConnectors()[0].getLocalPort() returned " +
                   webServer.getConnectors()[0].getLocalPort());
             //Workaround to handle the problem reported in HADOOP-4744
@@ -632,15 +654,33 @@ public class HttpServer implements FilterContainer {
                 throw (BindException) ex;
               }
             } else {
-              LOG.info("HttpServer.start() threw a non Bind IOException");
+              LOG.info("HttpServer.start() threw a non Bind IOException"); 
               throw ex;
            }
           } catch (MultiException ex) {
-            LOG.info("HttpServer.start() threw a MultiException");
+            LOG.info("HttpServer.start() threw a MultiException"); 
             throw ex;
           }
           listener.setPort((oriPort += 1));
         }
+      }
+      // Make sure there is no handler failures.
+      Handler[] handlers = webServer.getHandlers();
+      for (int i = 0; i < handlers.length; i++) {
+        if (handlers[i].isFailed()) {
+          throw new IOException(
+              "Problem in starting http server. Server handlers failed");
+        }
+      }
+      
+      // Make sure there are no errors initializing the context.
+      Throwable unavailableException = webAppContext.getUnavailableException();
+      if (unavailableException != null) {
+        // Have to stop the webserver, or else its non-daemon threads
+        // will hang forever.
+        webServer.stop();
+        throw new IOException("Unable to initialize WebAppContext",
+            unavailableException);
       }
     } catch (IOException e) {
       throw e;
@@ -662,9 +702,40 @@ public class HttpServer implements FilterContainer {
   }
 
   /**
+   * Checks the user has privileges to access to instrumentation servlets.
+   * <p/>
+   * If <code>hadoop.security.instrumentation.requires.admin</code> is set to 
+   * FALSE (default value) it returns always returns TRUE.
+   * <p/>
+   * If <code>hadoop.security.instrumentation.requires.admin</code> is set to 
+   * TRUE it will check that if the current user is in the admin ACLS. If the 
+   * user is in the admin ACLs it returns TRUE, otherwise it returns FALSE.
+   *
+   * @param servletContext the servlet context.
+   * @param request the servlet request.
+   * @param response the servlet response.
+   * @return TRUE/FALSE based on the logic decribed above.
+   */
+  public static boolean isInstrumentationAccessAllowed(
+      ServletContext servletContext, HttpServletRequest request,
+      HttpServletResponse response) throws IOException {
+    Configuration conf = (Configuration) servletContext
+        .getAttribute(CONF_CONTEXT_ATTRIBUTE);
+
+    boolean access = true;
+    boolean adminAccess = conf.getBoolean(
+        CommonConfigurationKeys.HADOOP_SECURITY_INSTRUMENTATION_REQUIRES_ADMIN,
+        false);
+    if (adminAccess) {
+      access = hasAdministratorAccess(servletContext, request, response);
+    }
+    return access;
+  }
+  
+  /**
    * Does the user sending the HttpServletRequest has the administrator ACLs? If
    * it isn't the case, response will be modified to send an error to the user.
-   *
+   * 
    * @param servletContext
    * @param request
    * @param response
@@ -685,7 +756,10 @@ public class HttpServer implements FilterContainer {
 
     String remoteUser = request.getRemoteUser();
     if (remoteUser == null) {
-      return true;
+      response.sendError(HttpServletResponse.SC_UNAUTHORIZED,
+                         "Unauthenticated users are not " +
+                         "authorized to access this page.");
+      return false;
     }
     AccessControlList adminsAcl = (AccessControlList) servletContext
         .getAttribute(ADMINS_ACL);
@@ -694,9 +768,7 @@ public class HttpServer implements FilterContainer {
     if (adminsAcl != null) {
       if (!adminsAcl.isUserAllowed(remoteUserUGI)) {
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User "
-            + remoteUser + " is unauthorized to access this page. "
-            + "AccessControlList for accessing this page : "
-            + adminsAcl.toString());
+            + remoteUser + " is unauthorized to access this page.");
         return false;
       }
     }
@@ -717,8 +789,8 @@ public class HttpServer implements FilterContainer {
       throws ServletException, IOException {
 
       // Do the authorization
-      if (!HttpServer.hasAdministratorAccess(getServletContext(), request,
-          response)) {
+      if (!HttpServer.isInstrumentationAccessAllowed(getServletContext(),
+          request, response)) {
         return;
       }
 
@@ -726,16 +798,17 @@ public class HttpServer implements FilterContainer {
                     (HtmlQuoting.quoteOutputStream(response.getOutputStream()));
       ReflectionUtils.printThreadInfo(out, "");
       out.close();
-      ReflectionUtils.logThreadInfo(LOG, "jsp requested", 1);
+      ReflectionUtils.logThreadInfo(LOG, "jsp requested", 1);      
     }
   }
-
+  
   /**
    * A Servlet input filter that quotes all HTML active characters in the
    * parameter names and values. The goal is to quote the characters to make
    * all of the servlets resistant to cross-site scripting attacks.
    */
   public static class QuotingInputFilter implements Filter {
+    private FilterConfig config;
 
     public static class RequestQuoter extends HttpServletRequestWrapper {
       private final HttpServletRequest rawRequest;
@@ -743,7 +816,7 @@ public class HttpServer implements FilterContainer {
         super(rawRequest);
         this.rawRequest = rawRequest;
       }
-
+      
       /**
        * Return the set of parameter names, quoting each name.
        */
@@ -751,7 +824,7 @@ public class HttpServer implements FilterContainer {
       @Override
       public Enumeration<String> getParameterNames() {
         return new Enumeration<String>() {
-          private Enumeration<String> rawIterator =
+          private Enumeration<String> rawIterator = 
             rawRequest.getParameterNames();
           @Override
           public boolean hasMoreElements() {
@@ -764,7 +837,7 @@ public class HttpServer implements FilterContainer {
           }
         };
       }
-
+      
       /**
        * Unquote the name and quote the value.
        */
@@ -773,7 +846,7 @@ public class HttpServer implements FilterContainer {
         return HtmlQuoting.quoteHtmlChars(rawRequest.getParameter
                                      (HtmlQuoting.unquoteHtmlChars(name)));
       }
-
+      
       @Override
       public String[] getParameterValues(String name) {
         String unquoteName = HtmlQuoting.unquoteHtmlChars(name);
@@ -800,7 +873,7 @@ public class HttpServer implements FilterContainer {
         }
         return result;
       }
-
+      
       /**
        * Quote the url so that users specifying the HOST HTTP header
        * can't inject attacks.
@@ -810,7 +883,7 @@ public class HttpServer implements FilterContainer {
         String url = rawRequest.getRequestURL().toString();
         return new StringBuffer(HtmlQuoting.quoteHtmlChars(url));
       }
-
+      
       /**
        * Quote the server name so that users specifying the HOST HTTP header
        * can't inject attacks.
@@ -823,6 +896,7 @@ public class HttpServer implements FilterContainer {
 
     @Override
     public void init(FilterConfig config) throws ServletException {
+      this.config = config;
     }
 
     @Override
@@ -830,18 +904,35 @@ public class HttpServer implements FilterContainer {
     }
 
     @Override
-    public void doFilter(ServletRequest request,
+    public void doFilter(ServletRequest request, 
                          ServletResponse response,
                          FilterChain chain
                          ) throws IOException, ServletException {
-      HttpServletRequestWrapper quoted =
+      HttpServletRequestWrapper quoted = 
         new RequestQuoter((HttpServletRequest) request);
-      final HttpServletResponse httpResponse = (HttpServletResponse) response;
-      // set the default to UTF-8 so that we don't need to worry about IE7
-      // choosing to interpret the special characters as UTF-7
-      httpResponse.setContentType("text/html;charset=utf-8");
-      chain.doFilter(quoted, response);
+      HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+      String mime = inferMimeType(request);
+      if (mime == null || mime.equals("text/html")) {
+        // no extension or HTML with unspecified encoding, we want to
+        // force HTML with utf-8 encoding
+        // This is to avoid the following security issue:
+        // http://openmya.hacker.jp/hasegawa/security/utf7cs.html
+        httpResponse.setContentType("text/html; charset=utf-8");
+      }
+      chain.doFilter(quoted, httpResponse);
     }
 
+    /**
+     * Infer the mime type for the response based on the extension of the request
+     * URI. Returns null if unknown.
+     */
+    private String inferMimeType(ServletRequest request) {
+      String path = ((HttpServletRequest)request).getRequestURI();
+      ContextHandler.SContext sContext = (ContextHandler.SContext)config.getServletContext();
+      MimeTypes mimes = sContext.getContextHandler().getMimeTypes();
+      Buffer mimeBuffer = mimes.getMimeByExtension(path);
+      return (mimeBuffer == null) ? null : mimeBuffer.toString();
+    }
   }
 }
