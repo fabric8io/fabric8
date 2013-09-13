@@ -131,11 +131,7 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
-            String path = "/fabric/registry/clusters/servlets/"
-                    + servletEvent.getBundle().getSymbolicName() + "/"
-                    + servletEvent.getBundle().getVersion().toString()
-                    + servletEvent.getAlias() + "/"
-                    + id;
+            String path = createServletPath(servletEvent, id);
             setData(curator, path, json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register servlet {}.", servletEvent.getAlias(), e);
@@ -148,11 +144,7 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
             clearJolokiaUrl(container, name);
 
             String id = container.getId();
-            String path = "/fabric/registry/clusters/servlets/"
-                    + servletEvent.getBundle().getSymbolicName() + "/"
-                    + servletEvent.getBundle().getVersion().toString()
-                    + servletEvent.getAlias() + "/"
-                    + id;
+            String path = createServletPath(servletEvent, id);
             delete(curator, path);
         } catch (KeeperException.NoNodeException e) {
             // If the node does not exists, ignore the exception
@@ -200,6 +192,21 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
         } catch (Exception e) {
             LOGGER.error("Failed to unregister webapp {}.", webEvent.getContextPath(), e);
         }
+    }
+
+
+    private String createServletPath(ServletEvent servletEvent, String id) {
+        StringBuilder path = new StringBuilder();
+        path.append("/fabric/registry/clusters/servlets/")
+                .append(servletEvent.getBundle().getSymbolicName()).append("/")
+                .append(servletEvent.getBundle().getVersion().toString())
+                .append(servletEvent.getAlias());
+
+        if (!servletEvent.getAlias().endsWith("/")) {
+            path.append("/");
+        }
+        path.append(id);
+        return path.toString();
     }
 
     private void setJolokiaUrl(Container container, String url, String symbolicName) {
