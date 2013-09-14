@@ -20,15 +20,13 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutorService;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.fusesource.fabric.agent.mvn.MavenConfiguration;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
+import static org.fusesource.fabric.agent.download.DownloadManagerHelper.stripUrl;
 
 public class DownloadManager {
 
-    private static final Pattern IGNORED_PROTOCOL_PATTERN = Pattern.compile("^(jar|war|war-i|warref|webbundle|wrap|spring|blueprint):.*$");
 
     /**
      * Thread pool for downloads
@@ -105,24 +103,7 @@ public class DownloadManager {
             return download;
         }
     }
-    
-    public static String stripUrl(String url) {
-        String strippedUrl = url;
-        Matcher matcher = IGNORED_PROTOCOL_PATTERN.matcher(strippedUrl);
-        while (matcher.matches()) {
-            String protocol = matcher.group(1);
-            strippedUrl = strippedUrl.substring(protocol.length() + 1);
-            matcher = IGNORED_PROTOCOL_PATTERN.matcher(strippedUrl);
-        }
-        if (strippedUrl.contains("?")) {
-            strippedUrl = strippedUrl.substring(0, strippedUrl.lastIndexOf('?'));
-        }
-        if (strippedUrl.contains("#")) {
-            strippedUrl = strippedUrl.substring(0, strippedUrl.lastIndexOf('#'));
-        }
 
-        return strippedUrl;
-    }
 
     static class DummyDownloadTask extends AbstractDownloadTask {
         DummyDownloadTask(String url, ExecutorService executor) {
