@@ -57,6 +57,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 import static org.apache.felix.resolver.Util.getSymbolicName;
 import static org.apache.felix.resolver.Util.getVersion;
@@ -73,6 +74,7 @@ public class DeploymentAgent implements ManagedService {
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
+    private static final Pattern SNAPSHOT_PATTERN = Pattern.compile(".*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)");
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
@@ -786,11 +788,11 @@ public class DeploymentAgent implements ManagedService {
     }
 
     private static boolean isUpdateable(Bundle bundle) {
-        return (bundle.getLocation().endsWith(SNAPSHOT) || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(SPRING_PREFIX));
+        return (SNAPSHOT_PATTERN.matcher(bundle.getLocation()).matches() || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(SPRING_PREFIX));
     }
 
     private static boolean isUpdateable(Resource resource) {
-        return (getVersion(resource).getQualifier().endsWith(SNAPSHOT) || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
+        return (getVersion(resource).getQualifier().endsWith(SNAPSHOT) || SNAPSHOT_PATTERN.matcher(getUri(resource)).matches() || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
     }
 
     interface ExecutorServiceFinder {
