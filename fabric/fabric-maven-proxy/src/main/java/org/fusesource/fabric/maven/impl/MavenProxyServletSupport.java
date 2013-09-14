@@ -44,7 +44,6 @@ import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.installation.InstallRequest;
 import org.sonatype.aether.metadata.Metadata;
 import org.sonatype.aether.repository.LocalRepository;
-import org.sonatype.aether.repository.Proxy;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
 import org.sonatype.aether.resolution.ArtifactRequest;
@@ -60,6 +59,9 @@ import org.sonatype.aether.util.metadata.DefaultMetadata;
 public class MavenProxyServletSupport extends HttpServlet implements MavenProxy {
 
     protected static final Logger LOGGER = Logger.getLogger(MavenProxyServletSupport.class.getName());
+
+    private static final String SNAPSHOT_TIMESTAMP_REGEX = "^([0-9]{8}.[0-9]{6}-[0-9]+).*";
+    private static final Pattern SNAPSHOT_TIMESTAMP_PATTENR = Pattern.compile(SNAPSHOT_TIMESTAMP_REGEX);
 
     //The pattern below matches a path to the following:
     //1: groupId
@@ -304,7 +306,15 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             String stripedFileName = null;
 
             if (version.endsWith("SNAPSHOT")) {
-                stripedFileName = filename.replaceAll("\\d{8}.\\d+-\\d+", "SNAPSHOT");
+                String baseVersion = version.replaceAll("-SNAPSHOT", "");
+                String timestampedFileName = filename.substring(artifactId.length() + baseVersion.length() + 2);
+                //Check if snapshot is timestamped and override the version. @{link Artifact} will still treat it as a SNAPSHOT.
+                //and also in case of artifact installation the proper filename will be used.
+                Matcher ts = SNAPSHOT_TIMESTAMP_PATTENR.matcher(timestampedFileName);
+                if (ts.matches()) {
+                    version = baseVersion + "-" + ts.group(1);
+                }
+                stripedFileName = filename.replaceAll(SNAPSHOT_TIMESTAMP_REGEX, "SNAPSHOT");
                 stripedFileName = stripedFileName.substring(filePerfix.length());
             } else {
                 stripedFileName = filename.substring(filePerfix.length());
