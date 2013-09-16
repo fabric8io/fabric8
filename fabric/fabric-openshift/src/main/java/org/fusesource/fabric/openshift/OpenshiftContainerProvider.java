@@ -23,6 +23,8 @@ import com.openshift.client.IHttpClient;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
 import com.openshift.client.OpenShiftConnectionFactory;
+import com.openshift.client.cartridge.EmbeddableCartridge;
+import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.internal.client.GearProfile;
 import com.openshift.internal.client.StandaloneCartridge;
 import org.apache.felix.scr.annotations.Component;
@@ -32,9 +34,16 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Version;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,6 +53,7 @@ import java.util.Set;
         immediate = true)
 @Service(ContainerProvider.class)
 public class OpenshiftContainerProvider implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata> {
+    private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
 
     private static final String SCHEME = "openshift";
 
@@ -62,21 +72,72 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         IUser user = getOrCreateConnection(options).getUser();
         IDomain domain =  getOrCreateDomain(user, options);
         int number = Math.max(options.getNumber(), 1);
-        StandaloneCartridge cartridge = options.isEnsembleServer() ? new StandaloneCartridge(REGISTRY_CART) : new StandaloneCartridge(PLAIN_CART);
+        String cartridgeUrl = null;
+        Set<String> profiles = options.getProfiles();
+        String versionId = options.getVersion();
+        if (profiles != null && versionId != null) {
+            Version version = fabricService.getVersion(versionId);
+            if (version != null) {
+                for (String profileId : profiles) {
+                    Profile profile = version.getProfile(profileId);
+                    if (profile != null) {
+                        Profile overlay = profile.getOverlay();
+                        Map<String, Map<String, String>> configurations = overlay.getConfigurations();
+                        if (configurations != null) {
+                            Map<String, String> openshiftConfig = configurations
+                                    .get("org.fusesource.openshift");
+                            if (openshiftConfig != null)  {
+                                cartridgeUrl = openshiftConfig.get("cartridge");
+                                if (cartridgeUrl != null) {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // TODO need to check in the profile too?
+        boolean fuseCart = false;
+        if (cartridgeUrl == null) {
+            cartridgeUrl = options.isEnsembleServer() ? REGISTRY_CART : PLAIN_CART;
+            fuseCart = true;
+        }
+        String[] cartridgeUrls = cartridgeUrl.split(" ");
+        LOG.info("Creating cartridges: " + cartridgeUrl);
+        String standAloneCartridgeUrl = cartridgeUrls[0];
+        StandaloneCartridge cartridge = new StandaloneCartridge(standAloneCartridgeUrl);
 
         String zookeeperUrl = fabricService.getZookeeperUrl();
         String zookeeperPassword = fabricService.getZookeeperPassword();
 
         Map<String,String> userEnvVars = new HashMap<String, String>();
-        userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_URL", zookeeperUrl);
-        userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD", zookeeperPassword);
+        if (fuseCart) {
+            userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_URL", zookeeperUrl);
+            userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD", zookeeperPassword);
+        }
 
         String initGitUrl = null;
         int timeout = IHttpClient.NO_TIMEOUT;
         ApplicationScale scale = null;
 
         for (int i = 1; i <= number; i++) {
-            IApplication application = domain.createApplication(options.getName(),cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
+            if (userEnvVars.isEmpty()) {
+                userEnvVars = null;
+            }
+            IApplication application = domain.createApplication(options.getName(), cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
+
+            // now lets add all the embedded cartridges
+            List<IEmbeddableCartridge> list = new ArrayList<IEmbeddableCartridge>();
+            for (int idx = 1,  size = cartridgeUrls.length; idx < size; idx++) {
+                String embeddedUrl = cartridgeUrls[idx];
+                LOG.info("Adding embedded cartridge: " + embeddedUrl);
+                list.add(new EmbeddableCartridge(embeddedUrl));
+            }
+            if (!list.isEmpty()) {
+                application.addEmbeddableCartridges(list);
+            }
+
             String containerName = application.getName() + "-" + application.getUUID();
 /*
             // now we pass in the environemnt variables we don't need to restart
