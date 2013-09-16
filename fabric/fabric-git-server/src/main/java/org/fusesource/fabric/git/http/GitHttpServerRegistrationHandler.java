@@ -28,10 +28,12 @@ import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
@@ -48,10 +50,8 @@ import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-@Component(name = "org.fusesource.fabric.git.server",
-           description = "Fabric Git HTTP Server Registration Handler",
-           immediate = true)
-public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> {
+@Component(name = "org.fusesource.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", immediate = true)
+public class GitHttpServerRegistrationHandler extends AbstractComponent implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
     private static final String REALM_PROPERTY_NAME = "realm";
@@ -64,15 +64,14 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
 
     private Group<GitNode> group;
 
-    @Reference
+    @Reference(referenceInterface = HttpService.class)
     private HttpService httpService;
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private ConfigurationAdmin configurationAdmin;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     private final GitServlet gitServlet = new GitServlet();
-
 
     private String realm;
     private String role;
@@ -80,47 +79,51 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
     private List<GitListener> listeners = new ArrayList<GitListener>();
     private String gitRemoteUrl;
 
-    public GitHttpServerRegistrationHandler() {
-    }
-
-
     @Activate
-    public void init(Map<String, String> properties) {
-        this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
-
-        group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
-        group.add(this);
-        group.update(createState());
-        group.start();
-
+    synchronized void activate(ComponentContext context, Map<String, String> properties) {
+        activateComponent(context);
         try {
-            HttpContext base = httpService.createDefaultHttpContext();
-            HttpContext secure = new SecureHttpContext(base, realm, role);
-            String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator;
-            String fabricGitPath = basePath + "fabric";
-            File fabricRoot = new File(fabricGitPath);
-            if (!fabricRoot.exists() && !fabricRoot.mkdirs()) {
-                throw new FileNotFoundException("Could not found git root:" + basePath);
+            this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+            this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
+
+            group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
+            group.add(this);
+            group.update(createState());
+            group.start();
+
+            try {
+                HttpContext base = httpService.createDefaultHttpContext();
+                HttpContext secure = new SecureHttpContext(base, realm, role);
+                String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator;
+                String fabricGitPath = basePath + "fabric";
+                File fabricRoot = new File(fabricGitPath);
+                if (!fabricRoot.exists() && !fabricRoot.mkdirs()) {
+                    throw new FileNotFoundException("Could not found git root:" + basePath);
+                }
+                Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+                initParams.put("base-path", basePath);
+                initParams.put("repository-root", basePath);
+                initParams.put("export-all", "true");
+                httpService.registerServlet("/git", gitServlet, initParams, secure);
+            } catch (Exception e) {
+                LOGGER.error("Error while registering git servlet", e);
             }
-            Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-            initParams.put("base-path", basePath);
-            initParams.put("repository-root", basePath);
-            initParams.put("export-all", "true");
-            httpService.registerServlet("/git", gitServlet, initParams, secure);
-        } catch (Exception e) {
-            LOGGER.error("Error while registering git servlet", e);
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
         }
     }
 
     @Deactivate
-    public void destroy() {
+    synchronized void deactivate() {
         try {
             if (group != null) {
                 group.close();
             }
         } catch (Exception e) {
             LOGGER.warn("Failed to remove git server from registry.", e);
+        } finally {
+            deactivateComponent();
         }
     }
 

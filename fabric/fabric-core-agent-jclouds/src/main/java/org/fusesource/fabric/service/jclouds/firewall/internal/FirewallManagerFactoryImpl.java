@@ -40,7 +40,7 @@ import org.osgi.service.component.ComponentContext;
 @Service(FirewallManagerFactory.class)
 public class FirewallManagerFactoryImpl extends AbstractComponent implements FirewallManagerFactory {
 
-    @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindApiFirewallSupport", unbind = "unbindApiFirewallSupport", referenceInterface = ApiFirewallSupport.class, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = ApiFirewallSupport.class, bind = "bindApiFirewallSupport", unbind = "unbindApiFirewallSupport", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Set<ApiFirewallSupport> firewallSupportModules = new HashSet<ApiFirewallSupport>();
 
     @Activate

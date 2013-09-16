@@ -42,7 +42,7 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
 
     private final Set<Repository> repositories = new HashSet<Repository>();

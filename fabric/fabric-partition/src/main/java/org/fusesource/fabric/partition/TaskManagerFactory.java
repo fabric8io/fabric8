@@ -19,6 +19,7 @@ package org.fusesource.fabric.partition;
 import com.google.common.base.Throwables;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -30,15 +31,14 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.fusesource.fabric.partition.internal.DefaultTaskManager;
 import org.fusesource.fabric.partition.internal.WorkManagerWithBalancingPolicy;
 import org.fusesource.fabric.partition.internal.WorkManagerWithListener;
-import org.osgi.framework.BundleContext;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.osgi.framework.Constants;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,9 +49,8 @@ import static com.google.common.collect.Iterables.filter;
 /**
  * A {@link ManagedServiceFactory} for creating {@link org.fusesource.fabric.partition.internal.DefaultTaskManager} instances.
  */
-@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true,
-           policy = ConfigurationPolicy.REQUIRE)
-public class TaskManagerFactory {
+@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
+public class TaskManagerFactory extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManagerFactory.class);
 
@@ -66,21 +65,28 @@ public class TaskManagerFactory {
     private final Multimap<String, String> waitingOnListener = LinkedHashMultimap.create();
     private final Map<String, Map<String,?>> pendingPids = new HashMap<String, Map<String,?>>();
 
-    private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = BalancingPolicy.class, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = BalancingPolicy.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, BalancingPolicy> balancingPolicies = new ConcurrentHashMap<String, BalancingPolicy>();
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = PartitionListener.class, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = PartitionListener.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, PartitionListener> partitionListeners = new ConcurrentHashMap<String, PartitionListener>();
-
-
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
-
     @Activate
-    public synchronized void activate(Map<String,?> properties) throws ConfigurationException {
+    synchronized void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
+        activateComponent(context);
+        try {
+            activateInternal(properties);
+        } catch (ConfigurationException ex) {
+            deactivateComponent();
+            throw ex;
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
+    }
+
+    private void activateInternal(Map<String, ?> properties) throws ConfigurationException {
         validate(properties);
         String s = readString(properties, Constants.SERVICE_PID);
         String taskId = readString(properties, TASK_ID_PROPERTY_NAME);
@@ -111,10 +117,14 @@ public class TaskManagerFactory {
     }
 
     @Deactivate
-    public void deleted(Map<String,?> properties) {
-        String s = readString(properties, Constants.SERVICE_PID);
-        TaskManager taskManager = taksManagers.remove(s);
-        taskManager.stop();
+    synchronized void deactivate(Map<String,?> properties) {
+        try {
+            String s = readString(properties, Constants.SERVICE_PID);
+            TaskManager taskManager = taksManagers.remove(s);
+            taskManager.stop();
+        } finally {
+            deactivateComponent();
+        }
     }
 
 
@@ -172,7 +182,7 @@ public class TaskManagerFactory {
         balancingPolicies.put(balancingPolicy.getType(), balancingPolicy);
         for (String pid : waitingOnBalancing.get(balancingPolicy.getType())) {
             try {
-                activate(pendingPids.remove(pid));
+                activateInternal(pendingPids.remove(pid));
             } catch (ConfigurationException e) {
                 Throwables.propagate(e);
             }
@@ -188,7 +198,7 @@ public class TaskManagerFactory {
         partitionListeners.put(partitionListener.getType(), partitionListener);
         for (String pid : waitingOnListener.get(partitionListener.getType())) {
             try {
-                activate(pendingPids.remove(pid));
+                activateInternal(pendingPids.remove(pid));
             } catch (ConfigurationException e) {
                 Throwables.propagate(e);
             }

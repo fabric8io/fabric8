@@ -78,32 +78,32 @@
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-git</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-groups</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-linkedin-zookeeper</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>

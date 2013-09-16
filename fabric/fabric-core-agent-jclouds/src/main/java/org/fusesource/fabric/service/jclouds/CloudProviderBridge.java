@@ -60,9 +60,9 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
     private static final String COMPUTE_FILTER = "(service.factoryPid=org.jclouds.compute)";
     private static final String BLOBSTORE_FILTER = "(service.factoryPid=org.jclouds.blobstore)";
 
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private ConfigurationAdmin configurationAdmin;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     @Activate

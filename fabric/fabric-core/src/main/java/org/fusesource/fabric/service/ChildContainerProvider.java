@@ -54,7 +54,7 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
 
     private static final String SCHEME = "child";
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService service;
 
     @Activate

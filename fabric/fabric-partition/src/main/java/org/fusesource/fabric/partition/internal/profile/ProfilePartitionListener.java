@@ -62,7 +62,7 @@ public class ProfilePartitionListener extends AbstractComponent implements Parti
     private final SetMultimap<String, Partition> assignedPartitons = Multimaps.synchronizedSetMultimap(HashMultimap.<String, Partition>create());
     private final ParserContext parserContext = new ParserContext();
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
 
     @Activate

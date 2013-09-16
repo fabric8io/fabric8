@@ -39,7 +39,7 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
 
     private static final String CRYPT_SCHEME = "crypt";
 
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     @Activate

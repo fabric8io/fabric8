@@ -57,7 +57,7 @@ public class DataStoreManager extends AbstractComponent implements DataStoreRegi
 
     private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreManager.class);
 
-    @Reference(cardinality = OPTIONAL_MULTIPLE, referenceInterface = DataStorePlugin.class, bind = "bindDataStore", unbind = "unbindDataStore", policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = DataStorePlugin.class, bind = "bindDataStore", unbind = "unbindDataStore", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, DataStorePlugin> dataStorePlugins = new HashMap<String, DataStorePlugin>();
 
     private Map<String,String> configuration;

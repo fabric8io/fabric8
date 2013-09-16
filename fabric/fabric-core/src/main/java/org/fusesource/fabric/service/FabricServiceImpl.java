@@ -101,7 +101,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     private ConfigurationAdmin configurationAdmin;
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
-    @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "registerProvider", unbind = "unregisterProvider", referenceInterface = ContainerProvider.class, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = ContainerProvider.class, bind = "registerProvider", unbind = "unregisterProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;

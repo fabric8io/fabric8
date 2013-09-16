@@ -23,8 +23,10 @@ import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,9 +43,8 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Component(name = "org.fusesource.fabric.configadmin.bridge",
-           description = "Fabric Config Admin Bridge")
-public class FabricConfigAdminBridge implements Runnable {
+@Component(name = "org.fusesource.fabric.configadmin.bridge", description = "Fabric Config Admin Bridge")
+public class FabricConfigAdminBridge extends AbstractComponent implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
     public static final String AGENT_PID = "org.fusesource.fabric.agent";
@@ -51,30 +52,40 @@ public class FabricConfigAdminBridge implements Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
 
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private ConfigurationAdmin configAdmin;
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
-    @Reference
+    @Reference(referenceInterface = ContainerRegistration.class)
     private ContainerRegistration registration;
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 
     @Activate
-    public void init() {
-        fabricService.trackConfiguration(this);
-        run();
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+        try {
+            fabricService.trackConfiguration(this);
+            run();
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
     }
 
     @Deactivate
-    public void destroy() {
-        fabricService.unTrackConfiguration(this);
-        executor.shutdown();
+    synchronized void deactivate() {
         try {
-            executor.awaitTermination(1, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-            // Ignore
+            fabricService.unTrackConfiguration(this);
+            executor.shutdown();
+            try {
+                executor.awaitTermination(1, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+            executor.shutdownNow();
+        } finally {
+            deactivateComponent();
         }
-        executor.shutdownNow();
     }
 
     @Override

@@ -38,7 +38,7 @@ public class ZookeeperPlaceholderResolver extends AbstractComponent implements P
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
     private static final String ZOOKEEPER_SCHEME = "zk";
 
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     @Activate

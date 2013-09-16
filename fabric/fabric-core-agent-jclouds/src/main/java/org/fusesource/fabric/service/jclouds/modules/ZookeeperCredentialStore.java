@@ -65,7 +65,7 @@ public class ZookeeperCredentialStore extends CredentialStore implements Connect
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCredentialStore.class);
 
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
     private Cache<String, Credentials> cache;
 

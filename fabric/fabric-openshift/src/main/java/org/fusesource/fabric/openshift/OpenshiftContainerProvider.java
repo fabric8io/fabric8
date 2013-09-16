@@ -70,10 +70,10 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
     private static final String REGISTRY_CART = "https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml";
     private static final String PLAIN_CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
 
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    @Reference(referenceInterface = IOpenShiftConnection.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private IOpenShiftConnection connection;
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
 
     private Map<String, String> properties = new HashMap<String, String>();

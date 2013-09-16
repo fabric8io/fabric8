@@ -37,14 +37,14 @@ import org.slf4j.LoggerFactory;
 import java.util.Collection;
 
 @Component(name = "org.fusesource.fabric.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
-@Service
+@Service(BalancingPolicy.class)
 public class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvenBalancingPolicy.class);
     private static final String TYPE = "even";
     private final ObjectMapper mapper = new ObjectMapper();
 
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     public EvenBalancingPolicy() {

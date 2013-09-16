@@ -47,7 +47,7 @@ import org.osgi.service.component.ComponentContext;
 @Service(PortService.class)
 public class ZookeeperPortService extends AbstractComponent implements PortService {
 
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
     private InterProcessLock lock;
 

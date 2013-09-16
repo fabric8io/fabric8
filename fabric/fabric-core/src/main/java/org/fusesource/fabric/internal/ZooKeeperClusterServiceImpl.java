@@ -66,26 +66,25 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "org.fusesource.fabric.zookeeper.cluster.service",
-           description = "Fabric ZooKeeper Cluster Service")
+@Component(name = "org.fusesource.fabric.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
 @Service(ZooKeeperClusterService.class)
 public class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
 
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
 	private ConfigurationAdmin configurationAdmin;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
-    @Reference
+    @Reference(referenceInterface = ACLProvider.class)
     private ACLProvider aclProvider;
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
 	private FabricService fabricService;
-    @Reference
+    @Reference(referenceInterface = DataStore.class)
     private DataStore dataStore;
-    @Reference
+    @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private DataStoreRegistrationHandler dataStoreRegistrationHandler;
-    @Reference
+    @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private ZooKeeperClusterBootstrap bootstrap;
 
     @Activate

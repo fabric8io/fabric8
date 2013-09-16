@@ -38,7 +38,7 @@ public class PortPlaceholderResolver extends AbstractComponent implements Placeh
     private static final String PORT_SCHEME = "port";
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
 
     @Activate

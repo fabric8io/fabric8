@@ -50,7 +50,7 @@ public class ProfileUrlHandler extends AbstractURLStreamHandlerService implement
 
     private static final String SYNTAX = "profile:<resource name>";
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
 
     private final AtomicBoolean active = new AtomicBoolean();

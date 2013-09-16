@@ -47,14 +47,14 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
-    @Reference
+    @Reference(referenceInterface = GitService.class)
     private GitService gitService;
 
     //We need to wait for the container registration, so that substitution of master url works.
-    @Reference
+    @Reference(referenceInterface = ContainerRegistration.class)
     private ContainerRegistration containerRegistration;
 
     private Group<GitNode> group;

@@ -1,5 +1,14 @@
 package org.fusesource.fabric.api.jmx;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -9,33 +18,37 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Stan Lewis
  */
 @Component(description = "Fabric ZooKeeper Cluster Bootstrap Manager JMX MBean")
-public class ClusterBootstrapManager implements ClusterBootstrapManagerMBean {
+public class ClusterBootstrapManager extends AbstractComponent implements ClusterBootstrapManagerMBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ClusterBootstrapManager.class);
 
-    @Reference
+    @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private ZooKeeperClusterBootstrap bootstrap;
 
-    @Reference(bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
     private ObjectName objectName;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     public ObjectName getObjectName() throws MalformedObjectNameException {
         if (objectName == null) {

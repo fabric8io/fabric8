@@ -3,12 +3,13 @@ package org.fusesource.fabric.api.jmx;
 import org.apache.felix.scr.annotations.*;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+
 import java.util.List;
 import java.util.Map;
 
@@ -16,16 +17,25 @@ import java.util.Map;
  * @author Stan Lewis
  */
 @Component(description = "Fabric ZooKeeper Cluster Manager JMX MBean")
-public class ClusterServiceManager implements ClusterServiceManagerMBean {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ClusterServiceManager.class);
+public class ClusterServiceManager extends AbstractComponent implements ClusterServiceManagerMBean {
 
-    @Reference
+    @Reference(referenceInterface = ZooKeeperClusterService.class)
     private ZooKeeperClusterService service;
 
-    @Reference(bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private MBeanServer mbeanServer;
 
     private ObjectName objectName;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     public ObjectName getObjectName() throws MalformedObjectNameException {
         if (objectName == null) {

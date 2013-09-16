@@ -78,15 +78,18 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     private static final String SCHEME = "jclouds";
 
+    @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
+    private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
+
     @Reference
     private ComputeRegistry computeRegistry;
-    @Reference
+    @Reference(referenceInterface = FirewallManagerFactory.class)
     private FirewallManagerFactory firewallManagerFactory;
-    @Reference
+    @Reference(referenceInterface = CredentialStore.class)
     private CredentialStore credentialStore;
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private ConfigurationAdmin configurationAdmin;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     private ExecutorService executorService = Executors.newCachedThreadPool();

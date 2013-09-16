@@ -79,9 +79,9 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
 
-    @Reference
+    @Reference(referenceInterface = HttpService.class)
     private HttpService httpService;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     private String realm;

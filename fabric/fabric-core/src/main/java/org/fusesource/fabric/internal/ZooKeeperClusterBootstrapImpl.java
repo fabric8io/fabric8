@@ -68,7 +68,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
 	private ConfigurationAdmin configurationAdmin;
 
     @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindDataStoreRegistrationHandler", unbind = "unbindDataStoreRegistrationHandler")

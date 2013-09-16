@@ -38,9 +38,6 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.osgi.service.component.ComponentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -74,12 +71,12 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 @Component(name = "org.fusesource.datastore.zookeeper", description = "Fabric ZooKeeper DataStore")
 @Service(DataStorePlugin.class)
 @References({
-        @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
+        @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
 }
 )
 public class ZooKeeperDataStore extends DataStoreSupport implements DataStorePlugin<ZooKeeperDataStore> {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ZooKeeperDataStore.class);
+
     public static final String TYPE = "zookeeper";
 
     public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY};

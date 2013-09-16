@@ -54,9 +54,9 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
     private final Map<Bundle, WebEvent> webEvents = new HashMap<Bundle, WebEvent>();
     private final Map<Bundle, Map<String, ServletEvent>> servletEvents = new HashMap<Bundle, Map<String, ServletEvent>>();
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
     @Activate

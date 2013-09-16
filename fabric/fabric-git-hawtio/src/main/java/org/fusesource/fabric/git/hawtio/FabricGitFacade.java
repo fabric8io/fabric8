@@ -57,7 +57,7 @@ import static org.fusesource.fabric.git.internal.GitHelpers.getRootGitDirectory;
 public class FabricGitFacade extends GitFacadeSupport implements Validatable {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGitFacade.class);
 
-    @Reference
+    @Reference(referenceInterface = DataStore.class)
     private DataStore dataStore;
     private GitDataStore gitDataStore;
 

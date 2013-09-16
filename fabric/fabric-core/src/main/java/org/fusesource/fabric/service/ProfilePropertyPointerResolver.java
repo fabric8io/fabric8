@@ -47,9 +47,9 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
 
     private static final String EMPTY = "";
 
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
-    @Reference
+    @Reference(referenceInterface = DataStore.class)
     private DataStore dataStore;
 
     @Activate

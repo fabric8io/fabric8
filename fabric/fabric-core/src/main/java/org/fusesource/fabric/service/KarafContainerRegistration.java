@@ -108,13 +108,13 @@ public class KarafContainerRegistration extends AbstractComponent implements Con
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
-    @Reference
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private ConfigurationAdmin configurationAdmin;
-    @Reference
+    @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
-    @Reference
+    @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
-    @Reference
+    @Reference(referenceInterface = MBeanServer.class)
     private volatile MBeanServer mbeanServer;
 
     @Activate
