@@ -87,10 +87,6 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
         super.stop();
     }
 
-    public String toString() {
-        return "CachingGitDataStore(" + getGitService() + ")";
-    }
-
     public List<String> getVersions() {
         List<String> versions = null;
         // See if we already have the list of versions

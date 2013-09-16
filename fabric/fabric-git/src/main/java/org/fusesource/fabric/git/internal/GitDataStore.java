@@ -165,10 +165,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
     private ScheduledExecutorService threadPool;
 
-    public String toString() {
-        return "GitDataStore(" + getGitService() + ")";
-    }
-
     @Activate
     public void init() {
     }
@@ -238,14 +234,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
      */
     public void setRemote(String remote) {
         this.remote = remote;
-    }
-
-    public GitService getGitService() {
-        return gitService;
-    }
-
-    public void setGitService(GitService gitService) {
-        this.gitService = gitService;
     }
 
     public void bindGitService(GitService gitService) {
@@ -1274,5 +1262,9 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
     private static boolean equals(Object a, Object b) {
         return (a == b) || (a != null && a.equals(b));
+    }
+
+    public String toString() {
+        return getClass().getSimpleName() + "(" + gitService + ")";
     }
 }

@@ -19,6 +19,7 @@ package org.fusesource.fabric.git.internal;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
+import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.fusesource.fabric.git.hawtio.FabricGitFacade;
@@ -28,6 +29,7 @@ import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.osgi.service.component.ComponentContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -89,18 +91,20 @@ public class GitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        GitService gitService = new LocalGitService() {
+        LocalGitService gitService = new LocalGitService() {
             public Git get() throws IOException {
                 return git;
             }
         };
+        gitService.activate(EasyMock.createMock(ComponentContext.class));
 
         dataStore = createDataStore();
+        dataStore.bindCurator(curator);
+        dataStore.bindGitService(gitService);
+        // dataStore.activate(EasyMock.createMock(ComponentContext.class));
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.setDataStoreProperties(datastoreProperties);
-        dataStore.setCurator(curator);
-        dataStore.setGitService(gitService);
         dataStore.start();
     }
 

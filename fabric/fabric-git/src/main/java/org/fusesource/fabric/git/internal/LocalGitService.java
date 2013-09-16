@@ -28,15 +28,16 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
-import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.git.GitListener;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 
 /**
  * A local stand alone git repository
  */
-@Component(name = "org.fusesource.fabric.git.local",description = "Local Git Service", immediate = true)
-@Service(GitService.class)
-public class LocalGitService implements GitService {
+@Component(name = "org.fusesource.fabric.git.local", description = "Local Git Service", immediate = true)
+@Service(GitService.class) // @Ref Done
+public class LocalGitService extends AbstractComponent implements GitService {
     public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "fabric";
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + DEFAULT_GIT_PATH;
 
@@ -46,17 +47,64 @@ public class LocalGitService implements GitService {
     private String remoteUrl;
     private Git git;
 
-
     @Activate
-    public void init() throws IOException {
-        if (!localRepo.exists() && !localRepo.mkdirs()) {
-            throw new IOException("Failed to create local repository");
+    synchronized void activate(ComponentContext context) throws IOException {
+        activateComponent(context);
+        try {
+            if (!localRepo.exists() && !localRepo.mkdirs()) {
+                throw new IOException("Failed to create local repository");
+            }
+            git = openOrInit(localRepo);
+        } catch (IOException ex) {
+            deactivateComponent();
+            throw ex;
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
         }
-        git = openOrInit(localRepo);
     }
 
     @Deactivate
-    public void destroy() {
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
+
+    @Override
+    public Git get() throws IOException {
+        return git;
+    }
+
+    @Override
+    public String getRemoteUrl() {
+        assertValid();
+        return remoteUrl;
+    }
+
+    @Override
+    public void onRemoteChanged(String remoteUrl) {
+        assertValid();
+        this.remoteUrl = remoteUrl;
+        synchronized (callbacks) {
+            for (GitListener listener : callbacks) {
+                listener.onRemoteUrlChanged(remoteUrl);
+            }
+        }
+    }
+
+    @Override
+    public void addRemoteChangeListener(GitListener callback) {
+        assertValid();
+        synchronized (callbacks) {
+            callbacks.add(callback);
+        }
+    }
+
+    @Override
+    public void removeRemoteChangeListener(GitListener callback) {
+        assertValid();
+        synchronized (callbacks) {
+            callbacks.remove(callback);
+        }
     }
 
     private Git openOrInit(File repo) throws IOException {
@@ -72,34 +120,4 @@ public class LocalGitService implements GitService {
             }
         }
     }
-
-    @Override
-    public Git get() throws IOException {
-        return git;
-    }
-
-    @Override
-    public String getRemoteUrl() {
-        return remoteUrl;
-    }
-
-    @Override
-    public void onRemoteChanged(String remoteUrl) {
-        this.remoteUrl = remoteUrl;
-        for (GitListener listener : callbacks) {
-            listener.onRemoteUrlChanged(remoteUrl);
-        }
-    }
-
-
-    @Override
-    public void addRemoteChangeListener(GitListener callback) {
-        callbacks.add(callback);
-    }
-
-    @Override
-    public void removeRemoteChangeListener(GitListener callback) {
-        callbacks.remove(callback);
-    }
-
 }
