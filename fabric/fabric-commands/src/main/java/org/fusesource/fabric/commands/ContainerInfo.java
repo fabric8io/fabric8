@@ -19,6 +19,7 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -62,6 +63,15 @@ public class ContainerInfo extends FabricCommand {
 
 		System.out.println(String.format(FORMAT, "Profiles:", sb.toString()));
 		System.out.println(String.format(FORMAT, "Provision Status:", container.getProvisionStatus()));
+        String blueprintStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.BlueprintStatus, "", false, false);
+        String springStatus = fabricService.getDataStore().getContainerAttribute(containerName, DataStore.ContainerAttribute.SpringStatus, "", false, false);
+        if (!blueprintStatus.isEmpty()) {
+            System.out.println(String.format(FORMAT, "Blueprint Status:", blueprintStatus.toLowerCase()));
+        }
+        if (!springStatus.isEmpty()) {
+            System.out.println(String.format(FORMAT, "Spring Status:", springStatus.toLowerCase()));
+        }
+
 		if (container.getProvisionException() != null) {
 			System.out.println(String.format(FORMAT, "Provision Error:", container.getProvisionException()));
 		}

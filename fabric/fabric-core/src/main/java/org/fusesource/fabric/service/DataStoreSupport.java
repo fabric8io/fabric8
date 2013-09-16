@@ -578,6 +578,10 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
 
     private String getAttributePath(String containerId, ContainerAttribute attribute) {
         switch (attribute) {
+        case BlueprintStatus:
+              return ZkPath.CONTAINER_EXTENDER_STATUS.getPath(containerId, "blueprint");
+        case SpringStatus:
+                return ZkPath.CONTAINER_EXTENDER_STATUS.getPath(containerId, "spring");
         case ProvisionStatus:
             return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
         case ProvisionException:

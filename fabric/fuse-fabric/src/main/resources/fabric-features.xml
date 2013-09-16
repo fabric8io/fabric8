@@ -140,6 +140,7 @@
         <feature version="${project.version}">insight-graph</feature>
 -->
         <bundle>mvn:org.fusesource.fabric/fabric-agent/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/fabric-extender-listener/${project.version}</bundle>
     </feature>
 
     <feature name="fabric-web" version="${project.version}" resolver="(obr)">

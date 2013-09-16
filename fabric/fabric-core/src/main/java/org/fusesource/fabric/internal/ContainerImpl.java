@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.ModuleStatus;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.api.data.BundleInfo;
@@ -530,7 +531,12 @@ public class ContainerImpl implements Container {
 
     @Override
     public String getProvisionResult() {
-        return getOptionalAttribute(DataStore.ContainerAttribute.ProvisionStatus, "");
+        String status = getOptionalAttribute(DataStore.ContainerAttribute.ProvisionStatus, "");
+        if (status.equals("success")) {
+            return getExtenderStatus();
+        } else {
+            return status;
+        }
     }
 
     @Override
@@ -676,4 +682,15 @@ public class ContainerImpl implements Container {
         service.getDataStore().setContainerAttribute(id, attribute, value);
     }
 
+    private String getExtenderStatus() {
+        ModuleStatus blueprintStatus = Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.BlueprintStatus, ModuleStatus.STARTED.name()));
+        ModuleStatus springStatus = Enum.valueOf(ModuleStatus.class, getOptionalAttribute(DataStore.ContainerAttribute.SpringStatus, ModuleStatus.STARTED.name()));
+        if (blueprintStatus != ModuleStatus.STARTED) {
+            return blueprintStatus.name().toLowerCase();
+        } else if (springStatus != ModuleStatus.STARTED) {
+            return springStatus.name().toLowerCase();
+        } else {
+            return "success";
+        }
+    }
 }

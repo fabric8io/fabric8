@@ -89,6 +89,8 @@ public interface DataStore {
     boolean isContainerAlive(String id);
 
     public enum ContainerAttribute {
+        BlueprintStatus,
+        SpringStatus,
         ProvisionStatus,
         ProvisionException,
         ProvisionList,

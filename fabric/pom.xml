@@ -43,6 +43,7 @@
         <module>dynamic-jaxb</module>
         
         <module>fabric-agent</module>
+        <module>fabric-extender-listener</module>
         <module>fabric-aggregator</module>
         <module>fabric-api</module>
         <module>fabric-boot-commands</module>
@@ -94,7 +95,7 @@
         <module>watcher-dynamic-jaxb</module>
         <module>watcher-dozer</module>
         <module>watcher-spring-context</module>
-        
+
         <!--
         TODO disabled until they work in 2.12 of camel
         <module>fabric-camel-c24io</module>
