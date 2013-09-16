@@ -98,8 +98,8 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     private DataStore dataStore;
     @Reference(referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
     private PortService portService;
-    @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigurationAdmin", unbind = "unbindConfigurationAdmin")
-    private ConfigurationAdmin configurationAdmin;
+    @Reference(referenceInterface = ConfigurationAdmin.class)
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "registerProvider", unbind = "unregisterProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -167,21 +167,12 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         this.portService = null;
     }
 
-
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
     }
 
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-    public void bindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-    public void unbindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = null;
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
     public String getDefaultRepo() {
@@ -571,7 +562,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
         if (zooKeeperUrl == null) {
             try {
-                Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
+                Configuration config = configAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper", null);
                 zooKeeperUrl = (String) config.getProperties().get(name);
             } catch (Exception e) {
                 //Ignore it.
@@ -678,7 +669,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public PatchService getPatchService() {
-        return new PatchServiceImpl(this, configurationAdmin);
+        return new PatchServiceImpl(this, configAdmin.get());
     }
 
     @Override

@@ -33,6 +33,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.karaf.core.Constants;
 import org.osgi.service.cm.Configuration;
@@ -61,7 +62,7 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
     private static final String BLOBSTORE_FILTER = "(service.factoryPid=org.jclouds.blobstore)";
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
-    private ConfigurationAdmin configurationAdmin;
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
@@ -99,7 +100,7 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
 
     public void registerServices(String filter) {
         try {
-            Configuration[] configurations = configurationAdmin.listConfigurations(filter);
+            Configuration[] configurations = configAdmin.get().listConfigurations(filter);
             if (configurations != null) {
                 for (Configuration configuration : configurations) {
                     Dictionary properties = configuration.getProperties();
@@ -129,12 +130,12 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
         }
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
     }
 
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
     public CuratorFramework getCurator() {

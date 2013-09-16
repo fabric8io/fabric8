@@ -24,6 +24,7 @@ import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -53,7 +54,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
-    private ConfigurationAdmin configAdmin;
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
     @Reference(referenceInterface = ContainerRegistration.class)
@@ -103,7 +104,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
         ConfigurationAdmin configAdmin;
         synchronized (this) {
             fabricService = this.fabricService;
-            configAdmin = this.configAdmin;
+            configAdmin = this.configAdmin.get();
         }
         if (fabricService == null || configAdmin == null) {
             return;
@@ -200,6 +201,14 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
             }
             return newConfiguration;
         }
+    }
+
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
+    }
+
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
     static class NamedThreadFactory implements ThreadFactory {

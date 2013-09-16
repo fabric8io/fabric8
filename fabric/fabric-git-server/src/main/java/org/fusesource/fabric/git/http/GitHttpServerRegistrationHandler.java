@@ -29,6 +29,7 @@ import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
@@ -67,7 +68,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
     @Reference(referenceInterface = HttpService.class)
     private HttpService httpService;
     @Reference(referenceInterface = ConfigurationAdmin.class)
-    private ConfigurationAdmin configurationAdmin;
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
@@ -159,7 +160,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
                     // lets register the current URL to ConfigAdmin
                     String pid = "org.fusesource.fabric.git";
                     try {
-                        Configuration conf = configurationAdmin.getConfiguration(pid);
+                        Configuration conf = configAdmin.get().getConfiguration(pid);
                         if (conf == null) {
                             LOGGER.warn("No configuration for pid " + pid);
                         } else {
@@ -224,14 +225,13 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
         this.role = role;
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
     }
 
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
-
 
     public CuratorFramework getCurator() {
         return curator;

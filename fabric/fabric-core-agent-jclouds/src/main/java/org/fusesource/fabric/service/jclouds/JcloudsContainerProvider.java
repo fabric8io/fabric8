@@ -34,6 +34,7 @@ import org.fusesource.fabric.service.jclouds.functions.ToRunScriptOptions;
 import org.fusesource.fabric.service.jclouds.functions.ToTemplate;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
@@ -88,7 +89,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Reference(referenceInterface = CredentialStore.class)
     private CredentialStore credentialStore;
     @Reference(referenceInterface = ConfigurationAdmin.class)
-    private ConfigurationAdmin configurationAdmin;
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
 
@@ -283,9 +284,9 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
                 Map<String, String> serviceOptions = options.getServiceOptions();
                 try {
                     if (options.getProviderName() != null) {
-                        CloudUtils.registerProvider(curator, configurationAdmin, options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerProvider(curator, configAdmin.get(), options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
                     } else if (options.getApiName() != null) {
-                        CloudUtils.registerApi(curator, configurationAdmin, options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerApi(curator, configAdmin.get(), options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
                     }
                     BundleContext bundleContext = getComponentContext().getBundleContext();
                     computeService = CloudUtils.waitForComputeService(bundleContext, options.getContextName());
@@ -328,12 +329,12 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
         this.credentialStore = credentialStore;
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
     }
 
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
     public CuratorFramework getCurator() {

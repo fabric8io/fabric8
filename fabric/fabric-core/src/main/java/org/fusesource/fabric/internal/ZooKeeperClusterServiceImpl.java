@@ -68,7 +68,7 @@ import org.osgi.service.component.ComponentContext;
 public class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
-	private ConfigurationAdmin configurationAdmin;
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private CuratorFramework curator;
     @Reference(referenceInterface = ACLProvider.class)
@@ -92,8 +92,12 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
         deactivateComponent();
     }
 
-    void bindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
+    }
+
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
     void bindFabricService(FabricService fabricService) {
@@ -129,7 +133,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
 
 	public List<String> getEnsembleContainers() {
 		try {
-			Configuration[] configs = configurationAdmin.listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
+			Configuration[] configs = configAdmin.get().listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
 			if (configs == null || configs.length == 0) {
 				return Collections.emptyList();
 			}
@@ -159,7 +163,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
             }
-            Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper", null);
+            Configuration config = configAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper", null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
             if (zooKeeperUrl == null) {
                 if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {

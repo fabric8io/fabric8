@@ -30,6 +30,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.OsgiUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -66,7 +67,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
-	private ConfigurationAdmin configurationAdmin;
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
 
     @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindDataStoreRegistrationHandler", unbind = "unbindDataStoreRegistrationHandler")
     private DataStoreRegistrationHandler dataStoreRegistrationHandler;
@@ -149,7 +150,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
                     "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
 
             for (; ; ) {
-                Configuration[] configs = configurationAdmin.listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
+                Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
                 if (configs != null && configs.length > 0) {
                     for (Configuration config : configs) {
                         config.delete();
@@ -178,7 +179,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     private void updateDataStoreConfig(Map<String, String> dataStoreConfiguration) throws IOException {
         boolean updated = false;
-        Configuration config = configurationAdmin.getConfiguration(DataStore.DATASTORE_TYPE_PID);
+        Configuration config = configAdmin.get().getConfiguration(DataStore.DATASTORE_TYPE_PID);
         Dictionary<String, Object> properties = config.getProperties();
         for (Map.Entry<String, String> entry : dataStoreConfiguration.entrySet()) {
             String key = entry.getKey();
@@ -197,13 +198,9 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     /**
      * Creates ZooKeeper server configuration
-     * @param serverHost
-     * @param serverPort
-     * @param options
-     * @throws IOException
      */
     private void createZooKeeeperServerConfig(String serverHost, int serverPort, CreateEnsembleOptions options) throws IOException {
-        Configuration config = configurationAdmin.createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
+        Configuration config = configAdmin.get().createFactoryConfiguration("org.fusesource.fabric.zookeeper.server");
         Hashtable properties = new Hashtable<String, Object>();
         if (options.isAutoImportEnabled()) {
             loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
@@ -226,7 +223,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
      * @throws IOException
      */
     private void createZooKeeeperConfig(String connectionUrl, CreateEnsembleOptions options) throws IOException {
-        Configuration config = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+        Configuration config = configAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper");
         Hashtable properties = new Hashtable<String, Object>();
         if (options.isAutoImportEnabled()) {
             loadPropertiesFrom(properties, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.properties");
@@ -323,12 +320,12 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
         }
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
     }
 
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
     public void bindDataStoreRegistrationHandler(DataStoreRegistrationHandler dataStoreRegistrationHandler) {
