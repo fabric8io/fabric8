@@ -33,6 +33,8 @@ import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonatype.aether.RepositorySystem;
+import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.io.File;
 import java.io.IOException;
@@ -101,8 +103,8 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
         String localRepository = readProperty(properties, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
         String remoteRepositories = readProperty(properties, REMOTE_REPOSITORIES_PROPERTY, "");
         boolean appendSystemRepos = Boolean.parseBoolean(readProperty(properties, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
-        String updatePolicy = readProperty(properties, UPDATE_POLICY_PROPERTY, "always");
-        String checksumPolicy = readProperty(properties, CHECKSUM_POLICY_PROPERTY, "fail");
+        String updatePolicy = readProperty(properties, UPDATE_POLICY_PROPERTY, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+        String checksumPolicy = readProperty(properties, CHECKSUM_POLICY_PROPERTY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
         String proxyProtocol = readProperty(properties, PROXY_PROTOCOL_PROPERTY, "");
         String proxyHost = readProperty(properties, PROXY_HOST_PROPERTY, "");
         int proxyPort = Integer.parseInt(readProperty(properties, PROXY_PORT_PROPERTY, "8080"));

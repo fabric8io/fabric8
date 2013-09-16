@@ -126,6 +126,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         if (session == null) {
             session = newSession(system, localRepository);
         }
+
         repositories = new HashMap<String, RemoteRepository>();
 
         for (String rep : remoteRepositories.split(",")) {
@@ -146,10 +147,18 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
             remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
             repositories.put(id, remoteRepository);
         }
+        RemoteRepository local = new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository);
+        local.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+        repositories.put("local", local);
 
-        repositories.put("local", new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository));
-        repositories.put("karaf", new RemoteRepository("karaf", DEFAULT_REPO_ID, "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository")));
-        repositories.put("user", new RemoteRepository("user", DEFAULT_REPO_ID, "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository"));
+        RemoteRepository karaf = new RemoteRepository("karaf", DEFAULT_REPO_ID, "file://" + System.getProperty("karaf.home") + File.separator + System.getProperty("karaf.default.repository"));
+        karaf.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+        repositories.put("karaf", karaf);
+
+        RemoteRepository user = new RemoteRepository("user", DEFAULT_REPO_ID, "file://" + System.getProperty("user.home") + File.separator + ".m2" + File.separator + "repository");
+        user.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
+
+        repositories.put("user", user);
         if (appendSystemRepos) {
             for (RemoteRepository sysRepo : MavenUtils.getRemoteRepositories()) {
                 sysRepo.setProxy(session.getProxySelector().getProxy(sysRepo));
@@ -265,6 +274,8 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         session.setMirrorSelector(MavenUtils.getMirrorSelector());
         session.setAuthenticationSelector(MavenUtils.getAuthSelector());
         session.setCache(new DefaultRepositoryCache());
+        session.setUpdatePolicy(updatePolicy);
+        session.setChecksumPolicy(checksumPolicy);
         LocalRepository localRepo = new LocalRepository(localRepository);
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(localRepo));
         return session;
@@ -313,6 +324,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
                 Matcher ts = SNAPSHOT_TIMESTAMP_PATTENR.matcher(timestampedFileName);
                 if (ts.matches()) {
                     version = baseVersion + "-" + ts.group(1);
+                    filePerfix = artifactId + "-" + version;
                 }
                 stripedFileName = filename.replaceAll(SNAPSHOT_TIMESTAMP_REGEX, "SNAPSHOT");
                 stripedFileName = stripedFileName.substring(filePerfix.length());
