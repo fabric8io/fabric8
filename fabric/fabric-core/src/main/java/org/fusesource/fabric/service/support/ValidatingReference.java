@@ -38,8 +38,11 @@ public class ValidatingReference<T> {
      * @throws InvalidComponentException If the reference is not valid
      */
     public synchronized T get() {
-        if (reference == null)
-            throw new InvalidComponentException();
+        if (reference == null) {
+            RuntimeException rte = new InvalidComponentException();
+            rte.printStackTrace();
+            throw rte;
+        }
         return reference;
     }
 

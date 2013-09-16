@@ -25,8 +25,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,6 +55,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -85,7 +84,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private DataStoreRegistrationHandler dataStoreRegistrationHandler;
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
-    private ZooKeeperClusterBootstrap bootstrap;
+    private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -97,41 +96,28 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
         deactivateComponent();
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
+    void bindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = configurationAdmin;
     }
 
-	public FabricService getFabricService() {
-		return fabricService;
-	}
-
-	public void setFabricService(FabricService fabricService) {
+    void bindFabricService(FabricService fabricService) {
 		this.fabricService = fabricService;
 	}
 
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
+    void bindCurator(CuratorFramework curator) {
         this.curator = curator;
     }
 
-    public void setDataStore(DataStore dataStore) {
+    void bindDataStore(DataStore dataStore) {
         this.dataStore = dataStore;
     }
 
-    public DataStore getDataStore() {
+    private DataStore getDataStore() {
         return dataStore;
     }
 
-
     public void clean() {
-       bootstrap.clean();
+       bootstrap.get().clean();
     }
 
     private static void delete(File dir) {
@@ -183,7 +169,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
                 if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {
                     throw new FabricException("The first zookeeper cluster must be configured on this container only.");
                 }
-                bootstrap.create(options);
+                bootstrap.get().create(options);
                 return;
             }
 
@@ -418,12 +404,6 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
         dataStore.setContainerProfiles(container, profiles);
     }
 
-	public static String toString(Properties source) throws IOException {
-		StringWriter writer = new StringWriter();
-		source.store(writer, null);
-		return writer.toString();
-	}
-
     public static Properties getProperties(CuratorFramework client, String file, Properties defaultValue) throws Exception {
         try {
             String v = getStringData(client, file);
@@ -435,12 +415,6 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
         } catch (KeeperException.NoNodeException e) {
             return defaultValue;
         }
-    }
-
-    public void setConfigProperty(CuratorFramework client, String file, String prop, String value) throws Exception {
-        Properties p = getProperties(client, file, new Properties());
-        p.setProperty(prop, value);
-        setData(client, file, toString(p));
     }
 
     private int findPort(Map<String, List<Integer>> usedPorts, String ip, int port) {
@@ -516,4 +490,12 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
 			throw new FabricException("Unable to remove containers to fabric ensemble: " + e.getMessage(), e);
 		}
 	}
+
+    void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
+        this.bootstrap.set(bootstrap);
+    }
+
+    void unbindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
+        this.bootstrap.set(null);
+    }
 }

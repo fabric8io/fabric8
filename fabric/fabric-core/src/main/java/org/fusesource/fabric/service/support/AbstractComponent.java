@@ -53,7 +53,10 @@ public abstract class AbstractComponent implements Validatable {
 
     @Override
     public synchronized void assertValid() {
-        if (isValid() == false)
-            throw new InvalidComponentException();
+        if (isValid() == false) {
+            RuntimeException rte = new InvalidComponentException();
+            rte.printStackTrace();
+            throw rte;
+        }
     }
 }
