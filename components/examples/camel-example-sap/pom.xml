@@ -77,7 +77,7 @@
 		<dependency>
 			<groupId>org.fusesource</groupId>
 			<artifactId>camel-sap</artifactId>
-			<version>7.3.0.redhat-SNAPSHOT</version>
+			<version>${fabric.version}</version>
 		</dependency>
 	</dependencies>
 

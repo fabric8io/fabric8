@@ -29,7 +29,7 @@
 	<artifactId>camel-sap</artifactId>
 	<packaging>jar</packaging>
 
-	<name>Camel SAP Component</name>
+	<name>JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
 	<url>http://fusesource.org</url>
 
 	<properties>
@@ -129,6 +129,11 @@
 		<defaultGoal>install</defaultGoal>
 
 		<plugins>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>

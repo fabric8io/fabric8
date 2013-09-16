@@ -28,13 +28,20 @@
 	<artifactId>component-examples</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Fuse Component Examples</name>
+    <name>JBoss Fuse :: Camel Components :: Examples</name>
 	<description>Builds Fuse Component Examples</description>
 	<url>http://www.fusesource.org</url>
 
-	<modules>
-		<!-- 
-		<module>camel-example-sap</module>
-		 -->
-	</modules>
+    <profiles>
+        <profile>
+            <!--
+              Define the SAP example in a separate profile
+              Requires access to the proprietary SAP JCO library at build-time
+            -->
+            <id>sap</id>
+            <modules>
+                <module>camel-example-sap</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

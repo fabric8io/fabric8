@@ -28,7 +28,7 @@
 	<artifactId>camel-sap-parent</artifactId>
 	<packaging>pom</packaging>
 
-	<name>Camel SAP Component Parent</name>
+    <name>JBoss Fuse :: Components :: SAP JCO</name>
 	<url>http://www.fusesource.org</url>
 
 	<properties>
@@ -40,38 +40,20 @@
 			<dependency>
 				<groupId>org.fusesource</groupId>
 				<artifactId>org.fusesource.camel.component.sap</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+				<version>${fabric.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.fusesource</groupId>
 				<artifactId>org.fusesource.camel.component.sap.model</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
+                <version>${fabric.version}</version>
 				<scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.fusesource</groupId>
 				<artifactId>org.fusesource.camel.component.sap.model.edit</artifactId>
-				<version>1.0.0-SNAPSHOT</version>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.sap.conn.jco</groupId>
-				<artifactId>com.sap.conn.jco</artifactId>
-				<version>3.0.8-SNAPSHOT</version>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.sap.conn.jco</groupId>
-				<artifactId>com.sap.conn.jco.linux.x86_64</artifactId>
-				<version>3.0.8-SNAPSHOT</version>
-				<scope>compile</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.sap.conn.jco</groupId>
-				<artifactId>com.sap.conn.jco.osx.x86_64</artifactId>
-				<version>3.0.8-SNAPSHOT</version>
-				<scope>compile</scope>
+                <version>${fabric.version}</version>
+                <scope>compile</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.emf</groupId>
@@ -100,13 +82,13 @@
 			<dependency>
 				<groupId>org.apache.camel</groupId>
 				<artifactId>camel-test</artifactId>
-				<version>2.11.0</version>
+				<version>${camel-version}</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.camel</groupId>
 				<artifactId>camel-test-spring</artifactId>
-				<version>2.11.0</version>
+				<version>${camel-version}</version>
 				<type>bundle</type>
 				<scope>test</scope>
 			</dependency>
@@ -226,9 +208,6 @@
 		</pluginManagement>
 	</build>
 	<modules>
-		<!-- 
-		<module>com.sap.conn.jco</module>
-		 -->
 		<module>org.fusesource.camel.component.sap.model</module>
 		<module>org.fusesource.camel.component.sap.model.edit</module>
 		<module>org.fusesource.camel.component.sap</module>

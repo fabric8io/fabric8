@@ -256,4 +256,11 @@
     </feature>
     -->
 
+    <feature name="camel-sap" version="${fabric-version}">
+        <bundle>mvn:org.fusesource/org.fusesource.camel.component.sap/${fabric-version}</bundle>
+        <bundle>mvn:org.fusesource/org.fusesource.camel.component.sap.model/${fabric-version}</bundle>
+        <bundle>mvn:org.fusesource/org.fusesource.camel.component.sap.model.edit/${fabric-version}</bundle>
+        <bundle>mvn:org.fusesource/camel-sap/${fabric-version}</bundle>
+    </feature>
+
 </features>
