@@ -414,7 +414,6 @@
         <module>bai</module>
         <module>fmc</module>
         <module>mq</module>
-        <module>eca</module>
         <module>stream</module>
         <module>esb</module>
         <module>examples</module>

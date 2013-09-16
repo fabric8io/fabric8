@@ -44,8 +44,10 @@
     <module>insight-log-storage</module>
     <module>insight-elasticsearch</module>
     <module>insight-metrics</module>
+<!--
     <module>insight-maven</module>
     <module>insight-maven-web</module>
+-->
     <module>insight-kibana</module>
     <module>insight-kibana3</module>
     <module>insight-eshead</module>
