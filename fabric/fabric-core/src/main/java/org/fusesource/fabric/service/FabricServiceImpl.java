@@ -48,6 +48,7 @@ import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
@@ -506,13 +507,17 @@ public class FabricServiceImpl implements FabricService {
             // Jackson parsing here; but we only need 1 String and
             // this avoids the jackson runtime dependency - its just a bit brittle
             // only finding http endpoints and all
-            int idx = text.indexOf("\"http");
+            String prefix = "\"services\":[\"";
+            int idx = text.indexOf(prefix);
             String answer = text;
             if (idx > 0) {
-                int endIdx = text.indexOf('\"', idx + 5);
+                int startIndex = idx + prefix.length();
+                int endIdx = text.indexOf("\"]", startIndex);
                 if (endIdx > 0) {
-                    answer = text.substring(idx + 1, endIdx);
+                    answer = text.substring(startIndex, endIdx);
                     if (answer.length() > 0) {
+                        // lets expand any variables
+                        answer = ZooKeeperUtils.getSubstitutedData(curator, answer);
                         return answer;
                     }
                 }
