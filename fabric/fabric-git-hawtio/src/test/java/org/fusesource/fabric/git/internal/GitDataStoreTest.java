@@ -146,14 +146,14 @@ public class GitDataStoreTest {
 
         String agentPID = "org.fusesource.fabric.agent";
         assertProfileConfiguration(version, importedProfile, agentPID, "parents",
-                "camel");
+                "feature-camel");
         assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml",
                 "http://camel.apache.org/schema/blueprint");
 
         // lets test the profile attributes
         Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
         String parent = profileAttributes.get("parents");
-        assertEquals(importedProfile + ".profileAttributes[parent]", "camel", parent);
+        assertEquals(importedProfile + ".profileAttributes[parent]", "feature-camel", parent);
 
         System.out.println("Profile attributes: " + profileAttributes);
         String profileAttributeKey = "myKey";
