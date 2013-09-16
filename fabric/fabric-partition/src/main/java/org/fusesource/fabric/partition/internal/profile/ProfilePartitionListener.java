@@ -20,6 +20,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+
 import org.apache.curator.utils.ZKPaths;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -32,10 +33,12 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
 import org.fusesource.fabric.partition.internal.LoggingPartitionListener;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.mvel2.ParserContext;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
 import org.mvel2.templates.TemplateRuntime;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +48,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@Component(name = "org.fusesource.fabric.partition.listener.profile",
-        description = "Fabric Profile Partition Listener",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.partition.listener.profile", description = "Fabric Profile Partition Listener", immediate = true)
 @Service(PartitionListener.class)
-public class ProfilePartitionListener implements PartitionListener {
+public class ProfilePartitionListener extends AbstractComponent implements PartitionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);
 
@@ -61,12 +62,17 @@ public class ProfilePartitionListener implements PartitionListener {
     private final SetMultimap<String, Partition> assignedPartitons = Multimaps.synchronizedSetMultimap(HashMultimap.<String, Partition>create());
     private final ParserContext parserContext = new ParserContext();
 
-
-
     @Reference
     private FabricService fabricService;
 
-    public ProfilePartitionListener() {
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
     }
 
     @Override

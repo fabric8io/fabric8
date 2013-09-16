@@ -19,6 +19,7 @@ package org.fusesource.fabric.internal;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
@@ -28,9 +29,9 @@ import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.OsgiUtils;
-import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -38,6 +39,7 @@ import org.osgi.framework.BundleException;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,11 +59,9 @@ import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
-@Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap",
-           description = "Fabric ZooKeeper Cluster Bootstrap",
-           immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
 @Service(ZooKeeperClusterBootstrap.class)
-public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap {
+public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
@@ -77,17 +77,28 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
     private Map<String, String> configuration;
 
     @Activate
-    public void init(Map<String,String> configuration) {
-        this.configuration = configuration;
+    synchronized void activate(ComponentContext context, Map<String,String> configuration) {
+        activateComponent(context);
+        try {
+            this.configuration = configuration;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     create();
                 }
             }).start();
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
     }
 
-    public void create() {
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
+
+    void create() {
         org.apache.felix.utils.properties.Properties userProps = null;
 
         try {

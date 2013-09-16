@@ -16,7 +16,13 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.DataStore;
@@ -24,17 +30,14 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ProfileOverlayImpl;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-@Component(name = "org.fusesource.fabric.placholder.resolver.profileprop",
-           description = "Fabric Profile Property Placeholder Resolver", immediate = true)
+@Component(name = "org.fusesource.fabric.placholder.resolver.profileprop", description = "Fabric Profile Property Placeholder Resolver", immediate = true)
 @Service(PlaceholderResolver.class)
-public class ProfilePropertyPointerResolver implements PlaceholderResolver {
+public class ProfilePropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfilePropertyPointerResolver.class);
     private static final String SCHEME = "profile";
@@ -49,10 +52,18 @@ public class ProfilePropertyPointerResolver implements PlaceholderResolver {
     @Reference
     private DataStore dataStore;
 
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
+
     /**
      * The placeholder scheme.
-     *
-     * @return
      */
     @Override
     public String getScheme() {

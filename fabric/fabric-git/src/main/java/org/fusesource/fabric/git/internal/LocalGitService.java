@@ -36,7 +36,7 @@ import org.osgi.service.component.ComponentContext;
  * A local stand alone git repository
  */
 @Component(name = "org.fusesource.fabric.git.local", description = "Local Git Service", immediate = true)
-@Service(GitService.class) // @Ref Done
+@Service(GitService.class)
 public class LocalGitService extends AbstractComponent implements GitService {
     public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "fabric";
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + DEFAULT_GIT_PATH;

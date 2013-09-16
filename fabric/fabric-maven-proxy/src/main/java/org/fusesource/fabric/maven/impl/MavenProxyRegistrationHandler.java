@@ -27,13 +27,14 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.maven.MavenProxy;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositorySystem;
 import org.sonatype.aether.repository.RepositoryPolicy;
 
 import java.io.File;
@@ -48,11 +49,9 @@ import java.util.Set;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 
-@Component(name = "org.fusesource.fabric.maven",
-        description = "Fabric Maven Proxy Registration Handler",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.maven", description = "Fabric Maven Proxy Registration Handler", immediate = true)
 @Service(ConnectionStateListener.class)
-public class MavenProxyRegistrationHandler implements ConnectionStateListener {
+public class MavenProxyRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MavenProxyRegistrationHandler.class);
 
@@ -77,7 +76,6 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
 
     private static final String DEFAULT_LOCAL_REPOSITORY = System.getProperty("karaf.data") + File.separator + "maven" + File.separator + "proxy" + File.separator + "downloads";
 
-
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
 
@@ -97,57 +95,68 @@ public class MavenProxyRegistrationHandler implements ConnectionStateListener {
         registeredProxies.put(MavenProxy.UPLOAD_TYPE, new HashSet<String>());
     }
 
-
     @Activate
-    public void init(Map<String, String> properties) throws IOException {
-        String localRepository = readProperty(properties, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
-        String remoteRepositories = readProperty(properties, REMOTE_REPOSITORIES_PROPERTY, "");
-        boolean appendSystemRepos = Boolean.parseBoolean(readProperty(properties, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
-        String updatePolicy = readProperty(properties, UPDATE_POLICY_PROPERTY, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        String checksumPolicy = readProperty(properties, CHECKSUM_POLICY_PROPERTY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
-        String proxyProtocol = readProperty(properties, PROXY_PROTOCOL_PROPERTY, "");
-        String proxyHost = readProperty(properties, PROXY_HOST_PROPERTY, "");
-        int proxyPort = Integer.parseInt(readProperty(properties, PROXY_PORT_PROPERTY, "8080"));
-        String proxyUsername = readProperty(properties, PROXY_USERNAME_PROPERTY, "");
-        String proxyPassword = readProperty(properties, PROXY_PASSWORD_PROPERTY, "");
-        String nonProxyHosts = readProperty(properties, NON_PROXY_HOSTS_PROPERTY, "");
-
-        this.role = readProperty(properties, REQUIRED_ROLE, DEFAULT_ROLE);
-        this.realm = readProperty(properties, REQUIRED_REALM, DEFAULT_REALM);
-        this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
-        this.mavenDownloadProxyServlet.start();
-        this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
-        this.mavenUploadProxyServlet.start();
-
+    synchronized void activate(ComponentContext context, Map<String, String> properties) throws IOException {
+        activateComponent(context);
         try {
-            HttpContext base = httpService.createDefaultHttpContext();
-            HttpContext secure = new MavenSecureHttpContext(base, realm, role);
-            httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, createParams("maven-download"), base);
-            httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, createParams("maven-upload"), secure);
-        } catch (Throwable t) {
-            LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
+            String localRepository = readProperty(properties, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
+            String remoteRepositories = readProperty(properties, REMOTE_REPOSITORIES_PROPERTY, "");
+            boolean appendSystemRepos = Boolean.parseBoolean(readProperty(properties, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
+            String updatePolicy = readProperty(properties, UPDATE_POLICY_PROPERTY, RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+            String checksumPolicy = readProperty(properties, CHECKSUM_POLICY_PROPERTY, RepositoryPolicy.CHECKSUM_POLICY_WARN);
+            String proxyProtocol = readProperty(properties, PROXY_PROTOCOL_PROPERTY, "");
+            String proxyHost = readProperty(properties, PROXY_HOST_PROPERTY, "");
+            int proxyPort = Integer.parseInt(readProperty(properties, PROXY_PORT_PROPERTY, "8080"));
+            String proxyUsername = readProperty(properties, PROXY_USERNAME_PROPERTY, "");
+            String proxyPassword = readProperty(properties, PROXY_PASSWORD_PROPERTY, "");
+            String nonProxyHosts = readProperty(properties, NON_PROXY_HOSTS_PROPERTY, "");
+
+            this.role = readProperty(properties, REQUIRED_ROLE, DEFAULT_ROLE);
+            this.realm = readProperty(properties, REQUIRED_REALM, DEFAULT_REALM);
+            this.mavenDownloadProxyServlet = new MavenDownloadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
+            this.mavenDownloadProxyServlet.start();
+            this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
+            this.mavenUploadProxyServlet.start();
+            try {
+                HttpContext base = httpService.createDefaultHttpContext();
+                HttpContext secure = new MavenSecureHttpContext(base, realm, role);
+                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, createParams("maven-download"), base);
+                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, createParams("maven-upload"), secure);
+            } catch (Throwable t) {
+                LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
+            }
+        } catch (IOException ex) {
+            deactivateComponent();
+            throw ex;
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
         }
     }
 
     @Deactivate
-    public void destroy() {
-        if (mavenDownloadProxyServlet != null) {
-            this.mavenDownloadProxyServlet.stop();
-        }
-
-        if (mavenUploadProxyServlet != null) {
-            this.mavenUploadProxyServlet.stop();
-        }
-
-        unregister(MavenProxy.DOWNLOAD_TYPE);
-        unregister(MavenProxy.UPLOAD_TYPE);
+    synchronized void deactivate() {
         try {
-            if (httpService != null) {
-                httpService.unregister("/maven/download");
-                httpService.unregister("/maven/upload");
+            if (mavenDownloadProxyServlet != null) {
+                this.mavenDownloadProxyServlet.stop();
             }
-        } catch (Exception ex) {
-            LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
+
+            if (mavenUploadProxyServlet != null) {
+                this.mavenUploadProxyServlet.stop();
+            }
+
+            unregister(MavenProxy.DOWNLOAD_TYPE);
+            unregister(MavenProxy.UPLOAD_TYPE);
+            try {
+                if (httpService != null) {
+                    httpService.unregister("/maven/download");
+                    httpService.unregister("/maven/upload");
+                }
+            } catch (Exception ex) {
+                LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
+            }
+        } finally {
+            deactivateComponent();
         }
     }
 

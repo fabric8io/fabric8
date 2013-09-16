@@ -28,8 +28,10 @@ import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,18 +51,15 @@ import static org.fusesource.fabric.api.DataStore.DEFAULT_DATASTORE_TYPE;
  * Manager of {@link DataStore} using configuration to decide which
  * implementation to export.
  */
-@Component(name = DataStore.DATASTORE_TYPE_PID,
-        description = "Configured DataStore Factory",
-        immediate = true)
+@Component(name = DataStore.DATASTORE_TYPE_PID, description = "Configured DataStore Factory", immediate = true)
 @Service(DataStoreRegistrationHandler.class)
-public class DataStoreManager implements DataStoreRegistrationHandler {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreManager.class);
+public class DataStoreManager extends AbstractComponent implements DataStoreRegistrationHandler {
 
+    private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreManager.class);
 
     @Reference(cardinality = OPTIONAL_MULTIPLE, referenceInterface = DataStorePlugin.class, bind = "bindDataStore", unbind = "unbindDataStore", policy = ReferencePolicy.DYNAMIC)
     private final Map<String, DataStorePlugin> dataStorePlugins = new HashMap<String, DataStorePlugin>();
 
-    private BundleContext bundleContext;
     private Map<String,String> configuration;
 
     private String type;
@@ -70,23 +69,31 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
 
     private final List<DataStoreTemplate> registrationCallbacks = new CopyOnWriteArrayList<DataStoreTemplate>();
 
-
     @Activate
-    public synchronized void init(BundleContext bundleContext, Map<String,String> configuration) throws Exception {
-        this.bundleContext = bundleContext;
-        update(configuration);
+    synchronized void activate(ComponentContext context, Map<String,String> configuration) {
+        activateComponent(context);
+        try {
+            update(configuration);
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
     }
 
     @Modified
-    public synchronized void update(Map<String,String> configuration) {
+    synchronized void update(Map<String,String> configuration) {
         this.configuration = new HashMap<String, String>(configuration);
         this.type = readType(configuration);
         updateServiceRegistration();
     }
 
     @Deactivate
-    public synchronized void destroy() {
-        unregister();
+    synchronized void deactivate() {
+        try {
+            unregister();
+        } finally {
+            deactivateComponent();
+        }
     }
 
     public void updateServiceRegistration() {
@@ -106,6 +113,7 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
                 }
             }
             properties.put(DATASTORE_TYPE_PROPERTY, type);
+            BundleContext bundleContext = getComponentContext().getBundleContext();
             registration = bundleContext.registerService(DataStore.class, dataStore, properties);
             LOG.info("Registered DataStore " + dataStore + " with " + properties);
         }
@@ -136,19 +144,6 @@ public class DataStoreManager implements DataStoreRegistrationHandler {
             return System.getProperty(DATASTORE_TYPE_PID + "." + DATASTORE_TYPE_PROPERTY, DEFAULT_DATASTORE_TYPE);
         }
     }
-
-
-    // Properties
-    //-------------------------------------------------------------------------
-
-    public BundleContext getBundleContext() {
-        return bundleContext;
-    }
-
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
-
 
     public synchronized void bindDataStore(DataStorePlugin dataStorePlugin) {
         if (dataStorePlugin != null) {

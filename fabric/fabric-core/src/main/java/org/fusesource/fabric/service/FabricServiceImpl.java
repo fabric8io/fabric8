@@ -37,7 +37,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.management.MBeanServer;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
@@ -64,12 +66,14 @@ import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +84,7 @@ import java.util.Collection;
 
 @Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
 @Service(FabricService.class)
-public class FabricServiceImpl implements FabricService {
+public class FabricServiceImpl extends AbstractComponent implements FabricService {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
@@ -101,6 +105,16 @@ public class FabricServiceImpl implements FabricService {
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     public CuratorFramework getCurator() {
         return curator;

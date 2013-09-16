@@ -16,7 +16,9 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
@@ -31,10 +33,12 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.AuthenticationUtils;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.osgi.service.component.ComponentContext;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,16 +48,24 @@ import java.util.Set;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 
-@Component(name = "org.fusesource.fabric.container.provider.child",
-           description = "Child Container Provider", immediate = true)
+@Component(name = "org.fusesource.fabric.container.provider.child", description = "Child Container Provider", immediate = true)
 @Service(ContainerProvider.class)
-public class ChildContainerProvider implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
+public class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
 
     private static final String SCHEME = "child";
 
     @Reference
     private FabricService service;
 
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public Set<CreateChildContainerMetadata> create(final CreateChildContainerOptions options) throws Exception {

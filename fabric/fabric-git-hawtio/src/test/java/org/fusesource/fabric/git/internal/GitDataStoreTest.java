@@ -114,7 +114,7 @@ public class GitDataStoreTest {
 
     @After
     public void tearDown() throws Exception {
-        dataStore.destroy();
+        dataStore.deactivate();
         sfb.destroy();
     }
 

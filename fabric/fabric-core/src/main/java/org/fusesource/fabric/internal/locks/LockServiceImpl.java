@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component(name = "org.fusesource.fabric.lock.service", description = "Fabric Lock Service")
-@Service(LockService.class) // @Ref Done
+@Service(LockService.class)
 public class LockServiceImpl extends AbstractComponent implements LockService {
 
     @Reference(referenceInterface = CuratorFramework.class)
@@ -41,12 +41,12 @@ public class LockServiceImpl extends AbstractComponent implements LockService {
     private final Map<String, InterProcessLock> locks = new HashMap<String, InterProcessLock>();
 
     @Activate
-    void activate(ComponentContext context) {
+    synchronized void activate(ComponentContext context) {
         activateComponent(context);
     }
 
     @Deactivate
-    void deactivate() {
+    synchronized void deactivate() {
         deactivateComponent();
     }
 

@@ -19,6 +19,7 @@ package org.fusesource.fabric.service.jclouds.modules;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -27,11 +28,14 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.service.support.InvalidComponentException;
+import org.fusesource.fabric.service.support.Validatable;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
 import org.jclouds.karaf.core.CredentialStore;
 import org.jclouds.rest.ConfiguresCredentialStore;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
@@ -53,12 +58,10 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
  * This module supports up to 100 node credential store in memory.
  * Credentials stored in memory will be pushed to Zookeeper when it becomes available.
  */
-@Component(name = "org.fusesource.fabric.jclouds.credentialstore.zookeeper",
-        description = "Fabric Jclouds ZooKeeper Credential Store",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.jclouds.credentialstore.zookeeper", description = "Fabric Jclouds ZooKeeper Credential Store", immediate = true)
 @Service({CredentialStore.class, ConnectionStateListener.class})
 @ConfiguresCredentialStore
-public class ZookeeperCredentialStore extends CredentialStore implements ConnectionStateListener {
+public class ZookeeperCredentialStore extends CredentialStore implements ConnectionStateListener, Validatable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCredentialStore.class);
 
@@ -66,16 +69,39 @@ public class ZookeeperCredentialStore extends CredentialStore implements Connect
     private CuratorFramework curator;
     private Cache<String, Credentials> cache;
 
+    private final AtomicBoolean active = new AtomicBoolean();
+
     @Activate
-    public void init() {
-        this.cache = CacheBuilder.newBuilder().maximumSize(100).build();
-        this.store = new ZookeeperBacking(curator, cache);
+    synchronized void activate(ComponentContext context) {
+        active.set(true);
+        try {
+            this.cache = CacheBuilder.newBuilder().maximumSize(100).build();
+            this.store = new ZookeeperBacking(curator, cache);
+        } catch (RuntimeException rte) {
+            active.set(false);
+            throw rte;
+        }
     }
 
     @Deactivate
-    public void destroy() {
-        this.cache.cleanUp();
-        this.cache = null;
+    synchronized void deactivate() {
+        try {
+            this.cache.cleanUp();
+            this.cache = null;
+        } finally {
+            active.set(false);
+        }
+    }
+
+    @Override
+    public synchronized boolean isValid() {
+        return active.get();
+    }
+
+    @Override
+    public synchronized void assertValid() {
+        if (isValid() == false)
+            throw new InvalidComponentException();
     }
 
     /**

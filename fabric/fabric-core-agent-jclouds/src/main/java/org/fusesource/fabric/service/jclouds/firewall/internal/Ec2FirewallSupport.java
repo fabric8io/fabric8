@@ -17,9 +17,14 @@
 
 package org.fusesource.fabric.service.jclouds.firewall.internal;
 
+import java.util.Set;
+
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -28,16 +33,23 @@ import org.jclouds.ec2.EC2Client;
 import org.jclouds.ec2.domain.IpPermission;
 import org.jclouds.ec2.domain.IpProtocol;
 import org.jclouds.ec2.domain.SecurityGroup;
+import org.osgi.service.component.ComponentContext;
 
-import java.util.Set;
-
-@Component(name = "org.fusesource.fabric.jclouds.firewall.ec2",
-        description = "Fabric Firewall Support for EC2",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.jclouds.firewall.ec2", description = "Fabric Firewall Support for EC2", immediate = true)
 @Service(ApiFirewallSupport.class)
-public class Ec2FirewallSupport implements ApiFirewallSupport {
+public class Ec2FirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 
     ApiFirewallSupport delegate;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     /**
      * Authorizes access to the specified ports of the node, from the specified source.

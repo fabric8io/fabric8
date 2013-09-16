@@ -29,6 +29,14 @@ import com.openshift.internal.client.StandaloneCartridge;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Modified;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
@@ -40,23 +48,15 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.NameValidator;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-
-@Component(name = "org.fusesource.fabric.container.provider.openshift",
-        description = "Fabric Openshift Container Provider",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", immediate = true)
 @Service(ContainerProvider.class)
-public class OpenshiftContainerProvider implements
-        ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
+public class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 
     public static final String PROPERTY_AUTOSCALE_SERVER_URL = "autoscale.server.url";
     public static final String PROPERTY_AUTOSCALE_LOGIN = "autoscale.login";
@@ -73,19 +73,25 @@ public class OpenshiftContainerProvider implements
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private IOpenShiftConnection connection;
 
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference
     private FabricService fabricService;
 
     private Map<String, String> properties = new HashMap<String, String>();
 
     @Activate
-    private void init(Map<String, String> properties) {
-       updated(properties);
+    synchronized void activate(ComponentContext context) {
+        updated(properties);
+        activateComponent(context);
     }
 
     @Modified
     private void updated(Map<String, String> properties) {
         this.properties = properties;
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
     }
 
     @Override

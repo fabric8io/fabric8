@@ -17,6 +17,11 @@
 
 package org.fusesource.fabric.service.jclouds.firewall.internal;
 
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -27,30 +32,25 @@ import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.jclouds.compute.ComputeService;
+import org.osgi.service.component.ComponentContext;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
-
-@Component(name = "org.fusesource.fabric.jclouds.firewall.manager.factory",
-        description = "Fabric Firewall Manager",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.jclouds.firewall.manager.factory", description = "Fabric Firewall Manager", immediate = true)
 @Service(FirewallManagerFactory.class)
-public class FirewallManagerFactoryImpl implements FirewallManagerFactory {
+public class FirewallManagerFactoryImpl extends AbstractComponent implements FirewallManagerFactory {
 
     @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindApiFirewallSupport", unbind = "unbindApiFirewallSupport", referenceInterface = ApiFirewallSupport.class, policy = ReferencePolicy.DYNAMIC)
     private final Set<ApiFirewallSupport> firewallSupportModules = new HashSet<ApiFirewallSupport>();
 
     @Activate
-    public void init() {
-
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
     }
 
     @Deactivate
-    public void destroy() {
-
+    synchronized void deactivate() {
+        deactivateComponent();
     }
 
     /**

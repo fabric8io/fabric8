@@ -19,6 +19,7 @@ package org.fusesource.fabric.service.jclouds;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
@@ -32,6 +33,7 @@ import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.functions.ToRunScriptOptions;
 import org.fusesource.fabric.service.jclouds.functions.ToTemplate;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
@@ -41,6 +43,7 @@ import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.karaf.core.CredentialStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -62,11 +65,9 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScr
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
  */
-@Component(name = "org.fusesource.fabric.container.provider.jclouds",
-        description = "Fabric Jclouds Container Provider",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.container.provider.jclouds", description = "Fabric Jclouds Container Provider", immediate = true)
 @Service(ContainerProvider.class)
-public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
+public class JcloudsContainerProvider extends AbstractComponent implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
 
@@ -87,20 +88,22 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private ConfigurationAdmin configurationAdmin;
     @Reference
     private CuratorFramework curator;
-    private BundleContext bundleContext;
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Activate
-    public void init(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
     }
 
     @Deactivate
-    public void destroy() {
-        executorService.shutdown();
+    synchronized void deactivate() {
+        try {
+            executorService.shutdown();
+        } finally {
+            deactivateComponent();
+        }
     }
-
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions input) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
         Set<? extends NodeMetadata> metadata = null;
@@ -281,6 +284,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                     } else if (options.getApiName() != null) {
                         CloudUtils.registerApi(curator, configurationAdmin, options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
                     }
+                    BundleContext bundleContext = getComponentContext().getBundleContext();
                     computeService = CloudUtils.waitForComputeService(bundleContext, options.getContextName());
                 } catch (Exception e) {
                     LOGGER.warn("Did not manage to register compute cloud provider.");
@@ -343,5 +347,23 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
+    }
+
+    public synchronized void bindComputeService(ComputeService computeService) {
+        if (computeService != null) {
+            String name = computeService.getContext().unwrap().getName();
+            if (name != null) {
+                computeServiceMap.put(name, computeService);
+            }
+        }
+    }
+
+    public void unbindComputeService(ComputeService computeService) {
+        if (computeService != null) {
+            String serviceId = computeService.getContext().unwrap().getName();
+            if (serviceId != null) {
+                computeServiceMap.remove(serviceId);
+            }
+        }
     }
 }

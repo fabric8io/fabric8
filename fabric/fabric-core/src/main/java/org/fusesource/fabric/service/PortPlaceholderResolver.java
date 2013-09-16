@@ -16,21 +16,24 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.PlaceholderResolver;
-import org.fusesource.fabric.utils.Ports;
-
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.port",
-           description = "Fabric Port Placeholder Resolver", immediate = true)
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.utils.Ports;
+import org.osgi.service.component.ComponentContext;
+
+@Component(name = "org.fusesource.fabric.placholder.resolver.port", description = "Fabric Port Placeholder Resolver", immediate = true)
 @Service(PlaceholderResolver.class)
-public class PortPlaceholderResolver implements PlaceholderResolver {
+public class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final String PORT_SCHEME = "port";
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
@@ -38,10 +41,18 @@ public class PortPlaceholderResolver implements PlaceholderResolver {
     @Reference
     private FabricService fabricService;
 
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
+
     /**
      * The placeholder scheme.
-     *
-     * @return
      */
     @Override
     public String getScheme() {

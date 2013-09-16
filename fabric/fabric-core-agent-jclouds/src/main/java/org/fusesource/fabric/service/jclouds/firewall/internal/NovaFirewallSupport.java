@@ -17,12 +17,15 @@
 
 package org.fusesource.fabric.service.jclouds.firewall.internal;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.jclouds.aws.util.AWSUtils;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
@@ -32,22 +35,32 @@ import org.jclouds.openstack.nova.v2_0.domain.Ingress;
 import org.jclouds.openstack.nova.v2_0.domain.SecurityGroup;
 import org.jclouds.openstack.nova.v2_0.domain.SecurityGroupRule;
 import org.jclouds.openstack.nova.v2_0.extensions.SecurityGroupApi;
+import org.osgi.service.component.ComponentContext;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
-@Component(name = "org.fusesource.fabric.jclouds.firewall.nova",
-        description = "Fabric Firewall Support for Openstack Nova",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.jclouds.firewall.nova", description = "Fabric Firewall Support for Openstack Nova", immediate = true)
 @Service(ApiFirewallSupport.class)
 /**
  * An {@link ApiFirewallSupport} implementation for Openstac Nova.
  * It uses delegation to static inner class to prevent Class loading issues when optional dependencies are
  * not satisfied.
  */
-public class NovaFirewallSupport implements ApiFirewallSupport {
+public class NovaFirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 
     ApiFirewallSupport delegate;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     /**
      * Authorizes access to the specified ports of the node, from the specified source.

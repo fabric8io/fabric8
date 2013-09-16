@@ -17,17 +17,6 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Properties;
-import org.apache.felix.scr.annotations.Property;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.PlaceholderResolver;
-import org.fusesource.fabric.api.Profile;
-import org.osgi.service.url.AbstractURLStreamHandlerService;
-import org.osgi.service.url.URLStreamHandlerService;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,19 +24,57 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-@Component(name = "org.fusesource.fabric.profile.urlhandler",
-           description = "Fabric Profile URL Handler", immediate = true)
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.service.support.InvalidComponentException;
+import org.fusesource.fabric.service.support.Validatable;
+import org.osgi.service.component.ComponentContext;
+import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.url.URLStreamHandlerService;
+
+@Component(name = "org.fusesource.fabric.profile.urlhandler", description = "Fabric Profile URL Handler", immediate = true)
 @Service(URLStreamHandlerService.class)
 @Properties({
         @Property(name = "url.handler.protocol", value = "profile")
 })
-public class ProfileUrlHandler extends AbstractURLStreamHandlerService {
+public class ProfileUrlHandler extends AbstractURLStreamHandlerService implements Validatable {
+
+    private static final String SYNTAX = "profile:<resource name>";
 
     @Reference
     private FabricService fabricService;
-    private static final String SYNTAX = "profile:<resource name>";
 
+    private final AtomicBoolean active = new AtomicBoolean();
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        active.set(true);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        active.set(false);
+    }
+
+    @Override
+    public synchronized boolean isValid() {
+        return active.get();
+    }
+
+    @Override
+    public synchronized void assertValid() {
+        if (isValid() == false)
+            throw new InvalidComponentException();
+    }
 
     @Override
     public URLConnection openConnection(URL url) throws IOException {

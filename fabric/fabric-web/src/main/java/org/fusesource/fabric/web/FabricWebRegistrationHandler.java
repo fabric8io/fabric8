@@ -19,19 +19,23 @@ package org.fusesource.fabric.web;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.ops4j.pax.web.service.spi.ServletEvent;
 import org.ops4j.pax.web.service.spi.ServletListener;
 import org.ops4j.pax.web.service.spi.WebEvent;
 import org.ops4j.pax.web.service.spi.WebListener;
 import org.osgi.framework.Bundle;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +45,9 @@ import java.util.Map;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-@Component(name = "org.fusesource.fabric.web",
-        description = "Fabric Web Registration Handler",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.web", description = "Fabric Web Registration Handler", immediate = true)
 @Service({WebListener.class, ServletListener.class, ConnectionStateListener.class})
-public class FabricWebRegistrationHandler implements WebListener, ServletListener, ConnectionStateListener {
+public class FabricWebRegistrationHandler extends AbstractComponent implements WebListener, ServletListener, ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricWebRegistrationHandler.class);
 
@@ -56,6 +58,16 @@ public class FabricWebRegistrationHandler implements WebListener, ServletListene
     private FabricService fabricService;
     @Reference
     private CuratorFramework curator;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public void stateChanged(CuratorFramework client, ConnectionState newState) {

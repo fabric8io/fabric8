@@ -18,24 +18,27 @@ package org.fusesource.fabric.partition.internal;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.partition.BalancingPolicy;
 import org.fusesource.fabric.partition.WorkerNode;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-@Component(name = "org.fusesource.fabric.partition.balancing.even",
-        description = "Fabric Partition Even Balancing Policy",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
 @Service
-public class EvenBalancingPolicy implements BalancingPolicy {
+public class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvenBalancingPolicy.class);
     private static final String TYPE = "even";
@@ -46,6 +49,16 @@ public class EvenBalancingPolicy implements BalancingPolicy {
 
     public EvenBalancingPolicy() {
         this.mapper.registerSubtypes(WorkerNode.class);
+    }
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
     }
 
     @Override

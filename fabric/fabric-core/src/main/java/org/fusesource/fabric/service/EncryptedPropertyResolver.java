@@ -16,27 +16,41 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.PlaceholderResolver;
-import org.jasypt.encryption.pbe.PBEStringEncryptor;
-import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
-
 import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_ALGORITHM;
 import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.crypt",
-           description = "Fabric Encrypted Property Placeholder Resolver")
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.jasypt.encryption.pbe.PBEStringEncryptor;
+import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.osgi.service.component.ComponentContext;
+
+@Component(name = "org.fusesource.fabric.placholder.resolver.crypt", description = "Fabric Encrypted Property Placeholder Resolver")
 @Service(PlaceholderResolver.class)
-public class EncryptedPropertyResolver implements PlaceholderResolver {
+public class EncryptedPropertyResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final String CRYPT_SCHEME = "crypt";
+
     @Reference
     private CuratorFramework curator;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public String getScheme() {

@@ -29,6 +29,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.Objects;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.ObjectUtils;
@@ -57,7 +58,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
@@ -73,7 +73,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
  */
-public abstract class DataStoreSupport implements DataStore, PathChildrenCacheListener {
+public abstract class DataStoreSupport extends AbstractComponent implements DataStore, PathChildrenCacheListener {
     private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreSupport.class);
 
     public static final String REQUIREMENTS_JSON_PATH

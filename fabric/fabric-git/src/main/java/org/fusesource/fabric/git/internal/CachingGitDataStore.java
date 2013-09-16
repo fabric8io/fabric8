@@ -28,6 +28,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.osgi.service.component.ComponentContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,13 +70,17 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     private final Map<String, VersionData> cachedVersions = new HashMap<String, VersionData>();
 
     @Activate
-    public void init() {
-
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
     }
 
     @Deactivate
-    public void destroy() {
-        stop();
+    synchronized void deactivate() {
+        try {
+            stop();
+        } finally {
+            deactivateComponent();
+        }
     }
 
     public void start() {

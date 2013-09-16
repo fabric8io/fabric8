@@ -16,16 +16,30 @@
  */
 package org.fusesource.fabric.service;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.env",
-        description = "Environment Placeholder Resolver")
+@Component(name = "org.fusesource.fabric.placholder.resolver.env", description = "Environment Placeholder Resolver")
 @Service(PlaceholderResolver.class)
-public class EnvPlaceholderResolver implements PlaceholderResolver {
+public class EnvPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final String ENV_SCHEME = "env";
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
+
     @Override
     public String getScheme() {
         return ENV_SCHEME;

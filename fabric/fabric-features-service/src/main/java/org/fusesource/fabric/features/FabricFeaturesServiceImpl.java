@@ -26,6 +26,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,10 +36,9 @@ import static org.fusesource.fabric.utils.features.FeatureUtils.search;
 /**
  * A FeaturesService implementation for Fabric managed containers.
  */
-@Component(name = "org.fusesource.fabric.features",
-           description = "Fabric Features Service", immediate = true)
+@Component(name = "org.fusesource.fabric.features", description = "Fabric Features Service", immediate = true)
 @Service(FeaturesService.class)
-public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
+public class FabricFeaturesServiceImpl extends AbstractComponent implements FeaturesService, Runnable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
@@ -49,13 +50,22 @@ public class FabricFeaturesServiceImpl implements FeaturesService, Runnable {
     private final Set<Feature> installed = new HashSet<Feature>();
 
     @Activate
-    public void activate() {
-        fabricService.trackConfiguration(this);
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+        try {
+            fabricService.trackConfiguration(this);
+        } catch (RuntimeException rte) {
+            throw rte;
+        }
     }
 
     @Deactivate
-    public void deactivate() {
-        fabricService.unTrackConfiguration(this);
+    synchronized void deactivate() {
+        try {
+            fabricService.unTrackConfiguration(this);
+        } finally {
+            deactivateComponent();
+        }
     }
 
     public FabricService getFabricService() {

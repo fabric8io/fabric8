@@ -37,6 +37,7 @@ import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +71,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * This implementation requires the fabric-git-zkbridge if you wish to be able to use
  * git to store configuration
  */
-@Component(name = "org.fusesource.datastore.zookeeper",
-           description = "Fabric ZooKeeper DataStore")
+@Component(name = "org.fusesource.datastore.zookeeper", description = "Fabric ZooKeeper DataStore")
 @Service(DataStorePlugin.class)
 @References({
         @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", policy = ReferencePolicy.DYNAMIC),
@@ -85,13 +85,17 @@ public class ZooKeeperDataStore extends DataStoreSupport implements DataStorePlu
     public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY};
 
     @Activate
-    public void init() {
-
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
     }
 
     @Deactivate
-    public void destroy() {
-        stop();
+    synchronized void deactivate() {
+        try {
+            stop();
+        } finally {
+            deactivateComponent();
+        }
     }
 
     public synchronized void start() {

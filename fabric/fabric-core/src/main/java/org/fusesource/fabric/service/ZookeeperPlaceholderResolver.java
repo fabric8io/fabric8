@@ -17,26 +17,39 @@
 package org.fusesource.fabric.service;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.zookeeper",
-           description = "Fabric ZooKeeper Placeholder Resolver")
+@Component(name = "org.fusesource.fabric.placholder.resolver.zookeeper", description = "Fabric ZooKeeper Placeholder Resolver")
 @Service(PlaceholderResolver.class)
-public class ZookeeperPlaceholderResolver implements PlaceholderResolver {
+public class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
     private static final String ZOOKEEPER_SCHEME = "zk";
 
     @Reference
     private CuratorFramework curator;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public String getScheme() {

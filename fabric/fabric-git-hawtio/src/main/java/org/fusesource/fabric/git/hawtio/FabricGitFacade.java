@@ -19,6 +19,7 @@ package org.fusesource.fabric.git.hawtio;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -32,6 +33,8 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.internal.Objects;
+import org.fusesource.fabric.service.support.InvalidComponentException;
+import org.fusesource.fabric.service.support.Validatable;
 import org.fusesource.fabric.git.internal.GitContext;
 import org.fusesource.fabric.git.internal.GitDataStore;
 import org.fusesource.fabric.git.internal.GitHelpers;
@@ -45,34 +48,57 @@ import io.hawt.git.FileInfo;
 import io.hawt.git.GitFacadeMXBean;
 import io.hawt.git.GitFacadeSupport;
 import io.hawt.util.Strings;
-
 import static org.fusesource.fabric.git.internal.GitHelpers.getRootGitDirectory;
 
 /**
  */
 @Component(name = "org.fusesource.fabric.git.hawtio", description = "Fabric Git Hawtio Service", immediate = true)
 @Service(GitFacadeMXBean.class)
-public class FabricGitFacade extends GitFacadeSupport {
+public class FabricGitFacade extends GitFacadeSupport implements Validatable {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGitFacade.class);
 
-    @Reference    private DataStore dataStore;
+    @Reference
+    private DataStore dataStore;
     private GitDataStore gitDataStore;
 
+    private final AtomicBoolean active = new AtomicBoolean();
+
+    @Override
+    public synchronized boolean isValid() {
+        return active.get();
+    }
+
+    @Override
+    public synchronized void assertValid() {
+        if (isValid() == false)
+            throw new InvalidComponentException();
+    }
+
     @Activate
-    public void init() throws Exception {
-        if (gitDataStore == null) {
-            Objects.notNull(dataStore, "dataStore");
-            if (dataStore instanceof GitDataStore) {
-                setGitDataStore((GitDataStore) dataStore);
+    public synchronized void init() throws Exception {
+        active.set(true);
+        try {
+            if (gitDataStore == null) {
+                Objects.notNull(dataStore, "dataStore");
+                if (dataStore instanceof GitDataStore) {
+                    setGitDataStore((GitDataStore) dataStore);
+                }
             }
+            Objects.notNull(gitDataStore, "gitDataStore");
+            super.init();
+        } catch (Exception ex) {
+            active.set(false);
+            throw ex;
         }
-        Objects.notNull(gitDataStore, "gitDataStore");
-        super.init();
     }
 
     @Deactivate
-    public void destroy() throws Exception {
-        super.destroy();
+    public synchronized void destroy() throws Exception {
+        try {
+            super.destroy();
+        } finally {
+            active.set(false);
+        }
     }
 
     protected String getDefaultObjectName() {

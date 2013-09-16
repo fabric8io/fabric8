@@ -29,9 +29,11 @@ import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
+import org.fusesource.fabric.service.support.AbstractComponent;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +43,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 
 @Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true)
 @Service(FabricGitService.class)
-public class FabricGitServiceImpl implements FabricGitService, GroupListener<GitNode> {
+public class FabricGitServiceImpl extends AbstractComponent implements FabricGitService, GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
@@ -55,21 +57,30 @@ public class FabricGitServiceImpl implements FabricGitService, GroupListener<Git
     @Reference
     private ContainerRegistration containerRegistration;
 
-
     private Group<GitNode> group;
 
     @Activate
-    public void init() {
-        group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
-        group.add(this);
-        group.start();
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+        try {
+            group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
+            group.add(this);
+            group.start();
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
     }
 
     @Deactivate
-    public void destroy() {
-        group.remove(this);
-        Closeables.closeQuitely(group);
-        group = null;
+    synchronized void deactivate() {
+        try {
+            group.remove(this);
+            Closeables.closeQuitely(group);
+            group = null;
+        } finally {
+            deactivateComponent();
+        }
     }
 
     public Git get() throws IOException {

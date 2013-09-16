@@ -16,49 +16,59 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.locks.InterProcessLock;
-import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.PlaceholderResolver;
-import org.fusesource.fabric.api.PortService;
-import org.fusesource.fabric.zookeeper.ZkPath;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.recipes.locks.InterProcessLock;
+import org.apache.curator.framework.recipes.locks.InterProcessMultiLock;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.PortService;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 
-@Component(name = "org.fusesource.fabric.portservice.zookeeper",
-           description = "Fabric ZooKeeper Port Service")
+@Component(name = "org.fusesource.fabric.portservice.zookeeper", description = "Fabric ZooKeeper Port Service")
 @Service(PortService.class)
-public class ZookeeperPortService implements PortService {
+public class ZookeeperPortService extends AbstractComponent implements PortService {
 
     @Reference
     private CuratorFramework curator;
     private InterProcessLock lock;
 
     @Activate
-    public void init() {
-        this.lock = new InterProcessMultiLock(curator, Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+        try {
+            lock = new InterProcessMultiLock(curator, Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+        }
     }
 
-    public void destroy() {
-        release();
+    @Deactivate
+    synchronized void deactivate() {
+        try {
+            release();
+        } finally {
+            deactivateComponent();
+        }
     }
-
 
     @Override
     public int registerPort(Container container, String pid, String key, int fromPort, int toPort, Set<Integer> excludes)  {

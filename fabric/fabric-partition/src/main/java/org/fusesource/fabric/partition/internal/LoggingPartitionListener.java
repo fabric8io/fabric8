@@ -16,24 +16,35 @@
 
 package org.fusesource.fabric.partition.internal;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-@Component(name = "org.fusesource.fabric.partition.listener.logging",
-        description = "Fabric Logging Partition Listener",
-        immediate = true)
+@Component(name = "org.fusesource.fabric.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true)
 @Service(PartitionListener.class)
-public class LoggingPartitionListener implements PartitionListener {
+public class LoggingPartitionListener extends AbstractComponent implements PartitionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);
     private static final String TYPE = "logging";
 
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public String getType() {

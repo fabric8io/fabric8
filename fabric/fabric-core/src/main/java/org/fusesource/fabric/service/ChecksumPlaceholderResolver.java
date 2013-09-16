@@ -16,24 +16,37 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.PlaceholderResolver;
-import org.fusesource.fabric.utils.ChecksumUtils;
-import org.fusesource.fabric.utils.Closeables;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.net.URL;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.checksum",
-           description = "Fabric Checksum Placholder Resolver")
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.utils.ChecksumUtils;
+import org.fusesource.fabric.utils.Closeables;
+import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component(name = "org.fusesource.fabric.placholder.resolver.checksum", description = "Fabric Checksum Placholder Resolver")
 @Service(PlaceholderResolver.class)
-public class ChecksumPlaceholderResolver implements PlaceholderResolver {
+public class ChecksumPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChecksumPlaceholderResolver.class);
     private static final String CHECKSUM_SCHEME = "checksum";
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public String getScheme() {

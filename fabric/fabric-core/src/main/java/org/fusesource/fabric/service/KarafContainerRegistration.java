@@ -16,40 +16,6 @@
  */
 package org.fusesource.fabric.service;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.state.ConnectionState;
-import org.apache.curator.framework.state.ConnectionStateListener;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.CreateMode;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.data.Stat;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.ContainerRegistration;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.internal.ContainerImpl;
-import org.fusesource.fabric.internal.GeoUtils;
-import org.fusesource.fabric.utils.HostUtils;
-import org.fusesource.fabric.utils.Ports;
-import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.cm.ConfigurationEvent;
-import org.osgi.service.cm.ConfigurationListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.List;
-import java.util.Set;
-
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
@@ -76,10 +42,47 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-@Component(name = "org.fusesource.fabric.container.registration.karaf",
-           description = "Fabric Karaf Container Registration")
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Set;
+
+import javax.management.MBeanServer;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.state.ConnectionState;
+import org.apache.curator.framework.state.ConnectionStateListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.zookeeper.CreateMode;
+import org.apache.zookeeper.KeeperException;
+import org.apache.zookeeper.data.Stat;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerRegistration;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.internal.GeoUtils;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.utils.SystemProperties;
+import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ConfigurationEvent;
+import org.osgi.service.cm.ConfigurationListener;
+import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+@Component(name = "org.fusesource.fabric.container.registration.karaf", description = "Fabric Karaf Container Registration")
 @Service({ContainerRegistration.class, ConfigurationListener.class, ConnectionStateListener.class})
-public class KarafContainerRegistration implements ContainerRegistration, ConfigurationListener, ConnectionStateListener {
+public class KarafContainerRegistration extends AbstractComponent implements ContainerRegistration, ConfigurationListener, ConnectionStateListener {
 
     private transient Logger LOGGER = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
@@ -105,13 +108,24 @@ public class KarafContainerRegistration implements ContainerRegistration, Config
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
 
-
     @Reference
     private ConfigurationAdmin configurationAdmin;
     @Reference
     private CuratorFramework curator;
     @Reference
     private FabricService fabricService;
+    @Reference
+    private volatile MBeanServer mbeanServer;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     public CuratorFramework getCurator() {
         return curator;

@@ -16,30 +16,13 @@
  */
 package org.fusesource.fabric.internal;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.api.ACLProvider;
-import org.apache.curator.retry.RetryOneTime;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.DataStoreRegistrationHandler;
-import org.fusesource.fabric.api.DataStoreTemplate;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
-import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.utils.Ports;
-import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.fusesource.fabric.utils.Ports.mapPortToRange;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,18 +37,39 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.ACLProvider;
+import org.apache.curator.retry.RetryOneTime;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStoreRegistrationHandler;
+import org.fusesource.fabric.api.DataStoreTemplate;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.utils.SystemProperties;
+import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.service",
            description = "Fabric ZooKeeper Cluster Service")
 @Service(ZooKeeperClusterService.class)
-public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
+public class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
 
@@ -83,6 +87,16 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
     private DataStoreRegistrationHandler dataStoreRegistrationHandler;
     @Reference
     private ZooKeeperClusterBootstrap bootstrap;
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     public ConfigurationAdmin getConfigurationAdmin() {
         return configurationAdmin;

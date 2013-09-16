@@ -73,6 +73,7 @@ import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,12 +167,17 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private ScheduledExecutorService threadPool;
 
     @Activate
-    public void init() {
+    synchronized void activate(ComponentContext context) {
+        activateComponent(context);
     }
 
     @Deactivate
-    public void destroy() {
-        stop();
+    synchronized void deactivate() {
+        try {
+            stop();
+        } finally {
+            deactivateComponent();
+        }
     }
 
     public synchronized void start() {
