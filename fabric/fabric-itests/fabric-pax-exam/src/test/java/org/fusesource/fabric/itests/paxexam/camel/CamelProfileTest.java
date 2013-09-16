@@ -29,8 +29,8 @@ public class CamelProfileTest extends FabricFeaturesTest {
     @Test
     public void testFeatures() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
-        assertProvisionedFeature(containers, "camel-hazelcast", "camel", "camel-hazelcast");
+        Set<Container> containers = ContainerBuilder.create().withName("feature-camel").withProfiles("feature-camel").assertProvisioningResult().build();
+        assertProvisionedFeature(containers, "camel-hazelcast", "feature-camel", "camel-hazelcast");
     }
 
     @Configuration

@@ -66,13 +66,13 @@ public class FabricDosgiCamelTest extends FabricTestSupport {
 
         for (Container c : dosgiProviderContainers) {
             setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
-            Profile p = c.getVersion().getProfile("example-dosgi-camel-provider");
+            Profile p = c.getVersion().getProfile("example-dosgi-camel.provider");
             c.setProfiles(new Profile[]{p});
         }
 
         for (Container c : dosgiCamelContainers) {
             setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing profile");
-            Profile p = c.getVersion().getProfile("example-dosgi-camel-consumer");
+            Profile p = c.getVersion().getProfile("example-dosgi-camel.consumer");
             c.setProfiles(new Profile[]{p});
         }
 

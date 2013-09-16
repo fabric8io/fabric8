@@ -53,15 +53,15 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     @Test
     public void testContainerUpgradeAndRollback() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
 
         //Make sure that the profile change has been applied before changing the version
         CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
-        System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
+        System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
         latch.await(5, TimeUnit.SECONDS);
 
-        System.out.println(executeCommand("fabric:profile-display --version 1.1 camel"));
+        System.out.println(executeCommand("fabric:profile-display --version 1.1 feature-camel"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
@@ -100,10 +100,10 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         //TODO: We have sporadic failures here, due to containers not being upgraded, without a tiny little sleep period.
         Thread.sleep(5000);
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
         //Make sure that the profile change has been applied before changing the version
         CountDownLatch latch = WaitForConfigurationChange.on(getFabricService());
-        System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast camel 1.1"));
+        System.out.println(executeCommand("fabric:profile-edit --features camel-hazelcast feature-camel 1.1"));
         latch.await(5, TimeUnit.SECONDS);
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
@@ -140,7 +140,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:create -n"));
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
-        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("camel").assertProvisioningResult().build();
+        Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
 
         System.out.println(executeCommand("fabric:container-rollback --all 1.0"));
         Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);

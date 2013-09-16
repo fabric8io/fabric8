@@ -49,7 +49,7 @@ public class FabricCamelComponentTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n root"));
         CuratorFramework curator = getCurator();
         //Wait for zookeeper service to become available.
-        System.err.println(executeCommand("fabric:profile-create --parents camel fabric-camel"));
+        System.err.println(executeCommand("fabric:profile-create --parents feature-camel fabric-camel"));
         System.err.println(executeCommand("fabric:profile-create --parents fabric-camel fabric-camel-server"));
         System.err.println(executeCommand("fabric:profile-create --parents fabric-camel fabric-camel-client"));
         System.err.println(executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-cluster/features/" + System.getProperty("fabric.version") + "/xml/features fabric-camel"));

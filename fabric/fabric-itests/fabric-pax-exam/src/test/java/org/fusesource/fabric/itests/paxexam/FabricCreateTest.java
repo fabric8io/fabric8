@@ -48,17 +48,17 @@ public class FabricCreateTest extends FabricTestSupport {
         Profile karafProfile = fabricService.getDefaultVersion().getProfile("karaf");
         assertNotNull(karafProfile);
 
-        Profile camelProfile = fabricService.getDefaultVersion().getProfile("camel");
+        Profile camelProfile = fabricService.getDefaultVersion().getProfile("feature-camel");
         assertNotNull(camelProfile);
 
-        Profile activeMq = fabricService.getDefaultVersion().getProfile("mq");
+        Profile activeMq = fabricService.getDefaultVersion().getProfile("mq-default");
         assertNotNull(activeMq);
     }
 
 
     @Test
     public void testCreateWithProfileSelection() throws Exception {
-        System.err.println(executeCommand("fabric:create -n --profile camel"));
+        System.err.println(executeCommand("fabric:create -n --profile feature-camel"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
 
@@ -70,14 +70,13 @@ public class FabricCreateTest extends FabricTestSupport {
         }
 
         assertTrue(profileNames.contains("fabric"));
-        assertTrue(profileNames.contains("camel"));
+        assertTrue(profileNames.contains("feature-camel"));
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                // debugConfiguration("5005", true)
         };
     }
 }
