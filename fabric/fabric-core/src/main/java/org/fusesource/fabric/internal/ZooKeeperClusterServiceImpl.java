@@ -62,14 +62,10 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.service", description = "Fabric ZooKeeper Cluster Service")
 @Service(ZooKeeperClusterService.class)
 public class ZooKeeperClusterServiceImpl extends AbstractComponent implements ZooKeeperClusterService {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterServiceImpl.class);
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
 	private ConfigurationAdmin configurationAdmin;

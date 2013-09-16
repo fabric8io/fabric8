@@ -67,6 +67,7 @@ import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -100,7 +101,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigurationAdmin", unbind = "unbindConfigurationAdmin")
     private ConfigurationAdmin configurationAdmin;
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
-    private MBeanServer mbeanServer;
+    private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "registerProvider", unbind = "unregisterProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 

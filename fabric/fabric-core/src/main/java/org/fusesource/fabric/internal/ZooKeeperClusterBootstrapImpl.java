@@ -36,7 +36,6 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -65,8 +64,6 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
-
-    private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
 	private ConfigurationAdmin configurationAdmin;
@@ -147,6 +144,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     public void clean() {
         try {
+            BundleContext bundleContext = getComponentContext().getBundleContext();
             Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-zookeeper",
                     "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
 
@@ -244,6 +242,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     public void startBundles(CreateEnsembleOptions options) throws BundleException {
         // Install or stop the fabric-configadmin bridge
+        BundleContext bundleContext = getComponentContext().getBundleContext();
         Bundle bundleFabricAgent = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
                 "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricConfigAdmin = instalBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
