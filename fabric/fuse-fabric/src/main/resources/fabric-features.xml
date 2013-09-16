@@ -133,6 +133,7 @@
     <feature name="fabric-agent" version="${project.version}" resolver="(obr)">
         <!-- Currently not supported and thus commented out -->
         <!--feature version="${project.version}">fabric-bundle</feature-->
+        <feature version="${project.version}">fabric-core</feature>
         <feature version="${project.version}">fabric-zookeeper</feature>
         <feature version="${project.version}">fabric-configadmin</feature>
 <!--
