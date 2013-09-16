@@ -41,14 +41,28 @@ public class RedirectServlet extends HttpServlet implements ManagedService {
     public RedirectServlet() {
     }
 
+/*
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+    protected void doHead(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         resp.sendRedirect(getRedirect());
     }
 
     @Override
-    protected void doHead(HttpServletRequest req, HttpServletResponse resp)
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        resp.sendRedirect(getRedirect());
+    }
+
+    @Override
+    protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        resp.sendRedirect(getRedirect());
+    }
+*/
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         resp.sendRedirect(getRedirect());
     }
@@ -67,19 +81,6 @@ public class RedirectServlet extends HttpServlet implements ManagedService {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        resp.sendRedirect(getRedirect());
-    }
-
-    @Override
-    protected void doOptions(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
-        resp.sendRedirect(getRedirect());
-
-    }
-
-    @Override
-    protected void doTrace(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
         resp.sendRedirect(getRedirect());
     }
