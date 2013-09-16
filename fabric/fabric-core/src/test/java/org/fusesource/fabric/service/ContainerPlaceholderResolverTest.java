@@ -110,9 +110,10 @@ public class ContainerPlaceholderResolverTest {
     @Test
     public void testResolveAttributeCase() throws Exception {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
+        resolver.setFabricService(fabricService);
         assertEquals(ip,resolver.resolve(null, null, "container:root/IP"));
         assertEquals(localhostname,resolver.resolve(null, null, "container:root/LocalHostName"));
-        assertEquals(bindaddress,resolver.resolve(null, null, "container:root/BindAddres"));
+        assertEquals(bindaddress,resolver.resolve(null, null, "container:root/Bindaddress"));
         assertEquals(containerResolver,resolver.resolve(null, null, "container:root/Resolver"));
 
         verify(fabricService);
