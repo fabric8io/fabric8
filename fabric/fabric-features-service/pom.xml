@@ -44,18 +44,15 @@
         <dependency>
           <groupId>org.fusesource.fabric</groupId>
           <artifactId>fabric-api</artifactId>
-          <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-utils</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
@@ -70,13 +67,11 @@
         <dependency>
             <groupId>org.apache.karaf.features</groupId>
             <artifactId>org.apache.karaf.features.core</artifactId>
-            <version>${karaf-version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.scr.annotations</artifactId>
-            <version>1.9.4</version>
         </dependency>
 
     </dependencies>
@@ -86,14 +81,16 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-scr-plugin</artifactId>
-                <version>1.9.0</version>
                 <executions>
                     <execution>
-                        <id>generate-scr-scrdescriptor</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>scr</goal>
                         </goals>
+                        <configuration>
+                            <specVersion>1.2</specVersion>
+                            <strictMode>false</strictMode>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

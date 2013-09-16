@@ -14,7 +14,25 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.internal;
+package org.fusesource.fabric.service;
+
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.eq;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.reset;
+import static org.easymock.classextension.EasyMock.verify;
+import static org.fusesource.fabric.zookeeper.ZkDefs.DEFAULT_PROFILE;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_PROFILE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.ExistsBuilder;
@@ -28,23 +46,12 @@ import org.easymock.classextension.ConstructorArgs;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.service.ZooKeeperDataStore;
+import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Map;
-
-import static org.easymock.classextension.EasyMock.*;
-import static org.fusesource.fabric.zookeeper.ZkDefs.DEFAULT_PROFILE;
-import static org.fusesource.fabric.zookeeper.ZkPath.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 // TODO - see what the deal with this test is...
 @Ignore
@@ -64,11 +71,11 @@ public class ContainerImplTest {
     @Before
     public void setUp() {
         ZooKeeperDataStore zooKeeperDataStore = new ZooKeeperDataStore();
-        zooKeeperDataStore.setCurator(curator);
-        fabricService.setDataStore(zooKeeperDataStore);
-        fabricService.setCurator(curator);
-
-        // how did this ever work?
+        zooKeeperDataStore.bindCurator(curator);
+        //zooKeeperDataStore.activate(createMock(ComponentContext.class));
+        fabricService.bindDataStore(zooKeeperDataStore);
+        fabricService.bindCurator(curator);
+        // [TODO] how did this ever work?
         reset(container);
     }
 
