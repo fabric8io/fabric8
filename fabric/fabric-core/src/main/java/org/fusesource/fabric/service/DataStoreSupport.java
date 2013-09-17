@@ -83,7 +83,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
 
 
     private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
-    private final List<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
+    private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
     //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
     private ExecutorService cacheExecutor;
@@ -191,7 +191,7 @@ public abstract class DataStoreSupport implements DataStore, PathChildrenCacheLi
     }
 
     public void trackConfiguration(Runnable callback) {
-        callbacks.add(callback);
+        callbacks.addIfAbsent(callback);
     }
 
     @Override
