@@ -50,13 +50,10 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-
     @Reference(referenceInterface = GitService.class)
     private GitService gitService;
-
-    //We need to wait for the container registration, so that substitution of master url works.
     @Reference(referenceInterface = ContainerRegistration.class)
-    private ContainerRegistration containerRegistration;
+    private final ValidatingReference<ContainerRegistration> registration = new ValidatingReference<ContainerRegistration>();
 
     private Group<GitNode> group;
 
@@ -135,4 +132,11 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
         this.curator.set(null);
     }
 
+    void bindRegistration(ContainerRegistration service) {
+        this.registration.set(service);
+    }
+
+    void unbindRegistration(ContainerRegistration service) {
+        this.registration.set(null);
+    }
 }

@@ -58,7 +58,8 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
     @Reference(referenceInterface = ContainerRegistration.class)
-    private ContainerRegistration registration;
+    private final ValidatingReference<ContainerRegistration> registration = new ValidatingReference<ContainerRegistration>();
+
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 
     @Activate
@@ -209,6 +210,14 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.set(null);
+    }
+
+    void bindRegistration(ContainerRegistration service) {
+        this.registration.set(service);
+    }
+
+    void unbindRegistration(ContainerRegistration service) {
+        this.registration.set(null);
     }
 
     static class NamedThreadFactory implements ThreadFactory {
