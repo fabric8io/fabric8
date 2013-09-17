@@ -51,6 +51,8 @@ import org.elasticsearch.common.component.AbstractLifecycleComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.internal.Nullable;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
+import org.elasticsearch.common.transport.TransportAddress;
 import org.elasticsearch.discovery.Discovery;
 import org.elasticsearch.discovery.InitialStateDiscoveryListener;
 import org.elasticsearch.discovery.zen.DiscoveryNodesProvider;
@@ -127,7 +129,14 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         Map<String, String> nodeAttributes = discoveryNodeService.buildAttributes();
         // note, we rely on the fact that its a new id each time we start, see FD and "kill -9" handling
         String nodeId = UUID.randomBase64UUID();
-        localNode = new DiscoveryNode(settings.get("name"), nodeId, transportService.boundAddress().publishAddress(), nodeAttributes);
+        String host = settings.get("discovery.publish.host");
+        String port = settings.get("discovery.publish.port");
+        if (host != null && port != null) {
+            TransportAddress address = new InetSocketTransportAddress(host, Integer.parseInt(port));
+            localNode = new DiscoveryNode(settings.get("name"), nodeId, address, nodeAttributes);
+        } else {
+            localNode = new DiscoveryNode(settings.get("name"), nodeId, transportService.boundAddress().publishAddress(), nodeAttributes);
+        }
         tracker.open();
     }
 
