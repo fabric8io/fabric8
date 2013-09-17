@@ -49,6 +49,7 @@ import org.fusesource.fabric.api.NameValidator;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +72,7 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
     private static final String PLAIN_CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
 
     @Reference(referenceInterface = IOpenShiftConnection.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
-    private IOpenShiftConnection connection;
+    private ValidatingReference<IOpenShiftConnection> openShiftConnection = new ValidatingReference<IOpenShiftConnection>();
 
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
@@ -254,8 +255,8 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
         return false;
     }
 
-
     private IOpenShiftConnection getOrCreateConnection(CreateOpenshiftContainerOptions options) {
+        IOpenShiftConnection connection = openShiftConnection.getOptional();
         if (connection != null) {
             return connection;
         } else {
@@ -268,12 +269,12 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
         return new OpenShiftAutoScaler(this);
     }
 
-    public Map<String, String> getProperties() {
-        return properties;
+    void bindOpenShiftConnection(IOpenShiftConnection service) {
+        this.openShiftConnection.set(service);
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
+    void unbindOpenShiftConnection(IOpenShiftConnection service) {
+        this.openShiftConnection.set(null);
     }
 
     /**
