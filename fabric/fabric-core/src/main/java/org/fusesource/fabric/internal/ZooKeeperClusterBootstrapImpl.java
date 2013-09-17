@@ -68,9 +68,8 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-
-    @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindDataStoreRegistrationHandler", unbind = "unbindDataStoreRegistrationHandler")
-    private DataStoreRegistrationHandler dataStoreRegistrationHandler;
+    @Reference(referenceInterface = DataStoreRegistrationHandler.class)
+    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
     private Map<String, String> configuration;
 
@@ -123,7 +122,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
             // Create configuration
             updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
-            dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
+            registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
 
             // Create the client configuration
             createZooKeeeperConfig(connectionUrl, options);
@@ -328,11 +327,11 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
         this.configAdmin.set(null);
     }
 
-    public void bindDataStoreRegistrationHandler(DataStoreRegistrationHandler dataStoreRegistrationHandler) {
-        this.dataStoreRegistrationHandler = dataStoreRegistrationHandler;
+    void bindRegistrationHandler(DataStoreRegistrationHandler service) {
+        this.registrationHandler.set(service);
     }
 
-    public void unbindDataStoreRegistrationHandler(DataStoreRegistrationHandler dataStoreRegistrationHandler) {
-        this.dataStoreRegistrationHandler = null;
+    void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
+        this.registrationHandler.set(null);
     }
 }

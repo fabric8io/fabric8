@@ -78,7 +78,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
     @Reference(referenceInterface = DataStore.class)
     private DataStore dataStore;
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
-    private DataStoreRegistrationHandler dataStoreRegistrationHandler;
+    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
 
@@ -334,7 +334,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
 
                     // Perform cleanup when the new datastore has been registered.
                     final AtomicReference<DataStore> result = new AtomicReference<DataStore>();
-                    dataStoreRegistrationHandler.addRegistrationCallback(new DataStoreTemplate() {
+                    registrationHandler.get().addRegistrationCallback(new DataStoreTemplate() {
                         @Override
                         public void doWith(DataStore dataStore) throws Exception {
                             synchronized (result) {
@@ -509,5 +509,13 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
 
     void unbindAclProvider(ACLProvider aclProvider) {
         this.aclProvider.set(null);
+    }
+
+    void bindRegistrationHandler(DataStoreRegistrationHandler service) {
+        this.registrationHandler.set(service);
+    }
+
+    void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
+        this.registrationHandler.set(null);
     }
 }

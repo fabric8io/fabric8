@@ -38,6 +38,7 @@ public class LockServiceImpl extends AbstractComponent implements LockService {
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
     private final Map<String, InterProcessLock> locks = new HashMap<String, InterProcessLock>();
 
     @Activate
