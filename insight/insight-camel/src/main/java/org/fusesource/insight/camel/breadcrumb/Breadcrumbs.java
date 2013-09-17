@@ -26,6 +26,7 @@ import org.apache.camel.spi.RouteContext;
 import org.fusesource.insight.camel.base.SwitchableContainerStrategy;
 
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
@@ -100,7 +101,7 @@ public class Breadcrumbs extends SwitchableContainerStrategy implements Breadcru
         exchange.getIn().setHeader(BREADCRUMB, breadcrumbs);
     }
 
-    private static class BreadcrumbSet extends HashSet<String> {
+    private static class BreadcrumbSet extends LinkedHashSet<String> {
 
     }
 

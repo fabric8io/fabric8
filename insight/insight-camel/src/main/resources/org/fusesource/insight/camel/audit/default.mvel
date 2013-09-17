@@ -8,10 +8,12 @@
     "contextId": "${exchange.context.name}",
     "fromEndpoint": "${exchange.fromEndpoint.toString()}",
     "pattern": "${exchange.pattern}",
+    "properties": @{toJson(exchange.properties)},
     @if{exchange.exception != null}
     "exception": "${exchange.exception}",
     @end{}
     "in": {
+      "messageId": "${exchange.in.messageId}",
       "headers": @{toJson(exchange.in.headers)}
       @if{exchange.in.body != null},
       "body": "${exchange.in.body.toString()}"
@@ -19,6 +21,7 @@
     }
     @if{exchange.hasOut() == true}
     , "out": {
+      "messageId": "${exchange.out.messageId}",
       "headers": @{toJson(exchange.out.headers)}
       @if{exchange.out.body != null},
       "body": "${exchange.out.body.toString()}"

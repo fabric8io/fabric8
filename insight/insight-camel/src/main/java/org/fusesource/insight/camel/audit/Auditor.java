@@ -20,6 +20,7 @@ import org.apache.camel.CamelContext;
 import org.apache.camel.Exchange;
 import org.apache.camel.api.management.ManagedResource;
 import org.apache.camel.management.event.AbstractExchangeEvent;
+import org.apache.camel.management.event.ExchangeSendingEvent;
 import org.apache.camel.spi.EventNotifier;
 import org.fusesource.insight.camel.base.SwitchableContainerStrategy;
 import org.fusesource.insight.storage.StorageService;
@@ -111,6 +112,9 @@ public class Auditor extends SwitchableContainerStrategy implements EventNotifie
         if (eventObject instanceof AbstractExchangeEvent) {
             AbstractExchangeEvent aee = (AbstractExchangeEvent) eventObject;
             if (isEnabled(aee.getExchange())) {
+                if (aee instanceof ExchangeSendingEvent) {
+                    aee.getExchange().getIn().setHeader("AuditCallId", aee.getExchange().getContext().getUuidGenerator().generateUuid());
+                }
                 String json = toJson(aee);
                 storage.store(type, System.currentTimeMillis(), json);
             }
