@@ -66,7 +66,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
     private Group<GitNode> group;
 
     @Reference(referenceInterface = HttpService.class)
-    private HttpService httpService;
+    private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
@@ -93,7 +93,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
             group.start();
 
             try {
-                HttpContext base = httpService.createDefaultHttpContext();
+                HttpContext base = httpService.get().createDefaultHttpContext();
                 HttpContext secure = new SecureHttpContext(base, realm, role);
                 String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator;
                 String fabricGitPath = basePath + "fabric";
@@ -105,7 +105,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
                 initParams.put("base-path", basePath);
                 initParams.put("repository-root", basePath);
                 initParams.put("export-all", "true");
-                httpService.registerServlet("/git", gitServlet, initParams, secure);
+                httpService.get().registerServlet("/git", gitServlet, initParams, secure);
             } catch (Exception e) {
                 LOGGER.error("Error while registering git servlet", e);
             }
@@ -241,4 +241,11 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
         this.curator.set(null);
     }
 
+    void bindHttpService(HttpService service) {
+        this.httpService.set(service);
+    }
+
+    void unbindHttpService(HttpService service) {
+        this.httpService.set(null);
+    }
 }

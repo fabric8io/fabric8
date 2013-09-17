@@ -81,7 +81,7 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
     private final Map<String, Set<String>> registeredProxies = new HashMap<String, Set<String>>();
 
     @Reference(referenceInterface = HttpService.class)
-    private HttpService httpService;
+    private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
@@ -119,10 +119,10 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
             this.mavenUploadProxyServlet = new MavenUploadProxyServlet(localRepository, remoteRepositories, appendSystemRepos, updatePolicy, checksumPolicy,proxyProtocol,proxyHost, proxyPort, proxyUsername, proxyPassword, nonProxyHosts);
             this.mavenUploadProxyServlet.start();
             try {
-                HttpContext base = httpService.createDefaultHttpContext();
+                HttpContext base = httpService.get().createDefaultHttpContext();
                 HttpContext secure = new MavenSecureHttpContext(base, realm, role);
-                httpService.registerServlet("/maven/download", mavenDownloadProxyServlet, createParams("maven-download"), base);
-                httpService.registerServlet("/maven/upload", mavenUploadProxyServlet, createParams("maven-upload"), secure);
+                httpService.get().registerServlet("/maven/download", mavenDownloadProxyServlet, createParams("maven-download"), base);
+                httpService.get().registerServlet("/maven/upload", mavenUploadProxyServlet, createParams("maven-upload"), secure);
             } catch (Throwable t) {
                 LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
             }
@@ -149,24 +149,14 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
             unregister(MavenProxy.DOWNLOAD_TYPE);
             unregister(MavenProxy.UPLOAD_TYPE);
             try {
-                if (httpService != null) {
-                    httpService.unregister("/maven/download");
-                    httpService.unregister("/maven/upload");
-                }
+                httpService.get().unregister("/maven/download");
+                httpService.get().unregister("/maven/upload");
             } catch (Exception ex) {
                 LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
             }
         } finally {
             deactivateComponent();
         }
-    }
-
-    public void bindHttpService(HttpService httpService) {
-        this.httpService = httpService;
-    }
-
-    public void unbindHttpService(HttpService httpService) {
-        this.httpService = null;
     }
 
     private Dictionary createParams(String name) {
@@ -256,4 +246,11 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
         this.curator.set(null);
     }
 
+    void bindHttpService(HttpService service) {
+        this.httpService.set(service);
+    }
+
+    void unbindHttpService(HttpService service) {
+        this.httpService.set(null);
+    }
 }

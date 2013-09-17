@@ -25,7 +25,7 @@ public class ServletRegistrationHandler extends AbstractComponent {
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletRegistrationHandler.class);
 
     @Reference(referenceInterface = HttpService.class)
-    private HttpService httpService;
+    private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
@@ -35,8 +35,8 @@ public class ServletRegistrationHandler extends AbstractComponent {
         try {
             FabricDiscoveryServlet discoveryServlet = new FabricDiscoveryServlet();
             discoveryServlet.setCurator(curator.get());
-            HttpContext base = httpService.createDefaultHttpContext();
-            httpService.registerServlet("/mq-discovery", discoveryServlet, createParams("mq-discovery"), base);
+            HttpContext base = httpService.get().createDefaultHttpContext();
+            httpService.get().registerServlet("/mq-discovery", discoveryServlet, createParams("mq-discovery"), base);
         } catch (Throwable t) {
             deactivateComponent();
             LOGGER.warn("Failed to register fabric maven proxy servlets, due to:" + t.getMessage());
@@ -47,9 +47,7 @@ public class ServletRegistrationHandler extends AbstractComponent {
     synchronized void deactivate() {
         try {
             try {
-                if (httpService != null) {
-                    httpService.unregister("/mq-discovery");
-                }
+                httpService.get().unregister("/mq-discovery");
             } catch (Exception ex) {
                 LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
             }
@@ -70,5 +68,13 @@ public class ServletRegistrationHandler extends AbstractComponent {
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.set(null);
+    }
+
+    void bindHttpService(HttpService service) {
+        this.httpService.set(service);
+    }
+
+    void unbindHttpService(HttpService service) {
+        this.httpService.set(null);
     }
 }
