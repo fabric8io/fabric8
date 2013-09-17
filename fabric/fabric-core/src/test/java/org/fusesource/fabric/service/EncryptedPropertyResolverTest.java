@@ -43,7 +43,7 @@ public class EncryptedPropertyResolverTest {
         replay(curator);
         replay(getDataBuilder);
         EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
-        resolver.setCurator(curator);
+        resolver.bindCurator(curator);
         assertEquals("encryptedpassword",resolver.resolve(null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
         verify(curator);
         verify(getDataBuilder);

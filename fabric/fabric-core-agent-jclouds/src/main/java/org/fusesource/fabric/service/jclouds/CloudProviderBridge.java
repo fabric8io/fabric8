@@ -64,7 +64,7 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -81,7 +81,7 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
         switch (newState) {
             case CONNECTED:
             case RECONNECTED:
-                this.curator = client;
+                this.curator.set(client);
                 onConnected();
                 break;
             default:
@@ -138,11 +138,15 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
         this.configAdmin.set(null);
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    CuratorFramework getCurator() {
+        return curator.get();
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

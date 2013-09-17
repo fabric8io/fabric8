@@ -28,6 +28,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.maven.MavenProxy;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
@@ -82,7 +83,7 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
     @Reference(referenceInterface = HttpService.class)
     private HttpService httpService;
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private String realm;
     private String role;
@@ -180,7 +181,7 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
             String mavenProxyUrl = "${zk:" + name + "/http}/maven/" + type + "/";
             String parentPath = ZkPath.MAVEN_PROXY.getPath(type);
             String path = parentPath + "/p_";
-            registeredProxies.get(type).add(create(curator, path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
+            registeredProxies.get(type).add(create(curator.get(), path, mavenProxyUrl, CreateMode.EPHEMERAL_SEQUENTIAL));
         } catch (Exception e) {
             LOGGER.warn("Failed to register maven proxy.");
         }
@@ -191,7 +192,7 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
         if (proxyNodes != null) {
             try {
                 for (String entry : registeredProxies.get(type)) {
-                    deleteSafe(curator, entry);
+                    deleteSafe(curator.get(), entry);
                 }
             } catch (Exception e) {
                 LOGGER.warn("Failed to remove maven proxy from registry.");
@@ -246,4 +247,13 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
                 register(MavenProxy.UPLOAD_TYPE);
         }
     }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
 }

@@ -38,6 +38,7 @@ import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -85,7 +86,8 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
     @Reference(referenceInterface = FabricGitService.class)
     private FabricGitService gitService;
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
     private Group<GitZkBridgeNode> group;
 
     private long period = 1000;
@@ -97,7 +99,7 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
         try {
             this.period = Integer.parseInt(properties != null && properties.containsKey("period") ? properties.get("period") : "1000");
             this.executors = Executors.newSingleThreadScheduledExecutor();
-            group = new ZooKeeperGroup<GitZkBridgeNode>(curator, "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
+            group = new ZooKeeperGroup<GitZkBridgeNode>(curator.get(), "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
             group.add(this);
             group.update(createState());
             group.start();
@@ -106,12 +108,12 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
                 public void run() {
                     try {
                             String login = getContainerLogin();
-                            String token = generateContainerToken(curator);
+                            String token = generateContainerToken(curator.get());
                             CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
                             if (group.isMaster()) {
-                                update(gitService.get(), curator, cp);
+                                update(gitService.get(), curator.get(), cp);
                             } else {
-                                updateLocal(gitService.get(), curator, cp);
+                                updateLocal(gitService.get(), curator.get(), cp);
                             }
                     } catch (Exception e) {
                         if (LOGGER.isDebugEnabled()) {
@@ -141,12 +143,20 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
         }
     }
 
-    public synchronized void bindGitService(FabricGitService gitService) {
+    void bindGitService(FabricGitService gitService) {
         this.gitService = gitService;
     }
 
-    public synchronized void unbindGitService(FabricGitService gitService) {
+    void unbindGitService(FabricGitService gitService) {
         this.gitService = null;
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 
     @Override

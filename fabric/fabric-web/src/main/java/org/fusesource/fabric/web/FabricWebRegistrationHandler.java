@@ -29,6 +29,7 @@ import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.ops4j.pax.web.service.spi.ServletEvent;
 import org.ops4j.pax.web.service.spi.ServletListener;
@@ -57,7 +58,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -105,7 +106,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
             servletEvents.put(servletEvent.getBundle(), events);
         }
         events.put(servletEvent.getAlias(), servletEvent);
-        if (curator != null && curator.getZookeeperClient().isConnected()) {
+        if (curator != null && curator.get().getZookeeperClient().isConnected()) {
             switch (servletEvent.getType()) {
                 case ServletEvent.DEPLOYING:
                     break;
@@ -146,7 +147,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
             //We don't want to register / it's fabric-redirect for hawtio
             if (!servletEvent.getAlias().equals("/")) {
                 String path = createServletPath(servletEvent, id);
-                setData(curator, path, json, CreateMode.EPHEMERAL);
+                setData(curator.get(), path, json, CreateMode.EPHEMERAL);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to register servlet {}.", servletEvent.getAlias(), e);
@@ -162,7 +163,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
             //We don't want to register / it's fabric-redirect for hawtio
             if (!servletEvent.getAlias().equals("/")) {
                 String path = createServletPath(servletEvent, id);
-                delete(curator, path);
+                delete(curator.get(), path);
             }
         } catch (KeeperException.NoNodeException e) {
             // If the node does not exists, ignore the exception
@@ -185,7 +186,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
 
         String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
         try {
-            setData(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
+            setData(curator.get(), ZkPath.WEBAPPS_CONTAINER.getPath(name,
                     webEvent.getBundle().getVersion().toString(), id), json, CreateMode.EPHEMERAL);
         } catch (Exception e) {
             LOGGER.error("Failed to register webapp {}.", webEvent.getContextPath(), e);
@@ -203,7 +204,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
             String name = webEvent.getBundle().getSymbolicName();
             clearJolokiaUrl(container, name);
 
-            delete(curator, ZkPath.WEBAPPS_CONTAINER.getPath(name,
+            delete(curator.get(), ZkPath.WEBAPPS_CONTAINER.getPath(name,
                     webEvent.getBundle().getVersion().toString(), container.getId()));
         } catch (KeeperException.NoNodeException e) {
             // If the node does not exists, ignore the exception
@@ -245,11 +246,12 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
         this.fabricService = fabricService;
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
+
 }

@@ -92,8 +92,8 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricServiceImpl.class);
 
-    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
-    private CuratorFramework curator;
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = DataStore.class, bind = "bindDataStore", unbind = "unbindDataStore")
     private DataStore dataStore;
     @Reference(referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
@@ -118,19 +118,15 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     }
 
     public CuratorFramework getCurator() {
-        return curator;
+        return curator.get();
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void bindCurator(CuratorFramework curator) {
-        setCurator(curator);
-    }
-
-    public void unbindCurator(CuratorFramework curator) {
-        this.curator = null;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 
     public void setDataStore(DataStore dataStore) {
@@ -371,13 +367,13 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     public URI getMavenRepoURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (curator != null && exists(curator, ZkPath.MAVEN_PROXY.getPath("download")) != null) {
-                List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("download"));
+            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
+                String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("download") + "/" + children.get(0));
                 if (mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo += "/";
                 }
@@ -393,14 +389,14 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     public List<URI> getMavenRepoURIs() {
         try {
             List<URI> uris = new ArrayList<URI>();
-            if (curator != null && exists(curator, ZkPath.MAVEN_PROXY.getPath("download")) != null) {
-                List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("download"));
+            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+                List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
                 if (children != null) {
                     for (String child : children) {
-                        String mavenRepo = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
+                        String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("download") + "/" + child);
                         if (mavenRepo != null && !mavenRepo.endsWith("/")) {
                             mavenRepo += "/";
                         }
@@ -418,13 +414,13 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     public URI getMavenRepoUploadURI() {
         URI uri = URI.create(defaultRepo);
         try {
-            if (curator != null && exists(curator, ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
-                List<String> children = getChildren(curator, ZkPath.MAVEN_PROXY.getPath("upload"));
+            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+                List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
                 }
 
-                String mavenRepo = getSubstitutedPath(curator, ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
+                String mavenRepo = getSubstitutedPath(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload") + "/" + children.get(0));
                 if (mavenRepo != null && !mavenRepo.endsWith("/")) {
                     mavenRepo += "/";
                 }
@@ -440,14 +436,14 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         String answer = null;
         try {
             String versionsPath = ZkPath.WEBAPPS_CLUSTER.getPath(webAppId);
-            if (curator != null && exists(curator, versionsPath) != null) {
-                List<String> children = getChildren(curator, versionsPath);
+            if (curator != null && exists(curator.get(), versionsPath) != null) {
+                List<String> children = getChildren(curator.get(), versionsPath);
                 if (children != null && !children.isEmpty()) {
                     for (String child : children) {
                         if (Strings.isNullOrEmpty(name)) {
                             // lets just use the first container we find
                             String parentPath = versionsPath + "/" + child;
-                            List<String> grandChildren = getChildren(curator, parentPath);
+                            List<String> grandChildren = getChildren(curator.get(), parentPath);
                             if (!grandChildren.isEmpty()) {
                                 String containerPath = parentPath + "/" + grandChildren.get(0);
                                 answer = getWebUrl(containerPath);
@@ -474,8 +470,8 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     }
 
     protected String getWebUrl(String containerPath) throws Exception {
-        if (curator.checkExists().forPath(containerPath) != null) {
-            byte[] bytes = ZkPath.loadURL(curator, containerPath);
+        if (curator.get().checkExists().forPath(containerPath) != null) {
+            byte[] bytes = ZkPath.loadURL(curator.get(), containerPath);
             String text = new String(bytes);
             // NOTE this is a bit naughty, we should probably be doing
             // Jackson parsing here; but we only need 1 String and
@@ -541,7 +537,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
         //Also this is required for the integration with the IDE.
         try {
-            if (curator != null && curator.getZookeeperClient().isConnected()) {
+            if (curator != null && curator.get().getZookeeperClient().isConnected()) {
                 Version defaultVersion = getDefaultVersion();
                 if (defaultVersion != null) {
                     Profile profile = defaultVersion.getProfile("default");
@@ -550,7 +546,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
                         if (configurations != null) {
                             Map<String, String> zookeeperConfig = configurations.get("org.fusesource.fabric.zookeeper");
                             if (zookeeperConfig != null) {
-                                zooKeeperUrl = getSubstitutedData(curator, zookeeperConfig.get(name));
+                                zooKeeperUrl = getSubstitutedData(curator.get(), zookeeperConfig.get(name));
                             }
                         }
                     }

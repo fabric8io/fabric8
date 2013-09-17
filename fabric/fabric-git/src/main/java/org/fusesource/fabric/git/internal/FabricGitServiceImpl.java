@@ -30,6 +30,7 @@ import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -48,7 +49,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Reference(referenceInterface = GitService.class)
     private GitService gitService;
@@ -63,7 +64,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     synchronized void activate(ComponentContext context) {
         activateComponent(context);
         try {
-            group = new ZooKeeperGroup<GitNode>(curator, ZkPath.GIT.getPath(), GitNode.class);
+            group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
             group.add(this);
             group.start();
         } catch (RuntimeException rte) {
@@ -101,8 +102,6 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
 
     /**
      * Updates the git master url, if needed.
-     *
-     * @param group
      */
     private void updateMasterUrl(Group<GitNode> group) {
         String masterUrl = null;
@@ -113,7 +112,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
         }
         try {
             if (masterUrl != null) {
-                fireRemoteChangedEvent(getSubstitutedData(curator, masterUrl));
+                fireRemoteChangedEvent(getSubstitutedData(curator.get(), masterUrl));
             } else {
                 fireRemoteChangedEvent(null);
             }
@@ -127,4 +126,13 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
             gitService.onRemoteChanged(masterUrl);
         }
     }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
 }

@@ -91,7 +91,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
@@ -284,9 +284,9 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
                 Map<String, String> serviceOptions = options.getServiceOptions();
                 try {
                     if (options.getProviderName() != null) {
-                        CloudUtils.registerProvider(curator, configAdmin.get(), options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerProvider(curator.get(), configAdmin.get(), options.getContextName(), options.getProviderName(), options.getIdentity(), options.getCredential(), serviceOptions);
                     } else if (options.getApiName() != null) {
-                        CloudUtils.registerApi(curator, configAdmin.get(), options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
+                        CloudUtils.registerApi(curator.get(), configAdmin.get(), options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
                     }
                     BundleContext bundleContext = getComponentContext().getBundleContext();
                     computeService = CloudUtils.waitForComputeService(bundleContext, options.getContextName());
@@ -337,12 +337,12 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
         this.configAdmin.set(null);
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 
     public BundleContext getBundleContext() {

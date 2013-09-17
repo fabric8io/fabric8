@@ -70,7 +70,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private final GitServlet gitServlet = new GitServlet();
 
@@ -87,7 +87,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
             this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
             this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
-            group = new ZooKeeperGroup(curator, ZkPath.GIT.getPath(), GitNode.class);
+            group = new ZooKeeperGroup(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
             group.add(this);
             group.update(createState());
             group.start();
@@ -149,7 +149,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
 
             String url = state.getUrl();
             try {
-                String actualUrl = getSubstitutedData(curator, url);
+                String actualUrl = getSubstitutedData(curator.get(), url);
                 if (actualUrl != null && (this.gitRemoteUrl == null || !this.gitRemoteUrl.equals(actualUrl))) {
                     // lets notify listeners
                     this.gitRemoteUrl = actualUrl;
@@ -233,11 +233,12 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
         this.configAdmin.set(null);
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
+
 }

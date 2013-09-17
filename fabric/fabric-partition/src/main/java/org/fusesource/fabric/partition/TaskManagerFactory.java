@@ -32,6 +32,7 @@ import org.fusesource.fabric.partition.internal.DefaultTaskManager;
 import org.fusesource.fabric.partition.internal.WorkManagerWithBalancingPolicy;
 import org.fusesource.fabric.partition.internal.WorkManagerWithListener;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.framework.Constants;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedServiceFactory;
@@ -70,7 +71,7 @@ public class TaskManagerFactory extends AbstractComponent {
     @Reference(referenceInterface = PartitionListener.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, PartitionListener> partitionListeners = new ConcurrentHashMap<String, PartitionListener>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
@@ -107,7 +108,7 @@ public class TaskManagerFactory extends AbstractComponent {
             BalancingPolicy balancingPolicy = balancingPolicies.get(policyType);
             PartitionListener partitionListener = partitionListeners.get(workerType);
 
-            TaskManager taskManager = new DefaultTaskManager(curator, taskId, taskDefinition, partitionsPath, partitionListener, balancingPolicy);
+            TaskManager taskManager = new DefaultTaskManager(curator.get(), taskId, taskDefinition, partitionsPath, partitionListener, balancingPolicy);
             TaskManager oldTaskManager = taksManagers.put(s, taskManager);
             if (oldTaskManager != null) {
                 oldTaskManager.stop();
@@ -210,11 +211,12 @@ public class TaskManagerFactory extends AbstractComponent {
         stopWorkManagerWithListener(taksManagers.values(), partitionListener.getType());
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
+
 }

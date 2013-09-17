@@ -10,6 +10,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.http.HttpContext;
 import org.osgi.service.http.HttpService;
@@ -26,14 +27,14 @@ public class ServletRegistrationHandler extends AbstractComponent {
     @Reference(referenceInterface = HttpService.class)
     private HttpService httpService;
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String, String> properties) {
         activateComponent(context);
         try {
             FabricDiscoveryServlet discoveryServlet = new FabricDiscoveryServlet();
-            discoveryServlet.setCurator(curator);
+            discoveryServlet.setCurator(curator.get());
             HttpContext base = httpService.createDefaultHttpContext();
             httpService.registerServlet("/mq-discovery", discoveryServlet, createParams("mq-discovery"), base);
         } catch (Throwable t) {
@@ -61,5 +62,13 @@ public class ServletRegistrationHandler extends AbstractComponent {
         Dictionary d = new Hashtable();
         d.put("servlet-name", name);
         return d;
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

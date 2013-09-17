@@ -30,6 +30,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.service.support.InvalidComponentException;
 import org.fusesource.fabric.service.support.Validatable;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.jclouds.domain.Credentials;
 import org.jclouds.domain.LoginCredentials;
@@ -66,7 +67,8 @@ public class ZookeeperCredentialStore extends CredentialStore implements Connect
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperCredentialStore.class);
 
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
     private Cache<String, Credentials> cache;
 
     private final AtomicBoolean active = new AtomicBoolean();
@@ -76,7 +78,7 @@ public class ZookeeperCredentialStore extends CredentialStore implements Connect
         active.set(true);
         try {
             this.cache = CacheBuilder.newBuilder().maximumSize(100).build();
-            this.store = new ZookeeperBacking(curator, cache);
+            this.store = new ZookeeperBacking(curator.get(), cache);
         } catch (RuntimeException rte) {
             active.set(false);
             throw rte;
@@ -111,13 +113,12 @@ public class ZookeeperCredentialStore extends CredentialStore implements Connect
     protected void configure() {
     }
 
-
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 
     @Override
@@ -125,7 +126,7 @@ public class ZookeeperCredentialStore extends CredentialStore implements Connect
         switch (newState) {
             case CONNECTED:
             case RECONNECTED:
-                this.curator = client;
+                this.curator.set(client);
                 onConnected();
                 break;
             default:

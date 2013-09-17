@@ -26,6 +26,7 @@ import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class ZookeeperPlaceholderResolver extends AbstractComponent implements P
     private static final String ZOOKEEPER_SCHEME = "zk";
 
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -59,7 +60,7 @@ public class ZookeeperPlaceholderResolver extends AbstractComponent implements P
     @Override
     public String resolve(String pid, String key, String value) {
         try {
-            return new String(ZkPath.loadURL(curator, value), "UTF-8");
+            return new String(ZkPath.loadURL(curator.get(), value), "UTF-8");
         } catch (KeeperException.NoNodeException e) {
             LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
             return "";
@@ -68,11 +69,11 @@ public class ZookeeperPlaceholderResolver extends AbstractComponent implements P
         }
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

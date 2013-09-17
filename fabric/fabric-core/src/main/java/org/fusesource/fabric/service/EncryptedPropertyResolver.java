@@ -29,6 +29,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.osgi.service.component.ComponentContext;
@@ -40,7 +41,7 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
     private static final String CRYPT_SCHEME = "crypt";
 
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -71,7 +72,7 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
 
     private String getAlgorithm() {
         try {
-            return getStringData(curator, AUTHENTICATION_CRYPT_ALGORITHM.getPath());
+            return getStringData(curator.get(), AUTHENTICATION_CRYPT_ALGORITHM.getPath());
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -79,17 +80,17 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
 
     private String getPassword() {
         try {
-            return getStringData(curator, AUTHENTICATION_CRYPT_PASSWORD.getPath());
+            return getStringData(curator.get(), AUTHENTICATION_CRYPT_PASSWORD.getPath());
         } catch (Exception e) {
             throw new FabricException(e);
         }
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

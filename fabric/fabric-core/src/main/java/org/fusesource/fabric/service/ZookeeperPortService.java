@@ -40,6 +40,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
 
@@ -48,14 +49,15 @@ import org.osgi.service.component.ComponentContext;
 public class ZookeeperPortService extends AbstractComponent implements PortService {
 
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
     private InterProcessLock lock;
 
     @Activate
     synchronized void activate(ComponentContext context) {
         activateComponent(context);
         try {
-            lock = new InterProcessMultiLock(curator, Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
+            lock = new InterProcessMultiLock(curator.get(), Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
         } catch (RuntimeException rte) {
             deactivateComponent();
         }
@@ -105,13 +107,13 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         String ipPortsPath = ZkPath.PORTS_IP.getPath(container.getIp());
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
-                createDefault(curator, containerPortsPath, portAsString);
-                createDefault(curator, ipPortsPath, portAsString);
+                createDefault(curator.get(), containerPortsPath, portAsString);
+                createDefault(curator.get(), ipPortsPath, portAsString);
 
-                setData(curator, containerPortsPath, portAsString);
-                String existingPorts = getStringData(curator, ipPortsPath);
+                setData(curator.get(), containerPortsPath, portAsString);
+                String existingPorts = getStringData(curator.get(), ipPortsPath);
                 if (!existingPorts.contains(portAsString)) {
-                    setData(curator, ipPortsPath, existingPorts + " " + portAsString);
+                    setData(curator.get(), ipPortsPath, existingPorts + " " + portAsString);
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -129,9 +131,9 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         String ipPortsPath = ZkPath.PORTS_IP.getPath(container.getIp());
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
-                if (exists(curator, containerPortsPidKeyPath) != null) {
+                if (exists(curator.get(), containerPortsPidKeyPath) != null) {
                     int port = lookupPort(container, pid, key);
-                    deleteSafe(curator, containerPortsPidKeyPath);
+                    deleteSafe(curator.get(), containerPortsPidKeyPath);
 
                     Set<Integer> allPorts = findUsedPortByHost(container);
                     allPorts.remove(port);
@@ -145,7 +147,7 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
                             sb.append(" ").append(p);
                         }
                     }
-                    setData(curator, ipPortsPath, sb.toString());
+                    setData(curator.get(), ipPortsPath, sb.toString());
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -163,11 +165,11 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         String containerPortsPidPath = ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid);
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
-                if (exists(curator, containerPortsPidPath) != null) {
-                    for (String key : getChildren(curator, containerPortsPidPath)) {
+                if (exists(curator.get(), containerPortsPidPath) != null) {
+                    for (String key : getChildren(curator.get(), containerPortsPidPath)) {
                         unRegisterPort(container, pid, key);
                     }
-                    deleteSafe(curator, containerPortsPidPath);
+                    deleteSafe(curator.get(), containerPortsPidPath);
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -184,11 +186,11 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         String containerPortsPath = ZkPath.PORTS_CONTAINER.getPath(container.getId());
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
-                if (exists(curator, containerPortsPath) != null) {
-                    for (String pid : getChildren(curator, containerPortsPath)) {
+                if (exists(curator.get(), containerPortsPath) != null) {
+                    for (String pid : getChildren(curator.get(), containerPortsPath)) {
                         unRegisterPort(container, pid);
                     }
-                    deleteSafe(curator, containerPortsPath);
+                    deleteSafe(curator.get(), containerPortsPath);
                 }
             } else {
                 throw new FabricException("Could not acquire port lock");
@@ -205,8 +207,8 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         int port = 0;
         String path = ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key);
         try {
-            if (exists(curator, path) != null) {
-                port = Integer.parseInt(getStringData(curator, path));
+            if (exists(curator.get(), path) != null) {
+                port = Integer.parseInt(getStringData(curator.get(), path));
             }
         } catch (Exception ex) {
             throw new FabricException(ex);
@@ -220,11 +222,11 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         String path = ZkPath.PORTS_CONTAINER.getPath(container.getId());
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
-                if (exists(curator, path) != null) {
+                if (exists(curator.get(), path) != null) {
 
-                    for (String pid : getChildren(curator, path)) {
-                        for (String key : getChildren(curator, ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid))) {
-                            String port = getStringData(curator, ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key));
+                    for (String pid : getChildren(curator.get(), path)) {
+                        for (String key : getChildren(curator.get(), ZkPath.PORTS_CONTAINER_PID.getPath(container.getId(), pid))) {
+                            String port = getStringData(curator.get(), ZkPath.PORTS_CONTAINER_PID_KEY.getPath(container.getId(), pid, key));
                             try {
                                 ports.add(Integer.parseInt(port));
                             } catch (Exception ex) {
@@ -251,8 +253,8 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         String path = ZkPath.PORTS_IP.getPath(ip);
         try {
             if (lock.acquire(60, TimeUnit.SECONDS)) {
-                createDefault(curator, path, "");
-                String boundPorts = getStringData(curator, path);
+                createDefault(curator.get(), path, "");
+                String boundPorts = getStringData(curator.get(), path);
                 if (boundPorts != null && !boundPorts.isEmpty()) {
                     for (String port : boundPorts.split(" ")) {
                         try {
@@ -279,5 +281,13 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
         } catch (Exception e) {
             //ignore?
         }
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

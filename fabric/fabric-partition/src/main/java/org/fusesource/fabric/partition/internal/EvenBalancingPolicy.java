@@ -29,6 +29,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.partition.BalancingPolicy;
 import org.fusesource.fabric.partition.WorkerNode;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class EvenBalancingPolicy extends AbstractComponent implements BalancingP
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Reference(referenceInterface = CuratorFramework.class)
-    private CuratorFramework curator;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     public EvenBalancingPolicy() {
         this.mapper.registerSubtypes(WorkerNode.class);
@@ -79,7 +80,7 @@ public class EvenBalancingPolicy extends AbstractComponent implements BalancingP
         //Second pass - assignment
         for (String member : members) {
             try {
-                WorkerNode node = mapper.readValue(curator.getData().forPath(member), WorkerNode.class);
+                WorkerNode node = mapper.readValue(curator.get().getData().forPath(member), WorkerNode.class);
                 Collection<String> assignedItems = distribution.get(member);
 
                 if (assignedItems != null) {
@@ -88,18 +89,19 @@ public class EvenBalancingPolicy extends AbstractComponent implements BalancingP
                     node.setPartitions(new String[0]);
                 }
                 String targetPath = ZkPath.TASK_MEMBER_PARTITIONS.getPath(node.getContainer(), workId);
-                curator.setData().forPath(targetPath, mapper.writeValueAsBytes(node));
+                curator.get().setData().forPath(targetPath, mapper.writeValueAsBytes(node));
             } catch (Exception ex) {
                 LOGGER.error("Error while assigning work", ex);
             }
         }
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
+
 }

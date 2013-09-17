@@ -43,8 +43,7 @@ import java.util.Map;
  * and speed things up a little
  */
 
-@Component(name = "org.fusesource.datastore.git.caching",
-        description = "Fabric Git Caching DataStore")
+@Component(name = "org.fusesource.datastore.git.caching", description = "Fabric Git Caching DataStore")
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
