@@ -176,7 +176,7 @@ public class GitDataStoreTest {
 
         // now lets write via the hawtio API
         FabricGitFacade hawtio = new FabricGitFacade();
-        hawtio.setGitDataStore(dataStore);
+        hawtio.bindGitDataStoreForTesting(dataStore);
         hawtio.init();
         String hawtioPropertyFile = "/fabric/profiles/" + dataStore.convertProfileIdToDirectory("hawtio") + "/"
                 + agentPID + ".properties";

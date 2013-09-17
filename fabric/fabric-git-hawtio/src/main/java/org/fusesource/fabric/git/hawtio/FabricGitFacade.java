@@ -31,10 +31,9 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.service.support.InvalidComponentException;
 import org.fusesource.fabric.service.support.Validatable;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.git.internal.GitContext;
 import org.fusesource.fabric.git.internal.GitDataStore;
 import org.fusesource.fabric.git.internal.GitHelpers;
@@ -57,9 +56,8 @@ import static org.fusesource.fabric.git.internal.GitHelpers.getRootGitDirectory;
 public class FabricGitFacade extends GitFacadeSupport implements Validatable {
     private static final transient Logger LOG = LoggerFactory.getLogger(FabricGitFacade.class);
 
-    @Reference(referenceInterface = DataStore.class)
-    private DataStore dataStore;
-    private GitDataStore gitDataStore;
+    @Reference(referenceInterface = GitDataStore.class)
+    private final ValidatingReference<GitDataStore> gitDataStore = new ValidatingReference<GitDataStore>();
 
     private final AtomicBoolean active = new AtomicBoolean();
 
@@ -78,13 +76,6 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
     public synchronized void init() throws Exception {
         active.set(true);
         try {
-            if (gitDataStore == null) {
-                Objects.notNull(dataStore, "dataStore");
-                if (dataStore instanceof GitDataStore) {
-                    setGitDataStore((GitDataStore) dataStore);
-                }
-            }
-            Objects.notNull(gitDataStore, "gitDataStore");
             super.init();
         } catch (Exception ex) {
             active.set(false);
@@ -103,27 +94,6 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
 
     protected String getDefaultObjectName() {
         return "io.hawt.git:type=GitFacade,repo=fabric";
-    }
-
-    public DataStore getDataStore() {
-        return dataStore;
-    }
-
-    public void setDataStore(DataStore dataStore) {
-        this.dataStore = dataStore;
-        if (dataStore instanceof GitDataStore) {
-            setGitDataStore((GitDataStore) dataStore);
-        } else if (dataStore != null) {
-            LOG.warn("DataStore is not a GitDataStore " + dataStore + " expected " + GitDataStore.class + " but had " + dataStore.getClass());
-        }
-    }
-
-    public GitDataStore getGitDataStore() {
-        return gitDataStore;
-    }
-
-    public void setGitDataStore(GitDataStore gitDataStore) {
-        this.gitDataStore = gitDataStore;
     }
 
     @Override
@@ -163,10 +133,8 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
     }
 
     @Override
-    public String readJsonChildContent(final String branch, final String path, String fileNameWildcardOrBlank,
-                                       final String search) throws IOException {
-        final String fileNameWildcard = (Strings.isBlank(fileNameWildcardOrBlank)) ? "*.json"
-                : fileNameWildcardOrBlank;
+    public String readJsonChildContent(final String branch, final String path, String fileNameWildcardOrBlank, final String search) throws IOException {
+        final String fileNameWildcard = (Strings.isBlank(fileNameWildcardOrBlank)) ? "*.json" : fileNameWildcardOrBlank;
         return gitReadOperation(new GitOperation<String>() {
             public String call(Git git, GitContext context) throws Exception {
                 File rootDir = getRootGitDirectory(git);
@@ -175,9 +143,7 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
         });
     }
 
-
-    public CommitInfo write(final String branch, final String path, final String commitMessage,
-                      final String authorName, final String authorEmail, final String contents) {
+    public CommitInfo write(final String branch, final String path, final String commitMessage, final String authorName, final String authorEmail, final String contents) {
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         return gitWriteOperation(personIdent, new GitOperation<CommitInfo>() {
             public CommitInfo call(Git git, GitContext context) throws Exception {
@@ -188,10 +154,9 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
         });
     }
 
-
     @Override
-    public void revertTo(final String branch, final String objectId, final String blobPath, final String commitMessage,
-                         final String authorName, final String authorEmail) {
+    public void revertTo(final String branch, final String objectId, final String blobPath, final String commitMessage, final String authorName,
+            final String authorEmail) {
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         gitWriteOperation(personIdent, new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
@@ -201,8 +166,7 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
         });
     }
 
-    public void rename(final String branch, final String oldPath, final String newPath, final String commitMessage,
-                       final String authorName, final String authorEmail) {
+    public void rename(final String branch, final String oldPath, final String newPath, final String commitMessage, final String authorName, final String authorEmail) {
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         gitWriteOperation(personIdent, new GitOperation<RevCommit>() {
             public RevCommit call(Git git, GitContext context) throws Exception {
@@ -212,8 +176,7 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
         });
     }
 
-    public void remove(final String branch, final String path, final String commitMessage,
-                       final String authorName, final String authorEmail) {
+    public void remove(final String branch, final String path, final String commitMessage, final String authorName, final String authorEmail) {
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         gitWriteOperation(personIdent, new GitOperation<RevCommit>() {
             public RevCommit call(Git git, GitContext context) throws Exception {
@@ -224,8 +187,7 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
     }
 
     @Override
-    public CommitInfo createDirectory(final String branch, final String path, final String commitMessage,
-                                     final String authorName, final String authorEmail) {
+    public CommitInfo createDirectory(final String branch, final String path, final String commitMessage, final String authorName, final String authorEmail) {
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         return gitWriteOperation(personIdent, new GitOperation<CommitInfo>() {
             public CommitInfo call(Git git, GitContext context) throws Exception {
@@ -269,39 +231,49 @@ public class FabricGitFacade extends GitFacadeSupport implements Validatable {
         });
     }
 
-
     protected boolean isPushOnCommit() {
         return true;
     }
 
     protected Iterable<PushResult> doPush(Git git) throws Exception {
-        return gitDataStore.doPush(git, null);
+        return gitDataStore.get().doPush(git, null);
     }
 
     protected <T> T gitReadOperation(GitOperation<T> operation) {
-        return gitDataStore.gitReadOperation(operation);
+        return gitDataStore.get().gitReadOperation(operation);
     }
 
-    protected <T> T gitWriteOperation(PersonIdent personIdent,
-                              GitOperation<T> operation) {
+    protected <T> T gitWriteOperation(PersonIdent personIdent, GitOperation<T> operation) {
         GitContext context = new GitContext();
         context.requireCommit();
-        return gitDataStore.gitOperation(personIdent, operation, true, context);
+        return gitDataStore.get().gitOperation(personIdent, operation, true, context);
     }
 
-    protected <T> T gitOperation(PersonIdent personIdent,
-                              GitOperation<T> operation, boolean pullFirst) {
-        return gitDataStore.gitOperation(personIdent, operation, pullFirst);
+    protected <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
+        return gitDataStore.get().gitOperation(personIdent, operation, pullFirst);
     }
 
     protected <T> T gitOperation(GitOperation<T> operation) {
-        return gitDataStore.gitOperation(operation);
+        return gitDataStore.get().gitOperation(operation);
     }
 
     protected void checkoutBranch(Git git, String branch) throws GitAPIException {
         if (Strings.isBlank(branch)) {
             branch = "master";
         }
-        GitHelpers.checkoutBranch(git, branch, gitDataStore.getRemote());
+        GitHelpers.checkoutBranch(git, branch, gitDataStore.get().getRemote());
+    }
+
+    // [FIXME] Test case polutes public API
+    public void bindGitDataStoreForTesting(GitDataStore gitDataStore) {
+        bindGitDataStore(gitDataStore);
+    }
+
+    void bindGitDataStore(GitDataStore gitDataStore) {
+        this.gitDataStore.set(gitDataStore);
+    }
+
+    void unbindGitDataStore(GitDataStore gitDataStore) {
+        this.gitDataStore.set(null);
     }
 }

@@ -50,7 +50,7 @@ import java.util.Map;
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
 }
 )
-@Service(DataStorePlugin.class)
+@Service({DataStorePlugin.class, GitDataStore.class})
 public class CachingGitDataStore extends GitDataStore implements DataStorePlugin<GitDataStore> {
 
     public static final String TYPE = "caching-git";

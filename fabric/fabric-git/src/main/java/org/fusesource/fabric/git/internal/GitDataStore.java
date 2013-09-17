@@ -89,15 +89,14 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * A git based implementation of {@link DataStore} which stores the profile configuration
  * versions in a branch per version and directory per profile.
  */
-@Component(name = "org.fusesource.datastore.git",
-        description = "Fabric Git DataStore")
+@Component(name = "org.fusesource.datastore.git", description = "Fabric Git DataStore")
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
 }
 )
-@Service(DataStorePlugin.class)
+@Service({DataStorePlugin.class, GitDataStore.class})
 public class GitDataStore extends DataStoreSupport implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
