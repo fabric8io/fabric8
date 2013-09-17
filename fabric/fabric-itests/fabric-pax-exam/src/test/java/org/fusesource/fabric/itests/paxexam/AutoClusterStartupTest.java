@@ -50,7 +50,6 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class AutoClusterStartupTest extends FabricTestSupport {
 
     @Test
@@ -80,10 +79,10 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                new VMOption("-D" + SystemProperties.ENSEMBLE_AUTOSTART + "=true"),
-                new VMOption("-D" + SystemProperties.AGENT_AUTOSTART + "=false"),
+                new VMOption("-D" + CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true"),
+                new VMOption("-D" + CreateEnsembleOptions.AGENT_AUTOSTART + "=false"),
                 new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_PORT + "=2182"),
-                debugConfiguration("5005",false)
+                new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_CONNECTION_PORT + "=2182")
         };
     }
 }
