@@ -25,11 +25,13 @@ public class CreateOpenshiftContainerMetadata extends CreateContainerBasicMetada
     private final String domainId;
     private final String uuid;
     private final String createLog;
+    private final String gitUrl;
 
-    public CreateOpenshiftContainerMetadata(String domainId, String uuid, String createLog) {
+    public CreateOpenshiftContainerMetadata(String domainId, String uuid, String createLog, String gitUrl) {
         this.domainId = domainId;
         this.uuid = uuid;
         this.createLog = createLog;
+        this.gitUrl = gitUrl;
     }
 
     @Override
@@ -47,5 +49,9 @@ public class CreateOpenshiftContainerMetadata extends CreateContainerBasicMetada
 
     public String getCreateLog() {
         return createLog;
+    }
+
+    public String getGitUrl() {
+        return gitUrl;
     }
 }

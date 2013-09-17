@@ -22,7 +22,6 @@ import com.openshift.client.IDomain;
 import com.openshift.client.IHttpClient;
 import com.openshift.client.IOpenShiftConnection;
 import com.openshift.client.IUser;
-import com.openshift.client.OpenShiftConnectionFactory;
 import com.openshift.client.cartridge.EmbeddableCartridge;
 import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.internal.client.GearProfile;
@@ -40,7 +39,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +51,7 @@ import java.util.Set;
         immediate = true)
 @Service(ContainerProvider.class)
 public class OpenshiftContainerProvider implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata> {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
 
     private static final String SCHEME = "openshift";
@@ -75,6 +74,7 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         String cartridgeUrl = null;
         Set<String> profiles = options.getProfiles();
         String versionId = options.getVersion();
+        Map<String, String> openshiftConfigOverlay = new HashMap<String, String>();
         if (profiles != null && versionId != null) {
             Version version = fabricService.getVersion(versionId);
             if (version != null) {
@@ -85,18 +85,17 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
                         Map<String, Map<String, String>> configurations = overlay.getConfigurations();
                         if (configurations != null) {
                             Map<String, String> openshiftConfig = configurations
-                                    .get("org.fusesource.openshift");
+                                    .get(OpenShiftConstants.OPENSHIFT_PID);
                             if (openshiftConfig != null)  {
-                                cartridgeUrl = openshiftConfig.get("cartridge");
-                                if (cartridgeUrl != null) {
-                                    break;
-                                }
+                                openshiftConfigOverlay.putAll(openshiftConfig);
                             }
                         }
                     }
                 }
             }
+            cartridgeUrl = openshiftConfigOverlay.get("cartridge");
         }
+
         // TODO need to check in the profile too?
         boolean fuseCart = false;
         if (cartridgeUrl == null) {
@@ -138,6 +137,7 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
                 application.addEmbeddableCartridges(list);
             }
 
+            String gitUrl = application.getGitUrl();
             String containerName = application.getName() + "-" + application.getUUID();
 /*
             // now we pass in the environemnt variables we don't need to restart
@@ -145,7 +145,7 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
                 application.restart();
             }
 */
-            CreateOpenshiftContainerMetadata meta = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog());
+            CreateOpenshiftContainerMetadata meta = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog(), gitUrl);
             meta.setContainerName(containerName);
             meta.setCreateOptions(options);
             metadata.add(meta);
@@ -185,12 +185,10 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
 
     private IApplication getContainerApplication(Container container) {
         CreateOpenshiftContainerMetadata metadata = (CreateOpenshiftContainerMetadata) container.getMetadata();
-        String containerName = container.getId();
-        String applicationName = containerName.substring(0, containerName.lastIndexOf("-"));
         IOpenShiftConnection connection = getOrCreateConnection(metadata.getCreateOptions());
-        IDomain domain = connection.getUser().getDomain(metadata.getDomainId());
-        return domain.getApplicationByName(applicationName);
+        return OpenShiftUtils.getApplication(container, metadata, connection);
     }
+
     /**
      * Gets a {@link IDomain} that matches the specified {@link CreateOpenshiftContainerOptions}.
      * If no domain has been provided in the options the default domain is used. Else one is returned or created.
@@ -226,7 +224,8 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         if (connection != null) {
             return connection;
         } else {
-            return new OpenShiftConnectionFactory().getConnection("fabric", options.getLogin(), options.getPassword(), options.getServerUrl());
+            return OpenShiftUtils.createConnection(options);
         }
     }
+
 }

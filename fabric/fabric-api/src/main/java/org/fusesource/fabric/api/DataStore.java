@@ -112,6 +112,7 @@ public interface DataStore {
         PortMax,
         Domains,
         ProcessId,
+        OpenShift
     }
 
     String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted);

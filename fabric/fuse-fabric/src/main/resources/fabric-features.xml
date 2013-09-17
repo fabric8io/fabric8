@@ -541,6 +541,7 @@
 
     <feature name="fabric-openshift" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-core</feature>
+        <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-openshift/${project.version}</bundle>
     </feature>
 
