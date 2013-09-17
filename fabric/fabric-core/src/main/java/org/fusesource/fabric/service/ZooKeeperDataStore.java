@@ -75,7 +75,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
 }
 )
-public class ZooKeeperDataStore extends DataStoreSupport implements DataStorePlugin<ZooKeeperDataStore> {
+public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePlugin<ZooKeeperDataStore> {
 
     public static final String TYPE = "zookeeper";
 

@@ -66,7 +66,8 @@ import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
-import org.fusesource.fabric.service.DataStoreSupport;
+import org.fusesource.fabric.service.AbstractDataStore;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.utils.PropertiesHelper;
 import org.fusesource.fabric.utils.Strings;
@@ -97,7 +98,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 }
 )
 @Service({DataStorePlugin.class, GitDataStore.class})
-public class GitDataStore extends DataStoreSupport implements DataStorePlugin<GitDataStore> {
+public class GitDataStore extends AbstractDataStore implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
     private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.profile.attributes";
@@ -125,7 +126,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public static final boolean useDirectoriesForProfiles = true;
     public static final String PROFILE_FOLDER_SUFFIX = ".profile";
 
-    private GitService gitService;
+    private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
 
     private final Object lock = new Object();
     private String remote = "origin";
@@ -189,11 +190,14 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                 this.gitRemoteUrl = properties.get(GIT_REMOTE_URL);
             }
 
+            // [FIXME] Why can we not rely on the injected GitService
+            GitService optionalService = gitService.getOptional();
+
             if (gitRemoteUrl != null) {
                 remoteChangeListener.onRemoteUrlChanged(gitRemoteUrl);
-            } else if (gitService != null) {
-                gitService.addRemoteChangeListener(remoteChangeListener);
-                gitRemoteUrl = gitService.getRemoteUrl();
+            } else if (optionalService != null) {
+                optionalService.addRemoteChangeListener(remoteChangeListener);
+                gitRemoteUrl = optionalService.getRemoteUrl();
                 remoteChangeListener.onRemoteUrlChanged(gitRemoteUrl);
                 pull();
             }
@@ -213,8 +217,9 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
 
     public synchronized void stop() {
         try {
-            if (gitService != null) {
-                gitService.removeRemoteChangeListener(remoteChangeListener);
+            GitService optsrv = gitService.getOptional();
+            if (optsrv != null) {
+                optsrv.removeRemoteChangeListener(remoteChangeListener);
             }
             if (threadPool != null) {
                 threadPool.shutdown();
@@ -239,14 +244,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
      */
     public void setRemote(String remote) {
         this.remote = remote;
-    }
-
-    public void bindGitService(GitService gitService) {
-        this.gitService = gitService;
-    }
-
-    public void unbindGitService(GitService gitService) {
-        this.gitService = null;
     }
 
     private synchronized ScheduledExecutorService getThreadPool() {
@@ -796,7 +793,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     }
 
     public Git getGit() throws IOException {
-        return gitService.get();
+        return gitService.get().get();
     }
 
     /**
@@ -886,7 +883,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
      * @param statusAfter
      */
     private boolean hasChanged(RevCommit statusBefore, RevCommit statusAfter) {
-        return !equals(statusBefore.getId(), statusAfter.getId());
+        return !isCommitEqual(statusBefore.getId(), statusAfter.getId());
+    }
+
+    private static boolean isCommitEqual(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 
     /**
@@ -1265,8 +1266,12 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
         super.setDataStoreProperties(properties);
     }
 
-    private static boolean equals(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
+    void bindGitService(GitService gitService) {
+        this.gitService.set(gitService);
+    }
+
+    void unbindGitService(GitService gitService) {
+        this.gitService.set(null);
     }
 
     public String toString() {

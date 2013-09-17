@@ -51,7 +51,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = GitService.class)
-    private GitService gitService;
+    private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     @Reference(referenceInterface = ContainerRegistration.class)
     private final ValidatingReference<ContainerRegistration> registration = new ValidatingReference<ContainerRegistration>();
 
@@ -82,7 +82,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     }
 
     public Git get() throws IOException {
-        return gitService.get();
+        return gitService.get().get();
     }
 
     @Override
@@ -119,9 +119,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     }
 
     private void fireRemoteChangedEvent(String masterUrl) {
-        if (gitService != null) {
-            gitService.onRemoteChanged(masterUrl);
-        }
+        gitService.get().onRemoteChanged(masterUrl);
     }
 
     void bindCurator(CuratorFramework curator) {
@@ -138,5 +136,13 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
 
     void unbindRegistration(ContainerRegistration service) {
         this.registration.set(null);
+    }
+
+    void bindGitService(GitService service) {
+        this.gitService.set(service);
+    }
+
+    void unbindGitService(GitService service) {
+        this.gitService.set(null);
     }
 }

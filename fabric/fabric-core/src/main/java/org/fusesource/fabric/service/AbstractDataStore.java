@@ -28,8 +28,8 @@ import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.internal.DataStoreHelpers;
-import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.ObjectUtils;
@@ -73,27 +73,24 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 /**
  */
-public abstract class DataStoreSupport extends AbstractComponent implements DataStore, PathChildrenCacheListener {
-    private static final transient Logger LOG = LoggerFactory.getLogger(DataStoreSupport.class);
+public abstract class AbstractDataStore extends AbstractComponent implements DataStore, PathChildrenCacheListener {
+    private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDataStore.class);
 
-    public static final String REQUIREMENTS_JSON_PATH
-            = "/fabric/configs/org.fusesource.fabric.requirements.json";
-    public static final String JVM_OPTIONS_PATH
-            = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
-
+    public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
+    public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
     private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
     //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
     private ExecutorService cacheExecutor;
     private ExecutorService placeholderExecutor;
 
-    protected TreeCache treeCache;
     private AtomicBoolean started = new AtomicBoolean(false);
-
-    private CuratorFramework curator;
     private Map<String, String> dataStoreProperties;
+
+    protected TreeCache treeCache;
 
     @Override
     public abstract void importFromFileSystem(String from);
@@ -102,7 +99,6 @@ public abstract class DataStoreSupport extends AbstractComponent implements Data
         try {
         if (started.compareAndSet(false, true)) {
             LOG.info("Starting up DataStore " + this);
-            Objects.notNull(getCurator(), "curator");
             createCache(getCurator());
             placeholderExecutor = Executors.newCachedThreadPool();
         }
@@ -116,14 +112,6 @@ public abstract class DataStoreSupport extends AbstractComponent implements Data
             destroyCache();
             placeholderExecutor.shutdownNow();
         }
-    }
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
     }
 
     public Map<String, String> getDataStoreProperties() {
@@ -141,12 +129,16 @@ public abstract class DataStoreSupport extends AbstractComponent implements Data
         return placeholderResolvers;
     }
 
+    public CuratorFramework getCurator() {
+        return curator.get();
+    }
+
     public void bindCurator(CuratorFramework curator) {
-        this.curator = curator;
+        this.curator.set(curator);
     }
 
     public void unbindCurator(CuratorFramework curator) {
-        this.curator = null;
+        this.curator.set(null);
     }
 
     public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
@@ -218,7 +210,7 @@ public abstract class DataStoreSupport extends AbstractComponent implements Data
 
     public BundleContext getBundleContext() {
         try {
-            return FrameworkUtil.getBundle(DataStoreSupport.class).getBundleContext();
+            return FrameworkUtil.getBundle(AbstractDataStore.class).getBundleContext();
         } catch (Throwable t) {
             return null;
         }
