@@ -24,8 +24,7 @@ import org.osgi.service.component.ComponentContext;
 public class ClusterServiceManager extends AbstractComponent implements ClusterServiceManagerMBean {
 
     @Reference(referenceInterface = ZooKeeperClusterService.class)
-    private final ValidatingReference<ZooKeeperClusterService> service = new ValidatingReference<ZooKeeperClusterService>();
-
+    private final ValidatingReference<ZooKeeperClusterService> clusterService = new ValidatingReference<ZooKeeperClusterService>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
@@ -60,17 +59,17 @@ public class ClusterServiceManager extends AbstractComponent implements ClusterS
 
     @Override
     public List<String> getEnsembleContainers() {
-        return service.get().getEnsembleContainers();
+        return clusterService.get().getEnsembleContainers();
     }
 
     @Override
     public String getZooKeeperUrl() {
-        return service.get().getZooKeeperUrl();
+        return clusterService.get().getZooKeeperUrl();
     }
 
     @Override
     public void createCluster(List<String> containers) {
-        service.get().createCluster(containers);
+        clusterService.get().createCluster(containers);
     }
 
     @Override
@@ -87,32 +86,32 @@ public class ClusterServiceManager extends AbstractComponent implements ClusterS
 
     @Override
     public void createCluster(List<String> containers, CreateEnsembleOptions options) {
-        service.get().createCluster(containers, options);
+        clusterService.get().createCluster(containers, options);
     }
 
     @Override
     public void addToCluster(List<String> containers) {
-        service.get().addToCluster(containers);
+        clusterService.get().addToCluster(containers);
     }
 
     @Override
     public void addToCluster(List<String> containers, CreateEnsembleOptions options) {
-        service.get().addToCluster(containers, options);
+        clusterService.get().addToCluster(containers, options);
     }
 
     @Override
     public void removeFromCluster(List<String> containers) {
-        service.get().removeFromCluster(containers);
+        clusterService.get().removeFromCluster(containers);
     }
 
     @Override
     public void removeFromCluster(List<String> containers, CreateEnsembleOptions options) {
-        service.get().removeFromCluster(containers, options);
+        clusterService.get().removeFromCluster(containers, options);
     }
 
     @Override
     public void clean() {
-        service.get().clean();
+        clusterService.get().clean();
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {
@@ -123,11 +122,11 @@ public class ClusterServiceManager extends AbstractComponent implements ClusterS
         this.mbeanServer.set(null);
     }
 
-    void bindService(ZooKeeperClusterService service) {
-        this.service.set(service);
+    void bindClusterService(ZooKeeperClusterService service) {
+        this.clusterService.set(service);
     }
 
-    void unbindService(ZooKeeperClusterService service) {
-        this.service.set(null);
+    void unbindClusterService(ZooKeeperClusterService service) {
+        this.clusterService.set(null);
     }
 }

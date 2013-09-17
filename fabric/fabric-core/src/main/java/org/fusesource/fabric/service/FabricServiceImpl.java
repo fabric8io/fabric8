@@ -96,8 +96,8 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
-    @Reference(referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
-    private PortService portService;
+    @Reference(referenceInterface = PortService.class)
+    private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
@@ -126,15 +126,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     }
 
     public PortService getPortService() {
-        return portService;
-    }
-
-    void bindPortService(PortService portService) {
-        this.portService = portService;
-    }
-
-    void unbindPortService(PortService portService) {
-        this.portService = null;
+        return portService.get();
     }
 
     public String getDefaultRepo() {
@@ -246,7 +238,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         ContainerProvider provider = getProvider(container);
         provider.destroy(container);
         try {
-            portService.unRegisterPort(container);
+            portService.get().unRegisterPort(container);
             getDataStore().deleteContainer(container.getId());
         } catch (Exception e) {
            LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
@@ -755,5 +747,13 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     void unbindDataStore(DataStore dataStore) {
         this.dataStore.set(null);
+    }
+
+    void bindPortService(PortService portService) {
+        this.portService.set(portService);
+    }
+
+    void unbindPortService(PortService portService) {
+        this.portService.set(null);
     }
 }
