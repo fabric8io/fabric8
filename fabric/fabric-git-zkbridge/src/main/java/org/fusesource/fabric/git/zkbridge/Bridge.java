@@ -82,9 +82,8 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
     public static final String METADATA = ".metadata";
 
-
     @Reference(referenceInterface = FabricGitService.class)
-    private FabricGitService gitService;
+    private final ValidatingReference<FabricGitService> gitService = new ValidatingReference<FabricGitService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
@@ -111,9 +110,9 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
                             String token = generateContainerToken(curator.get());
                             CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
                             if (group.isMaster()) {
-                                update(gitService.get(), curator.get(), cp);
+                                update(gitService.get().get(), curator.get(), cp);
                             } else {
-                                updateLocal(gitService.get(), curator.get(), cp);
+                                updateLocal(gitService.get().get(), curator.get(), cp);
                             }
                     } catch (Exception e) {
                         if (LOGGER.isDebugEnabled()) {
@@ -141,22 +140,6 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
         } finally {
             deactivateComponent();
         }
-    }
-
-    void bindGitService(FabricGitService gitService) {
-        this.gitService = gitService;
-    }
-
-    void unbindGitService(FabricGitService gitService) {
-        this.gitService = null;
-    }
-
-    void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
-    }
-
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
     }
 
     @Override
@@ -588,5 +571,21 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
 
     public void setPeriod(long period) {
         this.period = period;
+    }
+
+    void bindGitService(FabricGitService service) {
+        this.gitService.set(service);
+    }
+
+    void unbindGitService(FabricGitService service) {
+        this.gitService.set(null);
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }
