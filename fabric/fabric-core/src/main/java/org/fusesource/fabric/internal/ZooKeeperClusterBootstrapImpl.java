@@ -67,7 +67,6 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
 
-    private final boolean ensembleAutoStart = Boolean.parseBoolean(System.getProperty(SystemProperties.ENSEMBLE_AUTOSTART));
     private final BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
 
     @Reference(cardinality = MANDATORY_UNARY)
@@ -82,15 +81,12 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
     @Activate
     public void init(Map<String,String> configuration) {
         this.configuration = configuration;
-        if (ensembleAutoStart) {
             new Thread(new Runnable() {
                 @Override
                 public void run() {
                     create();
                 }
             }).start();
-
-        }
     }
 
     public void create() {
@@ -102,7 +98,9 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
         CreateEnsembleOptions createOpts = CreateEnsembleOptions.builder().fromSystemProperties().users(userProps).build();
-        create(createOpts);
+        if (createOpts.isEnsembleStart()) {
+            create(createOpts);
+        }
     }
 
     public void create(CreateEnsembleOptions options) {
@@ -123,11 +121,11 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
             // Create the client configuration
             createZooKeeeperConfig(connectionUrl, options);
             // Reset the autostart flag
-            if (ensembleAutoStart) {
-                System.setProperty(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+            if (options.isEnsembleStart()) {
+                System.setProperty(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
                 File file = new File(System.getProperty("karaf.base") + "/etc/system.properties");
                 org.apache.felix.utils.properties.Properties props = new org.apache.felix.utils.properties.Properties(file);
-                props.put(SystemProperties.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
+                props.put(CreateEnsembleOptions.ENSEMBLE_AUTOSTART, Boolean.FALSE.toString());
                 props.save();
             }
             startBundles(options);
@@ -237,7 +235,7 @@ public class ZooKeeperClusterBootstrapImpl  implements ZooKeeperClusterBootstrap
 
     public void startBundles(CreateEnsembleOptions options) throws BundleException {
         // Install or stop the fabric-configadmin bridge
-        Bundle bundleFabricAgent = instalBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
+        Bundle bundleFabricAgent = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
                 "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricConfigAdmin = instalBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
                 "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);

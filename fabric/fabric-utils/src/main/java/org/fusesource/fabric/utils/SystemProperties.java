@@ -19,9 +19,6 @@ package org.fusesource.fabric.utils;
 
 public final class SystemProperties {
 
-    public static final String AGENT_AUTOSTART = "agent.auto.start";
-    public static final String ENSEMBLE_AUTOSTART = "ensemble.auto.start";
-    public static final String PROFILES_AUTOIMPORT_PATH = "profiles.auto.import.path";
     public static final String ZOOKEEPER_PASSWORD = "zookeeper.password";
     public static final String PROFILE = "profile";
     public static final String KARAF_NAME = "karaf.name";

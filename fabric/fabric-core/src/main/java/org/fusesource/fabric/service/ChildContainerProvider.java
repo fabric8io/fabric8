@@ -25,6 +25,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateChildContainerMetadata;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PortService;
@@ -73,7 +74,7 @@ public class ChildContainerProvider implements ContainerProvider<CreateChildCont
                     jvmOptsBuilder.append(" -Xmx512m");
                 }
                 if (options.isEnsembleServer()) {
-                    jvmOptsBuilder.append(" ").append(Constants.ENSEMBLE_SERVER_CONTAINER);
+                    jvmOptsBuilder.append(" ").append(CreateEnsembleOptions.ENSEMBLE_AUTOSTART+"=true");
                 }
 
                 if (options.getJvmOpts() != null && !options.getJvmOpts().isEmpty()) {

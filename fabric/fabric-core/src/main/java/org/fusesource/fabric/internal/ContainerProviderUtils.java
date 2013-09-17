@@ -18,6 +18,7 @@
 package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
@@ -184,9 +185,9 @@ public final class ContainerProviderUtils {
 
         if (options.isEnsembleServer()) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
-            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.ENSEMBLE_AUTOSTART + "=true"));
-            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.AGENT_AUTOSTART + "=true"));
-            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.AGENT_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.PROFILES_AUTOIMPORT_PATH + "=${karaf.home}/fabric/import/"));
             if (options != null && options.getUsers() != null) {
                 appendFile(sb, "etc/users.properties",  Arrays.asList("\n"));
                 for (Map.Entry<String, String> entry : options.getUsers().entrySet()) {
@@ -196,7 +197,7 @@ public final class ContainerProviderUtils {
         } else if (options.getZookeeperUrl() != null) {
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.url = " + options.getZookeeperUrl()));
             appendFile(sb, "etc/system.properties", Arrays.asList("zookeeper.password = " + options.getZookeeperPassword()));
-            appendFile(sb, "etc/system.properties", Arrays.asList(SystemProperties.AGENT_AUTOSTART + "=true"));
+            appendFile(sb, "etc/system.properties", Arrays.asList(CreateEnsembleOptions.AGENT_AUTOSTART + "=true"));
             appendToLineInFile(sb, "etc/org.apache.karaf.features.cfg", "featuresBoot=", "fabric-agent,fabric-git,");
         }
 

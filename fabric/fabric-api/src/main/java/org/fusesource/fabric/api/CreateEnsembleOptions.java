@@ -25,6 +25,10 @@ import java.util.Set;
 
 public class CreateEnsembleOptions extends ContainerOptions {
 
+    public static final String AGENT_AUTOSTART = "agent.auto.start";
+    public static final String ENSEMBLE_AUTOSTART = "ensemble.auto.start";
+    public static final String PROFILES_AUTOIMPORT_PATH = "profiles.auto.import.path";
+    public static final String DEFAULT_IMPORT_PATH = System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
     public static String ZOOKEEPER_SERVER_PORT = "zookeeper.server.port";
     public static String ZOOKEEPER_SERVER_CONNECTION_PORT = "zookeeper.server.connection.port";
     public static final String ROLE_DELIMITER = ",";
@@ -38,19 +42,24 @@ public class CreateEnsembleOptions extends ContainerOptions {
         @JsonProperty
         String zookeeperPassword = generatePassword();
         @JsonProperty
+        boolean ensembleStart = false;
+        @JsonProperty
         boolean agentEnabled = true;
         @JsonProperty
         boolean autoImportEnabled = true;
         @JsonProperty
-        String importPath = System.getProperty("karaf.home", ".") + File.separatorChar + "fabric" + File.separatorChar + "import";
+        String importPath = DEFAULT_IMPORT_PATH;
         @JsonProperty
         Map<String, String> users = new HashMap<String, String>();
 
         @Override
         public B fromSystemProperties() {
             super.fromSystemProperties();
+            this.ensembleStart = Boolean.parseBoolean(System.getProperty(ENSEMBLE_AUTOSTART, "false"));
+            this.agentEnabled = Boolean.parseBoolean(System.getProperty(AGENT_AUTOSTART, "false"));
             this.zooKeeperServerPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_PORT, "2181"));
             this.zooKeeperServerConnectionPort = Integer.parseInt(System.getProperty(ZOOKEEPER_SERVER_CONNECTION_PORT, "2181"));
+            this.importPath = System.getProperty(PROFILES_AUTOIMPORT_PATH, DEFAULT_IMPORT_PATH);
             return (B) this;
         }
 
@@ -100,6 +109,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return (B) this;
         }
 
+        public B ensembleStart(boolean ensembleStart) {
+            this.ensembleStart = ensembleStart;
+            return (B) this;
+        }
 
         public B agentEnabled(boolean agentEnabled) {
             this.agentEnabled = agentEnabled;
@@ -135,6 +148,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
             this.zookeeperPassword = zookeeperPassword;
         }
 
+        public void setEnsembleStart(boolean ensembleStart) {
+            this.ensembleStart = ensembleStart;
+        }
+
         public void setAgentEnabled(boolean agentEnabled) {
             this.agentEnabled = agentEnabled;
         }
@@ -161,6 +178,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
         public String getZookeeperPassword() {
             return zookeeperPassword;
+        }
+
+        public boolean isEnsembleStart() {
+            return ensembleStart;
         }
 
         public boolean isAgentEnabled() {
@@ -201,7 +222,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
 
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, agentEnabled, autoImportEnabled, importPath, users);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, autoImportEnabled, importPath, users);
         }
     }
 
@@ -211,6 +232,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
     final int zooKeeperServerConnectionPort;
     @JsonProperty
     final String zookeeperPassword;
+    @JsonProperty
+    final boolean ensembleStart;
     @JsonProperty
     final boolean agentEnabled;
     @JsonProperty
@@ -224,11 +247,12 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder<Builder>();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
         this.zookeeperPassword = zookeeperPassword;
+        this.ensembleStart = ensembleStart;
         this.agentEnabled = agentEnabled;
         this.autoImportEnabled = autoImportEnabled;
         this.importPath = importPath;
@@ -245,6 +269,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public String getZookeeperPassword() {
         return zookeeperPassword;
+    }
+
+    public boolean isEnsembleStart() {
+        return ensembleStart;
     }
 
     public boolean isAgentEnabled() {
