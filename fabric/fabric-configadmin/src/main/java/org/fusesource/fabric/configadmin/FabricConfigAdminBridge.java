@@ -56,7 +56,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = ContainerRegistration.class)
     private final ValidatingReference<ContainerRegistration> registration = new ValidatingReference<ContainerRegistration>();
 
@@ -66,7 +66,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
     synchronized void activate(ComponentContext context) {
         activateComponent(context);
         try {
-            fabricService.trackConfiguration(this);
+            fabricService.get().trackConfiguration(this);
             run();
         } catch (RuntimeException rte) {
             deactivateComponent();
@@ -77,7 +77,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
     @Deactivate
     synchronized void deactivate() {
         try {
-            fabricService.unTrackConfiguration(this);
+            fabricService.get().unTrackConfiguration(this);
             executor.shutdown();
             try {
                 executor.awaitTermination(1, TimeUnit.MINUTES);
@@ -104,7 +104,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
         FabricService fabricService;
         ConfigurationAdmin configAdmin;
         synchronized (this) {
-            fabricService = this.fabricService;
+            fabricService = this.fabricService.get();
             configAdmin = this.configAdmin.get();
         }
         if (fabricService == null || configAdmin == null) {
@@ -218,6 +218,14 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
 
     void unbindRegistration(ContainerRegistration service) {
         this.registration.set(null);
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 
     static class NamedThreadFactory implements ThreadFactory {

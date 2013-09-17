@@ -56,7 +56,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
     private final Map<Bundle, Map<String, ServletEvent>> servletEvents = new HashMap<Bundle, Map<String, ServletEvent>>();
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
@@ -86,10 +86,10 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
                 case WebEvent.DEPLOYING:
                     break;
                 case WebEvent.DEPLOYED:
-                    registerWebapp(fabricService.getCurrentContainer(), webEvent);
+                    registerWebapp(fabricService.get().getCurrentContainer(), webEvent);
                     break;
                 default:
-                    unRegisterWebapp(fabricService.getCurrentContainer(), webEvent);
+                    unRegisterWebapp(fabricService.get().getCurrentContainer(), webEvent);
             }
     }
 
@@ -111,10 +111,10 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
                 case ServletEvent.DEPLOYING:
                     break;
                 case ServletEvent.DEPLOYED:
-                    registerServlet(fabricService.getCurrentContainer(), servletEvent);
+                    registerServlet(fabricService.get().getCurrentContainer(), servletEvent);
                     break;
                 default:
-                    unregisterServlet(fabricService.getCurrentContainer(), servletEvent);
+                    unregisterServlet(fabricService.get().getCurrentContainer(), servletEvent);
                     break;
             }
         }
@@ -238,12 +238,12 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
         }
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
     }
 
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 
     void bindCurator(CuratorFramework curator) {

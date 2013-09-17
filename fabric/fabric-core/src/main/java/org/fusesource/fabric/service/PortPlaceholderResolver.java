@@ -28,6 +28,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.Ports;
 import org.osgi.service.component.ComponentContext;
 
@@ -39,7 +40,7 @@ public class PortPlaceholderResolver extends AbstractComponent implements Placeh
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -82,16 +83,16 @@ public class PortPlaceholderResolver extends AbstractComponent implements Placeh
         int fromPort = Integer.parseInt(fromPortValue);
         int toPort = Integer.parseInt(toPortValue);
         Set<Integer> locallyAllocatedPorts = Ports.findUsedPorts(fromPort, toPort);
-        int port = fabricService.getPortService().registerPort(fabricService.getCurrentContainer(), pid, key, fromPort, toPort, locallyAllocatedPorts);
+        int port = fabricService.get().getPortService().registerPort(fabricService.get().getCurrentContainer(), pid, key, fromPort, toPort, locallyAllocatedPorts);
         return String.valueOf(port);
     }
 
 
-    public FabricService getFabricService() {
-        return fabricService;
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
     }
 
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }

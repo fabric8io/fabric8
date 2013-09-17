@@ -37,6 +37,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.service.support.InvalidComponentException;
 import org.fusesource.fabric.service.support.Validatable;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
@@ -51,7 +52,7 @@ public class ProfileUrlHandler extends AbstractURLStreamHandlerService implement
     private static final String SYNTAX = "profile:<resource name>";
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     private final AtomicBoolean active = new AtomicBoolean();
 
@@ -103,7 +104,7 @@ public class ProfileUrlHandler extends AbstractURLStreamHandlerService implement
         @Override
         public InputStream getInputStream() throws IOException {
             String path = url.getPath();
-            Profile profile = fabricService.getCurrentContainer().getOverlayProfile();
+            Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
 
             Map<String, byte[]> configs = profile.getFileConfigurations();
             if (configs.containsKey(path)) {
@@ -113,5 +114,13 @@ public class ProfileUrlHandler extends AbstractURLStreamHandlerService implement
                 throw new IllegalArgumentException("Resource " + path + " does not exist in the profile overlay.");
             }
         }
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }

@@ -72,10 +72,9 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
     private static final String PLAIN_CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
 
     @Reference(referenceInterface = IOpenShiftConnection.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
-    private ValidatingReference<IOpenShiftConnection> openShiftConnection = new ValidatingReference<IOpenShiftConnection>();
-
+    private final ValidatingReference<IOpenShiftConnection> openShiftConnection = new ValidatingReference<IOpenShiftConnection>();
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     private Map<String, String> properties = new HashMap<String, String>();
 
@@ -106,7 +105,7 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
         String versionId = options.getVersion();
         Map<String, String> openshiftConfigOverlay = new HashMap<String, String>();
         if (profiles != null && versionId != null) {
-            Version version = fabricService.getVersion(versionId);
+            Version version = fabricService.get().getVersion(versionId);
             if (version != null) {
                 for (String profileId : profiles) {
                     Profile profile = version.getProfile(profileId);
@@ -137,8 +136,8 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
         String standAloneCartridgeUrl = cartridgeUrls[0];
         StandaloneCartridge cartridge = new StandaloneCartridge(standAloneCartridgeUrl);
 
-        String zookeeperUrl = fabricService.getZookeeperUrl();
-        String zookeeperPassword = fabricService.getZookeeperPassword();
+        String zookeeperUrl = fabricService.get().getZookeeperUrl();
+        String zookeeperPassword = fabricService.get().getZookeeperPassword();
 
         Map<String,String> userEnvVars = new HashMap<String, String>();
         if (fuseCart) {
@@ -290,6 +289,13 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
                 return application == null;
             }
         };
+    }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }

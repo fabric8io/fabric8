@@ -34,6 +34,7 @@ import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.fusesource.fabric.utils.AuthenticationUtils;
 import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.Ports;
@@ -55,7 +56,7 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
     private static final String SCHEME = "child";
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService service;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -71,7 +72,7 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
     public Set<CreateChildContainerMetadata> create(final CreateChildContainerOptions options) throws Exception {
         final Set<CreateChildContainerMetadata> result = new LinkedHashSet<CreateChildContainerMetadata>();
         final String parentName = options.getParent();
-        final Container parent = service.getContainer(parentName);
+        final Container parent = fabricService.get().getContainer(parentName);
         ContainerTemplate containerTemplate =  new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
 
         containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Object>() {
@@ -110,7 +111,7 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
                 }
 
                 Map<String, String> dataStoreProperties = new HashMap<String, String>(options.getDataStoreProperties());
-                dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, service.getDataStore().getType());
+                dataStoreProperties.put(DataStore.DATASTORE_TYPE_PROPERTY, fabricService.get().getDataStore().getType());
 
                 for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
                     String key = dataStoreEntries.getKey();
@@ -128,7 +129,7 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
                 //features.addAll(defaultProfile.getFeatures());
                 String originalName = options.getName();
 
-                PortService portService = service.getPortService();
+                PortService portService = fabricService.get().getPortService();
                 Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
                 int number = Math.max(options.getNumber(), 1);
@@ -146,12 +147,12 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
                     int minimumPort = parent.getMinimumPort();
                     int maximumPort = parent.getMaximumPort();
 
-                    service.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
-                    service.getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
-                    inheritAddresses(service, parentName, containerName, options);
+                    fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
+                    fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
+                    inheritAddresses(fabricService.get(), parentName, containerName, options);
 
                     //We are creating a container instance, just for the needs of port registration.
-                    Container child = new ContainerImpl(parent, containerName, service) {
+                    Container child = new ContainerImpl(parent, containerName, fabricService.get()) {
                         @Override
                         public String getIp() {
                             return parent.getIp();
@@ -316,5 +317,13 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
             }
         }
         return sb.toString();
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }

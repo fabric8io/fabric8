@@ -27,6 +27,7 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
     private static final Logger LOGGER = LoggerFactory.getLogger(FeaturesService.class);
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     private final Set<Repository> repositories = new HashSet<Repository>();
     private final Set<Feature> allfeatures = new HashSet<Feature>();
@@ -53,7 +54,7 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
     synchronized void activate(ComponentContext context) {
         activateComponent(context);
         try {
-            fabricService.trackConfiguration(this);
+            fabricService.get().trackConfiguration(this);
         } catch (RuntimeException rte) {
             throw rte;
         }
@@ -62,14 +63,10 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
     @Deactivate
     synchronized void deactivate() {
         try {
-            fabricService.unTrackConfiguration(this);
+            fabricService.get().unTrackConfiguration(this);
         } finally {
             deactivateComponent();
         }
-    }
-
-    public FabricService getFabricService() {
-        return fabricService;
     }
 
     @Override
@@ -110,14 +107,12 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     /**
      * Lists all {@link Repository} entries found in any {@link Profile} of the current {@link Container} {@link Version}.
-     *
-     * @return
      */
     @Override
     public synchronized Repository[] listRepositories() {
         if (repositories.isEmpty() && fabricService != null) {
             Set<String> repositoryUris = new LinkedHashSet<String>();
-            Container container = fabricService.getCurrentContainer();
+            Container container = fabricService.get().getCurrentContainer();
             Version version = container.getVersion();
             Profile[] profiles = version.getProfiles();
             if (profiles != null) {
@@ -222,7 +217,7 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
         if (installed.isEmpty() && fabricService != null) {
             try {
                 Map<String, Map<String, Feature>> allFeatures = getFeatures(listProfileRepositories());
-                Container container = fabricService.getCurrentContainer();
+                Container container = fabricService.get().getCurrentContainer();
                 Profile[] profiles = container.getProfiles();
 
                 if (profiles != null) {
@@ -313,14 +308,12 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     /**
      * Lists all {@link Repository} enties found in the {@link Profile}s assigned to the current {@link Container}.
-     *
-     * @return
      */
     private Repository[] listProfileRepositories() {
         Set<String> repositoryUris = new LinkedHashSet<String>();
         Set<Repository> repositories = new LinkedHashSet<Repository>();
         //The method is only called when fabricService is available so no need to guard for null values.
-        Container container = fabricService.getCurrentContainer();
+        Container container = fabricService.get().getCurrentContainer();
         Set<Profile> profilesWithParents = new HashSet<Profile>();
 
         Profile[] profiles = container.getProfiles();
@@ -351,9 +344,6 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     /**
      * Adds the {@link URI} of {@link Feature} {@link Repository} and its internals to the set of repositories {@link URI}s.
-     *
-     * @param uri
-     * @param repositoryUris
      */
     protected void addRepositoryUri(String uri, Set<String> repositoryUris) {
         if (repositoryUris.contains(uri)) {
@@ -376,9 +366,6 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     /**
      * Adds {@link Profile} and its parents to the set of {@link Profile}s.
-     *
-     * @param profile
-     * @param profiles
      */
     protected void addProfiles(Profile profile, Set<Profile> profiles) {
         if (profiles.contains(profile)) {
@@ -393,9 +380,6 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     /**
      * Adds {@link Feature} and its dependencies to the set of {@link Feature}s.
-     *
-     * @param feature
-     * @param features
      */
     protected void addFeatures(Feature feature, Set<Feature> features) {
         if (features.contains(feature)) {
@@ -408,4 +392,11 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
         }
     }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
+    }
 }

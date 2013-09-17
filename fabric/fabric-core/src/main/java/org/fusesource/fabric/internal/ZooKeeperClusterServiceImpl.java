@@ -74,7 +74,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
     @Reference(referenceInterface = FabricService.class)
-	private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
@@ -115,7 +115,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
 	}
 
     public String getZooKeeperUrl() {
-        return fabricService.getZookeeperUrl();
+        return fabricService.get().getZookeeperUrl();
     }
 
     public void createCluster(List<String> containers) {
@@ -138,7 +138,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
                 return;
             }
 
-            Container[] allContainers = fabricService.getContainers();
+            Container[] allContainers = fabricService.get().getContainers();
             for (Container container : allContainers) {
                 if (!container.isAliveAndOK()) {
                     throw new FabricException("Can not modify the zookeeper ensemble if all containers are not running");
@@ -148,7 +148,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
             String version = dataStore.get().getDefaultVersion();
 
             for (String container : containers) {
-                Container c = fabricService.getContainer(container);
+                Container c = fabricService.get().getContainer(container);
                 if (exists(curator.get(), ZkPath.CONTAINER_ALIVE.getPath(container)) == null) {
                     throw new FabricException("The container " + container + " is not alive");
                 }
@@ -412,7 +412,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
     public void addToCluster(List<String> containers) {
 
         CreateEnsembleOptions options = CreateEnsembleOptions.builder()
-                .zookeeperPassword(fabricService.getZookeeperPassword())
+                .zookeeperPassword(fabricService.get().getZookeeperPassword())
                 .build();
 		addToCluster(containers, options);
 	}
@@ -433,7 +433,7 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
 
 	public void removeFromCluster(List<String> containers) {
 		Builder<? extends Builder> builder = CreateEnsembleOptions.builder();
-        String password = fabricService.getZookeeperPassword();
+        String password = fabricService.get().getZookeeperPassword();
         CreateEnsembleOptions options = builder.zookeeperPassword(password).build();
 		removeFromCluster(containers, options);
 	}
@@ -477,11 +477,11 @@ public class ZooKeeperClusterServiceImpl extends AbstractComponent implements Zo
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
+        this.fabricService.set(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService = null;
+        this.fabricService.set(null);
     }
 
     void bindRegistrationHandler(DataStoreRegistrationHandler service) {

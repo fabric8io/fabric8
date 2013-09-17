@@ -49,7 +49,7 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
     private static final String EMPTY = "";
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
 
@@ -84,13 +84,13 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
                 if (overlayMatcher.matches()) {
                     String targetPid = overlayMatcher.group(1);
                     String targetProperty = overlayMatcher.group(2);
-                    Profile profile = fabricService.getCurrentContainer().getOverlayProfile();
+                    Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
                     return substituteFromProfile(new ProfileOverlayImpl(profile, false, dataStore.get()), targetPid, targetProperty);
                 } else if (explicitMatcher.matches()) {
                     String profileId = explicitMatcher.group(1);
                     String targetPid = explicitMatcher.group(2);
                     String targetProperty = explicitMatcher.group(3);
-                    Profile profile = fabricService.getCurrentContainer().getVersion().getProfile(profileId);
+                    Profile profile = fabricService.get().getCurrentContainer().getVersion().getProfile(profileId);
                     return substituteFromProfile(profile, targetPid, targetProperty);
                 }
             }
@@ -107,12 +107,12 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
         } else return EMPTY;
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
     }
 
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 
     void bindDataStore(DataStore dataStore) {

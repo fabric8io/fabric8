@@ -34,6 +34,7 @@ import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
 import org.fusesource.fabric.partition.internal.LoggingPartitionListener;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.mvel2.ParserContext;
 import org.mvel2.templates.CompiledTemplate;
 import org.mvel2.templates.TemplateCompiler;
@@ -63,7 +64,7 @@ public class ProfilePartitionListener extends AbstractComponent implements Parti
     private final ParserContext parserContext = new ParserContext();
 
     @Reference(referenceInterface = FabricService.class)
-    private FabricService fabricService;
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -92,21 +93,12 @@ public class ProfilePartitionListener extends AbstractComponent implements Parti
         }
     }
 
-    public synchronized void unbindFabricService(FabricService fabricService) {
-        this.fabricService = null;
-    }
-
-    public synchronized void bindFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-
     @Override
     public synchronized void start(String taskId, String taskDefinition, Set<Partition> partitions) {
         if (fabricService == null) {
             LOGGER.warn("Cannot start {}. Fabric Service is unavailable.", taskDefinition);
         }
-        Container current = fabricService.getCurrentContainer();
+        Container current = fabricService.get().getCurrentContainer();
         Version version = current.getVersion();
         Profile templateProfile = version.getProfile(taskDefinition);
         Iterable<String> fileTemplates = Iterables.filter(templateProfile.getFileConfigurations().keySet(), new MvelPredicate());
@@ -150,11 +142,11 @@ public class ProfilePartitionListener extends AbstractComponent implements Parti
         if (fabricService == null) {
             LOGGER.warn("Cannot stop {}. Fabric Service is unavailable.", taskDefinition);
         }
-        Container current = fabricService.getCurrentContainer();
+        Container current = fabricService.get().getCurrentContainer();
         Version version = current.getVersion();
         for (Partition partition : partitions) {
             String profileId = taskDefinition + "-" + ZKPaths.getNodeFromPath(partition.getId());
-            Profile toBeRemoved = fabricService.getVersion(version.getId()).getProfile(profileId);
+            Profile toBeRemoved = fabricService.get().getVersion(version.getId()).getProfile(profileId);
             current.removeProfiles(toBeRemoved);
             assignedPartitons.remove(taskDefinition, partition);
             toBeRemoved.delete();
@@ -167,6 +159,14 @@ public class ProfilePartitionListener extends AbstractComponent implements Parti
             name = name.replaceAll(String.format(NAME_VARIABLE_FORMAT, entry.getKey()), entry.getValue());
         }
         return name.substring(0, name.lastIndexOf("."));
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 
     private static class Key {
