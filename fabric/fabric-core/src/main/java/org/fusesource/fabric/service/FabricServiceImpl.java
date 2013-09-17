@@ -94,8 +94,8 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = DataStore.class, bind = "bindDataStore", unbind = "unbindDataStore")
-    private DataStore dataStore;
+    @Reference(referenceInterface = DataStore.class)
+    private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
     @Reference(referenceInterface = PortService.class, bind = "bindPortService", unbind = "unbindPortService")
     private PortService portService;
     @Reference(referenceInterface = ConfigurationAdmin.class)
@@ -121,54 +121,20 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         return curator.get();
     }
 
-    void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
-    }
-
-    void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
-    }
-
-    public void setDataStore(DataStore dataStore) {
-        this.dataStore = dataStore;
-    }
-
     public DataStore getDataStore() {
-        return dataStore;
+        return dataStore.get();
     }
-
-    public void bindDataStore(DataStore dataStore) {
-        setDataStore(dataStore);
-    }
-
-    public void unbindDataStore(DataStore dataStore) {
-        this.dataStore = null;
-    }
-
 
     public PortService getPortService() {
         return portService;
     }
 
-    public void setPortService(PortService portService) {
+    void bindPortService(PortService portService) {
         this.portService = portService;
     }
 
-
-    public void bindPortService(PortService portService) {
-        this.portService = portService;
-    }
-
-    public void unbindPortService(PortService portService) {
+    void unbindPortService(PortService portService) {
         this.portService = null;
-    }
-
-    void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
-    }
-
-    void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
     }
 
     public String getDefaultRepo() {
@@ -487,7 +453,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
                     answer = text.substring(startIndex, endIdx);
                     if (answer.length() > 0) {
                         // lets expand any variables
-                        answer = ZooKeeperUtils.getSubstitutedData(curator, answer);
+                        answer = ZooKeeperUtils.getSubstitutedData(curator.get(), answer);
                         return answer;
                     }
                 }
@@ -765,5 +731,29 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
             }
         }
         return null;
+    }
+
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
+    }
+
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
+    void bindDataStore(DataStore dataStore) {
+        this.dataStore.set(dataStore);
+    }
+
+    void unbindDataStore(DataStore dataStore) {
+        this.dataStore.set(null);
     }
 }

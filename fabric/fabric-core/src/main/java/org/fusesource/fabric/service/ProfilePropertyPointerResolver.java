@@ -31,6 +31,7 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.internal.ProfileOverlayImpl;
 import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.service.support.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
     @Reference(referenceInterface = DataStore.class)
-    private DataStore dataStore;
+    private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
 
     @Activate
     synchronized void activate(ComponentContext context) {
@@ -72,11 +73,6 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
 
     /**
      * Resolves the placeholder found inside the value, for the specific key of the pid.
-     *
-     * @param pid   The pid that contains the placeholder.
-     * @param key   The key of the configuration value that contains the placeholder.
-     * @param value The value with the placeholder.
-     * @return The resolved value or empty string.
      */
     @Override
     public String resolve(String pid, String key, String value) {
@@ -89,7 +85,7 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
                     String targetPid = overlayMatcher.group(1);
                     String targetProperty = overlayMatcher.group(2);
                     Profile profile = fabricService.getCurrentContainer().getOverlayProfile();
-                    return substituteFromProfile(new ProfileOverlayImpl(profile, false, dataStore), targetPid, targetProperty);
+                    return substituteFromProfile(new ProfileOverlayImpl(profile, false, dataStore.get()), targetPid, targetProperty);
                 } else if (explicitMatcher.matches()) {
                     String profileId = explicitMatcher.group(1);
                     String targetPid = explicitMatcher.group(2);
@@ -119,11 +115,11 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
         this.fabricService = fabricService;
     }
 
-    public DataStore getDataStore() {
-        return dataStore;
+    void bindDataStore(DataStore dataStore) {
+        this.dataStore.set(dataStore);
     }
 
-    public void setDataStore(DataStore dataStore) {
-        this.dataStore = dataStore;
+    void unbindDataStore(DataStore dataStore) {
+        this.dataStore.set(null);
     }
 }
