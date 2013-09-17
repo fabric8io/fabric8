@@ -25,32 +25,33 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Properties;
+import org.apache.felix.scr.annotations.Property;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
+import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Component(name = "org.fusesource.fabric.zookeeper.urlhandler",
+        description = "Fabric ZooKeeper URL Handler", immediate = true)
+@Service(URLStreamHandlerService.class)
+@Properties({
+        @Property(name = "url.handler.protocol", value = "zk")
+})
 public class ZkUrlHandler extends AbstractURLStreamHandlerService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZkUrlHandler.class);
 
     private static final String SYNTAX = "zk: zk-node-path";
 
+    @Reference
     private CuratorFramework curator;
 
     public ZkUrlHandler() {
-    }
-
-    public ZkUrlHandler(CuratorFramework curator) {
-        this.curator = curator;
-    }
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
     }
 
     /**
@@ -101,4 +102,12 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
         }
     }
 
+
+    public CuratorFramework getCurator() {
+        return curator;
+    }
+
+    public void setCurator(CuratorFramework curator) {
+        this.curator = curator;
+    }
 }

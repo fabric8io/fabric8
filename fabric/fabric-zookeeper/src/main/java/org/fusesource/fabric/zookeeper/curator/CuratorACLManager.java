@@ -1,8 +1,29 @@
-
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.fusesource.fabric.zookeeper.curator;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.ACLProvider;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
@@ -13,20 +34,42 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
 
+@Component(name = "org.fusesource.fabric.zookeeper.acl",
+        description = "Fabric ZooKeeper ACL Manager",
+        policy = OPTIONAL,
+        immediate = true)
+@Service({ACLManager.class, ACLProvider.class})
 public class CuratorACLManager implements ACLManager, ACLProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CuratorACLManager.class);
     private final ConcurrentMap<String, String> acls = new ConcurrentHashMap<String, String>();
 
-    private CuratorFramework curator;
-
     public CuratorACLManager() {
         acls.put("/", "world:anyone:acdrw");
         acls.put("/fabric", "auth::acdrw,world:anyone:");
     }
+
+    @Activate
+    private void init(Map<String, ?> props) {
+       updated(props);
+    }
+
+    @Modified
+    private void updated(Map<String, ?> props) {
+        for (Map.Entry<String, ?> entry : props.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith("acls.")) {
+                String value = String.valueOf(entry.getValue());
+                acls.put(key.substring("acls.".length()), value);
+            }
+        }
+    }
+
 
     @Override
     public List<ACL> getDefaultAcl() {
@@ -53,16 +96,16 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
     }
 
     @Override
-    public void fixAcl(String path, boolean recursive) throws Exception {
-        doFixACLs(path, recursive);
+    public void fixAcl(CuratorFramework curator, String path, boolean recursive) throws Exception {
+        doFixACLs(curator, path, recursive);
     }
 
-    private void doFixACLs(String path, boolean recursive) throws Exception {
+    private void doFixACLs(CuratorFramework curator, String path, boolean recursive) throws Exception {
         List<ACL> aclList = getAclForPath(path);
         curator.setACL().withACL(aclList).forPath(path);
         if (recursive) {
             for (String child : curator.getChildren().forPath(path)) {
-                doFixACLs(path.equals("/") ? "/" + child : path + "/" + child, recursive);
+                doFixACLs(curator, path.equals("/") ? "/" + child : path + "/" + child, recursive);
             }
         }
     }
@@ -151,13 +194,5 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
             }
         }
         return perm;
-    }
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
     }
 }

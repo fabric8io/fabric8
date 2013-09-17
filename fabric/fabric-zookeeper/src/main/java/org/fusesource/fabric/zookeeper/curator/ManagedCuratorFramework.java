@@ -32,28 +32,35 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.framework.state.ConnectionStateManager;
 import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
+import org.apache.felix.scr.annotations.Reference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedService;
-import org.osgi.util.tracker.ServiceTracker;
+import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static org.fusesource.fabric.zookeeper.curator.Constants.ACL_PROVIDER;
+import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import static org.apache.felix.scr.annotations.ReferencePolicy.DYNAMIC;
 import static org.fusesource.fabric.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
-import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_BASE_SLEEP_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_MAX_SLEEP_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
@@ -63,33 +70,50 @@ import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_MAX
 import static org.fusesource.fabric.zookeeper.curator.Constants.SESSION_TIMEOUT;
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWORD;
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
-import static org.fusesource.fabric.zookeeper.curator.TrackerUtils.closeQuietly;
 
 
-public class ManagedCuratorFramework implements ManagedService, Closeable {
+@Component(name = "org.fusesource.fabric.zookeeper",
+        description = "Fabric ZooKeeper Client Factory",
+        policy = OPTIONAL,
+        immediate = true)
+public class ManagedCuratorFramework implements Closeable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
-    private final BundleContext bundleContext;
+
     private final Map<String, ACLProvider> aclProviders = new HashMap<String, ACLProvider>();
     private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
+    @Reference(cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC, referenceInterface = ConnectionStateListener.class,
+            bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener")
+    private final Set<ConnectionStateListener> connectionStateListeners = new HashSet<ConnectionStateListener>();
+
+    @Reference
+    private ACLProvider aclProvider;
+
+    //Just for ordering of shutdown.
+    @Reference(referenceInterface = ManagedServiceFactory.class, target = "(service.pid=org.fusesource.fabric.zookeeper.server)")
+    private ManagedServiceFactory zooKeeperServiceFactory;
+
+    private BundleContext bundleContext;
     private CuratorFramework curatorFramework;
     private ServiceRegistration registration;
+    private Map<String, ?> oldProperties;
 
-    private ServiceTracker<ConnectionStateListener, ConnectionStateListener> connectionStateListenerTracker;
-    private ServiceTracker<ACLProvider, ACLProvider> aclProviderTracker;
-    private Dictionary oldProperties;
-
-    public ManagedCuratorFramework(BundleContext bundleContext) {
+    @Activate
+    public void init(BundleContext bundleContext, Map<String, ?> properties) throws ConfigurationException {
         this.bundleContext = bundleContext;
-        registerAclProviderTracker();
+        if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
+            return;
+        }
+        updateService(buildCuratorFramework(properties));
+        this.oldProperties = properties;
     }
 
-    @Override
-    public void updated(Dictionary properties) throws ConfigurationException {
-        if (properties == null && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
+    @Modified
+    public void updated(Map<String, ?> properties) throws ConfigurationException {
+        if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
             return;
         } else if (isRestartRequired(oldProperties, properties)) {
             updateService(buildCuratorFramework(properties));
@@ -106,6 +130,11 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
         this.oldProperties = properties;
     }
 
+    @Deactivate
+    public void destroy() {
+        Closeables.closeQuietly(this);
+    }
+
 
     /**
      * Updates the {@link org.osgi.framework.ServiceRegistration} with the new {@link org.apache.curator.framework.CuratorFramework}.
@@ -116,7 +145,6 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      */
     void updateService(CuratorFramework framework) {
         if (registration != null) {
-            closeQuietly(connectionStateListenerTracker);
             registration.unregister();
             try {
                 Closeables.close(curatorFramework, true);
@@ -126,7 +154,6 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
         }
         this.registration = bundleContext.registerService(CuratorFramework.class.getName(), framework, new Hashtable<String, Object>());
         this.curatorFramework = framework;
-        registerConnectionStateListenerTracker();
     }
 
     /**
@@ -145,45 +172,14 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     }
 
     /**
-     * Creates a new {@link org.osgi.util.tracker.ServiceTracker} for tracking {@link org.apache.curator.framework.state.ConnectionStateListener} services.
-     * The services will be registered to the {@link org.apache.curator.framework.CuratorFramework}.
-     * Each call to the method will close previously opened trackers and open a new one.
-     */
-    void registerConnectionStateListenerTracker() {
-        try {
-            closeQuietly(connectionStateListenerTracker);
-            this.connectionStateListenerTracker = new ServiceTracker<ConnectionStateListener, ConnectionStateListener>(bundleContext,
-                    ConnectionStateListener.class,
-                    new CuratorStateChangeListenerTracker(bundleContext,
-                            curatorFramework, executor));
-            this.connectionStateListenerTracker.open();
-        } catch (Exception ex) {
-            LOGGER.warn("Failed to register connection state listener tracker.");
-        }
-    }
-
-    void registerAclProviderTracker() {
-        try {
-            closeQuietly(aclProviderTracker);
-            this.aclProviderTracker = new ServiceTracker<ACLProvider, ACLProvider>(bundleContext,
-                    ACLProvider.class,
-                    new ACLProviderTracker(bundleContext, aclProviders));
-            this.aclProviderTracker.open();
-        } catch (Exception ex) {
-            LOGGER.warn("Failed to register acl provider tracker.");
-        }
-    }
-
-    /**
-     * Builds a {@link org.apache.curator.framework.CuratorFramework} from the specified {@link java.util.Dictionary}.
+     * Builds a {@link org.apache.curator.framework.CuratorFramework} from the specified {@link java.util.Map<String, ?>}.
      *
      * @param properties
      * @return
      */
-    CuratorFramework buildCuratorFramework(Dictionary properties) {
+    synchronized CuratorFramework buildCuratorFramework(Map<String, ?> properties) {
         String connectionString = readString(properties, ZOOKEEPER_URL, System.getProperty(ZOOKEEPER_URL, ""));
         ensembleProvider.update(connectionString);
-        String aclProviderId = readString(properties, ACL_PROVIDER, "");
         int sessionTimeoutMs = readInt(properties, SESSION_TIMEOUT, DEFAULT_SESSION_TIMEOUT_MS);
         int connectionTimeoutMs = readInt(properties, CONNECTION_TIMEOUT, DEFAULT_CONNECTION_TIMEOUT_MS);
 
@@ -195,16 +191,17 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
 
         if (isAuthorizationConfigured(properties)) {
             String scheme = "digest";
-            String password = readString(properties, ZOOKEEPER_PASSWORD, System.getProperty(ZOOKEEPER_PASSWORD,""));
+            String password = readString(properties, ZOOKEEPER_PASSWORD, System.getProperty(ZOOKEEPER_PASSWORD, ""));
             byte[] auth = ("fabric:" + password).getBytes();
-            builder = builder.authorization(scheme, auth);
-        }
-
-        if (!Strings.isNullOrEmpty(aclProviderId) && aclProviders.containsKey(aclProviderId)) {
-            builder = builder.aclProvider(aclProviders.get(aclProviderId));
+            builder = builder.authorization(scheme, auth).aclProvider(aclProvider);
         }
 
         CuratorFramework framework = builder.build();
+
+        for (ConnectionStateListener listener : connectionStateListeners) {
+            framework.getConnectionStateListenable().addListener(listener);
+        }
+
         framework.start();
         return framework;
     }
@@ -214,18 +211,18 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      *
      * @param properties
      */
-    private void updateEnsemble(Dictionary properties) {
+    private void updateEnsemble(Map<String, ?> properties) {
         String connectionString = readString(properties, ZOOKEEPER_URL, "");
         ensembleProvider.update(connectionString);
     }
 
     /**
-     * Builds an {@link org.apache.curator.retry.ExponentialBackoffRetry} from the {@link java.util.Dictionary}.
+     * Builds an {@link org.apache.curator.retry.ExponentialBackoffRetry} from the {@link java.util.Map<String, ?>}.
      *
      * @param properties
      * @return
      */
-    RetryPolicy buildRetryPolicy(Dictionary properties) {
+    RetryPolicy buildRetryPolicy(Map<String, ?> properties) {
         int maxRetries = readInt(properties, RETRY_POLICY_MAX_RETRIES, MAX_RETRIES_LIMIT);
         int baseSleepTimeMS = readInt(properties, RETRY_POLICY_BASE_SLEEP_TIME_MS, DEFAULT_BASE_SLEEP_MS);
         int maxSleepTimeMS = readInt(properties, RETRY_POLICY_MAX_SLEEP_TIME_MS, DEFAULT_MAX_SLEEP_MS);
@@ -239,9 +236,10 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      * @param properties
      * @return
      */
-    boolean isAuthorizationConfigured(Dictionary properties) {
-        return properties != null
-                && !Strings.isNullOrEmpty((String) properties.get(ZOOKEEPER_PASSWORD));
+    boolean isAuthorizationConfigured(Map<String, ?> properties) {
+        return ((properties != null
+                && !Strings.isNullOrEmpty((String) properties.get(ZOOKEEPER_PASSWORD))
+                || (!Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_PASSWORD)))));
     }
 
 
@@ -251,7 +249,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
      * @param properties
      * @return
      */
-    boolean isRestartRequired(Dictionary oldProperties, Dictionary properties) {
+    boolean isRestartRequired(Map<String, ?> oldProperties, Map<String, ?> properties) {
         if (oldProperties == null || properties == null) {
             return true;
         } else if (oldProperties.equals(properties)) {
@@ -275,7 +273,7 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
         }
     }
 
-    private boolean propertyEquals(Dictionary left, Dictionary right, String name) {
+    private boolean propertyEquals(Map<String, ?> left, Map<String, ?> right, String name) {
         if (left == null || right == null || left.get(name) == null || right.get(name) == null) {
             return (left == null || left.get(name) == null) && (right == null || right.get(name) == null);
         } else {
@@ -286,14 +284,14 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     /**
      * Reads an String value from the specified configuration.
      *
-     * @param dictionary   The source dictionary.
+     * @param props        The source props.
      * @param key          The key of the property to read.
      * @param defaultValue The default value.
      * @return The value read or the defaultValue if any error occurs.
      */
-    private static String readString(Dictionary dictionary, String key, String defaultValue) {
+    private static String readString(Map<String, ?> props, String key, String defaultValue) {
         try {
-            Object obj = dictionary.get(key);
+            Object obj = props.get(key);
             if (obj instanceof String) {
                 return (String) obj;
             } else {
@@ -307,14 +305,14 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     /**
      * Reads an int value from the specified configuration.
      *
-     * @param dictionary   The source dictionary.
+     * @param props        The source props.
      * @param key          The key of the property to read.
      * @param defaultValue The default value.
      * @return The value read or the defaultValue if any error occurs.
      */
-    private static int readInt(Dictionary dictionary, String key, int defaultValue) {
+    private static int readInt(Map<String, ?> props, String key, int defaultValue) {
         try {
-            Object obj = dictionary.get(key);
+            Object obj = props.get(key);
             if (obj instanceof Number) {
                 return ((Number) obj).intValue();
             } else if (obj instanceof String) {
@@ -330,14 +328,14 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
     /**
      * Reads a byte array from the specified configuration.
      *
-     * @param dictionary
+     * @param props
      * @param key
      * @param defaultValue
      * @return
      */
-    private static byte[] readBytes(Dictionary dictionary, String key, byte[] defaultValue) {
+    private static byte[] readBytes(Map<String, ?> props, String key, byte[] defaultValue) {
         try {
-            Object obj = dictionary.get(key);
+            Object obj = props.get(key);
             if (obj instanceof byte[]) {
                 return (byte[]) obj;
             } else if (obj instanceof String) {
@@ -350,6 +348,24 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
         }
     }
 
+    private synchronized void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
+        connectionStateListeners.add(connectionStateListener);
+        if (curatorFramework != null) {
+            curatorFramework.getConnectionStateListenable().addListener(connectionStateListener);
+            //We want listeners to receive the connected event upon registration.
+            if (curatorFramework.getZookeeperClient().isConnected()) {
+                connectionStateListener.stateChanged(curatorFramework, ConnectionState.CONNECTED);
+            }
+        }
+    }
+
+    private synchronized void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
+        connectionStateListeners.remove(connectionStateListener);
+        if (curatorFramework != null) {
+            curatorFramework.getConnectionStateListenable().removeListener(connectionStateListener);
+        }
+    }
+
     @Override
     public void close() throws IOException {
         if (registration != null) {
@@ -359,8 +375,6 @@ public class ManagedCuratorFramework implements ManagedService, Closeable {
                 // Ignore
             }
         }
-        closeQuietly(connectionStateListenerTracker);
-        closeQuietly(aclProviderTracker);
         Closeables.close(curatorFramework, true);
         executor.shutdownNow();
     }

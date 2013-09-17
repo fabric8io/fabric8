@@ -41,6 +41,7 @@ import org.fusesource.fabric.groups.NodeState;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroupFactory;
 import org.fusesource.fabric.groups.internal.ZooKeeperMultiGroup;
+import org.fusesource.fabric.zookeeper.curator.CuratorACLManager;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,6 +202,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
 
                 String password = System.getProperty("zookeeper.password", "admin");
                 if (password != null && !password.isEmpty()) {
+                    builder.aclProvider(new CuratorACLManager());
                     builder.authorization("digest", ("fabric:"+password).getBytes());
                 }
 

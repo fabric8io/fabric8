@@ -16,9 +16,11 @@
  */
 package org.fusesource.fabric.zookeeper;
 
+import org.apache.curator.framework.CuratorFramework;
+
 public interface ACLManager {
 
     void registarAcl(String path, String acl);
     void unregisterAcl(String path);
-    void fixAcl(String path, boolean recursive) throws Exception;
+    void fixAcl(CuratorFramework curator, String path, boolean recursive) throws Exception;
 }

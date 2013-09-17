@@ -18,6 +18,7 @@ package org.fusesource.fabric.internal;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.api.ACLProvider;
 import org.apache.curator.retry.RetryOneTime;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
@@ -51,7 +52,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
@@ -73,6 +73,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 	private ConfigurationAdmin configurationAdmin;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
+    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
+    private ACLProvider aclProvider;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
 	private FabricService fabricService;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
@@ -315,6 +317,8 @@ public class ZooKeeperClusterServiceImpl implements ZooKeeperClusterService {
 				properties.put("zookeeper.password", options.getZookeeperPassword());
 				CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl)
                                                               .retryPolicy(new RetryOneTime(500))
+                                                              .aclProvider(aclProvider)
+                                                              .authorization("digest", ("fabric:" + options.getZookeeperPassword()).getBytes())
                                                               .sessionTimeoutMs(30000)
                                                               .connectionTimeoutMs(30000).build();
                 dst.start();

@@ -27,8 +27,8 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.utils.SystemProperties;
-import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.fabric.zookeeper.curator.CuratorACLManager;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
@@ -56,6 +56,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
     private final String karafName = System.getProperty(SystemProperties.KARAF_NAME);
     private final String version;
+    private final CuratorACLManager aclManager = new CuratorACLManager();
 
 
     public DataStoreBootstrapTemplate(String connectionUrl, Map<String, String> bootstrapConfiguration, CreateEnsembleOptions options) {
@@ -160,6 +161,8 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
             createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), "PBEWithMD5AndDES");
             createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), options.getZookeeperPassword());
+            //Ensure ACLs are from the beggining of the fabric tree.
+            aclManager.fixAcl(curator, "/fabric", true);
         } catch (Exception ex) {
             throw new FabricException("Unable to create bootstrap configuration", ex);
         } finally {
@@ -180,6 +183,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                 .connectString(connectionUrl)
                 .connectionTimeoutMs(15000)
                 .sessionTimeoutMs(60000)
+                .aclProvider(aclManager)
                 .authorization("digest", ("fabric:" + options.getZookeeperPassword()).getBytes())
                 .retryPolicy(new RetryNTimes(3, 500)).build();
     }

@@ -27,7 +27,7 @@ public class Constants {
 
     public static final String SESSION_TIMEOUT = "sessionTimeOutMs";
     public static final String CONNECTION_TIMEOUT = "connectionTimeOutMs";
-    public static final String ACL_PROVIDER = "acl.provider.id";
+
     public static final String RETRY_POLICY_MAX_RETRIES = "retryPolicy.maxRetries";
     public static final String RETRY_POLICY_BASE_SLEEP_TIME_MS = "retryPolicy.baseSleepTimeMs";
     public static final String RETRY_POLICY_MAX_SLEEP_TIME_MS = "retryPolicy.maxSleepTimeMs";

@@ -22,6 +22,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.Watcher;
+import org.fusesource.fabric.zookeeper.curator.CuratorACLManager;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 
@@ -80,6 +81,7 @@ public class CuratorFactoryBean implements FactoryBean<CuratorFramework>, Dispos
                 .connectionTimeoutMs(getTimeout());
 
         if (password != null && !password.isEmpty()) {
+            builder.aclProvider(new CuratorACLManager());
             builder.authorization("digest", ("fabric:"+password).getBytes("UTF-8"));
         }
 

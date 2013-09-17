@@ -18,24 +18,6 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-    <reference id="configAdmin"  interface="org.osgi.service.cm.ConfigurationAdmin"/>
-    <reference id="curator"  interface="org.apache.curator.framework.CuratorFramework" availability="optional"/>
-
-    <!-- Curator Framework -->
-    <bean id="managedCurator" class="org.fusesource.fabric.zookeeper.curator.ManagedCuratorFramework" destroy-method="close" depends-on="zkServerFactory">
-        <argument ref="blueprintBundleContext"/>
-    </bean>
-
-    <!-- ZooKeeper url handler -->
-    <bean id="urlHandler" class="org.fusesource.fabric.zookeeper.internal.ZkUrlHandler">
-        <argument ref="curator" />
-    </bean>
-    <service ref="urlHandler" interface="org.osgi.service.url.URLStreamHandlerService">
-        <service-properties>
-            <entry key="url.handler.protocol" value="zk" />
-        </service-properties>
-    </service>
-
     <!-- ZooKeeper server -->
     <bean id="zkServerFactory" class="org.fusesource.fabric.zookeeper.internal.ZKServerFactoryBean" destroy-method="destroy">
         <argument ref="blueprintBundleContext"/>
@@ -44,24 +26,6 @@
         <service-properties>
             <entry key="service.pid" value="org.fusesource.fabric.zookeeper.server"/>
         </service-properties>
-    </service>
-
-    <service ref="managedCurator" interface="org.osgi.service.cm.ManagedService">
-        <service-properties>
-            <entry key="service.pid" value="org.fusesource.fabric.zookeeper"/>
-        </service-properties>
-    </service>
-
-    <!-- Acl Manager -->
-    <bean id="aclManager" class="org.fusesource.fabric.zookeeper.curator.CuratorACLManager">
-        <property name="curator" ref="curator"/>
-    </bean>
-
-    <service ref="aclManager">
-        <interfaces>
-            <value>org.apache.curator.framework.api.ACLProvider</value>
-            <value>org.fusesource.fabric.zookeeper.ACLManager</value>
-        </interfaces>
     </service>
 
 </blueprint>
