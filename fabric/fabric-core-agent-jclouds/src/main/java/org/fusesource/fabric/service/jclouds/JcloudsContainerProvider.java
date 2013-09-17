@@ -87,7 +87,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Reference(referenceInterface = FirewallManagerFactory.class)
     private final ValidatingReference<FirewallManagerFactory> firewallManagerFactory = new ValidatingReference<FirewallManagerFactory>();
     @Reference(referenceInterface = CredentialStore.class)
-    private CredentialStore credentialStore;
+    private final ValidatingReference<CredentialStore> credentialStore = new ValidatingReference<CredentialStore>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
@@ -313,12 +313,12 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
         return CreateJCloudsContainerMetadata.class;
     }
 
-    public CredentialStore getCredentialStore() {
-        return credentialStore;
+    void bindCredentialStore(CredentialStore credentialStore) {
+        this.credentialStore.set(credentialStore);
     }
 
-    public void setCredentialStore(CredentialStore credentialStore) {
-        this.credentialStore = credentialStore;
+    void unbindCredentialStore(CredentialStore credentialStore) {
+        this.credentialStore.set(null);
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
