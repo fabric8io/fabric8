@@ -17,7 +17,7 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.blueprint*;version=${project.version},
+            org.fusesource.fabric.extender.listener*;version=${project.version},
         </fuse.osgi.export>
         <fuse.osgi.import>
             !org.springframework.osgi.*,

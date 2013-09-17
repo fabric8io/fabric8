@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.blueprint;
+package org.fusesource.fabric.extender.listener;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.CreateMode;
@@ -53,7 +53,7 @@ public abstract class BaseExtenderListener implements BundleListener {
                 delete(curator, ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(name, getExtenderType(), String.valueOf(bundleId)));
                 update();
             } catch (Exception e) {
-                LOGGER.warn("Failed to delete blueprint status of bundle {}.", event.getBundle().getBundleId(), e);
+                LOGGER.debug("Failed to delete blueprint status of bundle {}.", event.getBundle().getBundleId());
             }
         }
     }

@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.blueprint;
+package org.fusesource.fabric.extender.listener;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -69,7 +69,7 @@ public class FabricBlueprintBundleListener extends BaseExtenderListener implemen
             setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(name, EXTENDER_TYPE, String.valueOf(bundleId)), moduleStatus.name(), CreateMode.EPHEMERAL);
             update();
         } catch (Exception e) {
-            LOGGER.warn("Failed to write blueprint status of bundle {}.", bundleId, e);
+            LOGGER.debug("Failed to write blueprint status of bundle {}.", bundleId, e);
         }
     }
 
