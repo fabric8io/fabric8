@@ -18,6 +18,8 @@ package org.fusesource.fabric.utils;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Files {
 
@@ -51,6 +53,41 @@ public class Files {
             return new String(bytes, charset);
         } else {
             return new String(bytes);
+        }
+    }
+
+    /**
+     * Reads a {@link File} and returns the list of lines
+     */
+    public static List<String> readLines(File file) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        List<String> answer = new ArrayList<String>();
+        try {
+            while (true) {
+                String line = reader.readLine();
+                if (line != null) {
+                    answer.add(line);
+                } else {
+                    break;
+                }
+            }
+        } finally {
+            reader.close();
+        }
+        return answer;
+    }
+
+    /**
+     * Writes the given lines to the {@link File}
+     */
+    public static void writeLines(File file, List<String> lines) throws IOException {
+        PrintWriter writer = new PrintWriter(new FileWriter(file));
+        try {
+            for (String line : lines) {
+                writer.println(line);
+            }
+        } finally {
+            writer.close();
         }
     }
 

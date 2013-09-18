@@ -21,10 +21,17 @@
         <fuse.osgi.private.pkg>
             org.jboss.dmr*,
             com.openshift*,
+            org.fusesource.fabric.agent.mvn,
+            org.fusesource.fabric.agent.download,
+            org.fusesource.fabric.agent.utils,
             org.fusesource.fabric.boot.commands.support,
             org.fusesource.fabric.commands.support,
+            org.fusesource.fabric.utils.features,
             org.fusesource.fabric.utils,
-            org.fusesource.fabric.utils.shell
+            org.fusesource.fabric.utils.shell,
+            org.apache.karaf.features.*,
+            org.apache.karaf.util.collections.*,
+            org.apache.felix.utils.*,
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
@@ -72,6 +79,15 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-agent</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>fabric-git</artifactId>
         </dependency>
 
         <dependency>

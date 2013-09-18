@@ -26,6 +26,7 @@ import com.openshift.client.OpenShiftConnectionFactory;
 
 import org.fusesource.common.util.Maps;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateContainerMetadata;
 
 /**
  */
@@ -67,7 +68,12 @@ public class OpenShiftUtils {
     }
 
     protected static CreateOpenshiftContainerMetadata getContainerMetadata(Container container) {
-        return (CreateOpenshiftContainerMetadata) container.getMetadata();
+        CreateContainerMetadata<?> value = container.getMetadata();
+        if (value instanceof CreateOpenshiftContainerMetadata) {
+            return (CreateOpenshiftContainerMetadata)value;
+        } else {
+            return null;
+        }
     }
 
     public static IApplication getApplication(Container container) {

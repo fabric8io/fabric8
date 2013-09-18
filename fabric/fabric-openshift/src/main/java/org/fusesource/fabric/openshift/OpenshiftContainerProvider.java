@@ -184,9 +184,13 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
     }
 
     private IApplication getContainerApplication(Container container) {
-        CreateOpenshiftContainerMetadata metadata = (CreateOpenshiftContainerMetadata) container.getMetadata();
-        IOpenShiftConnection connection = getOrCreateConnection(metadata.getCreateOptions());
-        return OpenShiftUtils.getApplication(container, metadata, connection);
+        CreateOpenshiftContainerMetadata metadata = OpenShiftUtils.getContainerMetadata(container);
+        if (metadata != null) {
+            IOpenShiftConnection connection = getOrCreateConnection(metadata.getCreateOptions());
+            return OpenShiftUtils.getApplication(container, metadata, connection);
+        } else {
+            return null;
+        }
     }
 
     /**

@@ -18,8 +18,13 @@
 package org.fusesource.fabric.openshift.agent;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.openshift.client.IApplication;
 import com.openshift.client.IOpenShiftConnection;
@@ -35,6 +40,9 @@ import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.URIish;
+import org.fusesource.common.util.Maps;
+import org.fusesource.common.util.Strings;
+import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
@@ -78,6 +86,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
     private CuratorFramework curator;
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -156,7 +165,13 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
             Map<String, String> openshiftConfiguration = configurations
                     .get(OpenShiftConstants.OPENSHIFT_PID);
             if (openshiftConfiguration != null) {
-                if (OpenShiftUtils.isFabricManaged(openshiftConfiguration)) {
+                DeploymentTask deployTask = null;
+                try {
+                    deployTask = createDeployTask(container, openshiftConfiguration);
+                } catch (MalformedURLException e) {
+                    LOGGER.error("Failed to create DeploymentTask. " + e, e);
+                }
+                if (deployTask != null && OpenShiftUtils.isFabricManaged(openshiftConfiguration)) {
                     String containerId = container.getId();
                     IOpenShiftConnection connection = OpenShiftUtils.createConnection(container);
                     CreateOpenshiftContainerOptions options = OpenShiftUtils.getCreateOptions(container);
@@ -168,16 +183,16 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
                         try {
                             IApplication application = OpenShiftUtils.getApplication(container, connection);
                             if (application != null) {
-                                String gitUrl = application.getGitUrl();
+                                final String gitUrl = application.getGitUrl();
                                 if (gitUrl != null) {
                                     LOGGER.info("Git URL is " + gitUrl);
 
-                                    CartridgeGitRepository repo = new CartridgeGitRepository(containerId);
+                                    final CartridgeGitRepository repo = new CartridgeGitRepository(containerId);
 
                                     final List<IOpenShiftSSHKey> sshkeys = application.getDomain().getUser()
                                             .getSSHKeys();
 
-                                    CredentialsProvider credentials = new CredentialsProvider() {
+                                    final CredentialsProvider credentials = new CredentialsProvider() {
                                         @Override
                                         public boolean supports(CredentialItem... items) {
                                             return true;
@@ -191,31 +206,48 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
                                         @Override
                                         public boolean get(URIish uri, CredentialItem... items)
                                                 throws UnsupportedCredentialItem {
+
+                                            LOGGER.info("Credential request " + uri + " items " + Arrays.asList(items));
+                                            int i = -1;
                                             for (CredentialItem item : items) {
                                                 if (item instanceof CredentialItem.StringType) {
                                                     CredentialItem.StringType stringType
                                                             = (CredentialItem.StringType)item;
 
-                                                    if (sshkeys.size() > 0) {
+                                                    int idx = ++i < sshkeys.size() ? i : 0;
+                                                    if (idx < sshkeys.size()) {
                                                         IOpenShiftSSHKey sshKey = sshkeys
-                                                                .get(0);
+                                                                .get(idx);
                                                         String passphrase = sshKey.getPublicKey();
+                                                        LOGGER.info("For item " + item + " index " + i
+                                                                + " using passphrase: " + passphrase);
                                                         stringType.setValue(passphrase);
+                                                    } else {
+                                                        LOGGER.warn("No ssh keys we can pass into git!");
                                                     }
                                                     continue;
+                                                } else {
+                                                    LOGGER.warn("Unknown CredentialItem " + item);
                                                 }
                                             }
                                             return true;
                                         }
                                     };
 
-                                    repo.cloneOrPull(gitUrl, credentials);
-                                    File localRepo = repo.getLocalRepo();
+                                    final DeploymentTask finalDeployTask = deployTask;
+                                    SshSessionFactoryUtils.useOpenShiftSessionFactory(new Callable<Object>() {
 
-                                    updateDeployment(container, openshiftConfiguration, localRepo);
+                                        @Override
+                                        public Object call()
+                                                throws Exception {
+                                            repo.cloneOrPull(gitUrl, credentials);
+                                            finalDeployTask.updateDeployment(repo.getGit(), repo.getLocalRepo(),
+                                                            credentials);
+                                            return null;
+                                        }
+                                    });
                                 }
                             }
-
                         } catch (Exception e) {
                             LOGGER.error("Failed to update container " + containerId + ". Reason: " + e, e);
                         } finally {
@@ -227,9 +259,29 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         }
     }
 
-    protected void updateDeployment(Container container, Map<String, String> openshiftConfiguration,
-                                    File localRepo) {
-        LOGGER.info("Got up to date local clone of " + localRepo);
+    protected DeploymentTask createDeployTask(Container container, Map<String,String> openshiftConfiguration)
+            throws MalformedURLException {
+        String webappDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_WEBAPPS);
+        String deployDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_JARS);
+        if (webappDir != null || deployDir != null) {
+            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, container.getOverlayProfile(), executorService);
+            return new DeploymentTask(downloadManager, container, webappDir, deployDir);
+        }
+        return null;
+    }
+
+
+    protected static String relativePath(Container container, Map<String, String> configuration,
+                                         String propertyName) {
+        String value = Maps.stringValue(configuration, propertyName);
+        if (Strings.isNotBlank(value)) {
+            if (value.startsWith("..") || value.startsWith("/") || value.startsWith(File.separator)) {
+                throw new IllegalStateException("Invalid relative path '" + value + "' for property " + propertyName + " for container " + container.getId());
+            } else {
+                return value;
+            }
+        }
+        return null;
     }
 
 

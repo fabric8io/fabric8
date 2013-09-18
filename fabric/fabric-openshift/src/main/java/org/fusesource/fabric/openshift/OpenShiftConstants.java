@@ -26,6 +26,23 @@ import org.fusesource.common.util.Maps;
 public class OpenShiftConstants {
     public static final String OPENSHIFT_PID = "org.fusesource.openshift";
 
+    /**
+     * A true value indicates that Fabric will manage the OpenShift cartridge
+     * configuring the deployment units
+     */
     public static final String PROPERTY_FABRIC_MANAGED = "managed";
 
+    /**
+     * Specifies a relative directory into the git repository
+     * where we will copy web applications (WARs) to perform deployments
+     * from the Profile configuration
+     */
+    public static final String PROPERTY_DEPLOY_WEBAPPS = "deploy.webapps";
+
+    /**
+     * Specifies a relative directory into the git repository
+     * where we will copy shared bundles and feature JARs to perform deployments
+     * from the Profile configuration
+     */
+    public static final String PROPERTY_DEPLOY_JARS = "deploy.jars";
 }

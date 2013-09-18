@@ -19,20 +19,12 @@ package org.fusesource.fabric.openshift.agent;
 import java.io.File;
 import java.io.IOException;
 
-import com.jcraft.jsch.Session;
-
 import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.TransportConfigCallback;
-import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.CredentialsProvider;
-import org.eclipse.jgit.transport.JschConfigSessionFactory;
-import org.eclipse.jgit.transport.OpenSshConfig;
-import org.eclipse.jgit.transport.SshSessionFactory;
-import org.eclipse.jgit.transport.Transport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,60 +52,48 @@ public class CartridgeGitRepository {
     /**
      * Clones or pulls the remote repository and returns the directory with the checkout
      */
-    public void cloneOrPull(String repo, CredentialsProvider credentials) throws IOException, GitAPIException {
+    public void cloneOrPull(final String repo, final CredentialsProvider credentials) throws Exception {
         if (!localRepo.exists() && !localRepo.mkdirs()) {
             throw new IOException("Failed to create local repository");
         }
-        SshSessionFactory oldFactory = SshSessionFactory.getInstance();
-        try {
-            SshSessionFactory.setInstance(new JschConfigSessionFactory() {
-                @Override
-                protected void configure(OpenSshConfig.Host hc, Session session) {
-                    session.setConfig("StrictHostKeyChecking", "no");
-                }
-            });
+        File gitDir = new File(localRepo, ".git");
+        if (!gitDir.exists()) {
+            LOG.info("Cloning remote repo " + repo);
+            CloneCommand command = Git.cloneRepository().setCredentialsProvider(credentials).
+                    setURI(repo).setDirectory(localRepo).setRemote(remoteName);
+            git = command.call();
+        } else {
+            FileRepositoryBuilder builder = new FileRepositoryBuilder();
+            Repository repository = builder.setGitDir(gitDir)
+                    .readEnvironment() // scan environment GIT_* variables
+                    .findGitDir() // scan up the file system tree
+                    .build();
 
-            File gitDir = new File(localRepo, ".git");
-            if (!gitDir.exists()) {
-                LOG.info("Cloning remote repo " + repo);
-                CloneCommand command = Git.cloneRepository().setCredentialsProvider(credentials).
-                        setURI(repo).setDirectory(localRepo).setRemote(remoteName);
-                git = command.call();
-            } else {
-                FileRepositoryBuilder builder = new FileRepositoryBuilder();
-                Repository repository = builder.setGitDir(gitDir)
-                        .readEnvironment() // scan environment GIT_* variables
-                        .findGitDir() // scan up the file system tree
-                        .build();
-
-                git = new Git(repository);
+            git = new Git(repository);
 
 
-                // update the remote repo just in case
-                StoredConfig config = repository.getConfig();
-                config.setString("remote", remoteName, "url", repo);
-                config.setString("remote", remoteName, "fetch",
-                        "+refs/heads/*:refs/remotes/" + remoteName + "/*");
+            // update the remote repo just in case
+            StoredConfig config = repository.getConfig();
+            config.setString("remote", remoteName, "url", repo);
+            config.setString("remote", remoteName, "fetch",
+                    "+refs/heads/*:refs/remotes/" + remoteName + "/*");
 
-                String branch = "master";
-                config.setString("branch", branch, "remote", remoteName);
-                config.setString("branch", branch, "merge", "refs/heads/" + branch);
+            String branch = "master";
+            config.setString("branch", branch, "remote", remoteName);
+            config.setString("branch", branch, "merge", "refs/heads/" + branch);
 
-                try {
-                    config.save();
-                } catch (IOException e) {
-                    LOG.error(
-                            "Failed to save the git configuration to " + localRepo + " with remote repo: "
-                                    + repo
-                                    + ". " + e, e);
-                }
-
-                // now pull
-                LOG.info("Pulling from remote repo " + repo);
-                git.pull().setCredentialsProvider(credentials).setRebase(true).call();
+            try {
+                config.save();
+            } catch (IOException e) {
+                LOG.error(
+                        "Failed to save the git configuration to " + localRepo + " with remote repo: "
+                                + repo
+                                + ". " + e, e);
             }
-        } finally {
-            SshSessionFactory.setInstance(oldFactory);
+
+            // now pull
+            LOG.info("Pulling from remote repo " + repo);
+            git.pull().setCredentialsProvider(credentials).setRebase(true).call();
         }
     }
 
@@ -121,7 +101,7 @@ public class CartridgeGitRepository {
         return localRepo;
     }
 
-    public Git get() throws IOException {
+    public Git getGit() throws IOException {
         return git;
     }
 
