@@ -18,10 +18,14 @@
 package org.fusesource.fabric.itests.paxexam.examples;
 
 
+import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -29,26 +33,43 @@ import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import scala.actors.threadpool.Arrays;
+
+import java.util.Set;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ExampleMQProfileTest extends FabricTestSupport {
 
     @After
     public void tearDown() throws InterruptedException {
-        destroyChildContainer("mq1");
-        destroyChildContainer("broker1");
+        ContainerBuilder.destroy();
     }
 
     @Test
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        createAndAssertChildContainer("broker1", "root", "mq");
-        createAndAssertChildContainer("mq1", "root", "example-mq");
+        CuratorFramework curator = getCurator();
+        Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
+        Container broker = containers.iterator().next();
+        containers.remove(broker);
+
+        setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
+        System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
+        Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
         System.err.println(executeCommand("fabric:cluster-list"));
-        System.err.println(executeCommand("fabric:container-connect -u admin -p admin broker1 activemq:bstat"));
-        String output = executeCommand("fabric:container-connect -u admin -p admin broker1 activemq:query -QQueue=FABRIC.DEMO");
+
+        for(Container c : containers) {
+            setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(c.getId()), "changing");
+            System.err.println(executeCommand("fabric:container-change-profile " + c.getId() + " example-mq"));
+        }
+        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+
+        System.err.println(executeCommand("fabric:cluster-list"));
+        System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+broker.getId()+" activemq:bstat"));
+        String output = executeCommand("fabric:container-connect -u admin -p admin "+broker.getId()+" activemq:query -QQueue=FABRIC.DEMO");
         Assert.assertTrue(output.contains("DequeueCount = ") && !output.contains("DequeueCount = 0"));
     }
 

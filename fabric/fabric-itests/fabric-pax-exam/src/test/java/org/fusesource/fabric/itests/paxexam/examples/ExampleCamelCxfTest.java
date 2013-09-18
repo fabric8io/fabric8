@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.itests.paxexam.examples;
 
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.jansi.AnsiString;
 import org.junit.After;
@@ -36,39 +38,36 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Set;
+
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ExampleCamelCxfTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {
-        destroyChildContainer("child1");
+        ContainerBuilder.destroy();
     }
 
 
     @Test
     public void testExample() throws Exception {
-		String version = System.getProperty("fabric.version");
         System.err.println(executeCommand("fabric:create -n"));
-		System.err.println(executeCommand("fabric:profile-create --parents camel example-camel-cxf"));
-		System.err.println(executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.fabric.examples/fabric-camel-cxf/"+version+"/xml/features example-camel-cxf"));
-		System.err.println(executeCommand("fabric:profile-edit --features fabric-camel-cxf example-camel-cxf"));
-        createAndAssertChildContainer("child1", "root", "example-camel-cxf");
+        Set<Container> containers = ContainerBuilder.create().withName("child").withProfiles("example-camel-cxf").assertProvisioningResult().build();
 		System.err.println(executeCommand("fabric:container-list"));
-		Thread.sleep(5000);
-		System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 osgi:list"));
-		System.err.println(executeCommand("fabric:container-connect -u admin -p admin child1 camel:route-list"));
-		String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin child1 camel:route-list | grep fabric-camel-cxf")).getPlain().toString();
-		Assert.assertTrue(response.contains("fabric-camel-cxf"));
-	}
+
+        for (Container container : containers) {
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+container.getId()+" osgi:list"));
+            System.err.println(executeCommand("fabric:container-connect -u admin -p admin "+container.getId()+" camel:route-list"));
+            String response = new AnsiString(executeCommand("fabric:container-connect -u admin -p admin "+container.getId()+" camel:route-list | grep fabric-camel-cxf")).getPlain().toString();
+            Assert.assertTrue(response.contains("fabric-camel-cxf"));
+        }
+    }
 
     @Configuration
     public Option[] config() {
         return combine(
-                fabricDistributionConfiguration(),
-                // Passing the system property to the test container
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.getArtifactVersion("org.fusesource.fabric", "fuse-fabric"))
+                fabricDistributionConfiguration()
         );
     }
 }

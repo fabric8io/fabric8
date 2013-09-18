@@ -17,14 +17,29 @@
   -->
 <beans xmlns="http://www.springframework.org/schema/beans"
 			 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:ctx="http://www.springframework.org/schema/context"
 			 xmlns:cxf="http://camel.apache.org/schema/cxf"
-			 xsi:schemaLocation="
+             xmlns:osgix="http://www.springframework.org/schema/osgi-compendium"
+        xsi:schemaLocation="
          http://www.springframework.org/schema/beans
          http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+         http://www.springframework.org/schema/context
+	  http://www.springframework.org/schema/context/spring-context-3.0.xsd
          http://camel.apache.org/schema/cxf
-         http://camel.apache.org/schema/cxf/camel-cxf.xsd">
+         http://camel.apache.org/schema/cxf/camel-cxf.xsd
+         http://www.springframework.org/schema/osgi-compendium
+       	 http://www.springframework.org/schema/osgi-compendium/spring-osgi-compendium-1.2.xsd">
+
+    <osgix:cm-properties id="props" persistent-id="org.fusesource.fabric.examples.camel.cxf">
+        <prop key="greeterPort">9090</prop>
+    </osgix:cm-properties>
+
+
+    <!-- placeholder configurer -->
+    <ctx:property-placeholder properties-ref="props"/>
+
 
 	<cxf:cxfEndpoint id="greeterEndpoint"
-									 address="http://localhost:9000/greeter/"
+									 address="http://localhost:${greeterPort}/greeter/"
 									 serviceClass="org.fusesource.fabric.examples.camelcxf.Greeter"/>
 </beans>

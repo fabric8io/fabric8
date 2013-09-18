@@ -43,7 +43,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 public class ExampleCamelProfileTest extends FabricTestSupport {
 
     @After
@@ -56,12 +55,12 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         CuratorFramework curator = getCurator();
         Set<Container> containers = ContainerBuilder.create(2).withName("cnt").withProfiles("default").assertProvisioningResult().build();
-        Container brokerContainer = containers.iterator().next();
-        containers.remove(brokerContainer);
+        Container broker = containers.iterator().next();
+        containers.remove(broker);
 
-        setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(brokerContainer.getId()), "changing");
-        System.err.println(executeCommand("fabric:container-change-profile " + brokerContainer.getId() + " mq"));
-        Provision.provisioningSuccess(Arrays.asList(new Container[]{brokerContainer}), PROVISION_TIMEOUT);
+        setData(curator, ZkPath.CONTAINER_PROVISION_RESULT.getPath(broker.getId()), "changing");
+        System.err.println(executeCommand("fabric:container-change-profile " + broker.getId() + " mq-default"));
+        Provision.provisioningSuccess(Arrays.asList(new Container[]{broker}), PROVISION_TIMEOUT);
         System.err.println(executeCommand("fabric:cluster-list"));
 
         for(Container c : containers) {
