@@ -39,8 +39,8 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PortService;
-import org.fusesource.fabric.service.support.AbstractComponent;
-import org.fusesource.fabric.service.support.ValidatingReference;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
 

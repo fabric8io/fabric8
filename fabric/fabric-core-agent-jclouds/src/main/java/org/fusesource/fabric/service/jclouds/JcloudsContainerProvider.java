@@ -17,24 +17,38 @@
 
 package org.fusesource.fabric.service.jclouds;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Strings;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
+import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
+
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.functions.ToRunScriptOptions;
 import org.fusesource.fabric.service.jclouds.functions.ToTemplate;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
-import org.fusesource.fabric.service.support.AbstractComponent;
-import org.fusesource.fabric.service.support.ValidatingReference;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.RunNodesException;
 import org.jclouds.compute.domain.ExecResponse;
@@ -49,18 +63,8 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.util.LinkedHashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
-import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
+import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
@@ -78,7 +82,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     private static final String SCHEME = "jclouds";
 
-    @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
     @Reference
@@ -160,7 +164,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
                     containerName = originalName;
                 }
                 CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(containerName,
-                        nodeMetadata, options, computeService, firewallManagerFactory, template.getOptions(), result,
+                        nodeMetadata, options, computeService, firewallManagerFactory.get(), template.getOptions(), result,
                         countDownLatch);
                 executorService.execute(installationTask);
             }

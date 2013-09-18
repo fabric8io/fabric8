@@ -28,7 +28,7 @@ import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;

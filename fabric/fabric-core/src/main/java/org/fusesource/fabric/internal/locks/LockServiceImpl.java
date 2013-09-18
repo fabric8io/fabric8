@@ -25,8 +25,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.locks.LockService;
-import org.fusesource.fabric.service.support.AbstractComponent;
-import org.fusesource.fabric.service.support.ValidatingReference;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 
 import java.util.HashMap;

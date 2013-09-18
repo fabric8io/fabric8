@@ -14,39 +14,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service.support;
-
-import java.util.concurrent.atomic.AtomicBoolean;
+package org.fusesource.fabric.api.scr;
 
 /**
- * An abstract base class for validatable components.
+ * A runtime exception thrown by invalid components.
  *
  * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
-public abstract class AbstractComponent implements Validatable {
+public class InvalidComponentException extends RuntimeException {
 
-    private final AtomicBoolean active = new AtomicBoolean();
+    private static final long serialVersionUID = 1L;
 
-    public void activateComponent() {
-        active.set(true);
+    public InvalidComponentException() {
     }
 
-    public void deactivateComponent() {
-        active.set(false);
+    public InvalidComponentException(String message) {
+        super(message);
     }
 
-    @Override
-    public boolean isValid() {
-        return active.get();
-    }
-
-    @Override
-    public void assertValid() {
-        if (isValid() == false) {
-            RuntimeException rte = new InvalidComponentException();
-            rte.printStackTrace();
-            throw rte;
-        }
+    public InvalidComponentException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

@@ -28,8 +28,8 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.git.GitListener;
-import org.fusesource.fabric.service.support.AbstractComponent;
 import org.osgi.service.component.ComponentContext;
 
 /**

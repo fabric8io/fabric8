@@ -13,8 +13,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
-import org.fusesource.fabric.service.support.AbstractComponent;
-import org.fusesource.fabric.service.support.ValidatingReference;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 
 /**

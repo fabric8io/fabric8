@@ -28,11 +28,11 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallNotSupportedOnProviderException;
-import org.fusesource.fabric.service.support.AbstractComponent;
 import org.jclouds.compute.ComputeService;
 import org.osgi.service.component.ComponentContext;
 

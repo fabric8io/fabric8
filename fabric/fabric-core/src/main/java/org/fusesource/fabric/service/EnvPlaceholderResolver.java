@@ -21,7 +21,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.PlaceholderResolver;
-import org.fusesource.fabric.service.support.AbstractComponent;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.osgi.service.component.ComponentContext;
 
 @Component(name = "org.fusesource.fabric.placholder.resolver.env", description = "Environment Placeholder Resolver")
