@@ -19,7 +19,6 @@ package org.fusesource.fabric.itests.paxexam;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.curator.framework.CuratorFramework;
 import org.apache.karaf.admin.AdminService;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
@@ -51,6 +50,7 @@ public class JoinTest extends FabricTestSupport {
 	}
 
 	@Test
+    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 	public void testJoin() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
@@ -75,10 +75,9 @@ public class JoinTest extends FabricTestSupport {
 
 	/**
 	 * This is a test for FABRIC-353.
-	 *
-	 * @throws Exception
 	 */
 	@Test
+	@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
