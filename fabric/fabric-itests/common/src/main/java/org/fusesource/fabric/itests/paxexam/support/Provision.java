@@ -91,7 +91,6 @@ public class Provision {
     /**
      * Wait for all containers to become registered.
      * @param containers
-     * @param alive
      * @param timeout
      * @throws Exception
      */
@@ -109,6 +108,30 @@ public class Provision {
             Future<Boolean> f = completionService.poll(timeout, TimeUnit.MILLISECONDS);
             if ( f == null || !f.get()) {
                 throw new Exception("Container " + container + " failed to become created.");
+            }
+        }
+    }
+
+    /**
+     * Wait for all containers to become registered.
+     * @param instances
+     * @param timeout
+     * @throws Exception
+     */
+    public static void instanceStarted(Collection<String> instances, Long timeout) throws Exception {
+        CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
+        List<Future<Boolean>> waitForstarted = new LinkedList<Future<Boolean>>();
+        StringBuilder sb = new StringBuilder();
+        sb.append(" ");
+        for (String instance : instances) {
+            waitForstarted.add(completionService.submit(new WaitForInstanceStartedTask(instance, timeout)));
+            sb.append(instance).append(" ");
+        }
+        System.out.println("Waiting for child instances: [" + sb.toString() + "] to get started.");
+        for (String instance : instances) {
+            Future<Boolean> f = completionService.poll(timeout, TimeUnit.MILLISECONDS);
+            if ( f == null || !f.get()) {
+                throw new Exception("Instance " + instance + " failed to start.");
             }
         }
     }

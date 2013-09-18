@@ -26,7 +26,6 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -50,7 +49,6 @@ public class JoinTest extends FabricTestSupport {
 	}
 
 	@Test
-    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 	public void testJoin() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
@@ -59,7 +57,7 @@ public class JoinTest extends FabricTestSupport {
         System.err.println(executeCommand("admin:create --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-boot-commands child1"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
-            Thread.sleep(DEFAULT_TIMEOUT);
+            Provision.instanceStarted(Arrays.asList("child1"), PROVISION_TIMEOUT);
             System.err.println(executeCommand("admin:list"));
             String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE));
@@ -77,7 +75,6 @@ public class JoinTest extends FabricTestSupport {
 	 * This is a test for FABRIC-353.
 	 */
 	@Test
-	@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
@@ -89,7 +86,7 @@ public class JoinTest extends FabricTestSupport {
 		try {
 			System.err.println(executeCommand("admin:start child1"));
 			System.err.println(executeCommand("admin:start child2"));
-            Thread.sleep(DEFAULT_TIMEOUT);
+            Provision.instanceStarted(Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
             System.err.println(executeCommand("admin:list"));
             String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
 
