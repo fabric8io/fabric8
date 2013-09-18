@@ -17,13 +17,18 @@
 package org.fusesource.fabric.service;
 
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.osgi.service.component.ComponentContext;
 
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -31,10 +36,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.container",
-        description = "Fabric Container Placeholder Resolver")
+@Component(name = "org.fusesource.fabric.placholder.resolver.container", description = "Fabric Container Placeholder Resolver")
 @Service(PlaceholderResolver.class)
-public class ContainerPlaceholderResolver implements PlaceholderResolver {
+public class ContainerPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final String NAME_ATTRIBUTE = "name";
     private static final String CONTAINER_SCHEME = "container";
@@ -42,9 +46,8 @@ public class ContainerPlaceholderResolver implements PlaceholderResolver {
     private static final Pattern NAMED_CONTAINER_PATTERN = Pattern.compile(CONTAINER_SCHEME + ":(" + NAME_PATTERN + ")/(" + NAME_PATTERN + ")");
     private static final Pattern CURRENT_CONTAINER_PATTERN = Pattern.compile(CONTAINER_SCHEME + ":(" + NAME_PATTERN + ")");
 
-
-    @Reference
-    private FabricService fabricService;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     private static final Map<String, DataStore.ContainerAttribute> attributes = new HashMap<String, DataStore.ContainerAttribute>();
 
     //Have a map of attribute based on the name in lower-case, can work regardless of the attribute case.
@@ -54,6 +57,15 @@ public class ContainerPlaceholderResolver implements PlaceholderResolver {
         }
     }
 
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent();
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public String getScheme() {
@@ -67,10 +79,10 @@ public class ContainerPlaceholderResolver implements PlaceholderResolver {
         if (namedMatcher.matches()) {
             String name = namedMatcher.group(1);
             String attribute = namedMatcher.group(2);
-           return getContainerAttribute(fabricService, name, attribute);
+           return getContainerAttribute(fabricService.get(), name, attribute);
         } else if (currentMatcher.matches()) {
             String attribute = currentMatcher.group(1);
-            return getContainerAttribute(fabricService, fabricService.getCurrentContainerName(), attribute);
+            return getContainerAttribute(fabricService.get(), fabricService.get().getCurrentContainerName(), attribute);
         }
 
         return "";
@@ -85,12 +97,12 @@ public class ContainerPlaceholderResolver implements PlaceholderResolver {
         }
     }
 
-    public FabricService getFabricService() {
-        return fabricService;
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
     }
 
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }
 

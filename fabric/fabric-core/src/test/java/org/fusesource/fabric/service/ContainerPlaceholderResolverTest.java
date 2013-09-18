@@ -75,7 +75,7 @@ public class ContainerPlaceholderResolverTest {
         replay(fabricService);
         replay(dataStore);
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
-        resolver.setFabricService(fabricService);
+        resolver.bindFabricService(fabricService);
         assertEquals("root",resolver.resolve(null, null, "container:name"));
         verify(fabricService);
         verify(dataStore);
@@ -84,7 +84,7 @@ public class ContainerPlaceholderResolverTest {
     @Test
     public void testResolveCurrentAttributes() throws Exception {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
-        resolver.setFabricService(fabricService);
+        resolver.bindFabricService(fabricService);
         assertEquals(ip,resolver.resolve(null, null, "container:ip"));
         assertEquals(localhostname,resolver.resolve(null, null, "container:localhostname"));
         assertEquals(bindaddress,resolver.resolve(null, null, "container:bindaddress"));
@@ -97,7 +97,7 @@ public class ContainerPlaceholderResolverTest {
     @Test
     public void testResolveNameContainerAttributes() throws Exception {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
-        resolver.setFabricService(fabricService);
+        resolver.bindFabricService(fabricService);
         assertEquals(ip,resolver.resolve(null, null, "container:root/ip"));
         assertEquals(localhostname,resolver.resolve(null, null, "container:root/localhostname"));
         assertEquals(bindaddress,resolver.resolve(null, null, "container:root/bindaddress"));
@@ -110,7 +110,7 @@ public class ContainerPlaceholderResolverTest {
     @Test
     public void testResolveAttributeCase() throws Exception {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
-        resolver.setFabricService(fabricService);
+        resolver.bindFabricService(fabricService);
         assertEquals(ip,resolver.resolve(null, null, "container:root/IP"));
         assertEquals(localhostname,resolver.resolve(null, null, "container:root/LocalHostName"));
         assertEquals(bindaddress,resolver.resolve(null, null, "container:root/Bindaddress"));

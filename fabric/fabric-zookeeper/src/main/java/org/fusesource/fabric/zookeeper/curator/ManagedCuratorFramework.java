@@ -22,6 +22,7 @@ package org.fusesource.fabric.zookeeper.curator;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
+
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.ensemble.EnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
@@ -37,6 +38,8 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
@@ -72,11 +75,8 @@ import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWO
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
 
 
-@Component(name = "org.fusesource.fabric.zookeeper",
-        description = "Fabric ZooKeeper Client Factory",
-        policy = OPTIONAL,
-        immediate = true)
-public class ManagedCuratorFramework implements Closeable {
+@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", policy = OPTIONAL, immediate = true)
+public class ManagedCuratorFramework extends AbstractComponent implements Closeable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
@@ -85,12 +85,11 @@ public class ManagedCuratorFramework implements Closeable {
     private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
     private final ExecutorService executor = Executors.newFixedThreadPool(5);
 
-    @Reference(cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC, referenceInterface = ConnectionStateListener.class,
-            bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener")
+    @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     private final Set<ConnectionStateListener> connectionStateListeners = new HashSet<ConnectionStateListener>();
 
-    @Reference
-    private ACLProvider aclProvider;
+    @Reference(referenceInterface = ACLProvider.class)
+    private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
 
     //Just for ordering of shutdown.
     @Reference(referenceInterface = ManagedServiceFactory.class, target = "(service.pid=org.fusesource.fabric.zookeeper.server)")
@@ -102,17 +101,23 @@ public class ManagedCuratorFramework implements Closeable {
     private Map<String, ?> oldProperties;
 
     @Activate
-    public void init(BundleContext bundleContext, Map<String, ?> properties) throws ConfigurationException {
+    synchronized void activate(BundleContext bundleContext, Map<String, ?> properties) throws ConfigurationException {
         this.bundleContext = bundleContext;
-        if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
-            return;
+        activateComponent();
+        try {
+            if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
+                return;
+            }
+            updateService(buildCuratorFramework(properties));
+            this.oldProperties = properties;
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
         }
-        updateService(buildCuratorFramework(properties));
-        this.oldProperties = properties;
     }
 
     @Modified
-    public void updated(Map<String, ?> properties) throws ConfigurationException {
+    synchronized void updated(Map<String, ?> properties) throws ConfigurationException {
         if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
             return;
         } else if (isRestartRequired(oldProperties, properties)) {
@@ -131,8 +136,12 @@ public class ManagedCuratorFramework implements Closeable {
     }
 
     @Deactivate
-    public void destroy() {
-        Closeables.closeQuietly(this);
+    synchronized void deactivate() {
+        try {
+            Closeables.closeQuietly(this);
+        } finally {
+            deactivateComponent();
+        }
     }
 
 
@@ -193,7 +202,7 @@ public class ManagedCuratorFramework implements Closeable {
             String scheme = "digest";
             String password = readString(properties, ZOOKEEPER_PASSWORD, System.getProperty(ZOOKEEPER_PASSWORD, ""));
             byte[] auth = ("fabric:" + password).getBytes();
-            builder = builder.authorization(scheme, auth).aclProvider(aclProvider);
+            builder = builder.authorization(scheme, auth).aclProvider(aclProvider.get());
         }
 
         CuratorFramework framework = builder.build();
@@ -377,5 +386,13 @@ public class ManagedCuratorFramework implements Closeable {
         }
         Closeables.close(curatorFramework, true);
         executor.shutdownNow();
+    }
+
+    void bindAclProvider(ACLProvider aclProvider) {
+        this.aclProvider.set(aclProvider);
+    }
+
+    void unbindAclProvider(ACLProvider aclProvider) {
+        this.aclProvider.set(null);
     }
 }

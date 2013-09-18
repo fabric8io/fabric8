@@ -16,42 +16,65 @@
  */
 package org.fusesource.fabric.zookeeper.internal;
 
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.scr.InvalidComponentException;
+import org.fusesource.fabric.api.scr.Validatable;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "org.fusesource.fabric.zookeeper.urlhandler",
-        description = "Fabric ZooKeeper URL Handler", immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.urlhandler", description = "Fabric ZooKeeper URL Handler", immediate = true)
 @Service(URLStreamHandlerService.class)
-@Properties({
-        @Property(name = "url.handler.protocol", value = "zk")
-})
-public class ZkUrlHandler extends AbstractURLStreamHandlerService {
+@Properties({ @Property(name = "url.handler.protocol", value = "zk") })
+public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Validatable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZkUrlHandler.class);
 
     private static final String SYNTAX = "zk: zk-node-path";
 
-    @Reference
-    private CuratorFramework curator;
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    public ZkUrlHandler() {
+    private final AtomicBoolean active = new AtomicBoolean();
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        active.set(true);
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        active.set(false);
+    }
+
+    @Override
+    public synchronized boolean isValid() {
+        return active.get();
+    }
+
+    @Override
+    public synchronized void assertValid() {
+        if (isValid() == false)
+            throw new InvalidComponentException();
     }
 
     /**
@@ -71,7 +94,7 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
         public Connection(URL url) throws MalformedURLException {
             super(url);
             if (url.getPath() == null || url.getPath().trim().length() == 0) {
-                throw new MalformedURLException("Path can not be null or empty. Syntax: " + SYNTAX );
+                throw new MalformedURLException("Path can not be null or empty. Syntax: " + SYNTAX);
             }
             if ((url.getHost() != null && url.getHost().length() > 0) || url.getPort() != -1) {
                 throw new MalformedURLException("Unsupported host/port in zookeeper url");
@@ -79,9 +102,9 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
             if (url.getQuery() != null && url.getQuery().length() > 0) {
                 throw new MalformedURLException("Unsupported query in zookeeper url");
             }
-            if( url.getRef()!=null ) {
+            if (url.getRef() != null) {
                 String path = url.getPath().trim();
-                if( !path.endsWith(".properties") && !path.endsWith(".json") ) {
+                if (!path.endsWith(".properties") && !path.endsWith(".json")) {
                     throw new MalformedURLException("Fragments are only supported for '.properties' and '.json' files.");
                 }
             }
@@ -94,7 +117,7 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
         @Override
         public InputStream getInputStream() throws IOException {
             try {
-              return new ByteArrayInputStream(ZkPath.loadURL(curator, url.toString()));
+                return new ByteArrayInputStream(ZkPath.loadURL(curator.get(), url.toString()));
             } catch (Exception e) {
                 LOGGER.error("Error opening zookeeper url", e);
                 throw (IOException) new IOException("Error opening zookeeper url").initCause(e);
@@ -102,12 +125,11 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService {
         }
     }
 
-
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

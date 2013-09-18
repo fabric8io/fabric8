@@ -17,12 +17,17 @@
 package org.fusesource.fabric.jaas;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,12 +35,22 @@ import java.util.Map;
 
 @Component(name = "org.fusesource.fabric.jaas.zookeeper.backingengine", description = "Fabric Jaas Backing Engine Factory")
 @Service(BackingEngineFactory.class)
-public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
+public class ZookeeperBackingEngineFactory extends AbstractComponent implements BackingEngineFactory {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ZookeeperBackingEngineFactory.class);
 
-    @Reference
-    protected CuratorFramework curator;
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+
+    @Activate
+    synchronized void activate(ComponentContext context) {
+        activateComponent();
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public String getModuleClass() {
@@ -51,7 +66,7 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
             path = ZookeeperBackingEngine.USERS_NODE;
         }
         try {
-            ZookeeperProperties users = new ZookeeperProperties(curator, path);
+            ZookeeperProperties users = new ZookeeperProperties(curator.get(), path);
             users.load();
             engine = new ZookeeperBackingEngine(users, encryptionSupport);
         } catch (Exception e) {
@@ -61,11 +76,11 @@ public class ZookeeperBackingEngineFactory implements BackingEngineFactory {
         }
     }
 
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }

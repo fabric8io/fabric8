@@ -35,7 +35,6 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.eclipse.jgit.errors.UnsupportedCredentialItem;
 import org.eclipse.jgit.transport.CredentialItem;
 import org.eclipse.jgit.transport.CredentialsProvider;
@@ -47,6 +46,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
@@ -64,10 +65,8 @@ import org.slf4j.LoggerFactory;
  * metadata (such as WARs, bundles, features) leads to the git configuration being updated for the managed
  * cartridges.
  */
-@Component(name = "org.fusesource.fabric.openshift.agent",
-        description = "Fabric agent for deploying applications into external OpenShift cartridges",
-        immediate = true)
-public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
+@Component(name = "org.fusesource.fabric.openshift.agent", description = "Fabric agent for deploying applications into external OpenShift cartridges", immediate = true)
+public class OpenShiftDeployAgent extends AbstractComponent implements GroupListener<ControllerNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenShiftDeployAgent.class);
     private static final String REALM_PROPERTY_NAME = "realm";
@@ -80,12 +79,13 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
 
     private Group<ControllerNode> group;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private CuratorFramework curator;
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    private FabricService fabricService;
+    @Reference(referenceInterface = ConfigurationAdmin.class)
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private Runnable runnable = new Runnable() {
@@ -95,32 +95,34 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         }
     };
 
-
-    public OpenShiftDeployAgent() {
-    }
-
-
     @Activate
-    public void init(Map<String, String> properties) {
-/*
-        this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
-*/
-
-        group = new ZooKeeperGroup(curator, ZkPath.OPENSHIFT.getPath(), ControllerNode.class);
-        group.add(this);
-        group.update(createState());
-        group.start();
+    synchronized void activate(Map<String, String> properties) {
+        activateComponent();
+        try {
+            //this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+            //this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
+            group = new ZooKeeperGroup(curator.get(), ZkPath.OPENSHIFT.getPath(), ControllerNode.class);
+            group.add(this);
+            group.update(createState());
+            group.start();
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
     }
 
     @Deactivate
-    public void destroy() {
+    synchronized void deactivate() {
         try {
-            if (group != null) {
-                group.close();
+            try {
+                if (group != null) {
+                    group.close();
+                }
+            } catch (Exception e) {
+                LOGGER.warn("Failed to remove git server from registry.", e);
             }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to remove git server from registry.", e);
+        } finally {
+            deactivateComponent();
         }
     }
 
@@ -134,7 +136,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         try {
             DataStore dataStore = null;
             if (fabricService != null) {
-                dataStore = fabricService.getDataStore();
+                dataStore = fabricService.get().getDataStore();
             } else {
                 LOGGER.warn("No fabricService yet!");
             }
@@ -158,7 +160,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
 
     protected void onConfigurationChanged() {
         LOGGER.info("Configuration has changed; so checking the Fabric managed Java cartridges on OpenShift are up to date");
-        Container[] containers = fabricService.getContainers();
+        Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
             Profile profile = container.getOverlayProfile();
             Map<String, Map<String, String>> configurations = profile.getConfigurations();
@@ -264,7 +266,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         String webappDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_WEBAPPS);
         String deployDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_JARS);
         if (webappDir != null || deployDir != null) {
-            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, container.getOverlayProfile(), executorService);
+            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), container.getOverlayProfile(), executorService);
             DeploymentUpdater deploymentUpdater = new DeploymentUpdater(downloadManager, container, webappDir, deployDir);
             deploymentUpdater.setRepositories(Maps.stringValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_REPOSITORIES, OpenShiftConstants.DEFAULT_REPOSITORIES));
             deploymentUpdater.setCopyFilesIntoGit(Maps.booleanValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_COPY_BINARIES_TO_GIT, false));
@@ -294,20 +296,27 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         return state;
     }
 
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
     }
 
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
     }
 
-
-    public CuratorFramework getCurator() {
-        return curator;
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
     }
 
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }

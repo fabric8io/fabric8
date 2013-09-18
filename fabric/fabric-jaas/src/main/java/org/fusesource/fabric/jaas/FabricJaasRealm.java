@@ -19,22 +19,23 @@ package org.fusesource.fabric.jaas;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.jaas.boot.ProxyLoginModule;
 import org.apache.karaf.jaas.config.JaasRealm;
-import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
-
 import javax.security.auth.login.AppConfigurationEntry;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @Component(name = "org.fusesource.fabric.jaas", description = "Fabric Jaas Realm")
 @Service(JaasRealm.class)
-public class FabricJaasRealm implements JaasRealm {
+public class FabricJaasRealm extends AbstractComponent implements JaasRealm {
 
     private static final String REALM = "karaf";
     private static final String ZK_LOGIN_MODULE = "org.fusesource.fabric.jaas.ZookeeperLoginModule";
@@ -65,20 +66,31 @@ public class FabricJaasRealm implements JaasRealm {
     @Property(name = PATH, value = "/fabric/authentication/users")
     private String path;
 
-    @Reference
-    private CuratorFramework curator;
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     private AppConfigurationEntry[] enties;
 
     @Activate
-    public void init(BundleContext bundleContext, Map<String, Object> properties) {
-        Map<String, Object> options = new HashMap<String, Object>();
-        options.putAll(properties);
-        options.put(BundleContext.class.getName(), bundleContext);
-        options.put(ProxyLoginModule.PROPERTY_MODULE, ZK_LOGIN_MODULE);
-        options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));
+    synchronized void activate(BundleContext bundleContext, Map<String, Object> properties) {
+        activateComponent();
+        try {
+            Map<String, Object> options = new HashMap<String, Object>();
+            options.putAll(properties);
+            options.put(BundleContext.class.getName(), bundleContext);
+            options.put(ProxyLoginModule.PROPERTY_MODULE, ZK_LOGIN_MODULE);
+            options.put(ProxyLoginModule.PROPERTY_BUNDLE, Long.toString(bundleContext.getBundle().getBundleId()));
 
-        enties = new AppConfigurationEntry[1];
-        enties[0] = new AppConfigurationEntry(ProxyLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options);
+            enties = new AppConfigurationEntry[1];
+            enties[0] = new AppConfigurationEntry(ProxyLoginModule.class.getName(), AppConfigurationEntry.LoginModuleControlFlag.REQUIRED, options);
+        } catch (RuntimeException rte) {
+            deactivateComponent();
+            throw rte;
+        }
+    }
+
+    @Deactivate
+    synchronized void deactivate() {
+        deactivateComponent();
     }
 
     @Override
@@ -94,5 +106,13 @@ public class FabricJaasRealm implements JaasRealm {
     @Override
     public AppConfigurationEntry[] getEntries() {
         return enties;
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
     }
 }
