@@ -115,6 +115,10 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-extender-listener</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>process-fabric</artifactId>
            </dependency>
            <dependency>
@@ -140,6 +144,10 @@
            <dependency>
                <groupId>org.fusesource.insight</groupId>
                <artifactId>insight-log</artifactId>
+           </dependency>
+           <dependency>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-elasticsearch</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.insight</groupId>
