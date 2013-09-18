@@ -26,6 +26,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -41,6 +42,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class WildFlyStartupTest extends WildFlyTestSupport {
 
 	@Test
+	@Ignore("[FABRIC-574] Fix fabric/fabric-itests/wildfly tests")
 	public void testWildFlyProcess() throws Exception {
 
 		executeCommand("fabric:create -n");
