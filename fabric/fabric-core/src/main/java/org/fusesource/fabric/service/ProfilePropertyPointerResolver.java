@@ -55,7 +55,7 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

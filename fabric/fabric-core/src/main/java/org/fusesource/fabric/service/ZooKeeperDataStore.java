@@ -83,7 +83,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

@@ -31,7 +31,7 @@ public class ServletRegistrationHandler extends AbstractComponent {
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String, String> properties) {
-        activateComponent(context);
+        activateComponent();
         try {
             FabricDiscoveryServlet discoveryServlet = new FabricDiscoveryServlet();
             discoveryServlet.setCurator(curator.get());

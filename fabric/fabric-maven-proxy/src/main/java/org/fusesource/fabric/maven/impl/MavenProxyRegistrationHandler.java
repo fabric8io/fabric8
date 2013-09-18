@@ -98,7 +98,7 @@ public class MavenProxyRegistrationHandler extends AbstractComponent implements 
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String, String> properties) throws IOException {
-        activateComponent(context);
+        activateComponent();
         try {
             String localRepository = readProperty(properties, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
             String remoteRepositories = readProperty(properties, REMOTE_REPOSITORIES_PROPERTY, "");

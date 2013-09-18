@@ -43,7 +43,7 @@ public class Ec2FirewallSupport extends AbstractComponent implements ApiFirewall
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

@@ -49,7 +49,7 @@ public class LocalGitService extends AbstractComponent implements GitService {
 
     @Activate
     synchronized void activate(ComponentContext context) throws IOException {
-        activateComponent(context);
+        activateComponent();
         try {
             if (!localRepo.exists() && !localRepo.mkdirs()) {
                 throw new IOException("Failed to create local repository");

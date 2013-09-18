@@ -75,7 +75,7 @@ public class TaskManagerFactory extends AbstractComponent {
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
-        activateComponent(context);
+        activateComponent();
         try {
             activateInternal(properties);
         } catch (ConfigurationException ex) {

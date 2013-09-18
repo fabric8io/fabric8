@@ -18,8 +18,6 @@ package org.fusesource.fabric.service.support;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.osgi.service.component.ComponentContext;
-
 /**
  * An abstract base class for validatable components.
  *
@@ -29,30 +27,22 @@ import org.osgi.service.component.ComponentContext;
 public abstract class AbstractComponent implements Validatable {
 
     private final AtomicBoolean active = new AtomicBoolean();
-    private ComponentContext context;
 
-    public synchronized void activateComponent(ComponentContext context) {
-        this.context = context;
+    public void activateComponent() {
         active.set(true);
     }
 
-    public synchronized void deactivateComponent() {
+    public void deactivateComponent() {
         active.set(false);
-        context = null;
-    }
-
-    public synchronized ComponentContext getComponentContext() {
-        assertValid();
-        return context;
     }
 
     @Override
-    public synchronized boolean isValid() {
+    public boolean isValid() {
         return active.get();
     }
 
     @Override
-    public synchronized void assertValid() {
+    public void assertValid() {
         if (isValid() == false) {
             RuntimeException rte = new InvalidComponentException();
             rte.printStackTrace();

@@ -43,7 +43,7 @@ public class LockServiceImpl extends AbstractComponent implements LockService {
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

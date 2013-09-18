@@ -55,7 +55,7 @@ public class ZookeeperPortService extends AbstractComponent implements PortServi
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
         try {
             lock = new InterProcessMultiLock(curator.get(), Arrays.asList(ZkPath.PORTS_LOCK.getPath()));
         } catch (RuntimeException rte) {

@@ -81,7 +81,7 @@ public class OpenshiftContainerProvider extends AbstractComponent implements Con
     @Activate
     synchronized void activate(ComponentContext context) {
         updated(properties);
-        activateComponent(context);
+        activateComponent();
     }
 
     @Modified

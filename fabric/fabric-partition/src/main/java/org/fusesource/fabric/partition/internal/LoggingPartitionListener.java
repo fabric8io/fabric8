@@ -38,7 +38,7 @@ public class LoggingPartitionListener extends AbstractComponent implements Parti
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

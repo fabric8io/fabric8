@@ -44,7 +44,6 @@ import org.jclouds.compute.options.RunScriptOptions;
 import org.jclouds.karaf.core.CredentialStore;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Deactivate;
 import org.slf4j.Logger;
@@ -94,10 +93,12 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     private ExecutorService executorService = Executors.newCachedThreadPool();
+    private BundleContext bundleContext;
 
     @Activate
-    synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+    synchronized void activate(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
+        activateComponent();
     }
 
     @Deactivate
@@ -288,7 +289,6 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
                     } else if (options.getApiName() != null) {
                         CloudUtils.registerApi(curator.get(), configAdmin.get(), options.getContextName(), options.getApiName(), options.getEndpoint(), options.getIdentity(), options.getCredential(), serviceOptions);
                     }
-                    BundleContext bundleContext = getComponentContext().getBundleContext();
                     computeService = CloudUtils.waitForComputeService(bundleContext, options.getContextName());
                 } catch (Exception e) {
                     LOGGER.warn("Did not manage to register compute cloud provider.");

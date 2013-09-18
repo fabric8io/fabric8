@@ -42,7 +42,7 @@ public class ClusterBootstrapManager extends AbstractComponent implements Cluste
 
     @Activate
     synchronized void activate(ComponentContext context) throws Exception {
-        activateComponent(context);
+        activateComponent();
         try {
             JMXUtils.registerMBean(this, mbeanServer.get(), getObjectName());
         } catch (Exception ex) {

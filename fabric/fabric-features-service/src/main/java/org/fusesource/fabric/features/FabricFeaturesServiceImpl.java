@@ -52,7 +52,7 @@ public class FabricFeaturesServiceImpl extends AbstractComponent implements Feat
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
         try {
             fabricService.get().trackConfiguration(this);
         } catch (RuntimeException rte) {

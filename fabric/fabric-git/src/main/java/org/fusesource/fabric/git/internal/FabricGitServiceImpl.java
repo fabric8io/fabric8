@@ -59,7 +59,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
         try {
             group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
             group.add(this);

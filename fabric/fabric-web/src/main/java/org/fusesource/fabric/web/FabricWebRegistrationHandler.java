@@ -62,7 +62,7 @@ public class FabricWebRegistrationHandler extends AbstractComponent implements W
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

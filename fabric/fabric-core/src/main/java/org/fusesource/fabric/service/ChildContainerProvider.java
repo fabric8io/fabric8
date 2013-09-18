@@ -60,7 +60,7 @@ public class ChildContainerProvider extends AbstractComponent implements Contain
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

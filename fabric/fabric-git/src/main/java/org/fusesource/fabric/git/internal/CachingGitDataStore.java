@@ -70,7 +70,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

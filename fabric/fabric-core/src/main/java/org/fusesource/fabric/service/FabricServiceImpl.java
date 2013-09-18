@@ -109,7 +109,7 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

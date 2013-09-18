@@ -64,7 +64,7 @@ public class FabricConfigAdminBridge extends AbstractComponent implements Runnab
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
         try {
             fabricService.get().trackConfiguration(this);
             run();

@@ -31,7 +31,6 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.service.support.AbstractComponent;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,12 +65,14 @@ public class DataStoreManager extends AbstractComponent implements DataStoreRegi
     private DataStore dataStore;
     private Dictionary<String, String> properties = new Hashtable<String, String>();
     private ServiceRegistration<DataStore> registration;
+    private BundleContext bundleContext;
 
     private final List<DataStoreTemplate> registrationCallbacks = new CopyOnWriteArrayList<DataStoreTemplate>();
 
     @Activate
-    synchronized void activate(ComponentContext context, Map<String,String> configuration) {
-        activateComponent(context);
+    synchronized void activate(BundleContext bundleContext, Map<String,String> configuration) {
+        this.bundleContext = bundleContext;
+        activateComponent();
         try {
             update(configuration);
         } catch (RuntimeException rte) {
@@ -96,7 +97,7 @@ public class DataStoreManager extends AbstractComponent implements DataStoreRegi
         }
     }
 
-    public void updateServiceRegistration() {
+    private void updateServiceRegistration() {
         unregister();
         if (dataStorePlugins.containsKey(type)) {
             dataStore = dataStorePlugins.get(type).getDataStore();
@@ -113,7 +114,6 @@ public class DataStoreManager extends AbstractComponent implements DataStoreRegi
                 }
             }
             properties.put(DATASTORE_TYPE_PROPERTY, type);
-            BundleContext bundleContext = getComponentContext().getBundleContext();
             registration = bundleContext.registerService(DataStore.class, dataStore, properties);
             LOG.info("Registered DataStore " + dataStore + " with " + properties);
         }

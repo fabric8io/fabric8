@@ -94,7 +94,7 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String, String> properties) {
-        activateComponent(context);
+        activateComponent();
         try {
             this.period = Integer.parseInt(properties != null && properties.containsKey("period") ? properties.get("period") : "1000");
             this.executors = Executors.newSingleThreadScheduledExecutor();

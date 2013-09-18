@@ -54,7 +54,7 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

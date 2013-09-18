@@ -45,7 +45,7 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

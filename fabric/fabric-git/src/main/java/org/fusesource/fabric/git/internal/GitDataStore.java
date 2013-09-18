@@ -168,7 +168,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

@@ -82,7 +82,7 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
 
     @Activate
     synchronized void activate(ComponentContext context, Map<String, String> properties) {
-        activateComponent(context);
+        activateComponent();
         try {
             this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
             this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;

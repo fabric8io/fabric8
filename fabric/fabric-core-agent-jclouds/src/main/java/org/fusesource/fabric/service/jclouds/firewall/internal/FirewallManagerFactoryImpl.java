@@ -45,7 +45,7 @@ public class FirewallManagerFactoryImpl extends AbstractComponent implements Fir
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate

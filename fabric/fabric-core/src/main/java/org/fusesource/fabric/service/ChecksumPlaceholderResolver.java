@@ -40,7 +40,7 @@ public class ChecksumPlaceholderResolver extends AbstractComponent implements Pl
 
     @Activate
     synchronized void activate(ComponentContext context) {
-        activateComponent(context);
+        activateComponent();
     }
 
     @Deactivate
