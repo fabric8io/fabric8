@@ -32,6 +32,7 @@
 
     <properties>
         <fuse.osgi.import>
+          !javaewah,
           *
         </fuse.osgi.import>
         <fuse.osgi.export>

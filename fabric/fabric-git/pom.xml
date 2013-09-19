@@ -40,6 +40,10 @@
             org.eclipse.jgit*;-noimport:=true,
             org.gitective.core*;-noimport:=true,
         </fuse.osgi.export>
+        <fuse.osgi.import>
+          !javaewah,
+          *
+        </fuse.osgi.import>
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
