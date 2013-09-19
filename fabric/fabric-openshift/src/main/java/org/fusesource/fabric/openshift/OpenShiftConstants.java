@@ -24,7 +24,11 @@ import org.fusesource.common.util.Maps;
  * Some constants and helper methods for working with Fabric and OpenShift
  */
 public class OpenShiftConstants {
-    public static final String OPENSHIFT_PID = "org.fusesource.openshift";
+
+    /**
+     * The PID for the configuration of Fabric managed openshift
+     */
+    public static final String OPENSHIFT_PID = "org.fusesource.fabric.openshift";
 
     /**
      * A true value indicates that Fabric will manage the OpenShift cartridge
@@ -45,4 +49,11 @@ public class OpenShiftConstants {
      * from the Profile configuration
      */
     public static final String PROPERTY_DEPLOY_JARS = "deploy.jars";
+
+    /**
+     * If enabled then the deployment binaries are copied into git in the
+     * {@link #PROPERTY_DEPLOY_JARS} and/or {@link #PROPERTY_DEPLOY_WEBAPPS} directories
+     * in the git repository
+     */
+    public static final String PROPERTY_COPY_BINARIES_TO_GIT = "copy.binaries.to.git";
 }

@@ -165,11 +165,11 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
             Map<String, String> openshiftConfiguration = configurations
                     .get(OpenShiftConstants.OPENSHIFT_PID);
             if (openshiftConfiguration != null) {
-                DeploymentTask deployTask = null;
+                DeploymentUpdater deployTask = null;
                 try {
                     deployTask = createDeployTask(container, openshiftConfiguration);
                 } catch (MalformedURLException e) {
-                    LOGGER.error("Failed to create DeploymentTask. " + e, e);
+                    LOGGER.error("Failed to create DeploymentUpdater. " + e, e);
                 }
                 if (deployTask != null && OpenShiftUtils.isFabricManaged(openshiftConfiguration)) {
                     String containerId = container.getId();
@@ -234,7 +234,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
                                         }
                                     };
 
-                                    final DeploymentTask finalDeployTask = deployTask;
+                                    final DeploymentUpdater finalDeployTask = deployTask;
                                     SshSessionFactoryUtils.useOpenShiftSessionFactory(new Callable<Object>() {
 
                                         @Override
@@ -259,13 +259,15 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         }
     }
 
-    protected DeploymentTask createDeployTask(Container container, Map<String,String> openshiftConfiguration)
+    protected DeploymentUpdater createDeployTask(Container container, Map<String,String> openshiftConfiguration)
             throws MalformedURLException {
         String webappDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_WEBAPPS);
         String deployDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_JARS);
         if (webappDir != null || deployDir != null) {
             DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, container.getOverlayProfile(), executorService);
-            return new DeploymentTask(downloadManager, container, webappDir, deployDir);
+            DeploymentUpdater deploymentUpdater = new DeploymentUpdater(downloadManager, container, webappDir, deployDir);
+            deploymentUpdater.setCopyFilesIntoGit(Maps.booleanValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_COPY_BINARIES_TO_GIT, false));
+            return deploymentUpdater;
         }
         return null;
     }

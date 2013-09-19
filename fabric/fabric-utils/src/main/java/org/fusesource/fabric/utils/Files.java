@@ -230,4 +230,36 @@ public class Files {
             return fullPath;
         }
     }
+
+    /**
+     * Throws an exception if the given file or directory does not exist
+     */
+    public static void assertExists(File file) {
+        if (!file.exists()) {
+            throw new IllegalArgumentException(file + " does not exist");
+        }
+    }
+
+    /**
+     * Throws an exception if the given file does not exist
+     */
+    public static void assertFileExists(File file) {
+        assertExists(file);
+        if (!file.isFile()) {
+            throw new IllegalArgumentException(file + " is not a file!");
+        }
+    }
+
+
+    /**
+     * Throws an exception if the given file does not exist
+     */
+    public static void assertDirectoryExists(File file) {
+        assertExists(file);
+        if (!file.isDirectory()) {
+            throw new IllegalArgumentException(file + " is not a directory!");
+        }
+    }
+
+
 }
