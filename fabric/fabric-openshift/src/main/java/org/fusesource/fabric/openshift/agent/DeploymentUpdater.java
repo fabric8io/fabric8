@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
@@ -24,6 +25,7 @@ import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.agent.download.DownloadManager;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.Parser;
 import org.fusesource.fabric.agent.utils.AgentUtils;
 import org.fusesource.fabric.api.Container;
@@ -63,6 +65,7 @@ public class DeploymentUpdater {
     private final String webAppDir;
     private final String deployDir;
     private boolean copyFilesIntoGit = false;
+    private String repositories;
 
     public DeploymentUpdater(DownloadManager downloadManager, Container container, String webAppDir,
                              String deployDir) {
@@ -169,10 +172,30 @@ public class DeploymentUpdater {
                 LOG.error("Failed to parse bundle URL: " + location + ". " + e, e);
             }
         }
+
         if (artifacts.size() > 0) {
             OpenShiftPomDeployer pomDeployer = new OpenShiftPomDeployer(git, baseDir, deployDir, webAppDir);
-            pomDeployer.update(artifacts);
+
+            List<MavenRepositoryURL> repositories = parseMavenRepositoryURLs();
+            pomDeployer.update(artifacts, repositories);
         }
+    }
+
+    protected List<MavenRepositoryURL> parseMavenRepositoryURLs() throws MalformedURLException {
+        List<MavenRepositoryURL> repositories = new ArrayList<MavenRepositoryURL>();
+        String text = getRepositories();
+        if (Strings.isNotBlank(text)) {
+            StringTokenizer iter = new StringTokenizer(text);
+            while (iter.hasMoreTokens()) {
+                String url = iter.nextToken();
+                if (url.endsWith(",")) {
+                    url = url.substring(0, url.length() - 1);
+                }
+                MavenRepositoryURL mavenUrl = new MavenRepositoryURL(url);
+                repositories.add(mavenUrl);
+            }
+        }
+        return repositories;
     }
 
 
@@ -294,5 +317,13 @@ public class DeploymentUpdater {
 
     public void setCopyFilesIntoGit(boolean copyFilesIntoGit) {
         this.copyFilesIntoGit = copyFilesIntoGit;
+    }
+
+    public String getRepositories() {
+        return repositories;
+    }
+
+    public void setRepositories(String repositories) {
+        this.repositories = repositories;
     }
 }

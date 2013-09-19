@@ -23,6 +23,7 @@ import org.fusesource.common.util.Objects;
 import org.fusesource.common.util.Strings;
 import org.fusesource.common.util.XPathBuilder;
 import org.fusesource.common.util.XPathFacade;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.Parser;
 import org.fusesource.fabric.agent.utils.XmlUtils;
 import org.fusesource.fabric.utils.Files;
@@ -64,7 +65,7 @@ public class OpenShiftPomDeployer {
         this.webAppDir = webAppDir;
     }
 
-    public void update(List<Parser> artifacts) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException, GitAPIException {
+    public void update(List<Parser> artifacts, List<MavenRepositoryURL> repos) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException, GitAPIException {
         File pom = new File(baseDir, "pom.xml");
         Files.assertFileExists(pom);
 
@@ -75,6 +76,7 @@ public class OpenShiftPomDeployer {
         Objects.notNull(doc, "project element");
 
         Element dependencies = getOrCreateChild(project, "dependencies", 1, true);
+        Element repositories = getOrCreateChild(project, "repositories", 1, true);
 
         Element openshiftPlugins = getOrCreateOpenShiftProfilePlugins(project);
 
@@ -82,21 +84,10 @@ public class OpenShiftPomDeployer {
         updateWarPlugin(openshiftPlugins);
         updateCleanPlugin(openshiftPlugins);
         updateDependencyPlugin(openshiftPlugins, dependencies, artifacts);
+        updateRepositories(repositories, repos);
 
         DomHelper.save(doc, pom);
         git.add().addFilepattern("pom.xml").call();
-    }
-
-    protected Element getOrCreateOpenShiftProfilePlugins(Element project) throws XPathExpressionException {
-        Element profile = xpath("profiles/profile[id = 'openshift']").element(project);
-        if (profile == null) {
-            Element profiles = getOrCreateChild(project, "profiles", 1, true);
-            profile = createAndAppendChild(profiles, "profile", 2);
-            createAndAppendChild(profile, "id", 3, "openshift");
-        }
-        Element build = getOrCreateChild(profile, "build", 3);
-        Element plugins = getOrCreateChild(build, "plugins", 4);
-        return plugins;
     }
 
     /**
@@ -176,6 +167,45 @@ public class OpenShiftPomDeployer {
             recreateDependencyExecution(executions, dependencies, "fuse-fabric-deploy-shared", deployDir, jarArtifacts, false);
         }
     }
+
+
+    /**
+     * Ensure that the given maven repositories are added to the pom.xml
+     */
+    protected void updateRepositories(Element repositories, List<MavenRepositoryURL> repos) throws XPathExpressionException {
+        for (MavenRepositoryURL repo : repos) {
+            String url = repo.getURL().toString();
+            String id = repo.getId();
+            if (Strings.isNotBlank(url)) {
+                Element repository = recreateChild(repositories, "repository[url='" + url + "']", "repository", 2);
+                if (Strings.isNotBlank(id)) {
+                    createAndAppendChild(repository, "id", 3, id);
+                }
+                createAndAppendChild(repository, "url", 3, url);
+                addRepositoryFlag(repository, "releases", repo.isReleasesEnabled());
+                addRepositoryFlag(repository, "snapshots", repo.isSnapshotsEnabled());
+            }
+        }
+    }
+
+    protected void addRepositoryFlag(Element repository, String flagElementName, boolean flag) {
+        Element flagElement = createAndAppendChild(repository, flagElementName, 3);
+        createAndAppendChild(flagElement, "enabled", 4, flag ? "true" : "false");
+    }
+
+
+    protected Element getOrCreateOpenShiftProfilePlugins(Element project) throws XPathExpressionException {
+            Element profile = xpath("profiles/profile[id = 'openshift']").element(project);
+            if (profile == null) {
+                Element profiles = getOrCreateChild(project, "profiles", 1, true);
+                profile = createAndAppendChild(profiles, "profile", 2);
+                createAndAppendChild(profile, "id", 3, "openshift");
+            }
+            Element build = getOrCreateChild(profile, "build", 3);
+            Element plugins = getOrCreateChild(build, "plugins", 4);
+            return plugins;
+        }
+
 
     protected Element recreateDependencyExecution(Element executions, Element dependencies, String executionId, String outputDir, List<Parser> list, boolean isWar) throws XPathExpressionException {
         // lets make sure the output dir is trimmed of "/"

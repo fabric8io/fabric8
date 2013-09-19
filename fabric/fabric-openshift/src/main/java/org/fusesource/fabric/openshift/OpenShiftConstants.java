@@ -37,6 +37,20 @@ public class OpenShiftConstants {
     public static final String PROPERTY_FABRIC_MANAGED = "managed";
 
     /**
+     * A list of repository URL strings in the same format as the 'org.ops4j.pax.url.mvn.repositories' property
+     * in the PID "org.fusesource.fabric.agent", namely using the PAX repo URL format as defined
+     * by the parser {@link org.fusesource.fabric.agent.mvn.MavenRepositoryURL} a comma & whitespace
+     * separated list of URLs of the form "URL@key=value" such as "http://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, http://repository.jboss.org/nexus/content/groups/public@id=jboss-public"
+     */
+    public static final String PROPERTY_REPOSITORIES = "repositories";
+
+    /**
+     * Default maven repositories used to download deployed artifacts in Fabric managed Java cartridges
+     */
+    public static final String DEFAULT_REPOSITORIES = "http://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess, " +
+            "http://repository.jboss.org/nexus/content/groups/public@id=jboss-public";
+
+    /**
      * Specifies a relative directory into the git repository
      * where we will copy web applications (WARs) to perform deployments
      * from the Profile configuration
@@ -56,4 +70,5 @@ public class OpenShiftConstants {
      * in the git repository
      */
     public static final String PROPERTY_COPY_BINARIES_TO_GIT = "copy.binaries.to.git";
+
 }

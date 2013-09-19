@@ -19,6 +19,7 @@ package org.fusesource.fabric.openshift;
 import org.eclipse.jgit.api.Git;
 import org.fusesource.common.util.XPathBuilder;
 import org.fusesource.common.util.XPathFacade;
+import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
 import org.fusesource.fabric.agent.mvn.Parser;
 import org.fusesource.fabric.agent.utils.XmlUtils;
 import org.fusesource.fabric.openshift.agent.OpenShiftPomDeployer;
@@ -54,6 +55,10 @@ public class OpenShiftPomDeployerTest {
         "mvn:org.drools/drools-wb-distribution-wars/6.0.0.Beta5/war/tomcat7.0",
         "mvn:org.apache.camel/camel-core/2.12.0"
     };
+    protected String[] repoUrls = {
+            "http://repo.fusesource.com/nexus/content/groups/ea@id=fuseearlyaccess",
+            "http://repository.jboss.org/nexus/content/groups/public@id=jboss-public"
+    };
 
 
     @Before
@@ -64,16 +69,16 @@ public class OpenShiftPomDeployerTest {
 
     @Test
     public void testPomWithNoOpenShiftProfile() throws Exception {
-        doTest("noOpenShiftProfile", artifactUrls, "provided", "provided");
+        doTest("noOpenShiftProfile", artifactUrls, repoUrls, "provided", "provided");
     }
 
     @Test
     public void testUpdate() throws Exception {
-        doTest("update", artifactUrls, "test", null);
+        doTest("update", artifactUrls, repoUrls, "test", null);
     }
 
 
-    protected void doTest(String folder, String[] artifactUrls,
+    protected void doTest(String folder, String[] artifactUrls, String[] repoUrls,
                           String expectedCamelDependencyScope, String expectedHawtioDependencyScope) throws Exception {
         File sourceDir = new File(baseDir, "src/test/resources/" + folder);
         assertDirectoryExists(sourceDir);
@@ -101,7 +106,11 @@ public class OpenShiftPomDeployerTest {
         for (String artifactUrl : artifactUrls) {
             artifacts.add(new Parser(artifactUrl));
         }
-        deployer.update(artifacts);
+        List<MavenRepositoryURL> repos = new ArrayList<MavenRepositoryURL>();
+        for (String repoUrl : repoUrls) {
+            repos.add(new MavenRepositoryURL(repoUrl));
+        }
+        deployer.update(artifacts, repos);
 
         System.out.println("Completed the new pom is: ");
         System.out.println(Files.toString(pom));
@@ -126,6 +135,7 @@ public class OpenShiftPomDeployerTest {
         }
 
         Element dependencies = assertXPathElement(xml, "project/dependencies");
+        Element repositories = assertXPathElement(xml, "project/repositories");
 
         for (Parser artifact : artifacts) {
             // lets check there's only 1 dependency for group & artifact and it has the right version
@@ -140,19 +150,27 @@ public class OpenShiftPomDeployerTest {
         assertDependencyScope(dependencies, "org.apache.camel", "camel-core", expectedCamelDependencyScope);
         assertDependencyScope(dependencies, "org.drools", "drools-wb-distribution-wars", "provided");
         assertDependencyScope(dependencies, "io.hawt", "hawtio-web", expectedHawtioDependencyScope);
+
+        assertRepositoryUrl(repositories, "http://repository.jboss.org/nexus/content/groups/public/");
+        assertRepositoryUrl(repositories, "http://repo.fusesource.com/nexus/content/groups/ea/");
     }
 
-    private Element assertSingleDependencyForGroupAndArtifact(Element dependencies, String group, String artifactId) throws XPathExpressionException {
-        List<Element> dependencyList = assertXPathElements(dependencies, "dependency[groupId='" + group
-                + "' and artifactId='" + artifactId + "']");
-        assertEquals("Should only have a single element matching! " + dependencyList, 1, dependencyList.size());
-        return dependencyList.get(0);
+    protected Element assertRepositoryUrl(Element repositories, String url) throws XPathExpressionException {
+        return assertXPathElement(repositories, "repository[url='" + url + "']");
     }
 
     protected void assertDependencyScope(Element dependencies, String group, String artifact, String expectedScope) throws XPathExpressionException {
         Element dependency = assertSingleDependencyForGroupAndArtifact(dependencies, group, artifact);
         String scope = xpath("scope").elementTextContent(dependency);
         assertEquals("scope for group " + group + " artifact " + artifact, expectedScope, scope);
+    }
+
+    protected Element assertSingleDependencyForGroupAndArtifact(Element dependencies, String group, String artifactId)
+            throws XPathExpressionException {
+        List<Element> dependencyList = assertXPathElements(dependencies, "dependency[groupId='" + group
+                + "' and artifactId='" + artifactId + "']");
+        assertEquals("Should only have a single element matching! " + dependencyList, 1, dependencyList.size());
+        return dependencyList.get(0);
     }
 
     public static Element assertXPathElement(Node xml, String xpathExpression) throws XPathExpressionException {

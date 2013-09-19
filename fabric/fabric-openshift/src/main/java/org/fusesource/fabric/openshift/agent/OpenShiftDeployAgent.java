@@ -266,6 +266,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
         if (webappDir != null || deployDir != null) {
             DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService, container.getOverlayProfile(), executorService);
             DeploymentUpdater deploymentUpdater = new DeploymentUpdater(downloadManager, container, webappDir, deployDir);
+            deploymentUpdater.setRepositories(Maps.stringValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_REPOSITORIES, OpenShiftConstants.DEFAULT_REPOSITORIES));
             deploymentUpdater.setCopyFilesIntoGit(Maps.booleanValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_COPY_BINARIES_TO_GIT, false));
             return deploymentUpdater;
         }
