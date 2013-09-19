@@ -32,25 +32,35 @@ public class DynamicReference<T> implements Callable<T> {
 
     private static final long DEFAULT_TIMEOUT = 5000;
     private static final TimeUnit DEFAULT_TIMEUNIT = TimeUnit.MILLISECONDS;
+    private static final String DEFAULT_NAME = "dynamic reference";
+
+    private static final String TIMEOUT_MESSAGE_FORMAT = "Gave up waiting for %s.";
+    private static final String INTERRUPTED_MESSAGE_FORMAT = "Interrupted while waiting for %s.";
 
     private final AtomicReference<T> ref = new AtomicReference<T>();
     private final Semaphore semaphore = new Semaphore(0);
 
     private final long timeout;
     private final TimeUnit timeUnit;
-
+    private final String name;
 
 
     public DynamicReference() {
-        this(DEFAULT_TIMEOUT, DEFAULT_TIMEUNIT);
+        this(DEFAULT_NAME, DEFAULT_TIMEOUT, DEFAULT_TIMEUNIT);
+    }
+
+    public DynamicReference(String name) {
+        this(name, DEFAULT_TIMEOUT, DEFAULT_TIMEUNIT);
     }
 
     /**
      * Constructor
+     * @param name
      * @param timeout
      * @param timeUnit
      */
-    public DynamicReference(long timeout, TimeUnit timeUnit) {
+    public DynamicReference(String name, long timeout, TimeUnit timeUnit) {
+        this.name = name;
         this.timeout = timeout;
         this.timeUnit = timeUnit;
     }
@@ -69,13 +79,13 @@ public class DynamicReference<T> implements Callable<T> {
                 semaphore.tryAcquire(remaining, timeUnit);
                 value = ref.get();
             } catch (InterruptedException ex) {
-                throw new DynamicReferenceException("Interrupted while waiting for dynamic reference.", ex);
+                throw new DynamicReferenceException(String.format(INTERRUPTED_MESSAGE_FORMAT, name), ex);
             }
             remaining = timeout + startAt - System.currentTimeMillis();
         }
 
         if (value == null) {
-            throw new DynamicReferenceException("Gave up waiting for dynamic reference.");
+            throw new DynamicReferenceException(String.format(TIMEOUT_MESSAGE_FORMAT, name));
         }
         return value;
     }
