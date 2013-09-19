@@ -29,6 +29,7 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ProfileOverlayImpl;
@@ -36,9 +37,10 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.profileprop", description = "Fabric Profile Property Placeholder Resolver", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.placholder.resolver.profileprop", description = "Fabric Profile Property Placeholder Resolver", immediate = true) // Done
 @Service(PlaceholderResolver.class)
-public class ProfilePropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
+public final class ProfilePropertyPointerResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProfilePropertyPointerResolver.class);
     private static final String SCHEME = "profile";
@@ -54,18 +56,15 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
-    /**
-     * The placeholder scheme.
-     */
     @Override
     public String getScheme() {
         return SCHEME;
@@ -76,6 +75,7 @@ public class ProfilePropertyPointerResolver extends AbstractComponent implements
      */
     @Override
     public String resolve(String pid, String key, String value) {
+        assertValid();
         try {
             if (value != null) {
                 Matcher overlayMatcher = OVERLAY_PROFILE_PROPERTY_URL_PATTERN.matcher(value);
