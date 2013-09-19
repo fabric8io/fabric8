@@ -44,6 +44,7 @@
                filter="(completer-type=active-node)" availability="optional"/>
 
     <reference id="firewallManagerFactory" availability="optional" interface="org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory"/>
+    <reference id="computeRegistry" availability="optional" interface="org.fusesource.fabric.service.jclouds.ComputeRegistry"/>
 
     <reference id="configurationAdmin" interface="org.osgi.service.cm.ConfigurationAdmin"/>
     <reference-list id="computeServices" availability="optional" interface="org.jclouds.compute.ComputeService"/>
@@ -72,6 +73,7 @@
                 <property name="fabricService" ref="fabricService"/>
                 <property name="configurationAdmin" ref="configurationAdmin"/>
                 <property name="curator" ref="curator"/>
+                <property name="computeRegistry" ref="computeRegistry"/>
             </action>
             <optional-completers>
                 <entry key="--provider" value-ref="availableComputeProviderCompleter"/>
@@ -93,7 +95,7 @@
             <action class="org.fusesource.fabric.service.jclouds.commands.CloudServiceList">
                 <property name="fabricService" ref="fabricService"/>
                 <property name="curator" ref="curator"/>
-                <property name="computeServices" ref="computeServices"/>
+                <property name="computeRegistry" ref="computeRegistry"/>
             </action>
         </command>
         <command name="fabric/cloud-firewall-edit">

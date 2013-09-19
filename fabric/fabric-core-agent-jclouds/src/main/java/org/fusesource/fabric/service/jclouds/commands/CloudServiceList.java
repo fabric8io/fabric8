@@ -25,6 +25,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.reflect.TypeToken;
 import org.apache.felix.gogo.commands.Command;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import org.fusesource.fabric.service.jclouds.ComputeRegistry;
 import org.jclouds.apis.ApiMetadata;
 import org.jclouds.apis.Apis;
 import org.jclouds.compute.ComputeService;
@@ -37,7 +38,7 @@ import org.jclouds.providers.Providers;
 public class CloudServiceList extends FabricCommand {
 
 	public static final String PROVIDERFORMAT = "%-24s %-12s %-24s %-24s";
-	private List<ComputeService> computeServices;
+	private ComputeRegistry computeRegistry;
 
 	@Override
 	protected Object doExecute() throws Exception {
@@ -65,14 +66,14 @@ public class CloudServiceList extends FabricCommand {
 			providerOrApiFound = true;
 			System.out.println("Compute APIs:");
 			System.out.println("-------------");
-			printComputeProvidersOrApis(apiIds, computeServices, "", System.out);
+			printComputeProvidersOrApis(apiIds,  computeRegistry.list(), "", System.out);
 		}
 
 		if (providers != null) {
 			providerOrApiFound = true;
 			System.out.println("Compute Providers:");
 			System.out.println("-------------");
-			printComputeProvidersOrApis(providerIds, computeServices, "", System.out);
+			printComputeProvidersOrApis(providerIds, computeRegistry.list(), "", System.out);
 		}
 
 		if (!providerOrApiFound) {
@@ -109,11 +110,11 @@ public class CloudServiceList extends FabricCommand {
 		}
 	}
 
-	public List<ComputeService> getComputeServices() {
-		return computeServices;
-	}
+    public ComputeRegistry getComputeRegistry() {
+        return computeRegistry;
+    }
 
-	public void setComputeServices(List<ComputeService> computeServices) {
-		this.computeServices = computeServices;
-	}
+    public void setComputeRegistry(ComputeRegistry computeRegistry) {
+        this.computeRegistry = computeRegistry;
+    }
 }

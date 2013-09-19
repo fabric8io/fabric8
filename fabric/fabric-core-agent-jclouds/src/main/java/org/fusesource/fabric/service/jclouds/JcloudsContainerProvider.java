@@ -74,9 +74,8 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
     private static final String SCHEME = "jclouds";
 
-    @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
-    private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
-
+    @Reference
+    private ComputeRegistry computeRegistry;
     @Reference
     private FirewallManagerFactory firewallManagerFactory;
     @Reference
@@ -152,6 +151,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
         } catch (Throwable t) {
                 for (int i = result.size(); i < number; i++) {
                     CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
+                    failureMetdata.setCreateOptions(options);
                     failureMetdata.setFailure(t);
                     result.add(failureMetdata);
                 }
@@ -252,7 +252,7 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
                 computeService = (ComputeService) object;
             }
             if (computeService == null && options.getContextName() != null) {
-                computeService = computeServiceMap.get(options.getContextName());
+                computeService = computeRegistry.getIfPresent(options.getContextName());
             }
             if (computeService == null) {
                 options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
@@ -330,23 +330,5 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
-    }
-
-    public synchronized void bindComputeService(ComputeService computeService) {
-        if (computeService != null) {
-            String name = (String) computeService.getContext().unwrap().getName();
-            if (name != null) {
-                computeServiceMap.put(name, computeService);
-            }
-        }
-    }
-
-    public void unbindComputeService(ComputeService computeService) {
-        if (computeService != null) {
-            String serviceId = (String) computeService.getContext().unwrap().getName();
-            if (serviceId != null) {
-                computeServiceMap.remove(serviceId);
-            }
-        }
     }
 }

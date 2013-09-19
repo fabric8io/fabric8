@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.api;
+package org.fusesource.fabric.service.jclouds;
 
 /**
  * A simple enum representing the kinds of instances to be created via jClouds

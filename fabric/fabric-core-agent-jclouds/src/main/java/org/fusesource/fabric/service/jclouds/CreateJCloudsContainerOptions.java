@@ -22,7 +22,6 @@ import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
 import org.fusesource.fabric.api.CreationStateListener;
-import org.fusesource.fabric.api.JCloudsInstanceType;
 import org.jclouds.compute.ComputeService;
 
 import java.net.URI;

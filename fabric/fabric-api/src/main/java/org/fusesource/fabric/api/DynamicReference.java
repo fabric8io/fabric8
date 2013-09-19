@@ -81,6 +81,14 @@ public class DynamicReference<T> implements Callable<T> {
         return value;
     }
 
+    /**
+     * Returns the value if present.
+     * @return  The value or Null.
+     */
+    public T getIfPresent() {
+        return ref.get();
+    }
+
 
     /**
      * Binds the reference.

@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+import org.fusesource.fabric.service.jclouds.ComputeRegistry;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.jclouds.karaf.utils.EnvHelper;
 
@@ -54,6 +55,8 @@ public class CloudServiceAdd extends FabricCommand {
 
     @Option(name = "--option", required = false, multiValued = true, description = "Provider specific properties. Example: --option jclouds.regions=us-east-1.")
     private String[] options;
+
+    private ComputeRegistry computeRegistry;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -99,29 +102,41 @@ public class CloudServiceAdd extends FabricCommand {
         // Only Provider is specified.
         else if (!Strings.isNullOrEmpty(providerValue) && (Strings.isNullOrEmpty(apiValue) || Strings.isNullOrEmpty(endpointValue))) {
             serviceName = providerValue;
+            computeRegistry.remove(serviceName);
             CloudUtils.registerProvider(getCurator(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
         }
         //Only Api specified
         else if (Strings.isNullOrEmpty(providerValue) && (!Strings.isNullOrEmpty(apiValue) && !Strings.isNullOrEmpty(endpointValue))) {
             serviceName = apiValue;
+            computeRegistry.remove(serviceName);
             CloudUtils.registerApi(getCurator(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
         }
         //Both are specified but Api is passed as an option, so it gains priority.
         else if (Strings.isNullOrEmpty(api)) {
             serviceName = apiValue;
+            computeRegistry.remove(serviceName);
             CloudUtils.registerApi(getCurator(), configurationAdmin, contextName, apiValue, endpointValue, identityValue, credentialValue, props);
         }
         //In all other cases we assume the user wants to use a provider.
         else {
             serviceName = providerValue;
+            computeRegistry.remove(serviceName);
             CloudUtils.registerProvider(getCurator(), configurationAdmin, contextName, providerValue, identityValue, credentialValue, props);
         }
 
 
         if (!registerAsync) {
             System.out.println("Waiting for " + serviceName + " service to initialize.");
-            CloudUtils.waitForComputeService(bundleContext, contextName);
+            computeRegistry.getOrWait(serviceName);
         }
         return null;
+    }
+
+    public ComputeRegistry getComputeRegistry() {
+        return computeRegistry;
+    }
+
+    public void setComputeRegistry(ComputeRegistry computeRegistry) {
+        this.computeRegistry = computeRegistry;
     }
 }

@@ -27,6 +27,7 @@ import org.fusesource.fabric.boot.commands.support.ContainerCreateSupport;
 import org.fusesource.fabric.internal.PrintStreamCreationStateListener;
 import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerMetadata;
 import org.fusesource.fabric.service.jclouds.CreateJCloudsContainerOptions;
+import org.fusesource.fabric.service.jclouds.JCloudsInstanceType;
 import org.fusesource.fabric.service.jclouds.internal.CloudUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.shell.ShellUtils;
@@ -198,7 +199,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
     protected void preCreateContainer(String name) {
         super.preCreateContainer(name);
         // validate number is not out of bounds
-        if (number < 1 || number > 999) {
+        if (number < 0 || number > 999) {
             // for cloud we accept 3 digits
             throw new IllegalArgumentException("The number of containers must be between 1 and 999.");
         }
