@@ -195,7 +195,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
         if (generateZookeeperPassword) {
             //do nothing use the generated password.
         } else if (zookeeperPassword == null) {
-            zookeeperPassword = System.getProperty(SystemProperties.ZOOKEEPER_PASSWORD, newUserPassword);
+            zookeeperPassword = System.getProperty(CreateEnsembleOptions.ZOOKEEPER_PASSWORD, newUserPassword);
             builder.zookeeperPassword(zookeeperPassword);
         } else {
             builder.zookeeperPassword(zookeeperPassword);

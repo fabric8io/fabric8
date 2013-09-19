@@ -17,8 +17,8 @@
 package org.fusesource.fabric.itests.paxexam;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
-import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -84,7 +84,7 @@ public class ContainerStartupTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                new VMOption("-D"+ SystemProperties.ZOOKEEPER_PASSWORD +"=systempassword"),
+                new VMOption("-D"+ CreateEnsembleOptions.ZOOKEEPER_PASSWORD +"=systempassword"),
         };
     }
 }
