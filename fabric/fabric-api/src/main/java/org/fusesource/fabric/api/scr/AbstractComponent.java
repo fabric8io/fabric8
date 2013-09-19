@@ -16,34 +16,41 @@
  */
 package org.fusesource.fabric.api.scr;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * An abstract base class for validatable components.
- *
+ * {@link}
  * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
 public abstract class AbstractComponent implements Validatable {
 
-    private final AtomicBoolean active = new AtomicBoolean();
+    /* This uses volatile to make sure that every thread sees the last written value
+     *
+     * - The use of AtomicBoolean would be wrong because it does not guarantee that state written
+     *   prior to an unsynchronized call to activateComponent() is also seen
+     *
+     * - Synchronizing all methods in here would also work, but would effectively cause
+     *   a lock acquisition on every public method in every component
+     */
+    private volatile boolean active;
 
     public void activateComponent() {
-        active.set(true);
+        active = true;
     }
 
     public void deactivateComponent() {
-        active.set(false);
+        active = false;
     }
 
     @Override
     public boolean isValid() {
-        return active.get();
+        return active;
     }
 
     @Override
     public void assertValid() {
-        if (isValid() == false) {
+        if (!active) {
             RuntimeException rte = new InvalidComponentException();
             rte.printStackTrace();
             throw rte;
