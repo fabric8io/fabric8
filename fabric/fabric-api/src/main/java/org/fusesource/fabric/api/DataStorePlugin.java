@@ -17,7 +17,6 @@
 package org.fusesource.fabric.api;
 
 
-import java.util.Map;
 
 /**
  * An interface that describes DataStore plugins.
