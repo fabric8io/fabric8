@@ -24,12 +24,12 @@ package org.fusesource.fabric.api.scr;
  */
 public class ValidatingReference<T> {
 
-    private T reference;
+    private volatile T reference;
 
     /**
      * Set the reference to the given instance
      */
-    public synchronized void set(T ref) {
+    public void set(T ref) {
         reference = ref;
     }
 
@@ -37,7 +37,7 @@ public class ValidatingReference<T> {
      * Get the referenced instance
      * @throws InvalidComponentException If the reference is not valid
      */
-    public synchronized T get() {
+    public T get() {
         if (reference == null) {
             RuntimeException rte = new InvalidComponentException();
             rte.printStackTrace();
@@ -50,7 +50,7 @@ public class ValidatingReference<T> {
      * Get the referenced instance
      * @return The references instance or null
      */
-    public synchronized T getOptional() {
+    public T getOptional() {
         return reference;
     }
 

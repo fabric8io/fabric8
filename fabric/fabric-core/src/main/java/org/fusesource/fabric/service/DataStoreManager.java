@@ -114,23 +114,25 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
 
         DataStorePlugin pluginDataStore = dataStorePlugins.get(type);
         if (pluginDataStore != null) {
-            dataStore = pluginDataStore.getDataStore();
+            DataStore auxStore = pluginDataStore.getDataStore();
             Map<String, String> dataStoreProperties = new HashMap<String, String>();
             dataStoreProperties.putAll(configuration);
-            dataStore.setDataStoreProperties(dataStoreProperties);
-            dataStore.start();
+            auxStore.setDataStoreProperties(dataStoreProperties);
+            auxStore.start();
             for(DataStoreTemplate callback : registrationCallbacks) {
                 registrationCallbacks.remove(callback);
                 try {
-                    callback.doWith(dataStore);
+                    callback.doWith(auxStore);
                 } catch (Exception e) {
                     throw new FabricException(e);
                 }
             }
             Dictionary<String, String> properties = new Hashtable<String, String>();
             properties.put(DATASTORE_TYPE_PROPERTY, type);
-            registration = bundleContext.registerService(DataStore.class, dataStore, properties);
-            LOG.info("Registered DataStore " + dataStore + " with " + properties);
+            registration = bundleContext.registerService(DataStore.class, auxStore, properties);
+            dataStore = auxStore;
+
+            LOG.info("Registered DataStore " + auxStore + " with " + properties);
         }
     }
 

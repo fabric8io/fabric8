@@ -30,7 +30,6 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.jcip.GuardedBy;
-import org.fusesource.fabric.api.jcip.Immutable;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -75,26 +74,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
-    @Immutable
-    static class ComponentState {
-        private final Map<String, String> configuration;
-        private final BundleContext bundleContext;
-        ComponentState (BundleContext bundleContext, Map<String,String> configuration) {
-            this.bundleContext = bundleContext;
-            this.configuration = Collections.unmodifiableMap(configuration);
-        }
-        Map<String, String> getConfiguration() {
-            return configuration;
-        }
-        BundleContext getBundleContext() {
-            return bundleContext;
-        }
-    }
-    @GuardedBy("this") private ComponentState componentState;
+    @GuardedBy("this") private Map<String, String> configuration;
+    @GuardedBy("this") private BundleContext bundleContext;
 
     @Activate
     synchronized void activate(BundleContext bundleContext, Map<String,String> configuration) {
-        componentState = new ComponentState (bundleContext, configuration);
+        this.bundleContext = bundleContext;
+        this.configuration = Collections.unmodifiableMap(configuration);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -109,8 +95,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         deactivateComponent();
     }
 
-    synchronized ComponentState getComponentState() {
-        return componentState;
+    private synchronized Map<String, String> getConfiguration() {
+        return configuration;
+    }
+
+    private synchronized BundleContext getBundleContext() {
+        return bundleContext;
     }
 
     private void createOnActivate() {
@@ -132,7 +122,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         createInternal(options);
 	}
 
-    private synchronized void createInternal(CreateEnsembleOptions options) {
+    private void createInternal(CreateEnsembleOptions options) {
         try {
             int minimumPort = options.getMinimumPort();
             int maximumPort = options.getMaximumPort();
@@ -145,7 +135,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             // Create configuration
             updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
-            Map<String, String> configuration = getComponentState().getConfiguration();
+            Map<String, String> configuration = getConfiguration();
             registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
 
             // Create the client configuration
@@ -170,7 +160,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void clean() {
         assertValid();
         try {
-            BundleContext bundleContext = componentState.getBundleContext();
+            BundleContext bundleContext = getBundleContext();
             Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-zookeeper",
                     "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
 
@@ -264,7 +254,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     private void startBundles(CreateEnsembleOptions options) throws BundleException {
         // Install or stop the fabric-configadmin bridge
-        BundleContext bundleContext = getComponentState().getBundleContext();
+        BundleContext bundleContext = getBundleContext();
         Bundle bundleFabricAgent = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
                 "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricConfigAdmin = instalBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
