@@ -52,8 +52,27 @@
 			<groupId>mysql</groupId>
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.25</version>
-		</dependency>           
-	</dependencies>
+		</dependency>
+
+    <!-- check for updates -->
+
+    <!-- this has no scope -->
+    <dependency>
+      <groupId>io.hawt</groupId>
+      <artifactId>hawtio-web</artifactId>
+      <version>1.2-M2</version>
+      <type>war</type>
+    </dependency>
+
+    <!-- lets preserve this scope -->
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-core</artifactId>
+      <version>2.12.0</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
 	<profiles>
 		<profile>
 			<!-- When built in OpenShift the 'openshift' profile will be used when 

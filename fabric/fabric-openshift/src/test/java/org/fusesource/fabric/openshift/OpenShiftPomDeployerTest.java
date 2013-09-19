@@ -36,6 +36,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import static junit.framework.Assert.assertNotNull;
+import static org.fusesource.fabric.openshift.agent.OpenShiftPomDeployer.groupId;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -49,6 +51,7 @@ public class OpenShiftPomDeployerTest {
     protected String webAppDir = "webapps";
     protected String[] artifactUrls = {
         "mvn:io.hawt/hawtio-web/1.2-M10/war",
+        "mvn:org.drools/drools-wb-distribution-wars/6.0.0.Beta5/war/tomcat7.0",
         "mvn:org.apache.camel/camel-core/2.12.0"
     };
 
@@ -61,16 +64,17 @@ public class OpenShiftPomDeployerTest {
 
     @Test
     public void testPomWithNoOpenShiftProfile() throws Exception {
-        doTest("noOpenShiftProfile", artifactUrls);
+        doTest("noOpenShiftProfile", artifactUrls, "provided", "provided");
     }
 
     @Test
     public void testUpdate() throws Exception {
-        doTest("update", artifactUrls);
+        doTest("update", artifactUrls, "test", null);
     }
 
 
-    protected void doTest(String folder, String[] artifactUrls) throws Exception {
+    protected void doTest(String folder, String[] artifactUrls,
+                          String expectedCamelDependencyScope, String expectedHawtioDependencyScope) throws Exception {
         File sourceDir = new File(baseDir, "src/test/resources/" + folder);
         assertDirectoryExists(sourceDir);
         File pomSource = new File(sourceDir, "pom.xml");
@@ -105,24 +109,62 @@ public class OpenShiftPomDeployerTest {
         Document xml = XmlUtils.parseDoc(pom);
         Element plugins = assertXPathElement(xml, "project/profiles/profile[id = 'openshift']/build/plugins");
 
-        Element cleanExecution = assertXPathElement(plugins, "plugin[artifactId = 'maven-clean-plugin']/executions/execution[id = 'fuse-fabric-clean']");
+        Element cleanExecution = assertXPathElement(plugins,
+                "plugin[artifactId = 'maven-clean-plugin']/executions/execution[id = 'fuse-fabric-clean']");
 
-        Element dependencySharedExecution = assertXPathElement(plugins, "plugin[artifactId = 'maven-dependency-plugin']/executions/execution[id = 'fuse-fabric-deploy-shared']");
+        Element dependencySharedExecution = assertXPathElement(plugins,
+                "plugin[artifactId = 'maven-dependency-plugin']/executions/execution[id = 'fuse-fabric-deploy-shared']");
 
-        Element dependencyWebAppsExecution = assertXPathElement(plugins, "plugin[artifactId = 'maven-dependency-plugin']/executions/execution[id = 'fuse-fabric-deploy-webapps']");
+        Element dependencyWebAppsExecution = assertXPathElement(plugins,
+                "plugin[artifactId = 'maven-dependency-plugin']/executions/execution[id = 'fuse-fabric-deploy-webapps']");
 
-        Element warPluginWarName = xpath( "plugin[artifactId = 'maven-war-plugin']/configuration/warName").element(plugins);
+        Element warPluginWarName = xpath("plugin[artifactId = 'maven-war-plugin']/configuration/warName").element(plugins);
         if (warPluginWarName != null) {
             String warName = warPluginWarName.getTextContent();
             System.out.println("WarName is now:  " + warName);
             assertTrue("Should not have ROOT war name", !"ROOT".equals(warName));
         }
+
+        Element dependencies = assertXPathElement(xml, "project/dependencies");
+
+        for (Parser artifact : artifacts) {
+            // lets check there's only 1 dependency for group & artifact and it has the right version
+            String group = groupId(artifact);
+            String artifactId = artifact.getArtifact();
+            Element dependency = assertSingleDependencyForGroupAndArtifact(dependencies, group, artifactId);
+            Element version = assertXPathElement(dependency, "version");
+            assertEquals("Version", artifact.getVersion(), version.getTextContent());
+        }
+
+        // lets check we either preserve scope, add provided or don't add a scope if there's none present in the underlying pom
+        assertDependencyScope(dependencies, "org.apache.camel", "camel-core", expectedCamelDependencyScope);
+        assertDependencyScope(dependencies, "org.drools", "drools-wb-distribution-wars", "provided");
+        assertDependencyScope(dependencies, "io.hawt", "hawtio-web", expectedHawtioDependencyScope);
+    }
+
+    private Element assertSingleDependencyForGroupAndArtifact(Element dependencies, String group, String artifactId) throws XPathExpressionException {
+        List<Element> dependencyList = assertXPathElements(dependencies, "dependency[groupId='" + group
+                + "' and artifactId='" + artifactId + "']");
+        assertEquals("Should only have a single element matching! " + dependencyList, 1, dependencyList.size());
+        return dependencyList.get(0);
+    }
+
+    protected void assertDependencyScope(Element dependencies, String group, String artifact, String expectedScope) throws XPathExpressionException {
+        Element dependency = assertSingleDependencyForGroupAndArtifact(dependencies, group, artifact);
+        String scope = xpath("scope").elementTextContent(dependency);
+        assertEquals("scope for group " + group + " artifact " + artifact, expectedScope, scope);
     }
 
     public static Element assertXPathElement(Node xml, String xpathExpression) throws XPathExpressionException {
         Element element = xpath(xpathExpression).element(xml);
         assertNotNull("Should have found element for XPath " + xpathExpression + " on " + xml, element);
         return element;
+    }
+
+    public static List<Element> assertXPathElements(Node xml, String xpathExpression) throws XPathExpressionException {
+        List<Element> elements = xpath(xpathExpression).elements(xml);
+        assertTrue("Should have found at least one element for XPath " + xpathExpression + " on " + xml, elements.size() > 0);
+        return elements;
     }
 
     public static void assertFileExists(File file) {

@@ -22,6 +22,9 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A facade for working with XPath expressions created via the {@link XPathBuilder} helper class
  */
@@ -53,12 +56,64 @@ public class XPathFacade {
     }
 
     /**
+     * Evaluates the XPath expression on the given item and return a list of nodes
+     */
+    public List<Node> nodes(Object item) throws XPathExpressionException {
+        List<Node> answer = new ArrayList<Node>();
+        Object value = expression.evaluate(item, XPathConstants.NODESET);
+        if (value instanceof NodeList) {
+            NodeList nodeList = (NodeList) value;
+            for (int i = 0, size = nodeList.getLength(); i < size; i++) {
+                Node node = nodeList.item(i);
+                if (node != null) {
+                    answer.add(node);
+                }
+            }
+        } else if (value instanceof Node) {
+                answer.add((Node) value);
+        }
+        return answer;
+    }
+
+    /**
+     * Evaluates the XPath expression on the given item and return a list of nodes
+     */
+    public List<Element> elements(Object item) throws XPathExpressionException {
+        List<Element> answer = new ArrayList<Element>();
+        Object value = expression.evaluate(item, XPathConstants.NODESET);
+        if (value instanceof NodeList) {
+            NodeList nodeList = (NodeList) value;
+            for (int i = 0, size = nodeList.getLength(); i < size; i++) {
+                Node node = nodeList.item(i);
+                if (node instanceof Element) {
+                    answer.add((Element) node);
+                }
+            }
+        } else if (value instanceof Element) {
+                answer.add((Element) value);
+        }
+        return answer;
+    }
+
+    /**
      * Evaluates the XPath expression on the given item and return the first Element or null
      */
     public Element element(Object item) throws XPathExpressionException {
         Node node = node(item);
         if (node instanceof Element) {
             return (Element) node;
+        }
+        return null;
+    }
+
+
+    /**
+     * Returns the text content of the selected item or null if no element is found
+     */
+    public String elementTextContent(Object item) throws XPathExpressionException {
+        Element element = element(item);
+        if (element != null){
+            return element.getTextContent();
         }
         return null;
     }
@@ -74,4 +129,5 @@ public class XPathFacade {
     public XPathExpression getExpression() {
         return expression;
     }
+
 }
