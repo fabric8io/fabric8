@@ -215,9 +215,9 @@ public class OpenShiftPomDeployer {
 
         Element execution = recreateChild(executions, "execution[id = '" + executionId + "']", "execution", 7);
         createAndAppendChild(execution, "id", 8, executionId);
-        createAndAppendChild(execution, "phase", 9, "copy");
-        Element goals = createAndAppendChild(execution, "goals", 9);
-        createAndAppendChild(goals, "goal", 10, "copy");
+        createAndAppendChild(execution, "phase", 8, "package");
+        Element goals = createAndAppendChild(execution, "goals", 8);
+        createAndAppendChild(goals, "goal", 9, "copy");
 
         Element configuration = createAndAppendChild(execution, "configuration", 9);
         Element artifactItems = createAndAppendChild(configuration, "artifactItems", 10);
