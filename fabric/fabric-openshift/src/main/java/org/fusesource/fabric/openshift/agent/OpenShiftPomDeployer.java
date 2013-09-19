@@ -17,6 +17,7 @@
 package org.fusesource.fabric.openshift.agent;
 
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.fusesource.common.util.DomHelper;
 import org.fusesource.common.util.Objects;
 import org.fusesource.common.util.Strings;
@@ -63,7 +64,7 @@ public class OpenShiftPomDeployer {
         this.webAppDir = webAppDir;
     }
 
-    public void update(List<Parser> artifacts) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException {
+    public void update(List<Parser> artifacts) throws IOException, SAXException, ParserConfigurationException, XPathExpressionException, TransformerException, GitAPIException {
         File pom = new File(baseDir, "pom.xml");
         Files.assertFileExists(pom);
 
@@ -80,6 +81,7 @@ public class OpenShiftPomDeployer {
         updateDependencyPlugin(openshiftPlugins, artifacts);
 
         DomHelper.save(doc, pom);
+        git.add().addFilepattern("pom.xml").call();
     }
 
     protected Element getOrCreateOpenShiftProfilePlugins(Element project) throws XPathExpressionException {

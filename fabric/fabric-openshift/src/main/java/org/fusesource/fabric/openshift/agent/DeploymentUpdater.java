@@ -149,7 +149,7 @@ public class DeploymentUpdater {
      * Copy the various deployments into the pom.xml so that after the push, OpenShift will
      * run the build and download the deployments into the {@link #webAppDir} or {@link #deployDir}
      */
-    protected void addDeploymentsIntoPom(Git git, File baseDir, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException {
+    protected void addDeploymentsIntoPom(Git git, File baseDir, Set<String> bundles, Set<Feature> features) throws SAXException, ParserConfigurationException, XPathExpressionException, IOException, TransformerException, GitAPIException {
         Set<String> locations = new HashSet<String>();
         for (Feature feature : features) {
             for (BundleInfo bundle : feature.getBundles()) {
