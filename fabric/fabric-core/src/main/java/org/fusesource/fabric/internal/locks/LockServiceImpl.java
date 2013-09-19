@@ -24,6 +24,8 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.locks.LockService;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -32,33 +34,36 @@ import org.osgi.service.component.ComponentContext;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component(name = "org.fusesource.fabric.lock.service", description = "Fabric Lock Service")
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.lock.service", description = "Fabric Lock Service") // Done
 @Service(LockService.class)
-public class LockServiceImpl extends AbstractComponent implements LockService {
+public final class LockServiceImpl extends AbstractComponent implements LockService {
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private final Map<String, InterProcessLock> locks = new HashMap<String, InterProcessLock>();
+    @GuardedBy("locks") private final Map<String, InterProcessLock> locks = new HashMap<String, InterProcessLock>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
     @Override
-    public synchronized InterProcessLock getLock(String path) {
-        assertValid();
-        if (locks.containsKey(path)) {
-            return locks.get(path);
-        } else {
-            locks.put(path, new InterProcessMutex(curator.get(), path));
-            return locks.get(path);
+    public InterProcessLock getLock(String path) {
+        synchronized (locks) {
+            assertValid();
+            if (locks.containsKey(path)) {
+                return locks.get(path);
+            } else {
+                locks.put(path, new InterProcessMutex(curator.get(), path));
+                return locks.get(path);
+            }
         }
     }
 
