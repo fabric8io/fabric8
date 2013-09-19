@@ -62,6 +62,8 @@ import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.ProfileRequirements;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerImpl;
@@ -82,10 +84,10 @@ import com.google.common.base.Strings;
 
 import java.util.Collection;
 
-
-@Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.service", description = "Fabric Service") // Done
 @Service(FabricService.class)
-public class FabricServiceImpl extends AbstractComponent implements FabricService {
+public final class FabricServiceImpl extends AbstractComponent implements FabricService {
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
@@ -102,22 +104,26 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
-    @Reference(referenceInterface = ContainerProvider.class, bind = "registerProvider", unbind = "unregisterProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+
+    @GuardedBy("ConcurrentHashMap") // synchronize on 'providers' when calling a sequence of operations
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
+    // FIXME public access on the impl
     public CuratorFramework getCurator() {
+        assertValid();
         return curator.get();
     }
 
@@ -125,41 +131,45 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         return dataStore.get();
     }
 
-    public PortService getPortService() {
-        return portService.get();
-    }
-
     public String getDefaultRepo() {
         return defaultRepo;
     }
 
-    public void setDefaultRepo(String defaultRepo) {
-        this.defaultRepo = defaultRepo;
+    @Override
+    public PortService getPortService() {
+        assertValid();
+        return portService.get();
     }
 
     @Override
     public Container getCurrentContainer() {
+        assertValid();
         String name = getCurrentContainerName();
         return getContainer(name);
     }
 
     @Override
     public String getCurrentContainerName() {
+        assertValid();
         // TODO is there any other way to find this?
         return System.getProperty(SystemProperties.KARAF_NAME);
     }
 
     @Override
     public void trackConfiguration(Runnable callback) {
+        assertValid();
         getDataStore().trackConfiguration(callback);
     }
 
     @Override
     public void unTrackConfiguration(Runnable callback) {
+        assertValid();
         getDataStore().unTrackConfiguration(callback);
     }
 
+    @Override
     public Container[] getContainers() {
+        assertValid();
         Map<String, Container> containers = new HashMap<String, Container>();
         List<String> containerIds = getDataStore().getContainers();
         for (String containerId : containerIds) {
@@ -182,7 +192,9 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         return containers.values().toArray(new Container[containers.size()]);
     }
 
+    @Override
     public Container getContainer(String name) {
+        assertValid();
         if (getDataStore().hasContainer(name)) {
             Container parent = null;
             String parentId = getDataStore().getContainerParent(name);
@@ -194,14 +206,18 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         throw new FabricException("Container '" + name + "' does not exist");
     }
 
+    @Override
     public void startContainer(String containerId) {
+        assertValid();
         Container container = getContainer(containerId);
         if (container != null) {
             startContainer(container);
         }
     }
 
+    @Override
     public void startContainer(final Container container) {
+        assertValid();
         LOGGER.info("Starting container {}", container.getId());
         ContainerProvider provider = getProvider(container);
         if (!container.isAlive()) {
@@ -209,14 +225,18 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         }
     }
 
+    @Override
     public void stopContainer(String containerId) {
+        assertValid();
         Container container = getContainer(containerId);
         if (container != null) {
             stopContainer(container);
         }
     }
 
+    @Override
     public void stopContainer(final Container container) {
+        assertValid();
         LOGGER.info("Stopping container {}", container.getId());
         ContainerProvider provider = getProvider(container);
         if (container.isAlive()) {
@@ -224,15 +244,18 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         }
     }
 
-
+    @Override
     public void destroyContainer(String containerId) {
+        assertValid();
         Container container = getContainer(containerId);
         if (container != null) {
             destroyContainer(container);
         }
     }
 
+    @Override
     public void destroyContainer(Container container) {
+        assertValid();
         String containerId = container.getId();
         LOGGER.info("Destroying container {}", containerId);
         ContainerProvider provider = getProvider(container);
@@ -241,11 +264,11 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
             portService.get().unRegisterPort(container);
             getDataStore().deleteContainer(container.getId());
         } catch (Exception e) {
-           LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
+            LOGGER.warn("Failed to cleanup container {} entries due to: {}. This will be ignored.", containerId, e.getMessage());
         }
     }
 
-    protected ContainerProvider getProvider(Container container) {
+    private ContainerProvider getProvider(Container container) {
         CreateContainerMetadata metadata = container.getMetadata();
         String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
         if (type == null) {
@@ -258,8 +281,9 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         return provider;
     }
 
+    @Override
     public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
-
+        assertValid();
         try {
             ContainerProvider provider = getProvider(options.getProviderType());
             if (provider == null) {
@@ -297,8 +321,9 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public Set<Class<? extends CreateContainerBasicOptions>> getSupportedCreateContainerOptionTypes() {
+        assertValid();
         Set<Class<? extends CreateContainerBasicOptions>> optionTypes = new HashSet<Class<? extends CreateContainerBasicOptions>>();
-        for(Map.Entry<String, ContainerProvider> entry : providers.entrySet()) {
+        for (Map.Entry<String, ContainerProvider> entry : providers.entrySet()) {
             optionTypes.add(entry.getValue().getOptionsType());
         }
         return optionTypes;
@@ -306,26 +331,30 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public Set<Class<? extends CreateContainerBasicMetadata>> getSupportedCreateContainerMetadataTypes() {
+        assertValid();
         Set<Class<? extends CreateContainerBasicMetadata>> metadataTypes = new HashSet<Class<? extends CreateContainerBasicMetadata>>();
-        for(Map.Entry<String, ContainerProvider> entry : providers.entrySet()) {
+        for (Map.Entry<String, ContainerProvider> entry : providers.entrySet()) {
             metadataTypes.add(entry.getValue().getMetadataType());
         }
         return metadataTypes;
     }
 
-    public ContainerProvider getProvider(final String scheme) {
+    private ContainerProvider getProvider(final String scheme) {
         return providers.get(scheme);
     }
 
+    // FIXME public access on the impl
     public Map<String, ContainerProvider> getProviders() {
+        assertValid();
         return Collections.unmodifiableMap(providers);
     }
 
     @Override
     public URI getMavenRepoURI() {
-        URI uri = URI.create(defaultRepo);
+        assertValid();
+        URI uri = URI.create(getDefaultRepo());
         try {
-            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+            if (exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
@@ -345,9 +374,10 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public List<URI> getMavenRepoURIs() {
+        assertValid();
         try {
             List<URI> uris = new ArrayList<URI>();
-            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
+            if (exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("download")) != null) {
                 List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("download"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
@@ -370,9 +400,10 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public URI getMavenRepoUploadURI() {
-        URI uri = URI.create(defaultRepo);
+        assertValid();
+        URI uri = URI.create(getDefaultRepo());
         try {
-            if (curator != null && exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
+            if (exists(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload")) != null) {
                 List<String> children = getChildren(curator.get(), ZkPath.MAVEN_PROXY.getPath("upload"));
                 if (children != null && !children.isEmpty()) {
                     Collections.sort(children);
@@ -391,10 +422,11 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
     }
 
     public String containerWebAppURL(String webAppId, String name) {
+        assertValid();
         String answer = null;
         try {
             String versionsPath = ZkPath.WEBAPPS_CLUSTER.getPath(webAppId);
-            if (curator != null && exists(curator.get(), versionsPath) != null) {
+            if (exists(curator.get(), versionsPath) != null) {
                 List<String> children = getChildren(curator.get(), versionsPath);
                 if (children != null && !children.isEmpty()) {
                     for (String child : children) {
@@ -424,10 +456,9 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         }
         return answer;
 
-
     }
 
-    protected String getWebUrl(String containerPath) throws Exception {
+    private String getWebUrl(String containerPath) throws Exception {
         if (curator.get().checkExists().forPath(containerPath) != null) {
             byte[] bytes = ZkPath.loadURL(curator.get(), containerPath);
             String text = new String(bytes);
@@ -454,48 +485,52 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         return null;
     }
 
-
-    public void registerProvider(ContainerProvider provider) {
-        providers.put(provider.getScheme(), provider);
-    }
-
+    // FIXME public access on the impl
     public void registerProvider(String scheme, ContainerProvider provider) {
+        assertValid();
         providers.put(scheme, provider);
     }
+
+    // FIXME public access on the impl
     public void registerProvider(ContainerProvider provider, Map<String, Object> properties) {
+        assertValid();
         String scheme = (String) properties.get(Constants.PROTOCOL);
         registerProvider(scheme, provider);
     }
 
-    public void unregisterProvider(ContainerProvider provider) {
-            providers.remove(provider.getScheme());
-    }
-
+    // FIXME public access on the impl
     public void unregisterProvider(String scheme) {
-        if (providers != null && scheme != null) {
-            providers.remove(scheme);
-        }
+        assertValid();
+        providers.remove(scheme);
     }
 
+    // FIXME public access on the impl
     public void unregisterProvider(ContainerProvider provider, Map<String, Object> properties) {
+        assertValid();
         String scheme = (String) properties.get(Constants.PROTOCOL);
         unregisterProvider(scheme);
     }
 
+    @Override
     public String getZookeeperUrl() {
+        assertValid();
         return getZookeeperInfo("zookeeper.url");
     }
 
+    @Override
     public String getZookeeperPassword() {
+        assertValid();
         return getZookeeperInfo("zookeeper.password");
     }
 
+    // FIXME public access on the impl
     public String getZookeeperInfo(String name) {
+        assertValid();
         String zooKeeperUrl = null;
         //We are looking directly for at the zookeeper for the url, since container might not even be mananaged.
         //Also this is required for the integration with the IDE.
         try {
-            if (curator != null && curator.get().getZookeeperClient().isConnected()) {
+            if (curator.get().getZookeeperClient().isConnected()) {
                 Version defaultVersion = getDefaultVersion();
                 if (defaultVersion != null) {
                     Profile profile = defaultVersion.getProfile("default");
@@ -527,37 +562,50 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public Version getDefaultVersion() {
+        assertValid();
         return new VersionImpl(getDataStore().getDefaultVersion(), this);
     }
 
     @Override
     public void setDefaultVersion(Version version) {
+        assertValid();
         setDefaultVersion(version.getId());
     }
 
     public void setDefaultVersion(String versionId) {
+        assertValid();
         getDataStore().setDefaultVersion(versionId);
     }
 
+    @Override
     public Version createVersion(String version) {
+        assertValid();
         getDataStore().createVersion(version);
         return new VersionImpl(version, this);
     }
 
+    @Override
     public Version createVersion(Version parent, String toVersion) {
+        assertValid();
         return createVersion(parent.getId(), toVersion);
     }
 
+    // FIXME public access on the impl
     public Version createVersion(String parentVersionId, String toVersion) {
+        assertValid();
         getDataStore().createVersion(parentVersionId, toVersion);
         return new VersionImpl(toVersion, this);
     }
 
+    // FIXME public access on the impl
     public void deleteVersion(String version) {
+        assertValid();
         getVersion(version).delete();
     }
 
+    @Override
     public Version[] getVersions() {
+        assertValid();
         List<Version> versions = new ArrayList<Version>();
         List<String> children = getDataStore().getVersions();
         for (String child : children) {
@@ -567,7 +615,9 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
         return versions.toArray(new Version[versions.size()]);
     }
 
+    @Override
     public Version getVersion(String name) {
+        assertValid();
         if (getDataStore().hasVersion(name)) {
             return new VersionImpl(name, this);
         }
@@ -576,72 +626,78 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public Profile[] getProfiles(String version) {
+        assertValid();
         return getVersion(version).getProfiles();
     }
 
     @Override
     public Profile getProfile(String version, String name) {
+        assertValid();
         return getVersion(version).getProfile(name);
     }
 
     @Override
     public Profile createProfile(String version, String name) {
+        assertValid();
         getDataStore().createProfile(version, name);
         return new ProfileImpl(name, version, this);
     }
 
     @Override
     public void deleteProfile(Profile profile) {
+        assertValid();
         deleteProfile(profile.getVersion(), profile.getId());
     }
 
-    public void deleteProfile(String versionId, String profileId) {
+    private void deleteProfile(String versionId, String profileId) {
         getDataStore().deleteProfile(versionId, profileId);
-    }
-
-    protected ContainerTemplate getContainerTemplate(Container container, String jmxUser, String jmxPassword) {
-        // there's no point caching the JMX Connector as we are unsure if we'll communicate again with the same container any time soon
-        // though in the future we could possibly pool them
-        boolean cacheJmx = false;
-        return new ContainerTemplate(container, jmxUser, jmxPassword, cacheJmx);
     }
 
     @Override
     public void setRequirements(FabricRequirements requirements) throws IOException {
+        assertValid();
         getDataStore().setRequirements(requirements);
     }
 
     @Override
     public FabricRequirements getRequirements() {
+        assertValid();
         return getDataStore().getRequirements();
     }
 
     @Override
     public FabricStatus getFabricStatus() {
+        assertValid();
         return new FabricStatus(this);
     }
 
     @Override
     public PatchService getPatchService() {
+        assertValid();
         return new PatchServiceImpl(this, configAdmin.get());
     }
 
     @Override
     public String getDefaultJvmOptions() {
+        assertValid();
         return getDataStore().getDefaultJvmOptions();
     }
 
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
+        assertValid();
         getDataStore().setDefaultJvmOptions(jvmOptions);
     }
 
     @Override
     public String getConfigurationValue(String versionId, String profileId, String pid, String key) {
+        assertValid();
         Version v = getVersion(versionId);
-        if (v == null) throw new FabricException("No version found: " + versionId);
+        if (v == null)
+            throw new FabricException("No version found: " + versionId);
         Profile pr = v.getProfile(profileId);
-        if (pr == null) throw new FabricException("No profile found: " + profileId);
+        if (pr == null)
+            throw new FabricException("No profile found: " + profileId);
         Map<String, byte[]> configs = pr.getFileConfigurations();
 
         byte[] b = configs.get(pid);
@@ -663,10 +719,13 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     @Override
     public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
+        assertValid();
         Version v = getVersion(versionId);
-        if (v == null) throw new FabricException("No version found: " + versionId);
+        if (v == null)
+            throw new FabricException("No version found: " + versionId);
         Profile pr = v.getProfile(profileId);
-        if (pr == null) throw new FabricException("No profile found: " + profileId);
+        if (pr == null)
+            throw new FabricException("No profile found: " + profileId);
         Map<String, byte[]> configs = pr.getFileConfigurations();
 
         byte[] b = configs.get(pid);
@@ -755,5 +814,13 @@ public class FabricServiceImpl extends AbstractComponent implements FabricServic
 
     void unbindPortService(PortService portService) {
         this.portService.set(null);
+    }
+
+    void bindProvider(ContainerProvider provider) {
+        providers.put(provider.getScheme(), provider);
+    }
+
+    void unbindProvider(ContainerProvider provider) {
+        providers.remove(provider.getScheme());
     }
 }

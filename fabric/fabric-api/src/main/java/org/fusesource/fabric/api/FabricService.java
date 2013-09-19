@@ -26,7 +26,6 @@ public interface FabricService {
 
     final String DEFAULT_REPO_URI = "http://repo.fusesource.com/nexus/content/groups/public/";
 
-
     /**
      * Track configuration changes.
      * @param callback The Callback to call when a configuration change is detected.
@@ -60,7 +59,6 @@ public interface FabricService {
 
     public void stopContainer(final Container container);
 
-
     public void destroyContainer(String containerId);
 
     public void destroyContainer(Container container);
@@ -78,19 +76,16 @@ public interface FabricService {
 
     /**
      * Returns the default {@link Version}.
-     * @return
      */
     Version getDefaultVersion();
 
     /**
      * Sets the default {@link Version}.
-     * @param version
      */
     void setDefaultVersion(Version version);
 
     /**
      * Returns all {@link Version}s.
-     * @return
      */
     Version[] getVersions();
 
@@ -112,7 +107,6 @@ public interface FabricService {
      * Creates a new {@link Version} with the specified parent {@link Version} and name.
      * @param parent        The parent {@link Version}
      * @param version       The name of the new {@link Version}.
-     * @return
      */
     Version createVersion(Version parent, String version);
 
@@ -131,20 +125,16 @@ public interface FabricService {
     /**
      * Returns the pseudo url of the Zookeeper. It's not an actual url as it doesn't contain a scheme.
      * It's of the format <p>ip:port</p>
-     * @return
      */
     String getZookeeperUrl();
 
     /**
      * Returns the password used to connect to Zookeeper.
-     * @return
      */
     String getZookeeperPassword();
 
     /**
      * Returns all the {@link Profile}s for the specified {@link Version}.
-     * @param version   The {@link Version} that will be used for querying {@link Profile}s.
-     * @return          The matching {@link Profile}s.
      * @deprecated Use {@link Version#getProfiles()}
      */
     @Deprecated
@@ -152,9 +142,6 @@ public interface FabricService {
 
     /**
      * Gets the {@link Profile} that matches the specified {@link Version} and name.
-     * @param version
-     * @param name
-     * @return
      * @deprecated Use {@link Version#getProfile(String)}
      */
     @Deprecated
@@ -162,9 +149,6 @@ public interface FabricService {
 
     /**
      * Creates a new {@link Profile} with the specified {@link Version} and name.
-     * @param version   The string value of the {@link Version}.
-     * @param name      The name of the new {@link Profile}.
-     * @return
      * @deprecated Use {@link Version#createProfile(String)}
      */
     @Deprecated
@@ -172,7 +156,6 @@ public interface FabricService {
 
     /**
      * Deletes the specified {@link Profile}.
-     * @param profile
      * @deprecated Use Profile#delete() instead
      */
     @Deprecated
@@ -180,13 +163,11 @@ public interface FabricService {
 
     /**
      * Returns the {@link Container} on which the method is executed.
-     * @return
      */
     Container getCurrentContainer();
 
     /**
      * Returns the name of the current {@link Container}.
-     * @return
      */
     String getCurrentContainerName();
 
@@ -213,26 +194,21 @@ public interface FabricService {
 
     /**
      * Get hte port service.
-     * @return
      */
     PortService getPortService();
 
-
     /**
      * Get the {@link DataStore}
-      * @return
      */
     DataStore getDataStore();
 
     /**
      * Get the default JVM options used when creating containers
-     * @return
      */
     String getDefaultJvmOptions();
 
     /**
      * Set the default JVM options used when creating containers
-     * @param jvmOptions
      */
     void setDefaultJvmOptions(String jvmOptions);
 
@@ -242,24 +218,13 @@ public interface FabricService {
     String containerWebAppURL(String webAppId, String name);
 
     /**
-     * returns the configuration value for the given key
-     *
-     * @param versionId     the version
-     * @param profileId     the profile id
-     * @param pid           the PID
-     * @param key           the configuration key
+     * Returns the configuration value for the given key
      * @return  the value stored for that key
      */
     String getConfigurationValue(String versionId, String profileId, String pid, String key);
 
     /**
-     * sets the configuration value for the given key
-     *
-     * @param versionId     the version
-     * @param profileId     the profile id
-     * @param pid           the pid
-     * @param key           the key
-     * @param value         the value
+     * Sets the configuration value for the given key
      */
     void setConfigurationValue(String versionId, String profileId, String pid, String key, String value);
 
