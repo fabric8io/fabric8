@@ -1,7 +1,7 @@
 function configure_hostnames() {
   CLOUD_PROVIDER=$1
   case $CLOUD_PROVIDER in
-    aws-ec2 )
+    openstack-nova | ec2 | aws-ec2 )
       echo "Resolving public hostname for ec2 node"
       export PUBLIC_HOSTNAME=`curl http://169.254.169.254/latest/meta-data/public-hostname | sed 's/ /_/g'`
       echo PUBLIC_HOSTNAME
