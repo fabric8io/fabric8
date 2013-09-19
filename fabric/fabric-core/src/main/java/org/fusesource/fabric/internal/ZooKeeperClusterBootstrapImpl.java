@@ -29,6 +29,9 @@ import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.Immutable;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.HostUtils;
@@ -48,6 +51,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -58,9 +62,10 @@ import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
-@Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true) // Done
 @Service(ZooKeeperClusterBootstrap.class)
-public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
+public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
@@ -70,25 +75,33 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
-    private Map<String, String> configuration;
-    private BundleContext bundleContext;
+    @Immutable
+    static class ComponentState {
+        private final Map<String, String> configuration;
+        private final BundleContext bundleContext;
+        ComponentState (BundleContext bundleContext, Map<String,String> configuration) {
+            this.bundleContext = bundleContext;
+            this.configuration = Collections.unmodifiableMap(configuration);
+        }
+        Map<String, String> getConfiguration() {
+            return configuration;
+        }
+        BundleContext getBundleContext() {
+            return bundleContext;
+        }
+    }
+    @GuardedBy("this") private ComponentState componentState;
 
     @Activate
     synchronized void activate(BundleContext bundleContext, Map<String,String> configuration) {
-        this.bundleContext = bundleContext;
-        activateComponent();
-        try {
-            this.configuration = configuration;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    create();
-                }
-            }).start();
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
-        }
+        componentState = new ComponentState (bundleContext, configuration);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                createOnActivate();
+                activateComponent();
+            }
+        }).start();
     }
 
     @Deactivate
@@ -96,9 +109,12 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
         deactivateComponent();
     }
 
-    void create() {
-        org.apache.felix.utils.properties.Properties userProps = null;
+    synchronized ComponentState getComponentState() {
+        return componentState;
+    }
 
+    private void createOnActivate() {
+        org.apache.felix.utils.properties.Properties userProps = null;
         try {
             userProps = new org.apache.felix.utils.properties.Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
         } catch (IOException e) {
@@ -106,11 +122,17 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
         }
         CreateEnsembleOptions createOpts = CreateEnsembleOptions.builder().fromSystemProperties().users(userProps).build();
         if (createOpts.isEnsembleStart()) {
-            create(createOpts);
+            createInternal(createOpts);
         }
     }
 
+    @Override
     public void create(CreateEnsembleOptions options) {
+        assertValid();
+        createInternal(options);
+	}
+
+    private synchronized void createInternal(CreateEnsembleOptions options) {
         try {
             int minimumPort = options.getMinimumPort();
             int maximumPort = options.getMaximumPort();
@@ -123,6 +145,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
             // Create configuration
             updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
+            Map<String, String> configuration = getComponentState().getConfiguration();
             registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
 
             // Create the client configuration
@@ -141,10 +164,13 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
 		}
-	}
+    }
 
+    @Override
     public void clean() {
+        assertValid();
         try {
+            BundleContext bundleContext = componentState.getBundleContext();
             Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-zookeeper",
                     "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
 
@@ -236,8 +262,9 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
     }
 
 
-    public void startBundles(CreateEnsembleOptions options) throws BundleException {
+    private void startBundles(CreateEnsembleOptions options) throws BundleException {
         // Install or stop the fabric-configadmin bridge
+        BundleContext bundleContext = getComponentState().getBundleContext();
         Bundle bundleFabricAgent = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
                 "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
         Bundle bundleFabricConfigAdmin = instalBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
@@ -305,7 +332,7 @@ public class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements 
         return writer.toString();
     }
 
-    public static Properties getProperties(CuratorFramework client, String file, Properties defaultValue) throws Exception {
+    private static Properties getProperties(CuratorFramework client, String file, Properties defaultValue) throws Exception {
         try {
             String v = getStringData(client, file);
             if (v != null) {
