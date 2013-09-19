@@ -26,6 +26,7 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -49,6 +50,7 @@ public class JoinTest extends FabricTestSupport {
 	}
 
 	@Test
+    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 	public void testJoin() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
