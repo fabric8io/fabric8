@@ -68,9 +68,8 @@ public class DynamicReference<T> implements Callable<T> {
             try {
                 semaphore.tryAcquire(remaining, timeUnit);
                 value = ref.get();
-            } catch (Exception ex) {
-                //Interrupted while waiting.
-                value = null;
+            } catch (InterruptedException ex) {
+                throw new DynamicReferenceException("Interrupted while waiting for dynamic reference.", ex);
             }
             remaining = timeout + startAt - System.currentTimeMillis();
         }
