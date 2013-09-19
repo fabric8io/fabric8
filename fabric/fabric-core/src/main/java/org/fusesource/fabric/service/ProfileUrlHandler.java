@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -35,54 +34,56 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.scr.InvalidComponentException;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.Validatable;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.api.scr.ValidationSupport;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 
-@Component(name = "org.fusesource.fabric.profile.urlhandler", description = "Fabric Profile URL Handler", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.profile.urlhandler", description = "Fabric Profile URL Handler", immediate = true) // Done
 @Service(URLStreamHandlerService.class)
 @Properties({
         @Property(name = "url.handler.protocol", value = "profile")
 })
-public class ProfileUrlHandler extends AbstractURLStreamHandlerService implements Validatable {
+public final class ProfileUrlHandler extends AbstractURLStreamHandlerService implements Validatable {
 
     private static final String SYNTAX = "profile:<resource name>";
 
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    private final AtomicBoolean active = new AtomicBoolean();
+    private final ValidationSupport active = new ValidationSupport();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
-        active.set(true);
+    void activate(ComponentContext context) {
+        active.setValid();;
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        active.set(false);
+    void deactivate() {
+        active.setInvalid();;
     }
 
     @Override
-    public synchronized boolean isValid() {
-        return active.get();
+    public boolean isValid() {
+        return active.isValid();
     }
 
     @Override
-    public synchronized void assertValid() {
-        if (isValid() == false)
-            throw new InvalidComponentException();
+    public void assertValid() {
+        active.assertValid();
     }
 
     @Override
     public URLConnection openConnection(URL url) throws IOException {
+        assertValid();
         return new Connection(url);
     }
 
-    public class Connection extends URLConnection {
+    private class Connection extends URLConnection {
 
         public Connection(URL url) throws MalformedURLException {
             super(url);
@@ -99,10 +100,12 @@ public class ProfileUrlHandler extends AbstractURLStreamHandlerService implement
 
         @Override
         public void connect() throws IOException {
+            assertValid();
         }
 
         @Override
         public InputStream getInputStream() throws IOException {
+            assertValid();
             String path = url.getPath();
             Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
 

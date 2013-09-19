@@ -18,38 +18,39 @@ package org.fusesource.fabric.api.scr;
 
 
 /**
- * An abstract base class for validatable components.
+ * Provides validation support.
  *
  * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
-public abstract class AbstractComponent implements Validatable {
+public final class ValidationSupport implements Validatable {
 
     /* This uses volatile to make sure that every thread sees the last written value
      *
      * - The use of AtomicBoolean would be wrong because it does not guarantee that
      *   prior written state is also seen by other threads
-     *
-     * - Synchronizing all methods in here would also work, but would effectively cause
-     *   a lock acquisition on every public method in every component
      */
-    private ValidationSupport active = new ValidationSupport();
+    private volatile boolean valid;
 
-    public void activateComponent() {
-        active.setValid();
+    public void setValid() {
+        valid = true;
     }
 
-    public void deactivateComponent() {
-        active.setInvalid();
+    public void setInvalid() {
+        valid = false;
     }
 
     @Override
     public boolean isValid() {
-        return active.isValid();
+        return valid;
     }
 
     @Override
     public void assertValid() {
-        active.assertValid();
+        if (!valid) {
+            RuntimeException rte = new InvalidComponentException();
+            rte.printStackTrace();
+            throw rte;
+        }
     }
 }
