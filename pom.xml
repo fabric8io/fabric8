@@ -103,6 +103,7 @@
         <fmc-port>8107</fmc-port>
 
         <fabric.version>7.3.0.redhat-SNAPSHOT</fabric.version>
+        <fabric-perfectus-version>7.3.0.redhat-${perfectus-build}</fabric-perfectus-version>
         <fuse.version>6.1.0.redhat-SNAPSHOT</fuse.version>
         <full-perfectus-build>610${perfectus-build}</full-perfectus-build>
 
