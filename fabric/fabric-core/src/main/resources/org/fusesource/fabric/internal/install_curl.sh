@@ -5,7 +5,6 @@ function install_curl() {
   else
     echo "Installing curl."
     if which dpkg &> /dev/null; then
-      sudo -n apt-get update
       sudo -n apt-get -y install curl
     elif which rpm &> /dev/null; then
      sudo -n yum -y install curl

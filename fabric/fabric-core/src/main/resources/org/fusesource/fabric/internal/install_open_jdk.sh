@@ -1,5 +1,4 @@
 function install_openjdk_deb() {
-  sudo -n apt-get update
   sudo -n apt-get -y install openjdk-7-jdk
   
   # Try to set JAVA_HOME in a number of commonly used locations
@@ -14,28 +13,28 @@ function install_openjdk_deb() {
   fi
 
   if [ -f /etc/profile ]; then
-    sudo -n echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> /etc/profile"
   fi
   if [ -f /etc/bashrc ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> /etc/bashrc
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> /etc/bashrc"
   fi
   if [ -f ~root/.bashrc ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> ~root/.bashrc
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> ~root/.bashrc"
   fi
   if [ -f /etc/skel/.bashrc ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> /etc/skel/.bashrc
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> /etc/skel/.bashrc"
   fi
   if [ -f "$DEFAULT_HOME/$NEW_USER" ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> $DEFAULT_HOME/$NEW_USER
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> $DEFAULT_HOME/$NEW_USER"
   fi
 
-  sudo -n  update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
-  sudo -n  update-alternatives --set java $JAVA_HOME/bin/java
+  sudo -n update-alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
+  sudo -n update-alternatives --set java $JAVA_HOME/bin/java
   java -version
 }
 
 function install_openjdk_rpm() {
-  sudo -n  yum install -y java-1.7.0-openjdk java-1.7.0-openjdk-devel
+  sudo -n yum -y install java-1.7.0-openjdk-devel
   
   # Try to set JAVA_HOME in a number of commonly used locations
   # Lifting JAVA_HOME detection from jclouds
@@ -49,23 +48,23 @@ function install_openjdk_rpm() {
   fi
 
   if [ -f /etc/profile ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> /etc/profile
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> /etc/profile"
   fi
   if [ -f /etc/bashrc ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> /etc/bashrc
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> /etc/bashrc"
   fi
   if [ -f ~root/.bashrc ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> ~root/.bashrc
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> ~root/.bashrc"
   fi
   if [ -f /etc/skel/.bashrc ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> /etc/skel/.bashrc
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> /etc/skel/.bashrc"
   fi
   if [ -f "$DEFAULT_HOME/$NEW_USER" ]; then
-    sudo -n  echo export JAVA_HOME=$JAVA_HOME >> $DEFAULT_HOME/$NEW_USER
+    sudo -n "echo 'export JAVA_HOME=$JAVA_HOME' >> $DEFAULT_HOME/$NEW_USER"
   fi
 
-  sudo -n  alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
-  sudo -n  alternatives --set java $JAVA_HOME/bin/java
+  sudo -n alternatives --install /usr/bin/java java $JAVA_HOME/bin/java 17000
+  sudo -n alternatives --set java $JAVA_HOME/bin/java
   java -version
 }
 
