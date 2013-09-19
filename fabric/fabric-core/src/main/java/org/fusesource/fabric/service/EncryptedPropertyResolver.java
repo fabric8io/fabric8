@@ -28,15 +28,17 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.jasypt.encryption.pbe.PBEStringEncryptor;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.osgi.service.component.ComponentContext;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.crypt", description = "Fabric Encrypted Property Placeholder Resolver")
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.placholder.resolver.crypt", description = "Fabric Encrypted Property Placeholder Resolver") // Done
 @Service(PlaceholderResolver.class)
-public class EncryptedPropertyResolver extends AbstractComponent implements PlaceholderResolver {
+public final class EncryptedPropertyResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final String CRYPT_SCHEME = "crypt";
 
@@ -44,12 +46,12 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
@@ -59,7 +61,8 @@ public class EncryptedPropertyResolver extends AbstractComponent implements Plac
     }
 
     @Override
-    public synchronized String resolve(String pid, String key, String value) {
+    public String resolve(String pid, String key, String value) {
+        assertValid();
         return getEncryptor().decrypt(value.substring(CRYPT_SCHEME.length() + 1));
     }
 
