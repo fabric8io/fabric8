@@ -38,6 +38,7 @@ public class DeploymentTask {
     private final Container container;
     private final String webAppDir;
     private final String deployDir;
+    private boolean copyFilesIntoGit = false;
 
 
     public DeploymentTask(DownloadManager downloadManager, Container container, String webAppDir,
@@ -54,13 +55,34 @@ public class DeploymentTask {
         Profile profile = container.getOverlayProfile();
         bundles.addAll(profile.getBundles());
         addFeatures(features, profile);
-/*
-        Profile[] profiles = container.getProfiles();
-        for (Profile profile : profiles) {
-            bundles.addAll(profile.getBundles());
-            addFeatures(features, profile);
+
+        if (copyFilesIntoGit) {
+            copyDeploymentsIntoGit(git, baseDir, bundles, features);
+        } else {
+            addDeploymentsIntoPom(git, baseDir, bundles, features);
         }
-*/
+
+        // now lets do a commit
+        String message = "updating deployment";
+        git.commit().setMessage(message).call();
+
+        enableDeployDirectory(git, baseDir);
+
+        String branch = GitHelpers.currentBranch(git);
+        LOG.info("Pushing deployment changes to branch " + branch
+                + " credentials " + credentials + " for container " + container.getId());
+        try {
+            git.push().setCredentialsProvider(credentials).setRefSpecs(new RefSpec(branch)).setProgressMonitor(new LoggingProgressMonitor(LOG)).call();
+            LOG.info("Pushed deployment changes to branch " + branch + " for container " + container.getId());
+        } catch (GitAPIException e) {
+            LOG.error("Failed to push deployment changes to branch " + branch + " for container " + container.getId() + ". Reason: " + e, e);
+        }
+    }
+
+    /**
+     * Lets download all the deployments and copy them into the {@link #webAppDir} or {@link #deployDir} in git
+     */
+    protected void copyDeploymentsIntoGit(Git git, File baseDir, Set<String> bundles, Set<Feature> features) throws Exception {
         List<String> webAppFilesToDelete = filesToDelete(baseDir, webAppDir);
         List<String> deployDirFilesToDelete = filesToDelete(baseDir, deployDir);
 
@@ -97,23 +119,16 @@ public class DeploymentTask {
             deleteFiles(git, baseDir, webAppDir, webAppFilesToDelete);
             deleteFiles(git, baseDir, deployDir, deployDirFilesToDelete);
         }
-        
-        // now lets do a commit
-        String message = "updating deployment";
-        git.commit().setMessage(message).call();
-
-        enableDeployDirectory(git, baseDir);
-
-        String branch = GitHelpers.currentBranch(git);
-        LOG.info("Pushing deployment changes to branch " + branch
-                + " credentials " + credentials + " for container " + container.getId());
-        try {
-            git.push().setCredentialsProvider(credentials).setRefSpecs(new RefSpec(branch)).call();
-            LOG.info("Pushed deployment changes to branch " + branch + " for container " + container.getId());
-        } catch (GitAPIException e) {
-            LOG.error("Failed to push deployment changes to branch " + branch + " for container " + container.getId() + ". Reason: " + e, e);
-        }
     }
+
+
+    /**
+     * Copy the various deployments into the pom.xml so that after the push, OpenShift will
+     * run the build and download the deployments into the {@link #webAppDir} or {@link #deployDir}
+     */
+    protected void addDeploymentsIntoPom(Git git, File baseDir, Set<String> bundles, Set<Feature> features) {
+    }
+
 
     /**
      * Checks things like Tomcat to see if the deployDir needs to be added to the shared class loader
@@ -225,5 +240,13 @@ public class DeploymentTask {
 
     public String getDeployDir() {
         return deployDir;
+    }
+
+    public boolean isCopyFilesIntoGit() {
+        return copyFilesIntoGit;
+    }
+
+    public void setCopyFilesIntoGit(boolean copyFilesIntoGit) {
+        this.copyFilesIntoGit = copyFilesIntoGit;
     }
 }
