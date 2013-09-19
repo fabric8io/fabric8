@@ -27,14 +27,16 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.Ports;
 import org.osgi.service.component.ComponentContext;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.port", description = "Fabric Port Placeholder Resolver", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.placholder.resolver.port", description = "Fabric Port Placeholder Resolver", immediate = true) // Done
 @Service(PlaceholderResolver.class)
-public class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
+public final class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final String PORT_SCHEME = "port";
     private static final Pattern PORT_PROPERTY_URL_PATTERN = Pattern.compile("port:([\\d]+),([\\d]+)");
@@ -71,7 +73,8 @@ public class PortPlaceholderResolver extends AbstractComponent implements Placeh
      * @return The resolved value or EMPTY_STRING.
      */
     @Override
-    public synchronized String resolve(String pid, String key, String value) {
+    public String resolve(String pid, String key, String value) {
+        assertValid();
         Matcher matcher = PORT_PROPERTY_URL_PATTERN.matcher(value);
         if (!matcher.matches()) {
             throw new IllegalArgumentException("Value doesn't match the port substitution pattern: port:<from port>,<to port>");
