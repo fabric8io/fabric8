@@ -96,12 +96,11 @@ public final class PlaceholderResolverHelpers {
      * @param resolvers     A {@link ConcurrentMap} of schemes -> {@link DynamicReference} of {@link PlaceholderResolver}.
      * @return              The actual {@link Map} of schemes -> {@link PlaceholderResolver}.
      */
-    public static Map<String, PlaceholderResolver> waitForPlaceHolderResolvers(ExecutorService executor, Set<String> schemes, ConcurrentMap<String, DynamicReference<PlaceholderResolver>> resolvers)  {
-        final Map<String, PlaceholderResolver> available = new HashMap<String, PlaceholderResolver>();
+     public static Map<String, PlaceholderResolver> waitForPlaceHolderResolvers(ExecutorService executor, Set<String> schemes, Map<String, DynamicReference<PlaceholderResolver>> resolvers)  {
+        final Map<String, PlaceholderResolver> result = new HashMap<String, PlaceholderResolver>();
         final Set<String> notFound = new HashSet<String>(schemes);
         CompletionService<PlaceholderResolver> completionService = new ExecutorCompletionService<PlaceholderResolver>(executor);
         for (String scheme : schemes) {
-            resolvers.putIfAbsent(scheme, new DynamicReference<PlaceholderResolver>());
             completionService.submit(resolvers.get(scheme));
         }
         try {
@@ -109,7 +108,7 @@ public final class PlaceholderResolverHelpers {
                 try {
                     PlaceholderResolver resolver = completionService.take().get();
                     if (resolver != null) {
-                        available.put(resolver.getScheme(), resolver);
+                        result.put(resolver.getScheme(), resolver);
                         notFound.remove(resolver.getScheme());
                     }
                 } catch (ExecutionException ex) {
@@ -128,7 +127,7 @@ public final class PlaceholderResolverHelpers {
             }
             throw new FabricException(sb.toString());
         }
-        return available;
+        return result;
     }
 
 }

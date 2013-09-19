@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.api.scr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * An abstract base class for validatable components.
@@ -24,6 +27,8 @@ package org.fusesource.fabric.api.scr;
  * @since 13-Sep-2013
  */
 public abstract class AbstractComponent implements Validatable {
+
+    private static final transient Logger LOG = LoggerFactory.getLogger(AbstractComponent.class);
 
     /* This uses volatile to make sure that every thread sees the last written value
      *
@@ -37,9 +42,11 @@ public abstract class AbstractComponent implements Validatable {
 
     public void activateComponent() {
         active.setValid();
+        LOG.info("activateComponent: " + this);
     }
 
     public void deactivateComponent() {
+        LOG.info("deactivateComponent: " + this);
         active.setInvalid();
     }
 

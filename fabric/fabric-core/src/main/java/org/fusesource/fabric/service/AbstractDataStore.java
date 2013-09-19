@@ -27,7 +27,10 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DynamicReference;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.InvalidComponentException;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.utils.Base64Encoder;
@@ -71,128 +74,90 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-/**
- */
+@ThreadSafe
 public abstract class AbstractDataStore extends AbstractComponent implements DataStore, PathChildrenCacheListener {
+
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDataStore.class);
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
 
-    private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
 
-    //We are using an external ExecutorService to prevent IllegalThreadStateExceptions when the cache is starting.
-    private ExecutorService cacheExecutor;
-    private ExecutorService placeholderExecutor;
+    private final ExecutorService cacheExecutor = Executors.newSingleThreadExecutor();
+    private final ExecutorService placeholderExecutor = Executors.newCachedThreadPool();
+    private final AtomicBoolean active = new AtomicBoolean(false);
 
-    private AtomicBoolean started = new AtomicBoolean(false);
-    private Map<String, String> dataStoreProperties;
-
-    protected TreeCache treeCache;
+    @GuardedBy("ConcurrentHashMap") private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
+    @GuardedBy("CopyOnWriteArrayList") private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
+    @GuardedBy("this") private Map<String, String> dataStoreProperties;
+    @GuardedBy("active") private volatile TreeCache treeCache;
 
     @Override
     public abstract void importFromFileSystem(String from);
 
-    public synchronized void start() {
+    @Override
+    public void start() {
         try {
-        if (started.compareAndSet(false, true)) {
-            LOG.info("Starting up DataStore " + this);
-            createCache(getCurator());
-            placeholderExecutor = Executors.newCachedThreadPool();
-        }
-        }catch (Exception ex) {
+            if (active.compareAndSet(false, true)) {
+                LOG.info("Starting up DataStore " + this);
+                treeCache = new TreeCache(getCurator(), ZkPath.CONFIGS.getPath(), true, false, true, cacheExecutor);
+                treeCache.start(TreeCache.StartMode.NORMAL);
+                treeCache.getListenable().addListener(this);
+            }
+        } catch (FabricException ex) {
+            throw ex;
+        } catch (Exception ex) {
             throw new FabricException("Failed to start data store.", ex);
         }
     }
 
-    public synchronized void stop() {
-        if (started.compareAndSet(true, false)) {
-            destroyCache();
+    @Override
+    public void stop() {
+        if (active.compareAndSet(true, false)) {
+            treeCache.getListenable().removeListener(this);
+            Closeables.closeQuitely(treeCache);
+            treeCache = null;
+
+            cacheExecutor.shutdownNow();
             placeholderExecutor.shutdownNow();
         }
     }
 
-    public Map<String, String> getDataStoreProperties() {
-        return dataStoreProperties;
+    protected TreeCache getTreeCache() {
+        if (!active.get())
+            throw new InvalidComponentException();
+        return treeCache;
     }
 
-    /**
-     * Sets the configuration properties for this DataStore implementation
-     */
-    public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
-        this.dataStoreProperties = dataStoreProperties;
+    @Override
+    public synchronized Map<String, String> getDataStoreProperties() {
+        assertValid();
+        return Collections.unmodifiableMap(dataStoreProperties);
     }
 
-    public ConcurrentMap<String, DynamicReference<PlaceholderResolver>> getPlaceholderResolvers() {
-        return placeholderResolvers;
-    }
-
-    public CuratorFramework getCurator() {
-        return curator.get();
-    }
-
-    public void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
-    }
-
-    public void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
-    }
-
-    public synchronized void bindPlaceholderResolver(PlaceholderResolver resolver) {
-        if (resolver != null) {
-            placeholderResolvers.putIfAbsent(resolver.getScheme(), new DynamicReference<PlaceholderResolver>());
-            placeholderResolvers.get(resolver.getScheme()).bind(resolver);
-        }
-    }
-
-    public synchronized void unbindPlaceholderResolver(PlaceholderResolver resolver) {
-        if (resolver != null) {
-            placeholderResolvers.get(resolver.getScheme()).unbind();
-        }
-    }
-
-    private synchronized void createCache(CuratorFramework curator) throws Exception {
-        cacheExecutor = Executors.newSingleThreadExecutor();
-        treeCache = new TreeCache(curator, ZkPath.CONFIGS.getPath(), true, false, true, cacheExecutor);
-        treeCache.start(TreeCache.StartMode.NORMAL);
-        treeCache.getListenable().addListener(this);
-    }
-
-    private synchronized void destroyCache() {
-        if (treeCache != null) {
-            treeCache.getListenable().removeListener(this);
-            Closeables.closeQuitely(treeCache);
-            treeCache = null;
-            cacheExecutor.shutdownNow();
-        }
+    @Override
+    public synchronized void setDataStoreProperties(Map<String, String> dataStoreProperties) {
+        assertValid();
+        this.dataStoreProperties = new HashMap<String, String>(dataStoreProperties);
     }
 
     @Override
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
-        switch (event.getType()) {
-        case CHILD_ADDED:
-        case CHILD_REMOVED:
-        case CHILD_UPDATED:
-        case INITIALIZED:
-            runCallbacks();
-            break;
+        if (isValid()) {
+            switch (event.getType()) {
+            case CHILD_ADDED:
+            case CHILD_REMOVED:
+            case CHILD_UPDATED:
+            case INITIALIZED:
+                runCallbacks();
+                break;
+        }
         }
     }
 
-    public void trackConfiguration(Runnable callback) {
-        callbacks.addIfAbsent(callback);
-    }
-
-    @Override
-    public void unTrackConfiguration(Runnable callback) {
-        callbacks.remove(callback);
-    }
-
-
     protected void runCallbacks() {
+        assertValid();
         for (Runnable callback : callbacks) {
             try {
                 if (LOG.isDebugEnabled()) {
@@ -205,27 +170,35 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         }
     }
 
-    // PlaceholderResolver stuff
-    //-------------------------------------------------------------------------
-
-    public BundleContext getBundleContext() {
-        try {
-            return FrameworkUtil.getBundle(AbstractDataStore.class).getBundleContext();
-        } catch (Throwable t) {
-            return null;
+    @Override
+    public void trackConfiguration(Runnable callback) {
+        if (isValid()) {
+            callbacks.addIfAbsent(callback);
         }
     }
 
+    @Override
+    public void untrackConfiguration(Runnable callback) {
+        callbacks.remove(callback);
+    }
+
+    // PlaceholderResolver stuff
+    //-------------------------------------------------------------------------
+
     /**
-     * Performs substitution to configuration based on the registered {@link org.fusesource.fabric.api.PlaceholderResolver} instances.
-     *
-     * @param configs
+     * Performs substitution to configuration based on the registered {@link PlaceholderResolver} instances.
      */
-    public synchronized void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+    public void substituteConfigurations(final Map<String, Map<String, String>> configs) {
+        assertValid();
+
         //Check for all required resolver schemes.
         Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
+        for (String scheme : requiredSchemes) {
+            placeholderResolvers.putIfAbsent(scheme, new DynamicReference<PlaceholderResolver>());
+        }
+
         //Wait for resolvers before starting to resolve.
-        final Map<String, PlaceholderResolver> availablePlaceholderResolvers = waitForPlaceHolderResolvers(placeholderExecutor, requiredSchemes, placeholderResolvers);
+        final Map<String, PlaceholderResolver> availableResolvers = waitForPlaceHolderResolvers(placeholderExecutor, requiredSchemes, getPlaceholderResolvers());
 
         for (Map.Entry<String, Map<String, String>> entry : configs.entrySet()) {
             final String pid = entry.getKey();
@@ -234,20 +207,30 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             for (Map.Entry<String, String> e : props.entrySet()) {
                 final String key = e.getKey();
                 final String value = e.getValue();
-                props.put(key, InterpolationHelper
-                        .substVars(value, key, null, props, new InterpolationHelper.SubstitutionCallback() {
-                            public String getValue(String toSubstitute) {
-                                if (toSubstitute != null && toSubstitute.contains(":")) {
-                                    String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
-                                    if (availablePlaceholderResolvers.containsKey(scheme)) {
-                                        return availablePlaceholderResolvers.get(scheme)
-                                                .resolve(pid, key, toSubstitute);
-                                    }
-                                }
-                                return substituteBundleProperty(toSubstitute, getBundleContext());
+                props.put(key, InterpolationHelper.substVars(value, key, null, props, new InterpolationHelper.SubstitutionCallback() {
+                    public String getValue(String toSubstitute) {
+                        if (toSubstitute != null && toSubstitute.contains(":")) {
+                            String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
+                            if (availableResolvers.containsKey(scheme)) {
+                                return availableResolvers.get(scheme).resolve(pid, key, toSubstitute);
                             }
-                        }));
+                        }
+                        return substituteBundleProperty(toSubstitute, getBundleContext());
+                    }
+                }));
             }
+        }
+    }
+
+    private Map<String, DynamicReference<PlaceholderResolver>> getPlaceholderResolvers() {
+        return Collections.unmodifiableMap(placeholderResolvers);
+    }
+
+    private BundleContext getBundleContext() {
+        try {
+            return FrameworkUtil.getBundle(AbstractDataStore.class).getBundleContext();
+        } catch (Throwable t) {
+            return null;
         }
     }
 
@@ -256,20 +239,23 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
 
     @Override
     public List<String> getContainers() {
+        assertValid();
         try {
             return getChildren(getCurator(), ZkPath.CONFIGS_CONTAINERS.getPath());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public boolean hasContainer(String containerId) {
+        assertValid();
         return getContainers().contains(containerId);
     }
 
     @Override
     public String getContainerParent(String containerId) {
+        assertValid();
         try {
             String parentName = getStringData(getCurator(), ZkPath.CONTAINER_PARENT.getPath(containerId));
             return parentName != null ? parentName.trim() : "";
@@ -277,12 +263,13 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             // Ignore
             return "";
         } catch (Throwable e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public void deleteContainer(String containerId) {
+        assertValid();
         try {
             if (getCurator() == null) {
                 throw new IllegalStateException("Zookeeper service not available");
@@ -296,12 +283,13 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             deleteSafe(getCurator(), ZkPath.CONTAINER_DOMAINS.getPath(containerId));
             deleteSafe(getCurator(), ZkPath.CONTAINER_PROVISION.getPath(containerId));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public void createContainerConfig(CreateContainerMetadata metadata) {
+        assertValid();
         try {
             CreateContainerOptions options = metadata.getCreateOptions();
             String containerId = metadata.getContainerName();
@@ -321,8 +309,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             }
 
             setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
-            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId),
-                    sb.toString());
+            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
             setData(getCurator(), ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
 
             setContainerMetadata(metadata);
@@ -331,16 +318,13 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             for (Map.Entry<String, String> entry : configuration.entrySet()) {
                 String key = entry.getKey();
                 String value = entry.getValue();
-                setData(getCurator(), ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key),
-                        value);
+                setData(getCurator(), ZkPath.CONTAINER_ENTRY.getPath(metadata.getContainerName(), key), value);
             }
 
             // If no resolver specified but a resolver is already present in the registry, use the registry value
-            String resolver = metadata.getOverridenResolver() != null ? metadata.getOverridenResolver()
-                    : options.getResolver();
+            String resolver = metadata.getOverridenResolver() != null ? metadata.getOverridenResolver() : options.getResolver();
 
-            if (resolver == null
-                    && exists(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
+            if (resolver == null && exists(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId)) != null) {
                 resolver = getStringData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId));
             } else if (options.getResolver() != null) {
                 // Use the resolver specified in the options and do nothing.
@@ -353,29 +337,27 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             }
             // Set the resolver if not already set
             setData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId), resolver);
-        } catch (FabricException e) {
-            throw e;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public CreateContainerMetadata getContainerMetadata(String containerId, final ClassLoader classLoader) {
+        assertValid();
         try {
-            byte[] encoded = getByteData(treeCache, ZkPath.CONTAINER_METADATA.getPath(containerId));
+            byte[] encoded = getByteData(getTreeCache(), ZkPath.CONTAINER_METADATA.getPath(containerId));
             if (encoded == null) {
                 return null;
             }
             byte[] decoded = Base64Encoder.decode(encoded);
             ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decoded)) {
                 @Override
-                protected Class<?> resolveClass(ObjectStreamClass desc)
-                        throws IOException, ClassNotFoundException {
+                protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
                     return classLoader.loadClass(desc.getName());
                 }
             };
-            return (CreateContainerMetadata)ois.readObject();
+            return (CreateContainerMetadata) ois.readObject();
         } catch (ClassNotFoundException e) {
             return null;
         } catch (InvalidClassException e) {
@@ -383,61 +365,60 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         } catch (KeeperException.NoNodeException e) {
             return null;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public void setContainerMetadata(CreateContainerMetadata metadata) {
+        assertValid();
         //We encode the metadata so that they are more friendly to import/export.
         try {
-            setData(getCurator(), ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()),
-                    Base64Encoder.encode(
-                            ObjectUtils.toBytes(metadata)));
+            setData(getCurator(), ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public String getContainerVersion(String containerId) {
+        assertValid();
         try {
-            return getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            return getStringData(getTreeCache(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public void setContainerVersion(String containerId, String versionId) {
+        assertValid();
         try {
             String oldVersionId = getStringData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            String oldProfileIds = getStringData(getCurator(),
-                    ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(oldVersionId, containerId));
+            String oldProfileIds = getStringData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(oldVersionId, containerId));
 
-            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId),
-                    oldProfileIds);
+            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), oldProfileIds);
             setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public List<String> getContainerProfiles(String containerId) {
+        assertValid();
         try {
-            String versionId = getStringData(treeCache, ZkPath.CONFIG_CONTAINER.getPath(containerId));
-            String str = getStringData(treeCache,
-                    ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
-            return str == null || str.isEmpty() ? Collections.<String>emptyList() : Arrays
-                    .asList(str.trim().split(" +"));
+            String versionId = getStringData(getTreeCache(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
+            String str = getStringData(getTreeCache(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
+            return str == null || str.isEmpty() ? Collections.<String> emptyList() : Arrays.asList(str.trim().split(" +"));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public void setContainerProfiles(String containerId, List<String> profileIds) {
+        assertValid();
         try {
             String versionId = getStringData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
             StringBuilder sb = new StringBuilder();
@@ -447,31 +428,30 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
                 }
                 sb.append(profileId);
             }
-            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId),
-                    sb.toString());
+            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public boolean isContainerAlive(String id) {
+        assertValid();
         try {
             return exists(getCurator(), ZkPath.CONTAINER_ALIVE.getPath(id)) != null;
         } catch (KeeperException.NoNodeException e) {
             return false;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
-    public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def,
-                                        boolean mandatory, boolean substituted) {
+    public String getContainerAttribute(String containerId, ContainerAttribute attribute, String def, boolean mandatory, boolean substituted) {
+        assertValid();
         if (attribute == ContainerAttribute.Domains) {
             try {
-                List<String> list = getCurator().getChildren()
-                        .forPath(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
+                List<String> list = getCurator().getChildren().forPath(ZkPath.CONTAINER_DOMAINS.getPath(containerId));
                 Collections.sort(list);
                 StringBuilder sb = new StringBuilder();
                 for (String l : list) {
@@ -493,90 +473,90 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
                 }
             } catch (KeeperException.NoNodeException e) {
                 if (mandatory) {
-                    throw new FabricException(e);
+                    throw FabricException.rethrow(e);
                 }
                 return def;
             } catch (Exception e) {
-                throw new FabricException(e);
+                throw FabricException.rethrow(e);
             }
         }
     }
 
     @Override
     public void setContainerAttribute(String containerId, ContainerAttribute attribute, String value) {
+        assertValid();
         // Special case for resolver
         // TODO: we could use a double indirection on the ip so that it does not need to change
         // TODO: something like ${zk:container/${zk:container/resolver}}
         if (attribute == ContainerAttribute.Resolver) {
             try {
-                setData(getCurator(), ZkPath.CONTAINER_IP.getPath(containerId),
-                        "${zk:" + containerId + "/" + value + "}");
+                setData(getCurator(), ZkPath.CONTAINER_IP.getPath(containerId), "${zk:" + containerId + "/" + value + "}");
                 setData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId), value);
             } catch (Exception e) {
-                throw new FabricException(e);
+                throw FabricException.rethrow(e);
             }
         } else {
             try {
-//                if (value == null) {
-//                    deleteSafe(zk, getAttributePath(containerId, attribute));
-//                } else {
+                //                if (value == null) {
+                //                    deleteSafe(zk, getAttributePath(containerId, attribute));
+                //                } else {
                 setData(getCurator(), getAttributePath(containerId, attribute), value);
-//                }
+                //                }
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Exception e) {
-                throw new FabricException(e);
+                throw FabricException.rethrow(e);
             }
         }
     }
 
     @Override
     public String getDefaultVersion() {
+        assertValid();
         try {
             String version = null;
-            if (treeCache.getCurrentData(ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
-                version = getStringData(treeCache, ZkPath.CONFIG_DEFAULT_VERSION.getPath());
+            if (getTreeCache().getCurrentData(ZkPath.CONFIG_DEFAULT_VERSION.getPath()) != null) {
+                version = getStringData(getTreeCache(), ZkPath.CONFIG_DEFAULT_VERSION.getPath());
             }
             if (version == null || version.isEmpty()) {
                 version = ZkDefs.DEFAULT_VERSION;
                 setData(getCurator(), ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);
-                setData(getCurator(), ZkPath.CONFIG_VERSION.getPath(version), (String)null);
+                setData(getCurator(), ZkPath.CONFIG_VERSION.getPath(version), (String) null);
             }
             return version;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
 
     @Override
     public void setDefaultVersion(String versionId) {
+        assertValid();
         try {
             setData(getCurator(), ZkPath.CONFIG_DEFAULT_VERSION.getPath(), versionId);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
     }
-
 
     // Profile methods
     //-------------------------------------------------------------------------
 
     @Override
     public boolean hasProfile(String version, String profile) {
+        assertValid();
         return getProfile(version, profile, false) != null;
     }
-
 
     // Implementation
     //-------------------------------------------------------------------------
 
-
     private String getAttributePath(String containerId, ContainerAttribute attribute) {
         switch (attribute) {
         case BlueprintStatus:
-              return ZkPath.CONTAINER_EXTENDER_STATUS.getPath(containerId, "blueprint");
+            return ZkPath.CONTAINER_EXTENDER_STATUS.getPath(containerId, "blueprint");
         case SpringStatus:
-                return ZkPath.CONTAINER_EXTENDER_STATUS.getPath(containerId, "spring");
+            return ZkPath.CONTAINER_EXTENDER_STATUS.getPath(containerId, "spring");
         case ProvisionStatus:
             return ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerId);
         case ProvisionException:
@@ -626,19 +606,45 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
 
     @Override
     public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
+        assertValid();
         try {
             Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
             Map<String, byte[]> configs = getFileConfigurations(version, profile);
             for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
                 if (entry.getKey().endsWith(".properties")) {
                     String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
-                    configurations.put(pid,
-                            DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
+                    configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
                 }
             }
             return configurations;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.rethrow(e);
         }
+    }
+
+    public CuratorFramework getCurator() {
+        return curator.get();
+    }
+
+    // [FIXME] Test case polutes public API
+    public void bindCuratorForTesting(CuratorFramework curator) {
+        bindCurator(curator);
+    }
+
+    protected void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    protected void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
+    protected void bindPlaceholderResolver(PlaceholderResolver resolver) {
+        placeholderResolvers.putIfAbsent(resolver.getScheme(), new DynamicReference<PlaceholderResolver>());
+        placeholderResolvers.get(resolver.getScheme()).bind(resolver);
+    }
+
+    protected void unbindPlaceholderResolver(PlaceholderResolver resolver) {
+        placeholderResolvers.get(resolver.getScheme()).unbind();
     }
 }

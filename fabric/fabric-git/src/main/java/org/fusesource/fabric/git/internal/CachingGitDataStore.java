@@ -28,6 +28,8 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.osgi.service.component.ComponentContext;
 
 import java.io.File;
@@ -42,8 +44,8 @@ import java.util.Map;
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
  * and speed things up a little
  */
-
-@Component(name = "org.fusesource.datastore.git.caching", description = "Fabric Git Caching DataStore")
+@ThreadSafe
+@Component(name = "org.fusesource.datastore.git.caching", description = "Fabric Git Caching DataStore") // Done
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
@@ -51,47 +53,26 @@ import java.util.Map;
 }
 )
 @Service({DataStorePlugin.class, GitDataStore.class})
-public class CachingGitDataStore extends GitDataStore implements DataStorePlugin<GitDataStore> {
+public final class CachingGitDataStore extends GitDataStore implements DataStorePlugin<GitDataStore> {
 
     public static final String TYPE = "caching-git";
 
-    private static class VersionData {
-        Map<String, ProfileData> profiles;
-    }
-
-    private static class ProfileData {
-        long lastModified;
-        Map<String, byte[]> configurations;
-    }
-
     private static final VersionData NOT_LOADED = new VersionData();
 
-    private final Map<String, VersionData> cachedVersions = new HashMap<String, VersionData>();
+    @GuardedBy("cachedVersions") private final Map<String, VersionData> cachedVersions = new HashMap<String, VersionData>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
-        activateComponent();
+    void activate(ComponentContext context) {
+        super.activate(context);
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        try {
-            stop();
-        } finally {
-            deactivateComponent();
-        }
-    }
-
-    public void start() {
-        super.start();
-    }
-
-
-    public void stop() {
-        super.stop();
+    void deactivate() {
+        super.deactivate();
     }
 
     public List<String> getVersions() {
+        assertValid();
         List<String> versions = null;
         // See if we already have the list of versions
         synchronized (cachedVersions) {
@@ -115,6 +96,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     protected VersionData getVersionData(String version) {
+        assertValid();
         // Ensure the list of versions is loaded
         getVersions();
         VersionData data;
@@ -134,10 +116,10 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     protected VersionData loadVersion(final String version) {
+        assertValid();
         return gitReadOperation(new GitOperation<VersionData>() {
             public VersionData call(Git git, GitContext context) throws Exception {
                 VersionData data = new VersionData();
-                data.profiles = new HashMap<String, ProfileData>();
                 pouplateVersionData(git, version, data);
                 pouplateVersionData(git, "master", data);
                 return data;
@@ -146,6 +128,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     protected void pouplateVersionData(Git git, String branch, VersionData data) throws Exception {
+        assertValid();
         checkoutVersion(git, branch);
         File profilesDir = getProfilesDirectory(git);
         if (profilesDir.exists()) {
@@ -181,21 +164,19 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
             }
         }
 
-        ProfileData profileData = new ProfileData();
-        data.profiles.put(profile, profileData);
-        // configurations
-        profileData.configurations = doGetFileConfigurations(git, profile);
-        // last modified
-        File profileDirectory = file;
-        File metadataFile = new File(profileDirectory, AGENT_METADATA_FILE);
-        profileData.lastModified = profileDirectory.lastModified();
+        long lastModified = file.lastModified();
+        File metadataFile = new File(file, AGENT_METADATA_FILE);
         if (metadataFile.exists()) {
             long modified = metadataFile.lastModified();
-            profileData.lastModified = Math.max(profileData.lastModified, modified);
+            lastModified = Math.max(lastModified, modified);
         }
+        Map<String, byte[]> configurations = doGetFileConfigurations(git, profile);
+        ProfileData profileData = new ProfileData(lastModified, configurations);
+        data.profiles.put(profile, profileData);
     }
 
     public List<String> getProfiles(String version) {
+        assertValid();
         VersionData data = getVersionData(version);
         return data != null && data.profiles != null
                 ? new ArrayList<String>(data.profiles.keySet())
@@ -203,6 +184,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     }
 
     public boolean hasProfile(String version, String profile) {
+        assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
         return p != null;
@@ -210,24 +192,28 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
 
     @Override
     public long getLastModified(String version, String profile) {
+        assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
         return p.lastModified;
     }
 
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
+        assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
         return p.configurations != null ? p.configurations.get(fileName) : null;
     }
 
     public Map<String, byte[]> getFileConfigurations(String version, String profile) {
+        assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
         return p != null ? p.configurations : Collections.<String, byte[]>emptyMap();
     }
 
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
+        assertValid();
         Map<String, Map<String, String>> configs = getConfigurations(version, profile);
         if (configs.containsKey(pid)) {
             return configs.get(pid);
@@ -239,6 +225,7 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     @Override
     protected void clearCaches() {
         synchronized (cachedVersions) {
+            assertValid();
             cachedVersions.clear();
         }
     }
@@ -251,5 +238,18 @@ public class CachingGitDataStore extends GitDataStore implements DataStorePlugin
     @Override
     public CachingGitDataStore getDataStore() {
         return this;
+    }
+
+    private static class VersionData {
+        final Map<String, ProfileData> profiles = new HashMap<String, ProfileData>();
+    }
+
+    private static class ProfileData {
+        final long lastModified;
+        final Map<String, byte[]> configurations;
+        ProfileData(long lastModified, Map<String, byte[]> configurations) {
+            this.lastModified = lastModified;
+            this.configurations = configurations;
+        }
     }
 }

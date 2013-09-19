@@ -27,17 +27,18 @@ import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
-import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.osgi.service.component.ComponentContext;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,45 +69,44 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * This implementation requires the fabric-git-zkbridge if you wish to be able to use
  * git to store configuration
  */
-@Component(name = "org.fusesource.datastore.zookeeper", description = "Fabric ZooKeeper DataStore")
+@ThreadSafe
+@Component(name = "org.fusesource.datastore.zookeeper", description = "Fabric ZooKeeper DataStore") // Done
 @Service(DataStorePlugin.class)
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
 }
 )
-public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePlugin<ZooKeeperDataStore> {
+public final class ZooKeeperDataStore extends AbstractDataStore implements DataStorePlugin<ZooKeeperDataStore> {
 
     public static final String TYPE = "zookeeper";
 
     public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY};
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        try {
-            stop();
-        } finally {
-            deactivateComponent();
-        }
-    }
-
-    public synchronized void start() {
-        super.start();
-    }
-
-
-    public synchronized void stop() {
+    void deactivate() {
+        deactivateComponent();
         super.stop();
     }
 
+    @Override
+    public void start() {
+        throw new UnsupportedOperationException("DataStore life cycle is managed");
+    }
+
+    @Override
+    public void stop() {
+        throw new UnsupportedOperationException("DataStore life cycle is managed");
+    }
 
     @Override
     public void importFromFileSystem(String from) {
+        assertValid();
         try {
             ZookeeperImportUtils.importFromFileSystem(getCurator(), from, "/", null, null, false, false, false);
         } catch (Exception e) {
@@ -114,9 +114,9 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
         }
     }
 
-
     @Override
     public void createVersion(String version) {
+        assertValid();
         try {
             create(getCurator(), ZkPath.CONFIG_VERSION.getPath(version));
             create(getCurator(), ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version));
@@ -127,14 +127,15 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void createVersion(String parentVersionId, String toVersion) {
+        assertValid();
         try {
             String sourcePath = ZkPath.CONFIG_VERSION.getPath(parentVersionId);
             String targetPath = ZkPath.CONFIG_VERSION.getPath(toVersion);
             copy(getCurator(), sourcePath, targetPath);
             //After copying a profile it takes a while before the cache is updated.
             //To avoid confusion its best to rebuild that portion of the cache before returning.
-            //treeCache.getCurrentData(targetPath);
-            treeCache.rebuildNode(targetPath);
+            //getTreeCache().getCurrentData(targetPath);
+            getTreeCache().rebuildNode(targetPath);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -142,6 +143,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void deleteVersion(String version) {
+        assertValid();
         try {
             deleteSafe(getCurator(), ZkPath.CONFIG_VERSION.getPath(version));
         } catch (Exception e) {
@@ -151,8 +153,9 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public List<String> getVersions() {
+        assertValid();
         try {
-            return treeCache.getChildrenNames(ZkPath.CONFIG_VERSIONS.getPath());
+            return getTreeCache().getChildrenNames(ZkPath.CONFIG_VERSIONS.getPath());
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -160,8 +163,9 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public boolean hasVersion(String name) {
+        assertValid();
         try {
-            if (getCurator() != null && getCurator().getZookeeperClient().isConnected() && treeCache.getCurrentData(ZkPath.CONFIG_VERSION.getPath(name)) == null) {
+            if (getCurator() != null && getCurator().getZookeeperClient().isConnected() && getTreeCache().getCurrentData(ZkPath.CONFIG_VERSION.getPath(name)) == null) {
                 return false;
             }
             return true;
@@ -174,10 +178,11 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public List<String> getProfiles(String version) {
+        assertValid();
         try {
             List<String> profiles = new ArrayList<String>();
-            profiles.addAll(treeCache.getChildrenNames(ZkPath.CONFIG_ENSEMBLE_PROFILES.getPath()));
-            profiles.addAll(treeCache.getChildrenNames(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version)));
+            profiles.addAll(getTreeCache().getChildrenNames(ZkPath.CONFIG_ENSEMBLE_PROFILES.getPath()));
+            profiles.addAll(getTreeCache().getChildrenNames(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version)));
             return profiles;
         } catch (Exception e) {
             throw new FabricException(e);
@@ -186,9 +191,10 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public String getProfile(String version, String profile, boolean create) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile);
-            if (treeCache.getCurrentData(path) == null) {
+            if (getTreeCache().getCurrentData(path) == null) {
                 if (!create) {
                     return null;
                 } else {
@@ -204,6 +210,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void createProfile(String version, String profile) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile);
             create(getCurator(), path);
@@ -215,6 +222,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void deleteProfile(String version, String name) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, name);
             deleteSafe(getCurator(), path);
@@ -225,9 +233,10 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public Map<String, String> getVersionAttributes(String version) {
+        assertValid();
         try {
             String node = ZkPath.CONFIG_VERSION.getPath(version);
-            return getPropertiesAsMap(treeCache, node);
+            return getPropertiesAsMap(getTreeCache(), node);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -235,6 +244,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setVersionAttribute(String version, String key, String value) {
+        assertValid();
         try {
             Map<String, String> props = getVersionAttributes(version);
             if (value != null) {
@@ -252,9 +262,10 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public Map<String, String> getProfileAttributes(String version, String profile) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile);
-            return getPropertiesAsMap(treeCache, path);
+            return getPropertiesAsMap(getTreeCache(), path);
         } catch (Exception e) {
             throw new FabricException(e);
         }
@@ -262,6 +273,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setProfileAttribute(String version, String profile, String key, String value) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile);
             Properties props = getProperties(getCurator(), path);
@@ -278,6 +290,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public long getLastModified(String version, String profile) {
+        assertValid();
         try {
             return lastModified(getCurator(), ZkProfiles.getPath(version, profile));
         } catch (Exception e) {
@@ -287,12 +300,13 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public Map<String, byte[]> getFileConfigurations(String version, String profile) {
+        assertValid();
         try {
             Map<String, byte[]> configurations = new HashMap<String, byte[]>();
             String path = ZkProfiles.getPath(version, profile);
-            List<String> children = getAllChildren(treeCache, path);
+            List<String> children = getAllChildren(getTreeCache(), path);
             for (String child : children) {
-                TreeData data = treeCache.getCurrentData(child);
+                TreeData data = getTreeCache().getCurrentData(child);
                 if (data.getData() != null && data.getData().length != 0) {
                     String relativePath = child.substring(path.length() + 1);
                     configurations.put(relativePath, getFileConfiguration(version, profile, relativePath));
@@ -306,21 +320,22 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public byte[] getFileConfiguration(String version, String profile, String fileName) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile) + "/" + fileName;
-            if (treeCache.getCurrentData(path) == null) {
+            if (getTreeCache().getCurrentData(path) == null) {
                 return null;
             }
-            if (treeCache.getCurrentData(path).getData() == null) {
-                List<String> children = treeCache.getChildrenNames(path);
+            if (getTreeCache().getCurrentData(path).getData() == null) {
+                List<String> children = getTreeCache().getChildrenNames(path);
                 StringBuilder buf = new StringBuilder();
                 for (String child : children) {
-                    String value = new String(treeCache.getCurrentData(path + "/" + child).getData(), "UTF-8");
+                    String value = new String(getTreeCache().getCurrentData(path + "/" + child).getData(), "UTF-8");
                     buf.append(String.format("%s = %s\n", child, value));
                 }
                 return buf.toString().getBytes();
             } else {
-                return getByteData(treeCache, path);
+                return getByteData(getTreeCache(), path);
             }
         } catch (Exception e) {
             throw new FabricException(e);
@@ -329,6 +344,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setFileConfigurations(String version, String profile, Map<String, byte[]> configurations) {
+        assertValid();
         try {
             Map<String, byte[]> oldCfgs = getFileConfigurations(version, profile);
             String path = ZkProfiles.getPath(version, profile);
@@ -350,6 +366,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setFileConfiguration(String version, String profile, String fileName, byte[] configuration) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile);
             String configPath = path + "/" + fileName;
@@ -385,12 +402,13 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public Map<String, String> getConfiguration(String version, String profile, String pid) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile) + "/" + pid + ".properties";
-            if (treeCache.getCurrentData(path) == null) {
+            if (getTreeCache().getCurrentData(path) == null) {
                 return null;
             }
-            byte[] data = getByteData(treeCache, path);
+            byte[] data = getByteData(getTreeCache(), path);
             return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
         } catch (Exception e) {
             throw new FabricException(e);
@@ -399,6 +417,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations) {
+        assertValid();
         try {
             Map<String, Map<String, String>> oldCfgs = getConfigurations(version, profile);
             // Store new configs
@@ -418,6 +437,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setConfiguration(String version, String profile, String pid, Map<String, String> configuration) {
+        assertValid();
         try {
             String path = ZkProfiles.getPath(version, profile);
             byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(configuration));
@@ -430,9 +450,10 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public String getDefaultJvmOptions() {
+        assertValid();
         try {
             if (getCurator().getZookeeperClient().isConnected() && exists(getCurator(), JVM_OPTIONS_PATH) != null) {
-                return getStringData(treeCache, JVM_OPTIONS_PATH);
+                return getStringData(getTreeCache(), JVM_OPTIONS_PATH);
             } else {
                 return "";
             }
@@ -443,6 +464,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setDefaultJvmOptions(String jvmOptions) {
+        assertValid();
         try {
             String opts = jvmOptions != null ? jvmOptions : "";
             setData(getCurator(), JVM_OPTIONS_PATH, opts);
@@ -453,10 +475,11 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public FabricRequirements getRequirements() {
+        assertValid();
         try {
             FabricRequirements answer = null;
-            if (treeCache.getCurrentData(REQUIREMENTS_JSON_PATH) != null) {
-                String json = getStringData(treeCache, REQUIREMENTS_JSON_PATH);
+            if (getTreeCache().getCurrentData(REQUIREMENTS_JSON_PATH) != null) {
+                String json = getStringData(getTreeCache(), REQUIREMENTS_JSON_PATH);
                 answer = RequirementsJson.fromJSON(json);
             }
             if (answer == null) {
@@ -470,6 +493,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public void setRequirements(FabricRequirements requirements) throws IOException {
+        assertValid();
         try {
             requirements.removeEmptyRequirements();
             String json = RequirementsJson.toJSON(requirements);
@@ -481,6 +505,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public String getClusterId() {
+        assertValid();
         try {
             return getStringData(getCurator(), ZkPath.CONFIG_ENSEMBLES.getPath());
         } catch (Exception e) {
@@ -490,6 +515,7 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public List<String> getEnsembleContainers() {
+        assertValid();
         List<String> containers = new ArrayList<String>();
         try {
             String ensemble = getStringData(getCurator(), ZkPath.CONFIG_ENSEMBLE.getPath(getClusterId()));
@@ -502,16 +528,6 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
             throw new FabricException(e);
         }
         return containers;
-    }
-
-    private static String substituteZookeeperUrl(String key, CuratorFramework curator) {
-        try {
-            return new String(ZkPath.loadURL(curator, key), "UTF-8");
-        } catch (KeeperException.NoNodeException e) {
-            return key;
-        } catch (Exception e) {
-            throw new FabricException(e);
-        }
     }
 
     @Override
@@ -527,11 +543,13 @@ public class ZooKeeperDataStore extends AbstractDataStore implements DataStorePl
 
     @Override
     public Map<String, String> getDataStoreProperties() {
+        assertValid();
         return super.getDataStoreProperties();
     }
 
     @Override
     public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
+        assertValid();
         Map<String, String> properties = new HashMap<String, String>();
         for (Map.Entry<String, String> entry : dataStoreProperties.entrySet()) {
             String key = entry.getKey();

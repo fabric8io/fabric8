@@ -149,7 +149,7 @@ public class OpenShiftDeployAgent extends AbstractComponent implements GroupList
                     dataStore.trackConfiguration(runnable);
                     onConfigurationChanged();
                 } else {
-                    dataStore.unTrackConfiguration(runnable);
+                    dataStore.untrackConfiguration(runnable);
                 }
             }
         } catch (IllegalStateException e) {

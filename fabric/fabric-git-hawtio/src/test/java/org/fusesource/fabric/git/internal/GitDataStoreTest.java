@@ -99,9 +99,9 @@ public class GitDataStoreTest {
         gitService.activate(EasyMock.createMock(ComponentContext.class));
 
         dataStore = createDataStore();
-        dataStore.bindCurator(curator);
+        dataStore.bindCuratorForTesting(curator);
         dataStore.bindGitService(gitService);
-        // dataStore.activate(EasyMock.createMock(ComponentContext.class));
+        dataStore.activate(EasyMock.createMock(ComponentContext.class));
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
         dataStore.setDataStoreProperties(datastoreProperties);

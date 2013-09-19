@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.api.scr;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * A reference that validates its content on {@link #get()}
  *
@@ -24,12 +27,16 @@ package org.fusesource.fabric.api.scr;
  */
 public class ValidatingReference<T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ValidatingReference.class);
+
     private volatile T reference;
 
     /**
      * Set the reference to the given instance
      */
     public void set(T ref) {
+        T logref = (ref != null ? ref : reference);
+        LOG.info((ref != null ? "bind: " : "unbind: ") + logref);
         reference = ref;
     }
 

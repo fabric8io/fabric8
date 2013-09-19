@@ -18,6 +18,8 @@ package org.fusesource.fabric.api;
 
 public class FabricException extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     public FabricException() {
     }
 
@@ -31,5 +33,13 @@ public class FabricException extends RuntimeException {
 
     public FabricException(Throwable cause) {
         super(cause);
+    }
+
+    public static FabricException rethrow(Throwable cause) {
+        if (cause instanceof FabricException) {
+            return (FabricException) cause;
+        } else {
+            return new FabricException(cause);
+        }
     }
 }

@@ -164,7 +164,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public void unTrackConfiguration(Runnable callback) {
         assertValid();
-        getDataStore().unTrackConfiguration(callback);
+        getDataStore().untrackConfiguration(callback);
     }
 
     @Override
