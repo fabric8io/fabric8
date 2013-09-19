@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -28,49 +29,36 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Stan Lewis
  */
-@Component(description = "Fabric ZooKeeper Cluster Bootstrap Manager JMX MBean")
-public class ClusterBootstrapManager extends AbstractComponent implements ClusterBootstrapManagerMBean {
+@ThreadSafe
+@Component(description = "Fabric ZooKeeper Cluster Bootstrap Manager JMX MBean") // Done
+public final class ClusterBootstrapManager extends AbstractComponent implements ClusterBootstrapManagerMBean {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ClusterBootstrapManager.class);
+
+    private static ObjectName OBJECT_NAME;
+    static {
+        try {
+            OBJECT_NAME = new ObjectName("org.fusesource.fabric:type=ClusterBootstrapManager");
+        } catch (MalformedObjectNameException e) {
+            // ignore
+        }
+    }
 
     @Reference(referenceInterface = ZooKeeperClusterBootstrap.class)
     private final ValidatingReference<ZooKeeperClusterBootstrap> bootstrap = new ValidatingReference<ZooKeeperClusterBootstrap>();
     @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
     private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
-    private ObjectName objectName;
-
     @Activate
-    synchronized void activate(ComponentContext context) throws Exception {
+    void activate(ComponentContext context) throws Exception {
+        JMXUtils.registerMBean(this, mbeanServer.get(), OBJECT_NAME);
         activateComponent();
-        try {
-            JMXUtils.registerMBean(this, mbeanServer.get(), getObjectName());
-        } catch (Exception ex) {
-            deactivateComponent();
-            throw ex;
-        }
     }
 
     @Deactivate
-    synchronized void deactivate() throws Exception {
-        try {
-            JMXUtils.unregisterMBean(mbeanServer.get(), getObjectName());
-        } finally {
-            deactivateComponent();
-        }
-    }
-
-    private ObjectName getObjectName() throws MalformedObjectNameException {
-        if (objectName == null) {
-            objectName = new ObjectName("org.fusesource.fabric:type=ClusterBootstrapManager");
-        }
-        return objectName;
-    }
-
-    private static void maybeSetProperty(String prop, Object value) {
-        if (value != null) {
-            System.setProperty(prop, value.toString());
-        }
+    void deactivate() throws Exception {
+        deactivateComponent();
+        JMXUtils.unregisterMBean(mbeanServer.get(), OBJECT_NAME);
     }
 
     static CreateEnsembleOptions getCreateEnsembleOptions(Map<String, Object> options) {
@@ -119,14 +107,21 @@ public class ClusterBootstrapManager extends AbstractComponent implements Cluste
         return answer;
     }
 
+    private static void maybeSetProperty(String prop, Object value) {
+        if (value != null) {
+            System.setProperty(prop, value.toString());
+        }
+    }
 
     @Override
     public void createCluster() {
+        assertValid();
         bootstrap.get().create(CreateEnsembleOptions.builder().fromSystemProperties().build());
     }
 
     @Override
     public void createCluster(Map<String, Object> options) {
+        assertValid();
         CreateEnsembleOptions createEnsembleOptions = ClusterBootstrapManager.getCreateEnsembleOptions(options);
         bootstrap.get().create(createEnsembleOptions);
     }
