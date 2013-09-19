@@ -19,8 +19,11 @@ package org.fusesource.fabric.dosgi;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -96,6 +99,164 @@ public class InvocationTest {
             server.stop();
             client.stop();
         }
+    }
+
+    @Test
+    public void testOverflowAsync() throws Exception {
+
+    	DispatchQueue queue = Dispatch.createQueue();
+    	HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+    	map.put("protobuf", new ProtobufSerializationStrategy());
+
+    	ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
+    	server.start();
+
+    	ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
+    	client.start();
+
+    	try {
+    		server.registerService("service-id", new ServerInvoker.ServiceFactory() {
+    			public Object get() {
+    				return new HelloImpl();
+    			}
+    			public void unget() {
+    			}
+    		}, HelloImpl.class.getClassLoader());
+
+
+    		InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
+    		Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
+
+    		char[] chars = new char[65*1024];
+    		String payload = new String(chars);
+
+    		final List<AsyncCallbackFuture<String>> futures = new ArrayList<AsyncCallbackFuture<String>>();
+    		for(int i = 0; i < 100; i++) {
+    			AsyncCallbackFuture<String> future = new AsyncCallbackFuture<String>();
+    			hello.hello(payload, future);
+    			futures.add(future);
+    		}
+
+    		for(Future<String> f : futures) {
+    			f.get(1, TimeUnit.SECONDS);
+    		}
+//			future2.get(2, TimeUnit.SECONDS);
+    		//assertEquals("Hello Hiram!", future1.get(2, TimeUnit.SECONDS));
+
+    		//assertEquals("Hello Hiram!", hello.protobuf(stringValue(payload)).getValue());
+    	}
+    	finally {
+    		server.stop();
+    		client.stop();
+    	}
+    }
+
+    @Test
+    public void testOverflow() throws Exception {
+
+    	DispatchQueue queue = Dispatch.createQueue();
+    	HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+    	map.put("protobuf", new ProtobufSerializationStrategy());
+
+    	ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
+    	server.start();
+
+    	ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
+    	client.start();
+
+    	try {
+    		server.registerService("service-id", new ServerInvoker.ServiceFactory() {
+    			public Object get() {
+    				return new HelloImpl();
+    			}
+    			public void unget() {
+    			}
+    		}, HelloImpl.class.getClassLoader());
+
+
+    		InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
+    		final Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
+
+            final AtomicInteger requests = new AtomicInteger(0);
+            final AtomicInteger responses = new AtomicInteger(0);
+            final AtomicInteger failures = new AtomicInteger(0);
+
+    		char[] chars = new char[65*1024];
+    		final String payload = new String(chars);
+
+            Thread[] threads = new Thread[BENCHMARK_CLIENTS];
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
+                threads[t] = new Thread() {
+                    public void run() {
+                        try {
+                            requests.incrementAndGet();
+
+                            hello.hello(payload);
+
+                            responses.incrementAndGet();
+                        } catch (Throwable t) {
+                            failures.incrementAndGet();
+                        }
+                    }
+                };
+                threads[t].start();
+            }
+
+            for (int t = 0; t < BENCHMARK_CLIENTS; t++) {
+                threads[t].join(10000);
+                System.err.format("REQUEST: %d of %d%n", requests.get(), BENCHMARK_CLIENTS);
+                System.err.format("RESPONSES: %d of %d%n", responses.get(), BENCHMARK_CLIENTS);
+                assertEquals(threads[t].isAlive(), false);
+            }
+
+            assertEquals(BENCHMARK_CLIENTS, requests.get());
+            assertEquals(BENCHMARK_CLIENTS, responses.get());
+            assertEquals(0, failures.get());
+
+    	}
+    	finally {
+    		server.stop();
+    		client.stop();
+    	}
+    }
+
+    @Test
+    public void testNoOverflow() throws Exception {
+
+    	DispatchQueue queue = Dispatch.createQueue();
+    	HashMap<String, SerializationStrategy> map = new HashMap<String, SerializationStrategy>();
+    	map.put("protobuf", new ProtobufSerializationStrategy());
+
+    	ServerInvokerImpl server = new ServerInvokerImpl("tcp://localhost:0", queue, map);
+    	server.start();
+
+    	ClientInvokerImpl client = new ClientInvokerImpl(queue, map);
+    	client.start();
+
+    	try {
+    		server.registerService("service-id", new ServerInvoker.ServiceFactory() {
+    			public Object get() {
+    				return new HelloImpl();
+    			}
+    			public void unget() {
+    			}
+    		}, HelloImpl.class.getClassLoader());
+
+
+    		InvocationHandler handler = client.getProxy(server.getConnectAddress(), "service-id", HelloImpl.class.getClassLoader());
+    		Hello hello  = (Hello) Proxy.newProxyInstance(HelloImpl.class.getClassLoader(), new Class[] { Hello.class }, handler);
+
+    		char[] chars = new char[65*1024];
+    		String payload = new String(chars);
+
+    		for(int i = 0; i < 100; i++) {
+    			hello.hello(payload);
+    		}
+    	}
+    	finally {
+    		server.stop();
+    		client.stop();
+    	}
     }
 
     @Test

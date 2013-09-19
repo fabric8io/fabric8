@@ -632,7 +632,7 @@ public class TcpTransport implements Transport {
             return;
         }
         try {
-            if( codec.flush() == ProtocolCodec.BufferState.EMPTY && flush() ) {
+            if( codec.flush() == ProtocolCodec.BufferState.WAS_EMPTY && flush() ) {
                 if( !drained ) {
                     drained = true;
                     suspendWrite();

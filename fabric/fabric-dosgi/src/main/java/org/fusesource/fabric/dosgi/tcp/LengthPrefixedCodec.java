@@ -25,6 +25,8 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import org.fusesource.fabric.dosgi.io.ProtocolCodec;
 import org.fusesource.hawtbuf.Buffer;
@@ -32,20 +34,29 @@ import org.fusesource.hawtbuf.Buffer;
 public class LengthPrefixedCodec implements ProtocolCodec {
 
 
-    int write_buffer_size = 1024 * 64;
+    final int write_buffer_size = 1024 * 64;
     long write_counter = 0L;
     WritableByteChannel write_channel;
-    ByteBuffer write_buffer = ByteBuffer.allocate(0);
 
-    ArrayList<Buffer> next_write_buffers = new ArrayList<Buffer>();
+    final Queue<ByteBuffer> next_write_buffers = new LinkedList<ByteBuffer>();
     int next_write_size = 0;
 
     public boolean full() {
-        return next_write_size >= (write_buffer_size >> 1);
+        return false;
     }
 
     protected boolean empty() {
-        return write_buffer.remaining() == 0 && next_write_size==0;
+        if (next_write_size > 0) {
+            return false;
+        }
+        if (!next_write_buffers.isEmpty()) {
+            for (ByteBuffer b : next_write_buffers) {
+                if (b.remaining() > 0) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     public void setWritableByteChannel(WritableByteChannel channel) {
@@ -66,41 +77,34 @@ public class LengthPrefixedCodec implements ProtocolCodec {
             boolean wasEmpty = empty();
             Buffer buffer = (Buffer) value;
             next_write_size += buffer.length;
-            next_write_buffers.add(buffer);
+            next_write_buffers.add(buffer.toByteBuffer());
             return wasEmpty ? BufferState.WAS_EMPTY : BufferState.NOT_EMPTY;
         }
     }
 
     public BufferState flush() throws IOException {
-        if (write_buffer.remaining() == 0 && next_write_size > 0) {
-            if( next_write_buffers.size()==1 ) {
-                write_buffer = next_write_buffers.remove(0).toByteBuffer();
-            } else {
-                // consolidate the buffers into 1 big buffer to reduce
-                // the number of system calls we do.
-
-                if( write_buffer.capacity() < next_write_size ) {
-                    // Re-allocate if we need a bigger write buffer...
-                    write_buffer = ByteBuffer.allocate(next_write_size);
-                } else if( next_write_size < write_buffer_size && write_buffer.capacity() > write_buffer_size )  {
-                    // Re-allocate if We don't need that big write buffer anymore..
-                    write_buffer = ByteBuffer.allocate(next_write_size);
-                }
-
-                write_buffer.clear();
-                for( Buffer b: next_write_buffers) {
-                    write_buffer.put(b.data, b.offset, b.length);
-                }
-                next_write_buffers.clear();
-                next_write_size = 0;
-                write_buffer.flip();
+        final long writeCounterBeforeFlush = write_counter;
+        while(!next_write_buffers.isEmpty()) {
+            final ByteBuffer nextBuffer = next_write_buffers.peek();
+            if (nextBuffer.remaining() < 1) {
+                next_write_buffers.remove();
+                continue;
             }
-
+            int bytesWritten = write_channel.write(nextBuffer);
+            write_counter += bytesWritten;
+            next_write_size -= bytesWritten;
+            if (nextBuffer.remaining() > 0) {
+                break;
+            }
         }
-        if (write_buffer.remaining() != 0) {
-            write_counter += write_channel.write(write_buffer);
+        if (empty()) {
+            if (writeCounterBeforeFlush == write_counter) {
+                return BufferState.WAS_EMPTY;
+            } else {
+                return BufferState.EMPTY;
+            }
         }
-        return empty() ? BufferState.EMPTY : BufferState.NOT_EMPTY;
+        return BufferState.NOT_EMPTY;
     }
 
     public long getWriteCounter() {
