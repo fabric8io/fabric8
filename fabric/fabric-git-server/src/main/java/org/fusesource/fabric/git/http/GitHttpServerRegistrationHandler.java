@@ -23,6 +23,8 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.eclipse.jgit.http.server.GitServlet;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
@@ -43,27 +45,26 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-@Component(name = "org.fusesource.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", immediate = true)
-public class GitHttpServerRegistrationHandler extends AbstractComponent implements GroupListener<GitNode> {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.git.server", description = "Fabric Git HTTP Server Registration Handler", immediate = true) // Done
+public final class GitHttpServerRegistrationHandler extends AbstractComponent implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
+
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
     private static final String DEFAULT_REALM = "karaf";
     private static final String DEFAULT_ROLE = "admin";
 
-
-    private final String name = System.getProperty(SystemProperties.KARAF_NAME);
-
-    private Group<GitNode> group;
+    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
 
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
@@ -74,155 +75,131 @@ public class GitHttpServerRegistrationHandler extends AbstractComponent implemen
 
     private final GitServlet gitServlet = new GitServlet();
 
-    private String realm;
-    private String role;
-
-    private List<GitListener> listeners = new ArrayList<GitListener>();
-    private String gitRemoteUrl;
+    @GuardedBy("CopyOnWriteArrayList") private final List<GitListener> listeners = new CopyOnWriteArrayList<GitListener>();
+    @GuardedBy("volatile") private volatile Group<GitNode> group;
+    @GuardedBy("volatile") private volatile String gitRemoteUrl;
 
     @Activate
-    synchronized void activate(ComponentContext context, Map<String, String> properties) {
-        activateComponent();
+    void activate(ComponentContext context, Map<String, String> properties) {
+
+        group = new ZooKeeperGroup(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
+        group.add(this);
+        group.update(createState());
+        group.start();
+
+        String realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+        String role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
         try {
-            this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-            this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
-
-            group = new ZooKeeperGroup(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
-            group.add(this);
-            group.update(createState());
-            group.start();
-
-            try {
-                HttpContext base = httpService.get().createDefaultHttpContext();
-                HttpContext secure = new SecureHttpContext(base, realm, role);
-                String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator;
-                String fabricGitPath = basePath + "fabric";
-                File fabricRoot = new File(fabricGitPath);
-                if (!fabricRoot.exists() && !fabricRoot.mkdirs()) {
-                    throw new FileNotFoundException("Could not found git root:" + basePath);
-                }
-                Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-                initParams.put("base-path", basePath);
-                initParams.put("repository-root", basePath);
-                initParams.put("export-all", "true");
-                httpService.get().registerServlet("/git", gitServlet, initParams, secure);
-            } catch (Exception e) {
-                LOGGER.error("Error while registering git servlet", e);
+            HttpContext base = httpService.get().createDefaultHttpContext();
+            HttpContext secure = new SecureHttpContext(base, realm, role);
+            String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator;
+            String fabricGitPath = basePath + "fabric";
+            File fabricRoot = new File(fabricGitPath);
+            if (!fabricRoot.exists() && !fabricRoot.mkdirs()) {
+                throw new FileNotFoundException("Could not found git root:" + basePath);
             }
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
+            Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+            initParams.put("base-path", basePath);
+            initParams.put("repository-root", basePath);
+            initParams.put("export-all", "true");
+            httpService.get().registerServlet("/git", gitServlet, initParams, secure);
+        } catch (Exception e) {
+            LOGGER.error("Error while registering git servlet", e);
         }
+        activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
+        deactivateComponent();
         try {
             if (group != null) {
                 group.close();
             }
         } catch (Exception e) {
             LOGGER.warn("Failed to remove git server from registry.", e);
-        } finally {
-            deactivateComponent();
         }
     }
 
-    public synchronized void addGitListener(GitListener listener) {
-        listeners.add(listener);
+    public void addGitListener(GitListener listener) {
+        if (isValid()) {
+            listeners.add(listener);
+        }
     }
 
-    public synchronized void removeGitListener(GitListener listener) {
+    public void removeGitListener(GitListener listener) {
         listeners.remove(listener);
     }
 
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
-        if (group.isMaster()) {
-            LOGGER.info("Git repo is the master");
-        } else {
-            LOGGER.info("Git repo is not the master");
-        }
-        try {
-            GitNode state = createState();
-            group.update(state);
-
-            String url = state.getUrl();
-            try {
-                String actualUrl = getSubstitutedData(curator.get(), url);
-                if (actualUrl != null && (this.gitRemoteUrl == null || !this.gitRemoteUrl.equals(actualUrl))) {
-                    // lets notify listeners
-                    this.gitRemoteUrl = actualUrl;
-                    fireGitRemoteUrlChanged(actualUrl);
-                }
-
-                if (group.isMaster()) {
-                    // lets register the current URL to ConfigAdmin
-                    String pid = "org.fusesource.fabric.git";
-                    try {
-                        Configuration conf = configAdmin.get().getConfiguration(pid);
-                        if (conf == null) {
-                            LOGGER.warn("No configuration for pid " + pid);
-                        } else {
-                            Dictionary<String, Object> properties = conf.getProperties();
-                            if (properties == null) {
-                                properties = new Hashtable<String, Object>();
-                            }
-                            properties.put("fabric.git.url", actualUrl);
-                            conf.update(properties);
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
-                            }
-                        }
-                    } catch (Throwable e) {
-                        LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
-                    }
-                }
-            } catch (URISyntaxException e) {
-                LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
+        if (isValid()) {
+            if (group.isMaster()) {
+                LOGGER.info("Git repo is the master");
+            } else {
+                LOGGER.info("Git repo is not the master");
             }
+            try {
+                GitNode state = createState();
+                group.update(state);
 
-        } catch (IllegalStateException e) {
-            // Ignore
+                String url = state.getUrl();
+                try {
+                    String actualUrl = getSubstitutedData(curator.get(), url);
+                    if (actualUrl != null && !actualUrl.equals(gitRemoteUrl)) {
+                        // lets notify listeners
+                        gitRemoteUrl = actualUrl;
+                        fireGitRemoteUrlChanged(actualUrl);
+                    }
+
+                    if (group.isMaster()) {
+                        // lets register the current URL to ConfigAdmin
+                        String pid = "org.fusesource.fabric.git";
+                        try {
+                            Configuration conf = configAdmin.get().getConfiguration(pid);
+                            if (conf == null) {
+                                LOGGER.warn("No configuration for pid " + pid);
+                            } else {
+                                Dictionary<String, Object> properties = conf.getProperties();
+                                if (properties == null) {
+                                    properties = new Hashtable<String, Object>();
+                                }
+                                properties.put("fabric.git.url", actualUrl);
+                                conf.update(properties);
+                                if (LOGGER.isDebugEnabled()) {
+                                    LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
+                                }
+                            }
+                        } catch (Throwable e) {
+                            LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
+                        }
+                    }
+                } catch (URISyntaxException e) {
+                    LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
+                }
+
+            } catch (IllegalStateException e) {
+                // Ignore
+            }
         }
     }
 
-    protected void fireGitRemoteUrlChanged(String remoteUrl) {
+    private void fireGitRemoteUrlChanged(String remoteUrl) {
         for (GitListener listener : listeners) {
             listener.onRemoteUrlChanged(remoteUrl);
         }
     }
 
-    public String getGitRemoteUrl() {
-        return gitRemoteUrl;
-    }
-
-    GitNode createState() {
-        String fabricRepoUrl = "${zk:" + name + "/http}/git/fabric/";
+    private GitNode createState() {
+        String fabricRepoUrl = "${zk:" + KARAF_NAME + "/http}/git/fabric/";
         GitNode state = new GitNode();
         state.setId("fabric-repo");
         state.setUrl(fabricRepoUrl);
-        state.setContainer(name);
+        state.setContainer(KARAF_NAME);
         if (group != null && group.isMaster()) {
             state.setServices(new String[] { fabricRepoUrl });
         }
         return state;
-    }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
