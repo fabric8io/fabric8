@@ -25,6 +25,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.jaas.modules.BackingEngine;
 import org.apache.karaf.jaas.modules.BackingEngineFactory;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
@@ -33,9 +34,10 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-@Component(name = "org.fusesource.fabric.jaas.zookeeper.backingengine", description = "Fabric Jaas Backing Engine Factory")
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.jaas.zookeeper.backingengine", description = "Fabric Jaas Backing Engine Factory") // Done
 @Service(BackingEngineFactory.class)
-public class ZookeeperBackingEngineFactory extends AbstractComponent implements BackingEngineFactory {
+public final class ZookeeperBackingEngineFactory extends AbstractComponent implements BackingEngineFactory {
 
     private static final transient Logger LOGGER = LoggerFactory.getLogger(ZookeeperBackingEngineFactory.class);
 
@@ -43,12 +45,12 @@ public class ZookeeperBackingEngineFactory extends AbstractComponent implements 
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
@@ -59,6 +61,7 @@ public class ZookeeperBackingEngineFactory extends AbstractComponent implements 
 
     @Override
     public BackingEngine build(Map options) {
+        assertValid();
         ZookeeperBackingEngine engine = null;
         EncryptionSupport encryptionSupport = new BasicEncryptionSupport(options);
         String path = (String) options.get("path");
@@ -71,9 +74,8 @@ public class ZookeeperBackingEngineFactory extends AbstractComponent implements 
             engine = new ZookeeperBackingEngine(users, encryptionSupport);
         } catch (Exception e) {
             LOGGER.warn("Cannot initialize engine", e);
-        } finally {
-            return engine;
         }
+        return engine;
     }
 
     void bindCurator(CuratorFramework curator) {
