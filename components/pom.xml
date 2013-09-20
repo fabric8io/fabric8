@@ -37,6 +37,27 @@
       <modules>
         <module>camel-sap</module>
       </modules>
+      
+      <dependencies>
+      	<dependency>
+      		<groupId>com.sap.conn.jco</groupId>
+      		<artifactId>com.sap.conn.jco</artifactId>
+      		<version>3.0.8.redhat_1</version>
+      	</dependency>
+      </dependencies>
+      <repositories>
+		<repository>
+			<id>fusesource-third-party-internal</id>
+			<url>http://repo.fusesource.com/nexus/content/repositories/maven2-all/</url>
+			<layout>default</layout>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+		</repository>
+      </repositories>
     </profile>
   </profiles>
 </project>
