@@ -20,6 +20,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.partition.Partition;
 import org.fusesource.fabric.partition.PartitionListener;
@@ -29,20 +30,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-@Component(name = "org.fusesource.fabric.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true) // Done
 @Service(PartitionListener.class)
-public class LoggingPartitionListener extends AbstractComponent implements PartitionListener {
+public final class LoggingPartitionListener extends AbstractComponent implements PartitionListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingPartitionListener.class);
     private static final String TYPE = "logging";
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
@@ -53,16 +55,15 @@ public class LoggingPartitionListener extends AbstractComponent implements Parti
 
     @Override
     public void init() {
-
     }
 
     @Override
     public void destroy() {
-
     }
 
     @Override
     public void start(String taskId, String workBase, Set<Partition> partitions) {
+        assertValid();
         for (Partition partition : partitions) {
             LOGGER.info("Start taskId: {}, partition: {}.", taskId, partition.getId());
         }
@@ -70,6 +71,7 @@ public class LoggingPartitionListener extends AbstractComponent implements Parti
 
     @Override
     public void stop(String taskId, String workBase, Set<Partition> partitions) {
+        assertValid();
         for (Partition partition : partitions) {
             LOGGER.info("Stop taskId: {}, partition: {}.", taskId, partition.getId());
         }
