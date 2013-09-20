@@ -26,7 +26,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * A facade for working with XPath expressions created via the {@link XPathBuilder} helper class
+ * A facade for working with XPath expressions created via the {@link XPathBuilder} helper class.
+ *
+ * For example
+ * <code>
+ *     XPathBuilder builder = new XPathBuilder();
+ *     Element firstElement = builder.xpath("//foo[@x='abc']").element(doc);
+ * </code>
+ *
+ * @see org.fusesource.common.util.XPathBuilder#xpath(String) for how to create this facade
  */
 public class XPathFacade {
     private final XPathBuilder builder;

@@ -31,7 +31,7 @@ public class XPathBuilder {
     /**
      * Creates an XPath expression facade
      */
-    public XPathFacade create(String xpath) throws XPathExpressionException {
+    public XPathFacade xpath(String xpath) throws XPathExpressionException {
         XPathExpression expression = getXPath().compile(xpath);
         return new XPathFacade(this, xpath, expression);
     }

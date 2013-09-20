@@ -196,7 +196,7 @@ public class OpenShiftPomDeployerTest {
 
 
     public static XPathFacade xpath(String expression) throws XPathExpressionException {
-        return xpathBuilder.create(expression);
+        return xpathBuilder.xpath(expression);
     }
 
 }
