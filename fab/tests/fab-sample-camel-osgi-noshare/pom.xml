@@ -87,7 +87,7 @@
       <plugin>
         <groupId>org.fusesource.mvnplugins</groupId>
         <artifactId>maven-fab-plugin</artifactId>
-        <version>1.16-SNAPSHOT</version>
+        <version>7.3.0.redhat-SNAPSHOT</version>
         <configuration>
           <descriptor>
             <Long-Description></Long-Description>

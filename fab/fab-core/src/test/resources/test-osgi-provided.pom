@@ -19,7 +19,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.karaf</groupId>
   <artifactId>org.apache.karaf.pomegranate.test.transitive</artifactId>
-  <version>2.1.99-SNAPSHOT</version>
+  <version>7.3.0.redhat-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>Apache Karaf :: Pomegranate :: Test :: Transitive</name>
   <dependencies>
