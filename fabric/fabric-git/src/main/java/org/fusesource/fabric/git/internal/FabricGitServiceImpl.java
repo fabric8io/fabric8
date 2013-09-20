@@ -24,6 +24,8 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.fusesource.fabric.api.ContainerRegistration;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.FabricGitService;
@@ -42,9 +44,10 @@ import java.io.IOException;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-@Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true) // Done
 @Service(FabricGitService.class)
-public class FabricGitServiceImpl extends AbstractComponent implements FabricGitService, GroupListener<GitNode> {
+public final class FabricGitServiceImpl extends AbstractComponent implements FabricGitService, GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
@@ -55,45 +58,40 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     @Reference(referenceInterface = ContainerRegistration.class)
     private final ValidatingReference<ContainerRegistration> registration = new ValidatingReference<ContainerRegistration>();
 
-    private Group<GitNode> group;
+    @GuardedBy("volatile") private volatile Group<GitNode> group;
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
+        group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
+        group.add(this);
+        group.start();
         activateComponent();
-        try {
-            group = new ZooKeeperGroup<GitNode>(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
-            group.add(this);
-            group.start();
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
-        }
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        try {
-            group.remove(this);
-            Closeables.closeQuitely(group);
-            group = null;
-        } finally {
-            deactivateComponent();
-        }
+    void deactivate() {
+        deactivateComponent();
+        group.remove(this);
+        Closeables.closeQuitely(group);
+        group = null;
     }
 
     public Git get() throws IOException {
+        assertValid();
         return gitService.get().get();
     }
 
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
-        switch (event) {
+        if(isValid()) {
+            switch (event) {
             case CONNECTED:
             case CHANGED:
                 updateMasterUrl(group);
                 break;
             case DISCONNECTED:
                 fireRemoteChangedEvent(null);
+        }
         }
     }
 
@@ -103,8 +101,7 @@ public class FabricGitServiceImpl extends AbstractComponent implements FabricGit
     private void updateMasterUrl(Group<GitNode> group) {
         String masterUrl = null;
         GitNode master = group.master();
-        if (master != null
-                && !master.getContainer().equals(System.getProperty(SystemProperties.KARAF_NAME))) {
+        if (master != null && !master.getContainer().equals(System.getProperty(SystemProperties.KARAF_NAME))) {
             masterUrl = master.getUrl();
         }
         try {
