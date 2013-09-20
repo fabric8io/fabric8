@@ -18,6 +18,8 @@ package org.fusesource.insight.log.log4j;
 
 import org.fusesource.insight.log.support.MavenCoordinates;
 import org.fusesource.insight.log.support.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * A helper class for finding the maven coordinates
  */
 public class MavenCoordHelper {
+    private static final transient Logger LOG = LoggerFactory.getLogger(MavenCoordHelper.class);
     // TODO need to have one of these per class loader ideally
     private static Map<String, String> classToMavenCoordMap = new ConcurrentHashMap<String, String>();
 
@@ -42,7 +45,7 @@ public class MavenCoordHelper {
                     Class cls = findClass(className);
                     coordinates = getMavenCoordinates(cls);
                 } catch (Throwable t) {
-                    System.out.println("Ignored: " + t);
+                    LOG.debug("Can't find maven coordinate for " + className);
                 }
             }
         }
@@ -65,7 +68,7 @@ public class MavenCoordHelper {
                         String path = locationURL.getPath();
                         if (path != null) {
                             File file = new File(path);
-                            if (file.exists()) {
+                            if (file.exists() && !file.isDirectory()) {
                                 String coordinates = MavenCoordinates.mavenCoordinatesFromJarFile(file);
                                 if (!Strings.isEmpty(coordinates)) {
                                     return coordinates;
