@@ -24,6 +24,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.jclouds.aws.util.AWSUtils;
@@ -41,39 +42,36 @@ import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
-@Component(name = "org.fusesource.fabric.jclouds.firewall.nova", description = "Fabric Firewall Support for Openstack Nova", immediate = true)
-@Service(ApiFirewallSupport.class)
 /**
  * An {@link ApiFirewallSupport} implementation for Openstac Nova.
  * It uses delegation to static inner class to prevent Class loading issues when optional dependencies are
  * not satisfied.
  */
-public class NovaFirewallSupport extends AbstractComponent implements ApiFirewallSupport {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.jclouds.firewall.nova", description = "Fabric Firewall Support for Openstack Nova", immediate = true) // Done
+@Service(ApiFirewallSupport.class)
+public final class NovaFirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 
-    ApiFirewallSupport delegate;
+    private final ApiFirewallSupport delegate = new Ec2SupportDelegate();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
     /**
      * Authorizes access to the specified ports of the node, from the specified source.
-     *
-     * @param service
-     * @param node
-     * @param source
-     * @param ports
      */
     @Override
     public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
+        assertValid();
         try {
-            getDelegate().authorize(service, node, source, ports);
+            delegate.authorize(service, node, source, ports);
         } catch (NoClassDefFoundError ex) {
             //ignore
         }
@@ -81,16 +79,12 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
     /**
      * Revokes access to the specified ports of the node, from the specified source.
-     *
-     * @param service
-     * @param node
-     * @param source
-     * @param ports
      */
     @Override
     public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
+        assertValid();
         try {
-            getDelegate().revoke(service, node, source, ports);
+            delegate.revoke(service, node, source, ports);
         } catch (NoClassDefFoundError ex) {
             //ignore
         }
@@ -98,41 +92,27 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
     /**
      * Removes all rules.
-     *
-     * @param service
-     * @param node
      */
     @Override
     public void flush(ComputeService service, NodeMetadata node) {
-        getDelegate().flush(service, node);
+        assertValid();
+        delegate.flush(service, node);
     }
 
     @Override
     public boolean supports(ComputeService computeService) {
+        assertValid();
         try {
-            return getDelegate().supports(computeService);
+            return delegate.supports(computeService);
         } catch (NoClassDefFoundError ex) {
             return false;
         }
     }
 
-    private synchronized ApiFirewallSupport getDelegate() {
-        if (this.delegate == null) {
-            this.delegate = new Ec2SupportDelegate();
-        }
-        return delegate;
-    }
-
-
     private static final class Ec2SupportDelegate implements ApiFirewallSupport {
 
         /**
          * Authorizes access to the specified ports of the node, from the specified source.
-         *
-         * @param service
-         * @param node
-         * @param source
-         * @param ports
          */
         @Override
         public void authorize(ComputeService service, NodeMetadata node, String source, int... ports) {
@@ -160,11 +140,6 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
         /**
          * Revokes access to the specified ports of the node, from the specified source.
-         *
-         * @param service
-         * @param node
-         * @param source
-         * @param ports
          */
         @Override
         public void revoke(ComputeService service, NodeMetadata node, String source, int... ports) {
@@ -217,9 +192,6 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
         /**
          * Returns the @{link SecurityGroupApi} for the target location.
-         * @param computeService    The {@link ComputeService} to use.
-         * @param location          The target location.
-         * @return
          */
         private static Optional<? extends SecurityGroupApi> getSecurityGroup(ComputeService computeService, String location) {
            return computeService.getContext().unwrap(NovaApiMetadata.CONTEXT_TOKEN)
@@ -229,9 +201,6 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
         /**
          * Returns the {@link SecurityGroup} instance for the target group.
-         * @param securityGroupApi
-         * @param group
-         * @return
          */
         private static Optional<? extends SecurityGroup> getSecurityGroupForGroup(final SecurityGroupApi securityGroupApi, final String group) {
             return securityGroupApi.list().firstMatch(new Predicate<org.jclouds.openstack.nova.v2_0.domain.SecurityGroup>() {
@@ -244,10 +213,6 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
         /**
          * Returns all the {@link SecurityGroup} rule that match the specified source and ports
-         * @param securityGroup The target {@link SecurityGroup}.
-         * @param source        The source address.
-         * @param ports         The ports
-         * @return
          */
         private static Iterable<SecurityGroupRule> getAllRuleMatching(SecurityGroup securityGroup, final String source, final int... ports) {
             return Iterables.filter(securityGroup.getRules(), new Predicate<SecurityGroupRule>() {
@@ -266,10 +231,6 @@ public class NovaFirewallSupport extends AbstractComponent implements ApiFirewal
 
         /**
          * Checks if a range is fulfilled by a given number of ports.
-         * @param from
-         * @param to
-         * @param ports
-         * @return
          */
         private static boolean rangeFulfilled(int from, int to, int... ports) {
             boolean matches = true;

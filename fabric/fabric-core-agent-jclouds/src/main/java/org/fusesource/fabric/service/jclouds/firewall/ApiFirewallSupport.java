@@ -17,7 +17,6 @@
 
 package org.fusesource.fabric.service.jclouds.firewall;
 
-import com.google.common.reflect.TypeToken;
 import org.jclouds.compute.ComputeService;
 import org.jclouds.compute.domain.NodeMetadata;
 
@@ -25,19 +24,11 @@ public interface ApiFirewallSupport {
 
     /**
      * Authorizes access to the specified ports of the node, from the specified source.
-     * @param service
-     * @param node
-     * @param source
-     * @param ports
      */
     void authorize(ComputeService service, NodeMetadata node, String source, int... ports);
 
     /**
      * Revokes access to the specified ports of the node, from the specified source.
-     * @param service
-     * @param node
-     * @param source
-     * @param ports
      */
     void revoke(ComputeService service, NodeMetadata node, String source, int... ports);
 

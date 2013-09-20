@@ -20,21 +20,14 @@ package org.fusesource.fabric.service.jclouds.firewall;
 import java.io.IOException;
 import java.util.Set;
 import org.jclouds.compute.ComputeService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FirewallManager {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(FirewallManager.class);
 
     private final ComputeService computeService;
     private final ApiFirewallSupport firewallSupport;
 
     /**
      * Constructor
-     *
-     * @param computeService
-     * @param firewallSupport
      */
     public FirewallManager(ComputeService computeService, ApiFirewallSupport firewallSupport) {
         this.computeService = computeService;
