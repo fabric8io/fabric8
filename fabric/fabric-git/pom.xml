@@ -69,6 +69,12 @@
             <groupId>org.gitective</groupId>
             <artifactId>gitective-core</artifactId>
             <version>0.9.9</version>
+            <exclusions>
+              <exclusion>
+                <groupId>org.eclipse.jgit</groupId>
+                <artifactId>org.eclipse.jgit</artifactId>
+              </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
