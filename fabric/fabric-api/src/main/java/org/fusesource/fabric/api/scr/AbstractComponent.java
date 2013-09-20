@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api.scr;
 
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
+@ThreadSafe
 public abstract class AbstractComponent implements Validatable {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractComponent.class);

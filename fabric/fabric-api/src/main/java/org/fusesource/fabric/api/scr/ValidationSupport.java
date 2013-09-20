@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api.scr;
 
+import org.fusesource.fabric.api.jcip.ThreadSafe;
+
 
 /**
  * Provides validation support.
@@ -23,6 +25,7 @@ package org.fusesource.fabric.api.scr;
  * @author Thomas.Diesler@jboss.com
  * @since 13-Sep-2013
  */
+@ThreadSafe
 public final class ValidationSupport implements Validatable {
 
     /* This uses volatile to make sure that every thread sees the last written value
