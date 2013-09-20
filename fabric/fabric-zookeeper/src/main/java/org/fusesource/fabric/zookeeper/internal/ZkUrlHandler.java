@@ -22,7 +22,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
@@ -32,9 +31,10 @@ import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.fusesource.fabric.api.scr.InvalidComponentException;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.Validatable;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.api.scr.ValidationSupport;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.url.AbstractURLStreamHandlerService;
@@ -42,7 +42,8 @@ import org.osgi.service.url.URLStreamHandlerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "org.fusesource.fabric.zookeeper.urlhandler", description = "Fabric ZooKeeper URL Handler", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.zookeeper.urlhandler", description = "Fabric ZooKeeper URL Handler", immediate = true) // Done
 @Service(URLStreamHandlerService.class)
 @Properties({ @Property(name = "url.handler.protocol", value = "zk") })
 public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Validatable {
@@ -54,27 +55,26 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Val
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private final AtomicBoolean active = new AtomicBoolean();
+    private final ValidationSupport active = new ValidationSupport();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
-        active.set(true);
+    void activate(ComponentContext context) {
+        active.setValid();
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        active.set(false);
+    void deactivate() {
+        active.setInvalid();
     }
 
     @Override
-    public synchronized boolean isValid() {
-        return active.get();
+    public boolean isValid() {
+        return active.isValid();
     }
 
     @Override
-    public synchronized void assertValid() {
-        if (isValid() == false)
-            throw new InvalidComponentException();
+    public void assertValid() {
+        active.assertValid();
     }
 
     /**
@@ -86,10 +86,11 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Val
      */
     @Override
     public URLConnection openConnection(URL url) throws IOException {
+        assertValid();
         return new Connection(url);
     }
 
-    public class Connection extends URLConnection {
+    private class Connection extends URLConnection {
 
         public Connection(URL url) throws MalformedURLException {
             super(url);
@@ -112,10 +113,12 @@ public class ZkUrlHandler extends AbstractURLStreamHandlerService implements Val
 
         @Override
         public void connect() throws IOException {
+            assertValid();
         }
 
         @Override
         public InputStream getInputStream() throws IOException {
+            assertValid();
             try {
                 return new ByteArrayInputStream(ZkPath.loadURL(curator.get(), url.toString()));
             } catch (Exception e) {
