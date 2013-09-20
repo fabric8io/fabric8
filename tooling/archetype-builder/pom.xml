@@ -37,10 +37,6 @@
   </prerequisites>
 
   <properties>
-<!--
-    <kotlin.version>0.1-SNAPSHOT</kotlin.version>
-    <kotlin.version>0.1.3395</kotlin.version>
--->
     <kotlin.version>0.5.429</kotlin.version>
   </properties>
 
