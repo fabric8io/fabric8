@@ -21,7 +21,6 @@ import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
@@ -38,9 +37,6 @@ import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
-import org.osgi.framework.ServiceException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
@@ -48,20 +44,17 @@ import org.osgi.service.cm.ConfigurationListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.*;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_GEOLOCATION;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_HTTP;
@@ -86,8 +79,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 @Component(name = "org.fusesource.fabric.container.registration.karaf",
            description = "Fabric Karaf Container Registration")
 @Service({ContainerRegistration.class, ConfigurationListener.class, ConnectionStateListener.class})
-public class
-        KarafContainerRegistration implements ContainerRegistration, NotificationListener, ConfigurationListener, ConnectionStateListener {
+public class KarafContainerRegistration implements ContainerRegistration, ConfigurationListener, ConnectionStateListener {
 
     private transient Logger LOGGER = LoggerFactory.getLogger(KarafContainerRegistration.class);
 
@@ -121,10 +113,6 @@ public class
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
 
-    private BundleContext bundleContext = FrameworkUtil.getBundle(getClass()).getBundleContext();
-    private final Set<String> domains = new CopyOnWriteArraySet<String>();
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private volatile MBeanServer mbeanServer;
 
 
     public CuratorFramework getCurator() {
@@ -139,9 +127,6 @@ public class
         this.configurationAdmin = configurationAdmin;
     }
 
-    public void setBundleContext(BundleContext bundleContext) {
-        this.bundleContext = bundleContext;
-    }
 
     public FabricService getFabricService() {
         return fabricService;
@@ -201,22 +186,8 @@ public class
             String maximumPort = System.getProperty(ZkDefs.MAXIMUM_PORT);
             createDefault(curator, CONTAINER_PORT_MIN.getPath(name), minimumPort);
             createDefault(curator, CONTAINER_PORT_MAX.getPath(name), maximumPort);
-
-            registerMBeanServer();
         } catch (Exception e) {
             LOGGER.warn("Error updating Fabric Container information. This exception will be ignored.", e);
-        }
-    }
-
-    @Deactivate
-    public void destroy() {
-        LOGGER.trace("destroy");
-        try {
-            unregisterMBeanServer();
-        } catch (ServiceException e) {
-            LOGGER.trace("ZooKeeper is no longer available", e);
-        } catch (Exception e) {
-            LOGGER.warn("An error occurred during disconnecting to curator. This exception will be ignored.", e);
         }
     }
 
@@ -245,27 +216,6 @@ public class
             }
         } else {
             create(curator, nodeAlive, CreateMode.EPHEMERAL);
-        }
-        checkProcessId();
-    }
-
-    public void checkProcessId() throws Exception {
-        String processName = (String) mbeanServer.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
-        Long processId = Long.parseLong(processName.split("@")[0]);
-
-        String path = ZkPath.CONTAINER_PROCESS_ID.getPath(name);
-        Stat stat = exists(curator, path);
-        if (stat != null) {
-            if (stat.getEphemeralOwner() != curator.getZookeeperClient().getZooKeeper().getSessionId()) {
-                delete(curator, path);
-                if( processId!=null ) {
-                    create(curator, path, processId.toString(),CreateMode.EPHEMERAL);
-                }
-            }
-        } else {
-            if( processId!=null ) {
-                create(curator, path, processId.toString(), CreateMode.EPHEMERAL);
-            }
         }
     }
 
@@ -535,74 +485,6 @@ public class
         return String.format(pointer, container, String.format(resolver, container));
     }
 
-    public synchronized void registerMBeanServer() {
-        try {
-            if (mbeanServer != null) {
-                mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
-                registerDomains();
-            }
-        } catch (Exception e) {
-            LOGGER.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
-        }
-    }
-
-    public synchronized void unregisterMBeanServer() {
-        if (mbeanServer != null) {
-            try {
-                mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
-                unregisterDomains();
-            } catch (Exception e) {
-                LOGGER.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
-            }
-        }
-        mbeanServer = null;
-    }
-
-    protected void registerDomains() throws Exception {
-        String name = System.getProperty(SystemProperties.KARAF_NAME);
-        domains.addAll(Arrays.asList(mbeanServer.getDomains()));
-        for (String domain : mbeanServer.getDomains()) {
-            setData(curator, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
-        }
-    }
-
-    protected void unregisterDomains() throws Exception {
-        String name = System.getProperty(SystemProperties.KARAF_NAME);
-        String domainsPath = CONTAINER_DOMAINS.getPath(name);
-        deleteSafe(curator, domainsPath);
-    }
-
-    @Override
-    public synchronized void handleNotification(Notification notif, Object o) {
-        LOGGER.trace("handleNotification[{}]", notif);
-
-        // we may get notifications when curator client is not really connected
-        // handle mbeans registration and de-registration events
-        if (notif instanceof MBeanServerNotification) {
-            MBeanServerNotification notification = (MBeanServerNotification) notif;
-            String domain = notification.getMBeanName().getDomain();
-            String path = CONTAINER_DOMAIN.getPath((String) o, domain);
-            try {
-                if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (domains.add(domain) && exists(curator, path) == null) {
-                        setData(curator, path, "");
-                    }
-                } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    domains.clear();
-                    domains.addAll(Arrays.asList(mbeanServer.getDomains()));
-                    if (!domains.contains(domain)) {
-                        // domain is no present any more
-                        deleteSafe(curator, path);
-                    }
-                }
-//            } catch (KeeperException.SessionExpiredException e) {
-//                LOGGER.debug("Session expiry detected. Handling notification once again", e);
-//                handleNotification(notif, o);
-            } catch (Exception e) {
-                LOGGER.warn("Exception while jmx domain synchronization from event: " + notif + ". This exception will be ignored.", e);
-            }
-        }
-    }
 
 
     /**

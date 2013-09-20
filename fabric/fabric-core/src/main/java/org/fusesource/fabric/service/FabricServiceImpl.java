@@ -92,37 +92,10 @@ public class FabricServiceImpl implements FabricService {
     private PortService portService;
     @Reference(cardinality = MANDATORY_UNARY, referenceInterface = ConfigurationAdmin.class, bind = "bindConfigurationAdmin", unbind = "unbindConfigurationAdmin")
     private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = MANDATORY_UNARY, referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
-    private MBeanServer mbeanServer;
     @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "registerProvider", unbind = "unregisterProvider", referenceInterface = ContainerProvider.class, policy = ReferencePolicy.DYNAMIC)
     private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
-    private final HealthCheck healthCheck = new HealthCheck(this);
-    private final FabricManager managerMBean = new FabricManager(this);
-    private final ZooKeeperFacade zooKeeperMBean = new ZooKeeperFacade(this);
-    private final FileSystem fileSystemMBean = new FileSystem();
-
     private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
-
-    public void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer = mbeanServer;
-        if (mbeanServer != null) {
-            healthCheck.registerMBeanServer(mbeanServer);
-            managerMBean.registerMBeanServer(mbeanServer);
-            fileSystemMBean.registerMBeanServer(mbeanServer);
-            zooKeeperMBean.registerMBeanServer(mbeanServer);
-        }
-    }
-
-    public void unbindMBeanServer(MBeanServer mbeanServer) {
-        if (mbeanServer != null) {
-            zooKeeperMBean.unregisterMBeanServer(mbeanServer);
-            fileSystemMBean.unregisterMBeanServer(mbeanServer);
-            managerMBean.unregisterMBeanServer(mbeanServer);
-            healthCheck.unregisterMBeanServer(mbeanServer);
-            this.mbeanServer = null;
-        }
-    }
 
     public CuratorFramework getCurator() {
         return curator;
@@ -189,18 +162,6 @@ public class FabricServiceImpl implements FabricService {
 
     public void unbindConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
         this.configurationAdmin = null;
-    }
-
-    public HealthCheck getHealthCheck() {
-        return healthCheck;
-    }
-
-    public FabricManager getManagerMBean() {
-        return managerMBean;
-    }
-
-    public FileSystem getFileSystem() {
-        return fileSystemMBean;
     }
 
     public String getDefaultRepo() {
