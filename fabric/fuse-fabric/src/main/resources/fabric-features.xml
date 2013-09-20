@@ -519,7 +519,6 @@
         <feature version="${project.version}">fabric-git</feature>
         <feature version="${hawtio-version}">hawtio</feature>
         <feature version="${karaf-version}">http</feature>
-        <feature version="${project-version}">fabric-redirect</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-git-hawtio/${project.version}</bundle>
     </feature>
 
