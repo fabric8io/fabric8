@@ -166,7 +166,7 @@
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.17</hawtdispatch-version>
-        <hawtio-version>1.2-M-redhat-34</hawtio-version>
+        <hawtio-version>1.2-M-redhat-35</hawtio-version>
         <jackson-version>1.9.10</jackson-version>
         <jasypt-version>1.9.0</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
