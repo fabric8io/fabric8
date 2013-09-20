@@ -51,7 +51,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.management.*;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.List;
@@ -81,6 +80,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
@@ -96,6 +96,7 @@ public class
     private static final String SSH_PID = "org.apache.karaf.shell";
     private static final String HTTP_PID = "org.ops4j.pax.web";
 
+    private static final String JMX_SERVICE_URL = "serviceUrl";
     private static final String RMI_REGISTRY_BINDING_PORT_KEY = "rmiRegistryPort";
     private static final String RMI_SERVER_BINDING_PORT_KEY = "rmiServerPort";
     private static final String SSH_BINDING_PORT_KEY = "sshPort";
@@ -191,6 +192,7 @@ public class
             //We are creating a dummy container object, since this might be called before the actual container is ready.
             Container current = getContainer();
 
+            System.setProperty(SystemProperties.JAVA_RMI_SERVER_HOSTNAME, current.getIp());
             registerJmx(current);
             registerSsh(current);
             registerHttp(current);
@@ -280,6 +282,8 @@ public class
         Configuration configuration = configurationAdmin.getConfiguration(MANAGEMENT_PID);
         updateIfNeeded(configuration, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
         updateIfNeeded(configuration, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
+        updateIfNeeded(configuration, JMX_SERVICE_URL, getSubstitutedData(curator, jmxUrl));
+
     }
 
     private int getRmiRegistryPort(Container container) throws IOException, KeeperException, InterruptedException {
@@ -458,12 +462,12 @@ public class
     }
 
 
-    private void updateIfNeeded(Configuration configuration, String key, int port) throws IOException {
+    private void updateIfNeeded(Configuration configuration, String key, Object value) throws IOException {
         if (configuration != null) {
             Dictionary dictionary = configuration.getProperties();
             if (dictionary != null) {
-                if (!String.valueOf(port).equals(dictionary.get(key))) {
-                    dictionary.put(key, String.valueOf(port));
+                if (!String.valueOf(value).equals(dictionary.get(key))) {
+                    dictionary.put(key, String.valueOf(value));
                     configuration.update(dictionary);
                 }
             }
