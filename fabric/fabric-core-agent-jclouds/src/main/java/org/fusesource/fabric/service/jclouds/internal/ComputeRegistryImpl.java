@@ -1,13 +1,19 @@
 package org.fusesource.fabric.service.jclouds.internal;
 
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.DynamicReference;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.service.jclouds.ComputeRegistry;
 import org.fusesource.insight.log.support.Strings;
 import org.jclouds.compute.ComputeService;
+import org.osgi.service.component.ComponentContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,21 +24,30 @@ import java.util.concurrent.TimeUnit;
 
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 
-@Component(name = "org.fusesource.fabric.jclouds.compute.registry",
-        description = "Fabric Jclouds Compute Registry",
-        immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.jclouds.compute.registry", description = "Fabric Jclouds Compute Registry", immediate = true) // Done
 @Service(ComputeRegistry.class)
-public class ComputeRegistryImpl implements ComputeRegistry {
+public class ComputeRegistryImpl extends AbstractComponent implements ComputeRegistry {
 
     private static final Long COMPUTE_SERVICE_WAIT = 60000L;
 
     @Reference(cardinality = OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
-    private final ConcurrentMap<String, DynamicReference<ComputeService>> map = new ConcurrentHashMap<String, DynamicReference<ComputeService>>();
+    @GuardedBy("ConcurrentHashMap") private final ConcurrentMap<String, DynamicReference<ComputeService>> computeServices = new ConcurrentHashMap<String, DynamicReference<ComputeService>>();
+
+    @Activate
+    void activate(ComponentContext context) {
+        activateComponent();
+    }
+
+    @Deactivate
+    void deactivate() {
+        deactivateComponent();
+    }
 
     @Override
     public List<ComputeService> list() {
         List<ComputeService> list = new ArrayList<ComputeService>();
-        for (Map.Entry<String,DynamicReference<ComputeService>> entry : map.entrySet()) {
+        for (Map.Entry<String,DynamicReference<ComputeService>> entry : computeServices.entrySet()) {
             ComputeService computeService = entry.getValue().getIfPresent();
             if (computeService != null) {
                 list.add(computeService);
@@ -43,46 +58,40 @@ public class ComputeRegistryImpl implements ComputeRegistry {
 
     @Override
     public ComputeService getIfPresent(String name) {
-        map.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
-        return map.get(name).getIfPresent();
+        computeServices.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
+        return computeServices.get(name).getIfPresent();
     }
 
     /**
      * Finds or waits for the {@link org.jclouds.compute.ComputeService} that matches the specified name.
-     * @param name
-     * @return
      */
     public ComputeService getOrWait(String name) {
-        map.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
-        return map.get(name).get();
+        computeServices.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
+        return computeServices.get(name).get();
     }
 
     /**
      * Removes the {@link org.jclouds.compute.ComputeService} that matches the specified name.
-     * @param name
-     * @return
      */
     public void remove(String name) {
-        DynamicReference<ComputeService> ref = map.get(name);
+        DynamicReference<ComputeService> ref = computeServices.get(name);
         if (ref != null) {
             ref.unbind();
         }
     }
 
-
-
-    public void bindComputeService(ComputeService computeService) {
+    void bindComputeService(ComputeService computeService) {
         String name = computeService.getContext().unwrap().getName();
         if (!Strings.isEmpty(name)) {
-            map.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
-            map.get(name).bind(computeService);
+            computeServices.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
+            computeServices.get(name).bind(computeService);
         }
     }
 
-    public void unbindComputeService(ComputeService computeService) {
+    void unbindComputeService(ComputeService computeService) {
         String name = computeService.getContext().unwrap().getName();
         if (!Strings.isEmpty(name)) {
-            DynamicReference<ComputeService> ref = map.get(name);
+            DynamicReference<ComputeService> ref = computeServices.get(name);
             if (ref != null) {
                 ref.unbind();
             }
