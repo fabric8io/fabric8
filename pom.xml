@@ -116,10 +116,6 @@
         <aries-blueprint-version>1.0.1.redhat-${full-perfectus-build}</aries-blueprint-version>
         <aries-jmx-version>1.0.1.redhat-${full-perfectus-build}</aries-jmx-version>
         <aries-transaction-version>1.0.1.redhat-${full-perfectus-build}</aries-transaction-version>
-<!--
-        TODO is this correct?
-        <aries-util-version>1.0.0</aries-util-version>
--->
         <aries-util-version>1.0.1.redhat-${full-perfectus-build}</aries-util-version>
         <aries.version>1.0.0</aries.version>
         <aries-proxy-version>1.0.1.redhat-${full-perfectus-build}</aries-proxy-version>
@@ -128,10 +124,6 @@
         <bndlib-version>1.43.0</bndlib-version>
         <blueprint-web-version>1.0.0</blueprint-web-version>
         <brew-version>0.2.11</brew-version>
-        <!--  wat
-        <camel-version>2.12.0.fuse-72-SNAPSHOT</camel-version>
-        <camel-version>2.12-SNAPSHOT</camel-version>
-        -->
         <camel-version>2.12.0.redhat-${full-perfectus-build}</camel-version>
         <coffeebar-version>0.2.11</coffeebar-version>
         <commons-beanutils-version>1.8.3</commons-beanutils-version>
@@ -217,9 +209,6 @@
         <mvel-version>2.1.4.Final</mvel-version>
         <mvnplugins-version>1.14</mvnplugins-version>
         <openshift.client.version>2.4.1-ea-fuse</openshift.client.version>
-<!--
-        <openshift.client.version>2.4.2-SNAPSHOT</openshift.client.version>
--->
         <openshift.client.groupId>org.fusesource.fabric.openshift</openshift.client.groupId>
         <ops4j-base.version>1.4.0</ops4j-base.version>
         <ops4j-pax-swissbox-bnd.version>1.6.0</ops4j-pax-swissbox-bnd.version>
