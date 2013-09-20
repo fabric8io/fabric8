@@ -25,6 +25,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -32,9 +33,10 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Component(name = "org.fusesource.fabric.placholder.resolver.zookeeper", description = "Fabric ZooKeeper Placeholder Resolver")
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.placholder.resolver.zookeeper", description = "Fabric ZooKeeper Placeholder Resolver") // Done
 @Service(PlaceholderResolver.class)
-public class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
+public final class ZookeeperPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZookeeperPlaceholderResolver.class);
     private static final String ZOOKEEPER_SCHEME = "zk";
@@ -59,6 +61,7 @@ public class ZookeeperPlaceholderResolver extends AbstractComponent implements P
 
     @Override
     public String resolve(String pid, String key, String value) {
+        assertValid();
         try {
             return new String(ZkPath.loadURL(curator.get(), value), "UTF-8");
         } catch (KeeperException.NoNodeException e) {
