@@ -30,6 +30,23 @@
     <name>${project.artifactId}</name>
     <description>JBoss Fuse :: Assembly (Full)</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.fusesource.tooling</groupId>
+            <artifactId>fuse-cdc-assembly</artifactId>
+            <version>${fuse-cdc-version}</version>
+            <type>zip</type>
+            <classifier>win-bin</classifier>
+        </dependency>
+        <dependency>
+            <groupId>com.fusesource.tooling</groupId>
+            <artifactId>fuse-cdc-assembly</artifactId>
+            <version>${fuse-cdc-version}</version>
+            <type>tar.gz</type>
+            <classifier>unix-bin</classifier>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>

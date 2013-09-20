@@ -161,6 +161,7 @@
         <felix-utils-version>1.1.0</felix-utils-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
         <felix-scr-version>1.9.4</felix-scr-version>
+        <fuse-cdc-version>1.1.0</fuse-cdc-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
