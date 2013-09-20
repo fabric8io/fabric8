@@ -16,20 +16,12 @@
  */
 package org.fusesource.fabric.openshift.agent;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.Callable;
-
 import com.jcraft.jsch.Session;
-
-import org.eclipse.jgit.api.CloneCommand;
-import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.lib.Repository;
-import org.eclipse.jgit.lib.StoredConfig;
-import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import org.eclipse.jgit.transport.JschConfigSessionFactory;
 import org.eclipse.jgit.transport.OpenSshConfig;
 import org.eclipse.jgit.transport.SshSessionFactory;
+
+import java.util.concurrent.Callable;
 
 /**
  * A helper class for using a {@link org.eclipse.jgit.transport.SshSessionFactory}
