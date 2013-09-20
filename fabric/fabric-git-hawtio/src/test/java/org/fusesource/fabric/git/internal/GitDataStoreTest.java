@@ -91,12 +91,9 @@ public class GitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        LocalGitService gitService = new LocalGitService() {
-            public Git get() throws IOException {
-                return git;
-            }
-        };
+        LocalGitService gitService = new LocalGitService();
         gitService.activate(EasyMock.createMock(ComponentContext.class));
+        gitService.setGitForTesting(git);
 
         dataStore = createDataStore();
         dataStore.bindCuratorForTesting(curator);
@@ -177,7 +174,7 @@ public class GitDataStoreTest {
         // now lets write via the hawtio API
         FabricGitFacade hawtio = new FabricGitFacade();
         hawtio.bindGitDataStoreForTesting(dataStore);
-        hawtio.init();
+        hawtio.activateForTesting();
         String hawtioPropertyFile = "/fabric/profiles/" + dataStore.convertProfileIdToDirectory("hawtio") + "/"
                 + agentPID + ".properties";
         hawtio.write(version, hawtioPropertyFile, "My commit message", "me", "me@apache.org", "# new file\n" + hawtioRepoKey + " = " + "mvn\\:io.hawt/hawtio-karaf/myNewVersion/xml/features"
