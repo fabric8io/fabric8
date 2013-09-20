@@ -1,0 +1,1 @@
+The deploys the hawtio console inside Tomcat 7 on OpenShift
