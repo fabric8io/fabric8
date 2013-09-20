@@ -33,6 +33,8 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.groups.GroupListener;
@@ -75,8 +77,9 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
-@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", immediate = true, policy = ConfigurationPolicy.OPTIONAL)
-public class Bridge extends AbstractComponent implements GroupListener<GitZkBridgeNode> {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", immediate = true, policy = ConfigurationPolicy.OPTIONAL) // Done
+public final class Bridge extends AbstractComponent implements GroupListener<GitZkBridgeNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
@@ -87,86 +90,82 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private Group<GitZkBridgeNode> group;
+    private final ScheduledExecutorService executors = Executors.newSingleThreadScheduledExecutor();;
 
-    private long period = 1000;
-    private ScheduledExecutorService executors;
+    @GuardedBy("volatile") private volatile Group<GitZkBridgeNode> group;
+    @GuardedBy("volatile") private volatile long period = 1000;
 
     @Activate
-    synchronized void activate(ComponentContext context, Map<String, String> properties) {
-        activateComponent();
-        try {
-            this.period = Integer.parseInt(properties != null && properties.containsKey("period") ? properties.get("period") : "1000");
-            this.executors = Executors.newSingleThreadScheduledExecutor();
-            group = new ZooKeeperGroup<GitZkBridgeNode>(curator.get(), "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
-            group.add(this);
-            group.update(createState());
-            group.start();
-            executors.scheduleWithFixedDelay(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                            String login = getContainerLogin();
-                            String token = generateContainerToken(curator.get());
-                            CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
-                            if (group.isMaster()) {
-                                update(gitService.get().get(), curator.get(), cp);
-                            } else {
-                                updateLocal(gitService.get().get(), curator.get(), cp);
-                            }
-                    } catch (Exception e) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("Unable to sync git/zookeeper", e);
+    void activate(ComponentContext context, Map<String, String> properties) {
+        period = Integer.parseInt(properties != null && properties.containsKey("period") ? properties.get("period") : "1000");
+        group = new ZooKeeperGroup<GitZkBridgeNode>(curator.get(), "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
+        group.add(this);
+        group.update(createState());
+        group.start();
+        executors.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                        String login = getContainerLogin();
+                        String token = generateContainerToken(curator.get());
+                        CredentialsProvider cp = new UsernamePasswordCredentialsProvider(login, token);
+                        if (group.isMaster()) {
+                            update(gitService.get().get(), curator.get(), cp);
                         } else {
-                            LOGGER.info("Unable to sync git / zookeeper: " + e.getClass().getName() + ": " + e.getMessage());
+                            updateLocal(gitService.get().get(), curator.get(), cp);
                         }
+                } catch (Exception e) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Unable to sync git/zookeeper", e);
+                    } else {
+                        LOGGER.info("Unable to sync git / zookeeper: " + e.getClass().getName() + ": " + e.getMessage());
                     }
                 }
-            }, period, period, TimeUnit.MILLISECONDS);
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
-        }
+            }
+        }, period, period, TimeUnit.MILLISECONDS);
+        activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        try {
+    void deactivate() {
+        deactivateComponent();
+             try {
             if (group != null) {
                 group.close();
             }
         } catch (IOException e) {
             // Ignore
-        } finally {
-            deactivateComponent();
         }
     }
 
     @Override
     public void groupEvent(Group<GitZkBridgeNode> group, GroupEvent event) {
-        if (group.isMaster()) {
-            LOGGER.info("Git/zk bridge is active");
-        } else {
-            LOGGER.info("Git/zk bridge is inactive");
-        }
-        try {
-            group.update(createState());
-        } catch (IllegalStateException e) {
-            // Ignore
+        if (isValid()) {
+            if (group.isMaster()) {
+                LOGGER.info("Git/zk bridge is active");
+            } else {
+                LOGGER.info("Git/zk bridge is inactive");
+            }
+            try {
+                group.update(createState());
+            } catch (IllegalStateException e) {
+                // Ignore
+            }
         }
     }
 
-    GitZkBridgeNode createState() {
+    static void update(Git git, CuratorFramework zookeeper) throws Exception {
+        update(git, zookeeper, null);
+    }
+
+    private GitZkBridgeNode createState() {
         GitZkBridgeNode state = new GitZkBridgeNode();
         state.setId("bridge");
         state.setContainer(System.getProperty("karaf.name"));
         return state;
     }
 
-
-
-
-    public static void updateLocal(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
+    private void updateLocal(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
         String remoteName = "origin";
 
         try {
@@ -220,11 +219,7 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
         }
     }
 
-    public static void update(Git git, CuratorFramework zookeeper) throws Exception {
-        update(git, zookeeper, null);
-    }
-
-    public static void update(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
+    private static void update(Git git, CuratorFramework zookeeper, CredentialsProvider credentialsProvider) throws Exception {
         String remoteName = "origin";
 
         boolean remoteAvailable = false;
@@ -451,7 +446,7 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
         git.add().addFilepattern(CONTAINERS_PROPERTIES).call();
     }
 
-    protected static File getGitProfilesDirectory(Git git) {
+    private static File getGitProfilesDirectory(Git git) {
         // TODO allow us to move the profile tree to a sub directory in the git repo
         return git.getRepository().getWorkTree();
     }
@@ -563,14 +558,6 @@ public class Bridge extends AbstractComponent implements GroupListener<GitZkBrid
             Closeables.closeQuitely(os);
         }
         return os.toByteArray();
-    }
-
-    public long getPeriod() {
-        return period;
-    }
-
-    public void setPeriod(long period) {
-        this.period = period;
     }
 
     void bindGitService(FabricGitService service) {
