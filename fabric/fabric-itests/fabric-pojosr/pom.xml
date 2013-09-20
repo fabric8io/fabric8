@@ -94,35 +94,6 @@
           <artifactId>slf4j-api</artifactId>
         </dependency>
 
-        <!--
-        <dependency>
-          <groupId>org.apache.aries</groupId>
-          <artifactId>org.apache.aries.util</artifactId>
-          <version>0.4-SNAPSHOT</version>
-          <scope>test</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>org.apache.aries.proxy</groupId>
-          <artifactId>org.apache.aries.proxy.impl</artifactId>
-          <version>0.4-SNAPSHOT</version>
-          <scope>test</scope>
-        </dependency>
-
-        <dependency>
-          <groupId>org.apache.aries.blueprint</groupId>
-          <artifactId>org.apache.aries.blueprint.cm</artifactId>
-          <version>0.3.2-SNAPSHOT</version>
-          <scope>test</scope>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.aries.testsupport</groupId>
-              <artifactId>org.apache.aries.testsupport.unit</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        -->
-
         <dependency>
             <groupId>org.apache.aries</groupId>
             <artifactId>org.apache.aries.util</artifactId>
