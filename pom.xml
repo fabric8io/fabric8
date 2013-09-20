@@ -259,7 +259,7 @@
         <xml.api.version>2.11.0-20110622</xml.api.version>
         <zookeeper-version>3.4.5</zookeeper-version>
 
-        <activemqcpp.version>3.8.0</activemqcpp.version>
+        <activemqcpp.version>3.8.1</activemqcpp.version>
         <activemqnms.version>1.6.0</activemqnms.version>
 
         <felix.obr.version>1.6.6</felix.obr.version>
