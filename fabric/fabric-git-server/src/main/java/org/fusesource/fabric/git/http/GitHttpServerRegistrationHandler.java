@@ -23,7 +23,6 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.eclipse.jgit.http.server.GitServlet;
-import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
@@ -40,10 +39,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
@@ -54,6 +51,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
+    private static final String GIT_PID = "org.fusesource.fabric.git";
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
     private static final String DEFAULT_REALM = "karaf";
@@ -61,23 +59,18 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
 
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
-
-    private Group<GitNode> group;
-
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private HttpService httpService;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private CuratorFramework curator;
-
     private final GitServlet gitServlet = new GitServlet();
 
+    @Reference
+    private HttpService httpService;
+    @Reference
+    private ConfigurationAdmin configurationAdmin;
+    @Reference
+    private CuratorFramework curator;
 
+    private Group<GitNode> group;
     private String realm;
     private String role;
-
-    private List<GitListener> listeners = new ArrayList<GitListener>();
     private String gitRemoteUrl;
 
     public GitHttpServerRegistrationHandler() {
@@ -124,14 +117,6 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
         }
     }
 
-    public synchronized void addGitListener(GitListener listener) {
-        listeners.add(listener);
-    }
-
-    public synchronized void removeGitListener(GitListener listener) {
-        listeners.remove(listener);
-    }
-
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
         if (group.isMaster()) {
@@ -142,37 +127,11 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
         try {
             GitNode state = createState();
             group.update(state);
-
             String url = state.getUrl();
             try {
-                String actualUrl = getSubstitutedData(curator, url);
-                if (actualUrl != null && (this.gitRemoteUrl == null || !this.gitRemoteUrl.equals(actualUrl))) {
-                    // lets notify listeners
-                    this.gitRemoteUrl = actualUrl;
-                    fireGitRemoteUrlChanged(actualUrl);
-                }
-
+                gitRemoteUrl = getSubstitutedData(curator, url);
                 if (group.isMaster()) {
-                    // lets register the current URL to ConfigAdmin
-                    String pid = "org.fusesource.fabric.git";
-                    try {
-                        Configuration conf = configurationAdmin.getConfiguration(pid);
-                        if (conf == null) {
-                            LOGGER.warn("No configuration for pid " + pid);
-                        } else {
-                            Dictionary<String, Object> properties = conf.getProperties();
-                            if (properties == null) {
-                                properties = new Hashtable<String, Object>();
-                            }
-                            properties.put("fabric.git.url", actualUrl);
-                            conf.update(properties);
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
-                            }
-                        }
-                    } catch (Throwable e) {
-                        LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
-                    }
+                    updateConfigAdmin();
                 }
             } catch (URISyntaxException e) {
                 LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
@@ -183,17 +142,30 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
         }
     }
 
-    protected void fireGitRemoteUrlChanged(String remoteUrl) {
-        for (GitListener listener : listeners) {
-            listener.onRemoteUrlChanged(remoteUrl);
+
+    private void updateConfigAdmin() {
+        // lets register the current URL to ConfigAdmin
+        try {
+            Configuration conf = configurationAdmin.getConfiguration(GIT_PID);
+            if (conf == null) {
+                LOGGER.warn("No configuration for pid " + GIT_PID);
+            } else {
+                Dictionary<String, Object> properties = conf.getProperties();
+                if (properties == null) {
+                    properties = new Hashtable<String, Object>();
+                }
+                properties.put("fabric.git.url", gitRemoteUrl);
+                conf.update(properties);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Setting pid " + GIT_PID + " config admin to: " + properties);
+                }
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Could not load config admin for pid " + GIT_PID + ". Reason: " + e, e);
         }
     }
 
-    public String getGitRemoteUrl() {
-        return gitRemoteUrl;
-    }
-
-    GitNode createState() {
+    private GitNode createState() {
         String fabricRepoUrl = "${zk:" + name + "/http}/git/fabric/";
         GitNode state = new GitNode();
         state.setId("fabric-repo");
@@ -203,38 +175,5 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
             state.setServices(new String[] { fabricRepoUrl });
         }
         return state;
-    }
-
-    public String getRealm() {
-        return realm;
-    }
-
-    public void setRealm(String realm) {
-        this.realm = realm;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
-    }
-
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
     }
 }
