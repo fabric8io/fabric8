@@ -28,6 +28,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.partition.internal.DefaultTaskManager;
@@ -40,7 +42,6 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -50,8 +51,9 @@ import static com.google.common.collect.Iterables.filter;
 /**
  * A {@link ManagedServiceFactory} for creating {@link org.fusesource.fabric.partition.internal.DefaultTaskManager} instances.
  */
-@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
-public class TaskManagerFactory extends AbstractComponent {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE) // Done
+public final class TaskManagerFactory extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManagerFactory.class);
 
@@ -61,11 +63,6 @@ public class TaskManagerFactory extends AbstractComponent {
     private static final String WORK_BALANCING_POLICY = "balancing.policy";
     private static final String WORKER_TYPE = "worker.type";
 
-    private final ConcurrentMap<String, TaskManager> taksManagers = new ConcurrentHashMap<String, TaskManager>();
-    private final Multimap<String, String> waitingOnBalancing = LinkedHashMultimap.create();
-    private final Multimap<String, String> waitingOnListener = LinkedHashMultimap.create();
-    private final Map<String, Map<String,?>> pendingPids = new HashMap<String, Map<String,?>>();
-
     @Reference(referenceInterface = BalancingPolicy.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, BalancingPolicy> balancingPolicies = new ConcurrentHashMap<String, BalancingPolicy>();
     @Reference(referenceInterface = PartitionListener.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -73,21 +70,24 @@ public class TaskManagerFactory extends AbstractComponent {
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
+    @GuardedBy("this") private final ConcurrentMap<String, TaskManager> taskManagers = new ConcurrentHashMap<String, TaskManager>();
+    @GuardedBy("this") private final ConcurrentMap<String, Map<String,?>> pendingPids = new ConcurrentHashMap<String, Map<String,?>>();
+    @GuardedBy("this") private final Multimap<String, String> waitingOnBalancing = LinkedHashMultimap.create();
+    @GuardedBy("this") private final Multimap<String, String> waitingOnListener = LinkedHashMultimap.create();
+
     @Activate
-    synchronized void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
+    void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
+        activateInternal(properties);
         activateComponent();
-        try {
-            activateInternal(properties);
-        } catch (ConfigurationException ex) {
-            deactivateComponent();
-            throw ex;
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
-        }
     }
 
-    private void activateInternal(Map<String, ?> properties) throws ConfigurationException {
+    @Deactivate
+    void deactivate(Map<String,?> properties) {
+        deactivateComponent();
+        deactivateInternal(properties);
+    }
+
+    private synchronized void activateInternal(Map<String, ?> properties) throws ConfigurationException {
         validate(properties);
         String s = readString(properties, Constants.SERVICE_PID);
         String taskId = readString(properties, TASK_ID_PROPERTY_NAME);
@@ -109,7 +109,7 @@ public class TaskManagerFactory extends AbstractComponent {
             PartitionListener partitionListener = partitionListeners.get(workerType);
 
             TaskManager taskManager = new DefaultTaskManager(curator.get(), taskId, taskDefinition, partitionsPath, partitionListener, balancingPolicy);
-            TaskManager oldTaskManager = taksManagers.put(s, taskManager);
+            TaskManager oldTaskManager = taskManagers.put(s, taskManager);
             if (oldTaskManager != null) {
                 oldTaskManager.stop();
             }
@@ -117,23 +117,14 @@ public class TaskManagerFactory extends AbstractComponent {
         }
     }
 
-    @Deactivate
-    synchronized void deactivate(Map<String,?> properties) {
-        try {
-            String s = readString(properties, Constants.SERVICE_PID);
-            TaskManager taskManager = taksManagers.remove(s);
-            taskManager.stop();
-        } finally {
-            deactivateComponent();
-        }
+    private synchronized void deactivateInternal(Map<String, ?> properties) {
+        String s = readString(properties, Constants.SERVICE_PID);
+        TaskManager taskManager = taskManagers.remove(s);
+        taskManager.stop();
     }
-
 
     /**
      * Validates configuration.
-     *
-     * @param properties
-     * @throws ConfigurationException
      */
     private void validate(Map<String,?> properties) throws ConfigurationException {
         if (properties == null) {
@@ -153,10 +144,6 @@ public class TaskManagerFactory extends AbstractComponent {
 
     /**
      * Reads the specified key as a String from configuration.
-     *
-     * @param properties
-     * @param key
-     * @return
      */
     private String readString(Map<String,?> properties, String key) {
         Object obj = properties.get(key);
@@ -179,7 +166,7 @@ public class TaskManagerFactory extends AbstractComponent {
         }
     }
 
-    public synchronized void bindBalancingPolicy(BalancingPolicy balancingPolicy) {
+    void bindBalancingPolicy(BalancingPolicy balancingPolicy) {
         balancingPolicies.put(balancingPolicy.getType(), balancingPolicy);
         for (String pid : waitingOnBalancing.get(balancingPolicy.getType())) {
             try {
@@ -190,12 +177,12 @@ public class TaskManagerFactory extends AbstractComponent {
         }
     }
 
-    public synchronized void unbindBalancingPolicy(BalancingPolicy balancingPolicy) {
+    void unbindBalancingPolicy(BalancingPolicy balancingPolicy) {
         balancingPolicies.remove(balancingPolicy.getType());
-        stopWorkManagerWithBalancingPolicy(taksManagers.values(), balancingPolicy.getType());
+        stopWorkManagerWithBalancingPolicy(taskManagers.values(), balancingPolicy.getType());
     }
 
-    public synchronized void bindPartitionListener(PartitionListener partitionListener) {
+    void bindPartitionListener(PartitionListener partitionListener) {
         partitionListeners.put(partitionListener.getType(), partitionListener);
         for (String pid : waitingOnListener.get(partitionListener.getType())) {
             try {
@@ -206,9 +193,9 @@ public class TaskManagerFactory extends AbstractComponent {
         }
     }
 
-    public synchronized void unbindPartitionListener(PartitionListener partitionListener) {
+    void unbindPartitionListener(PartitionListener partitionListener) {
         partitionListeners.remove(partitionListener.getType());
-        stopWorkManagerWithListener(taksManagers.values(), partitionListener.getType());
+        stopWorkManagerWithListener(taskManagers.values(), partitionListener.getType());
     }
 
     void bindCurator(CuratorFramework curator) {
