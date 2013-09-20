@@ -143,7 +143,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
                 }
                 for (Configuration config : configs) {
                     LOGGER.info("Deleting configuration {}", config.getPid());
-                    fabricService.get().getPortService().unRegisterPort(fabricService.get().getCurrentContainer(), config.getPid());
+                    fabricService.get().getPortService().unregisterPort(fabricService.get().getCurrentContainer(), config.getPid());
                     config.delete();
                 }
             } catch (Throwable e) {

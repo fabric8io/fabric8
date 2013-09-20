@@ -49,20 +49,20 @@ public interface PortService {
      * @param pid
      * @param key
      */
-    void unRegisterPort(Container container, String pid, String key);
+    void unregisterPort(Container container, String pid, String key);
 
     /**
      * Un-register the ports bound to the specific pid.
      * @param container
      * @param pid
      */
-    public void unRegisterPort(Container container, String pid);
+    public void unregisterPort(Container container, String pid);
 
     /**
      * Un-register the ports bound to the container.
      * @param container
      */
-    public void unRegisterPort(Container container);
+    public void unregisterPort(Container container);
 
     /**
      * Looks up the registry and returns a registered port.
