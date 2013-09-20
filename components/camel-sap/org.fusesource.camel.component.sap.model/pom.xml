@@ -20,14 +20,6 @@
   <artifactId>org.fusesource.camel.component.sap.model</artifactId>
   <packaging>eclipse-plugin</packaging>
   
-  <dependencies>
-	<dependency>
-		<groupId>com.sap.conn.jco</groupId>
-		<artifactId>sapjco3</artifactId>
-		<scope>compile</scope>
-	</dependency>
-  </dependencies>
-  
   <build>
     <sourceDirectory>src</sourceDirectory>
     <plugins>

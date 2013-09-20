@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: SAP Java Connector v3
 Bundle-SymbolicName: com.sap.conn.jco
-Bundle-Version: 3.0.8.qualifier
+Bundle-Version: 3.0.8.redhat_1
 Bundle-ClassPath: sapjco3.jar
 Bundle-Vendor: Red Hat, Inc.
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6

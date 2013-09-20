@@ -18,7 +18,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sap.conn.jco</groupId>
 	<artifactId>com.sap.conn.jco</artifactId>
-	<version>3.0.8-SNAPSHOT</version>
+	<version>3.0.8.redhat_1</version>
 	<packaging>eclipse-plugin</packaging>
 	<parent>
 		<groupId>org.fusesource</groupId>
