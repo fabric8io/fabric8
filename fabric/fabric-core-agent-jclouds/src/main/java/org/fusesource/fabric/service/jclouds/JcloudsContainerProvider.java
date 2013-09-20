@@ -42,6 +42,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
@@ -69,7 +71,8 @@ import com.google.common.base.Strings;
 /**
  * A concrete {@link org.fusesource.fabric.api.ContainerProvider} that creates {@link org.fusesource.fabric.api.Container}s via jclouds {@link ComputeService}.
  */
-@Component(name = "org.fusesource.fabric.container.provider.jclouds", description = "Fabric Jclouds Container Provider", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.container.provider.jclouds", description = "Fabric Jclouds Container Provider", immediate = true) // Done
 @Service(ContainerProvider.class)
 public class JcloudsContainerProvider extends AbstractComponent implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
@@ -85,8 +88,8 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Reference(cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, bind = "bindComputeService", unbind = "unbindComputeService", referenceInterface = ComputeService.class, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, ComputeService> computeServiceMap = new ConcurrentHashMap<String, ComputeService>();
 
-    @Reference
-    private ComputeRegistry computeRegistry;
+    @Reference(referenceInterface = ComputeRegistry.class)
+    private final ValidatingReference<ComputeRegistry> computeRegistry = new ValidatingReference<ComputeRegistry>();
     @Reference(referenceInterface = FirewallManagerFactory.class)
     private final ValidatingReference<FirewallManagerFactory> firewallManagerFactory = new ValidatingReference<FirewallManagerFactory>();
     @Reference(referenceInterface = CredentialStore.class)
@@ -96,25 +99,24 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
-    private BundleContext bundleContext;
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    @GuardedBy("volatile & assertValid()") private volatile BundleContext bundleContext;
 
     @Activate
-    synchronized void activate(BundleContext bundleContext) {
+    void activate(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
-        try {
-            executorService.shutdown();
-        } finally {
-            deactivateComponent();
-        }
+    void deactivate() {
+        deactivateComponent();
+        executorService.shutdown();
     }
 
+    @Override
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions input) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+        assertValid();
         Set<? extends NodeMetadata> metadata = null;
         CreateJCloudsContainerOptions options = input.updateComputeService(getOrCreateComputeService(input));
         int number = Math.max(options.getNumber(), 1);
@@ -186,6 +188,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     @Override
     public void start(Container container) {
+        assertValid();
         CreateContainerMetadata metadata = container.getMetadata();
         if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
             throw new IllegalStateException("Container doesn't have valid create container metadata type");
@@ -219,6 +222,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     @Override
     public void stop(Container container) {
+        assertValid();
         CreateContainerMetadata metadata = container.getMetadata();
         if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
             throw new IllegalStateException("Container doesn't have valid create container metadata type");
@@ -251,6 +255,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     @Override
     public void destroy(Container container) {
+        assertValid();
         CreateContainerMetadata metadata = container.getMetadata();
         if (!(metadata instanceof CreateJCloudsContainerMetadata)) {
             throw new IllegalStateException("Container doesn't have valid create container metadata type");
@@ -265,9 +270,6 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     /**
      * Gets an existing {@link ComputeService} that matches configuration or creates a new one.
-     *
-     * @param options
-     * @return
      */
     private synchronized ComputeService getOrCreateComputeService(CreateJCloudsContainerOptions options) {
         ComputeService computeService = null;
@@ -277,7 +279,7 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
                 computeService = (ComputeService) object;
             }
             if (computeService == null && options.getContextName() != null) {
-                computeService = computeRegistry.getIfPresent(options.getContextName());
+                computeService = computeRegistry.get().getIfPresent(options.getContextName());
             }
             if (computeService == null) {
                 options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
@@ -325,6 +327,14 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
         this.credentialStore.set(null);
     }
 
+    void bindComputeRegistry(ComputeRegistry service) {
+        this.computeRegistry.set(service);
+    }
+
+    void unbindComputeRegistry(ComputeRegistry service) {
+        this.computeRegistry.set(null);
+    }
+
     void bindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.set(service);
     }
@@ -349,21 +359,17 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
         this.firewallManagerFactory.set(null);
     }
 
-    public synchronized void bindComputeService(ComputeService computeService) {
-        if (computeService != null) {
-            String name = computeService.getContext().unwrap().getName();
-            if (name != null) {
-                computeServiceMap.put(name, computeService);
-            }
+    void bindComputeService(ComputeService computeService) {
+        String name = computeService.getContext().unwrap().getName();
+        if (name != null) {
+            computeServiceMap.put(name, computeService);
         }
     }
 
-    public void unbindComputeService(ComputeService computeService) {
-        if (computeService != null) {
-            String serviceId = computeService.getContext().unwrap().getName();
-            if (serviceId != null) {
-                computeServiceMap.remove(serviceId);
-            }
+    void unbindComputeService(ComputeService computeService) {
+        String serviceId = computeService.getContext().unwrap().getName();
+        if (serviceId != null) {
+            computeServiceMap.remove(serviceId);
         }
     }
 }
