@@ -1,28 +1,14 @@
 package org.fusesource.fabric.openshift.agent;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.StringTokenizer;
-
 import org.apache.karaf.features.BundleInfo;
 import org.apache.karaf.features.Feature;
 import org.apache.karaf.features.Repository;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
+import org.fusesource.common.util.LoggingOutputStream;
 import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.agent.download.DownloadManager;
 import org.fusesource.fabric.agent.mvn.MavenRepositoryURL;
@@ -40,8 +26,21 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.xpath.XPathExpressionException;
-
-import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * Updates the deployment in a Fabric managed OpenShift cartridge
@@ -49,10 +48,10 @@ import static org.fusesource.fabric.utils.PatchUtils.extractUrl;
  * by updating the pom.xml in the maven build of the cartridges git repository to
  * download the required deployment artifacts as part of the build (based on the flag
  * {@link #isCopyFilesIntoGit()}.
- *
+ * <p/>
  * For some common containers like Tomcat we also auto-detect special files like {@link #OPENSHIFT_CONFIG_CATALINA_PROPERTIES}
  * so that we can enable the use of a shared folder for deploying jars on a shared classpath across deployment units.
- *
+ * <p/>
  * This allows, for example, shared features to be used across deployment units; such as, say, Apache Camel jars to be installed
  * and shared across all web applications in the container.
  */
@@ -98,7 +97,13 @@ public class DeploymentUpdater {
         LOG.info("Pushing deployment changes to branch " + branch
                 + " credentials " + credentials + " for container " + container.getId());
         try {
-            git.push().setCredentialsProvider(credentials).setRefSpecs(new RefSpec(branch)).setProgressMonitor(new LoggingProgressMonitor(LOG)).call();
+            Iterable<PushResult> results = git.push().setCredentialsProvider(credentials).setRefSpecs(new RefSpec(branch))
+                    .setOutputStream(new LoggingOutputStream(LOG)).call();
+/*
+            for (PushResult result : results) {
+                LOG.info(result.getMessages());
+            }
+*/
             LOG.info("Pushed deployment changes to branch " + branch + " for container " + container.getId());
         } catch (GitAPIException e) {
             LOG.error("Failed to push deployment changes to branch " + branch + " for container " + container.getId() + ". Reason: " + e, e);
