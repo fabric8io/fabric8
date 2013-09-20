@@ -46,6 +46,8 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.groups.Group;
@@ -65,8 +67,9 @@ import org.slf4j.LoggerFactory;
  * metadata (such as WARs, bundles, features) leads to the git configuration being updated for the managed
  * cartridges.
  */
-@Component(name = "org.fusesource.fabric.openshift.agent", description = "Fabric agent for deploying applications into external OpenShift cartridges", immediate = true)
-public class OpenShiftDeployAgent extends AbstractComponent implements GroupListener<ControllerNode> {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.openshift.agent", description = "Fabric agent for deploying applications into external OpenShift cartridges", immediate = true) // Done
+public final class OpenShiftDeployAgent extends AbstractComponent implements GroupListener<ControllerNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenShiftDeployAgent.class);
     private static final String REALM_PROPERTY_NAME = "realm";
@@ -74,10 +77,7 @@ public class OpenShiftDeployAgent extends AbstractComponent implements GroupList
     private static final String DEFAULT_REALM = "karaf";
     private static final String DEFAULT_ROLE = "admin";
 
-
-    private final String name = System.getProperty(SystemProperties.KARAF_NAME);
-
-    private Group<ControllerNode> group;
+    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
@@ -87,76 +87,70 @@ public class OpenShiftDeployAgent extends AbstractComponent implements GroupList
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
-
-    private Runnable runnable = new Runnable() {
+    private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
             onConfigurationChanged();
         }
     };
 
+    @GuardedBy("volatile") private volatile Group<ControllerNode> group;
+
     @Activate
-    synchronized void activate(Map<String, String> properties) {
+    void activate(Map<String, String> properties) {
+        //this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+        //this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
+        group = new ZooKeeperGroup(curator.get(), ZkPath.OPENSHIFT.getPath(), ControllerNode.class);
+        group.add(this);
+        group.update(createState());
+        group.start();
         activateComponent();
-        try {
-            //this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-            //this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
-            group = new ZooKeeperGroup(curator.get(), ZkPath.OPENSHIFT.getPath(), ControllerNode.class);
-            group.add(this);
-            group.update(createState());
-            group.start();
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
-        }
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
+        deactivateComponent();
         try {
-            try {
-                if (group != null) {
-                    group.close();
-                }
-            } catch (Exception e) {
-                LOGGER.warn("Failed to remove git server from registry.", e);
+            if (group != null) {
+                group.close();
             }
-        } finally {
-            deactivateComponent();
+        } catch (Exception e) {
+            LOGGER.warn("Failed to remove git server from registry.", e);
         }
     }
 
     @Override
     public void groupEvent(Group<ControllerNode> group, GroupEvent event) {
-        if (group.isMaster()) {
-            LOGGER.info("OpenShiftDeployAgent is the master");
-        } else {
-            LOGGER.info("OpenShiftDeployAgent is not the master");
-        }
-        try {
-            DataStore dataStore = null;
-            if (fabricService != null) {
-                dataStore = fabricService.get().getDataStore();
-            } else {
-                LOGGER.warn("No fabricService yet!");
-            }
+        if (isValid()) {
             if (group.isMaster()) {
-                ControllerNode state = createState();
-                group.update(state);
+                LOGGER.info("OpenShiftDeployAgent is the master");
+            } else {
+                LOGGER.info("OpenShiftDeployAgent is not the master");
             }
-            if (dataStore != null) {
-                if (group.isMaster()) {
-                    dataStore.trackConfiguration(runnable);
-                    onConfigurationChanged();
+            try {
+                DataStore dataStore = null;
+                if (fabricService != null) {
+                    dataStore = fabricService.get().getDataStore();
                 } else {
-                    dataStore.untrackConfiguration(runnable);
+                    LOGGER.warn("No fabricService yet!");
                 }
+                if (group.isMaster()) {
+                    ControllerNode state = createState();
+                    group.update(state);
+                }
+                if (dataStore != null) {
+                    if (group.isMaster()) {
+                        dataStore.trackConfiguration(runnable);
+                        onConfigurationChanged();
+                    } else {
+                        dataStore.untrackConfiguration(runnable);
+                    }
+                }
+            } catch (IllegalStateException e) {
+                // Ignore
             }
-        } catch (IllegalStateException e) {
-            // Ignore
         }
     }
-
 
     protected void onConfigurationChanged() {
         LOGGER.info("Configuration has changed; so checking the Fabric managed Java cartridges on OpenShift are up to date");
@@ -261,8 +255,7 @@ public class OpenShiftDeployAgent extends AbstractComponent implements GroupList
         }
     }
 
-    protected DeploymentUpdater createDeployTask(Container container, Map<String,String> openshiftConfiguration)
-            throws MalformedURLException {
+    private DeploymentUpdater createDeployTask(Container container, Map<String,String> openshiftConfiguration) throws MalformedURLException {
         String webappDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_WEBAPPS);
         String deployDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_JARS);
         if (webappDir != null || deployDir != null) {
@@ -276,8 +269,7 @@ public class OpenShiftDeployAgent extends AbstractComponent implements GroupList
     }
 
 
-    protected static String relativePath(Container container, Map<String, String> configuration,
-                                         String propertyName) {
+    private String relativePath(Container container, Map<String, String> configuration, String propertyName) {
         String value = Maps.stringValue(configuration, propertyName);
         if (Strings.isNotBlank(value)) {
             if (value.startsWith("..") || value.startsWith("/") || value.startsWith(File.separator)) {
@@ -289,10 +281,9 @@ public class OpenShiftDeployAgent extends AbstractComponent implements GroupList
         return null;
     }
 
-
-    ControllerNode createState() {
+    private ControllerNode createState() {
         ControllerNode state = new ControllerNode();
-        state.setContainer(name);
+        state.setContainer(KARAF_NAME);
         return state;
     }
 
