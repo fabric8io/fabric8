@@ -26,6 +26,8 @@ import java.util.Set;
 
 public class CreateChildContainerOptions extends CreateContainerBasicOptions<CreateChildContainerOptions> {
 
+    static final long serialVersionUID = -4093288463703483710L;
+
     public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
         @JsonProperty
         private String jmxUser;

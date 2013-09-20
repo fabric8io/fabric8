@@ -28,6 +28,7 @@ import java.util.Set;
 
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> extends CreateEnsembleOptions implements CreateContainerOptions {
 
+    static final long serialVersionUID = -663983552172109587L;
 
     public static class Builder<B extends Builder> extends CreateEnsembleOptions.Builder<B> {
 

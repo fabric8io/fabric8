@@ -18,4 +18,7 @@
 package org.fusesource.fabric.api;
 
 public class CreateChildContainerMetadata extends CreateContainerBasicMetadata<CreateChildContainerOptions> {
+
+    static final long serialVersionUID = 7114288450016905362L;
+
 }

@@ -21,4 +21,5 @@ import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 
 public class CreateSshContainerMetadata extends CreateContainerBasicMetadata<CreateSshContainerOptions> {
 
+    static final long serialVersionUID = 5909398454328015320L;
 }
