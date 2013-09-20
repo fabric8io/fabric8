@@ -86,7 +86,7 @@ public class ContainerImpl implements Container {
     @Override
     public boolean isEnsembleServer() {
         try {
-            List<String> containers = service.getDataStore().getContainers();
+            List<String> containers = service.getDataStore().getEnsembleContainers();
             for (String container : containers) {
                 if (id.equals(container)) {
                     return true;
