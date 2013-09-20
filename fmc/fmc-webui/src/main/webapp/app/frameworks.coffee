@@ -285,7 +285,7 @@ define [
     escapeHtml: (str) ->
       div = document.createElement 'div'
       div.appendChild(document.createTextNode(str))
-      div.innerHtml
+      div.innerHTML
 
     unescapeHtml: (escapedStr) ->
       div = document.createElement 'div'

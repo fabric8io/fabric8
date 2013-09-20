@@ -135,7 +135,7 @@ define [
     new FON.ConfirmationDialog
       backwards: true
       header: -> "Confirm #{_.titleize(action)}"
-      body_text: -> "Are you sure you want to #{action} the #{type} &#8220;#{id}&#8221;?"
+      body_text: -> "Are you sure you want to #{FON.escapeHtml(action)} the #{FON.escapeHtml(type)} &#8220;#{FON.escapeHtml(id)}&#8221;?"
       on_accept: ->
         on_accept()
         @do_hide()
