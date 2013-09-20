@@ -24,6 +24,8 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.ModuleStatus;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.blueprint.container.BlueprintEvent;
@@ -31,45 +33,44 @@ import org.osgi.service.blueprint.container.BlueprintListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-@Component(name = "org.fusesource.fabric.extender.listener.blueprint",
-        description = "Fabric Blueprint Listener",
-        immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.extender.listener.blueprint", description = "Fabric Blueprint Listener", immediate = true) // Done
 @Service(BlueprintListener.class)
-@Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
-public class FabricBlueprintBundleListener extends BaseExtenderListener implements  BlueprintListener {
+public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
+
     private static final String EXTENDER_TYPE = "blueprint";
 
-    final String name = System.getProperty("karaf.name");
-    final ConcurrentMap<Long, ModuleStatus> status = new ConcurrentHashMap<Long, ModuleStatus>();
-
+    @Reference(referenceInterface = CuratorFramework.class)
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    public void init(BundleContext bundleContext) {
+    void activate(BundleContext bundleContext) {
         bundleContext.addBundleListener(this);
+        activateComponent();
     }
 
     @Deactivate
     public void destroy(BundleContext bundleContext) {
+        deactivateComponent();
         bundleContext.removeBundleListener(this);
     }
 
     @Override
     public void blueprintEvent(BlueprintEvent event) {
-        long bundleId = event.getBundle().getBundleId();
-        try {
-            ModuleStatus moduleStatus = toModuleStatus(event.getType());
-            status.put(bundleId, moduleStatus);
-            setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(name, EXTENDER_TYPE, String.valueOf(bundleId)), moduleStatus.name(), CreateMode.EPHEMERAL);
-            update();
-        } catch (Exception e) {
-            LOGGER.debug("Failed to write blueprint status of bundle {}.", bundleId, e);
+        if (isValid()) {
+            long bundleId = event.getBundle().getBundleId();
+            try {
+                ModuleStatus moduleStatus = toModuleStatus(event.getType());
+                putModuleStatus(bundleId, moduleStatus);
+                setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(getKarafName(), EXTENDER_TYPE, String.valueOf(bundleId)), moduleStatus.name(), CreateMode.EPHEMERAL);
+                update();
+            } catch (Exception e) {
+                LOGGER.debug("Failed to write blueprint status of bundle {}.", bundleId, e);
+            }
         }
     }
 
@@ -78,6 +79,18 @@ public class FabricBlueprintBundleListener extends BaseExtenderListener implemen
         return EXTENDER_TYPE;
     }
 
+    @Override
+    protected CuratorFramework getCurator() {
+        return curator.get();
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
 
     private ModuleStatus toModuleStatus(int type) {
         switch (type) {

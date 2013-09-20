@@ -23,6 +23,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.ModuleStatus;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -42,51 +44,46 @@ import org.springframework.osgi.service.importer.event.OsgiServiceDependencyWait
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
-@Component(name = "org.fusesource.fabric.extender.listener.spring", description = "Fabric Spring Application Listener", immediate = true)
-public class FabricSpringApplicationListener extends AbstractComponent {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.extender.listener.spring", description = "Fabric Spring Application Listener", immediate = true) // Done
+public final class FabricSpringApplicationListener extends AbstractComponent {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(FabricSpringApplicationListener.class);
 
     private static final String EXTENDER_TYPE = "spring";
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private ServiceRegistration<?> registration;
-    private BundleListener listener;
+    @GuardedBy("volatile") private volatile ServiceRegistration<?> registration;
+    @GuardedBy("volatile") private volatile BundleListener listener;
 
     @Activate
-    synchronized void activate(BundleContext bundleContext) {
-        activateComponent();
-        try {
-            listener = createListener(bundleContext);
-            if (listener != null) {
-                registration = bundleContext.registerService("org.springframework.osgi.context.event.OsgiBundleApplicationContextListener", listener, null);
-                bundleContext.addBundleListener(listener);
-            }
-        } catch (RuntimeException rte) {
-            deactivateComponent();
-            throw rte;
+    void activate(BundleContext bundleContext) {
+        listener = createListener(bundleContext);
+        if (listener != null) {
+            registration = bundleContext.registerService(OsgiBundleApplicationContextListener.class.getName(), listener, null);
+            bundleContext.addBundleListener(listener);
         }
+        activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate(BundleContext bundleContext) {
-        try {
-            if (listener != null) {
-                bundleContext.removeBundleListener(listener);
-            }
-            if (registration != null) {
-                registration.unregister();
-            }
-        } finally {
-            deactivateComponent();
+    void deactivate(BundleContext bundleContext) {
+        deactivateComponent();
+        if (listener != null) {
+            bundleContext.removeBundleListener(listener);
+        }
+        if (registration != null) {
+            registration.unregister();
         }
     }
 
     private BundleListener createListener(BundleContext bundleContext) {
         try {
-            // [TODO] Why this reflection hack? The referenced class is not in the codebase.
-            Class<?> cl = getClass().getClassLoader().loadClass("org.fusesource.fabric.blueprint.FabricSpringApplicationListener$SpringApplicationListener");
-            return (BundleListener) cl.getConstructor(CuratorFramework.class).newInstance(curator);
+            SpringApplicationListener applicationListener = new SpringApplicationListener();
+            applicationListener.activateComponent();
+            return applicationListener;
         } catch (Throwable t) {
             return null;
         }
@@ -100,25 +97,26 @@ public class FabricSpringApplicationListener extends AbstractComponent {
         this.curator.set(null);
     }
 
-    // [TODO] Is this used
-    private static class SpringApplicationListener extends BaseExtenderListener implements OsgiBundleApplicationContextListener {
-        private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
+    class SpringApplicationListener extends AbstractExtenderListener implements OsgiBundleApplicationContextListener {
 
-        public SpringApplicationListener(CuratorFramework curator) {
-            bindCurator(curator);
+        @Override
+        protected CuratorFramework getCurator() {
+            return curator.get();
         }
 
         @Override
         public void onOsgiApplicationEvent(OsgiBundleApplicationContextEvent event) {
-            long bundleId = event.getBundle().getBundleId();
-            try {
-                ModuleStatus moduleStatus = toModuleStatus(event);
-                status.put(bundleId, moduleStatus);
-                setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(name, getExtenderType(), String.valueOf(bundleId)), moduleStatus.name(),
-                        CreateMode.EPHEMERAL);
-                update();
-            } catch (Exception e) {
-                LOGGER.warn("Failed to write blueprint status of bundle {}.", bundleId, e);
+            if (isValid()) {
+                long bundleId = event.getBundle().getBundleId();
+                try {
+                    ModuleStatus moduleStatus = toModuleStatus(event);
+                    putModuleStatus(bundleId, moduleStatus);
+                    setData(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(getKarafName(), getExtenderType(), String.valueOf(bundleId)), moduleStatus.name(),
+                            CreateMode.EPHEMERAL);
+                    update();
+                } catch (Exception e) {
+                    LOGGER.warn("Failed to write blueprint status of bundle {}.", bundleId, e);
+                }
             }
         }
 
