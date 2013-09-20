@@ -22,11 +22,11 @@ import com.google.common.base.Strings;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.functions.ToRunScriptOptions;
@@ -51,14 +51,11 @@ import java.net.URISyntaxException;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStartScript;
 import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScript;
 
@@ -72,6 +69,12 @@ import static org.fusesource.fabric.internal.ContainerProviderUtils.buildStopScr
 public class JcloudsContainerProvider implements ContainerProvider<CreateJCloudsContainerOptions, CreateJCloudsContainerMetadata> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JcloudsContainerProvider.class);
+
+    private static final String NODE_CREATED_FORMAT = "Node %s has been succesfully created.";
+    private static final String NODE_ERROR_FORMAT = "Error creating node %s. Status: .";
+    private static final String OVERVIEW_FORMAT = "Creating %s nodes on %s. It may take a while ...";
+
+
     private static final String SCHEME = "jclouds";
 
     @Reference
@@ -100,11 +103,12 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
 
 
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions input) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+        Set<? extends NodeMetadata> metadata = null;
         CreateJCloudsContainerOptions options = input.updateComputeService(getOrCreateComputeService(input));
         int number = Math.max(options.getNumber(), 1);
+        int suffix = 1;
 
         final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
-        StringBuilder overview = new StringBuilder();
 
         try {
             options.getCreationStateListener().onStateChange("Looking up for compute service.");
@@ -113,41 +117,50 @@ public class JcloudsContainerProvider implements ContainerProvider<CreateJClouds
             if (computeService == null) {
                 throw new IllegalStateException("Compute service could not be found or created.");
             }
-            overview.append(String.format("Creating %s nodes in the cloud.", number));
 
             Template template = ToTemplate.apply(options);
-            Set<? extends NodeMetadata> metadatas = null;
-            overview.append(" It may take a while ...");
-            options.getCreationStateListener().onStateChange(overview.toString());
-            metadatas = computeService.createNodesInGroup(options.getGroup(), number, template);
 
-            if (metadatas != null) {
-                for (NodeMetadata metadata : metadatas) {
-                    options.getCreationStateListener().onStateChange(String.format("Node %s has been created.", metadata.getName()));
-                }
-            }
+            options.getCreationStateListener().onStateChange(String.format(OVERVIEW_FORMAT, number, options.getContextName()));
 
-            Thread.sleep(5000);
-
-            int suffix = 1;
-            if (metadatas != null) {
-                String originalName = new String(options.getName());
-                CountDownLatch countDownLatch = new CountDownLatch(number);
-
-                for (NodeMetadata nodeMetadata : metadatas) {
-                    String containerName;
-                    if (options.getNumber() >= 1) {
-                        containerName = originalName + (suffix++);
-                    } else {
-                        containerName = originalName;
+            try {
+                metadata = computeService.createNodesInGroup(options.getGroup(), number, template);
+                for (NodeMetadata nodeMetadata : metadata) {
+                    switch (nodeMetadata.getStatus()) {
+                        case RUNNING:
+                            options.getCreationStateListener().onStateChange(String.format(NODE_CREATED_FORMAT, nodeMetadata.getName()));
+                            break;
+                        default:
+                            options.getCreationStateListener().onStateChange(String.format(NODE_ERROR_FORMAT, nodeMetadata.getStatus()));
                     }
-                    CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(containerName,
-                            nodeMetadata, options, computeService, firewallManagerFactory, template.getOptions(), result,
-                            countDownLatch);
-                    executorService.execute(installationTask);
                 }
-                countDownLatch.await(10, TimeUnit.MINUTES);
+            } catch (RunNodesException ex) {
+                CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
+                failureMetdata.setCreateOptions(options);
+                failureMetdata.setFailure(ex);
+                result.add(failureMetdata);
+                return result;
             }
+
+            String originalName = new String(options.getName());
+            CountDownLatch countDownLatch = new CountDownLatch(number);
+
+            for (NodeMetadata nodeMetadata : metadata) {
+                String containerName;
+                if (options.getNumber() >= 1) {
+                    containerName = originalName + (suffix++);
+                } else {
+                    containerName = originalName;
+                }
+                CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(containerName,
+                        nodeMetadata, options, computeService, firewallManagerFactory, template.getOptions(), result,
+                        countDownLatch);
+                executorService.execute(installationTask);
+            }
+
+            if (!countDownLatch.await(15, TimeUnit.MINUTES)) {
+                throw new FabricException("Error waiting for container installation.");
+            }
+
         } catch (Throwable t) {
                 for (int i = result.size(); i < number; i++) {
                     CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();

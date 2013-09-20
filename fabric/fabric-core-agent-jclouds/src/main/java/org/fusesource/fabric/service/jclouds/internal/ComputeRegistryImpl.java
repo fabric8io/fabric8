@@ -43,7 +43,7 @@ public class ComputeRegistryImpl implements ComputeRegistry {
 
     @Override
     public ComputeService getIfPresent(String name) {
-        map.putIfAbsent(name, new DynamicReference<ComputeService>(COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
+        map.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
         return map.get(name).getIfPresent();
     }
 
@@ -53,7 +53,7 @@ public class ComputeRegistryImpl implements ComputeRegistry {
      * @return
      */
     public ComputeService getOrWait(String name) {
-        map.putIfAbsent(name, new DynamicReference<ComputeService>(COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
+        map.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
         return map.get(name).get();
     }
 
@@ -74,7 +74,7 @@ public class ComputeRegistryImpl implements ComputeRegistry {
     public void bindComputeService(ComputeService computeService) {
         String name = computeService.getContext().unwrap().getName();
         if (!Strings.isEmpty(name)) {
-            map.putIfAbsent(name, new DynamicReference<ComputeService>(COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
+            map.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
             map.get(name).bind(computeService);
         }
     }
