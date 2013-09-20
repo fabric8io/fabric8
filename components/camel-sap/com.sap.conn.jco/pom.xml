@@ -22,8 +22,8 @@
 	<packaging>eclipse-plugin</packaging>
 	<parent>
 		<groupId>org.fusesource</groupId>
-		<artifactId>camel-sap-parent</artifactId>
-		<version>7.3.0.redhat-SNAPSHOT</version>
+		<artifactId>fusesource-pom</artifactId>
+		<version>1.9</version>
 	</parent>
 	<build>
 		<plugins>
