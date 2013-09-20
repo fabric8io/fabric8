@@ -21,7 +21,6 @@ public interface BalancingPolicy {
     /**
      * An identifier for the policy.
      * It can be used for looking up policies.
-     * @return
      */
     String getType();
 

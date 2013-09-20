@@ -26,6 +26,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.partition.BalancingPolicy;
@@ -37,38 +38,45 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 
-@Component(name = "org.fusesource.fabric.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.partition.balancing.even", description = "Fabric Partition Even Balancing Policy", immediate = true) // Done
 @Service(BalancingPolicy.class)
-public class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
+public final class EvenBalancingPolicy extends AbstractComponent implements BalancingPolicy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(EvenBalancingPolicy.class);
     private static final String TYPE = "even";
-    private final ObjectMapper mapper = new ObjectMapper();
 
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     public EvenBalancingPolicy() {
-        this.mapper.registerSubtypes(WorkerNode.class);
+        mapper.registerSubtypes(WorkerNode.class);
     }
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
     @Override
     public String getType() {
+        assertValid();
         return TYPE;
     }
 
+    /*
+     * Only allow one thread to balance at a time
+     */
     @Override
-    public void rebalance(String workId, String[] items, String[] members) {
+    public synchronized void rebalance(String workId, String[] items, String[] members) {
+        assertValid();
         Multimap<String, String> distribution = LinkedHashMultimap.create();
         //First pass - calculate the work distribution
         int index = 0;
@@ -103,5 +111,4 @@ public class EvenBalancingPolicy extends AbstractComponent implements BalancingP
     void unbindCurator(CuratorFramework curator) {
         this.curator.set(null);
     }
-
 }
