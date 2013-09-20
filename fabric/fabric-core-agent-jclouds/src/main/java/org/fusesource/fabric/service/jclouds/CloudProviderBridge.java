@@ -32,6 +32,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -52,9 +53,10 @@ import org.slf4j.LoggerFactory;
  *
  * If for any reason the new ensemble already has registered information for a provider, the provider will be skipped.
  */
-@Component(name = "org.fusesource.fabric.jclouds.bridge", description = "Fabric Jclouds Service Bridge", immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.jclouds.bridge", description = "Fabric Jclouds Service Bridge", immediate = true) // Done
 @Service(ConnectionStateListener.class)
-public class CloudProviderBridge extends AbstractComponent implements ConnectionStateListener {
+public final class CloudProviderBridge extends AbstractComponent implements ConnectionStateListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CloudProviderBridge.class);
 
@@ -67,18 +69,19 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    synchronized void activate(ComponentContext context) {
+    void activate(ComponentContext context) {
         activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
     @Override
     public void stateChanged(CuratorFramework client, ConnectionState newState) {
-        switch (newState) {
+        if (isValid()) {
+            switch (newState) {
             case CONNECTED:
             case RECONNECTED:
                 this.curator.set(client);
@@ -87,18 +90,18 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
             default:
                 onDisconnected();
         }
+        }
     }
 
-    public void onConnected() {
+    private void onConnected() {
        registerServices(COMPUTE_FILTER);
        registerServices(BLOBSTORE_FILTER);
     }
 
-    public void onDisconnected() {
-
+    private void onDisconnected() {
     }
 
-    public void registerServices(String filter) {
+    private void registerServices(String filter) {
         try {
             Configuration[] configurations = configAdmin.get().listConfigurations(filter);
             if (configurations != null) {
@@ -108,16 +111,16 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
                         String name = properties.get(Constants.NAME) != null ? String.valueOf(properties.get(Constants.NAME)) : null;
                         String identity = properties.get(Constants.IDENTITY) != null ? String.valueOf(properties.get(Constants.IDENTITY)) : null;
                         String credential = properties.get(Constants.CREDENTIAL) != null ? String.valueOf(properties.get(Constants.CREDENTIAL)) : null;
-                        if (name != null && identity != null && credential != null && getCurator().getZookeeperClient().isConnected()) {
-                            if (exists(getCurator(), ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
-                                create(getCurator(), ZkPath.CLOUD_SERVICE.getPath(name));
+                        if (name != null && identity != null && credential != null && curator.get().getZookeeperClient().isConnected()) {
+                            if (exists(curator.get(), ZkPath.CLOUD_SERVICE.getPath(name)) == null) {
+                                create(curator.get(), ZkPath.CLOUD_SERVICE.getPath(name));
 
                                 Enumeration keys = properties.keys();
                                 while (keys.hasMoreElements()) {
                                     String key = String.valueOf(keys.nextElement());
                                     String value = String.valueOf(properties.get(key));
                                     if (!key.equals("service.pid") && !key.equals("service.factoryPid")) {
-                                        setData(getCurator(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
+                                        setData(curator.get(), ZkPath.CLOUD_SERVICE_PROPERTY.getPath(name, key), value);
                                     }
                                 }
                             }
@@ -136,10 +139,6 @@ public class CloudProviderBridge extends AbstractComponent implements Connection
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
         this.configAdmin.set(null);
-    }
-
-    CuratorFramework getCurator() {
-        return curator.get();
     }
 
     void bindCurator(CuratorFramework curator) {
