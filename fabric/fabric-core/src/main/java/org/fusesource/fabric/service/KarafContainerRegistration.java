@@ -41,7 +41,6 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceException;
-import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ConfigurationEvent;
@@ -203,7 +202,7 @@ public class
             createDefault(curator, CONTAINER_PORT_MIN.getPath(name), minimumPort);
             createDefault(curator, CONTAINER_PORT_MAX.getPath(name), maximumPort);
 
-            registerDomains();
+            registerMBeanServer();
         } catch (Exception e) {
             LOGGER.warn("Error updating Fabric Container information. This exception will be ignored.", e);
         }
@@ -213,7 +212,7 @@ public class
     public void destroy() {
         LOGGER.trace("destroy");
         try {
-            unregisterDomains();
+            unregisterMBeanServer();
         } catch (ServiceException e) {
             LOGGER.trace("ZooKeeper is no longer available", e);
         } catch (Exception e) {
@@ -536,10 +535,8 @@ public class
         return String.format(pointer, container, String.format(resolver, container));
     }
 
-    public synchronized void registerMBeanServer(ServiceReference ref) {
+    public synchronized void registerMBeanServer() {
         try {
-            String name = System.getProperty(SystemProperties.KARAF_NAME);
-            mbeanServer = (MBeanServer) bundleContext.getService(ref);
             if (mbeanServer != null) {
                 mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
                 registerDomains();
@@ -549,7 +546,7 @@ public class
         }
     }
 
-    public synchronized void unregisterMBeanServer(ServiceReference ref) {
+    public synchronized void unregisterMBeanServer() {
         if (mbeanServer != null) {
             try {
                 mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
@@ -559,7 +556,6 @@ public class
             }
         }
         mbeanServer = null;
-        bundleContext.ungetService(ref);
     }
 
     protected void registerDomains() throws Exception {
