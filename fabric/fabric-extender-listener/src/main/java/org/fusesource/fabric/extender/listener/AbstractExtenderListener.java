@@ -21,7 +21,6 @@ import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.ModuleStatus;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
-import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
@@ -36,7 +35,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-public abstract class AbstractExtenderListener extends AbstractComponent implements BundleListener {
+public abstract class AbstractExtenderListener implements BundleListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
 
@@ -58,16 +57,14 @@ public abstract class AbstractExtenderListener extends AbstractComponent impleme
 
     @Override
     public synchronized void bundleChanged(BundleEvent event) {
-        if (isValid()) {
-            long bundleId = event.getBundle().getBundleId();
-            if (event.getType() == BundleEvent.UNINSTALLED) {
-                try {
-                    statusMap.remove(bundleId);
-                    delete(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, getExtenderType(), String.valueOf(bundleId)));
-                    update();
-                } catch (Exception e) {
-                    LOGGER.debug("Failed to delete blueprint status of bundle {}.", event.getBundle().getBundleId());
-                }
+        long bundleId = event.getBundle().getBundleId();
+        if (event.getType() == BundleEvent.UNINSTALLED) {
+            try {
+                statusMap.remove(bundleId);
+                delete(getCurator(), ZkPath.CONTAINER_EXTENDER_BUNDLE.getPath(KARAF_NAME, getExtenderType(), String.valueOf(bundleId)));
+                update();
+            } catch (Exception e) {
+                LOGGER.debug("Failed to delete blueprint status of bundle {}.", event.getBundle().getBundleId());
             }
         }
     }

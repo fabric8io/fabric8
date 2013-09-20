@@ -29,6 +29,7 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleEvent;
 import org.osgi.framework.BundleListener;
 import org.osgi.framework.ServiceRegistration;
 import org.slf4j.Logger;
@@ -81,9 +82,8 @@ public final class FabricSpringApplicationListener extends AbstractComponent {
 
     private BundleListener createListener(BundleContext bundleContext) {
         try {
-            SpringApplicationListener applicationListener = new SpringApplicationListener();
-            applicationListener.activateComponent();
-            return applicationListener;
+            // Classloading issues are ignored
+            return new SpringApplicationListener();
         } catch (Throwable t) {
             return null;
         }
@@ -102,6 +102,13 @@ public final class FabricSpringApplicationListener extends AbstractComponent {
         @Override
         protected CuratorFramework getCurator() {
             return curator.get();
+        }
+
+        @Override
+        public synchronized void bundleChanged(BundleEvent event) {
+            if (isValid()) {
+                super.bundleChanged(event);
+            }
         }
 
         @Override

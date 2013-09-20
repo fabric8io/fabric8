@@ -25,7 +25,9 @@ import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.ModuleStatus;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.api.scr.Validatable;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.api.scr.ValidationSupport;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.blueprint.container.BlueprintEvent;
@@ -38,7 +40,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.extender.listener.blueprint", description = "Fabric Blueprint Listener", immediate = true) // Done
 @Service(BlueprintListener.class)
-public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener {
+public final class FabricBlueprintBundleListener extends AbstractExtenderListener implements BlueprintListener, Validatable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricBlueprintBundleListener.class);
 
@@ -47,16 +49,28 @@ public final class FabricBlueprintBundleListener extends AbstractExtenderListene
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
+    private final ValidationSupport active = new ValidationSupport();
+
     @Activate
     void activate(BundleContext bundleContext) {
         bundleContext.addBundleListener(this);
-        activateComponent();
+        active.setValid();
     }
 
     @Deactivate
     public void destroy(BundleContext bundleContext) {
-        deactivateComponent();
+        active.setInvalid();
         bundleContext.removeBundleListener(this);
+    }
+
+    @Override
+    public boolean isValid() {
+        return active.isValid();
+    }
+
+    @Override
+    public void assertValid() {
+        active.assertValid();
     }
 
     @Override
