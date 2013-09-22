@@ -60,8 +60,8 @@
         <dependencySet>
             <outputDirectory>extras/fusecdc</outputDirectory>
             <includes>
-                <include>com.fusesource.tooling:fuse-cdc-assembly:zip:win-bin:1.0.0-SNAPSHOT</include>
-                <include>com.fusesource.tooling:fuse-cdc-assembly:tar.gz:unix-bin:1.0.0-SNAPSHOT</include>
+                <include>com.fusesource.tooling:fuse-cdc-assembly:zip:win-bin</include>
+                <include>com.fusesource.tooling:fuse-cdc-assembly:tar.gz:unix-bin</include>
             </includes>
             <outputFileNameMapping>${artifact.artifactId}-${artifact.version}.${artifact.extension}</outputFileNameMapping>
         </dependencySet>
