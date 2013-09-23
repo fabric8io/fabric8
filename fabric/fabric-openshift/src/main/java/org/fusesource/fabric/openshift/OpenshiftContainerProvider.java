@@ -148,6 +148,9 @@ public class OpenshiftContainerProvider implements
             }
             IApplication application = domain.createApplication(options.getName(), cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
 
+            String containerName = application.getName() + "-" + application.getUUID();
+            LOG.info("Created application " + containerName);
+
             // now lets add all the embedded cartridges
             List<IEmbeddableCartridge> list = new ArrayList<IEmbeddableCartridge>();
             for (int idx = 1,  size = cartridgeUrls.length; idx < size; idx++) {
@@ -160,7 +163,6 @@ public class OpenshiftContainerProvider implements
             }
 
             String gitUrl = application.getGitUrl();
-            String containerName = application.getName() + "-" + application.getUUID();
 /*
             // now we pass in the environemnt variables we don't need to restart
             if (!options.isEnsembleServer()) {
