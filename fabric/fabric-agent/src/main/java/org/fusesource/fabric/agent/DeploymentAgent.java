@@ -242,7 +242,7 @@ public class DeploymentAgent implements ManagedService {
         }
 
         // Adding the maven proxy URL to the list of repositories.
-        addMavenProxies(props, fabricService.waitForService(0));
+        addMavenProxies(props, fabricService.getService());
 
         updateStatus("analyzing", null);
 
@@ -363,7 +363,7 @@ public class DeploymentAgent implements ManagedService {
     private void install(Collection<Resource> allResources,
                          Map<String, StreamProvider> providers) throws Exception {
 
-        updateStatus("installing", null, allResources, true);
+        updateStatus("installing", null, allResources, false);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
 
         StringBuilder sb = new StringBuilder();
