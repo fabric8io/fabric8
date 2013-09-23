@@ -72,7 +72,7 @@ public class Containers {
         StringBuilder builder = new StringBuilder();
         for (int i = 0, size = text.length(); i < size; i++) {
             char ch = text.charAt(i);
-            if (Character.isAlphabetic(ch) || Character.isDigit(ch)) {
+            if (Character.isLetterOrDigit(ch)) {
                 builder.append(ch);
             }
         }
