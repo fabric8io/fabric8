@@ -476,20 +476,6 @@ public class FabricManager implements FabricManagerMBean {
         return answer;
     }
 
-    public List<Container> containersForProfile(String profileId) {
-        List<Container> answer = new ArrayList<Container>();
-        if (profileId != null) {
-            for (Container c : getFabricService().getContainers()) {
-                for (Profile p : c.getProfiles()) {
-                    if (profileId.equals(p.getId())) {
-                        answer.add(c);
-                    }
-                }
-            }
-        }
-        return answer;
-    }
-
     @Override
     public List<String> containerIdsForVersion(String versionId) {
         List<String> fields = new ArrayList<String>();
@@ -809,30 +795,7 @@ public class FabricManager implements FabricManagerMBean {
      */
     @Override
     public boolean scaleProfile(int numberOfInstances, String profile) throws IOException {
-        if (numberOfInstances == 0) {
-            throw new IllegalArgumentException("numberOfInstances should be greater or less than zero");
-        }
-        FabricRequirements requirements = requirements();
-        ProfileRequirements profileRequirements = requirements.getOrCreateProfileRequirement(profile);
-        Integer minimumInstances = profileRequirements.getMinimumInstances();
-        List<Container> containers = containersForProfile(profile);
-        int containerCount = containers.size();
-        int newCount = containerCount + numberOfInstances;
-        boolean update = minimumInstances == null;
-        if (numberOfInstances > 0) {
-            if (newCount > minimumInstances) {
-                update = true;
-            }
-        } else {
-            if (newCount < minimumInstances) {
-                update = true;
-            }
-        }
-        if (update) {
-            profileRequirements.setMinimumInstances(newCount);
-            requirements(requirements);
-        }
-        return update;
+        return getFabricService().scaleProfile(numberOfInstances, profile);
     }
 
     @Override

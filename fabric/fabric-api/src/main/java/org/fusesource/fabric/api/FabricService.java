@@ -262,4 +262,13 @@ public interface FabricService {
      * @param value         the value
      */
     void setConfigurationValue(String versionId, String profileId, String pid, String key, String value);
+
+    /**
+     * Scales the given profile up or down in the number of instances required
+     *
+     * @param numberOfInstances the number of instances to increase or decrease
+     * @param profile the profile ID to change the requirements
+     * @return true if the requiremetns changed
+     */
+    boolean scaleProfile(int numberOfInstances, String profile) throws IOException;
 }

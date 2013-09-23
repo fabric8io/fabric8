@@ -316,4 +316,9 @@ public class FabricServiceFacade implements FabricService {
     private J4pClient getJolokiaClient() {
         return connector.getJolokiaClient();
     }
+
+    @Override
+    public boolean scaleProfile(int numberOfInstances, String profile) throws IOException {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
 }
