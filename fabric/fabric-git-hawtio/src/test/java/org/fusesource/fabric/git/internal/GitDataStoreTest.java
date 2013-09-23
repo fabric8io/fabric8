@@ -21,7 +21,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryOneTime;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
-import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.git.hawtio.FabricGitFacade;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
@@ -90,7 +89,7 @@ public class GitDataStoreTest {
         config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
         config.save();
 
-        GitService gitService = new FabricGitServiceImpl() {
+        GitService gitService = new LocalGitService() {
             public Git get() throws IOException {
                 return git;
             }

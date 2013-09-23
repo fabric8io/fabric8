@@ -63,8 +63,8 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.git.GitListener;
-import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.internal.DataStoreHelpers;
+import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.DataStoreSupport;
 import org.fusesource.fabric.utils.Files;
@@ -132,7 +132,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     private final Object lock = new Object();
     private String remote = "origin";
 
-    private GitListener gitListener = new GitListener() {
+    private GitListener remoteChangeListener = new GitListener() {
         @Override
         public void onRemoteUrlChanged(final String remoteUrl) {
             final String actualUrl = gitRemoteUrl != null ? gitRemoteUrl : remoteUrl;
@@ -159,11 +159,6 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
                     pull();
                 }
             });
-        }
-
-        @Override
-        public void onReceivePack() {
-            clearCaches();
         }
     };
 
@@ -196,11 +191,11 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
             }
 
             if (gitRemoteUrl != null) {
-                gitListener.onRemoteUrlChanged(gitRemoteUrl);
+                remoteChangeListener.onRemoteUrlChanged(gitRemoteUrl);
             } else if (gitService != null) {
-                gitService.addGitListener(gitListener);
+                gitService.addRemoteChangeListener(remoteChangeListener);
                 gitRemoteUrl = gitService.getRemoteUrl();
-                gitListener.onRemoteUrlChanged(gitRemoteUrl);
+                remoteChangeListener.onRemoteUrlChanged(gitRemoteUrl);
                 pull();
             }
 
@@ -220,7 +215,7 @@ public class GitDataStore extends DataStoreSupport implements DataStorePlugin<Gi
     public synchronized void stop() {
         try {
             if (gitService != null) {
-                gitService.removeGitListener(gitListener);
+                gitService.removeRemoteChangeListener(remoteChangeListener);
             }
             if (threadPool != null) {
                 threadPool.shutdown();
