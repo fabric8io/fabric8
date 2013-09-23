@@ -159,14 +159,14 @@ public interface FabricManagerMBean {
 
     void setProfileOverrides(String versionId, String profileId, List<String> overrides);
 
-/*
-    ContainerProvider getProvider(String containerId);
+    /*
+        ContainerProvider getProvider(String containerId);
 
-    ContainerProvider getProvider(String scheme);
+        ContainerProvider getProvider(String scheme);
 
-    Map<String, ContainerProvider> providers();
+        Map<String, ContainerProvider> providers();
 
-*/
+    */
     FabricRequirements requirements();
 
     Map<String, Object> getVersion(String versionId);
@@ -194,6 +194,15 @@ public interface FabricManagerMBean {
     void setDefaultRepo(String defaultRepo);
 
     void setDefaultVersion(String versionId);
+
+    /**
+     * Scales the given profile up or down in the number of instances required
+     *
+     * @param numberOfInstances the number of instances to increase or decrease
+     * @param profile the profile ID to change the requirements
+     * @return true if the requiremetns changed
+     */
+    boolean scaleProfile(int numberOfInstances, String profile) throws IOException;
 
     void requirements(FabricRequirements requirements) throws IOException;
 
