@@ -27,7 +27,6 @@ import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
@@ -44,12 +43,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.net.URISyntaxException;
 import java.util.Dictionary;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -59,12 +55,14 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitHttpServerRegistrationHandler.class);
 
+    private static final String GIT_PID = "org.fusesource.fabric.git";
     private static final String REALM_PROPERTY_NAME = "realm";
     private static final String ROLE_PROPERTY_NAME = "role";
     private static final String DEFAULT_REALM = "karaf";
     private static final String DEFAULT_ROLE = "admin";
 
     private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
+    private final GitServlet gitServlet = new GitServlet();
 
     @Reference(referenceInterface = HttpService.class)
     private final ValidatingReference<HttpService> httpService = new ValidatingReference<HttpService>();
@@ -72,10 +70,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-
-    private final GitServlet gitServlet = new GitServlet();
-
-    @GuardedBy("CopyOnWriteArrayList") private final List<GitListener> listeners = new CopyOnWriteArrayList<GitListener>();
+    
     @GuardedBy("volatile") private volatile Group<GitNode> group;
     @GuardedBy("volatile") private volatile String gitRemoteUrl;
 
@@ -121,15 +116,6 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         }
     }
 
-    public void addGitListener(GitListener listener) {
-        if (isValid()) {
-            listeners.add(listener);
-        }
-    }
-
-    public void removeGitListener(GitListener listener) {
-        listeners.remove(listener);
-    }
 
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
@@ -142,51 +128,37 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             try {
                 GitNode state = createState();
                 group.update(state);
-
                 String url = state.getUrl();
-                try {
-                    String actualUrl = getSubstitutedData(curator.get(), url);
-                    if (actualUrl != null && !actualUrl.equals(gitRemoteUrl)) {
-                        // lets notify listeners
-                        gitRemoteUrl = actualUrl;
-                        fireGitRemoteUrlChanged(actualUrl);
-                    }
-
-                    if (group.isMaster()) {
-                        // lets register the current URL to ConfigAdmin
-                        String pid = "org.fusesource.fabric.git";
-                        try {
-                            Configuration conf = configAdmin.get().getConfiguration(pid);
-                            if (conf == null) {
-                                LOGGER.warn("No configuration for pid " + pid);
-                            } else {
-                                Dictionary<String, Object> properties = conf.getProperties();
-                                if (properties == null) {
-                                    properties = new Hashtable<String, Object>();
-                                }
-                                properties.put("fabric.git.url", actualUrl);
-                                conf.update(properties);
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Setting pid " + pid + " config admin to: " + properties);
-                                }
-                            }
-                        } catch (Throwable e) {
-                            LOGGER.error("Could not load config admin for pid " + pid + ". Reason: " + e, e);
-                        }
-                    }
-                } catch (URISyntaxException e) {
-                    LOGGER.error("Could not resolve actual URL from " + url + ". Reason: " + e, e);
+                gitRemoteUrl = getSubstitutedData(curator.get(), url);
+                if (group.isMaster()) {
+                    updateConfigAdmin();
                 }
 
-            } catch (IllegalStateException e) {
+            } catch (Exception e) {
                 // Ignore
             }
         }
     }
 
-    private void fireGitRemoteUrlChanged(String remoteUrl) {
-        for (GitListener listener : listeners) {
-            listener.onRemoteUrlChanged(remoteUrl);
+    private void updateConfigAdmin() {
+        // lets register the current URL to ConfigAdmin
+        try {
+            Configuration conf = configAdmin.get().getConfiguration(GIT_PID);
+            if (conf == null) {
+                LOGGER.warn("No configuration for pid " + GIT_PID);
+            } else {
+                Dictionary<String, Object> properties = conf.getProperties();
+                if (properties == null) {
+                    properties = new Hashtable<String, Object>();
+                }
+                properties.put("fabric.git.url", gitRemoteUrl);
+                conf.update(properties);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Setting pid " + GIT_PID + " config admin to: " + properties);
+                }
+            }
+        } catch (Throwable e) {
+            LOGGER.error("Could not load config admin for pid " + GIT_PID + ". Reason: " + e, e);
         }
     }
 
