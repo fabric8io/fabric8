@@ -16,40 +16,6 @@
  */
 package org.fusesource.fabric.service;
 
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_GEOLOCATION;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_HTTP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MAX;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MIN;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Dictionary;
-import java.util.List;
-import java.util.Set;
-
-import javax.management.MBeanServer;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -83,6 +49,38 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Dictionary;
+import java.util.List;
+import java.util.Set;
+
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_VERSIONS_CONTAINER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ADDRESS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_ALIVE;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_BINDADDRESS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_GEOLOCATION;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_HTTP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_JMX;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_HOSTNAME;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_LOCAL_IP;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MAX;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_PORT_MIN;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_RESOLVER;
+import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_SSH;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.container.registration.karaf", description = "Fabric Karaf Container Registration") // Done
 @Service({ContainerRegistration.class, ConfigurationListener.class, ConnectionStateListener.class})
@@ -112,14 +110,12 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
     private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
 
-    @Reference(referenceInterface = ConfigurationAdmin.class)
+    @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = CuratorFramework.class)
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricService.class)
+    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
-    private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
     @Activate
     void activate(ComponentContext context) {
@@ -227,7 +223,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         Configuration configuration = configAdmin.get().getConfiguration(MANAGEMENT_PID);
         updateIfNeeded(configuration, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
         updateIfNeeded(configuration, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
-        updateIfNeeded(configuration, JMX_SERVICE_URL, getSubstitutedData(curator.get(),jmxUrl));
     }
 
     private int getRmiRegistryPort(Container container) throws IOException, KeeperException, InterruptedException {
@@ -534,13 +529,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         }
     }
 
-    void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(mbeanServer);
-    }
-
-    void unbindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(null);
-    }
 
     void bindCurator(CuratorFramework curator) {
         this.curator.set(curator);
