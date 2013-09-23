@@ -27,9 +27,7 @@ import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.service.FabricServiceImpl;
-import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -85,14 +83,24 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     protected void assertAutoScaling() throws Exception {
         String profile = "mq-amq";
         Integer expected = 1;
-        boolean changed = fabricService.scaleProfile(expected, profile);
+        boolean changed = fabricService.scaleProfile(profile, expected);
         assertProfileMinimumSize(profile, expected);
 
         // lets call the scale method again, should have no effect as already requirements are updated
         // and we've not started an auto-scaler yet
-        changed = fabricService.scaleProfile(expected, profile);
+        changed = fabricService.scaleProfile(profile, expected);
         assertProfileMinimumSize(profile, expected);
         Assert.assertEquals("should not have changed!", false, changed);
+
+
+        changed = fabricService.scaleProfile(profile, 2);
+        assertProfileMinimumSize(profile, 2);
+
+        // now lets scale down
+        changed = fabricService.scaleProfile(profile, -1);
+
+        // since we have no instances right now, scaling down just removes the minimumInstances requirements ;)
+        assertProfileMinimumSize(profile, null);
     }
 
     protected void assertProfileMinimumSize(String profile, Integer expected) throws IOException {

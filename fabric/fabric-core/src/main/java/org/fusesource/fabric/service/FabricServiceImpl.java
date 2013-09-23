@@ -38,10 +38,6 @@ import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.ProfileRequirements;
 import org.fusesource.fabric.api.Version;
-import org.fusesource.fabric.api.jmx.FabricManager;
-import org.fusesource.fabric.api.jmx.FileSystem;
-import org.fusesource.fabric.api.jmx.HealthCheck;
-import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
@@ -55,7 +51,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -723,7 +718,7 @@ public class FabricServiceImpl implements FabricService {
     }
 
     @Override
-    public boolean scaleProfile(int numberOfInstances, String profile) throws IOException {
+    public boolean scaleProfile(String profile, int numberOfInstances) throws IOException {
         if (numberOfInstances == 0) {
             throw new IllegalArgumentException("numberOfInstances should be greater or less than zero");
         }
@@ -733,9 +728,10 @@ public class FabricServiceImpl implements FabricService {
         List<Container> containers = containersForProfile(profile);
         int containerCount = containers.size();
         int newCount = containerCount + numberOfInstances;
-        boolean update = minimumInstances == null ||
-                ((numberOfInstances > 0 && newCount > minimumInstances) ||
-                        (numberOfInstances < 0 && newCount < minimumInstances));
+        if (newCount < 0) {
+            newCount = 0;
+        }
+        boolean update = minimumInstances == null || newCount != minimumInstances;
         if (update) {
             profileRequirements.setMinimumInstances(newCount);
             setRequirements(requirements);

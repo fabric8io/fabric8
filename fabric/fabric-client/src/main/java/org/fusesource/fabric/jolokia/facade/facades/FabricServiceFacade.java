@@ -318,7 +318,7 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
-    public boolean scaleProfile(int numberOfInstances, String profile) throws IOException {
+    public boolean scaleProfile(String profile, int numberOfInstances) throws IOException {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
 }
