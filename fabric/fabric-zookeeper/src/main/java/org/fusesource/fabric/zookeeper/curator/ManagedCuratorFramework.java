@@ -84,8 +84,12 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     private final Set<ConnectionStateListener> connectionStateListeners = new HashSet<ConnectionStateListener>();
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
+
+    /**
+     * This reference is only used to ensure that the CuratorFramework will stop before the ZooKeeper server.
+     */
     @Reference(referenceInterface = ManagedServiceFactory.class, target = "(service.pid=org.fusesource.fabric.zookeeper.server)")
-    private final ValidatingReference<ManagedServiceFactory> managedServiceFactory = new ValidatingReference<ManagedServiceFactory>();
+    private ManagedServiceFactory managedServiceFactory;
 
     @GuardedBy("this") private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
     @GuardedBy("this") private final ExecutorService executor = Executors.newFixedThreadPool(5);
