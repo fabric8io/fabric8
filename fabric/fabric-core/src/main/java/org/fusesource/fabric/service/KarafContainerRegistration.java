@@ -77,7 +77,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
@@ -110,11 +109,11 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
     private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
 
-    @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
     @Activate
@@ -528,7 +527,6 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             };
         }
     }
-
 
     void bindCurator(CuratorFramework curator) {
         this.curator.set(curator);
