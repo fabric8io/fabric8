@@ -28,6 +28,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.git.GitService;
 
 import java.io.File;
 import java.io.IOException;

@@ -33,10 +33,10 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -83,7 +83,7 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
 
 
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private FabricGitService gitService;
+    private GitService gitService;
     @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
     private CuratorFramework curator;
     private Group<GitZkBridgeNode> group;
@@ -136,11 +136,11 @@ public class Bridge implements GroupListener<GitZkBridgeNode> {
     }
 
 
-    public synchronized void bindGitService(FabricGitService gitService) {
+    public synchronized void bindGitService(GitService gitService) {
         this.gitService = gitService;
     }
 
-    public synchronized void unbindGitService(FabricGitService gitService) {
+    public synchronized void unbindGitService(GitService gitService) {
         this.gitService = null;
     }
 

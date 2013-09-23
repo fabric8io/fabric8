@@ -21,5 +21,8 @@ package org.fusesource.fabric.git;
  * has moved or that it has changed
  */
 public interface GitListener {
+
     void onRemoteUrlChanged(String remoteUrl);
+
+    void onReceivePack();
 }

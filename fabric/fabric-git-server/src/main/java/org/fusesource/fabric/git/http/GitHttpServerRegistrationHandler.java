@@ -24,6 +24,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.eclipse.jgit.http.server.GitServlet;
 import org.fusesource.fabric.git.GitNode;
+import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
@@ -36,8 +37,15 @@ import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -67,6 +75,8 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
     private ConfigurationAdmin configurationAdmin;
     @Reference
     private CuratorFramework curator;
+    @Reference
+    private GitService gitService;
 
     private Group<GitNode> group;
     private String realm;
@@ -86,6 +96,24 @@ public class GitHttpServerRegistrationHandler implements GroupListener<GitNode> 
         group.add(this);
         group.update(createState());
         group.start();
+
+        gitServlet.addReceivePackFilter(new Filter() {
+            @Override
+            public void init(FilterConfig filterConfig) throws ServletException {
+            }
+
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+                chain.doFilter(request, response);
+                if (gitService != null) {
+                    gitService.notifyReceivePacket();
+                }
+            }
+
+            @Override
+            public void destroy() {
+            }
+        });
 
         try {
             HttpContext base = httpService.createDefaultHttpContext();
