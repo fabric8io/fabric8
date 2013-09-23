@@ -34,8 +34,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.management.MBeanServer;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -102,14 +100,10 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     private final ValidatingReference<PortService> portService = new ValidatingReference<PortService>();
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
-    private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
     @Reference(referenceInterface = ContainerProvider.class, bind = "bindProvider", unbind = "unbindProvider", cardinality = OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @GuardedBy("ConcurrentHashMap") private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
 
-    @GuardedBy("ConcurrentHashMap") // synchronize on 'providers' when calling a sequence of operations
-    private final Map<String, ContainerProvider> providers = new ConcurrentHashMap<String, ContainerProvider>();
-
-    private String defaultRepo = FabricServiceImpl.DEFAULT_REPO_URI;
+    @GuardedBy("this") private String defaultRepo = FabricService.DEFAULT_REPO_URI;
 
     @Activate
     void activate(ComponentContext context) {
@@ -127,12 +121,21 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         return curator.get();
     }
 
+    @Override
     public DataStore getDataStore() {
         return dataStore.get();
     }
 
     public String getDefaultRepo() {
-        return defaultRepo;
+        synchronized (this) {
+            return defaultRepo;
+        }
+    }
+
+    public void setDefaultRepo(String defaultRepo) {
+        synchronized (this) {
+            this.defaultRepo = defaultRepo;
+        }
     }
 
     @Override

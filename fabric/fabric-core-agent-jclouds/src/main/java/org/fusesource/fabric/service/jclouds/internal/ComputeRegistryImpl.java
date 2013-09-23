@@ -46,6 +46,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
 
     @Override
     public List<ComputeService> list() {
+        assertValid();
         List<ComputeService> list = new ArrayList<ComputeService>();
         for (Map.Entry<String,DynamicReference<ComputeService>> entry : computeServices.entrySet()) {
             ComputeService computeService = entry.getValue().getIfPresent();
@@ -58,6 +59,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
 
     @Override
     public ComputeService getIfPresent(String name) {
+        assertValid();
         computeServices.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
         return computeServices.get(name).getIfPresent();
     }
@@ -66,6 +68,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
      * Finds or waits for the {@link org.jclouds.compute.ComputeService} that matches the specified name.
      */
     public ComputeService getOrWait(String name) {
+        assertValid();
         computeServices.putIfAbsent(name, new DynamicReference<ComputeService>(name, COMPUTE_SERVICE_WAIT, TimeUnit.MILLISECONDS));
         return computeServices.get(name).get();
     }
@@ -74,6 +77,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
      * Removes the {@link org.jclouds.compute.ComputeService} that matches the specified name.
      */
     public void remove(String name) {
+        assertValid();
         DynamicReference<ComputeService> ref = computeServices.get(name);
         if (ref != null) {
             ref.unbind();

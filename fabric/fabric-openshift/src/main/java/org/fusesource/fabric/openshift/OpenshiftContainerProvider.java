@@ -16,29 +16,19 @@
  */
 package org.fusesource.fabric.openshift;
 
-import com.openshift.client.ApplicationScale;
-import com.openshift.client.IApplication;
-import com.openshift.client.IDomain;
-import com.openshift.client.IHttpClient;
-import com.openshift.client.IOpenShiftConnection;
-import com.openshift.client.IUser;
-import com.openshift.client.cartridge.EmbeddableCartridge;
-import com.openshift.client.cartridge.IEmbeddableCartridge;
-import com.openshift.internal.client.GearProfile;
-import com.openshift.internal.client.StandaloneCartridge;
-
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Modified;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
@@ -57,6 +47,17 @@ import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.openshift.client.ApplicationScale;
+import com.openshift.client.IApplication;
+import com.openshift.client.IDomain;
+import com.openshift.client.IHttpClient;
+import com.openshift.client.IOpenShiftConnection;
+import com.openshift.client.IUser;
+import com.openshift.client.cartridge.EmbeddableCartridge;
+import com.openshift.client.cartridge.IEmbeddableCartridge;
+import com.openshift.internal.client.GearProfile;
+import com.openshift.internal.client.StandaloneCartridge;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", immediate = true) // Done
@@ -79,29 +80,34 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @GuardedBy("properties") private final Map<String, String> properties = new HashMap<String, String>();
+    @GuardedBy("AtomicReference") private final AtomicReference<Map<String, String>> properties = new AtomicReference<Map<String, String>>();
 
     @Activate
-    synchronized void activate(ComponentContext context, Map<String, String> properties) {
+    void activate(ComponentContext context, Map<String, String> properties) {
         updateConfiguration(properties);
         activateComponent();
     }
 
     @Modified
-    private void updated(Map<String, String> properties) {
+    void updated(Map<String, String> properties) {
         updateConfiguration(properties);
-    }
-
-    private void updateConfiguration(Map<String, String> config) {
-        synchronized (properties) {
-            properties.clear();
-            properties.putAll(config);
-        }
     }
 
     @Deactivate
     void deactivate() {
         deactivateComponent();
+    }
+
+    private void updateConfiguration(Map<String, String> config) {
+        properties.set(Collections.unmodifiableMap(new HashMap<String, String>(config)));
+    }
+
+    FabricService getFabricService() {
+        return fabricService.get();
+    }
+
+    Map<String, String> getProperties() {
+        return properties.get();
     }
 
     @Override
