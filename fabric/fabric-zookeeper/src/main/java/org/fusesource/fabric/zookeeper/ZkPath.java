@@ -66,6 +66,7 @@ public enum ZkPath {
     BOOTSTRAP                      ("/fabric/registry/bootstrap"),
     MAVEN_PROXY                    ("/fabric/registry/maven/proxy/{type}"),
 	GIT                            ("/fabric/registry/clusters/git"),
+	AUTO_SCALE                     ("/fabric/registry/clusters/autoscale"),
 	OPENSHIFT                      ("/fabric/registry/clusters/openshift"),
     WEBAPPS_CLUSTER                ("/fabric/registry/clusters/webapps/{group}"),
     TASK                           ("/fabric/registry/clusters/task/{task}"),

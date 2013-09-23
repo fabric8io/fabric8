@@ -48,9 +48,7 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public Container[] getContainers() {
-
         List<Container> containers = new ArrayList<Container>();
-
         try {
             J4pExecRequest request = Helpers.createExecRequest("containers(java.util.List)", toList("id"));
             J4pExecResponse response = getJolokiaClient().execute(request);

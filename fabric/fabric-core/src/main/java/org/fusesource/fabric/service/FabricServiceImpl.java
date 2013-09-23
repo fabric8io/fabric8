@@ -23,6 +23,7 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Containers;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
@@ -725,7 +726,7 @@ public class FabricServiceImpl implements FabricService {
         FabricRequirements requirements = getRequirements();
         ProfileRequirements profileRequirements = requirements.getOrCreateProfileRequirement(profile);
         Integer minimumInstances = profileRequirements.getMinimumInstances();
-        List<Container> containers = containersForProfile(profile);
+        List<Container> containers = Containers.containersForProfile(getContainers(), profile);
         int containerCount = containers.size();
         int newCount = containerCount + numberOfInstances;
         if (newCount < 0) {
@@ -738,20 +739,4 @@ public class FabricServiceImpl implements FabricService {
         }
         return update;
     }
-
-
-    public List<Container> containersForProfile(String profileId) {
-        List<Container> answer = new ArrayList<Container>();
-        if (profileId != null) {
-            for (Container c : getContainers()) {
-                for (Profile p : c.getProfiles()) {
-                    if (profileId.equals(p.getId())) {
-                        answer.add(c);
-                    }
-                }
-            }
-        }
-        return answer;
-    }
-
 }
