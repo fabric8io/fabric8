@@ -37,6 +37,7 @@ import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.ContainerAutoScalerFactory;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.NameValidator;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.slf4j.Logger;
@@ -267,5 +268,21 @@ public class OpenshiftContainerProvider implements
 
     public FabricService getFabricService() {
         return fabricService;
+    }
+
+    /**
+     * Creates a name validator that checks there isn't an application of the given name already
+     */
+    NameValidator createNameValidator(CreateOpenshiftContainerOptions options) {
+        IUser user = getOrCreateConnection(options).getUser();
+        final IDomain domain =  getOrCreateDomain(user, options);
+        return new NameValidator() {
+            @Override
+            public boolean isValid(String name) {
+                IApplication application = domain.getApplicationByName(name);
+                return application == null;
+            }
+        };
+
     }
 }

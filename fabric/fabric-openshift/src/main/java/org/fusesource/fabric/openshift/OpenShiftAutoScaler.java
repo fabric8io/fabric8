@@ -23,6 +23,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.Containers;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.NameValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,8 +49,12 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
             for (int i = 0; i < count; i++) {
                 FabricService fabricService = containerProvider.getFabricService();
                 Container[] containers = fabricService.getContainers();
-                String name = Containers.createContainerName(containers, profile, containerProvider.getScheme());
-                CreateOpenshiftContainerOptions options = builder.number(1).version(version).profiles(profile).name(name).build();
+                final CreateOpenshiftContainerOptions.Builder configuredBuilder = builder.number(1).version(version).profiles(profile);
+
+                NameValidator nameValidator = containerProvider.createNameValidator(configuredBuilder.build());
+                String name = Containers.createContainerName(containers, profile, containerProvider.getScheme(), nameValidator);
+
+                CreateOpenshiftContainerOptions options = configuredBuilder.name(name).build();
                 LOG.info("Creating container name " + name + " version " + version + " profile " + profile + " " + count + " container(s)");
                 fabricService.createContainers(options);
             }

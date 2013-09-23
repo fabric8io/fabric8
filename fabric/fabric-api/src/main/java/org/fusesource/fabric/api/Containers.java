@@ -16,7 +16,6 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +45,7 @@ public class Containers {
      * For a profile of "foo" then this method tries to create a name of the form "foo1" or "foo2"
      * based on how many containers there are and if the name already exists.
      */
-    public static String createContainerName(Container[] containers, String profile, String scheme) {
+    public static String createContainerName(Container[] containers, String profile, String scheme, NameValidator nameValidator) {
         Map<String, Container> map = new HashMap<String, Container>();
         for (Container container : containers) {
             map.put(container.getId(), container);
@@ -62,7 +61,7 @@ public class Containers {
         int idx = profileContainers.size();
         while (true) {
             String name = namePrefix + Integer.toString(++idx);
-            if (!map.containsKey(name)) {
+            if (!map.containsKey(name) && nameValidator.isValid(name)) {
                 return name;
             }
         }
