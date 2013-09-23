@@ -22,6 +22,7 @@ import org.fusesource.common.util.Systems;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.Containers;
+import org.fusesource.fabric.api.FabricService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,11 +46,12 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
         if (builder != null) {
             // TODO this is actually generic to all providers! :)
             for (int i = 0; i < count; i++) {
-                Container[] containers = containerProvider.getFabricService().getContainers();
+                FabricService fabricService = containerProvider.getFabricService();
+                Container[] containers = fabricService.getContainers();
                 String name = Containers.createContainerName(containers, profile, containerProvider.getScheme());
                 CreateOpenshiftContainerOptions options = builder.number(1).version(version).profiles(profile).name(name).build();
                 LOG.info("Creating container name " + name + " version " + version + " profile " + profile + " " + count + " container(s)");
-                containerProvider.create(options);
+                fabricService.createContainers(options);
             }
         } else {
             LOG.warn("Could not create version " + version + " profile " + profile + " due to missing autoscale configuration");
@@ -86,7 +88,7 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
                 "");
 
         if (Strings.isNotBlank(domain) && Strings.isNotBlank(login) && Strings.isNotBlank(password)) {
-            LOG.info("Using serverUrl: " + serverUrl + " domain: " + domain + " login: " + login + " password: " + password);
+            LOG.info("Using serverUrl: " + serverUrl + " domain: " + domain + " login: " + login);
             return builder.serverUrl(serverUrl).domain(domain).login(login).password(password);
         } else {
             return null;
