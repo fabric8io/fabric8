@@ -31,8 +31,11 @@ import org.fusesource.fabric.api.jmx.FabricManager;
 import org.fusesource.fabric.api.jmx.FileSystem;
 import org.fusesource.fabric.api.jmx.HealthCheck;
 import org.fusesource.fabric.api.jmx.ZooKeeperFacade;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,40 +59,36 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 @Component(name = "org.fusesource.fabric.mbeanserver.listener",
         description = "Fabric MBean Server Listener")
 @Service(ConnectionStateListener.class)
-public class FabricMBeanRegistrationListener implements NotificationListener, ConnectionStateListener {
+public class FabricMBeanRegistrationListener extends AbstractComponent implements NotificationListener, ConnectionStateListener {
 
     private transient Logger LOGGER = LoggerFactory.getLogger(FabricMBeanRegistrationListener.class);
 
     private final String name = System.getProperty(SystemProperties.KARAF_NAME);
     private final Set<String> domains = new CopyOnWriteArraySet<String>();
 
-    @Reference
-    private FabricService fabricService;
-    @Reference
-    private CuratorFramework curator;
+    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(referenceInterface = MBeanServer.class, bind = "bindMBeanServer", unbind = "unbindMBeanServer")
+    private final ValidatingReference<MBeanServer> mbeanServer = new ValidatingReference<MBeanServer>();
 
-    @Reference
-    private volatile MBeanServer mbeanServer;
 
     private HealthCheck healthCheck;
     private FabricManager managerMBean;
     private ZooKeeperFacade zooKeeperMBean;
     private FileSystem fileSystemMBean;
 
-
     @Activate
-    public void init() throws Exception {
+    void activate(ComponentContext context) {
         registerMBeanServer();
+        activateComponent();
     }
 
     @Deactivate
-    public void destroy() {
-        LOGGER.trace("destroy");
-        try {
-            unregisterMBeanServer();
-        } catch (Exception e) {
-            LOGGER.warn("An error occurred during un-registering mbean server.", e);
-        }
+    void deactivate() {
+        unregisterMBeanServer();
+        deactivateComponent();
     }
 
     @Override
@@ -101,15 +100,15 @@ public class FabricMBeanRegistrationListener implements NotificationListener, Co
             String path = CONTAINER_DOMAIN.getPath((String) o, domain);
             try {
                 if (MBeanServerNotification.REGISTRATION_NOTIFICATION.equals(notification.getType())) {
-                    if (domains.add(domain) && exists(curator, path) == null) {
-                        setData(curator, path, "");
+                    if (domains.add(domain) && exists(curator.get(), path) == null) {
+                        setData(curator.get(), path, "");
                     }
                 } else if (MBeanServerNotification.UNREGISTRATION_NOTIFICATION.equals(notification.getType())) {
                     domains.clear();
-                    domains.addAll(Arrays.asList(mbeanServer.getDomains()));
+                    domains.addAll(Arrays.asList(mbeanServer.get().getDomains()));
                     if (!domains.contains(domain)) {
                         // domain is no present any more
-                        deleteSafe(curator, path);
+                        deleteSafe(curator.get(), path);
                     }
                 }
             } catch (Exception e) {
@@ -134,81 +133,100 @@ public class FabricMBeanRegistrationListener implements NotificationListener, Co
 
 
     private void updateProcessId() throws Exception {
-        String processName = (String) mbeanServer.getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+        String processName = (String) mbeanServer.get().getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
         Long processId = Long.parseLong(processName.split("@")[0]);
 
         String path = ZkPath.CONTAINER_PROCESS_ID.getPath(name);
-        Stat stat = exists(curator, path);
+        Stat stat = exists(curator.get(), path);
         if (stat != null) {
-            if (stat.getEphemeralOwner() != curator.getZookeeperClient().getZooKeeper().getSessionId()) {
-                delete(curator, path);
+            if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
+                delete(curator.get(), path);
                 if( processId!=null ) {
-                    create(curator, path, processId.toString(), CreateMode.EPHEMERAL);
+                    create(curator.get(), path, processId.toString(), CreateMode.EPHEMERAL);
                 }
             }
         } else {
             if( processId!=null ) {
-                create(curator, path, processId.toString(), CreateMode.EPHEMERAL);
+                create(curator.get(), path, processId.toString(), CreateMode.EPHEMERAL);
             }
         }
     }
 
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
+    void bindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.set(mbeanServer);
+    }
+
+    void unbindMBeanServer(MBeanServer mbeanServer) {
+        this.mbeanServer.set(null);
+    }
+
 
     private synchronized void registerMBeanServer() {
         try {
-            if (mbeanServer != null) {
-                mbeanServer.addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
-                registerDomains();
-                registerFabricMBeans();
-            }
+            mbeanServer.get().addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, name);
+            registerDomains();
+            registerFabricMBeans();
         } catch (Exception e) {
             LOGGER.warn("An error occurred during mbean server registration. This exception will be ignored.", e);
         }
     }
 
     private synchronized void unregisterMBeanServer() {
-        if (mbeanServer != null) {
-            try {
-                mbeanServer.removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
-                unregisterDomains();
-                unregisterFabricMBeans();
-            } catch (Exception e) {
-                LOGGER.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
-            }
+        try {
+            mbeanServer.get().removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
+            unregisterDomains();
+            unregisterFabricMBeans();
+        } catch (Exception e) {
+            LOGGER.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
         }
-        mbeanServer = null;
     }
 
     private void registerDomains() throws Exception {
         String name = System.getProperty(SystemProperties.KARAF_NAME);
-        domains.addAll(Arrays.asList(mbeanServer.getDomains()));
-        for (String domain : mbeanServer.getDomains()) {
-            setData(curator, CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
+        domains.addAll(Arrays.asList(mbeanServer.get().getDomains()));
+        for (String domain : mbeanServer.get().getDomains()) {
+            setData(curator.get(), CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
         }
     }
 
     private void unregisterDomains() throws Exception {
         String name = System.getProperty(SystemProperties.KARAF_NAME);
         String domainsPath = CONTAINER_DOMAINS.getPath(name);
-        deleteSafe(curator, domainsPath);
+        deleteSafe(curator.get(), domainsPath);
     }
 
     private void registerFabricMBeans() {
-        this.healthCheck = new HealthCheck(fabricService);
-        this.managerMBean = new FabricManager((FabricServiceImpl) fabricService);
-        this.zooKeeperMBean = new ZooKeeperFacade((FabricServiceImpl) fabricService);
+        this.healthCheck = new HealthCheck(fabricService.get());
+        this.managerMBean = new FabricManager((FabricServiceImpl) fabricService.get());
+        this.zooKeeperMBean = new ZooKeeperFacade((FabricServiceImpl) fabricService.get());
         this.fileSystemMBean = new FileSystem();
-        healthCheck.registerMBeanServer(mbeanServer);
-        managerMBean.registerMBeanServer(mbeanServer);
-        fileSystemMBean.registerMBeanServer(mbeanServer);
-        zooKeeperMBean.registerMBeanServer(mbeanServer);
+        healthCheck.registerMBeanServer(mbeanServer.get());
+        managerMBean.registerMBeanServer(mbeanServer.get());
+        fileSystemMBean.registerMBeanServer(mbeanServer.get());
+        zooKeeperMBean.registerMBeanServer(mbeanServer.get());
     }
 
     private void unregisterFabricMBeans() {
-        zooKeeperMBean.unregisterMBeanServer(mbeanServer);
-        fileSystemMBean.unregisterMBeanServer(mbeanServer);
-        managerMBean.unregisterMBeanServer(mbeanServer);
-        healthCheck.unregisterMBeanServer(mbeanServer);
+        zooKeeperMBean.unregisterMBeanServer(mbeanServer.get());
+        fileSystemMBean.unregisterMBeanServer(mbeanServer.get());
+        managerMBean.unregisterMBeanServer(mbeanServer.get());
+        healthCheck.unregisterMBeanServer(mbeanServer.get());
     }
 }
