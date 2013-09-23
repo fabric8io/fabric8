@@ -322,8 +322,10 @@ public class FabricServiceImpl implements FabricService {
             }
             return metadatas.toArray(new CreateContainerMetadata[metadatas.size()]);
         } catch (FabricException e) {
+            LOGGER.error("Failed to create container " + e, e);
             throw e;
         } catch (Exception e) {
+            LOGGER.error("Failed to create container " + e, e);
             throw new FabricException(e);
         }
     }
