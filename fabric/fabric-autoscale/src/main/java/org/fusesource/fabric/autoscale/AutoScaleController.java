@@ -22,7 +22,6 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.Containers;
@@ -30,17 +29,20 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ProfileRequirements;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
+import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,7 +54,7 @@ import java.util.concurrent.Executors;
 @Component(name = "org.fusesource.fabric.autoscale",
         description = "Fabric auto scaler",
         immediate = true)
-public class AutoScaleController implements GroupListener<AutoScalerNode> {
+public class AutoScaleController  extends AbstractComponent implements GroupListener<AutoScalerNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoScaleController.class);
     private static final String REALM_PROPERTY_NAME = "realm";
@@ -62,14 +64,15 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
 
     private Group<AutoScalerNode> group;
 
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private ConfigurationAdmin configurationAdmin;
-    @Reference(cardinality = org.apache.felix.scr.annotations.ReferenceCardinality.MANDATORY_UNARY)
-    private CuratorFramework curator;
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
-    private FabricService fabricService;
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
-    private ContainerAutoScaler containerAutoScaler;
+    @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
+    private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ContainerAutoScaler.class, bind = "bindContainerAutoScaler", unbind = "unbindContainerAutoScaler")
+    private final ValidatingReference<ContainerAutoScaler> containerAutoScaler = new ValidatingReference<ContainerAutoScaler>();
+
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private Runnable runnable = new Runnable() {
@@ -85,71 +88,56 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
 
 
     @Activate
-    public void init(Map<String, String> properties) {
-/*
-        this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
-*/
-        group = new ZooKeeperGroup(curator, ZkPath.AUTO_SCALE.getPath(), AutoScalerNode.class);
+    void activate(ComponentContext context) {
+        group = new ZooKeeperGroup<AutoScalerNode>(curator.get(), ZkPath.AUTO_SCALE.getPath(), AutoScalerNode.class);
         group.add(this);
-        group.update(createState());
         group.start();
+        activateComponent();
     }
 
     @Deactivate
-    public void destroy() {
-        try {
-            if (group != null) {
-                group.close();
-            }
-        } catch (Exception e) {
-            LOGGER.warn("Failed to remove git server from registry.", e);
-        }
+    void deactivate() {
+        deactivateComponent();
+        group.remove(this);
+        Closeables.closeQuitely(group);
+        group = null;
     }
 
     @Override
     public void groupEvent(Group<AutoScalerNode> group, GroupEvent event) {
-        if (group.isMaster()) {
-            LOGGER.info("AutoScaleController is the master");
-        } else {
-            LOGGER.info("AutoScaleController is not the master");
-        }
-        try {
-            DataStore dataStore = null;
-            if (fabricService != null) {
-                dataStore = fabricService.getDataStore();
-            } else {
-                LOGGER.warn("No fabricService yet!");
-            }
+        if (isValid()) {
             if (group.isMaster()) {
-                AutoScalerNode state = createState();
-                group.update(state);
+                LOGGER.info("AutoScaleController is the master");
+            } else {
+                LOGGER.info("AutoScaleController is not the master");
             }
-            if (dataStore != null) {
+            try {
+                DataStore dataStore = fabricService.get().getDataStore();
                 if (group.isMaster()) {
                     LOGGER.info("tracking configuration");
+                    group.update(createState());
                     dataStore.trackConfiguration(runnable);
                     onConfigurationChanged();
                 } else {
                     LOGGER.info("untracking configuration");
-                    dataStore.unTrackConfiguration(runnable);
+                    dataStore.untrackConfiguration(runnable);
                 }
+            } catch (IllegalStateException e) {
+                // Ignore
             }
-        } catch (IllegalStateException e) {
-            // Ignore
         }
     }
 
 
-    protected void onConfigurationChanged() {
+    private void onConfigurationChanged() {
         LOGGER.info("Configuration has changed; so checking the auto-scaling requirements");
         autoScale();
     }
 
-    protected void autoScale() {
+    private void autoScale() {
         ContainerAutoScaler autoScaler = getContainerAutoScaler();
         if (autoScaler != null) {
-            FabricRequirements requirements = fabricService.getRequirements();
+            FabricRequirements requirements = fabricService.get().getRequirements();
             List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
             for (ProfileRequirements profileRequirement : profileRequirements) {
                 autoScaleProfile(autoScaler, requirements, profileRequirement);
@@ -157,13 +145,13 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
         }
     }
 
-    protected ContainerAutoScaler getContainerAutoScaler() {
+    private ContainerAutoScaler getContainerAutoScaler() {
         if (containerAutoScaler == null) {
             // lets create one based on the current container providers
-            containerAutoScaler = fabricService.createContainerAutoScaler();
+            containerAutoScaler.set(fabricService.get().createContainerAutoScaler());
             LOGGER.info("Creating auto scaler " + containerAutoScaler);
         }
-        return containerAutoScaler;
+        return containerAutoScaler.get();
     }
 
     protected void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
@@ -180,7 +168,7 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
                 } else if (delta > 0) {
                     if (requirementsSatisfied(requirements, profileRequirement)) {
                         // TODO should we figure out the version from the requirements?
-                        String version = fabricService.getDefaultVersion().getId();
+                        String version = fabricService.get().getDefaultVersion().getId();
                         autoScaler.createContainers(version, profile, delta);
                     }
                 }
@@ -190,7 +178,7 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
         }
     }
 
-    protected boolean requirementsSatisfied(FabricRequirements requirements, ProfileRequirements profileRequirement) {
+    private boolean requirementsSatisfied(FabricRequirements requirements, ProfileRequirements profileRequirement) {
         List<String> dependentProfiles = profileRequirement.getDependentProfiles();
         if (dependentProfiles != null) {
             for (String dependentProfile : dependentProfiles) {
@@ -211,30 +199,63 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
         return true;
     }
 
-    protected List<Container> containersForProfile(String profile) {
-        return Containers.containersForProfile(fabricService.getContainers(), profile);
+    private List<Container> containersForProfile(String profile) {
+        return Containers.containersForProfile(fabricService.get().getContainers(), profile);
     }
 
-    AutoScalerNode createState() {
+    private AutoScalerNode createState() {
         AutoScalerNode state = new AutoScalerNode();
         state.setContainer(name);
         return state;
     }
 
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
+    }
+
+    void bindCurator(CuratorFramework curator) {
+        this.curator.set(curator);
+    }
+
+    void unbindCurator(CuratorFramework curator) {
+        this.curator.set(null);
+    }
+
+    void bindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(service);
+    }
+
+    void unbindConfigAdmin(ConfigurationAdmin service) {
+        this.configAdmin.set(null);
+    }
+
+    void bindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
+        this.containerAutoScaler.set(containerAutoScaler);
+    }
+
+    void unbindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
+        this.containerAutoScaler.set(null);
+    }
+
+
     public ConfigurationAdmin getConfigurationAdmin() {
-        return configurationAdmin;
+        return configAdmin.get();
     }
 
     public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configurationAdmin = configurationAdmin;
+        this.configAdmin.set(configurationAdmin);
     }
 
 
     public CuratorFramework getCurator() {
-        return curator;
+        return curator.get();
     }
 
     public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+        this.curator.set(curator);
     }
 }
