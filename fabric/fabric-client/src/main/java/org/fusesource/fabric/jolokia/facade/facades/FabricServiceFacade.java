@@ -70,32 +70,62 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public void startContainer(String containerId) {
-        Helpers.doContainerAction(getJolokiaClient(), "start", containerId);
+        startContainer(containerId, false);
+    }
+
+    @Override
+    public void startContainer(String containerId, boolean force) {
+        Helpers.doContainerAction(getJolokiaClient(), "start", containerId, force);
     }
 
     @Override
     public void startContainer(Container container) {
-        Helpers.doContainerAction(getJolokiaClient(), "start", container.getId());
+        startContainer(container.getId());
+    }
+
+    @Override
+    public void startContainer(Container container, boolean force) {
+        startContainer(container.getId(), force);
     }
 
     @Override
     public void stopContainer(String containerId) {
-        Helpers.doContainerAction(getJolokiaClient(), "stop", containerId);
+        stopContainer(containerId, false);
+    }
+
+    @Override
+    public void stopContainer(String containerId, boolean force) {
+        Helpers.doContainerAction(getJolokiaClient(), "stop", containerId, force);
     }
 
     @Override
     public void stopContainer(Container container) {
-        Helpers.doContainerAction(getJolokiaClient(), "stop", container.getId());
+        stopContainer(container.getId());
+    }
+
+    @Override
+    public void stopContainer(Container container, boolean force) {
+        stopContainer(container.getId(), force);
     }
 
     @Override
     public void destroyContainer(String containerId) {
-        Helpers.doContainerAction(getJolokiaClient(), "destroy", containerId);
+        destroyContainer(containerId, false);
+    }
+
+    @Override
+    public void destroyContainer(String containerId, boolean force) {
+        Helpers.doContainerAction(getJolokiaClient(), "destroy", containerId, force);
     }
 
     @Override
     public void destroyContainer(Container container) {
-        Helpers.doContainerAction(getJolokiaClient(), "destroy", container.getId());
+        destroyContainer(container.getId());
+    }
+
+    @Override
+    public void destroyContainer(Container container, boolean force) {
+        destroyContainer(container.getId(), force);
     }
 
     @Override

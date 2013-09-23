@@ -211,53 +211,75 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
     @Override
     public void startContainer(String containerId) {
+        startContainer(containerId, false);
+    }
+
+    public void startContainer(String containerId, boolean force) {
         assertValid();
         Container container = getContainer(containerId);
         if (container != null) {
-            startContainer(container);
+            startContainer(container, force);
         }
     }
 
-    @Override
-    public void startContainer(final Container container) {
+    public void startContainer(Container container) {
+        startContainer(container, false);
+    }
+
+    public void startContainer(Container container, boolean force) {
         assertValid();
         LOGGER.info("Starting container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        if (!container.isAlive()) {
+        if (force || !container.isAlive()) {
             provider.start(container);
         }
     }
 
     @Override
     public void stopContainer(String containerId) {
+        stopContainer(containerId, false);
+    }
+
+    public void stopContainer(String containerId, boolean force) {
         assertValid();
         Container container = getContainer(containerId);
         if (container != null) {
-            stopContainer(container);
+            stopContainer(container, force);
         }
     }
 
-    @Override
-    public void stopContainer(final Container container) {
+    public void stopContainer(Container container) {
+        stopContainer(container, false);
+    }
+
+    public void stopContainer(Container container, boolean force) {
         assertValid();
         LOGGER.info("Stopping container {}", container.getId());
         ContainerProvider provider = getProvider(container);
-        if (container.isAlive()) {
+        if (force || container.isAlive()) {
             provider.stop(container);
         }
     }
 
     @Override
     public void destroyContainer(String containerId) {
+        destroyContainer(containerId, false);
+    }
+
+    public void destroyContainer(String containerId, boolean force) {
         assertValid();
         Container container = getContainer(containerId);
         if (container != null) {
-            destroyContainer(container);
+            destroyContainer(container, force);
         }
     }
 
     @Override
     public void destroyContainer(Container container) {
+        destroyContainer(container, false);
+    }
+
+    public void destroyContainer(Container container, boolean force) {
         assertValid();
         String containerId = container.getId();
         LOGGER.info("Destroying container {}", containerId);

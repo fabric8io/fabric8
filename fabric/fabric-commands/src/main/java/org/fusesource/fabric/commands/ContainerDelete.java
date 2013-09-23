@@ -26,10 +26,7 @@ import static org.fusesource.fabric.utils.FabricValidations.validateContainersNa
 public class ContainerDelete extends ContainerLifecycleCommand {
 
     @Option(name = "-r", aliases = {"--recursive"}, multiValued = false, required = false, description = "Recursively stops and deletes all child containers")
-    protected Boolean recursive = Boolean.FALSE;
-
-    @Option(name = "-f", aliases = {"--force"}, multiValued = false, required = false, description = "Forces the deletion of the container.")
-    protected Boolean force = Boolean.FALSE;
+    protected boolean recursive = false;
 
     @Override
     protected Object doExecute() throws Exception {
@@ -44,12 +41,12 @@ public class ContainerDelete extends ContainerLifecycleCommand {
         applyUpdatedCredentials(found);
         if (recursive) {
             for (Container child : found.getChildren()) {
-                child.stop();
-                child.destroy();
+                child.stop(force);
+                child.destroy(force);
             }
         }
-        found.stop();
-        found.destroy();
+        found.stop(force);
+        found.destroy(force);
         return null;
     }
 

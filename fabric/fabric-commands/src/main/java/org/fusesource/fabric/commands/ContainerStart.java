@@ -24,14 +24,13 @@ import static org.fusesource.fabric.utils.FabricValidations.validateContainersNa
 @Command(name = "container-start", scope = "fabric", description = "Start the specified container", detailedDescription = "classpath:containerStart.txt")
 public class ContainerStart extends ContainerLifecycleCommand {
 
-
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         validateContainersName(container);
         Container found = getContainer(container);
         applyUpdatedCredentials(found);
-        if (!found.isAlive()) {
-            found.start();
+        if (force || !found.isAlive()) {
+            found.start(force);
         } else {
             System.err.println("Container " + container + " is already started");
         }

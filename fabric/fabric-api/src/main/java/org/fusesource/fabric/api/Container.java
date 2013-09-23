@@ -107,8 +107,11 @@ public interface Container extends HasId {
 
 
     void start();
+    void start(boolean force);
     void stop();
+    void stop(boolean force);
     void destroy();
+    void destroy(boolean force);
 
     //  gets children containers, eg process instances, maybe camel contexts
     Container[] getChildren();

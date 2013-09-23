@@ -25,10 +25,6 @@ import static org.fusesource.fabric.utils.FabricValidations.validateContainersNa
 @Command(name = "container-stop", scope = "fabric", description = "Shut down an existing container", detailedDescription = "classpath:containerStop.txt")
 public class ContainerStop extends ContainerLifecycleCommand {
 
-    @Option(name = "-f", aliases = {"--force"}, multiValued = false, required = false, description = "Forces stopping of the container.")
-    protected Boolean force = Boolean.FALSE;
-
-
     protected Object doExecute() throws Exception {
         checkFabricAvailable();
         validateContainersName(container);
@@ -39,8 +35,8 @@ public class ContainerStop extends ContainerLifecycleCommand {
 
         Container found = getContainer(container);
         applyUpdatedCredentials(found);
-        if (found.isAlive()) {
-            found.stop();
+        if (force || found.isAlive()) {
+            found.stop(force);
         } else {
             System.err.println("Container " + container + " is already stopped");
         }

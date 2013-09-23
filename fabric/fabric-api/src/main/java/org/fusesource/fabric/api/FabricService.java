@@ -53,15 +53,27 @@ public interface FabricService {
 
     public void startContainer(String containerId);
 
-    public void startContainer(final Container container);
+    public void startContainer(String containerId, boolean force);
+
+    public void startContainer(Container container);
+
+    public void startContainer(Container container, boolean force);
 
     public void stopContainer(String containerId);
 
-    public void stopContainer(final Container container);
+    public void stopContainer(String containerId, boolean force);
+
+    public void stopContainer(Container container);
+
+    public void stopContainer(Container container, boolean force);
 
     public void destroyContainer(String containerId);
 
+    public void destroyContainer(String containerId, boolean force);
+
     public void destroyContainer(Container container);
+
+    public void destroyContainer(Container container, boolean force);
 
     /**
      * Creates one or more new {@link Container}s with the specified {@link CreateContainerOptions}.

@@ -497,19 +497,35 @@ public class ContainerImpl implements Container {
         return str != null ? Arrays.asList(str.split("\n")) : Collections.<String>emptyList();
     }
 
+    @Override
     public void start() {
-        service.startContainer(this);
+        start(false);
+    }
+
+    @Override
+    public void start(boolean force) {
+        service.startContainer(this, force);
     }
 
     @Override
     public void stop() {
-        service.stopContainer(this);
+        stop(false);
+    }
+
+    @Override
+    public void stop(boolean force) {
+        service.stopContainer(this, force);
     }
 
     @Override
     public void destroy() {
+        destroy(false);
+    }
+
+    @Override
+    public void destroy(boolean force) {
         if (!hasAliveChildren()) {
-            service.destroyContainer(this);
+            service.destroyContainer(this, force);
         } else {
             throw new IllegalStateException("Container " + id + " has one or more child containers alive and cannot be destroyed.");
         }
