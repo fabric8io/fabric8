@@ -71,4 +71,8 @@ public class OpenShiftConstants {
      */
     public static final String PROPERTY_COPY_BINARIES_TO_GIT = "copy.binaries.to.git";
 
+    /**
+     * The default server URL when using OpenShift Online
+     */
+    public static final String DEFAULT_SERVER_URL = "openshift.redhat.com";
 }

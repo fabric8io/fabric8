@@ -319,4 +319,9 @@ public class FabricServiceFacade implements FabricService {
     public boolean scaleProfile(String profile, int numberOfInstances) throws IOException {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
+
+    @Override
+    public ContainerAutoScaler createContainerAutoScaler() {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
 }

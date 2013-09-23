@@ -16,20 +16,15 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.List;
-
 /**
- * Provides the mechanism to create or destroy containers
- * using a cloud which supports scaling such as OpenShift
+ * An optional interface that a {@link org.fusesource.fabric.api.ContainerProvider} can
+ * implement to indicate it is capable of creating an instance of
  */
-public interface ContainerAutoScaler {
-    /**
-     * Creates the given number of containers of the given profile
-     */
-    void createContainers(String version, String profile, int count) throws Exception;
+public interface ContainerAutoScalerFactory {
 
     /**
-     * Destroy a number of containers from the given list of containers
+     * Returns a newly created {@link org.fusesource.fabric.api.ContainerAutoScaler} or null
+     * if there is insufficient configuration information available to create an auto-scaler
      */
-    void destroyContainers(String profile, int count, List<Container> containers) throws Exception;
+    ContainerAutoScaler createAutoScaler();
 }

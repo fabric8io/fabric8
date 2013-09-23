@@ -272,4 +272,12 @@ public interface FabricService {
      * @return true if the requiremetns changed
      */
     boolean scaleProfile(String profile, int numberOfInstances) throws IOException;
+
+    /**
+     * Creates a new {@link org.fusesource.fabric.api.ContainerAutoScaler} instance
+     * using the available container providers to determine the best way to auto-scale;
+     * or null if there are no suitable {@link ContainerPRovider} instances available
+     * with the correct configuration to enable this capability.
+     */
+    ContainerAutoScaler createContainerAutoScaler();
 }

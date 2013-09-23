@@ -26,11 +26,15 @@ import com.openshift.client.cartridge.EmbeddableCartridge;
 import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.internal.client.GearProfile;
 import com.openshift.internal.client.StandaloneCartridge;
+import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerAutoScaler;
+import org.fusesource.fabric.api.ContainerAutoScalerFactory;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -50,7 +54,13 @@ import java.util.Set;
         description = "Fabric Openshift Container Provider",
         immediate = true)
 @Service(ContainerProvider.class)
-public class OpenshiftContainerProvider implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata> {
+public class OpenshiftContainerProvider implements
+        ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
+
+    public static final String PROPERTY_AUTOSCALE_SERVER_URL = "autoscale.server.url";
+    public static final String PROPERTY_AUTOSCALE_LOGIN = "autoscale.login";
+    public static final String PROPERTY_AUTOSCALE_PASSWORD = "autoscale.password";
+    public static final String PROPERTY_AUTOSCALE_DOMAIN = "autoscale.domain";
 
     private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
 
@@ -64,6 +74,18 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
 
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
+
+    private Map<String, String> properties = new HashMap<String, String>();
+
+    @Activate
+    private void init(Map<String, String> properties) {
+       updated(properties);
+    }
+
+    @Modified
+    private void updated(Map<String, String> properties) {
+        this.properties = properties;
+    }
 
     @Override
     public Set<CreateOpenshiftContainerMetadata> create(CreateOpenshiftContainerOptions options) throws Exception {
@@ -232,4 +254,16 @@ public class OpenshiftContainerProvider implements ContainerProvider<CreateOpens
         }
     }
 
+    @Override
+    public ContainerAutoScaler createAutoScaler() {
+        return new OpenShiftAutoScaler(this);
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
+
+    public FabricService getFabricService() {
+        return fabricService;
+    }
 }

@@ -68,7 +68,7 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
     private CuratorFramework curator;
     @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
     private FabricService fabricService;
-    @Reference(cardinality = ReferenceCardinality.MANDATORY_UNARY)
+    @Reference(cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private ContainerAutoScaler containerAutoScaler;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -110,9 +110,9 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
     @Override
     public void groupEvent(Group<AutoScalerNode> group, GroupEvent event) {
         if (group.isMaster()) {
-            LOGGER.info("OpenShiftController repo is the master");
+            LOGGER.info("AutoScaleController is the master");
         } else {
-            LOGGER.info("OpenShiftController repo is not the master");
+            LOGGER.info("AutoScaleController is not the master");
         }
         try {
             DataStore dataStore = null;
@@ -127,9 +127,11 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
             }
             if (dataStore != null) {
                 if (group.isMaster()) {
+                    LOGGER.info("tracking configuration");
                     dataStore.trackConfiguration(runnable);
                     onConfigurationChanged();
                 } else {
+                    LOGGER.info("untracking configuration");
                     dataStore.unTrackConfiguration(runnable);
                 }
             }
@@ -140,20 +142,31 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
 
 
     protected void onConfigurationChanged() {
-        LOGGER.info("Configuration has changed; so checking the external Java containers are up to date");
+        LOGGER.info("Configuration has changed; so checking the auto-scaling requirements");
         autoScale();
     }
 
     protected void autoScale() {
-        FabricRequirements requirements = fabricService.getRequirements();
-        List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
-        for (ProfileRequirements profileRequirement : profileRequirements) {
-            autoScaleProfile(requirements, profileRequirement);
+        ContainerAutoScaler autoScaler = getContainerAutoScaler();
+        if (autoScaler != null) {
+            FabricRequirements requirements = fabricService.getRequirements();
+            List<ProfileRequirements> profileRequirements = requirements.getProfileRequirements();
+            for (ProfileRequirements profileRequirement : profileRequirements) {
+                autoScaleProfile(autoScaler, requirements, profileRequirement);
+            }
         }
-
     }
 
-    protected void autoScaleProfile(FabricRequirements requirements, ProfileRequirements profileRequirement) {
+    protected ContainerAutoScaler getContainerAutoScaler() {
+        if (containerAutoScaler == null) {
+            // lets create one based on the current container providers
+            containerAutoScaler = fabricService.createContainerAutoScaler();
+            LOGGER.info("Creating auto scaler " + containerAutoScaler);
+        }
+        return containerAutoScaler;
+    }
+
+    protected void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
         String profile = profileRequirement.getProfile();
         Integer minimumInstances = profileRequirement.getMinimumInstances();
         if (minimumInstances != null) {
@@ -161,29 +174,37 @@ public class AutoScaleController implements GroupListener<AutoScalerNode> {
             List<Container> containers = containersForProfile(profile);
             int count = containers.size();
             int delta = minimumInstances - count;
-            if (delta < 0) {
-                containerAutoScaler.destroyContainers(profile, -delta, containers);
-            } else if (delta > 0) {
-                if (requirementsSatisfied(requirements, profileRequirement)) {
-                    containerAutoScaler.createContainers(profile, delta);
+            try {
+                if (delta < 0) {
+                    autoScaler.destroyContainers(profile, -delta, containers);
+                } else if (delta > 0) {
+                    if (requirementsSatisfied(requirements, profileRequirement)) {
+                        // TODO should we figure out the version from the requirements?
+                        String version = fabricService.getDefaultVersion().getId();
+                        autoScaler.createContainers(version, profile, delta);
+                    }
                 }
+            } catch (Exception e) {
+                LOGGER.error("Failed to auto-scale " + profile + ". Caught: " + e, e);
             }
         }
     }
 
     protected boolean requirementsSatisfied(FabricRequirements requirements, ProfileRequirements profileRequirement) {
         List<String> dependentProfiles = profileRequirement.getDependentProfiles();
-        for (String dependentProfile : dependentProfiles) {
-            ProfileRequirements dependentProfileRequirements = requirements.getOrCreateProfileRequirement(dependentProfile);
-            Integer minimumInstances = dependentProfileRequirements.getMinimumInstances();
-            if (minimumInstances != null) {
-                List<Container> containers = containersForProfile(dependentProfile);
-                int dependentSize = containers.size();
-                if (minimumInstances > dependentSize) {
-                    LOGGER.info("Cannot yet auto-scale profile " + profileRequirement.getProfile()
-                            + " since dependent profile " + dependentProfile + " has only " + dependentSize
-                            + " container(s) when it requires " + minimumInstances + " container(s)");
-                    return false;
+        if (dependentProfiles != null) {
+            for (String dependentProfile : dependentProfiles) {
+                ProfileRequirements dependentProfileRequirements = requirements.getOrCreateProfileRequirement(dependentProfile);
+                Integer minimumInstances = dependentProfileRequirements.getMinimumInstances();
+                if (minimumInstances != null) {
+                    List<Container> containers = containersForProfile(dependentProfile);
+                    int dependentSize = containers.size();
+                    if (minimumInstances > dependentSize) {
+                        LOGGER.info("Cannot yet auto-scale profile " + profileRequirement.getProfile()
+                                + " since dependent profile " + dependentProfile + " has only " + dependentSize
+                                + " container(s) when it requires " + minimumInstances + " container(s)");
+                        return false;
+                    }
                 }
             }
         }

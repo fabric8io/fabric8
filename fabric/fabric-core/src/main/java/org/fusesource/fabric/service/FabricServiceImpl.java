@@ -23,6 +23,8 @@ import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerAutoScaler;
+import org.fusesource.fabric.api.ContainerAutoScalerFactory;
 import org.fusesource.fabric.api.Containers;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerBasicMetadata;
@@ -55,6 +57,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -738,5 +741,20 @@ public class FabricServiceImpl implements FabricService {
             setRequirements(requirements);
         }
         return update;
+    }
+
+    @Override
+    public ContainerAutoScaler createContainerAutoScaler() {
+        Collection<ContainerProvider> providerCollection = getProviders().values();
+        for (ContainerProvider containerProvider : providerCollection) {
+            if (containerProvider instanceof ContainerAutoScalerFactory) {
+                ContainerAutoScalerFactory provider = (ContainerAutoScalerFactory) containerProvider;
+                ContainerAutoScaler answer = provider.createAutoScaler();
+                if (answer != null) {
+                    return answer;
+                }
+            }
+        }
+        return null;
     }
 }

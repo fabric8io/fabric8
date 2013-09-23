@@ -16,8 +16,11 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A helper class for working with containers
@@ -36,5 +39,43 @@ public class Containers {
             }
         }
         return answer;
+    }
+
+    /**
+     * Creates a name for a new container given the current list of containers and the profile name.
+     * For a profile of "foo" then this method tries to create a name of the form "foo1" or "foo2"
+     * based on how many containers there are and if the name already exists.
+     */
+    public static String createContainerName(Container[] containers, String profile, String scheme) {
+        Map<String, Container> map = new HashMap<String, Container>();
+        for (Container container : containers) {
+            map.put(container.getId(), container);
+        }
+        String postFix = "." + scheme;
+        String namePrefix = profile;
+        if (namePrefix.endsWith(postFix)) {
+            namePrefix = namePrefix.substring(0, namePrefix.length() - postFix.length());
+        }
+        // lets filter out non-alpha
+        namePrefix = filterOutNonAlphaNumerics(namePrefix);
+        List<Container> profileContainers = containersForProfile(containers, profile);
+        int idx = profileContainers.size();
+        while (true) {
+            String name = namePrefix + Integer.toString(++idx);
+            if (!map.containsKey(name)) {
+                return name;
+            }
+        }
+    }
+
+    private static String filterOutNonAlphaNumerics(String text) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0, size = text.length(); i < size; i++) {
+            char ch = text.charAt(i);
+            if (Character.isAlphabetic(ch) || Character.isDigit(ch)) {
+                builder.append(ch);
+            }
+        }
+        return builder.toString();
     }
 }

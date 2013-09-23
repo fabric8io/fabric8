@@ -127,9 +127,9 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
     @Override
     public void groupEvent(Group<ControllerNode> group, GroupEvent event) {
         if (group.isMaster()) {
-            LOGGER.info("OpenShiftController repo is the master");
+            LOGGER.info("OpenShiftDeployAgent is the master");
         } else {
-            LOGGER.info("OpenShiftController repo is not the master");
+            LOGGER.info("OpenShiftDeployAgent is not the master");
         }
         try {
             DataStore dataStore = null;
@@ -157,7 +157,7 @@ public class OpenShiftDeployAgent implements GroupListener<ControllerNode> {
 
 
     protected void onConfigurationChanged() {
-        LOGGER.info("Configuration has changed; so checking the external Java containers are up to date");
+        LOGGER.info("Configuration has changed; so checking the Fabric managed Java cartridges on OpenShift are up to date");
         Container[] containers = fabricService.getContainers();
         for (Container container : containers) {
             Profile profile = container.getOverlayProfile();
