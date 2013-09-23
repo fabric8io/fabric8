@@ -28,6 +28,7 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.service.FabricServiceImpl;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -46,7 +47,6 @@ import java.util.Dictionary;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 
@@ -56,6 +56,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     protected FabricService fabricService;
 
     @Test
+    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
     public void testLocalFabricCluster() throws Exception {
         fabricService = getFabricService();
         //Test autostartup.
@@ -63,7 +64,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         Thread.sleep(5000);
         CuratorFramework curator = getCurator();
         curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
-        Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", (FabricServiceImpl) fabricService)), PROVISION_TIMEOUT);
+        Provision.containerAlive(Arrays.<Container>asList(new ContainerImpl(null, "root", fabricService)), PROVISION_TIMEOUT);
         Container[] containers = fabricService.getContainers();
         assertNotNull(containers);
         assertEquals("Expected to find 1 container", 1, containers.length);
