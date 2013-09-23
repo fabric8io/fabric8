@@ -29,6 +29,8 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ProfileRequirements;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.groups.Group;
@@ -43,37 +45,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * A Fabric auto-scaler which when it becomes the master auto-scales
  * profiles according to their requirements defined via
  * {@link FabricService#setRequirements(org.fusesource.fabric.api.FabricRequirements)}
  */
-@Component(name = "org.fusesource.fabric.autoscale",
-        description = "Fabric auto scaler",
-        immediate = true)
-public class AutoScaleController  extends AbstractComponent implements GroupListener<AutoScalerNode> {
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.autoscale", description = "Fabric auto scaler", immediate = true)
+public final class AutoScaleController  extends AbstractComponent implements GroupListener<AutoScalerNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AutoScaleController.class);
-    private static final String REALM_PROPERTY_NAME = "realm";
 
+    private static final String KARAF_NAME = System.getProperty(SystemProperties.KARAF_NAME);
 
-    private final String name = System.getProperty(SystemProperties.KARAF_NAME);
-
-    private Group<AutoScalerNode> group;
-
-    @Reference(referenceInterface = ConfigurationAdmin.class, bind = "bindConfigAdmin", unbind = "unbindConfigAdmin")
+    @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
-    @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator")
+    @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-    @Reference(referenceInterface = FabricService.class, bind = "bindFabricService", unbind = "unbindFabricService")
+    @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ContainerAutoScaler.class, bind = "bindContainerAutoScaler", unbind = "unbindContainerAutoScaler")
+    @Reference(referenceInterface = ContainerAutoScaler.class)
     private final ValidatingReference<ContainerAutoScaler> containerAutoScaler = new ValidatingReference<ContainerAutoScaler>();
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    @GuardedBy("volatile") private volatile Group<AutoScalerNode> group;
 
     private Runnable runnable = new Runnable() {
         @Override
@@ -81,11 +76,6 @@ public class AutoScaleController  extends AbstractComponent implements GroupList
             onConfigurationChanged();
         }
     };
-
-
-    public AutoScaleController() {
-    }
-
 
     @Activate
     void activate(ComponentContext context) {
@@ -154,7 +144,7 @@ public class AutoScaleController  extends AbstractComponent implements GroupList
         return containerAutoScaler.get();
     }
 
-    protected void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
+    private void autoScaleProfile(ContainerAutoScaler autoScaler, FabricRequirements requirements, ProfileRequirements profileRequirement) {
         String profile = profileRequirement.getProfile();
         Integer minimumInstances = profileRequirement.getMinimumInstances();
         if (minimumInstances != null) {
@@ -205,7 +195,7 @@ public class AutoScaleController  extends AbstractComponent implements GroupList
 
     private AutoScalerNode createState() {
         AutoScalerNode state = new AutoScalerNode();
-        state.setContainer(name);
+        state.setContainer(KARAF_NAME);
         return state;
     }
 
@@ -239,23 +229,5 @@ public class AutoScaleController  extends AbstractComponent implements GroupList
 
     void unbindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
         this.containerAutoScaler.set(null);
-    }
-
-
-    public ConfigurationAdmin getConfigurationAdmin() {
-        return configAdmin.get();
-    }
-
-    public void setConfigurationAdmin(ConfigurationAdmin configurationAdmin) {
-        this.configAdmin.set(configurationAdmin);
-    }
-
-
-    public CuratorFramework getCurator() {
-        return curator.get();
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator.set(curator);
     }
 }
