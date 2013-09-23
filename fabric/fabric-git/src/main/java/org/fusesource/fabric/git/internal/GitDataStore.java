@@ -66,6 +66,7 @@ import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
+import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.AbstractDataStore;
@@ -132,7 +133,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
     private final Object gitOperationMonitor = new Object();
 
-    private final GitListener remoteChangeListener = new GitListener() {
+    private final GitListener gitListener = new GitListener() {
         @Override
         public void onRemoteUrlChanged(final String urlParam) {
             String currentURL = getRemoteURL();
@@ -163,6 +164,12 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     }
                 });
             }
+        }
+
+        @Override
+        public void onReceivePack() {
+            assertValid();
+            clearCaches();
         }
     };
 
@@ -196,11 +203,11 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             GitService optionalService = gitService.getOptional();
 
             if (remoteUrl != null) {
-                remoteChangeListener.onRemoteUrlChanged(remoteUrl);
+                gitListener.onRemoteUrlChanged(remoteUrl);
             } else if (optionalService != null) {
-                optionalService.addRemoteChangeListener(remoteChangeListener);
+                optionalService.addGitListener(gitListener);
                 remoteUrl = optionalService.getRemoteUrl();
-                remoteChangeListener.onRemoteUrlChanged(remoteUrl);
+                gitListener.onRemoteUrlChanged(remoteUrl);
                 pull();
             }
 
@@ -222,7 +229,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         try {
             GitService optsrv = gitService.getOptional();
             if (optsrv != null) {
-                optsrv.removeRemoteChangeListener(remoteChangeListener);
+                optsrv.removeGitListener(gitListener);
             }
             if (threadPool != null) {
                 threadPool.shutdown();

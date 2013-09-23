@@ -37,10 +37,10 @@ import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
-import org.fusesource.fabric.git.FabricGitService;
 import org.fusesource.fabric.utils.Closeables;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -85,12 +85,11 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
     public static final String CONTAINERS_PROPERTIES = "containers.properties";
     public static final String METADATA = ".metadata";
 
-    @Reference(referenceInterface = FabricGitService.class)
-    private final ValidatingReference<FabricGitService> gitService = new ValidatingReference<FabricGitService>();
+    @Reference(referenceInterface = GitService.class)
+    private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
-
-    private final ScheduledExecutorService executors = Executors.newSingleThreadScheduledExecutor();;
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();    
+    private final ScheduledExecutorService executors = Executors.newSingleThreadScheduledExecutor();
 
     @GuardedBy("volatile") private volatile Group<GitZkBridgeNode> group;
     @GuardedBy("volatile") private volatile long period = 1000;
@@ -560,11 +559,11 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
         return os.toByteArray();
     }
 
-    void bindGitService(FabricGitService service) {
+    void bindGitService(GitService service) {
         this.gitService.set(service);
     }
 
-    void unbindGitService(FabricGitService service) {
+    void unbindGitService(GitService service) {
         this.gitService.set(null);
     }
 

@@ -30,6 +30,7 @@ import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.git.GitService;
 import org.osgi.service.component.ComponentContext;
 
 import java.io.File;

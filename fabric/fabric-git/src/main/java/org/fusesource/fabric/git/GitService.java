@@ -19,8 +19,27 @@ package org.fusesource.fabric.git;
 import java.io.IOException;
 
 import org.eclipse.jgit.api.Git;
+import org.fusesource.fabric.git.GitListener;
 
-public interface FabricGitService {
+/**
+ * Represents a local Git repository
+ */
+public interface GitService {
 
     Git get() throws IOException;
+
+    String getRemoteUrl();
+
+    /**
+     *
+     * A hook if the remote URI has been changed
+     */
+    void notifyRemoteChanged(String remoteUrl);
+
+    void notifyReceivePacket();
+
+    void addGitListener(GitListener listener);
+
+    void removeGitListener(GitListener listener);
+
 }

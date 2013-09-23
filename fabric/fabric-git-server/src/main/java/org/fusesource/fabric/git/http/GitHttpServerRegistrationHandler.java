@@ -28,6 +28,7 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitNode;
+import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.groups.Group;
 import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
@@ -41,8 +42,15 @@ import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -70,6 +78,8 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
+    @Reference(referenceInterface = GitService.class)
+    private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     
     @GuardedBy("volatile") private volatile Group<GitNode> group;
     @GuardedBy("volatile") private volatile String gitRemoteUrl;
@@ -81,6 +91,24 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         group.add(this);
         group.update(createState());
         group.start();
+
+        gitServlet.addReceivePackFilter(new Filter() {
+            @Override
+            public void init(FilterConfig filterConfig) throws ServletException {
+            }
+
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+                chain.doFilter(request, response);
+                if (gitService.getOptional() != null) {
+                    gitService.get().notifyReceivePacket();
+                }
+            }
+
+            @Override
+            public void destroy() {
+            }
+        });
 
         String realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
         String role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
@@ -196,5 +224,13 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
 
     void unbindHttpService(HttpService service) {
         this.httpService.set(null);
+    }
+
+    void bindGitService(GitService service) {
+        this.gitService.set(service);
+    }
+
+    void unbindGitService(GitService service) {
+        this.gitService.set(null);
     }
 }
