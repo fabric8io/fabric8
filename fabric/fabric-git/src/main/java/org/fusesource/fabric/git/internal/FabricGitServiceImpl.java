@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.git.service", description = "Fabric Git Service", immediate = true)
 @Service(GitService.class)
 public final class FabricGitServiceImpl extends AbstractComponent implements GitService {
 

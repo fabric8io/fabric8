@@ -43,7 +43,7 @@ import org.osgi.service.url.AbstractURLStreamHandlerService;
 import org.osgi.service.url.URLStreamHandlerService;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.profile.urlhandler", description = "Fabric Profile URL Handler", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.profile.urlhandler", description = "Fabric Profile URL Handler", immediate = true)
 @Service(URLStreamHandlerService.class)
 @Properties({
         @Property(name = "url.handler.protocol", value = "profile")

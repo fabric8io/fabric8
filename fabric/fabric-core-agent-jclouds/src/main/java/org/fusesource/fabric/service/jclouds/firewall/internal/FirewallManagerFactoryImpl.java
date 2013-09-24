@@ -39,7 +39,7 @@ import org.jclouds.compute.ComputeService;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jclouds.firewall.manager.factory", description = "Fabric Firewall Manager", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.jclouds.firewall.manager.factory", description = "Fabric Firewall Manager", immediate = true)
 @Service(FirewallManagerFactory.class)
 public final class FirewallManagerFactoryImpl extends AbstractComponent implements FirewallManagerFactory {
 

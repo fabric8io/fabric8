@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jclouds.compute.registry", description = "Fabric Jclouds Compute Registry", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.jclouds.compute.registry", description = "Fabric Jclouds Compute Registry", immediate = true)
 @Service(ComputeRegistry.class)
 public class ComputeRegistryImpl extends AbstractComponent implements ComputeRegistry {
 

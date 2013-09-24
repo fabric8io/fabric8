@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.configadmin.bridge", description = "Fabric Config Admin Bridge") // Done
+@Component(name = "org.fusesource.fabric.configadmin.bridge", description = "Fabric Config Admin Bridge")
 public final class FabricConfigAdminBridge extends AbstractComponent implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";

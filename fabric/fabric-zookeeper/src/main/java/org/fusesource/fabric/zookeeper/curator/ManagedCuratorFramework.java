@@ -75,7 +75,7 @@ import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWO
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", policy = OPTIONAL, immediate = true) // Done
+@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", policy = OPTIONAL, immediate = true)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);

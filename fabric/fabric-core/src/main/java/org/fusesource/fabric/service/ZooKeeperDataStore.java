@@ -70,7 +70,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * git to store configuration
  */
 @ThreadSafe
-@Component(name = "org.fusesource.datastore.zookeeper", description = "Fabric ZooKeeper DataStore") // Done
+@Component(name = "org.fusesource.datastore.zookeeper", description = "Fabric ZooKeeper DataStore")
 @Service(DataStorePlugin.class)
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),

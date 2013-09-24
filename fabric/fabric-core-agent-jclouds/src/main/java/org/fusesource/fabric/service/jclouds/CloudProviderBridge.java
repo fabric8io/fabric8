@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * If for any reason the new ensemble already has registered information for a provider, the provider will be skipped.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jclouds.bridge", description = "Fabric Jclouds Service Bridge", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.jclouds.bridge", description = "Fabric Jclouds Service Bridge", immediate = true)
 @Service(ConnectionStateListener.class)
 public final class CloudProviderBridge extends AbstractComponent implements ConnectionStateListener {
 

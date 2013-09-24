@@ -81,7 +81,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitute
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.container.registration.karaf", description = "Fabric Karaf Container Registration") // Done
+@Component(name = "org.fusesource.fabric.container.registration.karaf", description = "Fabric Karaf Container Registration")
 @Service({ContainerRegistration.class, ConfigurationListener.class, ConnectionStateListener.class})
 public final class KarafContainerRegistration extends AbstractComponent implements ContainerRegistration, ConfigurationListener, ConnectionStateListener {
 

@@ -46,7 +46,7 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.SetMultimap;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.partition.listener.profile", description = "Fabric Profile Partition Listener", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.partition.listener.profile", description = "Fabric Profile Partition Listener", immediate = true)
 @Service(PartitionListener.class)
 public final class ProfilePartitionListener extends AbstractComponent implements PartitionListener {
 

@@ -93,7 +93,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
  * versions in a branch per version and directory per profile.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.datastore.git", description = "Fabric Git DataStore") // Done
+@Component(name = "org.fusesource.datastore.git", description = "Fabric Git DataStore")
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),

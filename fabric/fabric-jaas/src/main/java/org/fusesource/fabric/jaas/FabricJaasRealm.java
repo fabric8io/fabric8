@@ -38,7 +38,7 @@ import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jaas", description = "Fabric Jaas Realm") // Done
+@Component(name = "org.fusesource.fabric.jaas", description = "Fabric Jaas Realm")
 @Service(JaasRealm.class)
 public final class FabricJaasRealm extends AbstractComponent implements JaasRealm {
 

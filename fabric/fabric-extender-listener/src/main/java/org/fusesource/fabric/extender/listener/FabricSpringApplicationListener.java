@@ -46,7 +46,7 @@ import org.springframework.osgi.service.importer.event.OsgiServiceDependencyWait
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.extender.listener.spring", description = "Fabric Spring Application Listener", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.extender.listener.spring", description = "Fabric Spring Application Listener", immediate = true)
 public final class FabricSpringApplicationListener extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricSpringApplicationListener.class);

@@ -60,7 +60,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
  * Credentials stored in memory will be pushed to Zookeeper when it becomes available.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jclouds.credential.store.zookeeper", description = "Fabric Jclouds ZooKeeper Credential Store", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.jclouds.credential.store.zookeeper", description = "Fabric Jclouds ZooKeeper Credential Store", immediate = true)
 @Service({CredentialStore.class, ConnectionStateListener.class})
 @ConfiguresCredentialStore
 public final class ZookeeperCredentialStore extends CredentialStore implements ConnectionStateListener, Validatable {

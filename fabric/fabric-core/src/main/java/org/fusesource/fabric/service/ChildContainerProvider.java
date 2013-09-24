@@ -50,7 +50,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.container.provider.child", description = "Child Container Provider", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.container.provider.child", description = "Child Container Provider", immediate = true)
 @Service(ContainerProvider.class)
 public final class ChildContainerProvider extends AbstractComponent implements ContainerProvider<CreateChildContainerOptions, CreateChildContainerMetadata> {
 

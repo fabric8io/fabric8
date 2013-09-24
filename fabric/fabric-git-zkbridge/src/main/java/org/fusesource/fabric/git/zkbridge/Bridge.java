@@ -78,7 +78,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", immediate = true, policy = ConfigurationPolicy.OPTIONAL) // Done
+@Component(name = "org.fusesource.fabric.git.zkbridge", description = "Fabric Git / ZooKeeper Bridge", immediate = true, policy = ConfigurationPolicy.OPTIONAL)
 public final class Bridge extends AbstractComponent implements GroupListener<GitZkBridgeNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Bridge.class);

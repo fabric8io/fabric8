@@ -22,7 +22,7 @@ import org.osgi.service.component.ComponentContext;
  * @author Stan Lewis
  */
 @ThreadSafe
-@Component(description = "Fabric ZooKeeper Cluster Manager JMX MBean") // Done
+@Component(description = "Fabric ZooKeeper Cluster Manager JMX MBean")
 public final class ClusterServiceManager extends AbstractComponent implements ClusterServiceManagerMBean {
 
     private static ObjectName OBJECT_NAME;

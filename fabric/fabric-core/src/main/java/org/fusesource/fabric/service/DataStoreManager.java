@@ -54,7 +54,7 @@ import static org.fusesource.fabric.api.DataStore.DEFAULT_DATASTORE_TYPE;
  * implementation to export.
  */
 @ThreadSafe
-@Component(name = DataStore.DATASTORE_TYPE_PID, description = "Configured DataStore Factory", immediate = true) // Done
+@Component(name = DataStore.DATASTORE_TYPE_PID, description = "Configured DataStore Factory", immediate = true)
 @Service(DataStoreRegistrationHandler.class)
 public final class DataStoreManager extends AbstractComponent implements DataStoreRegistrationHandler {
 

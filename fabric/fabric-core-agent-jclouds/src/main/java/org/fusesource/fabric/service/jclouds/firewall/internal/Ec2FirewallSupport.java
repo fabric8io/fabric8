@@ -37,7 +37,7 @@ import org.jclouds.ec2.domain.SecurityGroup;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.jclouds.firewall.ec2", description = "Fabric Firewall Support for EC2", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.jclouds.firewall.ec2", description = "Fabric Firewall Support for EC2", immediate = true)
 @Service(ApiFirewallSupport.class)
 public final class Ec2FirewallSupport extends AbstractComponent implements ApiFirewallSupport {
 

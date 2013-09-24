@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Set;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.partition.listener.logging", description = "Fabric Logging Partition Listener", immediate = true)
 @Service(PartitionListener.class)
 public final class LoggingPartitionListener extends AbstractComponent implements PartitionListener {
 

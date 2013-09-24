@@ -83,7 +83,7 @@ import com.google.common.base.Strings;
 import java.util.Collection;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.service", description = "Fabric Service") // Done
+@Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
 @Service(FabricService.class)
 public final class FabricServiceImpl extends AbstractComponent implements FabricService {
 

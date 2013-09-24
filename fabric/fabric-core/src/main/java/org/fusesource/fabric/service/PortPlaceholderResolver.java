@@ -34,7 +34,7 @@ import org.fusesource.fabric.utils.Ports;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.placholder.resolver.port", description = "Fabric Port Placeholder Resolver", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.placholder.resolver.port", description = "Fabric Port Placeholder Resolver", immediate = true)
 @Service(PlaceholderResolver.class)
 public final class PortPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 

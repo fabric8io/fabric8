@@ -52,7 +52,7 @@ import static com.google.common.collect.Iterables.filter;
  * A {@link ManagedServiceFactory} for creating {@link org.fusesource.fabric.partition.internal.DefaultTaskManager} instances.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE) // Done
+@Component(name = "org.fusesource.fabric.partition", description = "Work Manager Factory", configurationFactory = true, policy = ConfigurationPolicy.REQUIRE)
 public final class TaskManagerFactory extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TaskManagerFactory.class);

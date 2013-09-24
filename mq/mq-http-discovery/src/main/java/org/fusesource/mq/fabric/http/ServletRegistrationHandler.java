@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.mq.fabric.http", description = "Fabric Discovery Servlet", immediate = true) // Done
+@Component(name = "org.fusesource.mq.fabric.http", description = "Fabric Discovery Servlet", immediate = true)
 public final class ServletRegistrationHandler extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletRegistrationHandler.class);

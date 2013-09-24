@@ -26,7 +26,7 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.placholder.resolver.env", description = "Environment Placeholder Resolver") // Done
+@Component(name = "org.fusesource.fabric.placholder.resolver.env", description = "Environment Placeholder Resolver")
 @Service(PlaceholderResolver.class)
 public final class EnvPlaceholderResolver extends AbstractComponent implements PlaceholderResolver {
 

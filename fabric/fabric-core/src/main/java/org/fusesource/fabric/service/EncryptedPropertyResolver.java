@@ -36,7 +36,7 @@ import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
 import org.osgi.service.component.ComponentContext;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.placholder.resolver.crypt", description = "Fabric Encrypted Property Placeholder Resolver") // Done
+@Component(name = "org.fusesource.fabric.placholder.resolver.crypt", description = "Fabric Encrypted Property Placeholder Resolver")
 @Service(PlaceholderResolver.class)
 public final class EncryptedPropertyResolver extends AbstractComponent implements PlaceholderResolver {
 

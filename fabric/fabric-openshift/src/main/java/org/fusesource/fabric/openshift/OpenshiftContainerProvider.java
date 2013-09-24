@@ -60,7 +60,7 @@ import com.openshift.internal.client.GearProfile;
 import com.openshift.internal.client.StandaloneCartridge;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", immediate = true)
 @Service(ContainerProvider.class)
 public final class OpenshiftContainerProvider extends AbstractComponent implements ContainerProvider<CreateOpenshiftContainerOptions, CreateOpenshiftContainerMetadata>, ContainerAutoScalerFactory {
 

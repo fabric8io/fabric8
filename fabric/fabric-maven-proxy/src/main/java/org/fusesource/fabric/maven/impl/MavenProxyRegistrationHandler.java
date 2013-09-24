@@ -54,7 +54,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.maven", description = "Fabric Maven Proxy Registration Handler", immediate = true) // Done
+@Component(name = "org.fusesource.fabric.maven", description = "Fabric Maven Proxy Registration Handler", immediate = true)
 @Service(ConnectionStateListener.class)
 public final class MavenProxyRegistrationHandler extends AbstractComponent implements ConnectionStateListener {
 
