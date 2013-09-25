@@ -18,7 +18,10 @@
         <fuse.osgi.export>
             org.fusesource.fabric.autoscale*;-noimport:=true
         </fuse.osgi.export>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+      <fuse.osgi.private.pkg>
+          org.fusesource.fabric.utils
+      </fuse.osgi.private.pkg>
+      <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
