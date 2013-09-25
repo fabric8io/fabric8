@@ -76,10 +76,10 @@ angular.module('kibana.column', [])
           // Create a reference to the new_panel as panel so that the existing
           // editors work with our isolate scope
           scope.panel = scope.new_panel
-          var template = '<div ng-include src="\'panels/column/panelgeneral.html\'"></div>'
+          var template = '<div ng-include src="\'/kibana3/panels/column/panelgeneral.html\'"></div>'
 
           if(!(_.isUndefined(scope.type)) && scope.type != "")
-            template = template+'<div ng-include src="\'panels/'+scope.type+'/editor.html\'"></div>';
+            template = template+'<div ng-include src="\'/kibana3/panels/'+scope.type+'/editor.html\'"></div>';
           //var new_elem = $compile(angular.element(template))(scope))
           elem.html($compile(angular.element(template))(scope));
         })

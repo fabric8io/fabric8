@@ -200,7 +200,7 @@ angular.module('kibana.parallelcoordinates', [])
 
           scope.initializing = true;
           // Using LABjs, wait until all scripts are loaded before rendering panel
-          var scripts = $LAB.script("common/lib/d3.v3.min.js?rand="+Math.floor(Math.random()*10000));
+          var scripts = $LAB.script("/kibana3/common/lib/d3.v3.min.js?rand="+Math.floor(Math.random()*10000));
 
           scripts.wait(function () {
 

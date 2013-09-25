@@ -240,7 +240,7 @@ angular.module('kibana.map2', [])
 
           scope.initializing = true;
           // Using LABjs, wait until all scripts are loaded before rendering panel
-          var scripts = $LAB.script("common/lib/d3.v3.min.js?rand="+Math.floor(Math.random()*10000))
+          var scripts = $LAB.script("/kibana3/common/lib/d3.v3.min.js?rand="+Math.floor(Math.random()*10000))
             .script("panels/map2/lib/topojson.v1.min.js?rand="+Math.floor(Math.random()*10000))
             .script("panels/map2/lib/node-geohash.js?rand="+Math.floor(Math.random()*10000))
             .script("panels/map2/lib/d3.hexbin.v0.min.js?rand="+Math.floor(Math.random()*10000))

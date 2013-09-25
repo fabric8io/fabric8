@@ -7,8 +7,8 @@ angular.module('kibana.directives', [])
   return {
     restrict: 'E',
     link: function(scope, elem, attrs) {
-      var template = '<img src="common/img/load.gif" class="panel-loading" ng-show="panel.loading == true">'+
-        ' <span class="editlink panelextra pointer" style="right:15px;top:0px" bs-modal="\'partials/paneleditor.html\'" ng-show="panel.editable != false">'+
+      var template = '<img src="/kibana3/common/img/load.gif" class="panel-loading" ng-show="panel.loading == true">'+
+        ' <span class="editlink panelextra pointer" style="right:15px;top:0px" bs-modal="\'/kibana3/partials/paneleditor.html\'" ng-show="panel.editable != false">'+
           '<span class="small">{{panel.type}}</span> <i class="icon-cog pointer"></i> '+
         '</span><h4>{{panel.title}}</h4>';
       elem.prepend($compile(angular.element(template))(scope));

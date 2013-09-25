@@ -86,7 +86,7 @@ angular.module('kibana.controllers', [])
 
   $scope.edit_path = function(type) {
     if(type)
-      return 'panels/'+type+'/editor.html';
+      return '/kibana3/panels/'+type+'/editor.html';
   }
 
   // This is whoafully incomplete, but will do for now 

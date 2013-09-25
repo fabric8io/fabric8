@@ -200,7 +200,7 @@ angular.module('kibana.pie', [])
     restrict: 'A',
     link: function(scope, elem, attrs) {
 
-      elem.html('<center><img src="common/img/load_big.gif"></center>')
+      elem.html('<center><img src="/kibana3/common/img/load_big.gif"></center>')
 
       // Receive render events
       scope.$on('render',function(){
@@ -214,8 +214,8 @@ angular.module('kibana.pie', [])
 
       // Function for rendering panel
       function render_panel() {
-        var scripts = $LAB.script("common/lib/panels/jquery.flot.js").wait()
-                        .script("common/lib/panels/jquery.flot.pie.js")
+        var scripts = $LAB.script("/kibana3/common/lib/panels/jquery.flot.js").wait()
+                        .script("/kibana3/common/lib/panels/jquery.flot.pie.js")
 
         if(scope.panel.mode === 'goal')
           var label = { 

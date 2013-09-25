@@ -121,7 +121,7 @@ angular.module('kibana.map', [])
     restrict: 'A',
     link: function(scope, elem, attrs) {
 
-      elem.html('<center><img src="common/img/load_big.gif"></center>')
+      elem.html('<center><img src="/kibana3/common/img/load_big.gif"></center>')
 
       // Receive render events
       scope.$on('render',function(){

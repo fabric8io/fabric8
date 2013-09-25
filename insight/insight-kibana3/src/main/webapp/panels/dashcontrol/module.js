@@ -152,7 +152,7 @@ angular.module('kibana.dashcontrol', [])
 
   $scope.file_load = function(file) {
     $http({
-      url: "dashboards/"+file,
+      url: "/kibana3/dashboards/"+file,
       method: "GET",
     }).success(function(data, status, headers, config) {
       var dashboard = data

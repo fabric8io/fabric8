@@ -47,13 +47,13 @@ labjs.wait(function(){
   angular.module('kibana', modules).config(['$routeProvider', function($routeProvider) {
       $routeProvider
         .when('/dashboard', {
-          templateUrl: 'partials/dashboard.html' 
+          templateUrl: '/kibana3/partials/dashboard.html'
         })
         .when('/dashboard/:type/:id', {
-          templateUrl: 'partials/dashboard.html'
+          templateUrl: '/kibana3/partials/dashboard.html'
         })
         .when('/dashboard/:type/:id/:params', {
-          templateUrl: 'partials/dashboard.html'
+          templateUrl: '/kibana3/partials/dashboard.html'
         })
         .otherwise({
           redirectTo: 'dashboard/file/log'
