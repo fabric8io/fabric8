@@ -37,7 +37,7 @@ public abstract class BaseManagedServiceFactory<T> implements ManagedServiceFact
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    private final BundleContext context;
+    protected final BundleContext context;
     private final String name;
     private final long timeoutBeforeInterrupt;
     private final AtomicBoolean destroyed;

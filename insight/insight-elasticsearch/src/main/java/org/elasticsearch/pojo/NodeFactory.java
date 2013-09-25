@@ -62,7 +62,7 @@ public class NodeFactory extends BaseManagedServiceFactory<ExtendedInternalNode>
                 builder.put(key, val);
             }
         }
-        ExtendedInternalNode node = new ExtendedInternalNode(new InternalNode(builder.build(), false));
+        ExtendedInternalNode node = new ExtendedInternalNode(context, new InternalNode(builder.build(), false));
         try {
             node.start();
         } catch (RuntimeException t) {
