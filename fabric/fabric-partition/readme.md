@@ -75,8 +75,8 @@ The task configuration looks like this:
 
 You can create partition using the zookeeper commands like this:
 
-    zk:create /fabric/partition/example/1 "{ \\"inUri\\" : \\"direct:in1\\" }"
-    zk:create /fabric/partition/example/2 "{ \\"inUri\\" : \\"direct:in2\\" }"
+    zk:create /fabric/partition/example/1 "{ \"inUri\" : \"direct:in1\" }"
+    zk:create /fabric/partition/example/2 "{ \"inUri\" : \"direct:in2\" }"
 
 This will result in generating the example-camel-template-1 and example-camel-template-2 prpfiles and distribute them evenly to containers running the example-camel-partition profile.
 
