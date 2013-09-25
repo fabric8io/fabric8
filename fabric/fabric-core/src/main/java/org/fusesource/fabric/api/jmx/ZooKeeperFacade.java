@@ -24,6 +24,7 @@ import javax.management.ObjectName;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.zookeeper.data.Stat;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +98,10 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
 
 
     public ZkContents read(String path) throws Exception {
+        return read(path, true);
+    }
+
+    public ZkContents read(String path, boolean escape) throws Exception {
         CuratorFramework curator = getCurator();
         Stat exists = exists(curator, path);
         if (exists == null) {
@@ -109,13 +114,22 @@ public class ZooKeeperFacade implements ZooKeeperFacadeMXBean {
         if (numChildren > 0) {
             children = getChildren(curator, path);
         } else {
-            data = getStringData(curator, path);
+            data = getContents(path, escape);
         }
         return new ZkContents(dataLength, children, data);
     }
 
     @Override
     public String getContents(String path) throws Exception {
-        return getStringData(getCurator(), path);
+        return getContents(path, true);
+    }
+
+    public String getContents(String path, boolean escape) throws Exception {
+        CuratorFramework curator = getCurator();
+        String answer = getStringData(curator, path);
+        if (answer != null) {
+            return ZooKeeperUtils.getSubstitutedData(curator, answer);
+        }
+        return answer;
     }
 }
