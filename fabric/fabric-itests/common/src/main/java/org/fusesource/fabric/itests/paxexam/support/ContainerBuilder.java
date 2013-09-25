@@ -237,10 +237,10 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
                     Provision.provisioningSuccess(containers, provisionTimeOut);
                 }
             } catch (Exception e) {
-                throw new FabricException(e);
+                throw FabricException.launderThrowable(e);
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
         return containers;
     }

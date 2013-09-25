@@ -521,7 +521,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     try {
                         return getSubstitutedPath(curator.get(), CONTAINER_IP.getPath(KARAF_NAME));
                     } catch (Exception e) {
-                        throw new FabricException(e);
+                        throw FabricException.launderThrowable(e);
                     }
                 }
             };

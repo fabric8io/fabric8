@@ -92,7 +92,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
             }
             throw new FabricException("Could not find port within range [" + fromPort + "," + toPort + "]");
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }
@@ -118,7 +118,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 throw new FabricException("Could not acquire port lock");
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }
@@ -153,7 +153,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 throw new FabricException("Could not acquire port lock");
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }
@@ -175,7 +175,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 throw new FabricException("Could not acquire port lock");
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }
@@ -197,7 +197,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 throw new FabricException("Could not acquire port lock");
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }
@@ -213,7 +213,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 port = Integer.parseInt(getStringData(curator.get(), path));
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         }
         return port;
     }
@@ -242,7 +242,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 throw new FabricException("Could not acquire port lock");
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }
@@ -272,7 +272,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
                 throw new FabricException("Could not acquire port lock");
             }
         } catch (Exception ex) {
-            throw new FabricException(ex);
+            throw FabricException.launderThrowable(ex);
         } finally {
             releaseLock();
         }

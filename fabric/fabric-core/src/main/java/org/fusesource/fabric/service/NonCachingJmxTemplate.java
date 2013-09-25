@@ -20,8 +20,6 @@ import java.io.IOException;
 import javax.management.remote.JMXConnector;
 
 import org.fusesource.fabric.api.FabricException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This implementation closes the connector down after each operation; so only really intended for web applications.
@@ -37,10 +35,8 @@ public abstract class NonCachingJmxTemplate extends JmxTemplateSupport {
         }
         try {
             return callback.doWithJmxConnector(connector);
-        } catch (FabricException e) {
-            throw e;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         } finally {
             try {
                 connector.close();

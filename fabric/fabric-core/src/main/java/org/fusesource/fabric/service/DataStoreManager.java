@@ -124,7 +124,7 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
                 try {
                     callback.doWith(auxStore);
                 } catch (Exception e) {
-                    throw new FabricException(e);
+                    throw FabricException.launderThrowable(e);
                 }
             }
             Dictionary<String, String> properties = new Hashtable<String, String>();

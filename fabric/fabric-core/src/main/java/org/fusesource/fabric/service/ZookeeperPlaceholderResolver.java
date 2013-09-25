@@ -68,7 +68,7 @@ public final class ZookeeperPlaceholderResolver extends AbstractComponent implem
             LOGGER.warn("Could not load property value: {}. Ignoring.", value, e);
             return "";
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

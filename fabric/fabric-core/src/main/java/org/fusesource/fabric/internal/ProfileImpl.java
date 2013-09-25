@@ -142,7 +142,7 @@ public class ProfileImpl implements Profile {
             return rc;
 
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -189,7 +189,7 @@ public class ProfileImpl implements Profile {
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -215,7 +215,7 @@ public class ProfileImpl implements Profile {
             }
             setAttribute(PARENTS, sb.toString());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -236,7 +236,7 @@ public class ProfileImpl implements Profile {
             }
             return rc.toArray(new Container[0]);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

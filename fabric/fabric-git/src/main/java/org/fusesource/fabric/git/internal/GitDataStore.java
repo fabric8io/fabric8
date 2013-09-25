@@ -237,7 +237,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     //Give some time to the running task to complete.
                     threadPool.awaitTermination(5, TimeUnit.SECONDS);
                 } catch (Exception ex) {
-                    throw new FabricException(ex);
+                    throw FabricException.launderThrowable(ex);
                 }
             }
         } finally {
@@ -500,7 +500,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             String node = ZkPath.CONFIG_VERSION.getPath(version);
             return getPropertiesAsMap(getTreeCache(), node);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -517,7 +517,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             String node = ZkPath.CONFIG_VERSION.getPath(version);
             setPropertiesAsMap(getCurator(), node, props);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -716,7 +716,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 fileConfigs.put(pid + ".properties", data);
             }
         } catch (IOException e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
         setFileConfigurations(version, profile, fileConfigs);
     }
@@ -728,7 +728,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         try {
             data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(configuration));
         } catch (IOException e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
         setFileConfiguration(version, profile, pid + ".properties", data);
     }
@@ -744,7 +744,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 return "";
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -755,7 +755,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             String opts = jvmOptions != null ? jvmOptions : "";
             setData(getCurator(), JVM_OPTIONS_PATH, opts);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -773,7 +773,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             }
             return answer;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -785,7 +785,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             String json = RequirementsJson.toJSON(requirements);
             setData(getCurator(), REQUIREMENTS_JSON_PATH, json);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -795,7 +795,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         try {
             return getStringData(getCurator(), ZkPath.CONFIG_ENSEMBLES.getPath());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -811,7 +811,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
         return containers;
     }
@@ -887,7 +887,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
                 return answer;
             } catch (Exception e) {
-                throw new FabricException(e);
+                throw FabricException.launderThrowable(e);
             }
         }
     }

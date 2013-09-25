@@ -44,15 +44,13 @@ public class JmxTemplate extends JmxTemplateSupport {
         }
         try {
             return callback.doWithJmxConnector(connector);
-        } catch (FabricException e) {
-            throw e;
         } catch (Exception e) {
             try {
                 close();
             } catch (Exception e2) {
                 LOGGER.debug("Exception when attempting to close connection " + e2 + " after getting exception: " + e, e2);
             }
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

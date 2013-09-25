@@ -77,7 +77,7 @@ public final class EncryptedPropertyResolver extends AbstractComponent implement
         try {
             return getStringData(curator.get(), AUTHENTICATION_CRYPT_ALGORITHM.getPath());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -85,7 +85,7 @@ public final class EncryptedPropertyResolver extends AbstractComponent implement
         try {
             return getStringData(curator.get(), AUTHENTICATION_CRYPT_PASSWORD.getPath());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

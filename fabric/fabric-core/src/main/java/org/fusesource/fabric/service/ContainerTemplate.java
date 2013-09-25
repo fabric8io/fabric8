@@ -166,7 +166,7 @@ public class ContainerTemplate {
                     new JMXServiceURL(rootUrl),
                     getEnvironmentCredentials());
         } catch (IOException e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         } catch (SecurityException ex) {
             throw new FabricAuthenticationException(ex);
         }

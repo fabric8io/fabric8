@@ -279,7 +279,7 @@ public class ProfileOverlayImpl implements Profile {
             }
             return rc;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -303,7 +303,7 @@ public class ProfileOverlayImpl implements Profile {
             }
             return rc;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

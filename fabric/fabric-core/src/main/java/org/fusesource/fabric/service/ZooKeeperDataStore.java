@@ -110,7 +110,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
         try {
             ZookeeperImportUtils.importFromFileSystem(getCurator(), from, "/", null, null, false, false, false);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -121,7 +121,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             create(getCurator(), ZkPath.CONFIG_VERSION.getPath(version));
             create(getCurator(), ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -137,7 +137,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             //getTreeCache().getCurrentData(targetPath);
             getTreeCache().rebuildNode(targetPath);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -147,7 +147,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
         try {
             deleteSafe(getCurator(), ZkPath.CONFIG_VERSION.getPath(version));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -157,7 +157,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
         try {
             return getTreeCache().getChildrenNames(ZkPath.CONFIG_VERSIONS.getPath());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -169,10 +169,8 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 return false;
             }
             return true;
-        } catch (FabricException e) {
-            throw e;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -185,7 +183,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             profiles.addAll(getTreeCache().getChildrenNames(ZkPath.CONFIG_VERSIONS_PROFILES.getPath(version)));
             return profiles;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -204,7 +202,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             }
             return profile;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -216,7 +214,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             create(getCurator(), path);
             createDefault(getCurator(), ZKPaths.makePath(path, "org.fusesource.fabric.agent.properties"), "#Profile:" + profile);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -227,7 +225,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String path = ZkProfiles.getPath(version, name);
             deleteSafe(getCurator(), path);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -238,7 +236,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String node = ZkPath.CONFIG_VERSION.getPath(version);
             return getPropertiesAsMap(getTreeCache(), node);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -255,7 +253,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String node = ZkPath.CONFIG_VERSION.getPath(version);
             setPropertiesAsMap(getCurator(), node, props);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -267,7 +265,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String path = ZkProfiles.getPath(version, profile);
             return getPropertiesAsMap(getTreeCache(), path);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -284,7 +282,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             }
             setProperties(getCurator(), path, props);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -294,7 +292,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
         try {
             return lastModified(getCurator(), ZkProfiles.getPath(version, profile));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -314,7 +312,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             }
             return configurations;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -338,7 +336,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 return getByteData(getTreeCache(), path);
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -360,7 +358,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 deleteSafe(getCurator(), path + "/" + pid);
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -396,7 +394,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 setData(getCurator(), configPath, configuration);
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -411,7 +409,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             byte[] data = getByteData(getTreeCache(), path);
             return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -431,7 +429,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 deleteSafe(getCurator(), path + "/" + key + ".properties");
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -444,7 +442,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String p = path + "/" + pid + ".properties";
             setData(getCurator(), p, data);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -458,7 +456,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 return "";
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -469,7 +467,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String opts = jvmOptions != null ? jvmOptions : "";
             setData(getCurator(), JVM_OPTIONS_PATH, opts);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -487,7 +485,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             }
             return answer;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -499,7 +497,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
             String json = RequirementsJson.toJSON(requirements);
             setData(getCurator(), REQUIREMENTS_JSON_PATH, json);
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -509,7 +507,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
         try {
             return getStringData(getCurator(), ZkPath.CONFIG_ENSEMBLES.getPath());
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -525,7 +523,7 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
                 }
             }
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
         return containers;
     }

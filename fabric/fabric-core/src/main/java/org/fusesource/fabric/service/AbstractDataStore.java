@@ -243,7 +243,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         try {
             return getChildren(getCurator(), ZkPath.CONFIGS_CONTAINERS.getPath());
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -263,7 +263,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             // Ignore
             return "";
         } catch (Throwable e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -283,7 +283,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             deleteSafe(getCurator(), ZkPath.CONTAINER_DOMAINS.getPath(containerId));
             deleteSafe(getCurator(), ZkPath.CONTAINER_PROVISION.getPath(containerId));
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -338,7 +338,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             // Set the resolver if not already set
             setData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId), resolver);
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -365,7 +365,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         } catch (KeeperException.NoNodeException e) {
             return null;
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -376,7 +376,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         try {
             setData(getCurator(), ZkPath.CONTAINER_METADATA.getPath(metadata.getContainerName()), Base64Encoder.encode(ObjectUtils.toBytes(metadata)));
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -386,7 +386,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         try {
             return getStringData(getTreeCache(), ZkPath.CONFIG_CONTAINER.getPath(containerId));
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -400,7 +400,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), oldProfileIds);
             setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -412,7 +412,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             String str = getStringData(getTreeCache(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId));
             return str == null || str.isEmpty() ? Collections.<String> emptyList() : Arrays.asList(str.trim().split(" +"));
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -430,7 +430,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             }
             setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -442,7 +442,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         } catch (KeeperException.NoNodeException e) {
             return false;
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -473,11 +473,11 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
                 }
             } catch (KeeperException.NoNodeException e) {
                 if (mandatory) {
-                    throw FabricException.rethrow(e);
+                    throw FabricException.launderThrowable(e);
                 }
                 return def;
             } catch (Exception e) {
-                throw FabricException.rethrow(e);
+                throw FabricException.launderThrowable(e);
             }
         }
     }
@@ -493,7 +493,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
                 setData(getCurator(), ZkPath.CONTAINER_IP.getPath(containerId), "${zk:" + containerId + "/" + value + "}");
                 setData(getCurator(), ZkPath.CONTAINER_RESOLVER.getPath(containerId), value);
             } catch (Exception e) {
-                throw FabricException.rethrow(e);
+                throw FabricException.launderThrowable(e);
             }
         } else {
             try {
@@ -505,7 +505,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             } catch (KeeperException.NoNodeException e) {
                 // Ignore
             } catch (Exception e) {
-                throw FabricException.rethrow(e);
+                throw FabricException.launderThrowable(e);
             }
         }
     }
@@ -525,7 +525,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             }
             return version;
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -535,7 +535,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
         try {
             setData(getCurator(), ZkPath.CONFIG_DEFAULT_VERSION.getPath(), versionId);
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 
@@ -618,7 +618,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             }
             return configurations;
         } catch (Exception e) {
-            throw FabricException.rethrow(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

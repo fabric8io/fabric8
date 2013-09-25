@@ -35,9 +35,11 @@ public class FabricException extends RuntimeException {
         super(cause);
     }
 
-    public static FabricException rethrow(Throwable cause) {
-        if (cause instanceof FabricException) {
-            return (FabricException) cause;
+    public static RuntimeException launderThrowable(Throwable cause) {
+        if (cause instanceof RuntimeException) {
+            return (RuntimeException) cause;
+        } else if (cause instanceof Error) {
+            throw (Error) cause;
         } else {
             return new FabricException(cause);
         }

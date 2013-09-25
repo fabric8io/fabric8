@@ -79,7 +79,7 @@ public abstract class JmxTemplateSupport {
         try {
             return JMX.newMBeanProxy(connector.getMBeanServerConnection(), safeObjectName(domain, params), type);
         } catch (IOException e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

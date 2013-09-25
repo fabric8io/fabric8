@@ -94,7 +94,7 @@ public class ContainerImpl implements Container {
             }
             return false;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
     }
 

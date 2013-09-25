@@ -112,7 +112,7 @@ public class SshContainerBuilder extends ContainerBuilder<SshContainerBuilder, C
                     }
                     optionsList.add(hostOpts);
                 } catch (CloneNotSupportedException e) {
-                    throw new FabricException(e);
+                    throw FabricException.launderThrowable(e);
                 }
             }
             return super.build(optionsList);

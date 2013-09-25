@@ -87,10 +87,8 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 }
                 result.add(metadata);
             }
-        } catch (FabricException e) {
-            throw e;
         } catch (Exception e) {
-            throw new FabricException(e);
+            throw FabricException.launderThrowable(e);
         }
         return result;
     }
