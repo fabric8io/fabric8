@@ -44,7 +44,6 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.utils.AuthenticationUtils;
-import org.fusesource.fabric.utils.Constants;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.osgi.service.component.ComponentContext;
@@ -316,10 +315,10 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(fabricService);
     }
 }

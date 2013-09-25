@@ -59,18 +59,18 @@ public final class ServletRegistrationHandler extends AbstractComponent {
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindHttpService(HttpService service) {
-        this.httpService.set(service);
+        this.httpService.bind(service);
     }
 
     void unbindHttpService(HttpService service) {
-        this.httpService.set(null);
+        this.httpService.unbind(service);
     }
 }

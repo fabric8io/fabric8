@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api.scr;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,15 +33,22 @@ public class ValidatingReference<T> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValidatingReference.class);
 
-    private volatile T reference;
+    private final AtomicReference<T> reference = new AtomicReference<T>();
 
     /**
-     * Set the reference to the given instance
+     * Bind the given reference
      */
-    public void set(T ref) {
-        T logref = (ref != null ? ref : reference);
-        LOG.info((ref != null ? "bind: " : "unbind: ") + logref);
-        reference = ref;
+    public void bind(T ref) {
+        LOG.info("bind: " + ref);
+        reference.set(ref);
+    }
+
+    /**
+     * Unbind the given reference
+     */
+    public void unbind(T ref) {
+        LOG.info("unbind: " + ref);
+        reference.compareAndSet(ref, null);
     }
 
     /**
@@ -47,12 +56,10 @@ public class ValidatingReference<T> {
      * @throws InvalidComponentException If the reference is not valid
      */
     public T get() {
-        if (reference == null) {
-            RuntimeException rte = new InvalidComponentException();
-            rte.printStackTrace();
-            throw rte;
-        }
-        return reference;
+        T ref = reference.get();
+        if (ref == null)
+            throw new InvalidComponentException();
+        return ref;
     }
 
     /**
@@ -60,7 +67,7 @@ public class ValidatingReference<T> {
      * @return The references instance or null
      */
     public T getOptional() {
-        return reference;
+        return reference.get();
     }
 
 }

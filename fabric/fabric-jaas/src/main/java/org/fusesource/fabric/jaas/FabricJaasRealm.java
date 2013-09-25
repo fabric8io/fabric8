@@ -116,10 +116,10 @@ public final class FabricJaasRealm extends AbstractComponent implements JaasReal
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 }

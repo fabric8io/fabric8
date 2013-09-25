@@ -80,7 +80,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = GitService.class)
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
-    
+
     @GuardedBy("volatile") private volatile Group<GitNode> group;
     @GuardedBy("volatile") private volatile String gitRemoteUrl;
 
@@ -203,34 +203,34 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindHttpService(HttpService service) {
-        this.httpService.set(service);
+        this.httpService.bind(service);
     }
 
     void unbindHttpService(HttpService service) {
-        this.httpService.set(null);
+        this.httpService.unbind(service);
     }
 
     void bindGitService(GitService service) {
-        this.gitService.set(service);
+        this.gitService.bind(service);
     }
 
     void unbindGitService(GitService service) {
-        this.gitService.set(null);
+        this.gitService.unbind(service);
     }
 }

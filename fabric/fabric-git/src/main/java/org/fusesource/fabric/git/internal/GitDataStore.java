@@ -1287,12 +1287,12 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         super.setDataStoreProperties(properties);
     }
 
-    void bindGitService(GitService gitService) {
-        this.gitService.set(gitService);
+    void bindGitService(GitService service) {
+        this.gitService.bind(service);
     }
 
-    void unbindGitService(GitService gitService) {
-        this.gitService.set(null);
+    void unbindGitService(GitService service) {
+        this.gitService.unbind(service);
     }
 
     public String toString() {

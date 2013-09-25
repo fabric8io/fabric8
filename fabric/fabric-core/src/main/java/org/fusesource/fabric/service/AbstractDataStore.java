@@ -632,11 +632,11 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
     }
 
     protected void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     protected void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     protected void bindPlaceholderResolver(PlaceholderResolver resolver) {

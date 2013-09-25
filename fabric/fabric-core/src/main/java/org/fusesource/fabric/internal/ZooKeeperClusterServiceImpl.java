@@ -444,58 +444,58 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     }
 
     void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
-        this.bootstrap.set(bootstrap);
+        this.bootstrap.bind(bootstrap);
     }
 
     void unbindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
-        this.bootstrap.set(null);
+        this.bootstrap.unbind(bootstrap);
     }
 
     void bindAclProvider(ACLProvider aclProvider) {
-        this.aclProvider.set(aclProvider);
+        this.aclProvider.bind(aclProvider);
     }
 
     void unbindAclProvider(ACLProvider aclProvider) {
-        this.aclProvider.set(null);
+        this.aclProvider.unbind(aclProvider);
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(fabricService);
     }
 
     void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.set(service);
+        this.registrationHandler.bind(service);
     }
 
     void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.set(null);
+        this.registrationHandler.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindDataStore(DataStore dataStore) {
-        this.dataStore.set(dataStore);
+        this.dataStore.bind(dataStore);
     }
 
     void unbindDataStore(DataStore dataStore) {
-        this.dataStore.set(null);
+        this.dataStore.unbind(dataStore);
     }
 }

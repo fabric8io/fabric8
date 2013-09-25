@@ -139,7 +139,8 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
     private ContainerAutoScaler getContainerAutoScaler() {
         if (containerAutoScaler == null) {
             // lets create one based on the current container providers
-            containerAutoScaler.set(fabricService.get().createContainerAutoScaler());
+            // FIXME impl call SCR method
+            containerAutoScaler.bind(fabricService.get().createContainerAutoScaler());
             LOGGER.info("Creating auto scaler " + containerAutoScaler);
         }
         return containerAutoScaler.get();
@@ -201,34 +202,34 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(fabricService);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
-        this.containerAutoScaler.set(containerAutoScaler);
+        this.containerAutoScaler.bind(containerAutoScaler);
     }
 
     void unbindContainerAutoScaler(ContainerAutoScaler containerAutoScaler) {
-        this.containerAutoScaler.set(null);
+        this.containerAutoScaler.unbind(containerAutoScaler);
     }
 }

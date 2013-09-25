@@ -88,7 +88,7 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
     @Reference(referenceInterface = GitService.class)
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
     @Reference(referenceInterface = CuratorFramework.class)
-    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();    
+    private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     private final ScheduledExecutorService executors = Executors.newSingleThreadScheduledExecutor();
 
     @GuardedBy("volatile") private volatile Group<GitZkBridgeNode> group;
@@ -560,18 +560,18 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
     }
 
     void bindGitService(GitService service) {
-        this.gitService.set(service);
+        this.gitService.bind(service);
     }
 
     void unbindGitService(GitService service) {
-        this.gitService.set(null);
+        this.gitService.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 }

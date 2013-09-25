@@ -284,10 +284,10 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
     }
 
     void bindGitDataStore(GitDataStore gitDataStore) {
-        this.gitDataStore.set(gitDataStore);
+        this.gitDataStore.bind(gitDataStore);
     }
 
     void unbindGitDataStore(GitDataStore gitDataStore) {
-        this.gitDataStore.set(null);
+        this.gitDataStore.unbind(gitDataStore);
     }
 }

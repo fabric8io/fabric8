@@ -158,27 +158,27 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(fabricService);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(mbeanServer);
+        this.mbeanServer.bind(mbeanServer);
     }
 
     void unbindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(null);
+        this.mbeanServer.unbind(mbeanServer);
     }
 
 

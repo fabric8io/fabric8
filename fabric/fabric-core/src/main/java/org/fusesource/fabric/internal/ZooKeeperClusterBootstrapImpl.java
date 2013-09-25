@@ -336,18 +336,18 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.set(service);
+        this.registrationHandler.bind(service);
     }
 
     void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
-        this.registrationHandler.set(null);
+        this.registrationHandler.unbind(service);
     }
 }

@@ -529,26 +529,26 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(fabricService);
     }
 }

@@ -108,18 +108,18 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(fabricService);
     }
 
     void bindDataStore(DataStore dataStore) {
-        this.dataStore.set(dataStore);
+        this.dataStore.bind(dataStore);
     }
 
     void unbindDataStore(DataStore dataStore) {
-        this.dataStore.set(null);
+        this.dataStore.unbind(dataStore);
     }
 }

@@ -320,43 +320,43 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     }
 
     void bindCredentialStore(CredentialStore credentialStore) {
-        this.credentialStore.set(credentialStore);
+        this.credentialStore.bind(credentialStore);
     }
 
     void unbindCredentialStore(CredentialStore credentialStore) {
-        this.credentialStore.set(null);
+        this.credentialStore.unbind(credentialStore);
     }
 
     void bindComputeRegistry(ComputeRegistry service) {
-        this.computeRegistry.set(service);
+        this.computeRegistry.bind(service);
     }
 
     void unbindComputeRegistry(ComputeRegistry service) {
-        this.computeRegistry.set(null);
+        this.computeRegistry.unbind(service);
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindFirewallManagerFactory(FirewallManagerFactory factory) {
-        this.firewallManagerFactory.set(factory);
+        this.firewallManagerFactory.bind(factory);
     }
 
     void unbindFirewallManagerFactory(FirewallManagerFactory factory) {
-        this.firewallManagerFactory.set(null);
+        this.firewallManagerFactory.unbind(factory);
     }
 
     void bindComputeService(ComputeService computeService) {

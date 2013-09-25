@@ -120,18 +120,18 @@ public final class ClusterServiceManager extends AbstractComponent implements Cl
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(mbeanServer);
+        this.mbeanServer.bind(mbeanServer);
     }
 
     void unbindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(null);
+        this.mbeanServer.unbind(mbeanServer);
     }
 
     void bindClusterService(ZooKeeperClusterService service) {
-        this.clusterService.set(service);
+        this.clusterService.bind(service);
     }
 
     void unbindClusterService(ZooKeeperClusterService service) {
-        this.clusterService.set(null);
+        this.clusterService.unbind(service);
     }
 }

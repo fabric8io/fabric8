@@ -127,18 +127,18 @@ public final class ClusterBootstrapManager extends AbstractComponent implements 
     }
 
     void bindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(mbeanServer);
+        this.mbeanServer.bind(mbeanServer);
     }
 
     void unbindMBeanServer(MBeanServer mbeanServer) {
-        this.mbeanServer.set(null);
+        this.mbeanServer.unbind(mbeanServer);
     }
 
     void bindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
-        this.bootstrap.set(bootstrap);
+        this.bootstrap.bind(bootstrap);
     }
 
     void unbindBootstrap(ZooKeeperClusterBootstrap bootstrap) {
-        this.bootstrap.set(null);
+        this.bootstrap.unbind(bootstrap);
     }
 }

@@ -357,10 +357,10 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     }
 
     void bindAclProvider(ACLProvider aclProvider) {
-        this.aclProvider.set(aclProvider);
+        this.aclProvider.bind(aclProvider);
     }
 
     void unbindAclProvider(ACLProvider aclProvider) {
-        this.aclProvider.set(null);
+        this.aclProvider.unbind(aclProvider);
     }
 }

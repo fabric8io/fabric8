@@ -810,35 +810,35 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     void bindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(service);
+        this.configAdmin.bind(service);
     }
 
     void unbindConfigAdmin(ConfigurationAdmin service) {
-        this.configAdmin.set(null);
+        this.configAdmin.unbind(service);
     }
 
     void bindCurator(CuratorFramework curator) {
-        this.curator.set(curator);
+        this.curator.bind(curator);
     }
 
     void unbindCurator(CuratorFramework curator) {
-        this.curator.set(null);
+        this.curator.unbind(curator);
     }
 
     void bindDataStore(DataStore dataStore) {
-        this.dataStore.set(dataStore);
+        this.dataStore.bind(dataStore);
     }
 
     void unbindDataStore(DataStore dataStore) {
-        this.dataStore.set(null);
+        this.dataStore.unbind(dataStore);
     }
 
     void bindPortService(PortService portService) {
-        this.portService.set(portService);
+        this.portService.bind(portService);
     }
 
     void unbindPortService(PortService portService) {
-        this.portService.set(null);
+        this.portService.unbind(portService);
     }
 
     void bindProvider(ContainerProvider provider) {
