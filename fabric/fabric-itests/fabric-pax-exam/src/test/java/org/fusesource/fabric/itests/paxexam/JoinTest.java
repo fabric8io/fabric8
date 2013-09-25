@@ -77,6 +77,7 @@ public class JoinTest extends FabricTestSupport {
 	 * This is a test for FABRIC-353.
 	 */
 	@Test
+    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
 	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();

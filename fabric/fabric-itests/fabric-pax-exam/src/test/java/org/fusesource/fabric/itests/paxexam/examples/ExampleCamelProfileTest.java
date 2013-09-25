@@ -51,6 +51,7 @@ public class ExampleCamelProfileTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         CuratorFramework curator = getCurator();
