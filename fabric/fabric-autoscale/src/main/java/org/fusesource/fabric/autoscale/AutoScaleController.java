@@ -22,6 +22,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.Containers;
@@ -65,7 +66,7 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
-    @Reference(referenceInterface = ContainerAutoScaler.class)
+    @Reference(referenceInterface = ContainerAutoScaler.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
     private final ValidatingReference<ContainerAutoScaler> containerAutoScaler = new ValidatingReference<ContainerAutoScaler>();
 
     @GuardedBy("volatile") private volatile Group<AutoScalerNode> group;
