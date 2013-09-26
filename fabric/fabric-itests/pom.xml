@@ -32,8 +32,7 @@
 
     <modules>
         <module>common</module>
-        <module>fabric-pax-exam</module>
-        <module>fabric-pojosr</module>
+        <module>smoke</module>
     </modules>
 
     <dependencies>
@@ -47,10 +46,34 @@
 
     <profiles>
         <profile>
+            <id>ts.all</id>
+            <activation>
+                <property>
+                    <name>ts.all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>basic</module>
+                <module>pojosr</module>
+                <module>wildfly</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.basic</id>
+            <activation>
+                <property>
+                    <name>ts.basic</name>
+                </property>
+            </activation>
+            <modules>
+                <module>basic</module>
+            </modules>
+        </profile>
+        <profile>
             <id>ts.wildfly</id>
             <activation>
                 <property>
-                    <name>!skip.wildfly</name>
+                    <name>ts.wildfly</name>
                 </property>
             </activation>
             <modules>
@@ -58,4 +81,5 @@
             </modules>
         </profile>
     </profiles>
+
 </project>
