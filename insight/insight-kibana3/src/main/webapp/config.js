@@ -58,6 +58,8 @@ function doFormatValue(source, key, obj) {
         return obj.map(formatStackLine).join('\n');
     } else if (key == 'timestamp' && source == 'table') {
         return reformatDate(obj);
+    } else if (key == 'exchange.id' && source == 'table') {
+        return "<a href=\"#/camin/" + obj + "\">" + obj + "</a>";
     } else if(typeof obj == 'object' ) {
       if(_.isArray(obj)) {
         if(obj.length > 0 && typeof obj[0] === 'object') {

@@ -1,5 +1,5 @@
 
-<div class="row-fluid container" style="margin-top:10px">
+<div class="row-fluid container" style="margin-top:10px; margin-left:20px">
   <!-- Rows -->
   <div ng-controller="dashcontrol" ng-init="init()"></div>
   <div class="row-fluid kibana-row" ng-controller="RowCtrl" ng-repeat="(row_name, row) in dashboards.rows" ng-style="row_style(row)">
@@ -34,3 +34,23 @@
     </div>
   </div>
 </div>
+
+<script>
+    var css = [
+        /*
+        "common/css/normalize.min.css",
+        "common/css/animate.min.css",
+        "common/css/main.css",
+        "common/css/elasticjs.css",
+        "common/css/timepicker.css"
+        */
+        "common/css/kibana-hawtio.css",
+    ];
+    for (var i = 0; i < css.length; i++) {
+        var fileref=document.createElement("link");
+        fileref.setAttribute("rel", "stylesheet");
+        fileref.setAttribute("type", "text/css");
+        fileref.setAttribute("href", "/kibana3/" + css[i]);
+        document.getElementsByTagName("head")[0].appendChild(fileref)
+    }
+</script>

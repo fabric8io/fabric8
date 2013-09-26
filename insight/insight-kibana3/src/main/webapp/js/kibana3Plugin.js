@@ -23,6 +23,12 @@ angular.module(pluginName, modules).config(['$routeProvider', function($routePro
       .when('/kibana3', {
         redirectTo: '/kibana3/dashboard/file/log'
       })
+      .when('/kibanalogs', {
+        redirectTo: '/kibana3/dashboard/file/log'
+      })
+      .when('/kibanacamel', {
+        redirectTo: '/kibana3/dashboard/file/camel'
+      })
       .when('/kibana3/dashboard', {
         redirectTo: '/kibana3/dashboard/file/log'
       })
@@ -39,11 +45,18 @@ angular.module(pluginName, modules).config(['$routeProvider', function($routePro
 
       // Set up top-level link to our plugin
       workspace.topLevelTabs.push({
-        content: "Kibana",
-        title: "Insight Kibana module",
+        content: "Logs",
+        title: "Insight Logs",
         isValid: function() { return true; },
-        href: function() { return "#/kibana3"; },
-        isActive: function() { return workspace.isLinkActive("kibana3"); }
+        href: function() { return "#/kibanalogs"; },
+        isActive: function() { return workspace.isLinkActive("/kibana3/dashboard/file/log"); }
+      });
+      workspace.topLevelTabs.push({
+        content: "Camel Events",
+        title: "Insight Camel exchanges",
+        isValid: function() { return true; },
+        href: function() { return "#/kibanacamel"; },
+        isActive: function() { return workspace.isLinkActive("/kibana3/dashboard/file/camel"); }
       });
 
     });
