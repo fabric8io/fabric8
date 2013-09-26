@@ -16,50 +16,61 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
+import org.apache.felix.scr.annotations.*;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.mq.ActiveMQService;
 import org.fusesource.mq.ProducerThread;
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedServiceFactory;
+import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.jms.JMSException;
-import java.util.Dictionary;
+import java.util.Map;
 
-public class ActiveMQProducerFactory implements ManagedServiceFactory {
+@Component(name = "org.fusesource.fabric.example.mq.producer", description = "ActiveMQ Producer Factory", immediate = true)
+public class ActiveMQProducerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
     ProducerThread producer;
     ActiveMQService producerService;
+    @Reference(referenceInterface = FabricService.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    @Override
-    public String getName() {
-        return "ActiveMQ Producer Factory";
+    @Activate
+    void activate(ComponentContext context, Map<String, String> properties) throws Exception {
+       updated(properties);
+       activateComponent();
     }
 
-    @Override
-    public void updated(String pid, Dictionary properties) throws ConfigurationException {
+    @Modified
+    public void updated(Map<String, String> properties) throws Exception {
         try {
             String brokerUrl = (String) properties.get("brokerUrl");
             if (brokerUrl == null) {
                 brokerUrl = "discover:(fabric:default)";
             }
-            producerService = new ActiveMQService((String)properties.get("username"), (String)properties.get("password"), brokerUrl);
+            String password = (String)properties.get("password");
+            if (password == null) {
+                password = fabricService.get().getZookeeperPassword();
+            }
+            producerService = new ActiveMQService((String)properties.get("username"), password, brokerUrl);
             producerService.setMaxAttempts(10);
             producerService.start();
             String destination = (String) properties.get("destination");
             producer = new ProducerThread(producerService, destination);
             producer.setSleep(500);
             producer.start();
-            LOG.info("Producer started " + pid + " started");
+            LOG.info("Producer started");
         } catch (JMSException e) {
-            throw new ConfigurationException(null, "Cannot start producer", e);
+            throw new Exception("Cannot start producer", e);
         }
     }
 
-    @Override
-    public void deleted(String pid) {
-        destroy();
+    @Deactivate
+    void deactivate() {
+      destroy();
     }
 
     public void destroy() {
@@ -67,5 +78,13 @@ public class ActiveMQProducerFactory implements ManagedServiceFactory {
             producer.setRunning(false);
             producerService.stop();
         }
+    }
+
+    void bindFabricService(FabricService fabricService) {
+        this.fabricService.set(fabricService);
+    }
+
+    void unbindFabricService(FabricService fabricService) {
+        this.fabricService.set(null);
     }
 }

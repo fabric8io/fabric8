@@ -37,6 +37,7 @@
         <fuse.osgi.split.pkg />
         <fuse.osgi.embed.dependency />
         <fuse.osgi.import.pkg>*</fuse.osgi.import.pkg>
+        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
 
@@ -61,6 +62,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.jboss.amq</groupId>
             <artifactId>mq-fabric</artifactId>
         </dependency>
@@ -70,10 +76,16 @@
             <artifactId>mq-client</artifactId>
         </dependency>
 
-    <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-    </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+      <dependency>
+          <groupId>org.fusesource.fabric</groupId>
+          <artifactId>fabric-api</artifactId>
+          <version>${fabric.version}</version>
+      </dependency>
 
     </dependencies>
 
@@ -100,6 +112,22 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-scr-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <phase>prepare-package</phase>
+                      <goals>
+                          <goal>scr</goal>
+                      </goals>
+                      <configuration>
+                          <specVersion>1.2</specVersion>
+                          <strictMode>false</strictMode>
+                      </configuration>
+                  </execution>
+              </executions>
             </plugin>
         </plugins>
     </build>
