@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import javax.jms.JMSException;
 import java.util.Map;
 
-@Component(name = "org.fusesource.fabric.example.mq.producer", description = "ActiveMQ Producer Factory", immediate = true)
+@Component(name = "org.fusesource.fabric.example.mq.producer", description = "ActiveMQ Producer Factory", immediate = true, configurationFactory = true)
 public class ActiveMQProducerFactory extends AbstractComponent {
 
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
@@ -81,10 +81,10 @@ public class ActiveMQProducerFactory extends AbstractComponent {
     }
 
     void bindFabricService(FabricService fabricService) {
-        this.fabricService.set(fabricService);
+        this.fabricService.bind(fabricService);
     }
 
     void unbindFabricService(FabricService fabricService) {
-        this.fabricService.set(null);
+        this.fabricService.unbind(null);
     }
 }
