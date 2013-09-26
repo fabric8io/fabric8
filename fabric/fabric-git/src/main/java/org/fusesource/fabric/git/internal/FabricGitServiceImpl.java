@@ -46,7 +46,7 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
 
-    public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "fabric";
+    public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "local" + File.separator + "fabric";
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + DEFAULT_GIT_PATH;
 
     private final File localRepo = new File(DEFAULT_LOCAL_LOCATION);

@@ -102,7 +102,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
         @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
 }
 )
-@Service({DataStorePlugin.class, GitDataStore.class})
+@Service(DataStorePlugin.class)
 public class GitDataStore extends AbstractDataStore implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
@@ -151,10 +151,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                                 Repository repository = git.getRepository();
                                 StoredConfig config = repository.getConfig();
                                 String currentUrl = config.getString("remote", "origin", "url");
-                                if (actualUrl == null) {
-                                    config.unsetSection("remote", "origin");
-                                    config.save();
-                                } else if (!actualUrl.equals(currentUrl)) {
+                                if (!actualUrl.equals(currentUrl)) {
                                     config.setString("remote", "origin", "url", actualUrl);
                                     config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                                     config.save();
@@ -1040,7 +1037,8 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             try {
                 git.fetch().setCredentialsProvider(credentialsProvider).setRemote(remote).call();
             } catch (Exception e) {
-                LOG.debug("Fetch failed: " + e, e);
+                LOG.debug("Fetch failed. Ignoring");
+                return;
             }
 
             // Get local and remote branches

@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
-@Component(name = "org.fusesource.fabric.git.master.listener",description = "Fabric Git Master Listener", immediate = true)
+@Component(name = "org.fusesource.fabric.git.master.listener", description = "Fabric Git Master Listener", immediate = true)
 public class GitMasterListener implements GroupListener<GitNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GitMasterListener.class);
@@ -58,8 +58,6 @@ public class GitMasterListener implements GroupListener<GitNode> {
             case CHANGED:
                 updateMasterUrl(group);
                 break;
-            case DISCONNECTED:
-                gitService.notifyRemoteChanged(null);
         }
     }
 
@@ -69,17 +67,11 @@ public class GitMasterListener implements GroupListener<GitNode> {
      * @param group
      */
     private void updateMasterUrl(Group<GitNode> group) {
-        String masterUrl = null;
         GitNode master = group.master();
-        if (master != null
-                && !master.getContainer().equals(System.getProperty(SystemProperties.KARAF_NAME))) {
-            masterUrl = master.getUrl();
-        }
+        String masterUrl = master != null ? master.getUrl() : null;
         try {
             if (masterUrl != null) {
                 gitService.notifyRemoteChanged(getSubstitutedData(curator, masterUrl));
-            } else {
-                gitService.notifyRemoteChanged(null);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to point origin to the new master.", e);

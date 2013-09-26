@@ -22,7 +22,9 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.http.server.GitServlet;
+import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -42,15 +44,7 @@ import org.osgi.service.http.HttpService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Map;
@@ -81,54 +75,28 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     @Reference(referenceInterface = GitService.class)
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
 
+    @Reference(referenceInterface = FabricService.class)
+    private FabricService fabricService;
+    
+
     @GuardedBy("volatile") private volatile Group<GitNode> group;
     @GuardedBy("volatile") private volatile String gitRemoteUrl;
 
+    private String realm;
+    private String role;
+
     @Activate
     void activate(ComponentContext context, Map<String, String> properties) {
+        realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+        role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
+        registerServlet();
         group = new ZooKeeperGroup(curator.get(), ZkPath.GIT.getPath(), GitNode.class);
         group.add(this);
         group.update(createState());
         group.start();
 
-        gitServlet.addReceivePackFilter(new Filter() {
-            @Override
-            public void init(FilterConfig filterConfig) throws ServletException {
-            }
 
-            @Override
-            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-                chain.doFilter(request, response);
-                if (gitService.getOptional() != null) {
-                    gitService.get().notifyReceivePacket();
-                }
-            }
-
-            @Override
-            public void destroy() {
-            }
-        });
-
-        String realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        String role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
-        try {
-            HttpContext base = httpService.get().createDefaultHttpContext();
-            HttpContext secure = new SecureHttpContext(base, realm, role);
-            String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator;
-            String fabricGitPath = basePath + "fabric";
-            File fabricRoot = new File(fabricGitPath);
-            if (!fabricRoot.exists() && !fabricRoot.mkdirs()) {
-                throw new FileNotFoundException("Could not found git root:" + basePath);
-            }
-            Dictionary<String, Object> initParams = new Hashtable<String, Object>();
-            initParams.put("base-path", basePath);
-            initParams.put("repository-root", basePath);
-            initParams.put("export-all", "true");
-            httpService.get().registerServlet("/git", gitServlet, initParams, secure);
-        } catch (Exception e) {
-            LOGGER.error("Error while registering git servlet", e);
-        }
         activateComponent();
     }
 
@@ -142,7 +110,9 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         } catch (Exception e) {
             LOGGER.warn("Failed to remove git server from registry.", e);
         }
+        unregisterServlet();
     }
+
 
 
     @Override
@@ -166,6 +136,42 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
                 // Ignore
             }
         }
+    }
+
+    private synchronized void registerServlet() {
+        try {
+            HttpContext base = httpService.get().createDefaultHttpContext();
+            HttpContext secure = new SecureHttpContext(base, realm, role);
+            String basePath = System.getProperty("karaf.data") + File.separator + "git" + File.separator + "servlet" + File.separator;
+            String fabricGitPath = basePath + "fabric";
+            File fabricRoot = new File(fabricGitPath);
+
+            //Only need to clone once. If repo already exists, just skip.
+            if (!fabricRoot.exists()) {
+                Git localGit = gitService.get().get();
+                Git.cloneRepository()
+                        .setBare(true)
+                        .setNoCheckout(true)
+                        .setCloneAllBranches(true)
+                        .setDirectory(fabricRoot)
+                        .setURI(localGit.getRepository().getDirectory().toURI().toString())
+                        .call();
+            }
+
+            Dictionary<String, Object> initParams = new Hashtable<String, Object>();
+            initParams.put("base-path", basePath);
+            initParams.put("repository-root", basePath);
+            initParams.put("export-all", "true");
+            httpService.get().registerServlet("/git", gitServlet, initParams, secure);
+            activateComponent();
+        } catch (Exception e) {
+            LOGGER.error("Error while registering git servlet", e);
+            deactivate();
+        }
+    }
+
+    private void unregisterServlet() {
+       httpService.get().unregister("/git");
     }
 
     private void updateConfigAdmin() {
