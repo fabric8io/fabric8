@@ -848,11 +848,6 @@ public class FabricManager implements FabricManagerMBean {
         }
     }
 
-/*
-    public IZKClient getCurator() {
-        return getFabricService().getCurator();
-    }
-*/
 
     @Override
     public String getZookeeperInfo(String name) {

@@ -32,7 +32,7 @@
 
     <properties>
         <fuse.osgi.export>
-          org.fusesource.fabric.zookeeper.commands
+            org.fusesource.fabric.org.apache.zookeeper.commands
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.jledit.utils,
@@ -41,9 +41,6 @@
             org.fusesource.fabric.utils.shell,
             org.fusesource.fabric.utils
         </fuse.osgi.private.pkg>
-        <fuse.osgi.services.import>
-            org.fusesource.fabric.zookeeper.IZKClient
-        </fuse.osgi.services.import>
     </properties>
 
     <dependencies>
@@ -59,11 +56,6 @@
             <groupId>org.apache.karaf.shell</groupId>
             <artifactId>org.apache.karaf.shell.console</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.jledit</groupId>
             <artifactId>core</artifactId>

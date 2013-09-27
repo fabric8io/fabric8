@@ -206,7 +206,6 @@
                                         <include>org/codehaus/jackson/jackson-mapper-asl/**</include>
                                         <include>org/fusesource/fabric/fabric-zookeeper/**</include>
                                         <include>commons-codec/commons-codec/**</include>
-                                        <include>org/fusesource/fabric/fabric-linkedin-zookeeper/**</include>
                                         <include>org/fusesource/fabric/fabric-core/**</include>
                                         <include>org/jledit/**</include>
                                     </includes>

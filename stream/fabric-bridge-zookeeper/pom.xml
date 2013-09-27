@@ -88,10 +88,6 @@
     </dependency>
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fabric-linkedin-zookeeper</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-commands</artifactId>
       <scope>test</scope>
     </dependency>
@@ -138,7 +134,7 @@
           <schemas>
             <schema>
               <namespace>http://fusesource.org/fabric/bridge/zookeeper</namespace>
-              <file>fabric-bridge-zookeeper.xsd</file>
+              <file>fabric-bridge-org.apache.zookeeper.xsd</file>
             </schema>
             <schema>
               <namespace>http://fusesource.org/fabric/bridge</namespace>

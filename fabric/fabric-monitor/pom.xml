@@ -74,11 +74,6 @@
     </dependency>
 
     <dependency>
-        <groupId>org.fusesource.fabric</groupId>
-        <artifactId>fabric-linkedin-zookeeper</artifactId>
-    </dependency>
-
-    <dependency>
       <groupId>org.fusesource</groupId>
       <artifactId>sigar</artifactId>
       <version>${sigar-version}</version>
@@ -102,20 +97,6 @@
     </dependency>
 -->
 
-    <!-- for the handy TimeSpan class -->
-<!-- comes from fabric-linkedin-zookeeper
-    <dependency>
-      <groupId>org.linkedin</groupId>
-      <artifactId>org.linkedin.util-core</artifactId>
-      <version>${linkedin-zookeeper-version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>com.sun.jdmk</groupId>
-          <artifactId>jmxtools</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
--->
 
 
     <!-- testing -->

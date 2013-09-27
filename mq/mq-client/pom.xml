@@ -59,13 +59,6 @@
           <optional>true</optional>
       </dependency>
       <dependency>
-          <groupId>org.fusesource.fabric</groupId>
-          <artifactId>fabric-linkedin-zookeeper</artifactId>
-          <version>${fabric.version}</version>
-          <scope>runtime</scope>
-          <optional>true</optional>
-      </dependency>
-      <dependency>
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.framework</artifactId>
         <optional>true</optional>

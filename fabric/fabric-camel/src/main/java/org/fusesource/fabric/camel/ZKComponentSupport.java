@@ -101,7 +101,7 @@ public abstract class ZKComponentSupport extends DefaultComponent implements Cal
             try {
                 curator = (CuratorFramework) getCamelContext().getRegistry().lookupByName("curator");
                 if (curator != null) {
-                    LOG.debug("IZKClient found in camel registry. " + curator);
+                    LOG.debug("Zookeeper client found in camel registry. " + curator);
                 }
             } catch (Exception exception) {
             }

@@ -51,10 +51,10 @@
         <persistenceAdapter>
             <replicatedLevelDB directory="${data}/leveldb/${karaf.name}"
               replicas="${replicas}"
-              zkAddress="${zookeeper.url}"
-              zkPassword="${zookeeper.password}"
+              zkAddress="${org.apache.zookeeper.url}"
+              zkPassword="${org.apache.zookeeper.password}"
               zkPath="/fabric/registry/clusters/fusemq-replication-elections/${group}"
-              securityToken="${zookeeper.password}"
+              securityToken="${org.apache.zookeeper.password}"
               hostname="${container.ip}"
               container="${container.id}"
               />

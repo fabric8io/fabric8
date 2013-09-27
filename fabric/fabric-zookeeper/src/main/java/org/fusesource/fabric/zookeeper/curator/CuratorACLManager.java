@@ -28,7 +28,6 @@ import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
 import org.fusesource.fabric.zookeeper.ACLManager;
-import org.linkedin.util.io.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
 import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
 
 @Component(name = "org.fusesource.fabric.zookeeper.acl",
@@ -133,8 +133,16 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
      * @return
      */
     private String adjustPath(String path) {
-        path = PathUtils.removeTrailingSlash(path);
-        path = PathUtils.addLeadingSlash(path);
+        if (path == null) {
+            throw new IllegalArgumentException();
+        }
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
         return path;
     }
 

@@ -20,10 +20,10 @@ package org.apache.zookeeper.client;
 
 import org.apache.zookeeper.AsyncCallback;
 import org.apache.zookeeper.ClientCnxn;
+import org.apache.zookeeper.Environment;
 import org.apache.zookeeper.Login;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.apache.zookeeper.ZooDefs;
-import org.apache.zookeeper.Environment;
 import org.apache.zookeeper.data.Stat;
 import org.apache.zookeeper.proto.GetSASLRequest;
 import org.apache.zookeeper.proto.SetSASLResponse;
@@ -31,10 +31,6 @@ import org.apache.zookeeper.server.auth.KerberosName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.security.Principal;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
@@ -49,6 +45,10 @@ import javax.security.sasl.RealmCallback;
 import javax.security.sasl.Sasl;
 import javax.security.sasl.SaslClient;
 import javax.security.sasl.SaslException;
+import java.io.IOException;
+import java.security.Principal;
+import java.security.PrivilegedActionException;
+import java.security.PrivilegedExceptionAction;
 
 /**
  * This class manages SASL authentication for the client. It
@@ -490,10 +490,10 @@ public class ZooKeeperSaslClient {
         // configured to use SASL. (see also ZOOKEEPER-1455).
         try {
   	    if ((System.getProperty(Environment.JAAS_CONF_KEY) != null) ||
-              ((javax.security.auth.login.Configuration.getConfiguration() != null) &&
-                  (javax.security.auth.login.Configuration.getConfiguration().
+              ((Configuration.getConfiguration() != null) &&
+                  (Configuration.getConfiguration().
                        getAppConfigurationEntry(System.
-                       getProperty(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY,"Client")) 
+                       getProperty(ZooKeeperSaslClient.LOGIN_CONTEXT_NAME_KEY,"Client"))
                            != null))) {
                 // Client is configured to use a valid login Configuration, so
                 // authentication is either in progress, successful, or failed.

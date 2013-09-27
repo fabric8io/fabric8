@@ -68,23 +68,23 @@
       <init-param>
           <param-name>com.sun.jersey.config.property.classnames</param-name>
           <param-value>
-            org.fusesource.fabric.webui.InputStreamProvider
-            org.fusesource.fabric.webui.JsonProvider
-            org.fusesource.fabric.webui.agents.AgentsResource
-            org.fusesource.fabric.webui.jclouds.ComputeProvidersResource
-            org.fusesource.fabric.webui.jclouds.ComputeServicesResource
-            org.fusesource.fabric.webui.profile.VersionsResource
-            org.fusesource.fabric.webui.patching.PatchResource
-            org.fusesource.fabric.webui.patching.PatchFilesResource
-            org.fusesource.fabric.webui.patching.VersionPatchResource
-            org.fusesource.fabric.webui.patching.UpgradeResource
-            org.fusesource.fabric.webui.patching.ProfileUpgradeResource
-            org.fusesource.fabric.webui.patching.VersionUpgradeResource
-            org.fusesource.fabric.webui.patching.MavenArtifactResource
-            org.fusesource.fabric.webui.log.LogResource
-            org.fusesource.fabric.webui.zookeeper.ZooKeeperResource
-            org.fusesource.fabric.webui.system.SystemResource
-            org.fusesource.fabric.webui.users.UsersResource
+              org.fusesource.fabric.webui.InputStreamProvider
+              org.fusesource.fabric.webui.JsonProvider
+              org.fusesource.fabric.webui.agents.AgentsResource
+              org.fusesource.fabric.webui.jclouds.ComputeProvidersResource
+              org.fusesource.fabric.webui.jclouds.ComputeServicesResource
+              org.fusesource.fabric.webui.profile.VersionsResource
+              org.fusesource.fabric.webui.patching.PatchResource
+              org.fusesource.fabric.webui.patching.PatchFilesResource
+              org.fusesource.fabric.webui.patching.VersionPatchResource
+              org.fusesource.fabric.webui.patching.UpgradeResource
+              org.fusesource.fabric.webui.patching.ProfileUpgradeResource
+              org.fusesource.fabric.webui.patching.VersionUpgradeResource
+              org.fusesource.fabric.webui.patching.MavenArtifactResource
+              org.fusesource.fabric.webui.log.LogResource
+              org.fusesource.fabric.webui.org.apache.zookeeper.ZooKeeperResource
+              org.fusesource.fabric.webui.system.SystemResource
+              org.fusesource.fabric.webui.users.UsersResource
           </param-value>
       </init-param>
         <!--

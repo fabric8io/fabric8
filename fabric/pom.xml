@@ -64,7 +64,8 @@
         <module>fabric-itests</module>
         <module>fabric-jaas</module>
         <module>fabric-jolokia</module>
-        <module>fabric-linkedin-zookeeper</module>
+        <module>fabric-launcher</module>
+        <module>fabric-ldap</module>
         <module>fabric-maven-proxy</module>
         <module>fabric-partition</module>
         <module>fabric-redirect</module>

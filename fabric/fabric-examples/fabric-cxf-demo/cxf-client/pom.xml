@@ -56,13 +56,6 @@
 
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-            <version>${project.version}</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-groups</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>

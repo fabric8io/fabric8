@@ -145,12 +145,6 @@ which would lead to java.lang.RuntimeException: Could not create [service.obr] -
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
-      <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fabric-linkedin-zookeeper</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
 
     <!-- for JMS classes -->
     <dependency>

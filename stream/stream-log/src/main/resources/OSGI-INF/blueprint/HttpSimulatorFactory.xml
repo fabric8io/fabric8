@@ -18,7 +18,6 @@
            xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
            xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0">
 
-  <!--<reference id="curator" interface="org.linkedin.zookeeper.client.IZKClient"/>-->
 
   <bean id="factory" class="org.fusesource.fabric.stream.log.HttpSimulatorFactory" destroy-method="destroy">
     <!--<property name="bundleContext" ref="blueprintBundleContext"/>-->

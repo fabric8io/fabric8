@@ -39,7 +39,7 @@
           org.fusesource.fabric.service.jclouds.firewall.internal,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            !org.fusesource.fabric.zookeeper.commands,
+            !org.fusesource.fabric.org.apache.zookeeper.commands,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
@@ -98,11 +98,6 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>

@@ -192,7 +192,6 @@
         <karaf-version>2.3.0.redhat-${full-perfectus-build}</karaf-version>
         <libvirt-version>0.4.6</libvirt-version>
         <libvirt-bundle-version>1.1</libvirt-bundle-version>
-        <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
         <!-- TODO - zap with logback?? -->
         <log4j-version>1.2.16</log4j-version>
         <logback-version>1.0.0</logback-version>
@@ -643,12 +642,6 @@
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
-                <artifactId>fabric-linkedin-zookeeper</artifactId>
-                <version>${fabric.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core</artifactId>
                 <version>${fabric.version}</version>
                 <scope>provided</scope>
@@ -923,25 +916,6 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback-version}</version>
-            </dependency>
-            <!-- LinkedIn ZooKeeper -->
-            <dependency>
-                <groupId>org.linkedin</groupId>
-                <artifactId>org.linkedin.zookeeper-impl</artifactId>
-                <version>${linkedin-zookeeper-version}</version>
-                <scope>provided</scope>
-                <exclusions>
-                    <exclusion>
-                        <groupId>com.sun.jdmk</groupId>
-                        <artifactId>jmxtools</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>org.linkedin</groupId>
-                <artifactId>org.linkedin.util-core</artifactId>
-                <version>${linkedin-zookeeper-version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>

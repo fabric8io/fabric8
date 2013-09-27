@@ -139,11 +139,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-linkedin-zookeeper</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.fusesource.examples</groupId>
             <artifactId>fabric-activemq-demo</artifactId>
             <version>${project.version}</version>

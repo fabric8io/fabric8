@@ -76,13 +76,6 @@
 
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
-      <artifactId>fabric-linkedin-zookeeper</artifactId>
-      <version>${fabric.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-zookeeper</artifactId>
       <version>${fabric.version}</version>
       <scope>provided</scope>
@@ -156,13 +149,6 @@
       <version>${servlet-api-version}</version>
       <scope>provided</scope>
     </dependency>
-
-    <dependency>
-      <groupId>org.linkedin</groupId>
-      <artifactId>org.linkedin.zookeeper-impl</artifactId>
-      <scope>provided</scope>
-    </dependency>
-
     <dependency>
       <groupId>com.sun.jersey</groupId>
       <artifactId>jersey-server</artifactId>

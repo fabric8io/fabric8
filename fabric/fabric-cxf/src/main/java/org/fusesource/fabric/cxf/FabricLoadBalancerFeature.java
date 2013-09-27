@@ -164,7 +164,7 @@ public class FabricLoadBalancerFeature extends AbstractFeature implements BusLif
             if (password == null) {
                 System.getProperty(ZOOKEEPER_PASSWORD);
             }
-            LOG.debug("IZKClient not find in camel registry, creating new with connection " + connectString);
+            LOG.debug("Zookeeper client not find in camel registry, creating new with connection " + connectString);
             CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder()
                     .connectString(connectString)
                     .retryPolicy(new RetryOneTime(1000))
