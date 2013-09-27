@@ -46,6 +46,7 @@
         <fuse.osgi.services.export>
         </fuse.osgi.services.export>
         <fuse.osgi.private.pkg>
+          io.hawt.introspect*
         </fuse.osgi.private.pkg>
         <fuse.osgi.require.bundle>
             org.fusesource.fabric.fabric-git
