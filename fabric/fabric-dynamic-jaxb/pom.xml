@@ -42,6 +42,7 @@
             javax.xml.namespace,
             *
         </fuse.osgi.import>
+        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 
     <dependencies>
@@ -110,7 +111,22 @@
             </configuration>
           </plugin>
 
-        </plugins>
+          <plugin>
+              <groupId>org.apache.felix</groupId>
+              <artifactId>maven-scr-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <goals>
+                          <goal>scr</goal>
+                      </goals>
+                      <configuration>
+                          <specVersion>1.2</specVersion>
+                          <strictMode>false</strictMode>
+                      </configuration>
+                  </execution>
+              </executions>
+          </plugin>
+      </plugins>
     </build>
 
 </project>

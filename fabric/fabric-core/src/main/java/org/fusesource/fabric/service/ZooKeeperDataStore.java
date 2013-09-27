@@ -34,34 +34,25 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.ZkProfiles;
 import org.fusesource.fabric.zookeeper.utils.ZookeeperImportUtils;
 import org.osgi.service.component.ComponentContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.copy;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildren;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getProperties;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.lastModified;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 /**
  * A pure ZooKeeper based implementation.
@@ -257,6 +248,25 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
         }
     }
 
+    @Override
+    public Collection<String> listFiles(String version, Iterable<String> profiles, String path) {
+        assertValid();
+        SortedSet<String> answer = new TreeSet<String>();
+        for (String profile : profiles) {
+            String profilePath = ZkProfiles.getPath(version, profile);
+            String configPath = Strings.isNotBlank(path)
+                    ? profilePath + "/" + path : path;
+            try {
+                List<String> children = getChildrenSafe(getCurator(), configPath);
+                if (children != null) {
+                    answer.addAll(children);
+                }
+            } catch (Exception e) {
+                throw FabricException.launderThrowable(e);
+            }
+        }
+        return answer;
+    }
 
     @Override
     public Map<String, String> getProfileAttributes(String version, String profile) {

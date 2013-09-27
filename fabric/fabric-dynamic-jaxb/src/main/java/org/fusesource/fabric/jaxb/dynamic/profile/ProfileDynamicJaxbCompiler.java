@@ -18,6 +18,7 @@ package org.fusesource.fabric.jaxb.dynamic.profile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,33 +36,49 @@ import com.google.common.io.Closeables;
 
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.References;
+import org.apache.felix.scr.annotations.Service;
+import org.fusesource.common.util.Maps;
+import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Containers;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Profiles;
+import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.jaxb.dynamic.CompileResults;
 import org.fusesource.fabric.jaxb.dynamic.CompileResultsHandler;
 import org.fusesource.fabric.jaxb.dynamic.DynamicCompiler;
-import org.fusesource.fabric.jaxb.dynamic.DynamicJaxbDataFormat;
 import org.fusesource.fabric.jaxb.dynamic.DynamicXJC;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Watches the ZooKeeper registery for XSD files to recompile
+ * Watches the {@link DataStore} for XSD files to recompile
  */
-public class ZKWatcherDynamicCompiler implements DynamicCompiler {
-    private static final transient Logger LOG = LoggerFactory.getLogger(ZKWatcherDynamicCompiler.class);
+@Component(name = "org.fusesource.fabric.profile.jaxb.compiler", description = "Fabric Profile JAXB Compiler", immediate = true)
+@Service({DynamicCompiler.class})
+public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
+    public static final String PROPERTY_SCHEMA_PATH = "schemaPath";
 
-    private CuratorFramework curator;
+    private static final transient Logger LOG = LoggerFactory.getLogger(ProfileDynamicJaxbCompiler.class);
+
+    @Reference(referenceInterface = DataStore.class)
+    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+
     private String schemaPath;
     private BundleContext bundleContext;
-    private FabricService fabricService;
     private Timer timer = new Timer();
     private AtomicBoolean startedFlag = new AtomicBoolean(false);
 
@@ -71,38 +88,28 @@ public class ZKWatcherDynamicCompiler implements DynamicCompiler {
     private long timerDelay = 1000;
     private CompileResults compileResults;
     private CompileResultsHandler handler;
-    private PathChildrenCacheListener cacheListener = new PathChildrenCacheListener() {
-
-        public void childEvent(CuratorFramework curatorFramework,
-                               PathChildrenCacheEvent event)
-                throws Exception {
-                switch (event.getType()) {
-                case INITIALIZED:
-                case CHILD_ADDED:
-                case CHILD_REMOVED:
-                    asyncRecompile();
-                    break;
-                }
+    private Runnable changeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            asyncRecompile();
         }
     };
 
-    public ZKWatcherDynamicCompiler() {
+    public ProfileDynamicJaxbCompiler() {
     }
 
-    public void init() {
+    @Activate
+    public void init(Map<String,String> configuration) {
         try {
+            this.schemaPath = Maps.stringValue(configuration, PROPERTY_SCHEMA_PATH, "schemas");
             watchSchemaFolders();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
     }
 
+    @Deactivate
     public void destroy() throws IOException {
-        for (Map.Entry<String, PathChildrenCache> entry : pathCacheMap.entrySet()) {
-            PathChildrenCache pathCache = entry.getValue();
-            Closeables.close(pathCache, true);
-        }
-        pathCacheMap.clear();
         executorService.shutdown();
         timer.cancel();
     }
@@ -127,19 +134,7 @@ public class ZKWatcherDynamicCompiler implements DynamicCompiler {
     }
 
     public FabricService getFabricService() {
-        return fabricService;
-    }
-
-    public void setFabricService(FabricService fabricService) {
-        this.fabricService = fabricService;
-    }
-
-    public CuratorFramework getCurator() {
-        return curator;
-    }
-
-    public void setCurator(CuratorFramework curator) {
-        this.curator = curator;
+        return fabricService.get();
     }
 
     public BundleContext getBundleContext() {
@@ -188,23 +183,7 @@ public class ZKWatcherDynamicCompiler implements DynamicCompiler {
      * Lets try resolve the current {@link #getSchemaPath()} based on the profile paths
      */
     protected void watchSchemaFolders() throws Exception {
-        Container container = fabricService.getCurrentContainer();
-        String version = container.getVersion().getId();
-        Profile[] profiles = container.getProfiles();
-        for (Profile profile : profiles) {
-            String profileId = profile.getId();
-            String profilePath = ZkPath.getProfilePath(version, profileId);
-            String path = profilePath + "/" + schemaPath;
-            if (curator.checkExists().forPath(path) != null) {
-                LOG.info("Starting ZKWatcherDynamicCompiler on path " + path);
-                PathChildrenCache pathCache = new PathChildrenCache(curator, path, true, false,
-                        executorService);
-                pathCacheMap.put(path, pathCache);
-                pathCache.getListenable().addListener(cacheListener);
-                pathCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
-                pathCache.rebuild();
-            }
-        }
+        getFabricService().getDataStore().trackConfiguration(changeRunnable);
     }
 
     private class RecompileTask extends TimerTask {
@@ -218,15 +197,22 @@ public class ZKWatcherDynamicCompiler implements DynamicCompiler {
         LOG.debug("Looking for XSDs to recompile");
 
         Set<String> urls = new TreeSet<String>();
-        List<PathChildrenCache> pathCaches = new ArrayList<PathChildrenCache>(pathCacheMap.values());
-        for (PathChildrenCache pathCache : pathCaches) {
-            List<ChildData> childData = pathCache.getCurrentData();
-            int totalItems = childData.size();
-            for (ChildData data : childData) {
-                String path = data.getPath();
-                urls.add("zk:" + path);
+        FabricService fabric = getFabricService();
+        Container container = fabric.getCurrentContainer();
+        String version = container.getVersion().getId();
+        List<Profile> profiles = Containers.overlayProfiles(container);
+        List<String> profileIds = Profiles.profileIds(profiles);
+        Collection<String> names = fabric.getDataStore().listFiles(version, profileIds, schemaPath);
+        for (String name : names) {
+            if (name.endsWith(".xsd")) {
+                String prefix = schemaPath;
+                if (Strings.isNullOrBlank(prefix)) {
+                    prefix += "/";
+                }
+                urls.add("profile:" + prefix + name);
             }
         }
+
         LOG.info("Recompiling XSDs at URLs: " + urls);
         startedFlag.set(false);
 

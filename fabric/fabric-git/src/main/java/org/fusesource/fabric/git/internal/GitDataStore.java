@@ -28,6 +28,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -571,6 +573,31 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             }
         });
         return answer != null ? answer.longValue() : 0;
+    }
+
+    @Override
+    public Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path) {
+        assertValid();
+        return gitReadOperation(new GitOperation<Collection<String>>() {
+            public Collection<String> call(Git git, GitContext context) throws Exception {
+                SortedSet<String> answer = new TreeSet<String>();
+                for (String profile : profiles) {
+                    checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                    File profileDirectory = getProfileDirectory(git, profile);
+                    File file = Strings.isNotBlank(path)
+                            ? new File(profileDirectory, path): profileDirectory;
+                    if (file.exists()) {
+                        String[] values = file.list();
+                        if (values != null) {
+                            for (String value : values) {
+                                answer.add(value);
+                            }
+                        }
+                    }
+                }
+                return answer;
+            }
+        });
     }
 
     @Override

@@ -17,6 +17,7 @@
 package org.fusesource.fabric.api;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -165,7 +166,18 @@ public interface DataStore {
 
     long getLastModified(String version, String profile);
 
+    /**
+     * Lists the files for the given profiles with the optional extra relative path
+     *
+     * @param version the version of the profiles to look at
+     * @param profiles the list of profiles to look into; using values from the first profiles overlaying
+     *                 later profiles
+     * @param path if null then the root configuration directory is listed for the profile
+     */
+    Collection<String> listFiles(String version, Iterable<String> profiles, String path);
+
     // File configurations, including Map based configurations
+
 
     Map<String, byte[]> getFileConfigurations(String version, String profile);
 

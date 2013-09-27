@@ -34,6 +34,8 @@ import org.osgi.service.component.ComponentContext;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -190,6 +192,10 @@ public class GitDataStoreTest {
         Map<String, byte[]> tomcatFileConfigurations = dataStore.getFileConfigurations("1.0", "controller-tomcat");
         assertHasFileConfiguration(tomcatFileConfigurations, "tomcat/conf/server.xml.mvel");
 
+        Collection<String> schemas = dataStore.listFiles("1.0", Arrays.asList("example-dozer"), "schemas");
+        assertNotNull(schemas);
+        assertContainerEquals("schemas for example-dozer", Arrays.asList("invoice.xsd"), new ArrayList<String>(schemas));
+
         // check we don't accidentally create a profile
         String profileNotCreated = "shouldNotBeCreated";
         assertEquals("Should not create profile: " + profileNotCreated, null,
@@ -244,6 +250,15 @@ public class GitDataStoreTest {
         remote.checkout().setName("1.0").call();
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
         assertFolderNotExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
+    }
+
+    public static void assertContainerEquals(String message, List<String> expected, List<String> actual) {
+        assertEquals(message + "Size wrong for actual " + actual + " expected " + expected, expected.size(), actual.size());
+        for (int i = 0, size = expected.size(); i < size; i++) {
+            Object expectedItem = expected.get(i);
+            Object actualItem = actual.get(i);
+            assertEquals(message + " item " + i, expectedItem, actualItem);
+        }
     }
 
     public static void assertHasFileConfiguration(Map<String, byte[]> fileConfigurations, String pid) {

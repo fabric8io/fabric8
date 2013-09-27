@@ -18,8 +18,10 @@ package org.fusesource.fabric.api;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * A helper class for working with containers
@@ -38,6 +40,28 @@ public class Containers {
             }
         }
         return answer;
+    }
+
+    /**
+     * Returns the effective list of profile ids for the current container;
+     * that is the list of all profiles and descendant profiles in order in which their values
+     * are to be applied.
+     */
+    public static List<Profile> overlayProfiles(Container container) {
+        Set<Profile> set = new LinkedHashSet<Profile>();
+        Profile[] profiles = container.getProfiles();
+        recursiveAddProfiles(set, profiles);
+        return new ArrayList<Profile>(set);
+    }
+
+    protected static void recursiveAddProfiles(Set<Profile> set, Profile[] profiles) {
+        for (Profile profile : profiles) {
+            set.add(profile);
+            Profile[] parents = profile.getParents();
+            if (parents != null) {
+                recursiveAddProfiles(set, parents);
+            }
+        }
     }
 
     /**
