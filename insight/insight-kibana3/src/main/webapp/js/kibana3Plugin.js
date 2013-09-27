@@ -9,15 +9,12 @@ var modules = [
   'ngSanitize'
 ];
 
-var pluginName = 'kibana3';
-var kibana3TopLevel = "/kibana3";
-
 _.each(config.modules, function(v) {
   var script = "panels/" + v + "/modules.js";
   modules.push('kibana.'+v);
 });
 
-angular.module(pluginName, modules).config(['$routeProvider', function($routeProvider) {
+angular.module('kibana3', modules).config(['$routeProvider', function($routeProvider) {
 
   $routeProvider
       .when('/kibana3', {
@@ -41,7 +38,7 @@ angular.module(pluginName, modules).config(['$routeProvider', function($routePro
 }])
     .run(function(workspace, viewRegistry, layoutFull) {
 
-      viewRegistry[pluginName] = layoutFull;
+      viewRegistry['kibana3'] = layoutFull;
 
       // Set up top-level link to our plugin
       workspace.topLevelTabs.push({
@@ -62,7 +59,7 @@ angular.module(pluginName, modules).config(['$routeProvider', function($routePro
     });
 
 
-hawtioPluginLoader.addModule(pluginName);
+hawtioPluginLoader.addModule('kibana3');
 modules.forEach(function(module) {
   hawtioPluginLoader.addModule(module);
 });
