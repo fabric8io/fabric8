@@ -46,7 +46,7 @@
                 <th>Action</th>
                 <th>Value</th>
               </thead>
-              <tr ng-repeat="(key,value) in row.kibana.details._source" ng-class-odd="'odd'">
+              <tr ng-repeat="(key,value) in row.kibana.details._source track by key" ng-class-odd="'odd'">
                 <td>{{key}}</td>
                 <td>
                   <i class='icon-search pointer' ng-click="build_search(key,value)"></i> 
