@@ -34,10 +34,9 @@ public class ProfileJaxbDataFormat extends DynamicJaxbDataFormat {
 
     @Reference(referenceInterface = DynamicCompiler.class,
             bind = "bindCompiler")
-    private final ValidatingReference<DynamicCompiler> compiler = new ValidatingReference<DynamicCompiler>();
+    private DynamicCompiler compiler;
 
     public void bindCompiler(DynamicCompiler value) throws Exception {
-        System.out.println("==== bound a compiler " + value);
         setCompiler(value);
     }
 

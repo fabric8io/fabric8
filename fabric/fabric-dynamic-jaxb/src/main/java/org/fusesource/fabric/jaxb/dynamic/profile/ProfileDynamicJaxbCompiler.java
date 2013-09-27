@@ -32,30 +32,22 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.base.Throwables;
-import com.google.common.io.Closeables;
 
 import org.apache.aries.util.AriesFrameworkUtil;
-import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.common.util.Maps;
 import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Containers;
 import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.DataStorePlugin;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Profiles;
-import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.jaxb.dynamic.CompileResults;
 import org.fusesource.fabric.jaxb.dynamic.CompileResultsHandler;
 import org.fusesource.fabric.jaxb.dynamic.DynamicCompiler;
@@ -74,11 +66,12 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(ProfileDynamicJaxbCompiler.class);
 
-    @Reference(referenceInterface = DataStore.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    private BundleContext bundleContext;
+
+    @Reference(referenceInterface = FabricService.class)
+    private FabricService fabricService;
 
     private String schemaPath;
-    private BundleContext bundleContext;
     private Timer timer = new Timer();
     private AtomicBoolean startedFlag = new AtomicBoolean(false);
 
@@ -99,10 +92,12 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     @Activate
-    public void init(Map<String,String> configuration) {
+    public void init(Map<String,String> configuration, BundleContext bundleContext) {
         try {
+            this.bundleContext = bundleContext;
             this.schemaPath = Maps.stringValue(configuration, PROPERTY_SCHEMA_PATH, "schemas");
-            watchSchemaFolders();
+            getDataStore().trackConfiguration(changeRunnable);
+            asyncRecompile();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
@@ -110,6 +105,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
 
     @Deactivate
     public void destroy() throws IOException {
+        getDataStore().untrackConfiguration(changeRunnable);
         executorService.shutdown();
         timer.cancel();
     }
@@ -134,7 +130,11 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     public FabricService getFabricService() {
-        return fabricService.get();
+        return fabricService;
+    }
+
+    public DataStore getDataStore() {
+        return getFabricService().getDataStore();
     }
 
     public BundleContext getBundleContext() {
@@ -179,13 +179,6 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
 
-    /**
-     * Lets try resolve the current {@link #getSchemaPath()} based on the profile paths
-     */
-    protected void watchSchemaFolders() throws Exception {
-        getFabricService().getDataStore().trackConfiguration(changeRunnable);
-    }
-
     private class RecompileTask extends TimerTask {
         @Override
         public void run() {
@@ -206,7 +199,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
         for (String name : names) {
             if (name.endsWith(".xsd")) {
                 String prefix = schemaPath;
-                if (Strings.isNullOrBlank(prefix)) {
+                if (Strings.isNotBlank(prefix)) {
                     prefix += "/";
                 }
                 urls.add("profile:" + prefix + name);
