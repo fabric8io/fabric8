@@ -30,8 +30,7 @@
     <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>JBoss Fuse :: Project</description>
+    <name>JBoss Fuse :: Project</name>
 
     <properties>
         <examples.directory>../examples</examples.directory>
@@ -70,16 +69,6 @@
             </plugin>
         </plugins>
     </build>
-
-    <modules>
-        <module>shared</module>
-        <module>esb-branding</module>
-        <module>jboss-fuse</module>
-        <module>jboss-fuse-minimal</module>
-        <module>jboss-fuse-medium</module>
-        <module>jboss-fuse-full</module>
-        <module>esb-itests</module>
-    </modules>
 
     <repositories>
         <!-- Required to allow building with a snapshot of the NMR (parent POM) -->
@@ -203,4 +192,31 @@
          </repository>
     </repositories>
 
+    <modules>
+        <module>shared</module>
+        <module>esb-branding</module>
+        <module>jboss-fuse</module>
+        <module>jboss-fuse-minimal</module>
+        <module>esb-itests</module>
+    </modules>
+    
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>jboss-fuse-medium</module>
+                <module>jboss-fuse-full</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 </project>

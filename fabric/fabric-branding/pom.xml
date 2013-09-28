@@ -27,8 +27,8 @@
 
     <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
     <packaging>bundle</packaging>
+    
     <name>Fuse Fabric :: Karaf :: Branding Support</name>
-    <description>Fuse Fabric Karaf Branding</description>
 
     <build>
         <resources>

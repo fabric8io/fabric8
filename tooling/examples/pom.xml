@@ -29,16 +29,28 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>examples</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource :: Tooling :: Examples</name>
+    
+    <name>[TODO]FuseSource :: Tooling :: Examples</name>
 
-    <modules>
-        <module>camel-cxf-code-first-example</module>
-        <module>camel-cxf-contract-first-example</module>
-        <module>camel-drools-example</module>
-        <module>camel-webservice-example</module>
-<!--
-        <module>camel-jbpm-example</module>
--->
-    </modules>
-
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>camel-cxf-code-first-example</module>
+                <module>camel-cxf-contract-first-example</module>
+                <module>camel-drools-example</module>
+                <module>camel-webservice-example</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 </project>

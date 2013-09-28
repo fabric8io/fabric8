@@ -27,8 +27,7 @@
     <artifactId>fabric-core-agent-ssh</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Core Agent SSH</description>
+    <name>Fuse Fabric :: Core Agent SSH</name>
 
     <properties>
         <fuse.osgi.export>

@@ -24,7 +24,7 @@
   </parent>
 
   <artifactId>fmc-webui-branding-bundle</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>FMC :: Frontend Branding Bundle</description>
   <packaging>jar</packaging>
 

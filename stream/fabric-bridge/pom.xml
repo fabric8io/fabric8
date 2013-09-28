@@ -28,8 +28,7 @@
   <artifactId>fabric-bridge</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: ActiveMQ Network Bridge</description>
+  <name>[TODO]Fuse Stream :: Bridge</name>
 
   <properties>
     <commons-pool-version>1.5.4</commons-pool-version>

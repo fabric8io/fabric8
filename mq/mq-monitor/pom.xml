@@ -26,7 +26,7 @@
 
   <artifactId>mq-monitor</artifactId>
   <packaging>jar</packaging>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>JBoss A-MQ :: Monitor</description>
   <properties>
     </properties>

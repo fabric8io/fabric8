@@ -36,7 +36,7 @@
     <artifactId>project</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>JBoss Fuse :: Examples</name>
+    <name>[TODO]JBoss Fuse :: Examples</name>
 
     <modules>
         <module>cbr</module>

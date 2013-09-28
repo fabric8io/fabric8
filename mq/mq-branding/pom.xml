@@ -28,8 +28,8 @@
     <groupId>org.jboss.amq</groupId>
     <artifactId>org.jboss.amq.karaf.branding</artifactId>
     <packaging>bundle</packaging>
-    <name>JBoss A-MQ Karaf Branding</name>
-    <description>JBoss A-MQ Karaf Branding</description>
+    
+    <name>JBoss A-MQ :: Karaf Branding</name>
 
     <build>
         <resources>

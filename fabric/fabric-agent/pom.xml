@@ -27,8 +27,7 @@
     <artifactId>fabric-agent</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Provisioning Agent</description>
+    <name>Fuse Fabric :: Provisioning Agent</name>
 
     <properties>
         <fuse.osgi.import>

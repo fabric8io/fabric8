@@ -28,7 +28,7 @@
   <artifactId>website</artifactId>
   <packaging>war</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Stack :: Website and Documentation</description>
 
   <properties>

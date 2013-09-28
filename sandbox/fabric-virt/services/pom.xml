@@ -28,7 +28,7 @@
     <groupId>org.fusesource.fabric.virt</groupId>
     <artifactId>org.fusesource.fabric.virt.services</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse Fabric Virt Services</description>
 
     <properties>

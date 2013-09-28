@@ -11,7 +11,8 @@
 
     <artifactId>fabric-web</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
+    
+    <name>Fuse Fabric :: Web</name>
 
     <properties>
         <fuse.osgi.export>

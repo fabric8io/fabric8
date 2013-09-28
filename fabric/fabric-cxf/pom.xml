@@ -27,8 +27,7 @@
     <artifactId>fabric-cxf</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: CXF Component</description>
+    <name>Fuse Fabric :: CXF Component</name>
 
     <properties>
         <fuse.osgi.export>

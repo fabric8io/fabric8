@@ -32,7 +32,7 @@
     <groupId>org.jboss.fuse.examples</groupId>
     <artifactId>jms</artifactId>
     <packaging>jar</packaging>
-    <name>JBoss Fuse :: Examples :: JMS</name>
+    <name>[TODO]JBoss Fuse :: Examples :: JMS</name>
     <description>JMS Example</description>
 
     <properties>

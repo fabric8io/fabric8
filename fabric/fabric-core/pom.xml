@@ -21,14 +21,12 @@
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>fabric-project</artifactId>
       <version>7.3.0.redhat-SNAPSHOT</version>
-      <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-core</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Core</description>
+    <name>Fuse Fabric :: Core</name>
 
     <properties>
         <fuse.osgi.import>

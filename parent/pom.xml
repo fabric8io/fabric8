@@ -28,8 +28,8 @@
   <groupId>org.fusesource</groupId>
   <artifactId>fuse-project</artifactId>
   <packaging>pom</packaging>
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric</description>
+  
+  <name>Fuse Fabric :: Parent</name>
 
   <url>http://fabric.fusesource.org/</url>
 

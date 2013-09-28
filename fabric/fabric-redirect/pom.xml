@@ -29,8 +29,7 @@
     <version>7.3.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Redirect</description>
+    <name>Fuse Fabric :: Redirect</name>
 
     <properties>
         <fuse.osgi.export>

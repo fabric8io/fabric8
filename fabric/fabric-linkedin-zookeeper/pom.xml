@@ -27,8 +27,7 @@
     <artifactId>fabric-linkedin-zookeeper</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: LinkedIn ZooKeeper Bundle</description>
+    <name>Fuse Fabric :: LinkedIn ZooKeeper Bundle</name>
 
     <properties>
         <fuse.osgi.export>

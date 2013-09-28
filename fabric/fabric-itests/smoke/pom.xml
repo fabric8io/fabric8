@@ -13,6 +13,7 @@
     </parent>
 
     <artifactId>fabric-itests-smoke</artifactId>
+    
     <name>Fuse Fabric :: Integration Tests :: Smoke</name>
 
     <dependencies>

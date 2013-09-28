@@ -29,8 +29,8 @@
   <artifactId>mq-project</artifactId>
   <version>6.1.0.redhat-SNAPSHOT</version>
   <packaging>pom</packaging>
+  
   <name>JBoss A-MQ Project</name>
-  <description>JBoss A-MQ Project</description>
 
   <properties>
     <fuse.osgi.export>org.fusesource.mq.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
@@ -38,12 +38,53 @@
 
   <modules>
     <module>mq-fabric</module>
-    <module>mq-client</module>
-    <module>mq-branding</module>
-    <module>mq-web-console</module>
-    <module>mq-http-discovery</module>
-    <module>jboss-a-mq</module>
-    <module>mq-itests</module>
   </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>mq-http-discovery</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+                <module>jboss-a-mq</module>
+                <module>mq-client</module>
+                <module>mq-branding</module>
+                <module>mq-http-discovery</module>
+                <module>mq-web-console</module>
+                <module>mq-itests</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>ts.all</id>
+            <activation>
+                <property>
+                    <name>ts.all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>mq-http-discovery</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.basic</id>
+            <activation>
+                <property>
+                    <name>ts.basic</name>
+                </property>
+            </activation>
+            <modules>
+                <module>mq-http-discovery</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

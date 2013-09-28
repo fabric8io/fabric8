@@ -26,7 +26,7 @@
 	</parent>
 
 	<packaging>eclipse-plugin</packaging>
-	<name>Camel SAP Component Plugin</name>
+	<name>[TODO]Camel SAP Component Plugin</name>
 	<description>Builds Camel SAP Plugin</description>
 
 	<organization>

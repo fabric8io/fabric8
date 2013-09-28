@@ -28,8 +28,7 @@
   <artifactId>common-util</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Common :: Util</description>
+  <name>Fuse Common :: Util</name>
 
   <properties>
       <fuse.osgi.export>

@@ -28,7 +28,9 @@
   <groupId>org.fusesource.fabric.fab</groupId>
   <artifactId>fab-project</artifactId>
   <packaging>pom</packaging>
-  <description>Fuse Application Bundles</description>
+  
+  <name>Fuse Application Bundles</name>
+  
   <!--
   <properties>
     <fuse.osgi.export>org.fusesource.fab.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
@@ -38,7 +40,24 @@
   <modules>
     <module>fab-core</module>
     <module>fab-osgi</module>
-    <module>tests</module>
   </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>tests</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 </project>

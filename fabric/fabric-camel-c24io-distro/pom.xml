@@ -26,9 +26,9 @@
   </parent>
 
   <artifactId>fabric-camel-c24io-distro</artifactId>
-  <name>Fabric Camel C24 iO :: Assembly</name>
-  <description>Fabric Camel C24 iO Assembly</description>
   <packaging>pom</packaging>
+  
+  <name>[TODO]Fabric Camel C24 iO :: Assembly</name>
 
   <properties>
     <maven.test.skip>true</maven.test.skip>

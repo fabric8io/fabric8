@@ -31,7 +31,7 @@
   <artifactId>bai-core</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>FuseSource :: Business Activity Insight :: Core</description>
 
   <properties>

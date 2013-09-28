@@ -28,8 +28,8 @@
 
     <artifactId>patch-features</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Patch :: Features</description>
+    
+    <name>Fuse Patch :: Features</name>
 
     <dependencies>
 

@@ -12,11 +12,11 @@
     <groupId>org.jboss.fuse</groupId>
     <artifactId>esb-itests</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>JBoss Fuse :: Integration Tests</description>
+    
+    <name>JBoss Fuse :: Integration Tests</name>
 
     <modules>
-        <module>esb-pax-exam</module>
+        <module>smoke</module>
     </modules>
 
 </project>

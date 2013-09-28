@@ -28,8 +28,8 @@
 
     <artifactId>patch-client</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Patch :: Client</description>
+    
+    <name>Fuse Patch :: Client</name>
 
     <properties>
     </properties>

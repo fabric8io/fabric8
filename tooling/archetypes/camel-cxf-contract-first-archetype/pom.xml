@@ -11,7 +11,7 @@
   </parent>
 
   <artifactId>camel-cxf-contract-first-archetype</artifactId>
-  <name>Fuse :: Archetypes :: Camel CXF Contract First</name>
+  <name>[TODO]Fuse :: Archetypes :: Camel CXF Contract First</name>
   <packaging>maven-archetype</packaging>
   <description>Creates a new Camel project using CXF in contract (WSDL) first.</description>
 

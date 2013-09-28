@@ -23,7 +23,7 @@
   </parent>
   <artifactId>components</artifactId>
   <packaging>pom</packaging>
-  <name>JBoss Fuse :: Components</name>
+  <name>[TODO]JBoss Fuse :: Components</name>
   <description>Builds Fuse Camel Components</description>
   <url>http://www.fusesource.org</url>
 

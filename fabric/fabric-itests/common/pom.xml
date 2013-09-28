@@ -26,9 +26,10 @@
     </parent>
 
     <artifactId>fabric-itests-common</artifactId>
-    <name>Fuse Fabric :: Integration Tests :: Common</name>
     <packaging>bundle</packaging>
 
+    <name>Fuse Fabric :: Integration Tests :: Common</name>
+    
     <properties>
         <fuse.osgi.dynamic>*,org.apache.felix.service.*;status=provisional</fuse.osgi.dynamic>
         <fuse.osgi.export>

@@ -29,15 +29,9 @@
     <groupId>org.fusesource.fabric.samples</groupId>
     <artifactId>samples</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Process Samples :: Project</description>
+    
+    <name>Fuse Process :: Samples</name>
 
-    <modules>
-        <module>process-sample-camel-spring</module>
-        <module>process-sample-camel-spring-just-xml</module>
-    </modules>
-
-    <!-- add launcher -->
     <dependencies>
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
@@ -102,4 +96,28 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <modules>
+        <module>process-sample-camel-spring</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>process-sample-camel-spring-just-xml</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
+    
 </project>

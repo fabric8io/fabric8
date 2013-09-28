@@ -21,13 +21,14 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-examples</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-camel-dosgi</artifactId>
-    <description>Fuse Fabric :: Example :: Camel DOSGI</description>
     <packaging>pom</packaging>
+    
+    <name>Fuse Fabric :: Example :: Camel DOSGI</name>
+    
     <modules>
         <module>service</module>
         <module>dosgi-service</module>

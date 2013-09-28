@@ -32,7 +32,7 @@
     <groupId>org.fusesource.bai</groupId>
     <artifactId>bai</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>FuseSource :: Business Activity Insight</description>
 
     <properties>

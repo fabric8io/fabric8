@@ -24,11 +24,12 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
     </parent>
 
-    <name>Fuse Fabric :: Example :: Camel DOSGI :: Features</name>
-    <packaging>jar</packaging>
     <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
     <artifactId>features</artifactId>
+    <packaging>jar</packaging>
 
+    <name>Fuse Fabric :: Example :: Camel DOSGI :: Features</name>
+    
     <dependencies>
         <dependency>
             <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>

@@ -28,8 +28,7 @@
   <artifactId>fabric-bridge-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: ActiveMQ Network Bridge Integration Tests</description>
+  <name>[TODO]Fuse Stream :: Integration Tests</name>
 
   <dependencies>
 

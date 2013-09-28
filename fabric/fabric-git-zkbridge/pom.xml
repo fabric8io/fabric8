@@ -30,8 +30,7 @@
     <artifactId>fabric-git-zkbridge</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Git :: ZooKeeper Bridge</description>
+    <name>Fuse Fabric :: Git :: ZooKeeper Bridge</name>
 
     <properties>
         <fuse.osgi.export>

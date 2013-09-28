@@ -28,8 +28,8 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-camel-demo</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Simple Fabric Camel Demo</description>
+    
+    <name>[TODO]Fuse Fabric :: Example :: Camel Demo</name>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>

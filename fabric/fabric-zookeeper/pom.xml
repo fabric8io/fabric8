@@ -21,15 +21,13 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-zookeeper</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: ZooKeeper Service</description>
-
+    <name>Fuse Fabric :: ZooKeeper Service</name>
+    
     <properties>
         <fuse.osgi.export>
             org.apache.curator*;version=${curator.version};-noimport:=true,

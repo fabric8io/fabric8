@@ -28,7 +28,7 @@
     <artifactId>watcher-spring-context</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse Fabric :: Watcher :: Spring Context</description>
 
     <properties>

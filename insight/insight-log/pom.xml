@@ -26,9 +26,9 @@
   </parent>
 
   <artifactId>insight-log</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Logging</description>
   <packaging>bundle</packaging>
+  
+  <name>Fuse Insight :: Logging</name>
 
   <properties>
     <fuse.osgi.export>

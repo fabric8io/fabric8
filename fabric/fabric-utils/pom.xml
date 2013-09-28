@@ -30,6 +30,8 @@
     <artifactId>fabric-utils</artifactId>
     <packaging>jar</packaging>
 
+    <name>Fuse Fabric :: Utils</name>
+  
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.features</groupId>

@@ -28,8 +28,7 @@
     <artifactId>fabric-partition</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Partition</description>
+    <name>Fuse Fabric :: Partition</name>
 
     <properties>
         <fuse.osgi.export>

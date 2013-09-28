@@ -44,7 +44,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
+@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
 public class SelfUpdateTest extends FabricTestSupport {
 
     private static final String FABRIC_FEATURE_REPO_URL = "mvn:org.fusesource.fabric/fuse-fabric/%s/xml/features";

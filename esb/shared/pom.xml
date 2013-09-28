@@ -29,12 +29,8 @@
     <groupId>org.jboss.fuse</groupId>
     <artifactId>shared</artifactId>
     <packaging>jar</packaging>
-    <name>${project.artifactId}</name>
-    <description>JBoss Fuse :: Assembly :: Shared files</description>
-
-    <dependencies>
-
-    </dependencies>
+    
+    <name>JBoss Fuse :: Assembly :: Shared</name>
 
     <build>
         <resources>

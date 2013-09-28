@@ -22,22 +22,38 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-examples</artifactId>
     <packaging>pom</packaging>
+    
     <name>Fuse Fabric :: Examples</name>
-    <description>Fuse Fabric :: Examples</description>
     
     <modules>
-      <module>fabric-camel-cluster-loadbalancing</module>
-      <module>fabric-camel-dosgi</module>
       <module>fabric-activemq-demo</module>
-      <module>fabric-camel-eca</module>
-      <module>fabric-camel-demo</module>
+      <module>fabric-camel-dosgi</module>
       <module>fabric-cxf-demo</module>
       <module>fabric-camel-cxf</module>
 	</modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+              <module>fabric-camel-cluster-loadbalancing</module>
+              <module>fabric-camel-demo</module>
+              <module>fabric-camel-eca</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 </project>

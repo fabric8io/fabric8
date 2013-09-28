@@ -27,7 +27,7 @@
 
   <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-servicemix-facade</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <packaging>bundle</packaging>
 
   <properties>

@@ -28,8 +28,8 @@
 
   <artifactId>patch-core</artifactId>
   <packaging>bundle</packaging>
-  <name>${project.artifactId}</name>
-  <description>Fuse Patch :: Core</description>
+  
+  <name>Fuse Patch :: Core</name>
 
     <properties>
         <fuse.osgi.export>

@@ -27,8 +27,7 @@
     <artifactId>fabric-configadmin</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: ZooKeeper ConfigAdmin Bridge</description>
+    <name>Fuse Fabric :: ConfigAdmin Bridge</name>
 
     <properties>
         <fuse.osgi.import>

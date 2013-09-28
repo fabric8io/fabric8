@@ -29,15 +29,30 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>archetypes</artifactId>
     <packaging>pom</packaging>
-    <name>FuseSource :: Tooling :: Archetypes</name>
+    
+    <name>[TODO]FuseSource :: Tooling :: Archetypes</name>
 
-    <modules>
-      <module>camel-cxf-code-first-archetype</module>
-      <module>camel-cxf-contract-first-archetype</module>
-      <module>camel-drools-archetype</module>
-      <module>camel-web-osgi-archetype</module>
-      <module>camel-webservice-archetype</module>
-    </modules>
-
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>camel-cxf-code-first-archetype</module>
+                <module>camel-cxf-contract-first-archetype</module>
+                <module>camel-drools-archetype</module>
+                <module>camel-web-osgi-archetype</module>
+                <module>camel-webservice-archetype</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

@@ -25,7 +25,7 @@
   </parent>
 
   <artifactId>insight-jetty</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Insight :: Jetty</description>
   <packaging>bundle</packaging>
 

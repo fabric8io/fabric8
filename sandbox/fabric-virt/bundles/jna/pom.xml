@@ -29,7 +29,7 @@
     <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
     <version>3.3.0_1</version>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse JNA Bundle</description>
 
     <properties>

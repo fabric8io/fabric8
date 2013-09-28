@@ -27,8 +27,7 @@
     <artifactId>fabric-core-agent-jclouds</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Core Agent JClouds</description>
+    <name>Fuse Fabric :: Core Agent JClouds</name>
 
     <properties>
         <fuse.osgi.export>

@@ -26,6 +26,7 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -33,6 +34,7 @@ import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+
 import scala.actors.threadpool.Arrays;
 
 import java.util.Set;
@@ -49,6 +51,7 @@ public class ExampleMQProfileTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         CuratorFramework curator = getCurator();

@@ -145,6 +145,11 @@
 
         <dependency>
             <groupId>org.fusesource.examples</groupId>
+            <artifactId>fabric-activemq-demo</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.examples</groupId>
             <artifactId>fabric-cxf-demo-client</artifactId>
             <version>${project.version}</version>
             <exclusions>
@@ -170,7 +175,13 @@
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-redirect</artifactId>
-            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jboss.amq</groupId>
+            <artifactId>mq-http-discovery</artifactId>
+            <version>${fuse.version}</version>
             <scope>test</scope>
         </dependency>
         

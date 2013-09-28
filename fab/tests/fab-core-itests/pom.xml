@@ -28,7 +28,7 @@
   <artifactId>fabric-core-itests</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Fabric :: Archive Bundles :: Core Integration Tests</description>
 
   <properties>

@@ -12,7 +12,7 @@
   <artifactId>insight-maven-web</artifactId>
   <packaging>war</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Insight Maven Web</description>
 
   <prerequisites>

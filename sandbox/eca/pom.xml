@@ -28,7 +28,7 @@
   <groupId>org.fusesource.eca</groupId>
   <artifactId>eca-project</artifactId>
   <packaging>pom</packaging>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse ECA :: Project</description>
 
   <properties>

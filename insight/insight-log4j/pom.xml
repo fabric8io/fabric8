@@ -26,7 +26,7 @@
   </parent>
 
   <artifactId>insight-log4j</artifactId>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Insight :: Logging Log4j</description>
   <packaging>jar</packaging>
 

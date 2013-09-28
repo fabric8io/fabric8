@@ -13,8 +13,7 @@
   <artifactId>fabric-api</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: API</description>
+  <name>Fuse Fabric :: API</name>
 
   <properties>
     <fuse.osgi.import>

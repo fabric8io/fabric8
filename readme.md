@@ -6,7 +6,10 @@ Welcome to the Fuse open source stack which consists of:
 * [A-MQ](http://fuse.fusesource.org/mq/)
 * [Fuse](http://fusesource.com/products/fuse-esb-enterprise/)
 * [Fuse Fabric](http://fuse.fusesource.org/fabric/)
-* [Fuse Application Bundles](http://fuse.fusesource.org/bundles/)
+
+also see
+
+* [Building JBoss Fuse](./readme-build.md)
 
 Here's a Demo
 --------------
@@ -17,7 +20,6 @@ For slides and videos see [this blog post on the CamelOne 2013 keynote](http://m
 
 Creating a Fabric
 -----------------
-
 
 You can try a [download of the Fuse Fabric code](http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x/org/fusesource/fabric/fuse-fabric/) or build the project with maven via:
 

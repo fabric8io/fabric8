@@ -27,8 +27,7 @@
     <artifactId>fabric-dosgi</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Distributed OSGi</description>
+    <name>Fuse Fabric :: Distributed OSGi</name>
 
     <properties>
         <fuse.osgi.export>

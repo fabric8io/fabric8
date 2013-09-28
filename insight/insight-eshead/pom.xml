@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>insight-eshead</artifactId>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse Insight :: ElasticSearch Head</description>
     <packaging>bundle</packaging>
 

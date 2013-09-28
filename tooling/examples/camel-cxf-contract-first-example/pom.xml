@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>camel-cxf-contract-first-example</artifactId>
-  <name>Camel CXF Contract First Example</name>
+  <name>[TODO]Camel CXF Contract First Example</name>
   <description>Creates a web service using the WSDL contract first</description>
 
   <repositories>

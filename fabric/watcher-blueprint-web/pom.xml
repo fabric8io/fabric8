@@ -28,7 +28,7 @@
     <artifactId>watcher-blueprint-web</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse Fabric :: Watcher :: Blueprint Web</description>
 
     <properties>

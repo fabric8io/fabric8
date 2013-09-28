@@ -30,7 +30,7 @@
   <packaging>bundle</packaging>
   <version>7.3.0.redhat-SNAPSHOT</version>
 
-  <name>Camel Drools6 Example</name>
+  <name>[TODO]Camel Drools6 Example</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

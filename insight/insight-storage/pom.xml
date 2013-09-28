@@ -25,9 +25,9 @@
   </parent>
 
   <artifactId>insight-storage</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Storage Service Api</description>
   <packaging>bundle</packaging>
+
+  <name>Fuse Insight :: Storage</name>
 
   <properties>
     <fuse.osgi.export>

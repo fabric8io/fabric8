@@ -27,21 +27,40 @@
   <groupId>org.fusesource.patch</groupId>
   <artifactId>patch-project</artifactId>
   <packaging>pom</packaging>
-  <name>${project.artifactId}</name>
-  <description>Fuse Patch :: Project</description>
+  
+  <name>Fuse Patch</name>
 
   <properties>
     <fuse.osgi.export>org.fusesource.patch.*;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
   </properties>
 
   <modules>
-    <module>patch-core</module>
-    <module>patch-commands</module>
-    <!--
-    <module>patch-management</module>
-    -->
-    <module>patch-client</module>
-    <module>patch-features</module>
   </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>patch-core</module>
+                <module>patch-commands</module>
+                <module>patch-features</module>
+                <!--module>patch-management</module-->
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+                <module>patch-client</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+                <module>patch-client</module>
+                <module>patch-core</module>
+                <module>patch-commands</module>
+                <module>patch-features</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>insight-kibana</artifactId>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse Insight :: Kibana</description>
     <packaging>bundle</packaging>
 

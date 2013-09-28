@@ -28,11 +28,9 @@
     <packaging>pom</packaging>
 
     <name>Fuse Fabric :: Integration Tests</name>
-    <description>Fabric Integration tests</description>
 
     <modules>
         <module>common</module>
-        <module>smoke</module>
     </modules>
 
     <dependencies>
@@ -55,7 +53,19 @@
             <modules>
                 <module>basic</module>
                 <module>pojosr</module>
+                <module>smoke</module>
                 <module>wildfly</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.smoke</id>
+            <activation>
+                <property>
+                    <name>!ts.skip.smoke</name>
+                </property>
+            </activation>
+            <modules>
+                <module>smoke</module>
             </modules>
         </profile>
         <profile>

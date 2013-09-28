@@ -7,9 +7,10 @@
         <version>7.3.0.redhat-SNAPSHOT</version>
         <relativePath>..</relativePath>
     </parent>
+    
     <artifactId>process-packaging</artifactId>
-    <name>${project.artifactId}</name>
-    <description>Fuse Process :: Packaging</description>
+    
+    <name>Fuse Process :: Packaging</name>
 
     <build>
         <resources>

@@ -23,7 +23,6 @@
         <groupId>org.fusesource.fabric.itests</groupId>
         <artifactId>fabric-itests</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-itests-wildfly</artifactId>

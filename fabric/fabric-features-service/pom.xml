@@ -14,9 +14,7 @@
     <version>7.3.0.redhat-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Karaf Features Service</description>
-
+    <name>Fuse Fabric :: Karaf Features Service</name>
 
     <properties>
         <fuse.osgi.import>

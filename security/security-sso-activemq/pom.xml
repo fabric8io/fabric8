@@ -26,8 +26,9 @@
 
   <groupId>org.fusesource.fabric.security.sso.activemq</groupId>
   <artifactId>fabric-security-sso-activemq</artifactId>
-  <name>fabric-security-sso-activemq</name>
   <packaging>jar</packaging>
+
+  <name>[TODO]Security :: Security :: SSO Active-MQ</name>
 
   <properties>
     <xbean-version>3.7</xbean-version>

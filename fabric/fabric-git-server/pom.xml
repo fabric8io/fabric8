@@ -30,8 +30,7 @@
     <artifactId>fabric-git-server</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Git :: Server</description>
+    <name>Fuse Fabric :: Git :: Server</name>
 
     <properties>
         <fuse.osgi.export>

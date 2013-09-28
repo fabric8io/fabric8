@@ -28,8 +28,7 @@
   <artifactId>fabric-monitor</artifactId>
   <packaging>bundle</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Monitor</description>
+  <name>Fuse Fabric :: Monitor</name>
 
   <properties>
     <fuse.osgi.private.pkg>

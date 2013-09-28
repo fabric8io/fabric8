@@ -25,9 +25,9 @@
     </parent>
 
   <artifactId>insight-log-storage</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Logging :: Storage</description>
   <packaging>bundle</packaging>
+  
+  <name>Fuse Insight :: Logging :: Storage</name>
 
   <properties>
       <!--

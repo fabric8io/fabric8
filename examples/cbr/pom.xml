@@ -32,7 +32,7 @@
     <groupId>org.jboss.fuse.examples</groupId>
     <artifactId>cbr</artifactId>
     <packaging>jar</packaging>
-    <name>JBoss Fuse :: Examples :: Content-Based Router</name>
+    <name>[TODO]JBoss Fuse :: Examples :: Content-Based Router</name>
     <description>Content-Based Router Example</description>
 
     <properties>

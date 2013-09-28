@@ -29,6 +29,8 @@
     <artifactId>fabric-ldap</artifactId>
     <packaging>bundle</packaging>
 
+    <name>[TODO]Fuse Fabric :: LDAP</name>
+    
     <properties>
         <fuse.osgi.export>
             org.apache.directory*;-noimort:=true;version=1.5.7;-split-package:=merge-first

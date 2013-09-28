@@ -31,8 +31,7 @@
     <artifactId>fabric-git</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Git</description>
+    <name>Fuse Fabric :: Git</name>
 
     <properties>
         <fuse.osgi.export>

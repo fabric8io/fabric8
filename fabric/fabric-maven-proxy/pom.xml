@@ -27,8 +27,7 @@
     <artifactId>fabric-maven-proxy</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Maven Proxy</description>
+    <name>Fuse Fabric :: Maven Proxy</name>
 
     <properties>
         <fuse.osgi.export>

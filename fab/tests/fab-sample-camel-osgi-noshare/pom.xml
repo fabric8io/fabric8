@@ -28,7 +28,7 @@
   <artifactId>fab-sample-camel-osgi-noshare</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Bundles :: Sample :: Camel OSGi NoShare</description>
 
   <dependencies>

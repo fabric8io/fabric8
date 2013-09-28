@@ -22,14 +22,13 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-examples</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-activemq-demo</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Fabric ActiveMQ Demo</description>
+    
+    <name>Fuse Fabric :: Examples :: ActiveMQ</name>
 
     <properties>
         <felix-plugin.version>2.1.0</felix-plugin.version>

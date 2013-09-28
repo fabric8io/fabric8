@@ -28,8 +28,8 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>process-project</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Process :: Project</description>
+    
+    <name>Fuse Process</name>
 
     <licenses>
       <license>
@@ -48,4 +48,21 @@
         <module>samples</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 </project>

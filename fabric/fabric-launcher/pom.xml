@@ -28,7 +28,7 @@
   <artifactId>fabric-launcher</artifactId>
   <packaging>war</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Fabric :: Launcher</description>
 
   <properties>

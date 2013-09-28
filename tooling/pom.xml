@@ -30,20 +30,37 @@
     <groupId>org.fusesource</groupId>
     <artifactId>tooling</artifactId>
     <packaging>pom</packaging>
+    
     <name>FuseSource :: Tooling</name>
 
     <modules>
-        <module>tooling-activemq-facade</module>
-        <module>tooling-camel-facade</module>
-        <module>tooling-servicemix-facade</module>
-        <module>examples</module>
-        <module>archetype-builder</module>
-        <module>archetypes</module>
-        <module>tooling-fabric-all</module>
-        <module>tooling-jclouds-all</module>
-        <module>camel-tooling-util</module>
         <module>testing</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>archetypes</module>
+                <module>archetype-builder</module>
+                <module>camel-tooling-util</module>
+                <module>examples</module>
+                <module>tooling-activemq-facade</module>
+                <module>tooling-camel-facade</module>
+                <module>tooling-jclouds-all</module>
+                <module>tooling-servicemix-facade</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

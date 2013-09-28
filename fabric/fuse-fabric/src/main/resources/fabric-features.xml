@@ -439,14 +439,6 @@
         <bundle>mvn:org.fusesource.fabric/fabric-hadoop/${project.version}</bundle>
     </feature>
 
-
-    <feature name='virt' description='FuseSource Virt' version='${project.version}' resolver='(obr)'>
-        <bundle>mvn:org.fusesource.fabric.virt.bundles/org.fusesource.fabric.virt.bundles.jna/${jna-bundle-version}</bundle>
-        <bundle>mvn:org.fusesource.fabric.virt.bundles/org.fusesource.fabric.virt.bundles.libvirt/${libvirt-bundle-version}</bundle>
-        <bundle>mvn:org.fusesource.fabric.virt/org.fusesource.fabric.virt.services/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.fabric.virt/org.fusesource.fabric.virt.commands/${project.version}</bundle>
-    </feature>
-
     <feature name="bai" description="Fuse Business Activity Insight" version="${project.version}" resolver="(obr)">
         <feature>camel</feature>
         <feature>camel-blueprint</feature>

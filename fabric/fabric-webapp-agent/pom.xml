@@ -13,6 +13,8 @@
     <artifactId>fabric-webapp-agent</artifactId>
     <packaging>war</packaging>
 
+    <name>[TODO]Fuse Fabric :: Web Agent</name>
+    
     <dependencies>
         <dependency>
             <groupId>org.jolokia</groupId>

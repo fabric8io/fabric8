@@ -29,13 +29,31 @@
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-cxf-demo</artifactId>
     <packaging>pom</packaging>
-    <description>Fuse Fabric :: Simple Fabric CXF Demo</description>
+    
+    <name>Fuse Fabric :: Examples :: CXF Demo</name>
 
     <modules>
         <module>cxf-client</module>
-        <module>cxf-server</module>
-        <module>cxf-demo-feature</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>cxf-demo-feature</module>
+                <module>cxf-server</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+    </profiles>
 
 </project>

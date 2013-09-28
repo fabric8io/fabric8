@@ -28,7 +28,7 @@
 	<artifactId>camel-sap-parent</artifactId>
 	<packaging>pom</packaging>
 
-    <name>JBoss Fuse :: Components :: SAP JCO</name>
+    <name>[TODO]JBoss Fuse :: Components :: SAP JCO</name>
 	<url>http://www.fusesource.org</url>
 
 	<properties>

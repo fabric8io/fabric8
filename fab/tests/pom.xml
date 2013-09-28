@@ -28,7 +28,7 @@
   <artifactId>tests-project</artifactId>
   <packaging>pom</packaging>
 
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse Application Bundles :: Tests</description>
 
   <modules>

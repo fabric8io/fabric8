@@ -13,7 +13,7 @@
     <artifactId>fabric-osgimetadata</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse Fabric :: OSGi Metadata Provider</description>
 
     <properties>

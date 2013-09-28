@@ -27,8 +27,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>process-sample-camel-spring</artifactId>
-    <name>${project.artifactId}</name>
-    <description>Fuse Process Samples :: Camel</description>
+    
+    <name>Fuse Process :: Samples :: Camel Spring</name>
 
     <properties>
         <main-class>org.apache.camel.spring.Main</main-class>

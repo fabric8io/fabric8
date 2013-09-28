@@ -21,14 +21,13 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-examples</artifactId>
     <version>7.3.0.redhat-SNAPSHOT</version>
-    <relativePath>..</relativePath>
   </parent>
 
   <groupId>org.fusesource.examples</groupId>
   <artifactId>fabric-camel-eca</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Example :: Camel ECA</description>
   <packaging>bundle</packaging>
+  
+  <name>[TODO]Fuse Fabric :: Example :: Camel ECA</name>
 
   <properties>
     <felix-plugin.version>2.1.0</felix-plugin.version>

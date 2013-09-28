@@ -28,6 +28,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-project</artifactId>
     <packaging>pom</packaging>
+    
     <name>Fuse Fabric :: Project</name>
 
     <licenses>
@@ -40,17 +41,11 @@
     </licenses>
 
     <modules>
-        <module>dynamic-jaxb</module>
-        
         <module>fabric-agent</module>
-        <module>fabric-autoscale</module>
-        <module>fabric-extender-listener</module>
-        <module>fabric-aggregator</module>
         <module>fabric-api</module>
         <module>fabric-boot-commands</module>
         <module>fabric-branding</module>
         <module>fabric-camel</module>
-        <module>fabric-client</module>
         <module>fabric-commands</module>
         <module>fabric-configadmin</module>
         <module>fabric-core</module>
@@ -58,45 +53,27 @@
         <module>fabric-core-agent-jclouds</module>
         <module>fabric-cxf</module>
         <module>fabric-dosgi</module>
-        <module>fabric-dynamic-jaxb</module>
         <module>fabric-examples</module>
+        <module>fabric-extender-listener</module>
         <module>fabric-features-service</module>
         <module>fabric-git</module>
         <module>fabric-git-hawtio</module>
         <module>fabric-git-server</module>
         <module>fabric-git-zkbridge</module>
         <module>fabric-groups</module>
-        <module>fabric-hadoop</module>
         <module>fabric-itests</module>
         <module>fabric-jaas</module>
         <module>fabric-jolokia</module>
-        <module>fabric-launcher</module>
-        <module>fabric-ldap</module>
         <module>fabric-linkedin-zookeeper</module>
         <module>fabric-maven-proxy</module>
-        <module>fabric-monitor</module>
-        <module>fabric-openshift</module>
-        <module>fabric-osgimetadata</module>
         <module>fabric-partition</module>
         <module>fabric-redirect</module>
-        <module>fabric-scala</module>
         <module>fabric-utils</module>
-        <module>fabric-virt</module>
         <module>fabric-web</module>
-        <module>fabric-webapp-agent</module>
-        <module>fabric-zeroconf</module>
         <module>fabric-zookeeper</module>
-        <module>fabric-zookeeper-commands</module>
         <module>fabric-zookeeper-spring</module>
         
         <module>fuse-fabric</module>
-        
-        <module>watcher-blueprint-web</module>
-        <module>watcher-core</module>
-        <module>watcher-dynamic-jaxb</module>
-        <module>watcher-dozer</module>
-        <module>watcher-spring-context</module>
-
         <!--
         TODO disabled until they work in 2.12 of camel
         <module>fabric-camel-c24io</module>
@@ -108,4 +85,65 @@
         -->
     </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>dynamic-jaxb</module>
+                <module>fabric-autoscale</module>
+                <module>fabric-client</module>
+                <module>fabric-dynamic-jaxb</module>
+                <module>fabric-hadoop</module>
+                <module>fabric-launcher</module>
+                <module>fabric-ldap</module>
+                <module>fabric-monitor</module>
+                <module>fabric-openshift</module>
+                <module>fabric-osgimetadata</module>
+                <module>fabric-scala</module>
+                <module>fabric-webapp-agent</module>
+                <module>fabric-zeroconf</module>
+                <module>fabric-zookeeper-commands</module>
+                <module>watcher-blueprint-web</module>
+                <module>watcher-core</module>
+                <module>watcher-dynamic-jaxb</module>
+                <module>watcher-dozer</module>
+                <module>watcher-spring-context</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>ts.all</id>
+            <activation>
+                <property>
+                    <name>ts.all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>fabric-monitor</module>
+                <module>fabric-scala</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ts.basic</id>
+            <activation>
+                <property>
+                    <name>ts.basic</name>
+                </property>
+            </activation>
+            <modules>
+                <module>fabric-monitor</module>
+                <module>fabric-scala</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

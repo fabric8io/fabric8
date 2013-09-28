@@ -21,14 +21,13 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-examples</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <groupId>org.fusesource.examples</groupId>
     <artifactId>fabric-camel-cluster</artifactId>
     <packaging>pom</packaging>
-    <name>Fuse Fabric :: Example :: Cluster with Fabric Camel</name>
-    <description>Example showing a fabric cluster with camel and loadbalancing</description>
+    
+    <name>[TODO]Fuse Fabric :: Example :: Cluster with Fabric Camel</name>
 
     <modules>
         <module>camel-server</module>

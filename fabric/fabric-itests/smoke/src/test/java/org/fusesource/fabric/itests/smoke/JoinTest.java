@@ -50,7 +50,7 @@ public class JoinTest extends FabricTestSupport {
 	}
 
 	@Test
-    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
 	public void testJoin() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
@@ -77,7 +77,7 @@ public class JoinTest extends FabricTestSupport {
 	 * This is a test for FABRIC-353.
 	 */
 	@Test
-    @Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
 	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();

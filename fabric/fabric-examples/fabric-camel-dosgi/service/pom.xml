@@ -23,11 +23,12 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <name>Fuse Fabric :: Example :: Camel DOSGI :: Service</name>
     <groupId>org.fusesource.examples.fabric-camel-dosgi</groupId>
     <artifactId>service</artifactId>
     <packaging>bundle</packaging>
 
+    <name>Fuse Fabric :: Example :: Camel DOSGI :: Service</name>
+    
     <dependencies>
       <!-- Camel -->
     </dependencies>

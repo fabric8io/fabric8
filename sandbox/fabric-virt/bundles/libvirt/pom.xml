@@ -29,7 +29,7 @@
     <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
     <version>0.4.6_1</version>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>Fuse LibVirt Bundle</description>
 
     <properties>

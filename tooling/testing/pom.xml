@@ -29,6 +29,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>testing</artifactId>
     <packaging>pom</packaging>
+    
     <name>FuseSource :: Tooling :: Testing</name>
 
     <modules>

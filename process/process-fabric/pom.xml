@@ -11,8 +11,8 @@
 
     <artifactId>process-fabric</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Process :: Fabric</description>
+    
+    <name>Fuse Process :: Fabric</name>
 
     <properties>
         <fuse.osgi.export>

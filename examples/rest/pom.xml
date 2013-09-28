@@ -33,7 +33,7 @@
 
     <artifactId>rest</artifactId>
     <packaging>jar</packaging>
-    <name>JBoss Fuse :: Examples :: RESTful WebService </name>
+    <name>[TODO]JBoss Fuse :: Examples :: RESTful WebService </name>
     <description>RESTful WebService Example using JAX-RS with JBoss Fuse</description>
 
     <dependencies>

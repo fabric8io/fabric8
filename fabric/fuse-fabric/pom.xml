@@ -27,7 +27,6 @@
 
     <artifactId>fuse-fabric</artifactId>
     <name>Fuse Fabric :: Binary Distribution</name>
-    <description>Fuse Fabric :: Binary Distribution</description>
 
     <properties>
         <developerUserPassword></developerUserPassword>
@@ -120,22 +119,6 @@
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>process-fabric</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric.virt</groupId>
-               <artifactId>org.fusesource.fabric.virt.commands</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric.virt</groupId>
-               <artifactId>org.fusesource.fabric.virt.services</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric.virt.bundles</groupId>
-               <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric.virt.bundles</groupId>
-               <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
            </dependency>
            <dependency>
                <groupId>org.jboss.amq</groupId>

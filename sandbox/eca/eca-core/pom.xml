@@ -27,7 +27,7 @@
 
   <artifactId>eca-core</artifactId>
   <packaging>bundle</packaging>
-  <name>${project.artifactId}</name>
+  <name>[TODO]${project.artifactId}</name>
   <description>Fuse ECA :: Core</description>
 
   <dependencies>

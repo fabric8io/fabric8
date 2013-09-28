@@ -28,8 +28,8 @@
 
     <artifactId>jboss-fuse-minimal</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>JBoss Fuse :: Assembly (Minimal)</description>
+    
+    <name>JBoss Fuse :: Assembly :: Minimal</name>
 
     <build>
         <plugins>

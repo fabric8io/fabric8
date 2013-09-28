@@ -22,14 +22,12 @@
       <groupId>org.jboss.amq</groupId>
       <artifactId>mq-project</artifactId>
       <version>6.1.0.redhat-SNAPSHOT</version>
-      <relativePath>..</relativePath>
     </parent>
 
     <artifactId>mq-http-discovery</artifactId>
     <packaging>bundle</packaging>
 
     <name>JBoss A-MQ Fabric HTTP Discovery</name>
-    <description>JBoss A-MQ Fabric HTTP Discovery</description>
 
     <properties>
       <fuse.osgi.export>

@@ -27,8 +27,8 @@
 
     <groupId>org.jboss.amq</groupId>
     <artifactId>jboss-a-mq</artifactId>
-    <name>JBoss A-MQ</name>
-    <description>JBoss A-MQ :: Binary Distribution</description>
+    
+    <name>JBoss A-MQ :: Binary Distribution</name>
 
        <prerequisites>
            <maven>3.0.2</maven>

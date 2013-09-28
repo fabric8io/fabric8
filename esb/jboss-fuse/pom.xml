@@ -27,8 +27,8 @@
 
     <artifactId>jboss-fuse</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>JBoss Fuse :: Assembly</description>
+    
+    <name>JBoss Fuse :: Assembly</name>
 
     <dependencies>
         <dependency>

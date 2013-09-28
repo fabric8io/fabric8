@@ -29,7 +29,7 @@
 	<artifactId>camel-sap</artifactId>
 	<packaging>jar</packaging>
 
-	<name>JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
+	<name>[TODO]JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
 	<url>http://fusesource.org</url>
 
 	<properties>

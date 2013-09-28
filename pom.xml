@@ -29,8 +29,7 @@
     <packaging>pom</packaging>
     <version>7.3.0.redhat-SNAPSHOT</version>
 
-    <name>${project.artifactId}</name>
-    <description>JBoss Fuse Bill Of Materials (BOM)</description>
+    <name>JBoss Fuse</name>
 
     <url>http://www.jboss.org/products/fuse</url>
 
@@ -392,24 +391,6 @@
         </site>
     </distributionManagement>
 
-    <modules>
-        <module>parent</module>
-        <module>common-util</module>
-        <module>insight</module>
-        <module>process</module>
-        <module>components</module>
-        <module>fabric</module>
-        <module>tooling</module>
-        <module>fab</module>
-        <module>patch</module>
-        <module>bai</module>
-        <module>fmc</module>
-        <module>mq</module>
-        <module>stream</module>
-        <module>esb</module>
-        <module>examples</module>
-        <module>security</module>
-    </modules>
 
     <repositories>
         <repository>
@@ -1459,16 +1440,48 @@
         </dependencies>
     </dependencyManagement>
 
-  <profiles>
+    <modules>
+        <module>common-util</module>
+        <module>fab</module>
+        <module>fabric</module>
+        <module>insight</module>
+        <module>mq</module>
+        <module>parent</module>
+        <module>process</module>
+        <module>tooling</module>
+    </modules>
 
-    <profile>
-      <id>distro</id>
-
-      <modules>
-        <module>website</module>
-      </modules>
-    </profile>
-
-  </profiles>
-
+    <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>bai</module>
+                <module>components</module>
+                <module>examples</module>
+                <module>fmc</module>
+                <module>security</module>
+                <module>stream</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>esb</id>
+            <modules>
+                <module>esb</module>
+                <module>patch</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>amq</id>
+            <modules>
+                <module>patch</module>
+            </modules>
+        </profile>
+        
+        <profile>
+            <id>distro</id>
+            <modules>
+                <module>website</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

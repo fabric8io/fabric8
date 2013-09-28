@@ -12,9 +12,8 @@
     
     <artifactId>fabric-extender-listener</artifactId>
     <packaging>bundle</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Extender Listener</description>
-
+    
+    <name>Fuse Fabric :: Extender Listener</name>
 
     <properties>
         <fuse.osgi.export>

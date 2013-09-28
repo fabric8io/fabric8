@@ -28,8 +28,7 @@
   <artifactId>stream-log</artifactId>
   <packaging>jar</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>An executable jar that streams log data received via stdin to ActiveMQ. (powered by Camel)</description>
+  <name>[TODO]Fuse Stream :: Log</name>
 
   <dependencies>
     <dependency>

@@ -27,8 +27,7 @@
     <artifactId>fabric-dynamic-jaxb</artifactId>
     <packaging>bundle</packaging>
 
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Fabric Dynamic JAXB</description>
+    <name>[TODO]Fuse Fabric :: Fabric Dynamic JAXB</name>
 
     <properties>
         <fuse.osgi.export>

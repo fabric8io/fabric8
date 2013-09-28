@@ -30,8 +30,7 @@
   <artifactId>fabric-scala</artifactId>
   <packaging>pom</packaging>
 
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Scala Maven Settings</description>
+  <name>Fuse Fabric :: Scala Maven Settings</name>
   
  <dependencies>
 

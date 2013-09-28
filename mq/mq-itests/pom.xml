@@ -27,7 +27,8 @@ limitations under the License.
 
     <groupId>org.jboss.amq</groupId>
     <artifactId>mq-itests</artifactId>
-    <name>JBoss A-MQ Integration Tests</name>
+    
+    <name>JBoss A-MQ :: Integration Tests</name>
 
     <build>
         <testResources>

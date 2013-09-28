@@ -28,8 +28,8 @@
 
   <artifactId>patch-commands</artifactId>
   <packaging>bundle</packaging>
-  <name>${project.artifactId}</name>
-  <description>Fuse Patch :: Commands</description>
+  
+  <name>Fuse Patch :: Commands</name>
 
     <properties>
         <fuse.osgi.export>

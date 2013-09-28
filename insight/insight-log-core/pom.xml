@@ -26,9 +26,9 @@
   </parent>
 
   <artifactId>insight-log-core</artifactId>
-  <name>${project.artifactId}</name>
-  <description>Fuse Insight :: Logging Core</description>
   <packaging>jar</packaging>
+  
+  <name>Fuse Insight :: Logging :: Core</name>
 
   <dependencies>
     <dependency>

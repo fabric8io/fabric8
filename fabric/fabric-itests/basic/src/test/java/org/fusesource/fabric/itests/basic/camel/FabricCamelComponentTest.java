@@ -34,7 +34,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric-pax-exam tests")
+@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
 public class FabricCamelComponentTest extends FabricTestSupport {
 
 

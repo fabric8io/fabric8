@@ -22,16 +22,15 @@
 		<groupId>org.fusesource.fabric</groupId>
 		<artifactId>fabric-examples</artifactId>
 		<version>7.3.0.redhat-SNAPSHOT</version>
-		<relativePath>..</relativePath>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.fusesource.fabric.examples</groupId>
 	<artifactId>fabric-camel-cxf</artifactId>
-	<name>${project.artifactId}</name>
-	<packaging>bundle</packaging>
-	<description>Fuse Fabric :: Simple Fabric Camel CXF</description>
+    <packaging>bundle</packaging>
+
+	<name>Fuse Fabric :: Examples :: Camel CXF</name>
 
 	<properties>
 		<fuse.osgi.export>org.fusesource.fabric.examples*;-noimport:=true</fuse.osgi.export>

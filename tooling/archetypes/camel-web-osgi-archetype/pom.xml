@@ -27,7 +27,7 @@
 
   <groupId>org.apache.camel.archetypes</groupId>
   <artifactId>camel-web-osgi-archetype</artifactId>
-  <name>Fuse :: Archetypes :: Camel Routes WAR (OSGi)</name>
+  <name>[TODO]Fuse :: Archetypes :: Camel Routes WAR (OSGi)</name>
   <description>Creates a new Camel web project that deploys the Camel routes as a WAR in JBoss Fuse</description>
   <packaging>maven-archetype</packaging>
 

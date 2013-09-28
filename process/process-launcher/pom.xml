@@ -10,8 +10,8 @@
 
     <artifactId>process-launcher</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Process :: Launcher</description>
+    
+    <name>Fuse Process :: Launcher</name>
 
     <build>
         <plugins>

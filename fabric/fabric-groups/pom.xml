@@ -30,8 +30,7 @@
   <artifactId>fabric-groups</artifactId>
   <packaging>bundle</packaging>
   
-  <name>${project.artifactId}</name>
-  <description>Fuse Fabric :: Cluster Groups API</description>
+  <name>Fuse Fabric :: Cluster Groups API</name>
 
   <properties>
     <fuse.osgi.export>

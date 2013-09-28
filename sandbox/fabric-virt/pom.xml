@@ -29,7 +29,7 @@
     <groupId>org.fusesource.fabric</groupId>
     <artifactId>fabric-virt</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
+    <name>[TODO]${project.artifactId}</name>
     <description>FuseSource :: Fabric :: Virt :: Pom</description>
 
     <modules>

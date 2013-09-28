@@ -32,7 +32,7 @@
     <groupId>org.jboss.fuse.examples</groupId>
     <artifactId>eip</artifactId>
     <packaging>jar</packaging>
-    <name>JBoss Fuse :: Examples :: Enterprise Integration Patterns</name>
+    <name>[TODO]JBoss Fuse :: Examples :: Enterprise Integration Patterns</name>
     <description>Combine multiple EIPs into a single solution</description>
 
     <properties>

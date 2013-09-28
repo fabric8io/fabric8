@@ -27,7 +27,8 @@
 
   <groupId>org.fusesource.fabric.security.sso.client</groupId>
   <artifactId>fabric-security-sso-client</artifactId>
-  <name>fabric-security-sso</name>
+  
+  <name>[TODO]Security :: Security :: SSO Client</name>
 
   <dependencies>
 

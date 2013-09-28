@@ -28,24 +28,15 @@
   <groupId>org.fusesource.fabric.bridge</groupId>
   <artifactId>fabric-bridge-project</artifactId>
   <packaging>pom</packaging>
-  <name>Fuse Stream :: Project</name>
-  <description>Fuse Stream :: Project</description>
+  
+  <name>[TODO]Fuse Stream</name>
 
   <modules>
     <module>stream-log</module>
     <module>fabric-bridge</module>
     <module>fabric-bridge-zookeeper</module>
-    <!--module>fabric-bridge-itests</module-->
+    <module>fabric-bridge-itests</module>
   </modules>
-
-  <profiles>
-    <profile>
-      <id>itests</id>
-      <modules>
-        <module>fabric-bridge-itests</module>
-      </modules>
-    </profile>
-  </profiles>
 
   <build>
   	<pluginManagement>

@@ -27,8 +27,7 @@
 
     <artifactId>fabric-karaf-overlay</artifactId>
     <packaging>pom</packaging>
-    <name>${project.artifactId}</name>
-    <description>Fuse Fabric :: Karaf Overlay</description>
+    <name>[TODO]Fuse Fabric :: Karaf Overlay</name>
 
      <dependencies>
         <dependency>
