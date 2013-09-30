@@ -88,8 +88,6 @@ Go to the [website](http://fabric.fusesource.org/documentation/getting-started.h
 
 * fabric-itests : Integration tests
 
-* fabric-launcher : Sclalate launcher. I need your help
-
 * fabric-linkedin-zookeeper : only contains a pom.xml ????
 
 * fabric-maven-proxy : Maven proxy which can be used by a remote fabric container to get the artifacts to be deployed
