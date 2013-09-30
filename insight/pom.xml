@@ -50,7 +50,6 @@
                 <module>insight-camel</module>
                 <module>insight-eshead</module>
                 <module>insight-jetty</module>
-                <module>insight-kibana</module>
                 <module>insight-kibana3</module>
                 <module>insight-log4j</module>
                 <module>insight-maven</module>
