@@ -31,6 +31,7 @@ import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.PushResult;
 
+import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.Validatable;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -53,7 +54,7 @@ import static org.fusesource.fabric.git.internal.GitHelpers.getRootGitDirectory;
 @Service(GitFacadeMXBean.class)
 public final class FabricGitFacade extends GitFacadeSupport implements Validatable {
 
-    @Reference(referenceInterface = GitDataStore.class)
+    @Reference(referenceInterface = DataStore.class, target = "(|(type=git)(type=caching-git))")
     private final ValidatingReference<GitDataStore> gitDataStore = new ValidatingReference<GitDataStore>();
 
     private final ValidationSupport active = new ValidationSupport();
@@ -283,11 +284,11 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         activate();
     }
 
-    void bindGitDataStore(GitDataStore gitDataStore) {
-        this.gitDataStore.bind(gitDataStore);
+    void bindGitDataStore(DataStore gitDataStore) {
+        this.gitDataStore.bind((GitDataStore) gitDataStore);
     }
 
-    void unbindGitDataStore(GitDataStore gitDataStore) {
-        this.gitDataStore.unbind(gitDataStore);
+    void unbindGitDataStore(DataStore gitDataStore) {
+        this.gitDataStore.unbind((GitDataStore) gitDataStore);
     }
 }
