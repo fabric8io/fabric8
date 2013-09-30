@@ -6,7 +6,7 @@ There are three main build targets associated with corresponding maven profiles
 * fab: Fuse Fabric
 * amq: Fuse A-MQ
 * esb: Fuse ESB
-* all: All of the above
+* release: All of the above
 
 Examples
 --------
@@ -25,7 +25,7 @@ Build Fuse ESB and run the associated tests
     
 Build all modules and run the associated smoke tests
 
-    > mvn -Pall clean install
+    > mvn -Prelease clean install
     
 Test Profiles
 -------------
@@ -50,7 +50,7 @@ Build Fuse Fabric and run all tests
     
 Build all modules and run all tests
 
-    > mvn -Pall -Dts.all clean install
+    > mvn -Prelease -Dts.all clean install
     
 Build Fuse Fabric and skip the smoke tests
 

@@ -88,7 +88,7 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>release</id>
             <modules>
                 <module>dynamic-jaxb</module>
                 <module>fabric-autoscale</module>
