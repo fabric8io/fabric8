@@ -33,12 +33,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.base.Throwables;
 
+import io.hawt.introspect.ClassLoaderProvider;
+import io.hawt.introspect.Introspector;
 import org.apache.aries.util.AriesFrameworkUtil;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.Service;
 import org.fusesource.common.util.Maps;
 import org.fusesource.common.util.Strings;
@@ -71,6 +74,9 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     @Reference(referenceInterface = FabricService.class)
     private FabricService fabricService;
 
+    @Reference(referenceInterface = Introspector.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
+    private Introspector introspector;
+
     private String schemaPath;
     private Timer timer = new Timer();
     private AtomicBoolean startedFlag = new AtomicBoolean(false);
@@ -87,6 +93,7 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
             asyncRecompile();
         }
     };
+    private Introspector localIntrospector;
 
     public ProfileDynamicJaxbCompiler() {
     }
@@ -97,6 +104,12 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
             this.bundleContext = bundleContext;
             this.schemaPath = Maps.stringValue(configuration, PROPERTY_SCHEMA_PATH, "schemas");
             getDataStore().trackConfiguration(changeRunnable);
+
+            if (introspector == null) {
+                localIntrospector = new Introspector();
+                localIntrospector.init();
+                introspector = localIntrospector;
+            }
             asyncRecompile();
         } catch (Exception e) {
             throw Throwables.propagate(e);
@@ -104,10 +117,13 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
     }
 
     @Deactivate
-    public void destroy() throws IOException {
+    public void destroy() throws Exception {
         getDataStore().untrackConfiguration(changeRunnable);
         executorService.shutdown();
         timer.cancel();
+        if (localIntrospector != null) {
+            localIntrospector.destroy();
+        }
     }
 
     public void setHandler(CompileResultsHandler handler) throws Exception {
@@ -218,6 +234,14 @@ public class ProfileDynamicJaxbCompiler implements DynamicCompiler {
         compileResults = xjc.compileSchemas();
         if (handler != null) {
             handler.onCompileResults(compileResults);
+        }
+        if (introspector != null) {
+            introspector.setClassLoaderProvider("dynamic.jaxb", new ClassLoaderProvider() {
+                @Override
+                public ClassLoader getClassLoader() {
+                    return compileResults.getClassLoader();
+                }
+            });
         }
     }
 }
