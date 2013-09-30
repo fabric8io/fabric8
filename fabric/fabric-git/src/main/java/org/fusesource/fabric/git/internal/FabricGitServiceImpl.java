@@ -44,18 +44,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Service(GitService.class)
 public final class FabricGitServiceImpl extends AbstractComponent implements GitService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FabricGitServiceImpl.class);
-
     public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "local" + File.separator + "fabric";
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + DEFAULT_GIT_PATH;
 
     private final File localRepo = new File(DEFAULT_LOCAL_LOCATION);
 
     @GuardedBy("CopyOnWriteArrayList") private final List<GitListener> listeners = new CopyOnWriteArrayList<GitListener>();
-    @GuardedBy("volatile") private volatile Group<GitNode> group;
     @GuardedBy("volatile") private volatile String remoteUrl;
-
-    private Git git;
+    @GuardedBy("volatile") private volatile Git git;
 
     @Activate
     void activate(ComponentContext context) throws IOException {
@@ -77,7 +73,7 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
             return Git.open(repo);
         } catch (RepositoryNotFoundException e) {
             try {
-                Git git = Git.init().setDirectory(localRepo).call();
+                Git git = Git.init().setDirectory(repo).call();
                 git.commit().setMessage("First Commit").setCommitter("fabric", "user@fabric").call();
                 return git;
             } catch (GitAPIException ex) {
