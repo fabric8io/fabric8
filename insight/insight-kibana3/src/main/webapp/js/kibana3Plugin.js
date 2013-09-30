@@ -56,6 +56,13 @@ angular.module('kibana3', modules).config(['$routeProvider', function($routeProv
         isActive: function() { return workspace.isLinkActive("/kibana3/dashboard/file/camel"); }
       });
 
+      var link = $("<link>");
+      $("head").append(link);
+      link.attr({
+        rel: 'stylesheet',
+        type: 'text/css',
+        href: '/kibana3/common/css/kibana-hawtio.css'
+      });
     });
 
 

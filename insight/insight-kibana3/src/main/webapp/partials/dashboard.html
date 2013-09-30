@@ -34,23 +34,3 @@
     </div>
   </div>
 </div>
-
-<script>
-    var css = [
-        /*
-        "common/css/normalize.min.css",
-        "common/css/animate.min.css",
-        "common/css/main.css",
-        "common/css/elasticjs.css",
-        "common/css/timepicker.css"
-        */
-        "common/css/kibana-hawtio.css",
-    ];
-    for (var i = 0; i < css.length; i++) {
-        var fileref=document.createElement("link");
-        fileref.setAttribute("rel", "stylesheet");
-        fileref.setAttribute("type", "text/css");
-        fileref.setAttribute("href", "/kibana3/" + css[i]);
-        document.getElementsByTagName("head")[0].appendChild(fileref)
-    }
-</script>
