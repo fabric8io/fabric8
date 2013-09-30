@@ -90,7 +90,7 @@ public class ZookeeperImportUtils {
         List<Pattern> excludes = getPatterns(excludeRegex);
         InputStream in = null;
         try {
-            new BufferedInputStream(new URL(source).openStream());
+            in = new BufferedInputStream(new URL(source).openStream());
             Properties props = new Properties();
             props.load(in);
             for (Enumeration names = props.propertyNames(); names.hasMoreElements(); ) {
