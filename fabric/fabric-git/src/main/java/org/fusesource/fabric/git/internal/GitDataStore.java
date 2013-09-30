@@ -1032,8 +1032,9 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
             // Check git commmits
             for (String version : gitVersions) {
-                // Delete unneeded local branches
-                if (!remoteBranches.containsKey(version)) {
+                // Delete unneeded local branches.
+                //Check if any remote branches was found as a guard for unwanted deletions.
+                if (!remoteBranches.containsKey(version) && !remoteBranches.isEmpty()) {
                     //We never want to delete the master branch.
                     if (!version.equals(MASTER_BRANCH)) {
                         try {
