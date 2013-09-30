@@ -64,7 +64,6 @@
         <module>fabric-itests</module>
         <module>fabric-jaas</module>
         <module>fabric-jolokia</module>
-        <module>fabric-launcher</module>
         <module>fabric-ldap</module>
         <module>fabric-maven-proxy</module>
         <module>fabric-partition</module>
@@ -95,7 +94,6 @@
                 <module>fabric-client</module>
                 <module>fabric-dynamic-jaxb</module>
                 <module>fabric-hadoop</module>
-                <module>fabric-launcher</module>
                 <module>fabric-ldap</module>
                 <module>fabric-openshift</module>
                 <module>fabric-osgimetadata</module>

@@ -129,7 +129,7 @@ object LauncherDeamon {
           // we are probably being run from an IDE...
           val rc = new File( url.getFile.stripSuffix("/"+resource) )
           if( rc.isDirectory ) {
-            return rc/".."/".."/"src"/"main"/"webapp"
+            return rc/ "src/main" / "src/main" /"src"/"main"/"webapp"
           }
         }
       }
