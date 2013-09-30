@@ -24,6 +24,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.http.server.GitServlet;
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
@@ -165,8 +166,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
             httpService.get().registerServlet("/git", gitServlet, initParams, secure);
             activateComponent();
         } catch (Exception e) {
-            LOGGER.error("Error while registering git servlet", e);
-            deactivate();
+            FabricException.launderThrowable(e);
         }
     }
 
