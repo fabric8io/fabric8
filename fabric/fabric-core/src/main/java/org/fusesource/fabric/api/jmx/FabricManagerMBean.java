@@ -207,6 +207,11 @@ public interface FabricManagerMBean {
 
     void requirements(FabricRequirements requirements) throws IOException;
 
+    /**
+     * Allow the requirements to be passed in via JSON
+     */
+    void requirementsJson(String json) throws IOException;
+
     void startContainer(String containerId);
 
     List<Map<String, Object>> startContainers(List<String> containerIds);

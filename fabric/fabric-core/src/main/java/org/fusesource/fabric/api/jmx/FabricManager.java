@@ -33,6 +33,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -896,6 +897,19 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public void requirements(FabricRequirements requirements) throws IOException {
         getFabricService().setRequirements(requirements);
+    }
+
+    @Override
+    public void requirementsJson(String json) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.configure(DeserializationConfig.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        Object value = mapper.reader(FabricRequirements.class).readValue(json);
+        if (value instanceof FabricRequirements) {
+            requirements((FabricRequirements) value);
+        } else {
+            throw new IOException("Failed to parse FabricRequirements from JSON. Got " + value + ". JSON: " + json);
+        }
     }
 
     @Override
