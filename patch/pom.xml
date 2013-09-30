@@ -39,7 +39,7 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>release</id>
             <modules>
                 <module>patch-core</module>
                 <module>patch-commands</module>

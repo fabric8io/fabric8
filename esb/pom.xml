@@ -202,7 +202,7 @@
     
     <profiles>
         <profile>
-            <id>all</id>
+            <id>release</id>
             <modules>
                 <module>jboss-fuse-medium</module>
                 <module>jboss-fuse-full</module>

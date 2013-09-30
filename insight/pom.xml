@@ -45,7 +45,7 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>release</id>
             <modules>
                 <module>insight-camel</module>
                 <module>insight-eshead</module>

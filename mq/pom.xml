@@ -42,7 +42,7 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>release</id>
             <modules>
                 <module>mq-http-discovery</module>
             </modules>

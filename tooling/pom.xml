@@ -39,7 +39,7 @@
 
     <profiles>
         <profile>
-            <id>all</id>
+            <id>release</id>
             <modules>
                 <module>archetypes</module>
                 <module>archetype-builder</module>
