@@ -32,6 +32,11 @@
 
     <properties>
         <webapp.context>/eshead</webapp.context>
+        <plugin-context>${webapp.context}</plugin-context>
+        <plugin-name>${project.artifactId}</plugin-name>
+        <plugin-domain />
+        <plugin-scripts>hawtio/i18n.js,dist/lang/en_strings.js,hawtio/vendor.js,dist/app.js,hawtio/esheadPlugin.js
+        </plugin-scripts>
     </properties>
 
     <dependencies>
@@ -46,26 +51,37 @@
             <groupId>org.codehaus.jackson</groupId>
             <artifactId>jackson-mapper-asl</artifactId>
             <version>${jackson-version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.fusesource.insight</groupId>
             <artifactId>insight-elasticsearch</artifactId>
             <version>${fabric.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.compendium</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.hawt</groupId>
+            <artifactId>hawtio-plugin-mbean</artifactId>
+            <version>${hawtio-version}</version>
         </dependency>
 
     </dependencies>
@@ -86,7 +102,8 @@
                         <Export-Package></Export-Package>
                         <Private-Package>org.fusesource.insight.eshead*</Private-Package>
                         <Import-Package>*</Import-Package>
-                        <Embed-Dependency></Embed-Dependency>
+                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
                         <Webapp-Context>${webapp.context}</Webapp-Context>
                         <Web-ContextPath>${webapp.context}</Web-ContextPath>
                         <_wab>src/main/webapp/</_wab>

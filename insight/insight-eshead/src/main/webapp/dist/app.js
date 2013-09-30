@@ -3548,9 +3548,11 @@
 			}.bind(this));
 		},
 		_main_template: function() { return (
-			{ tag: "DIV", cls: this._baseCls, children: [
-				this._clusterConnect,
-				{ tag: "H1", text: i18n.text("General.ElasticSearch") },
+			{ tag: "DIV", cls: this._baseCls, children: [ 
+				{ tag: "SPAN", cls: "pull-left", children: [
+					this._clusterConnect,
+					{ tag: "H1", text: i18n.text("General.ElasticSearch") },
+				] },
 				{ tag: "SPAN", cls: "pull-right", children: [
 					this._quickMenu
 				] }

@@ -644,8 +644,6 @@ SPAN.uiJsonPretty-boolean { color: purple; }
 
 .es-header {
 	background: #eee;
-	position: fixed;
-	width: 100%;
 	z-index: 9;
 }
 
@@ -657,7 +655,7 @@ SPAN.uiJsonPretty-boolean { color: purple; }
 
 .es-header-menu {
 	border-bottom: 1px solid #bbb;
-	padding: 0px 3px;
+	padding: 28px 3px 0px 3px;
 	height: 22px;
 }
 
@@ -674,6 +672,6 @@ SPAN.uiJsonPretty-boolean { color: purple; }
 	cursor: pointer;
 }
 .es-body {
-	padding: 51px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
 }
 

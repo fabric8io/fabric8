@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="dist/base/reset.css">
 		<link rel="stylesheet" href="dist/app.css">
 		<script src="dist/i18n.js" data-baseDir="dist/lang" data-langs="en,fr"></script>
-		<script src="dist/vendor.js"></script>
+        <script src="dist/vendor.js"></script>
 		<script src="dist/app.js"></script>
 		<script>
 			window.onload = function() {
@@ -17,9 +17,9 @@
 				var args = location.search.substring(1).split("&").reduce(function(r, p) {
 					r[decodeURIComponent(p.split("=")[0])] = decodeURIComponent(p.split("=")[1]); return r;
 				}, {});
-				new app.App("body", {
+				new app.App("#eshead", {
 					id: "es",
-					base_uri: "es",
+					base_uri: "http://localhost:9200/",
 					auth_user : args["auth_user"] || "",
 					auth_password : args["auth_password"]
 				});
@@ -27,5 +27,7 @@
 		</script>
 		<link rel="icon" href="dist/app/favicon.png" type="image/png">
 	</head>
-	<body></body>
+	<body>
+		<div id="eshead"></div>
+	</body>
 </html>
