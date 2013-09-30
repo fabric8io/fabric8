@@ -308,7 +308,6 @@
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
                                    <!--
-                                   <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    -->
                                    <feature>fabric-web</feature>

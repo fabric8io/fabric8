@@ -233,22 +233,6 @@
         <bundle>mvn:org.fusesource.fabric/fabric-groups/${project.version}</bundle>
     </feature>
 
-    <feature name="fabric-monitor" version="${project.version}" resolver="(obr)">
-        <feature version="${project.version}">fabric-zookeeper</feature>
-
-        <bundle>mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
-        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
-        <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
-        <feature version="${project.version}">fabric-core</feature>
-
-        <bundle dependency="true">mvn:org.fusesource.hawtdispatch/hawtdispatch/${hawtdispatch-version}</bundle>
-        <bundle dependency="true">mvn:org.fusesource.rrd4j/rrd4j/${rrd4j-version}</bundle>
-        <bundle dependency="true">mvn:org.fusesource.scalate/scalate-util/${scalate-version}</bundle>
-        <!-- <bundle dependency="true">mvn:org.fusesource/sigar/${sigar-version}</bundle> -->
-            
-        <bundle>mvn:org.fusesource.fabric/fabric-monitor/${project.version}</bundle>
-    </feature>
-
     <feature name="fabric-jaas" version="${project.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-zookeeper</feature>
         <bundle dependency='true'>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>

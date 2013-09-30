@@ -110,7 +110,6 @@
                                 <feature>fabric-dosgi</feature>
                                 <feature>mq-fabric</feature>
                                 <feature>fabric-bundle</feature>
-                                <feature>fabric-monitor</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>

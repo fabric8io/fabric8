@@ -51,11 +51,6 @@
         <!-- Internal Dependencies -->
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
-            <artifactId>fabric-monitor</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-core-agent-ssh</artifactId>
             <scope>test</scope>
         </dependency>

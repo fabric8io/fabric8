@@ -97,7 +97,6 @@
                 <module>fabric-hadoop</module>
                 <module>fabric-launcher</module>
                 <module>fabric-ldap</module>
-                <module>fabric-monitor</module>
                 <module>fabric-openshift</module>
                 <module>fabric-osgimetadata</module>
                 <module>fabric-scala</module>
@@ -130,7 +129,6 @@
                 </property>
             </activation>
             <modules>
-                <module>fabric-monitor</module>
                 <module>fabric-scala</module>
             </modules>
         </profile>
@@ -142,7 +140,6 @@
                 </property>
             </activation>
             <modules>
-                <module>fabric-monitor</module>
                 <module>fabric-scala</module>
             </modules>
         </profile>

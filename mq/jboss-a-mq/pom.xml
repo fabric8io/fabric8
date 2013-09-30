@@ -165,7 +165,6 @@
                                    <feature>fabric-camel</feature>
                                    <feature>fabric-dosgi</feature>
                                    <feature>fabric-bundle</feature>
-                                   <feature>fabric-monitor</feature>
                                    <feature>fabric-zeroconf</feature>
                                    <feature>mq-fabric</feature>
                                    <feature>mq-fabric-http-discovery</feature>
