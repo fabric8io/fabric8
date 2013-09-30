@@ -27,6 +27,9 @@ import java.util.Properties;
  */
 public interface DataStore {
 
+    public static final String ATTRIBUTE_PREFIX = "attribute.";
+
+    public static final String AGENT_PID = "org.fusesource.fabric.agent";
     public static final String DATASTORE_TYPE_PID = "org.fusesource.fabric.datastore";
     public static final String DATASTORE_TYPE_PROPERTY = "type";
     public static final String DEFAULT_DATASTORE_TYPE = "caching-git";

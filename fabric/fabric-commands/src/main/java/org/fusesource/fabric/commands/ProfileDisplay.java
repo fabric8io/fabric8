@@ -110,7 +110,7 @@ public class ProfileDisplay extends FabricCommand {
             }
             else if (!key.startsWith("feature.") && !key.startsWith("repository") &&
                         !key.startsWith("bundle.") && !key.startsWith("fab.") &&
-                        !key.startsWith("override.")) {
+                        !key.startsWith("override.") && !key.startsWith("attribute.")) {
                 agentProperties.add("  " + key + " = " + value);
             }
         }

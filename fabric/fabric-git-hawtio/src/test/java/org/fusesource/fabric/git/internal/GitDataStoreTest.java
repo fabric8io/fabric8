@@ -149,7 +149,7 @@ public class GitDataStoreTest {
         assertCreateVersion("1.0", version);
 
         String agentPID = "org.fusesource.fabric.agent";
-        assertProfileConfiguration(version, importedProfile, agentPID, "parents",
+        assertProfileConfiguration(version, importedProfile, agentPID, "attribute.parents",
                 "feature-camel");
         assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml",
                 "http://camel.apache.org/schema/blueprint");
@@ -231,13 +231,6 @@ public class GitDataStoreTest {
         assertProfileExists("1.1", newProfile);
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(profile)));
         assertFolderExists(getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(newProfile)));
-
-        // we should pushed the property attributes file from the call to
-        // dataStore.setProfileAttribute()
-        assertFolderExists(
-                "we should have pushed this file remotely due to the call to dataStore.setProfileAttribute()",
-                getRemoteGitFile("fabric/profiles/" + dataStore.convertProfileIdToDirectory(importedProfile)
-                        + "/org.fusesource.fabric.profile.attributes.properties"));
 
         remote.checkout().setName("1.2").call();
 

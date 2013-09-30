@@ -14,5 +14,5 @@
 #  permissions and limitations under the License.
 #
 
-parents=feature-camel
+attribute.parents=feature-camel
 bundle.profile.camel-@{id}=spring:profile:camel-@{id}.xml

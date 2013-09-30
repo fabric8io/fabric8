@@ -106,9 +106,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setProperties
 public class GitDataStore extends AbstractDataStore implements DataStorePlugin<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
-    private static final String PROFILE_ATTRIBUTES_PID = "org.fusesource.fabric.profile.attributes";
-    private static final String CONTAINER_CONFIG_PID = "org.fusesource.fabric.agent";
-
     private static final String MASTER_BRANCH = "master";
     private static final String CONFIG_ROOT_DIR = "fabric";
 
@@ -518,34 +515,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
-    }
-
-
-    @Override
-    public Map<String, String> getProfileAttributes(String version, String profile) {
-        assertValid();
-        // TODO we should probably remove this hack at some point and just let the
-        // ProfileImpl delegate the getParent() mechanism to the DataStore so we don't have to look in 2 files
-        Map<String, String> configuration = getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
-        Map<String, String> containerConfiguration = getConfiguration(version, profile, CONTAINER_CONFIG_PID);
-        String parents = containerConfiguration.get("parents");
-        if (parents != null && !parents.isEmpty()) {
-            configuration.put("parents", parents);
-            //configuration.put(p.substring(0, p.lastIndexOf('/')), "parents=" + parents);
-        }
-        return configuration;
-    }
-
-    @Override
-    public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
-        assertValid();
-        Map<String, String> config = getConfiguration(version, profile, PROFILE_ATTRIBUTES_PID);
-        if (value != null) {
-            config.put(key, value);
-        } else {
-            config.remove(key);
-        }
-        setConfiguration(version, profile, PROFILE_ATTRIBUTES_PID, config);
     }
 
     @Override

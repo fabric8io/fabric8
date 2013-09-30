@@ -121,7 +121,6 @@ public class ZookeeperImportUtils {
     private static void getCandidates(File parent, File current, Map<String, String> settings, String target) throws Exception {
         List<Pattern> profile = getPatterns(new String[]{RegexSupport.PROFILE_REGEX});
         List<Pattern> containerProperties = getPatterns(new String[]{RegexSupport.PROFILE_CONTAINER_PROPERTIES_REGEX});
-        List<Pattern> attributes = getPatterns(new String[]{RegexSupport.PROFILE_ATTRIBUTES_REGEX});
         if (current.isDirectory()) {
             for (File child : current.listFiles()) {
                 getCandidates(parent, child, settings, target);
@@ -140,9 +139,7 @@ public class ZookeeperImportUtils {
                 p = p.substring(0, p.length() - ".cfg".length());
             }
 
-            if (matches(attributes, "/" + p, false)) {
-                settings.put(p.substring(0, p.lastIndexOf('/')), new String(contents));
-            } else if (matches(containerProperties, "/" + p, false)) {
+            if (matches(containerProperties, "/" + p, false)) {
                 settings.put(p, new String(contents).replaceAll(RegexSupport.PARENTS_REGEX, ""));
                 Properties props = new Properties();
                 props.load(new StringReader(new String(contents)));

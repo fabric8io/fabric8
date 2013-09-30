@@ -605,6 +605,34 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
     }
 
     @Override
+    public Map<String, String> getProfileAttributes(String version, String profile) {
+        assertValid();
+        Map<String, String> attributes = new HashMap<String, String>();
+        Map<String, String> config = getConfiguration(version, profile, AGENT_PID);
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            String key = entry.getKey();
+            if (key.startsWith(ATTRIBUTE_PREFIX)) {
+                String attribute = key.substring(ATTRIBUTE_PREFIX.length());
+                String value = entry.getValue();
+                attributes.put(attribute, value);
+            }
+        }
+        return attributes;
+    }
+
+    @Override
+    public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
+        assertValid();
+        Map<String, String> config = getConfiguration(version, profile, AGENT_PID);
+        if (value != null) {
+            config.put(ATTRIBUTE_PREFIX + key, value);
+        } else {
+            config.remove(key);
+        }
+        setConfiguration(version, profile, AGENT_PID, config);
+    }
+
+    @Override
     public Map<String, Map<String, String>> getConfigurations(String version, String profile) {
         assertValid();
         try {

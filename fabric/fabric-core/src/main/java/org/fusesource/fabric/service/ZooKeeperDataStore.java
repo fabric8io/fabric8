@@ -269,34 +269,6 @@ public final class ZooKeeperDataStore extends AbstractDataStore implements DataS
     }
 
     @Override
-    public Map<String, String> getProfileAttributes(String version, String profile) {
-        assertValid();
-        try {
-            String path = ZkProfiles.getPath(version, profile);
-            return getPropertiesAsMap(getTreeCache(), path);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
-    @Override
-    public void setProfileAttribute(String version, String profile, String key, String value) {
-        assertValid();
-        try {
-            String path = ZkProfiles.getPath(version, profile);
-            Properties props = getProperties(getCurator(), path);
-            if (value != null) {
-                props.setProperty(key, value);
-            } else {
-                props.remove(key);
-            }
-            setProperties(getCurator(), path, props);
-        } catch (Exception e) {
-            throw FabricException.launderThrowable(e);
-        }
-    }
-
-    @Override
     public long getLastModified(String version, String profile) {
         assertValid();
         try {
