@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) Red Hat, Inc.
-  http://redhat.com
+  JBoss, Home of Professional Open Source
+   Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+   contributors by the @authors tag. See the copyright.txt in the
+   distribution for a full listing of individual contributors.
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+  -->
 <!--
    This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
    OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is installed.
@@ -22,9 +22,8 @@
    The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
    and the Camel namespaces.
 -->
-<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
 
@@ -33,7 +32,7 @@
       We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to determine
       the geographical region. The code for this bean can be found in src/main/java/org.jboss.fuse.examples/eip/RegionSupport.java
     -->
-    <bean id="MyRegionSupport" class="org.jboss.fuse.examples.eip.RegionSupport" />
+    <bean id="MyRegionSupport" class="org.jboss.quickstarts.fuse.eip.RegionSupport" />
 
     <!--
       The namespace for the camelContext element in Blueprint is 'http://camel.apache.org/schema/blueprint'. We can also define 
@@ -44,9 +43,8 @@
       While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
       to set them for runtime management purposes (logging, JMX MBeans, ...)
     -->
-    <camelContext xmlns="http://camel.apache.org/schema/blueprint"
-                  xmlns:order="http://fusesource.com/examples/order/v7"
-                  id="eip-example-context">
+    <camelContext xmlns="http://camel.apache.org/schema/blueprint" xmlns:order="http://fusesource.com/examples/order/v7"
+        id="eip-example-context">
 
         <!--
           This is the main Camel route.  In Camel, you can split up routes into more manageable bits and pieces and
@@ -80,7 +78,7 @@
           directory for every geographical region.
         -->
         <route id="splitterRoute">
-            <from uri="direct:splitter"/>
+            <from uri="direct:splitter" />
             <split>
                 <!--
                   We are using XPath to split the message body. The namespace prefix, order, used in the XPath expression was 
@@ -102,7 +100,7 @@
                 <!--
                   Another human-friendly log message, this time using the extra headers we just added to the message
                 -->
-                <log message="[splitter] Shipping order ${header.orderId} to region ${header.region}"/>
+                <log message="[splitter] Shipping order ${header.orderId} to region ${header.region}" />
                 <!--
                   A recipient list can be used to dynamically determine the next steps for a message.  In this case, we dynamically
                   generate the file: endpoint uri using the two headers we defined earlier.  We will also send the message to the

@@ -1,11 +1,18 @@
-# WS-SECURITY EXAMPLE
+secure-soap: demonstrates a secure SOAP web service with Apache CXF
+==========================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Fuse, OSGi, CXF, WS-Security  
+Summary: Demonstrates a SOAP web service with Apache CXF  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>
 
-## Overview
-This example demonstrates how to create a Web service with Apache CXF using WS-Security and Blueprint configuration, and expose it through the OSGi HTTP Service.
+What is it?
+-----------
+This quick start demonstrates how to create a Web service with Apache CXF using WS-Security and Blueprint configuration,
+and expose it through the OSGi HTTP Service.
 
-
-## What You Will Learn
-In studying this example you will learn:
+In studying this quick start you will learn:
 
 * how to configure JAX-WS Web services by using the blueprint configuration file.
 * how to configure WS-Security on a CXF JAX-WS Web service in Blueprint
@@ -13,39 +20,41 @@ In studying this example you will learn:
 * how to use standard Java Web Service annotations when implementing a Web service in Java
 * how to use use an HTTP URL to invoke a remote Web service
 
-## Prerequisites
-Before building and running this example you need:
+For more information see:
+
+* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse
+
+System requirements
+-------------------
+Before building and running this quick start you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
 * JBoss Fuse 6
 
-## Files in the Example
-* `pom.xml` - the Maven POM file for building the example
-* `client.html` - a Web client that can be used to test the Web service from your browser
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/HelloWorld.java` - a Java interface that defines the Web service
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/HelloWorldImpl.java` - a Java class that implements the Web service
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/client/Client.java` - a Java class implementing a client that connects to the Web service using an HTTP URL
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/client/ClientPasswordCallback.java` - a Java class implementing authentication callback by checking the identifier and password
-* `src/main/java/org.jboss.fuse.examples/cxf/jaxws/security/client/CustomSecurityInterceptor.java` - a Java class which set the security properties for the client 
-* `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
 
-## Building the Example
-To build the example:
+Build and Deploy the Quickstart
+-------------------------
+To build the quick start:
 
-1. Change your working directory to the `examples/secure-soap` directory.
-2. Run `mvn clean install` to build the example.
-
-
-## Running the Example
-To run the example:
-
-1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
-2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.jboss.fuse.examples/secure-soap/${project.version}
-3. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
+1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder to install quickstart bom in your local repository
+* Change your working directory to `quickstarts/secure-soap` directory.
+* Run `mvn clean install` to build the quick start.
+* Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
+* Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
    admin=admin,admin
+* In the JBoss Fuse console, enter the following command:
 
+        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/secure-soap/<project version>
+
+* Fuse should give you on id when the bundle is deployed
+* You can check that everything is ok by issue the command:
+
+        osgi:list
+   your bundle should be present at the end of the list
+
+Use the bundle
+----------------
 There are several ways you can interact with the running Web services:
 * browse the Web service metadata
 * access the service in a Web browser
@@ -57,7 +66,7 @@ A full listing of all CXF Web services is available at
 
     http://localhost:8181/cxf
 
-After you deployed this example, you will see the `HelloWorldSecurity` service appear in the `Available SOAP Services` section, together with a list of operations for the endpoint and some additional information like the endpoint's address and a link to the WSDL file for the Web service:
+After you deployed this quick start, you will see the `HelloWorldSecurity` service appear in the `Available SOAP Services` section, together with a list of operations for the endpoint and some additional information like the endpoint's address and a link to the WSDL file for the Web service:
 
     http://localhost:8181/cxf/HelloWorldSecurity?wsdl
 
@@ -83,24 +92,23 @@ After you deployed this example, you will see the `HelloWorldSecurity` service a
       You can use the Java client instead to test your web service (see below).
 
 
-### To run a Java client:
+### To run the test:
 
-In this example project, we also developed a Java client which can perform a few HTTP requests to test our Web services. We
-configured the exec-java-plugin in Maven to allow us to run the Java client code with a simple Maven command:
+In this cxf-jaxws quistart, we also provide an integration test which can perform a few HTTP requests to test our web services. We
+created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fuse:
 
-1. Change to the `<esb_home>/examples/secure-soap` directory.
+1. Change to the `quickstarts/secure-soap` directory.
 2. Run the following command:
 
-        mvn compile exec:java
+        mvn -Ptest
 
-The client uses a client proxy for the Web service to invoke the remote method - in reality, a SOAP message will be sent to the server and the response SOAP message will be received and handled.  You will see this output from the remote method:
+The test uses a client proxy for the Web service to invoke the remote method - in reality,
+a SOAP message will be sent to the server and the response SOAP message will be received and handled.  You will see this output from the remote method:
 
         Apr 4, 2012 7:48:13 AM org.apache.cxf.service.factory.ReflectionServiceFactoryBean buildServiceFromClass
         INFO: Creating Service {http://security.jaxws.cxf.examples.fuse.jboss.org/}HelloWorldService from class org.jboss.fuse.examples.cxf.jaxws.security.HelloWorld
-        Hello ffang
+        Hello World
 
-
-## Additional configuration options
 
 ### Managing the user credentials
 
@@ -131,8 +139,12 @@ By default CXF Servlet is assigned a `/cxf` alias. You can change it in a couple
         config:propset org.apache.cxf.servlet.context /custom
         config:update
 
+Undeploy the Bundle
+--------------------
 
-## More information
-For more information see:
+To stop and undeploy the bundle in Fuse:
 
-* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse
+1. Enter `osgi:list` command to retrieve your bundle id
+2. To stop and uninstall the bundle enter
+
+        osgi:uninstall <id>

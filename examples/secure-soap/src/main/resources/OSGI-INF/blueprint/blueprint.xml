@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) Red Hat, Inc.
-  http://redhat.com
+  JBoss, Home of Professional Open Source
+  Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+  contributors by the @authors tag. See the copyright.txt in the
+  distribution for a full listing of individual contributors.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
+  http://www.apache.org/licenses/LICENSE-2.0
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,10 +23,10 @@
    and the CXF JAX-WS namespaces.
 -->
 <blueprint
-    xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
-    xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
+        xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:jaxws="http://cxf.apache.org/blueprint/jaxws"
+        xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd
                         http://cxf.apache.org/blueprint/jaxws http://cxf.apache.org/schemas/blueprint/jaxws.xsd">
 
     <!--
@@ -35,8 +35,8 @@
       with the default configuration in place, this endpoint will be available at 'http://localhost:8181/cxf/HelloWorld'.
     -->
     <jaxws:endpoint id="helloWorld"
-        implementor="org.jboss.fuse.examples.cxf.jaxws.security.HelloWorldImpl"
-        address="/HelloWorldSecurity">
+                    implementor="org.jboss.quickstarts.fuse.soap.secure.HelloWorldImpl"
+                    address="/HelloWorldSecurity">
         <!--
           We will be adding two interceptors to the inbound interceptor chain:
           - the CXF WSS4J interceptor to support WS-Security for passing along the credentials
@@ -44,21 +44,21 @@
             this will ensure that the credentials are being authenticated in the JAAS realm defined there ('karaf')
         -->
         <jaxws:inInterceptors>
-            
+
             <bean class="org.apache.cxf.ws.security.wss4j.WSS4JInInterceptor">
-                 <property name="properties">
-                     <map>
-                         <entry key="action" value="UsernameToken"/>
-                         <entry key="passwordType" value="PasswordText"/>
-                     </map>
-                 </property>
-             </bean>          
+                <property name="properties">
+                    <map>
+                        <entry key="action" value="UsernameToken"/>
+                        <entry key="passwordType" value="PasswordText"/>
+                    </map>
+                </property>
+            </bean>
             <ref component-id="authenticationInterceptor"/>
         </jaxws:inInterceptors>
         <jaxws:outInterceptors>
-            <bean class="org.jboss.fuse.examples.cxf.jaxws.security.EnableCORSInterceptor"/>
+            <bean class="org.jboss.quickstarts.fuse.soap.secure.EnableCORSInterceptor"/>
         </jaxws:outInterceptors>
- 
+
         <!--
           Disable the WSS4JInInterceptor validation check fo the password callback, as we don't provide it here.
         -->
@@ -75,7 +75,7 @@
       SSH shell and the webconsole.
     -->
     <bean id="authenticationInterceptor" class="org.apache.cxf.interceptor.security.JAASLoginInterceptor">
-       <property name="contextName" value="karaf"/>
+        <property name="contextName" value="karaf"/>
     </bean>
 
 </blueprint>

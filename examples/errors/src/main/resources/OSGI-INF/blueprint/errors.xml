@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) Red Hat, Inc.
-  http://redhat.com
+  JBoss, Home of Professional Open Source
+   Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+   contributors by the @authors tag. See the copyright.txt in the
+   distribution for a full listing of individual contributors.
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
--->
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+   http://www.apache.org/licenses/LICENSE-2.0
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+  -->
 <!--
    This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
    OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the artifact is being installed.
@@ -33,7 +33,7 @@
       We are using the OSGi Blueprint XML syntax to define a bean that we use in our Camel route to validate
       the order date. It has a method that intermittently throws runtime exceptions.
     -->
-    <bean id="myOrderService" class="org.jboss.fuse.examples.errors.OrderService" />
+    <bean id="myOrderService" class="org.jboss.quickstarts.fuse.errors.OrderService"/>
 
     <!--
       Here, we define the dead-letter channel configuration we want to use.  We want to retry delivering a failed exchange
@@ -42,11 +42,11 @@
       be sent to the configured dead letter uri (direct:deadletter).
     -->
     <bean id="myDeadLetterErrorHandler" class="org.apache.camel.builder.DeadLetterChannelBuilder">
-        <property name="deadLetterUri" value="direct:deadletter" />
+        <property name="deadLetterUri" value="direct:deadletter"/>
         <property name="redeliveryPolicy">
             <bean class="org.apache.camel.processor.RedeliveryPolicy">
-                <property name="maximumRedeliveries" value="2" />
-                <property name="useExponentialBackOff" value="true" />
+                <property name="maximumRedeliveries" value="2"/>
+                <property name="useExponentialBackOff" value="true"/>
             </bean>
         </property>
     </bean>
@@ -73,12 +73,12 @@
           We don't specify a redelivery policy and mark the exception handled to ensure processing will not be retried for this exception.
         -->
         <onException>
-            <exception>org.jboss.fuse.examples.errors.OrderValidationException</exception>
+            <exception>org.jboss.quickstarts.fuse.errors.OrderValidationException</exception>
             <handled>
                 <constant>true</constant>
             </handled>
-            <log message="Validation failed for ${file:name} - moving the file to work/errors/validation" />
-            <to uri="file:work/errors/validation" />
+            <log message="Validation failed for ${file:name} - moving the file to work/errors/validation"/>
+            <to uri="file:work/errors/validation"/>
         </onException>
 
         <!--
@@ -89,12 +89,12 @@
             our default error handler strategy configured on the <camelContext/> will retry the exchange 3 times and afterwards send it to the dead letter channel
         -->
         <route id="mainRoute">
-            <from uri="file:work/errors/input" />
-            <log message="Processing ${file:name}" />
+            <from uri="file:work/errors/input"/>
+            <log message="Processing ${file:name}"/>
             <to uri="bean:myOrderService?method=validateOrderDate"/>
             <to uri="bean:myOrderService?method=randomlyThrowRuntimeException"/>
-            <to uri="file:work/errors/done" />
-            <log message="Done processing ${file:name}" />
+            <to uri="file:work/errors/done"/>
+            <log message="Done processing ${file:name}"/>
         </route>
 
         <!--
@@ -103,9 +103,9 @@
           error message and afterwards stores the failed message in the work/errors/deadletter folder.
         -->
         <route id="dlcRoute">
-            <from uri="direct:deadletter" />
-            <log message="File ${file:name} was moved to the dead letter channel" />
-            <to uri="file:work/errors/deadletter" />
+            <from uri="direct:deadletter"/>
+            <log message="File ${file:name} was moved to the dead letter channel"/>
+            <to uri="file:work/errors/deadletter"/>
         </route>
 
     </camelContext>

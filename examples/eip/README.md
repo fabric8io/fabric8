@@ -1,7 +1,16 @@
-# Enterprise Integration Patterns
+eip: demonstrates how to combine multiple Enterprise Integration Patterns to solve integration problems
+===================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Camel,Blueprint  
+Summary: Demonstrates how to combine multiple EIPs to solve integration problems  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>
 
-## Overview
-This example demonstrates how to combine multiple EIPs to solve integration problems.
+What is it?
+-----------
+
+This quickstart demonstrates how to combine multiple EIPs to solve integration problems.
 
 In this example, an orders file containing several orders for zoos around the world is sent to us.
 
@@ -13,7 +22,6 @@ Then we want to store the orders in separate directories by geographical region.
 
 Finally, we want to filter out the orders that container more than 100 animals and generate a message for the strategic account team. This is done using a Filter EIP.
 
-## What You Will Learn
 In studying this example you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
@@ -26,39 +34,57 @@ In studying this example you will learn:
 * how to define and use a bean to process a message
 * how to use a `direct:` endpoint to link multiple smaller routes together
 
-## Prerequisites
+
+For more information see:
+
+* http://www.enterpriseintegrationpatterns.com/RecipientList.html
+* http://www.enterpriseintegrationpatterns.com/WireTap.html
+* http://www.enterpriseintegrationpatterns.com/Filter.html
+* http://www.enterpriseintegrationpatterns.com/Sequencer.html
+* https://access.redhat.com/knowledge/docs/JBoss_Fuse/
+
+
+System requirements
+-------------------
+
 Before building and running this example you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
 * JBoss Fuse 6
 
-## Files in the Example
-* `pom.xml` - the Maven POM file for building the example
-* `src/main/java/org.jboss.fuse.examples/eip/RegionSupport.java` - a Java class used to determine the region code used by the recipient list
-* `src/main/resources/OSGI-INF/blueprint/eip.xml` - the OSGI Blueprint file that defines the routes
-* `test/data/orders.xml` - the data file that can be used to test the route
-* `test/java/RegionSupportTest.java` - a JUnit test class for `RegionSupport`
 
-## Building the Example
-To build the example:
+Build and Deploy the Quickstart
+-------------------------
 
-1. Change your working directory to the `examples/eip` directory.
-2. Run `mvn clean install` to build the example.
+1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder
+*. Change your working directory to `quckstarts/eip` directory.
+*. Run `mvn clean install` to build the quickstart.
+*. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
+*. In the JBoss Fuse console, enter the following command:
 
-## Running the Example
-To run the example:
+        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/eip/<project version>
 
-1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
-2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.jboss.fuse.examples/eip/${project.version}
-3. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your JBoss Fuse installation.
-4. Copy the file you find in this example's `src/test/data` directory to the newly created `work/eip/input` directory.
-5. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
+*. Fuse should give you on id when the bundle is deployed
+*. You can check that everything is ok by issue the command:
+
+        osgi:list
+   your bundle should be present at the end of the list
+
+
+Use the bundle
+-------------------
+
+To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
+
+1. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your JBoss Fuse installation.
+2. Copy the file you find in this example's `src/main/resources/data` directory to the newly created `work/eip/input`
+directory.
+3. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
 ** `2012_0003.xml` and `2012_0005.xml` in `work/eip/output/AMER`
 ** `2012_0020.xml` in `work/eip/output/APAC`
 ** `2012_0001.xml`, `2012_0002.xml` and `2012_0004.xml` in `work/eip/output/EMEA`
-6. Use `log:display` on the ESB shell to check out the business logging.
+4. Use `log:display` on the ESB shell to check out the business logging.
         [main]    Processing orders.xml
         [wiretap]  Archiving orders.xml
         [splitter] Shipping order 2012_0001 to region EMEA
@@ -66,10 +92,14 @@ To run the example:
         [filter]   Order 2012_0002 is an order for more than 100 animals
         ...
 
-## More information
-For more information see:
-* http://www.enterpriseintegrationpatterns.com/RecipientList.html
-* http://www.enterpriseintegrationpatterns.com/WireTap.html
-* http://www.enterpriseintegrationpatterns.com/Filter.html
-* http://www.enterpriseintegrationpatterns.com/Sequencer.html
-* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse
+Undeploy the Bundle
+--------------------
+
+To stop and undeploy the bundle in Fuse:
+
+1. Enter `osgi:list` command to retrieve your bundle id
+2. To stop and uninstall the bundle enter
+
+        osgi:uninstall <id>
+ 
+

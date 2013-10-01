@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<!--
+  JBoss, Home of Professional Open Source
+  Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+  contributors by the @authors tag. See the copyright.txt in the
+  distribution for a full listing of individual contributors.
 
-    <!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  http://www.apache.org/licenses/LICENSE-2.0
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
 
-        Licensed to the Apache Software Foundation (ASF) under one or more
-        contributor license agreements.  See the NOTICE file distributed with
-        this work for additional information regarding copyright ownership.
-        The ASF licenses this file to You under the Apache License, Version 2.0
-        (the "License"); you may not use this file except in compliance with
-        the License.  You may obtain a copy of the License at
-
-           http://www.apache.org/licenses/LICENSE-2.0
-
-        Unless required by applicable law or agreed to in writing, software
-        distributed under the License is distributed on an "AS IS" BASIS,
-        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-        See the License for the specific language governing permissions and
-        limitations under the License.
-    -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -25,16 +25,50 @@
         The parent POM does not contain any information required to build this example, it's only here
         for organisational purposes so feel free to remove/replace this.
     -->
-    <parent>
-        <groupId>org.jboss.fuse.examples</groupId>
-        <artifactId>project</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
-    </parent>
-
+    <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>rest</artifactId>
+    <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>[TODO]JBoss Fuse :: Examples :: RESTful WebService </name>
+    <name>JBoss Fuse :: Examples :: RESTful WebService</name>
     <description>RESTful WebService Example using JAX-RS with JBoss Fuse</description>
+
+    <properties>
+        <!-- 
+          Explicitly declaring the source encoding eliminates the following message:
+          [WARNING] Using platform encoding (UTF-8 actually) to copy filtered resources, i.e. build is platform dependent!
+        -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    
+        <version.compiler.plugin>2.3.1</version.compiler.plugin>
+        <skipTests>true</skipTests>
+        <!-- maven-compiler-plugin -->
+        <maven.compiler.target>1.6</maven.compiler.target>
+        <maven.compiler.source>1.6</maven.compiler.source>
+        <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
+
+        <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
+        <jboss.fuse.bom.version>7.3.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <distribution>repo</distribution>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jboss.fuse.bom</groupId>
+                <artifactId>jboss-fuse</artifactId>
+                <version>${jboss.fuse.bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
         <!--
@@ -44,34 +78,63 @@
         <dependency>
             <groupId>org.apache.servicemix.specs</groupId>
             <artifactId>org.apache.servicemix.specs.jsr311-api-1.1.1</artifactId>
-            <version>1.9.0</version>
-            <scope>provided</scope>
         </dependency>
+
         <!--
             We are also building a small Java client application that we can use to test our web web services.
             For performing the HTTP requests, we are using Apache Commons HttpClient.
         -->
         <dependency>
-            <groupId>org.apache.servicemix.bundles</groupId>
-            <artifactId>org.apache.servicemix.bundles.commons-httpclient</artifactId>
-            <version>3.1_5</version>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
         </dependency>
+
+        <!--
+            For logging, we will use SLF4J, which is also available in the container by default.
+          -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Test Dependencies -->
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <!--
+          Add the slf4j-log4j12 dependency jar for testing
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
-            <!--
-                The exec-maven-plugin allows us to run our Java client application with a 'mvn exec:java'.
-            -->
+            <!-- Skip Test by default and enable them only in Test profile -->
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec-maven-plugin-version}</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${version.maven-surefire-plugin}</version>
                 <configuration>
-                    <mainClass>org.jboss.fuse.examples.cxf.jaxrs.client.Client</mainClass>
-                    <includePluginDependencies>false</includePluginDependencies>
+                    <skipTests>${skipTests}</skipTests>
                 </configuration>
             </plugin>
+            <!-- Compiler plugin enforces Java 1.6 compatibility and activates annotation processors -->
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.compiler.plugin}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 
@@ -101,7 +164,7 @@
     </repositories>
 
     <pluginRepositories>
-         <pluginRepository>
+        <pluginRepository>
             <id>fusesource.m2</id>
             <name>FuseSource Community Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/releases</url>
@@ -112,7 +175,7 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-         <pluginRepository>
+        <pluginRepository>
             <id>fusesource.ea</id>
             <name>FuseSource Community Early Access Release Repository</name>
             <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
@@ -124,5 +187,20 @@
             </releases>
         </pluginRepository>
     </pluginRepositories>
+
+    <profiles>
+        <profile>
+            <id>test</id>
+            <properties>
+                <skipTests>false</skipTests>
+            </properties>
+
+            <build>
+                <defaultGoal>verify</defaultGoal>
+            </build>
+
+        </profile>
+
+    </profiles>
 
 </project>

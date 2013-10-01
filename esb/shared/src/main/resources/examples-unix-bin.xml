@@ -22,24 +22,12 @@
             <directory>../../examples</directory>
             <outputDirectory>/examples</outputDirectory>
             <excludes>
-                <exclude>pom.xml</exclude>
                 <exclude>**/target/</exclude>
                 <exclude>**/target/*</exclude>
             </excludes>
-            <filtered>true</filtered>
             <lineEnding>unix</lineEnding>
             <fileMode>0644</fileMode>
             <directoryMode>0775</directoryMode>
         </fileSet>
     </fileSets>
-
-    <files>
-        <file>
-            <source>${basedir}/target/shared/pom.xml</source>
-            <outputDirectory>/examples</outputDirectory>
-            <lineEnding>unix</lineEnding>
-            <fileMode>0644</fileMode>
-        </file>
-    </files>
-
 </component>

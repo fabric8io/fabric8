@@ -1,7 +1,0 @@
-<!--
-  This XML document can be used to update an existing customer's information.
--->
-<Customer>
-  <name>Mary</name>
-  <id>123</id>
-</Customer> 

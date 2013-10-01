@@ -1,51 +1,55 @@
-# RESTful web services with CXF
+rest: demonstrates RESTful web services with CXF
+===============================================
+Author: Fuse Team  
+Level: Beginner  
+Technologies: Fuse, OSGi, CXF  
+Summary: Demonstrates RESTful web services with CXF  
+Target Product: Fuse  
+Source: <https://github.com/jboss-fuse/quickstarts>
 
-## Overview
-This example demonstrates how to create a RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
+What is it?
+-----------
+This quick start demonstrates how to create a RESTful (JAX-RS) web service using CXF and expose it with the OSGi HTTP Service.
 
-## What You Will Learn
-In studying this example you will learn:
+In studying this quick start you will learn:
 
 * how to configure the JAX-RS web services by using the blueprint configuration file.
 * how to use JAX-RS annotations to map methods and classes to URIs
 * how to use JAXB annotations to define beans and output XML responses
 * how to use the JAX-RS API to create HTTP responses
 
-## Prerequisites
-Before building and running this example you need:
+For more information see:
+
+* <https://access.redhat.com/knowledge/docs/JBoss_Fuse/> for more information about using JBoss Fuse
+
+System requirements
+-------------------
+Before building and running this quick start you need:
 
 * Maven 3.0.3 or higher
 * JDK 1.6 or 1.7
 * JBoss Fuse 6
 
-## Files in the Example
-* `pom.xml` - the Maven POM file for building the example
-* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/Customer.java` - a Java class defining the JAXB representation of the Customer element processed by the example
-* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/CustomerService.java` - a Java class implementing the service that handles customer requests using JAXRS
-* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/Order.java` - a Java class defining the JAXB representation of the Order element processed by the example. It also defines a JAXRS sub-resource that processes orders.
-* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/Prooduct.java` - a Java class defining the JAXB representation of the Product element used in the orders
-* `src/main/java/org/jboss/fuse/examples/cxf/jaxrs/client/Client.java` - a Java class implementing an HTTP client that can be used to test the service
-* `src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client/*.xml` - data files used by the client to test the service
-* `src/main/resources/OSGI-INF/blueprint/blueprint.xml` - the OSGI Blueprint file that defines the services
+Build and Deploy the Quickstart
+-------------------------
 
-## Building the Example
-To build the example:
+1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder
+* Change your working directory to `quickstarts/rest` directory.
+* Run `mvn clean install` to build the quickstart.
+* Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
+* In the JBoss Fuse console, enter the following command:
 
-1. Change your working directory to the `examples/rest` directory.
-2. Run `mvn clean install` to build the example.
+        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/rest/<project version>
 
-## Running the Example
-To run the example:
+* Fuse should give you on id when the bundle is deployed
+* You can check that everything is ok by issue the command:
 
-1. Start JBoss Fuse 6 by running `bin/fuse` (on Linux) or `bin\fuse.bat` (on Windows).
-2. In the JBoss Fuse console, enter the following command:
-        osgi:install -s fab:mvn:org.jboss.fuse.examples/rest/${project.version}
+        osgi:list
+   your bundle should be present at the end of the list
 
-There are several ways you can interact with the running RESTful Web services:
-* browse the Web service metadata
-* access the service in a Web browser
-* use a Java client
-* use a command-line utility
+
+Use the bundle
+----------------
 
 ### Browsing Web service metadata
 
@@ -53,7 +57,7 @@ A full listing of all CXF web services is available at
 
     http://localhost:8181/cxf
 
-After you deployed this example, you will see the following endpoint address appear in the 'Available RESTful services' section:
+After you deployed this quick start, you will see the following endpoint address appear in the 'Available RESTful services' section:
 
     http://localhost:8181/cxf/crm
 **Note:**: Don't try to access this endpoint address from browser, as it's inaccessible by design
@@ -84,28 +88,28 @@ You can also access the XML representation for order 223 ...
 
 **Note:** if you use Safari, you will only see the text elements but not the XML tags - you can view the entire document with 'View Source'
 
-### To run a Java client:
+### To run the tests:
 
-In this example project, we also provide a Java client which can perform a few HTTP requests to test our Web services. We
-configured the exec-java-plugin in Maven to allow us to run the Java client code with a simple Maven command:
+In this quick start project, we also provide integration tests which perform a few HTTP requests to test our Web services. We
+created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fuse:
 
-1. Change to the `<esb_home>/examples/rest` directory.
+1. Change to the `quickstarts/rest` directory.
 2. Run the following command:
 
-        mvn compile exec:java
+        mvn -Ptest
         
-The client makes a sequence of RESTful invocations and displays the results.
+The tests in `src/test/java/org.jboss.quickstarts.fuse.rest/CrmTest`  make a sequence of RESTful invocations and displays the results.
 
 ### To run a command-line utility:
 
-You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client`, so we will use those for testing our services.
+You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/test/resources`, so we will use those for testing our services.
 
-1. Open a command prompt and change directory to `<esb_home>/examples/rest`.
+1. Open a command prompt and change directory to `quickstarts/rest`.
 2. Run the following curl commands (curl commands may not be available on all platforms):
     
     * Create a customer
  
-            curl -X POST -T src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
+            curl -X POST -T src/test/resources/add_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
   
     * Retrieve the customer instance with id 123
     
@@ -113,13 +117,12 @@ You can use a command-line utility, such as cURL or wget, to perform the HTTP re
 
     * Update the customer instance with id 123
   
-            curl -X PUT -T src/main/resources/org/jboss/fuse/examples/cxf/jaxrs/client/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
+            curl -X PUT -T src/test/resources/update_customer.xml -H "Content-Type: text/xml" http://localhost:8181/cxf/crm/customerservice/customers
 
     * Delete the customer instance with id 123
   
              curl -X DELETE http://localhost:8181/cxf/crm/customerservice/customers/123
 
-## Additional configuration options
 
 ### Changing /cxf servlet alias
 
@@ -135,8 +138,13 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
         config:propset org.apache.cxf.servlet.context /custom
         config:update
 
-## More information
+Undeploy the Bundle
+--------------------
 
-For more information see:
+To stop and undeploy the bundle in Fuse:
 
-* https://access.redhat.com/knowledge/docs/JBoss_Fuse/ for more information about using JBoss Fuse
+1. Enter `osgi:list` command to retrieve your bundle id
+2. To stop and uninstall the bundle enter
+
+        osgi:uninstall <id>
+

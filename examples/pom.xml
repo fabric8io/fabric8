@@ -1,13 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (C) Red Hat, Inc.
-  http://redhat.com
+  JBoss, Home of Professional Open Source
+  Copyright 2013, Red Hat, Inc. and/or its affiliates, and individual
+  contributors by the @authors tag. See the copyright.txt in the
+  distribution for a full listing of individual contributors.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
   You may obtain a copy of the License at
-
-     http://www.apache.org/licenses/LICENSE-2.0
-
+  http://www.apache.org/licenses/LICENSE-2.0
   Unless required by applicable law or agreed to in writing, software
   distributed under the License is distributed on an "AS IS" BASIS,
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,91 +17,33 @@
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-         
     <modelVersion>4.0.0</modelVersion>
-
-    <!--
-      Don't depend on any of the plugins/dependencies/... defined in the parent POM
-      It will be replaced by a POM that does not have this section in the actual distribution
-
-      You should only depend on properties because those will be filtered for all examples POMs
-    -->
-    <parent>
-        <groupId>org.fusesource</groupId>
-        <artifactId>fuse-project</artifactId>
-        <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>../parent</relativePath>
-    </parent>
-
-    <groupId>org.jboss.fuse.examples</groupId>
-    <artifactId>project</artifactId>
-    <version>7.3.0.redhat-SNAPSHOT</version>
+    <groupId>org.jboss.quickstarts.fuse</groupId>
+    <artifactId>jboss-quickstarts-fuse-parent</artifactId>
+    <version>6.1.0.redhat-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>[TODO]JBoss Fuse :: Examples</name>
+    <name>JBoss Fuse Quickstarts Parent</name>
+    <description>JBoss Fuse Quickstarts Parent</description>
+    <url>http://www.jboss.org/products/fuse</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <distribution>repo</distribution>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+        </license>
+    </licenses>
 
     <modules>
         <module>cbr</module>
         <module>eip</module>
-        <module>errors</module>
         <module>jms</module>
-        <module>soap</module>
+        <module>errors</module>
         <module>rest</module>
-        <module>secure-soap</module>
         <module>secure-rest</module>
+        <module>soap</module>
+        <module>secure-soap</module>
     </modules>
 
-    <build>
-        <!-- enable filtering of the features file -->
-        <resources>
-            <resource>
-                <directory>${pom.basedir}/src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>filter</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>resources</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- attach the generated features file as an artifact, so that it is published to the maven repository -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.5</version>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <configuration>
-                            <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
-                            <artifacts>
-                                <artifact>
-                                    <file>target/classes/features.xml</file>
-                                    <type>xml</type>
-                                    <classifier>features</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
