@@ -18,7 +18,7 @@ package org.fusesource.fabric.webui.agents
 import activemq.ActiveMQAgentResource
 import camel.CamelAgentResource
 import jvm.JVMAgentResource
-import monitor.MonitorAgentResource
+//import monitor.MonitorAgentResource
 import org.fusesource.fabric.api.Container
 import osgi.OsgiAgentResource
 
@@ -42,8 +42,10 @@ object ManagementExtensionFactory {
     JVMAgentResource,
     ActiveMQAgentResource,
     CamelAgentResource,
-    OsgiAgentResource,
+    OsgiAgentResource
+/*    ,
     MonitorAgentResource
+*/
   )
 
   def extensions(a: Container, jmx_username:String, jmx_password:String): Seq[ManagementExtension] = factories.flatMap(_.create(a, jmx_username, jmx_password))
