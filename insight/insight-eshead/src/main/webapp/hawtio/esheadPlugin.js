@@ -18,7 +18,8 @@ angular.module('eshead', ['hawtioCore'])
       });
 
       var link = $("<link>");
-      $("head").append(link);
+      var head = $("head");
+      head.append(link);
 
       link.attr({
         rel: 'stylesheet',
@@ -26,6 +27,14 @@ angular.module('eshead', ['hawtioCore'])
         href: '/eshead/dist/app.css'
       });
 
+      link = $("<link>");
+      head.append(link);
+
+      link.attr({
+        rel: 'stylesheet',
+        type: 'text/css',
+        href: '/eshead/hawtio/tweaks.css'
+      });
 
     }).directive('eshead', function() {
       return {

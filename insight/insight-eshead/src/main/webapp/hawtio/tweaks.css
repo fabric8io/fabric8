@@ -1,0 +1,14 @@
+.es > * {
+  font-size: 11px;
+  line-height: normal;
+}
+
+.es > label, input, button, select, textarea {
+  font-size: 12px;
+  font-weight: normal;
+  line-height: normal;
+}
+
+.uiToolbar .pull-left h2 {
+  line-height: normal;
+}
