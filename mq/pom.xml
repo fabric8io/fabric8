@@ -44,7 +44,12 @@
         <profile>
             <id>release</id>
             <modules>
+                <module>jboss-a-mq</module>
+                <module>mq-client</module>
+                <module>mq-branding</module>
                 <module>mq-http-discovery</module>
+                <module>mq-web-console</module>
+                <module>mq-itests</module>
             </modules>
         </profile>
         <profile>
