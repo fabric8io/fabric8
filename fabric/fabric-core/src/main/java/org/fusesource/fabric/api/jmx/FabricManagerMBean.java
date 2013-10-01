@@ -83,6 +83,8 @@ public interface FabricManagerMBean {
 
     List<Map<String, Object>> containers(List<String> fields);
 
+    List<Map<String, Object>> containers(List<String> fields, List<String> profileFields);
+
     String containerMetadataType(String id);
 
     String containerCreateOptionsType(String id);

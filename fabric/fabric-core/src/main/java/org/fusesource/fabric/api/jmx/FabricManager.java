@@ -33,7 +33,6 @@ import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -367,6 +366,22 @@ public class FabricManager implements FabricManagerMBean {
         }
         return answer;
     }
+
+    @Override
+    public List<Map<String, Object>> containers(List<String> fields, List<String> profileFields) {
+        List<Map<String, Object>> answer = new ArrayList<Map<String, Object>>();
+        for (Container c : getFabricService().getContainers()) {
+            Map<String, Object> map = BeanUtils.convertContainerToMap(getFabricService(), c, fields);
+            List<Map<String, Object>> profiles = new ArrayList<Map<String, Object>>();
+            for (Profile p : c.getProfiles()) {
+                profiles.add(BeanUtils.convertProfileToMap(getFabricService(), p, profileFields));
+            }
+            map.put("profiles", profiles);
+            answer.add(map);
+        }
+        return answer;
+    }
+
 
     private CreateContainerMetadata<?> getContainerMetaData(String id) {
         Container container = getFabricService().getContainer(id);
