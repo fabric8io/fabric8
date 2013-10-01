@@ -17,13 +17,31 @@ angular.module('eshead', ['hawtioCore'])
         isActive: function() { return workspace.isLinkActive("eshead"); }
       });
 
-    }).controller('EsHeadController', function($scope) {
-        $scope.app = new app.App("#eshead", {
+      var link = $("<link>");
+      $("head").append(link);
+
+      link.attr({
+        rel: 'stylesheet',
+        type: 'text/css',
+        href: '/eshead/dist/app.css'
+      });
+
+
+    }).directive('eshead', function() {
+      return {
+        restrict: 'A',
+        scope: false,
+        link: function($scope, $element, $attrs) {
+          $scope.app = new app.App($element, {
             id: "es",
             base_uri: "/eshead/es",
             auth_user : "",
             auth_password : undefined
-        });
+          });
+        }
+      };
+    }).controller('EsHeadController', function($scope) {
+
     });
 
 hawtioPluginLoader.addModule('eshead');
