@@ -41,6 +41,7 @@
         <profile>
             <id>release</id>
             <modules>
+                <module>patch-client</module>
                 <module>patch-core</module>
                 <module>patch-commands</module>
                 <module>patch-features</module>
