@@ -52,7 +52,14 @@ public class OpenShiftUtils {
         if (options == null) {
             return null;
         }
-        return new OpenShiftConnectionFactory().getConnection("fabric", options.getLogin(), options.getPassword(), options.getServerUrl());
+        String serverUrl = options.getServerUrl();
+        String login = options.getLogin();
+        String password = options.getPassword();
+        return createConnection(serverUrl, login, password);
+    }
+
+    public static IOpenShiftConnection createConnection(String serverUrl, String login, String password) {
+        return new OpenShiftConnectionFactory().getConnection("fabric", login, password, serverUrl);
     }
 
     public static IOpenShiftConnection createConnection(Container container) {

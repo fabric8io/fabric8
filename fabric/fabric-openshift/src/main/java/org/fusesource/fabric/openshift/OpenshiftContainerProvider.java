@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.openshift.client.IGearProfile;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -59,6 +60,14 @@ import com.openshift.client.cartridge.IEmbeddableCartridge;
 import com.openshift.internal.client.GearProfile;
 import com.openshift.internal.client.StandaloneCartridge;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
+
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.container.provider.openshift", description = "Fabric Openshift Container Provider", immediate = true)
 @Service(ContainerProvider.class)
@@ -80,12 +89,25 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
+    @Reference(referenceInterface = MBeanServer.class)
+    private MBeanServer mbeanServer;
+
+    private ObjectName objectName;
+    private OpenShiftFacade mbean;
+
     @GuardedBy("AtomicReference") private final AtomicReference<Map<String, String>> properties = new AtomicReference<Map<String, String>>();
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) {
+    void activate(ComponentContext context, Map<String, String> properties) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
         updateConfiguration(properties);
         activateComponent();
+        if (mbeanServer != null) {
+            objectName = new ObjectName("org.fusesource.fabric:type=OpenShift");
+            mbean = new OpenShiftFacade(this);
+            if (!mbeanServer.isRegistered(objectName)) {
+                mbeanServer.registerMBean(mbean, objectName);
+            }
+        }
     }
 
     @Modified
@@ -94,7 +116,12 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Deactivate
-    void deactivate() {
+    void deactivate() throws MBeanRegistrationException, InstanceNotFoundException {
+        if (mbeanServer != null) {
+            if (mbeanServer.isRegistered(objectName)) {
+                mbeanServer.unregisterMBean(objectName);
+            }
+        }
         deactivateComponent();
     }
 
@@ -235,6 +262,42 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     public Class<CreateOpenshiftContainerMetadata> getMetadataType() {
         assertValid();
         return CreateOpenshiftContainerMetadata.class;
+    }
+
+
+    public List<String> getDomains(String serverUrl, String login, String password) {
+        List<String> answer = new ArrayList<String>();
+        IOpenShiftConnection connection = OpenShiftUtils.createConnection(serverUrl, login, password);
+        if (connection != null) {
+            List<IDomain> domains = connection.getDomains();
+            if (domains != null) {
+                for (IDomain domain : domains) {
+                    answer.add(domain.getId());
+                }
+            }
+        }
+        return answer;
+    }
+
+    public List<String> getGearProfiles(String serverUrl, String login, String password) {
+        List<String> answer = new ArrayList<String>();
+        IOpenShiftConnection connection = OpenShiftUtils.createConnection(serverUrl, login, password);
+        if (connection != null) {
+            List<IDomain> domains = connection.getDomains();
+            if (domains != null) {
+                for (IDomain domain : domains) {
+                    List<IGearProfile> gearProfiles = domain.getAvailableGearProfiles();
+                    for (IGearProfile gearProfile : gearProfiles) {
+                        answer.add(gearProfile.getName());
+                    }
+                    // assume gears are the same on each domain
+                    if (!answer.isEmpty()) {
+                        break;
+                    }
+                }
+            }
+        }
+        return answer;
     }
 
     private IApplication getContainerApplication(Container container) {
