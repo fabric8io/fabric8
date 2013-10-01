@@ -23,13 +23,12 @@
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-project</artifactId>
         <version>7.3.0.redhat-SNAPSHOT</version>
-        <relativePath>..</relativePath>
     </parent>
 
     <artifactId>fabric-ldap</artifactId>
     <packaging>bundle</packaging>
 
-    <name>[TODO]Fuse Fabric :: LDAP</name>
+    <name>Fuse Fabric :: LDAP</name>
     
     <properties>
         <fuse.osgi.export>
@@ -286,7 +285,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>2.5</version>
                 <executions>
                     <execution>
                         <id>filter</id>

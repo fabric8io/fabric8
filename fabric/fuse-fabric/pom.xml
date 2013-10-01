@@ -54,11 +54,11 @@
            <!-- Fabric Dependencies -->
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-zookeeper</artifactId>
+               <artifactId>fabric-agent</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-core</artifactId>
+               <artifactId>fabric-camel</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
@@ -66,11 +66,15 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-commands</artifactId>
+               <artifactId>fabric-core</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-agent</artifactId>
+               <artifactId>fabric-core-agent-ssh</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-commands</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
@@ -78,11 +82,19 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-git</artifactId>
+               <artifactId>fabric-dosgi</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-partition</artifactId>
+               <artifactId>fabric-extender-listener</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-features-service</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-git</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
@@ -94,15 +106,20 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
                <artifactId>fabric-jaas</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-dosgi</artifactId>
+               <artifactId>fabric-jolokia</artifactId>
+               <version>${project.version}</version>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-ldap</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-partition</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
@@ -110,15 +127,17 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-extender-listener</artifactId>
+               <artifactId>fabric-web</artifactId>
+               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>process-fabric</artifactId>
+               <artifactId>fabric-zookeeper</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.jboss.amq</groupId>
-               <artifactId>mq-fabric</artifactId>
+               <groupId>org.fusesource.fabric.fab</groupId>
+               <artifactId>fab-osgi</artifactId>
+               <version>${project.version}</version>
            </dependency>
            <dependency>
                <groupId>org.fusesource.insight</groupId>
@@ -134,36 +153,19 @@
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
+               <artifactId>process-fabric</artifactId>
+           </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
                <artifactId>process-manager</artifactId>
            </dependency>
            <dependency>
                <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-features-service</artifactId>
+               <artifactId>org.fusesource.fabric.karaf.branding</artifactId>
            </dependency>
            <dependency>
-               <groupId>org.fusesource.fabric.fab</groupId>
-               <artifactId>fab-osgi</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-core-agent-ssh</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-camel</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-jolokia</artifactId>
-               <version>${project.version}</version>
-           </dependency>
-           <dependency>
-               <groupId>org.fusesource.fabric</groupId>
-               <artifactId>fabric-web</artifactId>
-               <version>${project.version}</version>
+               <groupId>org.jboss.amq</groupId>
+               <artifactId>mq-fabric</artifactId>
            </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
@@ -217,7 +219,6 @@
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
                <artifactId>org.apache.aries.proxy</artifactId>
-               <version>${aries-proxy-version}</version>
            </dependency>
            <dependency>
                <groupId>org.apache.aries.proxy</groupId>
