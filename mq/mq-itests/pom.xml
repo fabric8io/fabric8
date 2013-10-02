@@ -94,9 +94,8 @@ limitations under the License.
 
         <dependency>
             <groupId>org.fusesource.fabric.itests</groupId>
-            <artifactId>fabric-pax-exam</artifactId>
+            <artifactId>fabric-itests-common</artifactId>
             <version>${fabric.version}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 
