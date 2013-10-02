@@ -119,23 +119,31 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     @Override
     public void groupEvent(Group<GitNode> group, GroupEvent event) {
         if (isValid()) {
-            if (group.isMaster()) {
-                LOGGER.info("Git repo is the master");
-            } else {
-                LOGGER.info("Git repo is not the master");
+            switch (event) {
+                case CONNECTED:
+                case CHANGED:
+                    updateMasterUrl(group);
+                    break;
             }
-            try {
-                GitNode state = createState();
-                group.update(state);
-                String url = state.getUrl();
-                gitRemoteUrl = getSubstitutedData(curator.get(), url);
-                if (group.isMaster()) {
-                    updateConfigAdmin();
-                }
+        }
+    }
 
-            } catch (Exception e) {
-                // Ignore
+    private void updateMasterUrl(Group group) {
+        if (group.isMaster()) {
+            LOGGER.debug("Git repo is the master");
+        } else {
+            LOGGER.debug("Git repo is not the master");
+        }
+        try {
+            GitNode state = createState();
+            group.update(state);
+            String url = state.getUrl();
+            gitRemoteUrl = getSubstitutedData(curator.get(), url);
+            if (group.isMaster()) {
+                updateConfigAdmin();
             }
+        } catch (Exception e) {
+            // Ignore
         }
     }
 
