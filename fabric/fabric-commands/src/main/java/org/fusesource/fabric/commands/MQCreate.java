@@ -21,24 +21,26 @@ import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
+import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricAuthenticationException;
-import org.fusesource.fabric.api.MQService;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.jmx.MQManager;
+import org.fusesource.fabric.api.jmx.MQTopologyDTO;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
-import org.fusesource.fabric.service.MQServiceImpl;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.utils.shell.ShellUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.List;
 
 @Command(name = "mq-create", scope = "fabric", description = "Create a new broker")
 public class MQCreate extends FabricCommand {
 
-    @Argument(index=0, required = true, description = "Broker name")
+    @Argument(index = 0, required = true, description = "Broker name")
     protected String name = null;
-    
+
     @Option(name = "--parent-profile", description = "The parent profile to extend")
     protected String parentProfile;
 
@@ -83,125 +85,53 @@ public class MQCreate extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
+        MQTopologyDTO dto = createDTO();
 
-        // create profile
+        List<CreateContainerBasicOptions.Builder> builderList = MQManager.createProfilesAndContainerBuilders(dto, fabricService, "child");
 
-        MQService service = new MQServiceImpl(fabricService);
-
-        HashMap<String, String> configuration = new HashMap<String, String>();
-
-        if( properties!=null ) {
-            for (String entry : properties) {
-                String []parts = entry.split("=", 2);
-                if( parts.length==2 ) {
-                    configuration.put(parts[0], parts[1]);
-                } else {
-                    configuration.put(parts[0], "");
-                }
-            }
-        }
-
-        if (data == null) {
-            data = System.getProperty("karaf.base") + System.getProperty("file.separator")+  "data" + System.getProperty("file.separator") + name;
-        }
-        configuration.put("data", data);
-
-        if (config != null) {
-            configuration.put("config", service.getConfig(version, config));
-        }
-        
-        if (group != null) {
-            configuration.put("group", group);
-        }
-
-        if (networks != null) {
-            configuration.put("network", networks);
-        }
-
-        if (networksUserName != null) {
-            configuration.put("network.userName", networksUserName);
-        }
-
-        if (networksPassword != null) {
-            configuration.put("network.password", networksPassword);
-        }
-
-        if( parentProfile !=null ) {
-            configuration.put("parent", parentProfile);
-        }
-
-        Profile profile = service.createMQProfile(version, name, configuration);
-        System.out.println("MQ profile " + profile.getId() + " ready");
-
-        // assign profile to existing containers
-        if (assign != null) {
-            String[] assignContainers = assign.split(",");
-            for (String containerName : assignContainers) {
-                try {
-                    Container container = fabricService.getContainer(containerName);
-                    if (container == null) {
-                        System.out.println("Failed to assign profile to " + containerName + ": profile doesn't exists");
-                    } else {
-                        HashSet<Profile> profiles = new HashSet<Profile>(Arrays.asList(container.getProfiles()));
-                        profiles.add(profile);
-                        container.setProfiles(profiles.toArray(new Profile[profiles.size()]));
-                        System.out.println("Profile successfully assigned to " + containerName);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Failed to assign profile to " + containerName + ": " + e.getMessage());
-                }
-            }
-        }
-
-        // create new containers
-        if (create != null) {
-            CreateContainerMetadata[] metadatas;
-
-            String[] createContainers = create.split(",");
-            for (String container : createContainers) {
-
-                String type = null;
-                String parent = fabricService.getCurrentContainerName();
-
-                String jmxUser = username != null ? username : ShellUtils.retrieveFabricUser(session);
-                String jmxPassword = password != null ? password : ShellUtils.retrieveFabricUserPassword(session);
-
-                CreateChildContainerOptions.Builder builder = CreateChildContainerOptions.builder()
-                        .name(container)
-                        .parent(parent)
-                        .number(1)
-                        .ensembleServer(false)
-                        .proxyUri(fabricService.getMavenRepoURI())
-                        .zookeeperUrl(fabricService.getZookeeperUrl())
-                        .zookeeperPassword(fabricService.getZookeeperPassword())
-                        .jvmOpts(jvmOpts)
-                        .jmxUser(jmxUser)
-                        .jmxPassword(jmxPassword);
-
-                try {
-                    metadatas = fabricService.createContainers(builder.build());
-                    ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
-                } catch (FabricAuthenticationException fae) {
-                    //If authentication fails, prompts for credentials and try again.
+        for (CreateContainerBasicOptions.Builder builder : builderList) {
+            CreateContainerMetadata[] metadatas = null;
+            try {
+                metadatas = fabricService.createContainers(builder.build());
+                ShellUtils.storeFabricCredentials(session, username, password);
+            } catch (FabricAuthenticationException fae) {
+                //If authentication fails, prompts for credentials and try again.
+                if (builder instanceof CreateChildContainerOptions.Builder) {
+                    CreateChildContainerOptions.Builder childBuilder = (CreateChildContainerOptions.Builder) builder;
                     promptForJmxCredentialsIfNeeded();
-                    metadatas = fabricService.createContainers(builder.jmxUser(username).jmxPassword(jmxPassword).build());
+                    metadatas = fabricService.createContainers(childBuilder.jmxUser(username).jmxPassword(password).build());
                     ShellUtils.storeFabricCredentials(session, username, password);
                 }
-
-                for (CreateContainerMetadata metadata : metadatas) {
-                    if (metadata.isSuccess()) {
-                        Container child = metadata.getContainer();
-                        child.setProfiles(new Profile[]{profile});
-                        System.out.println("Successfully created container " + metadata.getContainerName());
-                    } else {
-                        System.out.println("Failed to create container " + metadata.getContainerName() + ": " + metadata.getFailure().getMessage());
-                    }
-                }
-
             }
         }
+        return null;
+    }
 
-      return null;
+    private MQTopologyDTO createDTO() {
+        if (Strings.isNullOrBlank(username)) {
+            username = ShellUtils.retrieveFabricUser(session);
+        }
+        if (Strings.isNullOrBlank(password)) {
+            password = ShellUtils.retrieveFabricUserPassword(session);
+        }
+
+        MQTopologyDTO dto = new MQTopologyDTO();
+        dto.setAssign(assign);
+        dto.setConfig(config);
+        dto.setCreate(create);
+        dto.setData(data);
+        dto.setGroup(group);
+        dto.setJvmOpts(jvmOpts);
+        dto.setName(name);
+        dto.setNetworks(networks);
+        dto.setNetworksPassword(networksPassword);
+        dto.setNetworksUserName(networksUserName);
+        dto.setParentProfile(parentProfile);
+        dto.setPassword(password);
+        dto.setProperties(properties);
+        dto.setUsername(username);
+        dto.setVersion(version);
+        return dto;
     }
 
     private void promptForJmxCredentialsIfNeeded() throws IOException {
