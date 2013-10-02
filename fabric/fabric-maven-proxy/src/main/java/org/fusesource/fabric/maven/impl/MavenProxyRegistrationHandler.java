@@ -49,6 +49,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
@@ -93,6 +94,9 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     @GuardedBy("volatile") private volatile MavenUploadProxyServlet mavenUploadProxyServlet;
     @GuardedBy("volatile") private volatile String realm;
     @GuardedBy("volatile") private volatile String role;
+
+    @GuardedBy("AtomicBoolean") private final AtomicBoolean connected = new AtomicBoolean(false);
+
 
     public MavenProxyRegistrationHandler() {
         Map<String, Set<String>> proxies = new HashMap<String, Set<String>>();
@@ -142,13 +146,16 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
             mavenUploadProxyServlet.stop();
         }
 
-        unregister(MavenProxy.DOWNLOAD_TYPE);
-        unregister(MavenProxy.UPLOAD_TYPE);
         try {
             httpService.get().unregister("/maven/download");
             httpService.get().unregister("/maven/upload");
         } catch (Exception ex) {
             LOGGER.warn("Http service returned error on servlet unregister. Possibly the service has already been stopped");
+        }
+
+        if (connected.get()) {
+            unregister(MavenProxy.DOWNLOAD_TYPE);
+            unregister(MavenProxy.UPLOAD_TYPE);
         }
     }
 
@@ -192,10 +199,14 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     public void stateChanged(CuratorFramework client, ConnectionState newState) {
         if (isValid()) {
             switch (newState) {
-            case CONNECTED:
-            case RECONNECTED:
-                register(MavenProxy.DOWNLOAD_TYPE);
-                register(MavenProxy.UPLOAD_TYPE);
+                case CONNECTED:
+                case RECONNECTED:
+                    connected.set(true);
+                    register(MavenProxy.DOWNLOAD_TYPE);
+                    register(MavenProxy.UPLOAD_TYPE);
+                    break;
+                default:
+                    connected.set(false);
             }
         }
     }
