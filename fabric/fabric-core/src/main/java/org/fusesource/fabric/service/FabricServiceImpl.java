@@ -361,7 +361,8 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         return metadataTypes;
     }
 
-    private ContainerProvider getProvider(final String scheme) {
+    @Override
+    public ContainerProvider getProvider(final String scheme) {
         return providers.get(scheme);
     }
 

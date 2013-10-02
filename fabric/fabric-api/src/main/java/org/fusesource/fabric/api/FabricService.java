@@ -123,6 +123,13 @@ public interface FabricService {
     Version createVersion(Version parent, String version);
 
     /**
+     * Lookup a container provider by name
+     * @param scheme the name of the container provider
+     * @return the provider for the given scheme or null if there is none available
+     */
+    ContainerProvider getProvider(String scheme);
+
+    /**
      * Returns the current maven proxy repository to use to create new container
      */
     URI getMavenRepoURI();
