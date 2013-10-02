@@ -57,7 +57,7 @@
         <maven.compiler.target>1.6</maven.compiler.target>
 
         <!-- OSGi bundles properties -->
-        <fuse.osgi.bundle.name>${project.description}</fuse.osgi.bundle.name>
+        <fuse.osgi.bundle.name>${project.name}</fuse.osgi.bundle.name>
         <fuse.osgi.import.fabric.version>version="[$(version;==;${fuse.osgi.version}),$(version;=+;${fuse.osgi.version}))"
         </fuse.osgi.import.fabric.version>
         <fuse.osgi.import.strict.version>version="[$(version;===;${fuse.osgi.version}),$(version;==+;${fuse.osgi.version}))"
