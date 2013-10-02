@@ -29,14 +29,12 @@ public class Constants {
     public static final String CONNECTION_TIMEOUT = "connectionTimeOutMs";
 
     public static final String RETRY_POLICY_MAX_RETRIES = "retryPolicy.maxRetries";
-    public static final String RETRY_POLICY_BASE_SLEEP_TIME_MS = "retryPolicy.baseSleepTimeMs";
-    public static final String RETRY_POLICY_MAX_SLEEP_TIME_MS = "retryPolicy.maxSleepTimeMs";
+    public static final String RETRY_POLICY_INTERVAL_MS = "retryPolicy.retryIntervalMs";
 
     public static final int DEFAULT_CONNECTION_TIMEOUT_MS = 15000;
     public static final int DEFAULT_SESSION_TIMEOUT_MS = 60000;
-    public static final int MAX_RETRIES_LIMIT = 10;
-    public static final int DEFAULT_BASE_SLEEP_MS = 100;
-    public static final int DEFAULT_MAX_SLEEP_MS = 1000;
+    public static final int MAX_RETRIES_LIMIT = 3;
+    public static final int DEFAULT_RETRY_INTERVAL = 500;;
 
 
 

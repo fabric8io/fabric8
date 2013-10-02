@@ -22,7 +22,6 @@ package org.fusesource.fabric.zookeeper.curator;
 
 import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
-
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.ensemble.EnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
@@ -32,7 +31,7 @@ import org.apache.curator.framework.imps.CuratorFrameworkImpl;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.apache.curator.framework.state.ConnectionStateManager;
-import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.curator.retry.RetryNTimes;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -55,21 +54,17 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import static org.apache.felix.scr.annotations.ReferencePolicy.DYNAMIC;
 import static org.fusesource.fabric.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
-import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_BASE_SLEEP_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
-import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_MAX_SLEEP_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_RETRY_INTERVAL;
 import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
-import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_BASE_SLEEP_TIME_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_INTERVAL_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_MAX_RETRIES;
-import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_MAX_SLEEP_TIME_MS;
 import static org.fusesource.fabric.zookeeper.curator.Constants.SESSION_TIMEOUT;
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWORD;
 import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
@@ -92,7 +87,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
     private ManagedServiceFactory managedServiceFactory;
 
     @GuardedBy("this") private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
-    @GuardedBy("this") private final ExecutorService executor = Executors.newFixedThreadPool(5);
     @GuardedBy("this") private BundleContext bundleContext;
     @GuardedBy("this") private CuratorFramework curatorFramework;
     @GuardedBy("this") private ServiceRegistration registration;
@@ -139,7 +133,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
             }
         }
         Closeables.close(curatorFramework, true);
-        executor.shutdownNow();
     }
 
     /**
@@ -220,9 +213,8 @@ public final class ManagedCuratorFramework extends AbstractComponent {
      */
     private RetryPolicy buildRetryPolicy(Map<String, ?> properties) {
         int maxRetries = readInt(properties, RETRY_POLICY_MAX_RETRIES, MAX_RETRIES_LIMIT);
-        int baseSleepTimeMS = readInt(properties, RETRY_POLICY_BASE_SLEEP_TIME_MS, DEFAULT_BASE_SLEEP_MS);
-        int maxSleepTimeMS = readInt(properties, RETRY_POLICY_MAX_SLEEP_TIME_MS, DEFAULT_MAX_SLEEP_MS);
-        return new ExponentialBackoffRetry(baseSleepTimeMS, maxRetries, maxSleepTimeMS);
+        int intervalMs = readInt(properties, RETRY_POLICY_INTERVAL_MS, DEFAULT_RETRY_INTERVAL);
+        return new RetryNTimes(maxRetries, intervalMs);
     }
 
 
@@ -254,9 +246,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
             return true;
         } else if (!propertyEquals(oldProperties, properties, RETRY_POLICY_MAX_RETRIES)) {
             return true;
-        } else if (!propertyEquals(oldProperties, properties, RETRY_POLICY_BASE_SLEEP_TIME_MS)) {
-            return true;
-        } else if (!propertyEquals(oldProperties, properties, RETRY_POLICY_MAX_SLEEP_TIME_MS)) {
+        } else if (!propertyEquals(oldProperties, properties, RETRY_POLICY_INTERVAL_MS)) {
             return true;
         } else {
             return false;
