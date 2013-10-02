@@ -59,6 +59,11 @@
                <version>${fuse.version}</version>
            </dependency>
            <dependency>
+               <groupId>org.jboss.amq</groupId>
+               <artifactId>mq-http-discovery</artifactId>
+               <version>${fuse.version}</version>
+           </dependency>
+           <dependency>
                <groupId>org.fusesource.fabric</groupId>
                <artifactId>fuse-fabric</artifactId>
                <version>${fabric.version}</version>
