@@ -90,6 +90,13 @@
         <artifactId>slf4j-api</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>org.apache.xbean</groupId>
+      <artifactId>xbean-classloader</artifactId>
+      <version>${xbean-version}</version>
+    </dependency>
+
+
   </dependencies>
 
   <build>

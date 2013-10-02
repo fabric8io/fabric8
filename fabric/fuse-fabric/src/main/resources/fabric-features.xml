@@ -211,6 +211,7 @@
         <feature version="${activemq-version}">activemq</feature>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
+        <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
         <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
     </feature>
 

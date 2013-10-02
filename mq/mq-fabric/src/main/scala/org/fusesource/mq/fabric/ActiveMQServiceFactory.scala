@@ -29,7 +29,7 @@ import org.apache.activemq.spring.Utils
 import org.apache.xbean.spring.context.ResourceXmlApplicationContext
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader
 import java.beans.PropertyEditorManager
-import java.net.URI
+import java.net.{URL, URI}
 import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
 import org.apache.activemq.util.IntrospectionSupport
@@ -46,6 +46,7 @@ import org.fusesource.mq.fabric.FabricDiscoveryAgent.ActiveMQNode
 import org.fusesource.fabric.groups.{Group, GroupListener}
 import GroupListener.GroupEvent
 import org.fusesource.fabric.api.FabricService
+import org.apache.xbean.classloader.MultiParentClassLoader
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -83,7 +84,8 @@ object ActiveMQServiceFactory {
   def createBroker(uri: String, properties:Properties) = {
     CONFIG_PROPERTIES.set(properties)
     try {
-      Thread.currentThread.setContextClassLoader(classOf[BrokerService].getClassLoader)
+      val classLoader = new MultiParentClassLoader("xbean", Array[URL](), Array[ClassLoader](this.getClass.getClassLoader, classOf[BrokerService].getClassLoader))
+      Thread.currentThread().setContextClassLoader(classLoader)
       var resource: Resource = Utils.resourceFromString(uri)
       val ctx = new ResourceXmlApplicationContext((resource)) {
         protected override def initBeanDefinitionReader(reader: XmlBeanDefinitionReader): Unit = {
