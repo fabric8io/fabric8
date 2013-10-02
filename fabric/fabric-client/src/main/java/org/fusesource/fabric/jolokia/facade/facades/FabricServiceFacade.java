@@ -354,4 +354,9 @@ public class FabricServiceFacade implements FabricService {
     public ContainerAutoScaler createContainerAutoScaler() {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
+
+    @Override
+    public ContainerProvider getProvider(String scheme) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
 }
