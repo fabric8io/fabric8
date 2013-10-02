@@ -68,6 +68,12 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         deactivateComponent();
     }
 
+
+    @Override
+    public CreateChildContainerOptions.Builder newBuilder() {
+        return CreateChildContainerOptions.builder();
+    }
+
     @Override
     public Set<CreateChildContainerMetadata> create(final CreateChildContainerOptions options) throws Exception {
         assertValid();

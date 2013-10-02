@@ -115,6 +115,11 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     }
 
     @Override
+    public CreateJCloudsContainerOptions.Builder newBuilder() {
+        return CreateJCloudsContainerOptions.builder();
+    }
+
+    @Override
     public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions input) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
         assertValid();
         Set<? extends NodeMetadata> metadata = null;

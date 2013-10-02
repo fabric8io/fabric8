@@ -49,6 +49,11 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
 
     private boolean verbose = false;
 
+    @Override
+    public CreateSshContainerOptions.Builder newBuilder() {
+        return CreateSshContainerOptions.builder();
+    }
+
     /**
      * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
      */

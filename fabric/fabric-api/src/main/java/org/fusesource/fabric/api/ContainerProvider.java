@@ -63,4 +63,8 @@ public interface ContainerProvider<O extends CreateContainerOptions, M extends C
     Class<M> getMetadataType();
 
 
+    /**
+     * Helper method to create a new builder object
+     */
+    CreateContainerBasicOptions.Builder newBuilder();
 }

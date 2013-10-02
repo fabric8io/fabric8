@@ -138,6 +138,11 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Override
+    public CreateOpenshiftContainerOptions.Builder newBuilder() {
+        return CreateOpenshiftContainerOptions.builder();
+    }
+
+    @Override
     public Set<CreateOpenshiftContainerMetadata> create(CreateOpenshiftContainerOptions options) throws Exception {
         assertValid();
         Set<CreateOpenshiftContainerMetadata> metadata = new HashSet<CreateOpenshiftContainerMetadata>();
