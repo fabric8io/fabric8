@@ -1,0 +1,10 @@
+{
+    "pidFile": "./bin/rhq-server.pid",
+
+    "launchScript": "./bin/rhq-server.sh",
+
+    "configureCommand": "",
+
+    "installCommands": []
+
+}
