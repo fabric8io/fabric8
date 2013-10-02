@@ -773,6 +773,16 @@
                 <scope>provided</scope>
             </dependency>
             <dependency>
+                <groupId>org.fusesource.fabric.itests</groupId>
+                <artifactId>fabric-itests-common</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.tooling.testing</groupId>
+                <artifactId>pax-exam-karaf</artifactId>
+                <version>${fabric.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.fusesource.insight</groupId>
                 <artifactId>insight-elasticsearch</artifactId>
                 <version>${fabric.version}</version>
