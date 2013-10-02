@@ -42,7 +42,6 @@
             <modules>
               <module>fabric-camel-cluster-loadbalancing</module>
               <module>fabric-camel-demo</module>
-              <module>fabric-camel-eca</module>
             </modules>
         </profile>
         <profile>
