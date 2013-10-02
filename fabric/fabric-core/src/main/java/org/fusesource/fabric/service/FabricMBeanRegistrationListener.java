@@ -52,7 +52,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
-import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAINS;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.delete;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
@@ -195,7 +194,6 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     private synchronized void unregisterMBeanServer() {
         try {
             mbeanServer.get().removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
-            unregisterDomains();
             unregisterFabricMBeans();
         } catch (Exception e) {
             LOGGER.warn("An error occurred during mbean server unregistration. This exception will be ignored.", e);
@@ -208,14 +206,8 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
             domains.addAll(Arrays.asList(mbeanServer.get().getDomains()));
         }
         for (String domain : mbeanServer.get().getDomains()) {
-            setData(curator.get(), CONTAINER_DOMAIN.getPath(name, domain), (byte[]) null);
+            setData(curator.get(), CONTAINER_DOMAIN.getPath(name, domain), "", CreateMode.EPHEMERAL);
         }
-    }
-
-    private void unregisterDomains() throws Exception {
-        String name = System.getProperty(SystemProperties.KARAF_NAME);
-        String domainsPath = CONTAINER_DOMAINS.getPath(name);
-        deleteSafe(curator.get(), domainsPath);
     }
 
     private synchronized void registerFabricMBeans() {
