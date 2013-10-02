@@ -16,6 +16,17 @@
  */
 package org.fusesource.process.manager.service;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.SortedMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import com.google.common.base.Charsets;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -24,7 +35,6 @@ import com.google.common.collect.Maps;
 import com.google.common.io.Files;
 import com.google.common.io.InputSupplier;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import org.fusesource.process.manager.InstallOptions;
 import org.fusesource.process.manager.InstallTask;
 import org.fusesource.process.manager.Installation;
@@ -40,21 +50,10 @@ import org.fusesource.process.manager.support.command.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.util.SortedMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
 public class ProcessManagerService implements ProcessManagerServiceMBean {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessManagerService.class);
+    private static final String INSTALLED_BINARY = "install.bin";
 
     private Executor executor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setDaemon(true).setNameFormat("fuse-process-manager-%s").build());
     private File storageLocation;
@@ -166,7 +165,11 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
             @Override
             public void install(ProcessConfig config, int id, File installDir) throws Exception {
                 config.setName(options.getName());
-                untarTarball(options.getUrl(), installDir);
+                downloadContent(options.getUrl(), installDir);
+                if (options.getExtractCmd() != null) {
+                    File archive = new File(installDir, INSTALLED_BINARY);
+                    FileUtils.extractArchive(archive, installDir, options.getExtractCmd(), untarTimeout, executor);
+                }
                 if (postInstall != null) {
                     postInstall.install(config, id, installDir);
                 }
@@ -193,7 +196,7 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
                         return in;
                     }
                 }, tmpFile);
-                FileUtils.extractTar(tmpFile, installDir, untarTimeout, executor);
+                FileUtils.extractArchive(tmpFile, installDir, "tar zxf", untarTimeout, executor);
 
                 // lets generate the etc configs
                 File etc = new File(installDir, "etc");
@@ -243,18 +246,15 @@ public class ProcessManagerService implements ProcessManagerServiceMBean {
         return installation;
     }
 
-    protected void untarTarball(final URL url, File installDir) throws IOException, CommandFailedException {
+    protected void downloadContent(final URL url, File installDir) throws IOException, CommandFailedException {
         // copy the URL to the install dir
-        // TODO should we use a temp file?
-        File tarball = new File(installDir, "install.tar.gz");
+        File archive = new File(installDir, INSTALLED_BINARY);
         Files.copy(new InputSupplier<InputStream>() {
             @Override
             public InputStream getInput() throws IOException {
                 return url.openStream();
             }
-        }, tarball);
-
-        FileUtils.extractTar(tarball, installDir, untarTimeout, executor);
+        }, archive);
     }
 
     protected ProcessConfig loadControllerJson(URL controllerJson) throws IOException {

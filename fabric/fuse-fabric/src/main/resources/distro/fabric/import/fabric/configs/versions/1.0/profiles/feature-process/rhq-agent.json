@@ -1,0 +1,14 @@
+{
+    "pidFile": "./bin/rhq-agent.pid",
+
+    "launchScript": "./bin/rhq-agent-wrapper.sh",
+
+    "configureCommand": "",
+
+    "installCommands": [
+        "chmod u+x ./rhq-agent/bin/install-agent.sh",
+        "./rhq-agent/bin/install-agent.sh",
+        "chmod -x ./rhq-agent/bin/install-agent.sh"
+    ]
+
+}

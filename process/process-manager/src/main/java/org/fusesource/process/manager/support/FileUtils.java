@@ -16,23 +16,27 @@
  */
 package org.fusesource.process.manager.support;
 
-import com.google.common.base.Preconditions;
+import java.io.File;
+import java.util.Arrays;
+import java.util.concurrent.Executor;
 import org.fusesource.process.manager.support.command.Command;
 import org.fusesource.process.manager.support.command.CommandFailedException;
 import org.fusesource.process.manager.support.command.Duration;
 
-import java.io.File;
-import java.util.concurrent.Executor;
+import com.google.common.base.Preconditions;
 
 public class FileUtils {
 
-    public static void extractTar(File tarFile, File targetDirectory, Duration timeLimit, Executor executor)
+    public static void extractArchive(File archiveFile, File targetDirectory, String extractCommand, Duration timeLimit, Executor executor)
             throws CommandFailedException {
-        Preconditions.checkNotNull(tarFile, "tarFile is null");
+        Preconditions.checkNotNull(archiveFile, "archiveFile is null");
         Preconditions.checkNotNull(targetDirectory, "targetDirectory is null");
         Preconditions.checkArgument(targetDirectory.isDirectory(), "targetDirectory is not a directory: " + targetDirectory.getAbsolutePath());
 
-        new Command("tar", "zxf", tarFile.getAbsolutePath())
+        final String[] commands = extractCommand.split(" ");
+        final String[] args = Arrays.copyOf(commands, commands.length + 1);
+        args[args.length - 1] = archiveFile.getAbsolutePath();
+        new Command(args)
                 .setDirectory(targetDirectory)
                 .setTimeLimit(timeLimit)
                 .execute(executor);

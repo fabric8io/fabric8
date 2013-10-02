@@ -32,6 +32,7 @@ public class ProcessRequirements {
     private String kind;
     private String url;
     private String layout;
+    private String extractCmd;
     private List<DeploymentInfo> deployments = new ArrayList<DeploymentInfo>();
     private List<String> profiles = new ArrayList<String>();
     private Map<String, Object> properties = new HashMap<String, Object>();
@@ -76,6 +77,14 @@ public class ProcessRequirements {
         this.layout = layout;
     }
 
+    public String getExtractCmd() {
+        return extractCmd;
+    }
+
+    public void setExtractCmd(String extractCmd) {
+        this.extractCmd = extractCmd;
+    }
+
     public void addProfile(String profile) {
         profiles.add(profile);
     }
@@ -106,6 +115,8 @@ public class ProcessRequirements {
             }
             builder = builder.controllerUrl(kind);
         }
+        builder.extractCmd(extractCmd);
         return builder.build();
     }
+
 }

@@ -36,6 +36,9 @@ public class Install extends ContainerInstallSupport {
     @Argument(index = 2, required = true, name = "url", description = "The URL of the installation distribution to install. Typically this is a tarball or zip file")
     protected String url;
 
+    @Argument(index = 4, required = false, name = "extractCmd", description = "The extract command and args to use on the downloaded artifact, defaults to 'tar zxf'")
+    protected String[] extractCmd = { "tar", "zxf"};
+
     void doWithAuthentication(String jmxUser, String jmxPassword) throws Exception {
         ContainerInstallOptions options = ContainerInstallOptions.builder()
                 .container(container)
@@ -43,14 +46,30 @@ public class Install extends ContainerInstallSupport {
                 .password(jmxPassword)
                 .name(name)
                 .url(url)
+                .extractCmd(getExtract(extractCmd))
                 .controllerUrl(getControllerURL())
                 .build();
+
         // allow a post install step to be specified - e.g. specifying jars/wars?
         InstallTask postInstall = null;
 
         Installation install = getContainerProcessManager().install(options, postInstall);
         ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         System.out.println("Installed process " + install.getId() + " to " + install.getInstallDir());
+    }
+
+    private String getExtract(String[] extract) {
+        if (extract == null) {
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String str : extract) {
+            if (str != null && !str.trim().isEmpty()) {
+                builder.append(str).append(' ');
+            }
+        }
+        final String trimmedValue = builder.toString().trim();
+        return trimmedValue.isEmpty() ? null : trimmedValue;
     }
 
 }

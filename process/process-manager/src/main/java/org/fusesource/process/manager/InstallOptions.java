@@ -17,13 +17,13 @@
 package org.fusesource.process.manager;
 
 
-import com.google.common.base.Strings;
-
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.google.common.base.Strings;
 
 /**
  * The parameters used to install a jar process
@@ -32,12 +32,14 @@ public class InstallOptions implements Serializable {
 
 
     private static final long serialVersionUID = 4943127368399800099L;
+    public static final String DEFAULT_EXTRACT_CMD = "tar zxf";
 
     public static class InstallOptionsBuilder<T extends InstallOptionsBuilder> {
 
         private String name;
         private URL url;
         private URL controllerUrl;
+        private String extractCmd = DEFAULT_EXTRACT_CMD;
         private String groupId;
         private String artifactId;
         private String version = "LATEST";
@@ -71,6 +73,11 @@ public class InstallOptions implements Serializable {
 
         public T controllerUrl(final String controllerUrl) throws MalformedURLException {
             this.controllerUrl = new URL(controllerUrl);
+            return (T) this;
+        }
+
+        public T extractCmd(final String extract) {
+            this.extractCmd = extract;
             return (T) this;
         }
 
@@ -125,6 +132,10 @@ public class InstallOptions implements Serializable {
 
         public URL getControllerUrl() {
             return controllerUrl;
+        }
+
+        public String getExtractCmd() {
+            return extractCmd;
         }
 
         public String getGroupId() {
@@ -227,7 +238,7 @@ public class InstallOptions implements Serializable {
         }
 
         public InstallOptions build() throws MalformedURLException {
-                return new InstallOptions(getName(), url, controllerUrl, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
+                return new InstallOptions(getName(), url, controllerUrl, extractCmd, offline, optionalDependencyPatterns, excludeDependencyFilterPatterns, mainClass, properties);
         }
     }
 
@@ -238,16 +249,18 @@ public class InstallOptions implements Serializable {
     private final String name;
     private final URL url;
     private final URL controllerUrl;
+    private final String extractCmd;
     private final boolean offline;
     private final String[] optionalDependencyPatterns;
     private final String[] excludeDependencyFilterPatterns;
     private final String mainClass;
     private final Map<String, Object> properties;
 
-    public InstallOptions(String name, URL url, URL controllerUrl, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
+    public InstallOptions(String name, URL url, URL controllerUrl, String extractCmd, boolean offline, String[] optionalDependencyPatterns, String[] excludeDependencyFilterPatterns, String mainClass, Map<String, Object> properties) {
         this.name = name;
         this.url = url;
         this.controllerUrl = controllerUrl;
+        this.extractCmd = extractCmd;
         this.offline = offline;
         this.optionalDependencyPatterns = optionalDependencyPatterns;
         this.excludeDependencyFilterPatterns = excludeDependencyFilterPatterns;
@@ -265,6 +278,10 @@ public class InstallOptions implements Serializable {
 
     public URL getControllerUrl() {
         return controllerUrl;
+    }
+
+    public String getExtractCmd() {
+        return extractCmd;
     }
 
     public boolean isOffline() {

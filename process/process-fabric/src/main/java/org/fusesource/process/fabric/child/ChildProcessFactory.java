@@ -16,11 +16,6 @@
  */
 package org.fusesource.process.fabric.child;
 
-import org.osgi.service.cm.ConfigurationException;
-import org.osgi.service.cm.ManagedServiceFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.Enumeration;
@@ -28,12 +23,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.fusesource.process.manager.InstallOptions;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedServiceFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class ChildProcessFactory implements ManagedServiceFactory {
 
     private static final Logger LOG = LoggerFactory.getLogger(ChildProcessFactory.class);
 
     private static final String KIND = "kind";
     private static final String URL = "url";
+    private static final String EXTRACT_CMD = "extractCmd";
     private static final String PROFILES = "profiles";
     private static final String LAYOUT = "layout";
 
@@ -82,12 +84,16 @@ public class ChildProcessFactory implements ManagedServiceFactory {
         String id = pid.substring(pid.indexOf("-") + 1);
         String kind = String.valueOf(properties.get(KIND));
         String url = String.valueOf(properties.get(URL));
+        String extractCmd = getOptionalProperty(properties.get(EXTRACT_CMD));
         String layout = String.valueOf(properties.get(LAYOUT));
         String[] profiles = String.valueOf(properties.get(PROFILES)).split(" ");
+
         ProcessRequirements processRequirements = new ProcessRequirements(id);
         processRequirements.setKind(kind);
         processRequirements.setUrl(url);
+        processRequirements.setExtractCmd(extractCmd);
         processRequirements.setLayout(layout);
+
         for (String profile : profiles) {
             if (profile != null && !profile.isEmpty()) {
                 processRequirements.addProfile(profile);
@@ -101,6 +107,15 @@ public class ChildProcessFactory implements ManagedServiceFactory {
             processRequirements.getProperties().put(key, value);
         }
         return processRequirements;
+    }
+
+    private String getOptionalProperty(Object property) {
+        if (property == null) {
+            return InstallOptions.DEFAULT_EXTRACT_CMD;
+        }
+        // use empty string to 'disable' archive extract
+        final String strValue = property.toString().trim();
+        return !strValue.isEmpty() ? strValue : null;
     }
 
     public ChildProcessManager getChildProcessManager() {
