@@ -47,6 +47,7 @@
         <profile>
             <id>release</id>
             <modules>
+                <module>insight-activemq</module>
                 <module>insight-camel</module>
                 <module>insight-eshead</module>
                 <module>insight-jetty</module>

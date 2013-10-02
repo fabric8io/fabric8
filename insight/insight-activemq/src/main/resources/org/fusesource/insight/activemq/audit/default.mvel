@@ -1,0 +1,10 @@
+{
+  "host": "${host}",
+  "timestamp": @{toJson(timestamp)},
+  "event": "${event}",
+  "message": {
+    "id": "${message.messageId}",
+    "destination": "${message.destination}",
+    "properties": @{toJson(message.properties)}
+  }
+}
