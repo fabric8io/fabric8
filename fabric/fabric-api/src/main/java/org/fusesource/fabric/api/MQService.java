@@ -23,9 +23,13 @@ public interface MQService {
     static final String MQ_PROFILE_BASE = "mq-base";
 
     static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
-    
+
+    static final String MQ_FABRIC_SERVER_PID_PREFIX = "org.fusesource.mq.fabric.server-";
+
     Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
-    
+
+    Map<String, String> getMQConfiguration(String brokerName, Profile profile);
+
     String getConfig(String version, String config);
     
 }

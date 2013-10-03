@@ -39,22 +39,22 @@ public class MQServiceImpl implements MQService {
         }
 
         Profile parentProfile = version.getProfile(parentProfileName);
-        String pidName = "org.fusesource.mq.fabric.server-" + brokerName;
+        String pidName = getBrokerPID(brokerName);
         Profile result = parentProfile;
         if (brokerName != null) {
-
             // create a profile if it doesn't exist
             Map config = null;
-
             if (!version.hasProfile(brokerName)) {
                 result = version.createProfile(brokerName);
                 result.setParents(new Profile[]{parentProfile});
             } else {
                 result = version.getProfile(brokerName);
+                // TODO replace with result.getConfiguration(pidName)
                 config = result.getConfigurations().get(pidName);
             }
             
             if (config == null) {
+                // TODO replace with parentProfile.getConfiguration(MQ_PID_TEMPLATE)
                 config = parentProfile.getConfigurations().get(MQ_PID_TEMPLATE);
             }
 
@@ -63,6 +63,7 @@ public class MQServiceImpl implements MQService {
                 config.putAll(configs);
             }
 
+            // TODO replace with result.setConfiguration(PID, config);
             Map<String, Map<String,String>> newConfigs = result.getConfigurations();
             newConfigs.put(pidName, config);
             result.setConfigurations(newConfigs);
@@ -72,7 +73,27 @@ public class MQServiceImpl implements MQService {
     }
 
     @Override
-    public String getConfig(String version, String config) {
-        return "zk:/fabric/configs/versions/" + version + "/profiles/mq-base/" + config;
+    public Map<String, String> getMQConfiguration(String brokerName, Profile profile) {
+        String pidName = getBrokerPID(brokerName);
+        Map<String, String> answer = profile.getConfigurations().get(pidName);
+        if (answer == null) {
+            // lets look for the default just in case we deleted the configuration since
+            // creating it
+            answer = profile.getConfigurations().get(MQ_PID_TEMPLATE);
+        }
+        return answer;
     }
+
+
+    @Override
+    public String getConfig(String version, String config) {
+        // this generally won't work any more so lets just return the config from the profile:
+        // return "zk:/fabric/configs/versions/" + version + "/profiles/mq-base/" + config;
+        return "profile:" + config;
+    }
+
+    protected String getBrokerPID(String brokerName) {
+        return MQ_FABRIC_SERVER_PID_PREFIX + brokerName;
+    }
+
 }

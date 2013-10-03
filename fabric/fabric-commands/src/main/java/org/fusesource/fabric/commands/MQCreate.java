@@ -19,14 +19,13 @@ package org.fusesource.fabric.commands;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
-import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.jmx.MQBrokerConfigDTO;
 import org.fusesource.fabric.api.jmx.MQManager;
-import org.fusesource.fabric.api.jmx.MQTopologyDTO;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.utils.shell.ShellUtils;
@@ -85,29 +84,44 @@ public class MQCreate extends FabricCommand {
 
     @Override
     protected Object doExecute() throws Exception {
-        MQTopologyDTO dto = createDTO();
+        MQBrokerConfigDTO dto = createDTO();
 
-        List<CreateContainerBasicOptions.Builder> builderList = MQManager.createProfilesAndContainerBuilders(dto, fabricService, "child");
+        Profile profile = MQManager.createOrUpdateProfile(dto, fabricService);
+        String profileId = profile.getId();
 
-        for (CreateContainerBasicOptions.Builder builder : builderList) {
-            CreateContainerMetadata[] metadatas = null;
-            try {
-                metadatas = fabricService.createContainers(builder.build());
-                ShellUtils.storeFabricCredentials(session, username, password);
-            } catch (FabricAuthenticationException fae) {
-                //If authentication fails, prompts for credentials and try again.
-                if (builder instanceof CreateChildContainerOptions.Builder) {
-                    CreateChildContainerOptions.Builder childBuilder = (CreateChildContainerOptions.Builder) builder;
-                    promptForJmxCredentialsIfNeeded();
-                    metadatas = fabricService.createContainers(childBuilder.jmxUser(username).jmxPassword(password).build());
+        System.out.println("MQ profile " + profileId + " ready");
+
+        // assign profile to existing containers
+        if (assign != null) {
+            String[] assignContainers = assign.split(",");
+            MQManager.assignProfileToContainers(fabricService, profile, assignContainers);
+        }
+
+        // create containers
+        if (create != null) {
+            String[] createContainers = create.split(",");
+            List<CreateContainerBasicOptions.Builder> builderList = MQManager.createContainerBuilders(
+                    dto, fabricService, "child", profileId, dto.version(), createContainers);
+            for (CreateContainerBasicOptions.Builder builder : builderList) {
+                CreateContainerMetadata[] metadatas = null;
+                try {
+                    metadatas = fabricService.createContainers(builder.build());
                     ShellUtils.storeFabricCredentials(session, username, password);
+                } catch (FabricAuthenticationException fae) {
+                    //If authentication fails, prompts for credentials and try again.
+                    if (builder instanceof CreateChildContainerOptions.Builder) {
+                        CreateChildContainerOptions.Builder childBuilder = (CreateChildContainerOptions.Builder) builder;
+                        promptForJmxCredentialsIfNeeded();
+                        metadatas = fabricService.createContainers(childBuilder.jmxUser(username).jmxPassword(password).build());
+                        ShellUtils.storeFabricCredentials(session, username, password);
+                    }
                 }
             }
         }
         return null;
     }
 
-    private MQTopologyDTO createDTO() {
+    private MQBrokerConfigDTO createDTO() {
         if (Strings.isNullOrBlank(username)) {
             username = ShellUtils.retrieveFabricUser(session);
         }
@@ -115,10 +129,8 @@ public class MQCreate extends FabricCommand {
             password = ShellUtils.retrieveFabricUserPassword(session);
         }
 
-        MQTopologyDTO dto = new MQTopologyDTO();
-        dto.setAssign(assign);
-        dto.setConfig(config);
-        dto.setCreate(create);
+        MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
+        dto.setConfigUrl(config);
         dto.setData(data);
         dto.setGroup(group);
         dto.setJvmOpts(jvmOpts);

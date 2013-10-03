@@ -18,33 +18,57 @@ package org.fusesource.fabric.api.jmx;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.List;
 
 /**
- * Represents the topology of a logical broker
+ * Represents the broker configuration of a logical broker profile which can be mapped to multiple containers
  */
-public class MQTopologyDTO {
+public class MQBrokerConfigDTO {
 
     private String name;
     private String parentProfile;
     private List<String> properties;
-    private String config;
+    private String configUrl;
     private String data;
     private String group;
     private String networks;
     private String networksUserName;
     private String networksPassword;
     private String version;
-    private String create;
-    private String assign;
     private String username;
     private String password;
     private String jvmOpts;
 
+
     /**
-     * Return the Broker name
+     * Based on the kind of replication (N+1 or replicated etc) or based on configuration
+     * return now many instances of the broker profile are required
+     */
+    public int requiredInstances() {
+        return 1;
+    }
+
+    /**
+     * Returns the version if there is one configured or the default version
+     */
+    public String version() {
+        String answer = getVersion();
+        if (Strings.isNullOrBlank(answer)) {
+            answer = ZkDefs.DEFAULT_VERSION;
+        }
+        return answer;
+    }
+
+
+    // Properties
+    //-------------------------------------------------------------------------
+
+
+    /**
+     * Return the Broker name (which is used as a profile name)
      */
     public String getName() {
         return name;
@@ -77,14 +101,14 @@ public class MQTopologyDTO {
     }
 
     /**
-     * Returns the configuration to use
+     * Returns the configuration URL to use
      */
-    public String getConfig() {
-        return config;
+    public String getConfigUrl() {
+        return configUrl;
     }
 
-    public void setConfig(String config) {
-        this.config = config;
+    public void setConfigUrl(String configUrl) {
+        this.configUrl = configUrl;
     }
 
     /**
@@ -151,28 +175,6 @@ public class MQTopologyDTO {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    /**
-     * Returns the comma separated list of child containers to create with mq profile
-     */
-    public String getCreate() {
-        return create;
-    }
-
-    public void setCreate(String create) {
-        this.create = create;
-    }
-
-    /**
-     * Returns the containers to assign this mq profile to
-     */
-    public String getAssign() {
-        return assign;
-    }
-
-    public void setAssign(String assign) {
-        this.assign = assign;
     }
 
     /**

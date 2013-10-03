@@ -24,7 +24,7 @@ import java.util.List;
  */
 public interface MQManagerMXBean {
 
-    List<MQTopologyDTO> loadTopology();
+    List<MQBrokerConfigDTO> loadBrokerConfiguration();
 
-    void updateMQTopologyJson(String json) throws IOException;
+    void saveBrokerConfigurationJSON(String json) throws IOException;
 }
