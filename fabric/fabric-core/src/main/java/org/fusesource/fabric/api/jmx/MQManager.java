@@ -222,8 +222,7 @@ public class MQManager implements MQManagerMXBean {
         String data = dto.getData();
         String name = dto.getName();
         if (data == null) {
-            //data = System.getProperty("karaf.base") + System.getProperty("file.separator") + "data" + System.getProperty("file.separator") + name;
-            // lets use a cross-container friendly location for the data
+            // lets use a relative path so we work on any karaf container
             data = "${karaf.base}/data/" + name;
         }
         configuration.put(DATA, data);
