@@ -18,14 +18,16 @@ package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.FabricService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
 
 public class ProfileImpl implements Profile {
-
     public static final String AGENT_PID = "org.fusesource.fabric.agent";
 
     private final String id;
@@ -308,6 +310,16 @@ public class ProfileImpl implements Profile {
             }
             sb.append(". Use force option to also remove the profile from the containers.");
             throw new FabricException(sb.toString());
+        }
+
+        // lets remove any pending requirements on this profile
+        FabricRequirements requirements = service.getRequirements();
+        if (requirements.removeProfileRequirements(id)) {
+            try {
+                service.setRequirements(requirements);
+            } catch (IOException e) {
+                throw new FabricException("Failed to update requirements after deleting profile " + id + ". " + e, e);
+            }
         }
     }
 

@@ -86,11 +86,13 @@ public class FabricRequirements {
         return null;
     }
 
-    public void removeProfileRequirements(String profile) {
+    public boolean removeProfileRequirements(String profile) {
         ProfileRequirements requirements = findProfileRequirements(profile);
         if (requirements != null) {
             profileRequirements.remove(requirements);
+            return true;
         }
+        return false;
     }
 
     public void addOrUpdateProfileRequirements(ProfileRequirements requirement) {
