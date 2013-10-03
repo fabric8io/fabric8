@@ -63,7 +63,7 @@ public class MQBrokerConfigDTO {
         if (slaves != null) {
             return slaves.intValue();
         }
-        return 1;
+        return 2;
     }
 
     /**

@@ -6,7 +6,7 @@ Firstly brokers are put into logical groups. A logical group is then used for di
 
 There are a few different ways to configure Logical Brokers which map to 1 or more physical brokers.
 
-## 1. Master / Slave Broker
+## A. Master / Slave Broker
 
 In master slave we create a logical broker in a group. e.g. group A, broker1 and broker2.
 
@@ -14,13 +14,13 @@ Now we've 2 logical brokers. Each of these 2 logical brokers gets a Fabric profi
 
 If we run 2 instances of broker1 profile in 2 separate containers; one is the master the other is the slave (with failover).
 
-## 2. Replicated Broker
+## B. Replicated Broker
 
 In replicated mode you run N replicas of the same logical broker. Typically you'd run, say, 3 replicas; typically inheriting from the **mq-replicated** profile.
 
 So you'd have 1 profile for a replica set of brokers and you deploy 3 instances of that container.
 
-## 3. N + 1 Broker
+## C. N + 1 Broker
 
 In N + 1 you define N brokers (broker name and configurations) in a group. e.g. group A has broker1 and broker2. Then you create N+1 containers each having all the N brokers inside.
 
@@ -30,7 +30,7 @@ The **standby.group** (which defaults to the group) is used to ensure that each 
 
 ## Implementation details
 
-Each logical Master/Slave broker, Replicated broker set, or N + 1 group of brokers maps to a Profile in Fabric. Each will have a single broker inside the profile configuration - apart from N+1 Broker which will have N broker configurations.
+Each logical Master/Slave broker, Replicated broker set, or N + 1 group of brokers maps to a Profile in Fabric. Each will have a single broker inside the profile configuration - apart from (C) N+1 Broker which will have N broker configurations.
 
 Broker configurations are defined by the file: **org.fusesource.mq.fabric.server-$brokerName.properties** inside the profile
 
@@ -68,6 +68,21 @@ Lets create a logical broker in group *a* and have a master and slave
     container-create-child --profile broker1and2 root brokerc1
     container-create-child --profile broker1and2 root brokerc2
     container-create-child --profile broker1and2 root brokerc3
+
+
+### Try them all out
+
+Copy/paste this example script to setup 3 profiles with a group each showing all the above in a demo:
+
+    mq-create --group a --profile mq-a.masterSlave broker1
+    mq-create --parent-profile=mq-replicated --group b --profile mq-b.replicated broker1
+    mq-create --profile mq-c.n.plus.1 --group c broker1
+    mq-create --profile mq-c.n.plus.1 --group c broker2
+
+Then you'll have 3 profiles created, mq-a.masterSlave,  mq-b.replicated and mq-c.n.plus.1 which show master/slave, replicated, N+1 options with a profile for each.
+
+
+
 
 
 

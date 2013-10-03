@@ -296,11 +296,10 @@ public class MQManager implements MQManagerMXBean {
 
         // lets reload the DTO as we may have inherited some values from the parent profile
         List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
-        int requiredInstances = 1;
 
-        // Note that for N+1 where N=1 then we currently will default to 1 rather than 2
-        // unless there's a slaves / replicas properties set; as we use N > 1 to detect the
-        // N+1 approach; maybe we need an n+1 flag for the case where N=1?
+        // lets assume 2 required instances for master/slave unless folks use
+        // N+1 or replicated
+        int requiredInstances = 2;
         if (list.size() == 1) {
             MQBrokerConfigDTO loadedDTO = list.get(0);
             requiredInstances = loadedDTO.requiredInstances();
