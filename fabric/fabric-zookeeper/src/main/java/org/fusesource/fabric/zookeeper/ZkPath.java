@@ -69,6 +69,7 @@ public enum ZkPath {
 	AUTO_SCALE                     ("/fabric/registry/clusters/autoscale"),
 	OPENSHIFT                      ("/fabric/registry/clusters/openshift"),
     WEBAPPS_CLUSTER                ("/fabric/registry/clusters/webapps/{group}"),
+    MQ_CLUSTER                     ("/fabric/registry/clusters/fusemq/{group}"),
     TASK                           ("/fabric/registry/clusters/task/{task}"),
     TAKS_MEMBERS                   ("/fabric/registry/clusters/task/{task}/0{member}"),
     TASK_MEMBER_PARTITIONS         ("/fabric/registry/containers/task/{container}/{task}"),

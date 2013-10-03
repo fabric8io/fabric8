@@ -32,15 +32,33 @@ public class Containers {
         List<Container> answer = new ArrayList<Container>();
         if (profileId != null) {
             for (Container c : containers) {
-                for (Profile p : c.getProfiles()) {
-                    if (profileId.equals(p.getId())) {
-                        answer.add(c);
-                    }
+                if (containerHasProfile(c, profileId)) {
+                    answer.add(c);
                 }
             }
         }
         return answer;
     }
+
+    /**
+     * Returns true if the given container has the given profile
+     */
+    public static boolean containerHasProfile(Container container, Profile profile) {
+        return containerHasProfile(container, profile.getId());
+    }
+
+    /**
+     * Returns true if the given container has the given profile directly (rather than inheritence)
+     */
+    public static boolean containerHasProfile(Container container, String profileId) {
+        for (Profile p : container.getProfiles()) {
+            if (profileId.equals(p.getId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Returns the effective list of profile ids for the current container;

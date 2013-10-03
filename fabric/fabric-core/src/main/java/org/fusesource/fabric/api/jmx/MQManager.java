@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.api.jmx;
 
+import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -25,6 +26,7 @@ import org.codehaus.jackson.map.MappingIterator;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.Containers;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.FabricRequirements;
@@ -36,6 +38,8 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.service.MQServiceImpl;
 import org.fusesource.fabric.utils.Maps;
+import org.fusesource.fabric.utils.Strings;
+import org.fusesource.fabric.zookeeper.ZkPath;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +57,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.fusesource.fabric.api.MQService.Config.*;
+import static org.fusesource.fabric.api.MQService.Config.CONFIG_URL;
+import static org.fusesource.fabric.api.MQService.Config.DATA;
+import static org.fusesource.fabric.api.MQService.Config.GROUP;
+import static org.fusesource.fabric.api.MQService.Config.MINIMUM_INSTANCES;
+import static org.fusesource.fabric.api.MQService.Config.NETWORKS;
+import static org.fusesource.fabric.api.MQService.Config.NETWORK_PASSWORD;
+import static org.fusesource.fabric.api.MQService.Config.NETWORK_USER_NAME;
+import static org.fusesource.fabric.api.MQService.Config.PARENT;
+import static org.fusesource.fabric.api.MQService.Config.REPLICAS;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 /**
  * An MBean for working with the global A-MQ topology configuration inside the Fabric profiles
@@ -76,6 +90,8 @@ public class MQManager implements MQManagerMXBean {
     private FabricService fabricService;
     @Reference(referenceInterface = MBeanServer.class)
     private MBeanServer mbeanServer;
+    @Reference(referenceInterface = CuratorFramework.class)
+    private CuratorFramework curator;
 
     private MQService mqService;
 
@@ -104,6 +120,145 @@ public class MQManager implements MQManagerMXBean {
         for (Profile profile : values) {
             List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
             answer.addAll(list);
+        }
+        return answer;
+    }
+
+    @Override
+    public List<MQBrokerStatusDTO> loadBrokerStatus() throws Exception {
+        FabricRequirements requirements = fabricService.getRequirements();
+        List<MQBrokerStatusDTO> answer = new ArrayList<MQBrokerStatusDTO>();
+        Version defaultVersion = fabricService.getDefaultVersion();
+        Container[] containers = fabricService.getContainers();
+        Map<String, Profile> profileMap = getActiveOrRequiredBrokerProfileMap(defaultVersion, requirements);
+        Collection<Profile> values = profileMap.values();
+        for (Profile profile : values) {
+            List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
+            for (MQBrokerConfigDTO configDTO : list) {
+                ProfileRequirements profileRequirements = requirements.findProfileRequirements(profile.getId());
+                int count = 0;
+                for (Container container : containers) {
+                    if (Containers.containerHasProfile(container, profile)) {
+                        MQBrokerStatusDTO status = createStatusDTO(profile, configDTO, profileRequirements, container);
+                        count++;
+                        answer.add(status);
+                    }
+                }
+                // if there are no containers yet, lets create a record anyway
+                if (count == 0) {
+                    MQBrokerStatusDTO status = createStatusDTO(profile, configDTO, profileRequirements, null);
+                    answer.add(status);
+                }
+            }
+        }
+        addMasterSlaveStatus(answer);
+        return answer;
+    }
+
+    protected void addMasterSlaveStatus(List<MQBrokerStatusDTO> answer) throws Exception {
+        Map<String, Map<String, MQBrokerStatusDTO>> groupMap = new HashMap<String, Map<String, MQBrokerStatusDTO>>();
+        for (MQBrokerStatusDTO status : answer) {
+            String key = status.getGroup();
+            Map<String, MQBrokerStatusDTO> list = groupMap.get(key);
+            if (list == null) {
+                list = new HashMap<String, MQBrokerStatusDTO>();
+                groupMap.put(key, list);
+            }
+            list.put(status.getContainer(), status);
+        }
+        // now lets check the cluster status for each group
+        Set<Map.Entry<String, Map<String, MQBrokerStatusDTO>>> entries = groupMap.entrySet();
+        for (Map.Entry<String, Map<String, MQBrokerStatusDTO>> entry : entries) {
+            String group = entry.getKey();
+            Map<String, MQBrokerStatusDTO> containerMap = entry.getValue();
+            String groupPath = ZkPath.MQ_CLUSTER.getPath(group);
+
+            List<String> children = getAllChildren(getCurator(), groupPath);
+            for (String child : children) {
+                byte[] data = getCurator().getData().forPath(child);
+                if (data != null && data.length > 0) {
+                    String text = new String(data).trim();
+                    if (!text.isEmpty()) {
+                        ObjectMapper mapper = new ObjectMapper();
+                        Map<String, Object> map = mapper.readValue(data, HashMap.class);
+
+                        String id = stringValue(map, "id", "container");
+                        if (id != null) {
+                            String container = stringValue(map, "container", "agent");
+                            MQBrokerStatusDTO containerStatus = containerMap.get(container);
+                            if (containerStatus != null) {
+                                Boolean master = null;
+                                List services = listValue(map, "services");
+                                if (services != null) {
+                                    if (!services.isEmpty()) {
+                                        List<String> serviceTexts = new ArrayList<String>();
+                                        for (Object service : services) {
+                                            String serviceText = getSubstitutedData(getCurator(), service.toString());
+                                            if (Strings.isNotBlank(serviceText)) {
+                                                serviceTexts.add(serviceText);
+                                            }
+                                            containerStatus.setServices(serviceTexts);
+                                        }
+                                        master = Boolean.TRUE;
+                                    } else {
+                                        master = Boolean.FALSE;
+                                    }
+                                } else {
+                                    master = Boolean.FALSE;
+                                }
+                                containerStatus.setMaster(master);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+    protected static String stringValue(Map<String, Object> map, String... keys) {
+        Object value = value(map, keys);
+        if (value instanceof String) {
+            return (String) value;
+        } else if (value != null) {
+            return value.toString();
+        }
+        return null;
+    }
+
+    protected static List listValue(Map<String, Object> map, String... keys) {
+        Object value = value(map, keys);
+        if (value instanceof List) {
+            return (List) value;
+        } else if (value instanceof Object[]) {
+            return Arrays.asList((Object[]) value);
+        }
+        return null;
+    }
+
+    protected static Object value(Map<String, Object> map, String... keys) {
+        for (String key : keys) {
+            Object value = map.get(key);
+            if (value != null) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    protected MQBrokerStatusDTO createStatusDTO(Profile profile, MQBrokerConfigDTO configDTO, ProfileRequirements profileRequirements, Container container) {
+        MQBrokerStatusDTO answer = new MQBrokerStatusDTO(configDTO);
+        if (container != null) {
+            answer.setContainer(container.getId());
+            answer.setProvisionStatus(container.getProvisionStatus());
+
+            // TODO lets add the master/slave status using a ZK lookup!
+        }
+        if (profileRequirements != null) {
+            Integer minimumInstances = profileRequirements.getMinimumInstances();
+            if (minimumInstances != null) {
+                answer.setMinimumInstances(minimumInstances);
+            }
         }
         return answer;
     }
@@ -150,10 +305,13 @@ public class MQManager implements MQManagerMXBean {
     }
 
     public Map<String, Profile> getActiveOrRequiredBrokerProfileMap(Version version) {
+        return getActiveOrRequiredBrokerProfileMap(version, fabricService.getRequirements());
+    }
+
+    private Map<String, Profile> getActiveOrRequiredBrokerProfileMap(Version version, FabricRequirements requirements) {
         Objects.notNull(fabricService, "fabricService");
         Map<String, Profile> profileMap = new HashMap<String, Profile>();
         if (version != null) {
-            FabricRequirements requirements = fabricService.getRequirements();
             Profile[] profiles = version.getProfiles();
             for (Profile profile : profiles) {
                 Map<String, Map<String, String>> configurations = profile.getConfigurations();
@@ -370,5 +528,9 @@ public class MQManager implements MQManagerMXBean {
             containerBuilders.add(builder);
         }
         return containerBuilders;
+    }
+
+    public CuratorFramework getCurator() {
+        return curator;
     }
 }
