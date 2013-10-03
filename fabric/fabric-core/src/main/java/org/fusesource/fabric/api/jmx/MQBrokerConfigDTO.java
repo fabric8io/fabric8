@@ -16,8 +16,6 @@
  */
 package org.fusesource.fabric.api.jmx;
 
-import org.apache.felix.gogo.commands.Argument;
-import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
@@ -44,6 +42,15 @@ public class MQBrokerConfigDTO {
     private String jvmOpts;
     private Integer replicas;
     private Integer slaves;
+
+    @Override
+    public String toString() {
+        return "MQBrokerConfigDTO{" +
+                "group='" + group + '\'' +
+                ", profile='" + profile() + '\'' +
+                ", brokerName='" + brokerName + '\'' +
+                '}';
+    }
 
     /**
      * Based on the kind of replication (N+1 or replicated etc) or based on configuration
@@ -73,7 +80,7 @@ public class MQBrokerConfigDTO {
     /**
      * Returns the configured profile name or defaults it to "mq-$group-$brokerName"
      */
-    public String profileName() {
+    public String profile() {
         if (Strings.isNullOrBlank(profile)) {
             profile = "mq-" + getGroup() + "-" + getBrokerName();
         }
