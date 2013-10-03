@@ -85,7 +85,9 @@ So you're console should look like this (notice the scale column shows how many 
 
 ![hawtio screenshot](https://raw.github.com/jboss-fuse/fuse/master/mq/mq-fabric/src/images/broker-requirements.png)
 
-Clicking on the red badges on the right then lets you create containers. If you run Fabric on a cloud with an Auto-Scaler (like OpenShift) then it will automatically spin up all the brokers for you (neat eh! :)
+* clicking on the red badges on the right then lets you create containers.
+* clicking on the Scale button on the toolbar will let you scale up/down the number of instances of each logical broker
+* if you run Fabric on a cloud with an Auto-Scaler (like OpenShift) then it will automatically spin up all the brokers for you (neat eh! :)
 
 
 
