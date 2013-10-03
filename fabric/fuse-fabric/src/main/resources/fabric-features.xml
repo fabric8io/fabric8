@@ -152,6 +152,14 @@
         <bundle>mvn:org.fusesource.fabric/fabric-maven-proxy/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-core</feature>
+        <feature version="${project.version}">fabric-jaas</feature>
+        <feature version="${project.version}">fabric-git-server</feature>
+        <feature version="${project.version}">fabric-boot-commands</feature>
+        <feature version="${project.version}">fabric-redirect</feature>
+    </feature>
+
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric/fabric-api/${project.version}</bundle>
         <feature>scr</feature>
