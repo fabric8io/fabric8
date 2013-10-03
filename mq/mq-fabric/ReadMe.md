@@ -81,7 +81,11 @@ Copy/paste this example script to setup 3 profiles with a group each showing all
 
 Then you'll have 3 profiles created, mq-a.masterSlave,  mq-b.replicated and mq-c.n.plus.1 which show master/slave, replicated, N+1 options with a profile for each.
 
+So you're console should look like this (notice the scale column shows how many container instances are required for each profile).
 
+![hawtio screenshot](https://raw.github.com/jboss-fuse/fuse/master/mq/mq-fabric/src/images/broker-requirements.png)
+
+Clicking on the red badges on the right then lets you create containers. If you run Fabric on a cloud with an Auto-Scaler (like OpenShift) then it will automatically spin up all the brokers for you (neat eh! :)
 
 
 
