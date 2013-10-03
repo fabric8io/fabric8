@@ -100,12 +100,6 @@
             <artifactId>org.apache.servicemix.specs.jaxws-api-2.2</artifactId>
             <version>${servicemix-specs-version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.fusesource.fmc</groupId>
-            <artifactId>fmc-webui</artifactId>
-            <version>${fabric.version}</version>
-        </dependency>
     </dependencies>
     
     <build>
