@@ -225,4 +225,22 @@ public class ProfileFacade implements Profile, HasId {
     public String getId() {
         return id;
     }
+
+    @Override
+    public Map<String, String> getConfiguration(String pid) {
+        Map<String, Map<String, String>> configurations = getConfigurations();
+        if (configurations != null) {
+            return configurations.get(pid);
+        }
+        return null;
+    }
+
+    @Override
+    public void setConfiguration(String pid, Map<String, String> configuration) {
+        Map<String, Map<String, String>> configurations = getConfigurations();
+        if (configurations != null) {
+            configurations.put(pid, configuration);
+            setConfigurations(configurations);
+        }
+    }
 }
