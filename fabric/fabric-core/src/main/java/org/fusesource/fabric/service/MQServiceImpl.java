@@ -30,7 +30,7 @@ public class MQServiceImpl implements MQService {
     }
 
     @Override
-    public Profile createMQProfile(String versionId, String brokerName, Map<String, String> configs) {
+    public Profile createMQProfile(String versionId, String profile, String brokerName, Map<String, String> configs) {
         Version version = fabricService.getVersion(versionId);
 
         String parentProfileName = MQ_PROFILE_BASE;
@@ -41,14 +41,14 @@ public class MQServiceImpl implements MQService {
         Profile parentProfile = version.getProfile(parentProfileName);
         String pidName = getBrokerPID(brokerName);
         Profile result = parentProfile;
-        if (brokerName != null) {
+        if (brokerName != null && profile != null) {
             // create a profile if it doesn't exist
             Map config = null;
-            if (!version.hasProfile(brokerName)) {
-                result = version.createProfile(brokerName);
+            if (!version.hasProfile(profile)) {
+                result = version.createProfile(profile);
                 result.setParents(new Profile[]{parentProfile});
             } else {
-                result = version.getProfile(brokerName);
+                result = version.getProfile(profile);
                 config = result.getConfiguration(pidName);
             }
             
@@ -64,18 +64,6 @@ public class MQServiceImpl implements MQService {
         }
         
         return result;
-    }
-
-    @Override
-    public Map<String, String> getMQConfiguration(String brokerName, Profile profile) {
-        String pidName = getBrokerPID(brokerName);
-        Map<String, String> answer = profile.getConfiguration(pidName);
-        if (answer == null) {
-            // lets look for the default just in case we deleted the configuration since
-            // creating it
-            answer = profile.getConfiguration(MQ_PID_TEMPLATE);
-        }
-        return answer;
     }
 
 

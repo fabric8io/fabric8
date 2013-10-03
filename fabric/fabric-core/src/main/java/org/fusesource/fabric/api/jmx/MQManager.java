@@ -110,38 +110,46 @@ public class MQManager implements MQManagerMXBean {
         Map<String, Profile> profileMap = getActiveOrRequiredBrokerProfileMap();
         Collection<Profile> values = profileMap.values();
         for (Profile profile : values) {
-            MQBrokerConfigDTO dto = createConfigDTO(mqService, profile);
-            if (dto != null) {
-                answer.add(dto);
-            }
+            List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
+            answer.addAll(list);
         }
         return answer;
     }
 
-    public static MQBrokerConfigDTO createConfigDTO(MQService mqService, Profile profile) {
-        MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
-        String brokerName = profile.getId();
-        dto.setName(brokerName);
-        String version = profile.getVersion();
-        dto.setVersion(version);
-        Profile[] parents = profile.getParents();
-        if (parents != null && parents.length > 0) {
-            dto.setParentProfile(parents[0].getId());
+    public static List<MQBrokerConfigDTO> createConfigDTOs(MQService mqService, Profile profile) {
+        List<MQBrokerConfigDTO> answer = new ArrayList<MQBrokerConfigDTO>();
+        Map<String, Map<String, String>> configurations = profile.getConfigurations();
+        Set<Map.Entry<String, Map<String, String>>> entries = configurations.entrySet();
+        for (Map.Entry<String, Map<String, String>> entry : entries) {
+            String key = entry.getKey();
+            Map<String, String> configuration = entry.getValue();
+            if (isBrokerConfigPid(key)) {
+                String brokerName = getBrokerNameFromPID(key);
+                String profileId = profile.getId();
+                MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
+                dto.setProfile(profileId);
+                dto.setBrokerName(brokerName);
+                String version = profile.getVersion();
+                dto.setVersion(version);
+                Profile[] parents = profile.getParents();
+                if (parents != null && parents.length > 0) {
+                    dto.setParentProfile(parents[0].getId());
+                }
+                if (configuration != null) {
+                    dto.setConfigUrl(configuration.get(CONFIG_URL));
+                    dto.setData(configuration.get(DATA));
+                    dto.setGroup(configuration.get(GROUP));
+                    dto.setNetworks(configuration.get(NETWORKS));
+                    dto.setNetworksPassword(configuration.get(NETWORK_USER_NAME));
+                    dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
+                    dto.setNetworks(configuration.get(NETWORKS));
+                    dto.setNetworks(configuration.get(NETWORKS));
+                    dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
+                    dto.setSlaves(Maps.integerValue(configuration, SLAVES));
+                }
+            }
         }
-        Map<String, String> configuration = mqService.getMQConfiguration(brokerName, profile);
-        if (configuration != null) {
-            dto.setConfigUrl(configuration.get(CONFIG_URL));
-            dto.setData(configuration.get(DATA));
-            dto.setGroup(configuration.get(GROUP));
-            dto.setNetworks(configuration.get(NETWORKS));
-            dto.setNetworksPassword(configuration.get(NETWORK_USER_NAME));
-            dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
-            dto.setNetworks(configuration.get(NETWORKS));
-            dto.setNetworks(configuration.get(NETWORKS));
-            dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
-            dto.setSlaves(Maps.integerValue(configuration, SLAVES));
-        }
-        return dto;
+        return answer;
     }
 
     public Map<String, Profile> getActiveOrRequiredBrokerProfileMap() {
@@ -159,8 +167,8 @@ public class MQManager implements MQManagerMXBean {
                 Set<Map.Entry<String, Map<String, String>>> entries = configurations.entrySet();
                 for (Map.Entry<String, Map<String, String>> entry : entries) {
                     String key = entry.getKey();
-                    if (key.startsWith(MQService.MQ_FABRIC_SERVER_PID_PREFIX)) {
-                        String brokerName = key.substring(MQService.MQ_FABRIC_SERVER_PID_PREFIX.length());
+                    if (isBrokerConfigPid(key)) {
+                        String brokerName = getBrokerNameFromPID(key);
                         String profileId = profile.getId();
 
                         // ignore if we don't have any requirements or instances as it could be profiles such
@@ -175,6 +183,15 @@ public class MQManager implements MQManagerMXBean {
         }
         return profileMap;
     }
+
+    protected static String getBrokerNameFromPID(String key) {
+        return key.substring(MQService.MQ_FABRIC_SERVER_PID_PREFIX.length());
+    }
+
+    protected static boolean isBrokerConfigPid(String key) {
+        return key.startsWith(MQService.MQ_FABRIC_SERVER_PID_PREFIX);
+    }
+
 
     @Override
     public void saveBrokerConfigurationJSON(String json) throws IOException {
@@ -225,10 +242,11 @@ public class MQManager implements MQManagerMXBean {
         }
 
         String data = dto.getData();
-        String name = dto.getName();
+        String profileName = dto.profileName();
+        String brokerName = dto.getBrokerName();
         if (data == null) {
             // lets use a relative path so we work on any karaf container
-            data = "${karaf.base}/data/" + name;
+            data = "${karaf.base}/data/" + brokerName;
         }
         configuration.put(DATA, data);
 
@@ -271,14 +289,21 @@ public class MQManager implements MQManagerMXBean {
             configuration.put(SLAVES, slaves.toString());
         }
 
-        Profile profile = mqService.createMQProfile(version, name, configuration);
+        Profile profile = mqService.createMQProfile(version, profileName, brokerName, configuration);
         String profileId = profile.getId();
         ProfileRequirements profileRequirement = requirements.getOrCreateProfileRequirement(profileId);
         Integer minimumInstances = profileRequirement.getMinimumInstances();
 
         // lets reload the DTO as we may have inherited some values from the parent profile
-        MQBrokerConfigDTO loadedDTO = createConfigDTO(mqService, profile);
-        int requiredInstances = loadedDTO.requiredInstances();
+        List<MQBrokerConfigDTO> list = createConfigDTOs(mqService, profile);
+        int requiredInstances = 1;
+        if (list.size() == 1) {
+            MQBrokerConfigDTO loadedDTO = list.get(0);
+            requiredInstances = loadedDTO.requiredInstances();
+        } else {
+            // assume N+1 broker as there's more than one broker in the profile; so lets set the required size to N+1
+            requiredInstances = list.size() + 1;
+        }
         if (minimumInstances == null || minimumInstances.intValue() < requiredInstances) {
             profileRequirement.setMinimumInstances(requiredInstances);
             fabricService.setRequirements(requirements);

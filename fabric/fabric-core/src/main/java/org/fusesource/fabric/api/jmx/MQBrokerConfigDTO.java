@@ -28,7 +28,8 @@ import java.util.List;
  */
 public class MQBrokerConfigDTO {
 
-    private String name;
+    private String brokerName;
+    private String profile;
     private String parentProfile;
     private List<String> properties;
     private String configUrl;
@@ -69,20 +70,40 @@ public class MQBrokerConfigDTO {
         return answer;
     }
 
+    /**
+     * Returns the configured profile name or defaults it to "mq-$group-$brokerName"
+     */
+    public String profileName() {
+        if (Strings.isNullOrBlank(profile)) {
+            profile = "mq-" + getGroup() + "-" + getBrokerName();
+        }
+        return profile;
+    }
+
 
     // Properties
     //-------------------------------------------------------------------------
 
-
     /**
-     * Return the Broker name (which is used as a profile name)
+     * Return the Broker name
      */
-    public String getName() {
-        return name;
+    public String getBrokerName() {
+        return brokerName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBrokerName(String brokerName) {
+        this.brokerName = brokerName;
+    }
+
+    /**
+     * Returns the profile name (which defaults to the broker name)
+     */
+    public String getProfile() {
+        return profile;
+    }
+
+    public void setProfile(String profile) {
+        this.profile = profile;
     }
 
     /**
@@ -238,4 +259,5 @@ public class MQBrokerConfigDTO {
     public void setSlaves(Integer slaves) {
         this.slaves = slaves;
     }
+
 }

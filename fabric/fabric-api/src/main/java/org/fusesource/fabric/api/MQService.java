@@ -26,9 +26,7 @@ public interface MQService {
 
     static final String MQ_FABRIC_SERVER_PID_PREFIX = "org.fusesource.mq.fabric.server-";
 
-    Profile createMQProfile(String version, String brokerName, Map<String, String> configs);
-
-    Map<String, String> getMQConfiguration(String brokerName, Profile profile);
+    Profile createMQProfile(String version, String profile, String brokerName, Map<String, String> configs);
 
     String getConfig(String version, String config);
     

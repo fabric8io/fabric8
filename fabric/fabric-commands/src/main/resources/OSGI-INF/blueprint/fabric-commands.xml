@@ -430,6 +430,7 @@
             <optional-completers>
                 <entry key="--version" value-ref="versionCompleter"/>
                 <entry key="--parent-profile" value-ref="profileCompleter"/>
+                <entry key="--profile" value-ref="profileCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/import">

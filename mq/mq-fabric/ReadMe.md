@@ -34,3 +34,40 @@ Each logical Master/Slave broker, Replicated broker set, or N + 1 group of broke
 
 Broker configurations are defined by the file: **org.fusesource.mq.fabric.server-$brokerName.properties** inside the profile
 
+## Using mq-create
+
+There follows examples on how to create each of the 3 kinds of broker configurations using the comand line shell:
+
+### Master / Slave
+
+Lets create a logical broker in group *a* and have a master and slave
+
+    mq-create --group a broker1
+
+    container-create-child --profile mq-a-broker1 root broker1c1
+    container-create-child --profile mq-a-broker1 root broker1c2
+
+### Replicated
+
+Lets create a logical broker in group *a* with a logical broker1 replicated in 3 replicas
+
+    mq-create --parent-profile=mq-replicated --group a broker1
+
+    container-create-child --profile mq-a-broker1 root broker1c1
+    container-create-child --profile mq-a-broker1 root broker1c2
+    container-create-child --profile mq-a-broker1 root broker1c3
+
+
+### N+1 with 2 brokers
+
+Lets create a logical broker in group *a* and have a master and slave
+
+    mq-create --profile broker1and2 --group a broker1
+    mq-create --profile broker1and2 --group a broker2
+
+    container-create-child --profile broker1and2 root brokerc1
+    container-create-child --profile broker1and2 root brokerc2
+    container-create-child --profile broker1and2 root brokerc3
+
+
+
