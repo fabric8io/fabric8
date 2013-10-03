@@ -49,6 +49,12 @@
             <version>${fabric-version}</version>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.fusesource.fmc</groupId>
+            <artifactId>fmc-webui</artifactId>
+            <version>${fabric-version}</version>
+            <type>war</type>
+        </dependency>
 
         <!-- branding -->
         <dependency>
