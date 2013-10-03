@@ -685,7 +685,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public FabricRequirements getRequirements() {
         assertValid();
-        return getDataStore().getRequirements();
+        FabricRequirements requirements = getDataStore().getRequirements();
+        Version defaultVersion = getDefaultVersion();
+        if (defaultVersion != null) {
+            requirements.setVersion(defaultVersion.getId());
+        }
+        return requirements;
     }
 
     @Override

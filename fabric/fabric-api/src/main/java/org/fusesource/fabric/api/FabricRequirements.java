@@ -27,6 +27,7 @@ import java.util.List;
  */
 public class FabricRequirements {
     private List<ProfileRequirements> profileRequirements = new ArrayList<ProfileRequirements>();
+    private String version;
 
     public FabricRequirements() {
     }
@@ -50,6 +51,18 @@ public class FabricRequirements {
     public void setProfileRequirements(List<ProfileRequirements> profileRequirements) {
         this.profileRequirements = profileRequirements;
         sortProfilesRequirements();
+    }
+
+    /**
+     * Returns the current version for the fabric which the requirements apply to (usually the latest version,
+     * as scaling requirements typically are independent of rolling upgrades and versioning).
+     */
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     /**
@@ -112,4 +125,5 @@ public class FabricRequirements {
         }
         return false;
     }
+
 }
