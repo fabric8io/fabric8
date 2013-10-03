@@ -75,9 +75,9 @@ Lets create a logical broker in group *a* and have a master and slave
 Copy/paste this example script to setup 3 profiles with a group each showing all the above in a demo:
 
     mq-create --group a --profile mq-a.masterSlave broker1
-    mq-create --parent-profile=mq-replicated --group b --profile mq-b.replicated broker1
-    mq-create --profile mq-c.n.plus.1 --group c broker1
-    mq-create --profile mq-c.n.plus.1 --group c broker2
+    mq-create --group b --profile mq-b.replicated --parent-profile=mq-replicated broker2
+    mq-create --group c --profile mq-c.n.plus.1 broker3
+    mq-create --group c --profile mq-c.n.plus.1 broker4
 
 Then you'll have 3 profiles created, mq-a.masterSlave,  mq-b.replicated and mq-c.n.plus.1 which show master/slave, replicated, N+1 options with a profile for each.
 
