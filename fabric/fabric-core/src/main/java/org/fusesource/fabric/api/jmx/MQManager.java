@@ -53,22 +53,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.fusesource.fabric.api.MQService.Config.*;
+
 /**
  * An MBean for working with the global A-MQ topology configuration inside the Fabric profiles
  */
 @Component(description = "Fabric MQ Manager JMX MBean")
 public class MQManager implements MQManagerMXBean {
     private static final transient Logger LOG = LoggerFactory.getLogger(MQManager.class);
-
-    public static final String DATA = "data";
-    public static final String CONFIG_URL = "config";
-    public static final String GROUP = "group";
-    public static final String NETWORKS = "network";
-    public static final String NETWORK_USER_NAME = "network.userName";
-    public static final String NETWORK_PASSWORD = "network.password";
-    public static final String PARENT = "parent";
-    public static final String REPLICAS = "replicas";
-    public static final String MINIMUM_INSTANCES = "minimumInstances";
 
     private static ObjectName OBJECT_NAME;
 

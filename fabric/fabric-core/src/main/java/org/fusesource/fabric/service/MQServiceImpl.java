@@ -17,8 +17,11 @@
 package org.fusesource.fabric.service;
 
 import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.utils.Strings;
 
 import java.util.Map;
+
+import static org.fusesource.fabric.api.MQService.Config.*;
 
 public class MQServiceImpl implements MQService {
 
@@ -42,6 +45,11 @@ public class MQServiceImpl implements MQService {
         String pidName = getBrokerPID(brokerName);
         Profile result = parentProfile;
         if (brokerName != null && profile != null) {
+            // lets check we have a config value
+
+
+
+
             // create a profile if it doesn't exist
             Map config = null;
             if (!version.hasProfile(profile)) {
@@ -51,14 +59,25 @@ public class MQServiceImpl implements MQService {
                 result = version.getProfile(profile);
                 config = result.getConfiguration(pidName);
             }
-            
+            Map<String, String> parentProfileConfig = parentProfile.getConfiguration(MQ_PID_TEMPLATE);
             if (config == null) {
-                config = parentProfile.getConfiguration(MQ_PID_TEMPLATE);
+                config = parentProfileConfig;
             }
 
             config.put("broker-name", brokerName);
             if (configs != null) {
                 config.putAll(configs);
+            }
+
+            // lets check we've a bunch of config values inherited from the template
+            String[] propertiesToDefault = { CONFIG_URL, STANDBY_POOL, CONNECTORS };
+            for (String key : propertiesToDefault) {
+                if (config.get(key) == null) {
+                    String defaultValue = parentProfileConfig.get(key);
+                    if (Strings.isNotBlank(defaultValue)) {
+                        config.put(key, defaultValue);
+                    }
+                }
             }
             result.setConfiguration(pidName, config);
         }
