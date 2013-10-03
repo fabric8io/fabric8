@@ -191,7 +191,6 @@ public class MQManager implements MQManagerMXBean {
 
     public void saveBrokerConfiguration(List<MQBrokerConfigDTO> dtos) throws IOException {
         for (MQBrokerConfigDTO dto : dtos) {
-            // TODO check if the broker profile exists and if not create it
             createOrUpdateProfile(dto, fabricService);
         }
     }

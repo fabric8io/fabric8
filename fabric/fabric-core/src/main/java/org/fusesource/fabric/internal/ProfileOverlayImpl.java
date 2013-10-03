@@ -121,6 +121,13 @@ public class ProfileOverlayImpl implements Profile {
     }
 
     @Override
+    public void setConfiguration(String pid, Map<String, String> configuration) {
+        Map<String, Map<String, String>> configurations = getConfigurations();
+        configurations.put(pid, configuration);
+        setConfigurations(configurations);
+    }
+
+    @Override
     public void setBundles(List<String> values) {
         throw new UnsupportedOperationException("Overlay profiles are read-only.");
     }
@@ -305,6 +312,11 @@ public class ProfileOverlayImpl implements Profile {
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
+    }
+
+    @Override
+    public Map<String, String> getConfiguration(String pid) {
+        return getConfigurations().get(pid);
     }
 
     @Override

@@ -49,24 +49,18 @@ public class MQServiceImpl implements MQService {
                 result.setParents(new Profile[]{parentProfile});
             } else {
                 result = version.getProfile(brokerName);
-                // TODO replace with result.getConfiguration(pidName)
-                config = result.getConfigurations().get(pidName);
+                config = result.getConfiguration(pidName);
             }
             
             if (config == null) {
-                // TODO replace with parentProfile.getConfiguration(MQ_PID_TEMPLATE)
-                config = parentProfile.getConfigurations().get(MQ_PID_TEMPLATE);
+                config = parentProfile.getConfiguration(MQ_PID_TEMPLATE);
             }
 
             config.put("broker-name", brokerName);
             if (configs != null) {
                 config.putAll(configs);
             }
-
-            // TODO replace with result.setConfiguration(PID, config);
-            Map<String, Map<String,String>> newConfigs = result.getConfigurations();
-            newConfigs.put(pidName, config);
-            result.setConfigurations(newConfigs);
+            result.setConfiguration(pidName, config);
         }
         
         return result;
@@ -75,11 +69,11 @@ public class MQServiceImpl implements MQService {
     @Override
     public Map<String, String> getMQConfiguration(String brokerName, Profile profile) {
         String pidName = getBrokerPID(brokerName);
-        Map<String, String> answer = profile.getConfigurations().get(pidName);
+        Map<String, String> answer = profile.getConfiguration(pidName);
         if (answer == null) {
             // lets look for the default just in case we deleted the configuration since
             // creating it
-            answer = profile.getConfigurations().get(MQ_PID_TEMPLATE);
+            answer = profile.getConfiguration(MQ_PID_TEMPLATE);
         }
         return answer;
     }

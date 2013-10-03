@@ -101,7 +101,7 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
     }
 
     private String substituteFromProfile(Profile profile, String pid, String key) {
-        Map<String, String> configuration = profile.getConfigurations().get(pid);
+        Map<String, String> configuration = profile.getConfiguration(pid);
         if (configuration.containsKey(key)) {
             return configuration.get(key);
         } else return EMPTY;

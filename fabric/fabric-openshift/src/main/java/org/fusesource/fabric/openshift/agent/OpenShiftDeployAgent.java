@@ -157,9 +157,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
         Container[] containers = fabricService.get().getContainers();
         for (Container container : containers) {
             Profile profile = container.getOverlayProfile();
-            Map<String, Map<String, String>> configurations = profile.getConfigurations();
-            Map<String, String> openshiftConfiguration = configurations
-                    .get(OpenShiftConstants.OPENSHIFT_PID);
+            Map<String, String> openshiftConfiguration = profile.getConfiguration(OpenShiftConstants.OPENSHIFT_PID);
             if (openshiftConfiguration != null) {
                 DeploymentUpdater deployTask = null;
                 try {

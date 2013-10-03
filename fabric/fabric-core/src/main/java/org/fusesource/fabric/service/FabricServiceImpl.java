@@ -558,12 +558,9 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 if (defaultVersion != null) {
                     Profile profile = defaultVersion.getProfile("default");
                     if (profile != null) {
-                        Map<String, Map<String, String>> configurations = profile.getConfigurations();
-                        if (configurations != null) {
-                            Map<String, String> zookeeperConfig = configurations.get("org.fusesource.fabric.zookeeper");
-                            if (zookeeperConfig != null) {
-                                zooKeeperUrl = getSubstitutedData(curator.get(), zookeeperConfig.get(name));
-                            }
+                        Map<String, String> zookeeperConfig =  profile.getConfiguration("org.fusesource.fabric.zookeeper");
+                        if (zookeeperConfig != null) {
+                            zooKeeperUrl = getSubstitutedData(curator.get(), zookeeperConfig.get(name));
                         }
                     }
                 }

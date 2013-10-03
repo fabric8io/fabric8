@@ -197,9 +197,7 @@ public class ProfileImpl implements Profile {
         if (parents == null) {
             setAttribute(PARENTS, null);
             return;
-        } else if (isLocked()) {
-            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
-        }
+        } else assertNotLocked();
 
         try {
             StringBuilder sb = new StringBuilder();
@@ -255,14 +253,17 @@ public class ProfileImpl implements Profile {
 
     @Override
     public void setFileConfigurations(Map<String, byte[]> configurations) {
-        if (isLocked()) {
-            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
-        }
+        assertNotLocked();
         getService().getDataStore().setFileConfigurations(version, id, configurations);
     }
 
     public Map<String, Map<String, String>> getConfigurations() {
         return getService().getDataStore().getConfigurations(version, id);
+    }
+
+    @Override
+    public Map<String, String> getConfiguration(String pid) {
+        return getService().getDataStore().getConfiguration(version, id, pid);
     }
 
     @Override
@@ -275,10 +276,14 @@ public class ProfileImpl implements Profile {
     }
 
     public void setConfigurations(Map<String, Map<String, String>> configurations) {
-        if (isLocked()) {
-            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
-        }
+        assertNotLocked();
         getService().getDataStore().setConfigurations(version, id, configurations);
+    }
+
+    @Override
+    public void setConfiguration(String pid, Map<String, String> configuration) {
+        assertNotLocked();
+        getService().getDataStore().setConfiguration(version, id, pid, configuration);
     }
 
     public void delete() {
@@ -384,4 +389,9 @@ public class ProfileImpl implements Profile {
         return getService().getDataStore().getLastModified(version, id);
     }
 
+    protected void assertNotLocked() {
+        if (isLocked()) {
+            throw new UnsupportedOperationException("The profile " + id + " is locked and can not be modified");
+        }
+    }
 }

@@ -92,9 +92,13 @@ public interface Profile extends Comparable<Profile>, HasId {
 
     /**
      * Returns all of the configuration properties
-     * @return
      */
     Map<String, Map<String, String>> getConfigurations();
+
+    /**
+     * Returns the configuration properties for the given PID
+     */
+    Map<String, String> getConfiguration(String pid);
 
     /**
      * Returns the configuration properties for the container
@@ -107,6 +111,13 @@ public interface Profile extends Comparable<Profile>, HasId {
      * @param configurations
      */
     void setConfigurations(Map<String, Map<String, String>> configurations);
+
+    /**
+     * Update configurations of this profile with the new values for the given PID
+     *
+     * @param configuration is the new configuration value for the given PID
+     */
+    void setConfiguration(String pid, Map<String, String> configuration);
 
     /**
      * Gets profile with configuration slitted with parents.

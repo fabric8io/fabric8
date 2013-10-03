@@ -160,13 +160,9 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
                     Profile profile = version.getProfile(profileId);
                     if (profile != null) {
                         Profile overlay = profile.getOverlay();
-                        Map<String, Map<String, String>> configurations = overlay.getConfigurations();
-                        if (configurations != null) {
-                            Map<String, String> openshiftConfig = configurations
-                                    .get(OpenShiftConstants.OPENSHIFT_PID);
-                            if (openshiftConfig != null)  {
-                                openshiftConfigOverlay.putAll(openshiftConfig);
-                            }
+                        Map<String, String> openshiftConfig = overlay.getConfiguration(OpenShiftConstants.OPENSHIFT_PID);
+                        if (openshiftConfig != null)  {
+                            openshiftConfigOverlay.putAll(openshiftConfig);
                         }
                     }
                 }

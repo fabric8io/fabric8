@@ -65,7 +65,7 @@ public class DownloadManagers {
     public static DownloadManager createDownloadManager(FabricService fabricService, Profile profile,
                                                         ExecutorService downloadExecutor) throws
             MalformedURLException {
-        MavenConfiguration mavenConfiguration = createMavenConfiguration(fabricService, mapToProperties(profile.getConfigurations().get("org.fusesource.fabric.agent")));
+        MavenConfiguration mavenConfiguration = createMavenConfiguration(fabricService, mapToProperties(profile.getConfiguration("org.fusesource.fabric.agent")));
         return new DownloadManager(mavenConfiguration, downloadExecutor);
     }
 
