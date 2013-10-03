@@ -41,7 +41,7 @@ public class MQBrokerConfigDTO {
     private String password;
     private String jvmOpts;
     private Integer replicas;
-    private Integer slaves;
+    private Integer minimumInstances;
 
     @Override
     public String toString() {
@@ -60,8 +60,8 @@ public class MQBrokerConfigDTO {
         if (replicas != null) {
             return replicas.intValue();
         }
-        if (slaves != null) {
-            return slaves.intValue();
+        if (minimumInstances != null) {
+            return minimumInstances.intValue();
         }
         return 2;
     }
@@ -259,12 +259,11 @@ public class MQBrokerConfigDTO {
     /**
      * Returns the number of slaves if using master/slave rather than replicated or N+1
      */
-    public Integer getSlaves() {
-        return slaves;
+    public Integer getMinimumInstances() {
+        return minimumInstances;
     }
 
-    public void setSlaves(Integer slaves) {
-        this.slaves = slaves;
+    public void setMinimumInstances(Integer minimumInstances) {
+        this.minimumInstances = minimumInstances;
     }
-
 }

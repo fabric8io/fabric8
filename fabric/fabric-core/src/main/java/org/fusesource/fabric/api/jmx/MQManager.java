@@ -68,7 +68,7 @@ public class MQManager implements MQManagerMXBean {
     public static final String NETWORK_PASSWORD = "network.password";
     public static final String PARENT = "parent";
     public static final String REPLICAS = "replicas";
-    public static final String SLAVES = "slaves";
+    public static final String MINIMUM_INSTANCES = "minimumInstances";
 
     private static ObjectName OBJECT_NAME;
 
@@ -145,7 +145,7 @@ public class MQManager implements MQManagerMXBean {
                     dto.setNetworks(configuration.get(NETWORKS));
                     dto.setNetworks(configuration.get(NETWORKS));
                     dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
-                    dto.setSlaves(Maps.integerValue(configuration, SLAVES));
+                    dto.setMinimumInstances(Maps.integerValue(configuration, MINIMUM_INSTANCES));
                 }
                 answer.add(dto);
             }
@@ -284,9 +284,9 @@ public class MQManager implements MQManagerMXBean {
         if (replicas != null) {
             configuration.put(REPLICAS, replicas.toString());
         }
-        Integer slaves = dto.getSlaves();
-        if (slaves != null) {
-            configuration.put(SLAVES, slaves.toString());
+        Integer minInstances = dto.getMinimumInstances();
+        if (minInstances != null) {
+            configuration.put(MINIMUM_INSTANCES, minInstances.toString());
         }
 
         Profile profile = mqService.createMQProfile(version, profileName, brokerName, configuration);

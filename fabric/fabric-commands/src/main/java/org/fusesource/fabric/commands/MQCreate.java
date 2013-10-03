@@ -85,6 +85,12 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--jvm-opts", multiValued = false, required = false, description = "Options to pass to the container's JVM.")
     protected String jvmOpts;
 
+    @Option(name = "--minimumInstances", multiValued = false, required = false, description = "Minimum number of containers required of this broker's profile.")
+    protected Integer minimumInstances;
+
+    @Option(name = "--replicas", multiValued = false, required = false, description = "Number of replicas required for replicated brokers (which typically use a parent-profile of mq-replicated profile).")
+    protected Integer replicas;
+
     @Override
     protected Object doExecute() throws Exception {
         MQBrokerConfigDTO dto = createDTO();
@@ -147,6 +153,8 @@ public class MQCreate extends FabricCommand {
         dto.setProperties(properties);
         dto.setUsername(username);
         dto.setVersion(version);
+        dto.setMinimumInstances(minimumInstances);
+        dto.setReplicas(replicas);
         return dto;
     }
 
