@@ -27,6 +27,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Properties;
 import org.apache.felix.scr.annotations.Property;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
@@ -40,6 +41,9 @@ import org.osgi.framework.BundleContext;
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.jaas", description = "Fabric Jaas Realm")
 @Service(JaasRealm.class)
+@Properties(
+        @Property(name = "supports.container.tokens", value = "true")
+)
 public final class FabricJaasRealm extends AbstractComponent implements JaasRealm {
 
     private static final String REALM = "karaf";
