@@ -157,4 +157,11 @@ public class ProfileRequirements implements Comparable<ProfileRequirements> {
     protected static boolean isEmpty(Collection<?> coll) {
         return coll == null || coll.isEmpty();
     }
+
+    /**
+     * Returns true if this profile requirements has at least 1 {@link #getMinimumInstances()}
+     */
+    public boolean hasMinimumInstances() {
+        return minimumInstances != null && minimumInstances.intValue() > 0;
+    }
 }

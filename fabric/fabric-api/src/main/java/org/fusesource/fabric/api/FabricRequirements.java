@@ -37,6 +37,12 @@ public class FabricRequirements {
         sortProfilesRequirements();
     }
 
+
+    @Override
+    public String toString() {
+        return "FabricRequirements" + profileRequirements;
+    }
+
     public List<ProfileRequirements> getProfileRequirements() {
         return profileRequirements;
     }
@@ -96,8 +102,14 @@ public class FabricRequirements {
         }
     }
 
-    @Override
-    public String toString() {
-        return "FabricRequirements" + profileRequirements;
+    /**
+     * Returns true if there are any requirements for the given profile ID and it has at least 1 minimum instances defined
+     */
+    public boolean hasMinimumInstances(String profileId) {
+        ProfileRequirements profileRequirement = findProfileRequirements(profileId);
+        if (profileRequirement != null) {
+            return profileRequirement.hasMinimumInstances();
+        }
+        return false;
     }
 }
