@@ -35,6 +35,7 @@ import org.fusesource.fabric.api.ProfileRequirements;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.Objects;
 import org.fusesource.fabric.service.MQServiceImpl;
+import org.fusesource.fabric.utils.Maps;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +67,8 @@ public class MQManager implements MQManagerMXBean {
     public static final String NETWORK_USER_NAME = "network.userName";
     public static final String NETWORK_PASSWORD = "network.password";
     public static final String PARENT = "parent";
+    public static final String REPLICAS = "replicas";
+    public static final String SLAVES = "slaves";
 
     private static ObjectName OBJECT_NAME;
 
@@ -107,7 +110,7 @@ public class MQManager implements MQManagerMXBean {
         Map<String, Profile> profileMap = getActiveOrRequiredBrokerProfileMap();
         Collection<Profile> values = profileMap.values();
         for (Profile profile : values) {
-            MQBrokerConfigDTO dto = createConfigDTO(profile);
+            MQBrokerConfigDTO dto = createConfigDTO(mqService, profile);
             if (dto != null) {
                 answer.add(dto);
             }
@@ -115,7 +118,7 @@ public class MQManager implements MQManagerMXBean {
         return answer;
     }
 
-    protected MQBrokerConfigDTO createConfigDTO(Profile profile) {
+    public static MQBrokerConfigDTO createConfigDTO(MQService mqService, Profile profile) {
         MQBrokerConfigDTO dto = new MQBrokerConfigDTO();
         String brokerName = profile.getId();
         dto.setName(brokerName);
@@ -135,6 +138,8 @@ public class MQManager implements MQManagerMXBean {
             dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
             dto.setNetworks(configuration.get(NETWORKS));
             dto.setNetworks(configuration.get(NETWORKS));
+            dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
+            dto.setSlaves(Maps.integerValue(configuration, SLAVES));
         }
         return dto;
     }
@@ -257,12 +262,25 @@ public class MQManager implements MQManagerMXBean {
             configuration.put(PARENT, parentProfile);
         }
 
+        Integer replicas = dto.getReplicas();
+        if (replicas != null) {
+            configuration.put(REPLICAS, replicas.toString());
+        }
+        Integer slaves = dto.getSlaves();
+        if (slaves != null) {
+            configuration.put(SLAVES, slaves.toString());
+        }
+
         Profile profile = mqService.createMQProfile(version, name, configuration);
         String profileId = profile.getId();
         ProfileRequirements profileRequirement = requirements.getOrCreateProfileRequirement(profileId);
         Integer minimumInstances = profileRequirement.getMinimumInstances();
-        if (minimumInstances == null || minimumInstances.intValue() < dto.requiredInstances()) {
-            profileRequirement.setMinimumInstances(dto.requiredInstances());
+
+        // lets reload the DTO as we may have inherited some values from the parent profile
+        MQBrokerConfigDTO loadedDTO = createConfigDTO(mqService, profile);
+        int requiredInstances = loadedDTO.requiredInstances();
+        if (minimumInstances == null || minimumInstances.intValue() < requiredInstances) {
+            profileRequirement.setMinimumInstances(requiredInstances);
             fabricService.setRequirements(requirements);
         }
         return profile;

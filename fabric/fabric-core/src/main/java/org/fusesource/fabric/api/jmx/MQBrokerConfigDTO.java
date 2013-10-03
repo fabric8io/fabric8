@@ -41,13 +41,20 @@ public class MQBrokerConfigDTO {
     private String username;
     private String password;
     private String jvmOpts;
-
+    private Integer replicas;
+    private Integer slaves;
 
     /**
      * Based on the kind of replication (N+1 or replicated etc) or based on configuration
      * return now many instances of the broker profile are required
      */
     public int requiredInstances() {
+        if (replicas != null) {
+            return replicas.intValue();
+        }
+        if (slaves != null) {
+            return slaves.intValue();
+        }
         return 1;
     }
 
@@ -208,5 +215,27 @@ public class MQBrokerConfigDTO {
 
     public void setJvmOpts(String jvmOpts) {
         this.jvmOpts = jvmOpts;
+    }
+
+    /**
+     * Returns the number of replicas for a replicated message broker
+     */
+    public Integer getReplicas() {
+        return replicas;
+    }
+
+    public void setReplicas(Integer replicas) {
+        this.replicas = replicas;
+    }
+
+    /**
+     * Returns the number of slaves if using master/slave rather than replicated or N+1
+     */
+    public Integer getSlaves() {
+        return slaves;
+    }
+
+    public void setSlaves(Integer slaves) {
+        this.slaves = slaves;
     }
 }
