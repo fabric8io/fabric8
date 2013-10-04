@@ -253,8 +253,7 @@ public class MQManager implements MQManagerMXBean {
             answer.setAlive(container.isAlive());
             answer.setProvisionResult(container.getProvisionResult());
             answer.setProvisionStatus(container.getProvisionStatus());
-
-            // TODO lets add the master/slave status using a ZK lookup!
+            answer.setJolokiaUrl(container.getJolokiaUrl());
         }
         if (profileRequirements != null) {
             Integer minimumInstances = profileRequirements.getMinimumInstances();

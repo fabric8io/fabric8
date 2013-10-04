@@ -33,6 +33,7 @@ public class MQBrokerStatusDTO {
     private List<String> services;
     private Boolean master;
     private boolean alive;
+    private String jolokiaUrl;
 
     public MQBrokerStatusDTO() {
     }
@@ -146,5 +147,13 @@ public class MQBrokerStatusDTO {
 
     public boolean isAlive() {
         return alive;
+    }
+
+    public void setJolokiaUrl(String jolokiaUrl) {
+        this.jolokiaUrl = jolokiaUrl;
+    }
+
+    public String getJolokiaUrl() {
+        return jolokiaUrl;
     }
 }
