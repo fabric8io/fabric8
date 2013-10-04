@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.bridge.internal;
 
-import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.junit.After;
 import org.junit.Before;
@@ -31,14 +31,14 @@ import static org.junit.Assert.assertNotNull;
 
 public class ConnectionFactoryAdapterTest  {
 	
-	private AmqJNDIPooledConnectionFactory connectionFactory;
+	private PooledConnectionFactory connectionFactory;
 	private ConnectionFactoryAdapter adapter;
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionFactoryAdapterTest.class);
     private static final String TEST_LOCAL_BROKER_URL = "vm://localhost?broker.persistent=false";
 
     @Before
 	public void setUp() throws Exception {
-		connectionFactory = new AmqJNDIPooledConnectionFactory(TEST_LOCAL_BROKER_URL);
+		connectionFactory = new PooledConnectionFactory(TEST_LOCAL_BROKER_URL);
 		adapter = new ConnectionFactoryAdapter();
 	}
 

@@ -17,7 +17,7 @@
 
 package org.fusesource.fabric.bridge.zk.internal;
 
-import org.apache.activemq.pool.AmqJNDIPooledConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.bridge.MessageConverter;
 import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
@@ -67,8 +67,8 @@ public class ZkManagedBridgeServiceFactoryTest extends AbstractConnectorTestSupp
 
         bundleContext = new MockBundleContext() {
 
-            AmqJNDIPooledConnectionFactory localConnectionFactory = new AmqJNDIPooledConnectionFactory(TEST_LOCAL_BROKER_URL);
-            AmqJNDIPooledConnectionFactory remoteConnectionFactory = new AmqJNDIPooledConnectionFactory(TEST_REMOTE_BROKER_URL);
+            PooledConnectionFactory localConnectionFactory = new PooledConnectionFactory(TEST_LOCAL_BROKER_URL);
+            PooledConnectionFactory remoteConnectionFactory = new PooledConnectionFactory(TEST_REMOTE_BROKER_URL);
 
             @Override
             public ServiceReference[] getServiceReferences(String clazz, String filter) throws InvalidSyntaxException {

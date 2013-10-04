@@ -97,7 +97,8 @@ public class ZkBridgeDestinationsConfigFactory
         for (Profile profile : profiles) {
 
             // look for XML config
-            byte[] bytes = profile.getFileConfigurations().get(bridgeDestinationsXml);
+            Map<String, byte[]> configs = profile.getFileConfigurations();
+            byte[] bytes = configs.get(bridgeDestinationsXml);
             if (bytes != null) {
 
                 Object object = jaxbContext.createUnmarshaller().unmarshal(new ByteArrayInputStream(bytes));
