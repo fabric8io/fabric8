@@ -28,9 +28,11 @@ public class MQBrokerStatusDTO {
     private String group;
     private String container;
     private String provisionStatus;
+    private String provisionResult;
     private Integer minimumInstances;
     private List<String> services;
     private Boolean master;
+    private boolean alive;
 
     public MQBrokerStatusDTO() {
     }
@@ -128,5 +130,21 @@ public class MQBrokerStatusDTO {
 
     public void setMaster(Boolean master) {
         this.master = master;
+    }
+
+    public String getProvisionResult() {
+        return provisionResult;
+    }
+
+    public void setProvisionResult(String provisionResult) {
+        this.provisionResult = provisionResult;
+    }
+
+    public void setAlive(boolean alive) {
+        this.alive = alive;
+    }
+
+    public boolean isAlive() {
+        return alive;
     }
 }

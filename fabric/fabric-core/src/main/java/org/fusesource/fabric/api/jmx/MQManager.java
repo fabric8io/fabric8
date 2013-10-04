@@ -67,6 +67,7 @@ import static org.fusesource.fabric.api.MQService.Config.NETWORK_USER_NAME;
 import static org.fusesource.fabric.api.MQService.Config.PARENT;
 import static org.fusesource.fabric.api.MQService.Config.REPLICAS;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 /**
@@ -172,10 +173,10 @@ public class MQManager implements MQManagerMXBean {
             String group = entry.getKey();
             Map<String, MQBrokerStatusDTO> containerMap = entry.getValue();
             String groupPath = ZkPath.MQ_CLUSTER.getPath(group);
-
-            List<String> children = getAllChildren(getCurator(), groupPath);
+            List<String> children = getChildrenSafe(getCurator(), groupPath);
             for (String child : children) {
-                byte[] data = getCurator().getData().forPath(child);
+                String childPath = groupPath + "/" + child;
+                byte[] data = getCurator().getData().forPath(childPath);
                 if (data != null && data.length > 0) {
                     String text = new String(data).trim();
                     if (!text.isEmpty()) {
@@ -250,6 +251,8 @@ public class MQManager implements MQManagerMXBean {
         MQBrokerStatusDTO answer = new MQBrokerStatusDTO(configDTO);
         if (container != null) {
             answer.setContainer(container.getId());
+            answer.setAlive(container.isAlive());
+            answer.setProvisionResult(container.getProvisionResult());
             answer.setProvisionStatus(container.getProvisionStatus());
 
             // TODO lets add the master/slave status using a ZK lookup!
