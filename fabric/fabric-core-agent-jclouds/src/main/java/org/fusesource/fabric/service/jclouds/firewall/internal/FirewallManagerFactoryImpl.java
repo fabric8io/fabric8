@@ -31,6 +31,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.visibility.VisibleForExternal;
 import org.fusesource.fabric.service.jclouds.firewall.ApiFirewallSupport;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManager;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
@@ -79,11 +80,13 @@ public final class FirewallManagerFactoryImpl extends AbstractComponent implemen
         return null;
     }
 
-    void bindFirewallSupport(ApiFirewallSupport providerSupport) {
+    @VisibleForExternal
+    public void bindFirewallSupport(ApiFirewallSupport providerSupport) {
         firewallSupport.add(providerSupport);
     }
 
-    void unbindFirewallSupport(ApiFirewallSupport providerSupport) {
+    @VisibleForExternal
+    public void unbindFirewallSupport(ApiFirewallSupport providerSupport) {
         firewallSupport.remove(providerSupport);
     }
 }

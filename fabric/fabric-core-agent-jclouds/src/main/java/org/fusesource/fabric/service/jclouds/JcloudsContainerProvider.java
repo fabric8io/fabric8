@@ -46,6 +46,7 @@ import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.api.visibility.VisibleForExternal;
 import org.fusesource.fabric.internal.ContainerProviderUtils;
 import org.fusesource.fabric.service.jclouds.firewall.FirewallManagerFactory;
 import org.fusesource.fabric.service.jclouds.functions.ToRunScriptOptions;
@@ -324,6 +325,16 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
         return CreateJCloudsContainerMetadata.class;
     }
 
+    @VisibleForExternal
+    public void bindFirewallManagerFactory(FirewallManagerFactory factory) {
+        this.firewallManagerFactory.bind(factory);
+    }
+
+    @VisibleForExternal
+    public void unbindFirewallManagerFactory(FirewallManagerFactory factory) {
+        this.firewallManagerFactory.unbind(factory);
+    }
+
     void bindCredentialStore(CredentialStore credentialStore) {
         this.credentialStore.bind(credentialStore);
     }
@@ -354,14 +365,6 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
 
     void unbindCurator(CuratorFramework curator) {
         this.curator.unbind(curator);
-    }
-
-    void bindFirewallManagerFactory(FirewallManagerFactory factory) {
-        this.firewallManagerFactory.bind(factory);
-    }
-
-    void unbindFirewallManagerFactory(FirewallManagerFactory factory) {
-        this.firewallManagerFactory.unbind(factory);
     }
 
     void bindComputeService(ComputeService computeService) {
