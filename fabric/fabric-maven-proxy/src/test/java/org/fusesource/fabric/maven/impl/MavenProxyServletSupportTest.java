@@ -3,10 +3,34 @@ package org.fusesource.fabric.maven.impl;
 import java.util.regex.Matcher;
 import junit.framework.Assert;
 import org.junit.Test;
+import org.sonatype.aether.repository.RemoteRepository;
+import static org.fusesource.fabric.maven.impl.MavenProxyServletSupport.*;
+import static org.junit.Assert.*;
 
 public class MavenProxyServletSupportTest {
 
     private MavenProxyServletSupport servlet = new MavenDownloadProxyServlet(null, null, false, null,null,null,null,0,null, null, null);
+
+    @Test
+    public void testCreateSimpleRepo() {
+        String plainUrl = "http://some.repo.url/somepath";
+        RemoteRepository repository = createRemoteRepository(plainUrl);
+        assertNotNull(repository);
+        assertNotNull(repository.getId());
+        assertNull(repository.getAuthentication());
+    }
+
+    @Test
+    public void testCreateRepWithCredentials() {
+        String plainUrl = "http://user:password@some.repo.url/somepath";
+        RemoteRepository repository = createRemoteRepository(plainUrl);
+        assertNotNull(repository);
+        assertNotNull(repository.getId());
+        assertNotNull(repository.getAuthentication());
+        assertEquals("user", repository.getAuthentication().getUsername());
+        assertEquals("password", repository.getAuthentication().getPassword());
+        assertEquals("http://some.repo.url/somepath", repository.getUrl());
+    }
 
     @Test
     public void testMetadataRegex() {

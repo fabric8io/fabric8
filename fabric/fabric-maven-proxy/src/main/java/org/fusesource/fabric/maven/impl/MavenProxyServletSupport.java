@@ -22,6 +22,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServlet;
 
+import com.google.common.base.Strings;
 import org.apache.maven.repository.internal.DefaultServiceLocator;
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.apache.maven.wagon.Wagon;
@@ -43,6 +46,7 @@ import org.sonatype.aether.connector.wagon.WagonProvider;
 import org.sonatype.aether.connector.wagon.WagonRepositoryConnectorFactory;
 import org.sonatype.aether.installation.InstallRequest;
 import org.sonatype.aether.metadata.Metadata;
+import org.sonatype.aether.repository.Authentication;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.repository.RepositoryPolicy;
@@ -130,23 +134,12 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         repositories = new HashMap<String, RemoteRepository>();
 
         for (String rep : remoteRepositories.split(",")) {
-            String id;
-            RemoteRepository remoteRepository = null;
-            rep = rep.trim();
-            Matcher idMatcher = REPOSITORY_ID_REGEX.matcher(rep);
-            if (idMatcher.matches()) {
-                id = idMatcher.group(2);
-                rep = cleanUpRepositorySpec(rep);
-                remoteRepository = new RemoteRepository(id + Math.abs(rep.hashCode()), DEFAULT_REPO_ID, rep);
-            } else {
-                id = "rep-" + rep.hashCode();
-                rep = cleanUpRepositorySpec(rep);
-                remoteRepository = new RemoteRepository("repo-" + Math.abs(rep.hashCode()), DEFAULT_REPO_ID, rep);
-            }
+            RemoteRepository remoteRepository = createRemoteRepository(rep);
             remoteRepository.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
             remoteRepository.setProxy(session.getProxySelector().getProxy(remoteRepository));
-            repositories.put(id, remoteRepository);
+            repositories.put(remoteRepository.getId(), remoteRepository);
         }
+
         RemoteRepository local = new RemoteRepository("local", DEFAULT_REPO_ID, "file://" + localRepository);
         local.setPolicy(true, new RepositoryPolicy(true, updatePolicy, checksumPolicy));
         repositories.put("local", local);
@@ -287,6 +280,59 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
         locator.addService(RepositoryConnectorFactory.class, WagonRepositoryConnectorFactory.class);
         locator.setService(org.sonatype.aether.spi.log.Logger.class, LogAdapter.class);
         return locator.getService(RepositorySystem.class);
+    }
+
+    /**
+     * Creates a {@link RemoteRepository} for the specified url.
+     * @param repositoryUrl The repository URL.
+     * @return
+     */
+    static RemoteRepository createRemoteRepository(String repositoryUrl) {
+        String id;
+        RemoteRepository remoteRepository = null;
+        repositoryUrl = repositoryUrl.trim();
+        Authentication authentication = getAuthentication(repositoryUrl);
+        if (authentication != null) {
+            repositoryUrl = repositoryUrl.replaceFirst(String.format("%s:%s@", authentication.getUsername(), authentication.getPassword()), "");
+        }
+
+        Matcher idMatcher = REPOSITORY_ID_REGEX.matcher(repositoryUrl);
+        if (idMatcher.matches()) {
+            id = idMatcher.group(2);
+            repositoryUrl = cleanUpRepositorySpec(repositoryUrl);
+            remoteRepository = new RemoteRepository(id + Math.abs(repositoryUrl.hashCode()), DEFAULT_REPO_ID, repositoryUrl);
+        } else {
+            id = "rep-" + Math.abs(repositoryUrl.hashCode());
+            repositoryUrl = cleanUpRepositorySpec(repositoryUrl);
+            remoteRepository = new RemoteRepository("repo-" + Math.abs(repositoryUrl.hashCode()), DEFAULT_REPO_ID, repositoryUrl);
+        }
+        remoteRepository.setId(id);
+        if (authentication != null) {
+            remoteRepository.setAuthentication(authentication);
+        }
+        return remoteRepository;
+    }
+
+    /**
+     * Get the {@link Authentication} instance if the URL contains credentials, otherwise return null.
+     * @param repositoryUrl
+     * @return
+     */
+     static Authentication getAuthentication(String repositoryUrl) {
+        Authentication authentication = null;
+        try {
+            URL url = new URL(repositoryUrl);
+            String authority = url.getUserInfo();
+            if (!Strings.isNullOrEmpty(authority)) {
+                String[] parts = authority.split(":");
+                if (parts.length == 2) {
+                    authentication = new Authentication(parts[0], parts[1]);
+                }
+            }
+        } catch (MalformedURLException e) {
+            LOGGER.warning("{} does not look like a valid repository URL");
+        }
+        return authentication;
     }
 
 
@@ -431,7 +477,7 @@ public class MavenProxyServletSupport extends HttpServlet implements MavenProxy 
      * @param spec
      * @return
      */
-    protected String cleanUpRepositorySpec(String spec) {
+    static String cleanUpRepositorySpec(String spec) {
         if (spec == null || spec.isEmpty()) {
             return spec;
         } else if (!spec.contains("@")) {
