@@ -32,7 +32,7 @@
 
     <properties>
         <fuse.osgi.export>
-            org.fusesource.fabric.org.apache.zookeeper.commands
+            org.fusesource.fabric.zookeeper.commands
         </fuse.osgi.export>
         <fuse.osgi.private.pkg>
             org.jledit.utils,

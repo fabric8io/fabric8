@@ -39,7 +39,7 @@
           org.fusesource.fabric.service.jclouds.firewall.internal,
         </fuse.osgi.export>
         <fuse.osgi.import>
-            !org.fusesource.fabric.org.apache.zookeeper.commands,
+            !org.fusesource.fabric.zookeeper.commands,
             *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>

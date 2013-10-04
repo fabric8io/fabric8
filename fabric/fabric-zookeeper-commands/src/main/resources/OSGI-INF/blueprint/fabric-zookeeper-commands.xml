@@ -22,7 +22,7 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.0.0">
         <command name="zk/create">
-            <action class="org.fusesource.fabric.org.apache.zookeeper.commands.Create">
+            <action class="org.fusesource.fabric.zookeeper.commands.Create">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -31,7 +31,7 @@
             </completers>
         </command>
         <command name="zk/delete">
-            <action class="org.fusesource.fabric.org.apache.zookeeper.commands.Delete">
+            <action class="org.fusesource.fabric.zookeeper.commands.Delete">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -40,7 +40,7 @@
             </completers>
         </command>
         <command name="zk/list">
-            <action class="org.fusesource.fabric.org.apache.zookeeper.commands.List">
+            <action class="org.fusesource.fabric.zookeeper.commands.List">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -49,7 +49,7 @@
             </completers>
         </command>
         <command name="zk/get">
-            <action class="org.fusesource.fabric.org.apache.zookeeper.commands.Get">
+            <action class="org.fusesource.fabric.zookeeper.commands.Get">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -58,7 +58,7 @@
             </completers>
         </command>
         <command name="zk/set">
-            <action class="org.fusesource.fabric.org.apache.zookeeper.commands.Set">
+            <action class="org.fusesource.fabric.zookeeper.commands.Set">
                 <property name="curator" ref="curator"/>
             </action>
             <completers>
@@ -67,7 +67,7 @@
             </completers>
         </command>
         <command name="zk/edit">
-            <action class="org.fusesource.fabric.org.apache.zookeeper.commands.Edit">
+            <action class="org.fusesource.fabric.zookeeper.commands.Edit">
                 <property name="curator" ref="curator"/>
                 <property name="editorFactory" ref="editorFactory"/>
             </action>
