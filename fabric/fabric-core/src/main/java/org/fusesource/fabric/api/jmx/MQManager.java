@@ -66,7 +66,6 @@ import static org.fusesource.fabric.api.MQService.Config.NETWORK_PASSWORD;
 import static org.fusesource.fabric.api.MQService.Config.NETWORK_USER_NAME;
 import static org.fusesource.fabric.api.MQService.Config.PARENT;
 import static org.fusesource.fabric.api.MQService.Config.REPLICAS;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getAllChildren;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
@@ -476,15 +475,15 @@ public class MQManager implements MQManagerMXBean {
             try {
                 Container container = fabricService.getContainer(containerName);
                 if (container == null) {
-                    System.out.println("Failed to assign profile to " + containerName + ": profile doesn't exists");
+                    LOG.warn("Failed to assign profile to " + containerName + ": profile doesn't exists");
                 } else {
                     HashSet<Profile> profiles = new HashSet<Profile>(Arrays.asList(container.getProfiles()));
                     profiles.add(profile);
                     container.setProfiles(profiles.toArray(new Profile[profiles.size()]));
-                    System.out.println("Profile successfully assigned to " + containerName);
+                    LOG.info("Profile successfully assigned to " + containerName);
                 }
             } catch (Exception e) {
-                System.out.println("Failed to assign profile to " + containerName + ": " + e.getMessage());
+                LOG.warn("Failed to assign profile to " + containerName + ": " + e.getMessage());
             }
         }
     }
