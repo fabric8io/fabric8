@@ -931,7 +931,11 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         }
 
         String branch = gitContext != null && gitContext.getPushBranch() != null ? gitContext.getPushBranch() : GitHelpers.currentBranch(git);
-        return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
+        if (!branch.equals(MASTER_BRANCH)) {
+            return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(MASTER_BRANCH), new RefSpec(branch)).call();
+        } else {
+            return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
+        }
     }
 
     protected CredentialsProvider getCredentialsProvider() throws Exception {
