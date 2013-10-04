@@ -78,11 +78,22 @@ public class MQBrokerConfigDTO {
     }
 
     /**
+     * Returns the group if there is one configured or 'default' for the default group
+     */
+    public String group() {
+        String answer = getGroup();
+        if (Strings.isNullOrBlank(answer)) {
+            answer = "default";
+        }
+        return answer;
+    }
+
+    /**
      * Returns the configured profile name or defaults it to "mq-$group-$brokerName"
      */
     public String profile() {
         if (Strings.isNullOrBlank(profile)) {
-            profile = "mq-" + getGroup() + "-" + getBrokerName();
+            profile = "mq-" + group() + "-" + getBrokerName();
         }
         return profile;
     }
