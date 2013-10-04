@@ -67,6 +67,7 @@
       !org.apache.avalon.framework.logger*,
       !org.apache.log,
       !net.spy.memcached,
+      !org.jasypt.*,
       !kaffe.*,
       !com.google.protobuf*,
       !com.google.inject.internal.asm.util*,
