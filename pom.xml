@@ -1096,7 +1096,7 @@
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.scr.annotations</artifactId>
-                <version>${felix-scr-version}</version>
+                <version>1.9.4</version>
             </dependency>
             <!-- Equinox -->
             <dependency>
