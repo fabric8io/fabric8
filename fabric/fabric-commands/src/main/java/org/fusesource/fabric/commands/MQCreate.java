@@ -120,6 +120,10 @@ public class MQCreate extends FabricCommand {
             for (CreateContainerBasicOptions.Builder builder : builderList) {
                 CreateContainerMetadata[] metadatas = null;
                 try {
+                    if (builder instanceof CreateChildContainerOptions.Builder) {
+                        CreateChildContainerOptions.Builder childBuilder = (CreateChildContainerOptions.Builder) builder;
+                        builder = childBuilder.jmxUser(username).jmxPassword(password);
+                    }
                     metadatas = fabricService.createContainers(builder.build());
                     ShellUtils.storeFabricCredentials(session, username, password);
                 } catch (FabricAuthenticationException fae) {
@@ -155,9 +159,7 @@ public class MQCreate extends FabricCommand {
         dto.setNetworksPassword(networksPassword);
         dto.setNetworksUserName(networksUserName);
         dto.setParentProfile(parentProfile);
-        dto.setPassword(password);
         dto.setProperties(properties);
-        dto.setUsername(username);
         dto.setVersion(version);
         dto.setMinimumInstances(minimumInstances);
         dto.setReplicas(replicas);

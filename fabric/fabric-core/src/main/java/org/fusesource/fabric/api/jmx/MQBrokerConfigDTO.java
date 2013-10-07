@@ -38,8 +38,6 @@ public class MQBrokerConfigDTO {
     private String networksUserName;
     private String networksPassword;
     private String version;
-    private String username;
-    private String password;
     private String jvmOpts;
     private Integer replicas;
     private Integer minimumInstances;
@@ -250,28 +248,6 @@ public class MQBrokerConfigDTO {
 
     public void setVersion(String version) {
         this.version = version;
-    }
-
-    /**
-     * Returns the jmx user name of the parent container
-     */
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    /**
-     * Returns the jmx password of the parent container
-     */
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     /**

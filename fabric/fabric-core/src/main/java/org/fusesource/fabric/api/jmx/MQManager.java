@@ -506,9 +506,6 @@ public class MQManager implements MQManagerMXBean {
 
             String type = null;
             String parent = fabricService.getCurrentContainerName();
-
-            String jmxUser = dto.getUsername();
-            String jmxPassword = dto.getPassword();
             String jvmOpts = dto.getJvmOpts();
 
             CreateContainerBasicOptions.Builder builder = containerProvider.newBuilder();
@@ -524,11 +521,6 @@ public class MQManager implements MQManagerMXBean {
                     .zookeeperPassword(fabricService.getZookeeperPassword())
                     .profiles(profileId)
                     .version(version);
-
-            if (builder instanceof CreateChildContainerOptions.Builder) {
-                CreateChildContainerOptions.Builder childBuilder = (CreateChildContainerOptions.Builder) builder;
-                builder = childBuilder.jmxUser(jmxUser).jmxPassword(jmxPassword);
-            }
             containerBuilders.add(builder);
         }
         return containerBuilders;
