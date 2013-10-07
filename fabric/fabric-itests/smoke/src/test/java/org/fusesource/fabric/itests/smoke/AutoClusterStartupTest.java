@@ -26,32 +26,31 @@ import org.fusesource.fabric.api.ProfileRequirements;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.service.FabricServiceImpl;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
+import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Dictionary;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class AutoClusterStartupTest extends FabricTestSupport {
     protected FabricService fabricService;
 
@@ -91,7 +90,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         // and we've not started an auto-scaler yet
         changed = fabricService.scaleProfile(profile, expected);
         assertProfileMinimumSize(profile, expected);
-        Assert.assertEquals("should not have changed!", false, changed);
+        assertEquals("should not have changed!", false, changed);
 
 
         changed = fabricService.scaleProfile(profile, 2);
@@ -108,7 +107,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         FabricRequirements requirements = fabricService.getRequirements();
         ProfileRequirements profileRequirements = requirements.getOrCreateProfileRequirement(profile);
         Assert.assertNotNull("Should have profile requirements for profile " + profile, profileRequirements);
-        Assert.assertEquals("profile " + profile + " minimum instances", expected, profileRequirements.getMinimumInstances());
+        assertEquals("profile " + profile + " minimum instances", expected, profileRequirements.getMinimumInstances());
         System.out.println("Profile " + profile + " now has requirements " + profileRequirements);
     }
 
