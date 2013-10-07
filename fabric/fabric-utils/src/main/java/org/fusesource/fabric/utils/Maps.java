@@ -128,4 +128,30 @@ public class Maps {
             map.remove(key);
         }
     }
+
+    /**
+     * Returns the string values for the given key. If the value is a String then it is split using a comma
+     */
+    public static String[] stringValues(Map map, String key) {
+        Object obj = map.get(key);
+        if (obj instanceof String[]) {
+            return (String[]) obj;
+        } else if (obj instanceof String) {
+            String text = (String) obj;
+            return text.split(",");
+        }
+        return null;
+    }
+
+    /**
+     * Sets the string values in the map for the given key, using a comma to separate the values as a String
+     */
+    public static void setStringValues(Map map, String key, String[] values) {
+        if (values != null) {
+            String text = Arrays.join(",", values);
+            map.put(key, text);
+        } else {
+            map.remove(key);
+        }
+    }
 }

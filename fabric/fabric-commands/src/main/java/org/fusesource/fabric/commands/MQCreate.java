@@ -60,8 +60,8 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--group", description = "Broker group")
     protected String group;
 
-    @Option(name = "--networks", description = "Broker networks")
-    protected String networks;
+    @Option(name = "--networks", multiValued = true, description = "Broker networks")
+    protected String[] networks;
 
     @Option(name = "--networks-username", description = "Broker networks UserName")
     protected String networksUserName;

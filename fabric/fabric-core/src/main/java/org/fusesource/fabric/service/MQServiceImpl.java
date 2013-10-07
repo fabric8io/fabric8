@@ -85,8 +85,6 @@ public class MQServiceImpl implements MQService {
 
     @Override
     public String getConfig(String version, String config) {
-        // this generally won't work any more so lets just return the config from the profile:
-        // return "zk:/fabric/configs/versions/" + version + "/profiles/mq-base/" + config;
         return "profile:" + config;
     }
 

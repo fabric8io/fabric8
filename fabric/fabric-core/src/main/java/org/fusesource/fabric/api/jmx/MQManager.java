@@ -290,7 +290,7 @@ public class MQManager implements MQManagerMXBean {
                     dto.setGroup(configuration.get(GROUP));
                     dto.setKind(BrokerKind.fromValue(configuration.get(KIND)));
                     dto.setMinimumInstances(Maps.integerValue(configuration, MINIMUM_INSTANCES));
-                    dto.setNetworks(configuration.get(NETWORKS));
+                    dto.setNetworks(Maps.stringValues(configuration, NETWORKS));
                     dto.setNetworksUserName(configuration.get(NETWORK_USER_NAME));
                     dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
                     dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
@@ -414,10 +414,7 @@ public class MQManager implements MQManagerMXBean {
             configuration.put(GROUP, group);
         }
 
-        String networks = dto.getNetworks();
-        if (networks != null) {
-            configuration.put(NETWORKS, networks);
-        }
+        Maps.setStringValues(configuration, NETWORKS, dto.getNetworks());
 
         String networksUserName = dto.getNetworksUserName();
         if (networksUserName != null) {

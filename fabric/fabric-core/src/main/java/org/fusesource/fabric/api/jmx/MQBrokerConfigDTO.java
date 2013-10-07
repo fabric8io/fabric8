@@ -34,7 +34,7 @@ public class MQBrokerConfigDTO {
     private String configUrl;
     private String data;
     private String group;
-    private String networks;
+    private String[] networks;
     private String networksUserName;
     private String networksPassword;
     private String version;
@@ -207,13 +207,13 @@ public class MQBrokerConfigDTO {
     }
 
     /**
-     * Returns the broker networks
+     * Returns the group names of the network of brokers to create
      */
-    public String getNetworks() {
+    public String[] getNetworks() {
         return networks;
     }
 
-    public void setNetworks(String networks) {
+    public void setNetworks(String[] networks) {
         this.networks = networks;
     }
 
