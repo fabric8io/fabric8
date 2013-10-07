@@ -1469,5 +1469,12 @@
                 <module>website</module>
             </modules>
         </profile>
+
+        <profile>
+            <id>hawtio-snapshot</id>
+            <properties>
+                <hawtio-version>1.2-SNAPSHOT</hawtio-version>
+            </properties>
+        </profile>
     </profiles>
 </project>
