@@ -114,11 +114,11 @@
     </feature>
 
     <feature name="fabric-zookeeper" version="${project.version}" resolver="(obr)">
+        <feature>scr</feature>
         <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jasypt/${jasypt-smx-version}</bundle>
         <bundle>mvn:commons-codec/commons-codec/${commons-codec-version}</bundle>
         <bundle>mvn:commons-lang/commons-lang/${commons-lang-version}</bundle>
         <bundle>mvn:com.google.guava/guava/${guava-version}</bundle>
-        <bundle>mvn:org.apache.felix/org.apache.felix.scr/${felix-scr-version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-zookeeper/${project.version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-core-asl/${jackson-version}</bundle>
         <bundle dependency="true">mvn:org.codehaus.jackson/jackson-mapper-asl/${jackson-version}</bundle>
