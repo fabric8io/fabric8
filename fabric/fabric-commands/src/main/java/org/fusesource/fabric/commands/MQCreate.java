@@ -18,12 +18,14 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.jmx.BrokerKind;
 import org.fusesource.fabric.api.jmx.MQBrokerConfigDTO;
 import org.fusesource.fabric.api.jmx.MQManager;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
@@ -91,6 +93,10 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--replicas", multiValued = false, required = false, description = "Number of replicas required for replicated brokers (which typically use a parent-profile of mq-replicated profile).")
     protected Integer replicas;
 
+    @Option(name = "--kind", multiValued = false, required = false, description = "The kind of broker to create")
+    @CompleterValues()
+    protected BrokerKind kind;
+
     @Override
     protected Object doExecute() throws Exception {
         MQBrokerConfigDTO dto = createDTO();
@@ -155,6 +161,9 @@ public class MQCreate extends FabricCommand {
         dto.setVersion(version);
         dto.setMinimumInstances(minimumInstances);
         dto.setReplicas(replicas);
+        if (kind != null) {
+            dto.setKind(kind);
+        }
         return dto;
     }
 

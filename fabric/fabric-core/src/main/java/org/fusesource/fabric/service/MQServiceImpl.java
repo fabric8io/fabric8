@@ -33,10 +33,10 @@ public class MQServiceImpl implements MQService {
     }
 
     @Override
-    public Profile createMQProfile(String versionId, String profile, String brokerName, Map<String, String> configs) {
+    public Profile createMQProfile(String versionId, String profile, String brokerName, Map<String, String> configs, boolean replicated) {
         Version version = fabricService.getVersion(versionId);
 
-        String parentProfileName = MQ_PROFILE_BASE;
+        String parentProfileName = replicated ? MQ_PROFILE_REPLICATED : MQ_PROFILE_BASE;
         if( configs!=null && configs.containsKey("parent") ) {
             parentProfileName = configs.remove("parent");
         }
@@ -46,9 +46,6 @@ public class MQServiceImpl implements MQService {
         Profile result = parentProfile;
         if (brokerName != null && profile != null) {
             // lets check we have a config value
-
-
-
 
             // create a profile if it doesn't exist
             Map config = null;

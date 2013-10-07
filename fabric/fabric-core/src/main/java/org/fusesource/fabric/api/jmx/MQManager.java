@@ -60,6 +60,7 @@ import java.util.Set;
 import static org.fusesource.fabric.api.MQService.Config.CONFIG_URL;
 import static org.fusesource.fabric.api.MQService.Config.DATA;
 import static org.fusesource.fabric.api.MQService.Config.GROUP;
+import static org.fusesource.fabric.api.MQService.Config.KIND;
 import static org.fusesource.fabric.api.MQService.Config.MINIMUM_INSTANCES;
 import static org.fusesource.fabric.api.MQService.Config.NETWORKS;
 import static org.fusesource.fabric.api.MQService.Config.NETWORK_PASSWORD;
@@ -284,16 +285,15 @@ public class MQManager implements MQManagerMXBean {
                     dto.setParentProfile(parents[0].getId());
                 }
                 if (configuration != null) {
-                    dto.setConfigUrl(configuration.get(CONFIG_URL));
                     dto.setData(configuration.get(DATA));
+                    dto.setConfigUrl(configuration.get(CONFIG_URL));
                     dto.setGroup(configuration.get(GROUP));
-                    dto.setNetworks(configuration.get(NETWORKS));
-                    dto.setNetworksPassword(configuration.get(NETWORK_USER_NAME));
-                    dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
-                    dto.setNetworks(configuration.get(NETWORKS));
-                    dto.setNetworks(configuration.get(NETWORKS));
-                    dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
+                    dto.setKind(BrokerKind.fromValue(configuration.get(KIND)));
                     dto.setMinimumInstances(Maps.integerValue(configuration, MINIMUM_INSTANCES));
+                    dto.setNetworks(configuration.get(NETWORKS));
+                    dto.setNetworksUserName(configuration.get(NETWORK_USER_NAME));
+                    dto.setNetworksPassword(configuration.get(NETWORK_PASSWORD));
+                    dto.setReplicas(Maps.integerValue(configuration, REPLICAS));
                 }
                 answer.add(dto);
             }
@@ -401,6 +401,9 @@ public class MQManager implements MQManagerMXBean {
         }
         configuration.put(DATA, data);
 
+        BrokerKind kind = dto.kind();
+        configuration.put(KIND, kind.toString());
+
         String config = dto.getConfigUrl();
         if (config != null) {
             configuration.put(CONFIG_URL, mqService.getConfig(version, config));
@@ -440,7 +443,7 @@ public class MQManager implements MQManagerMXBean {
             configuration.put(MINIMUM_INSTANCES, minInstances.toString());
         }
 
-        Profile profile = mqService.createMQProfile(version, profileName, brokerName, configuration);
+        Profile profile = mqService.createMQProfile(version, profileName, brokerName, configuration, dto.kind().equals(BrokerKind.Replicated));
         String profileId = profile.getId();
         ProfileRequirements profileRequirement = requirements.getOrCreateProfileRequirement(profileId);
         Integer minimumInstances = profileRequirement.getMinimumInstances();

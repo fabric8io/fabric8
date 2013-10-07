@@ -26,6 +26,7 @@ import java.util.List;
  */
 public class MQBrokerConfigDTO {
 
+    private BrokerKind kind;
     private String brokerName;
     private String profile;
     private String parentProfile;
@@ -49,6 +50,7 @@ public class MQBrokerConfigDTO {
                 "group='" + group + '\'' +
                 ", profile='" + profile() + '\'' +
                 ", brokerName='" + brokerName + '\'' +
+                ", kind='" + kind + '\'' +
                 '}';
     }
 
@@ -62,6 +64,14 @@ public class MQBrokerConfigDTO {
         }
         if (minimumInstances != null) {
             return minimumInstances.intValue();
+        }
+        if (kind != null) {
+            switch (kind) {
+                case StandAlone:
+                    return 1;
+                case Replicated:
+                    return 3;
+            }
         }
         return 2;
     }
@@ -89,6 +99,17 @@ public class MQBrokerConfigDTO {
     }
 
     /**
+     * Returns the kind of the broker or the default
+     */
+    public BrokerKind kind() {
+        BrokerKind answer = getKind();
+        if (answer == null) {
+            answer = BrokerKind.DEFAULT;
+        }
+        return answer;
+    }
+
+    /**
      * Returns the configured profile name or defaults it to "mq-$group-$brokerName"
      */
     public String profile() {
@@ -101,6 +122,14 @@ public class MQBrokerConfigDTO {
 
     // Properties
     //-------------------------------------------------------------------------
+
+    public BrokerKind getKind() {
+        return kind;
+    }
+
+    public void setKind(BrokerKind kind) {
+        this.kind = kind;
+    }
 
     /**
      * Return the Broker name

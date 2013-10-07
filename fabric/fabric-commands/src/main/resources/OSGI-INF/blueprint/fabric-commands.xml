@@ -431,6 +431,7 @@
                 <entry key="--version" value-ref="versionCompleter"/>
                 <entry key="--parent-profile" value-ref="profileCompleter"/>
                 <entry key="--profile" value-ref="profileCompleter"/>
+                <entry key="--kind" value-ref="brokerKindCompleter"/>
             </optional-completers>
         </command>
         <command name="fabric/import">
@@ -501,6 +502,8 @@
     </bean>
     <bean id="profileCompleter" class="org.fusesource.fabric.boot.commands.support.ProfileCompleter">
         <property name="fabricService" ref="fabricService"/>
+    </bean>
+    <bean id="brokerKindCompleter" class="org.fusesource.fabric.commands.support.BrokerKindCompleter">
     </bean>
 
     <bean id="versionCompleter" class="org.fusesource.fabric.boot.commands.support.VersionCompleter">

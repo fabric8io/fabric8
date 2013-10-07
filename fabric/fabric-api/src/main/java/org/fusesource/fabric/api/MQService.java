@@ -21,12 +21,13 @@ import java.util.Map;
 public interface MQService {
 
     static final String MQ_PROFILE_BASE = "mq-base";
+    static final String MQ_PROFILE_REPLICATED = "mq-replicated";
 
     static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
 
     static final String MQ_FABRIC_SERVER_PID_PREFIX = "org.fusesource.mq.fabric.server-";
 
-    Profile createMQProfile(String version, String profile, String brokerName, Map<String, String> configs);
+    Profile createMQProfile(String version, String profile, String brokerName, Map<String, String> configs, boolean replicated);
 
     String getConfig(String version, String config);
 
@@ -34,17 +35,18 @@ public interface MQService {
      * Keys for the broker specific PID file inside the profile
      */
     public interface Config {
-        public static final String DATA = "data";
+        public static final String CONNECTORS = "connectors";
         public static final String CONFIG_URL = "config";
+        public static final String DATA = "data";
         public static final String GROUP = "group";
+        public static final String KIND = "kind";
+        public static final String MINIMUM_INSTANCES = "minimumInstances";
         public static final String NETWORKS = "network";
         public static final String NETWORK_USER_NAME = "network.userName";
         public static final String NETWORK_PASSWORD = "network.password";
         public static final String PARENT = "parent";
-        public static final String REPLICAS = "replicas";
-        public static final String MINIMUM_INSTANCES = "minimumInstances";
-
         public static final String STANDBY_POOL = "standby.pool";
-        public static final String CONNECTORS = "connectors";
+        public static final String REPLICAS = "replicas";
+
     }
 }
