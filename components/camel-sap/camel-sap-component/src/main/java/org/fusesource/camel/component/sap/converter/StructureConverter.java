@@ -22,24 +22,22 @@ import java.io.OutputStream;
 
 import org.apache.camel.Converter;
 import org.eclipse.emf.ecore.EObject;
+import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.impl.StructureImpl;
 import org.fusesource.camel.component.sap.util.RfcUtil;
 
+/**
+ * A Type Converter for SAP structure objects.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 @Converter
 public enum StructureConverter {
 	INSTANCE;
 	
 	@Converter
-	public static String toString(StructureImpl structure) {
-		try {
-			return RfcUtil.marshal(structure);
-		} catch (IOException e) {
-			return null;
-		}
-	}
-	
-	@Converter
-	public static StructureImpl toStructure(String string) {
+	public static Structure toStructure(String string) {
 		try {
 			EObject eObject = RfcUtil.unmarshal(string);
 			
@@ -52,6 +50,43 @@ public enum StructureConverter {
 		return null; 
 	}
 
+	@Converter
+	public static Structure toStructure(InputStream in) {
+		try {
+			EObject eObject = RfcUtil.fromInputStream(in);
+			
+			if (StructureImpl.class.isInstance(eObject)) {
+				return (StructureImpl) eObject;
+			}
+		} catch (IOException e) {
+			// Ignore
+		} 
+		return null; 
+	}
+
+	@Converter
+	public static Structure toStructure(byte[] byteArray) {
+		try {
+			EObject eObject = RfcUtil.unmarshal(new String(byteArray));
+			
+			if (StructureImpl.class.isInstance(eObject)) {
+				return (StructureImpl) eObject;
+			}
+		} catch (IOException e) {
+			// Ignore
+		} 
+		return null; 
+	}
+
+	@Converter
+	public static String toString(StructureImpl structure) {
+		try {
+			return RfcUtil.marshal(structure);
+		} catch (IOException e) {
+			return null;
+		}
+	}
+	
 	@Converter
 	public static OutputStream toOutputStream(StructureImpl structure) {
 		try {
@@ -70,12 +105,4 @@ public enum StructureConverter {
 		}
 	}
 	
-	@Converter
-	public static StructureImpl fromInputStream(InputStream in) {
-		try {
-			return (StructureImpl) RfcUtil.fromInputStream(in);
-		} catch (IOException e) {
-			return null;
-		}
-	}
 }

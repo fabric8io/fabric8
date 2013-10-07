@@ -39,6 +39,12 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import com.sap.conn.jco.JCoDestinationManager;
 import com.sap.conn.jco.ext.Environment;
 
+/**
+ * SAP Producer test cases.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ JCoDestinationManager.class, Environment.class })
 public class SAPProducerTest extends SAPTestSupport {

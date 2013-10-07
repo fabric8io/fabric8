@@ -80,6 +80,7 @@ public class FunctionTemplateItemProvider
 			addImportParameterListPropertyDescriptor(object);
 			addExportParameterListPropertyDescriptor(object);
 			addChangingParameterListPropertyDescriptor(object);
+			addTableParameterListPropertyDescriptor(object);
 			addExceptionListPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
@@ -262,6 +263,28 @@ public class FunctionTemplateItemProvider
 	}
 
 	/**
+	 * This adds a property descriptor for the Table Parameter List feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addTableParameterListPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_FunctionTemplate_tableParameterList_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_FunctionTemplate_tableParameterList_feature", "_UI_FunctionTemplate_type"),
+				 RfcPackage.Literals.FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
 	 * This adds a property descriptor for the Exception List feature.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -324,6 +347,7 @@ public class FunctionTemplateItemProvider
 			case RfcPackage.FUNCTION_TEMPLATE__IMPORT_PARAMETER_LIST:
 			case RfcPackage.FUNCTION_TEMPLATE__EXPORT_PARAMETER_LIST:
 			case RfcPackage.FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST:
+			case RfcPackage.FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST:
 			case RfcPackage.FUNCTION_TEMPLATE__EXCEPTION_LIST:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;

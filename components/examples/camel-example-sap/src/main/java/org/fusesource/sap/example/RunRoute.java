@@ -18,10 +18,18 @@ package org.fusesource.sap.example;
 
 import org.apache.camel.spring.Main;
 
+/**
+ * Runs example sap camel route. 
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class RunRoute {
 
 	/**
-	 * @param args
+	 * Run example sap camel route
+	 * 
+	 * @param args - none
 	 */
 	public static void main(String[] args) throws Exception {
     	Main main = new Main();

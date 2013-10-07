@@ -14,11 +14,18 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.bean;
 
 import java.util.Date;
 import java.util.List;
 
+
+/**
+ * Bean containing Flight Connection information
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class FlightConnectionInfo {
 	
 	private String travelAgencyNumber;

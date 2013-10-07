@@ -46,6 +46,12 @@ import com.sap.conn.jco.JCoResponse;
 import com.sap.conn.jco.JCoStructure;
 import com.sap.conn.jco.JCoTable;
 
+/**
+ * Support base class for SAP test cases. 
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public abstract class SAPTestSupport extends CamelSpringTestSupport {
 	/*********************************************************************
 	 * Test Destination, Repository, and Function Module

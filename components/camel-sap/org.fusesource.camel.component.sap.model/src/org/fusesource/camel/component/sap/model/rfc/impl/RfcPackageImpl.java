@@ -1264,8 +1264,17 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 	 * <!-- end-user-doc -->
 	 * @generated
 	 */
-	public EAttribute getFunctionTemplate_ExceptionList() {
+	public EAttribute getFunctionTemplate_TableParameterList() {
 		return (EAttribute)functionTemplateEClass.getEStructuralFeatures().get(8);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EAttribute getFunctionTemplate_ExceptionList() {
+		return (EAttribute)functionTemplateEClass.getEStructuralFeatures().get(9);
 	}
 
 	/**
@@ -1856,6 +1865,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__IMPORT_PARAMETER_LIST);
 		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__EXPORT_PARAMETER_LIST);
 		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST);
+		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST);
 		createEAttribute(functionTemplateEClass, FUNCTION_TEMPLATE__EXCEPTION_LIST);
 
 		recordMetaDataEClass = createEClass(RECORD_META_DATA);
@@ -2095,6 +2105,7 @@ public class RfcPackageImpl extends EPackageImpl implements RfcPackage {
 		initEAttribute(getFunctionTemplate_ImportParameterList(), this.getParameterList(), "importParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionTemplate_ExportParameterList(), this.getParameterList(), "exportParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionTemplate_ChangingParameterList(), this.getParameterList(), "changingParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
+		initEAttribute(getFunctionTemplate_TableParameterList(), this.getParameterList(), "tableParameterList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 		initEAttribute(getFunctionTemplate_ExceptionList(), this.getAbapExceptionList(), "exceptionList", null, 0, 1, FunctionTemplate.class, IS_TRANSIENT, IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, IS_DERIVED, IS_ORDERED);
 
 		initEClass(recordMetaDataEClass, RecordMetaData.class, "RecordMetaData", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);

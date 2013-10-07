@@ -37,6 +37,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getImportParameterList <em>Import Parameter List</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExportParameterList <em>Export Parameter List</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getChangingParameterList <em>Changing Parameter List</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getTableParameterList <em>Table Parameter List</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExceptionList <em>Exception List</em>}</li>
  * </ul>
  * </p>
@@ -203,6 +204,32 @@ public interface FunctionTemplate extends EObject {
 	 * @generated
 	 */
 	void setChangingParameterList(List<ListFieldMetaData> value);
+
+	/**
+	 * Returns the value of the '<em><b>Table Parameter List</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Table Parameter List</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Table Parameter List</em>' attribute.
+	 * @see #setTableParameterList(List)
+	 * @see org.fusesource.camel.component.sap.model.rfc.RfcPackage#getFunctionTemplate_TableParameterList()
+	 * @model dataType="org.fusesource.camel.component.sap.model.rfc.ParameterList" transient="true" volatile="true" derived="true"
+	 * @generated
+	 */
+	List<ListFieldMetaData> getTableParameterList();
+
+	/**
+	 * Sets the value of the '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getTableParameterList <em>Table Parameter List</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Table Parameter List</em>' attribute.
+	 * @see #getTableParameterList()
+	 * @generated
+	 */
+	void setTableParameterList(List<ListFieldMetaData> value);
 
 	/**
 	 * Returns the value of the '<em><b>Exception List</b></em>' attribute.

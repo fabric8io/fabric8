@@ -22,6 +22,9 @@ import org.fusesource.camel.component.sap.model.rfc.Structure;
 
 /**
  * Represents an SAP endpoint.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
  */
 public abstract class SAPEndpoint extends DefaultEndpoint {
 

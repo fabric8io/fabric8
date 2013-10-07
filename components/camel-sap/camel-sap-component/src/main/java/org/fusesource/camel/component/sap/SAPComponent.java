@@ -49,6 +49,9 @@ import com.sap.conn.jco.server.JCoServerStateChangedListener;
 
 /**
  * Represents the component that manages {@link SAPDestinationEndpoint} and {@link SAPServerEndpoint} instances.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
  */
 public class SAPComponent extends DefaultComponent {
 

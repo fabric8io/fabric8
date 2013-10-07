@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.jaxb;
 
 import java.util.Date;
 
@@ -24,6 +24,13 @@ import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+
+/**
+ * JAXB Bean containing SAP BOOK_FLIGHT request data.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 @XmlRootElement(name="Request", namespace="http://sap.fusesource.org/rfc/nplServer/BOOK_FLIGHT")
 @XmlAccessorType(XmlAccessType.FIELD)
 public class BookFlightRequest {

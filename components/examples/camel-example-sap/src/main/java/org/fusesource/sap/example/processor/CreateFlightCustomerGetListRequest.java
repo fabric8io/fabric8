@@ -14,23 +14,39 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.processor;
 
 import org.apache.camel.Exchange;
 import org.fusesource.camel.component.sap.SAPEndpoint;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
+import org.fusesource.sap.example.jaxb.BookFlightRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Processor that builds SAP Request Object for BAPI_FLCUST_GETLIST RFC call.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class CreateFlightCustomerGetListRequest {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CreateFlightCustomerGetListRequest.class);
 
+	/**
+	 * Builds SAP Request Object for BAPI_FLCUST_GETLIST call using data from
+	 * the BOOK_FLIGHT request.
+	 * 
+	 * @param exchange
+	 * @throws Exception
+	 */
 	public void create(Exchange exchange) throws Exception {
-		SAPEndpoint endpoint = exchange.getContext().getEndpoint("sap:destination:nplDest:BAPI_FLCUST_GETLIST", SAPEndpoint.class);
-		
+
+		// Get BOOK_FLIGHT Request JAXB Bean object.
 		BookFlightRequest bookFlightRequest = exchange.getIn().getBody(BookFlightRequest.class);
 
+		// Create SAP Request object from target endpoint.
+		SAPEndpoint endpoint = exchange.getContext().getEndpoint("sap:destination:nplDest:BAPI_FLCUST_GETLIST", SAPEndpoint.class);
 		Structure request = endpoint.getRequest();
 		
 		// Add Customer Name to request if set
@@ -43,6 +59,7 @@ public class CreateFlightCustomerGetListRequest {
 			throw new Exception("No Customer Name");
 		}
 		
+		// Put request object into body of exchange message.
 		exchange.getIn().setBody(request);
 		
 	}	

@@ -40,6 +40,12 @@ import org.junit.Test;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * SAP Component Test cases.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class SAPComponentTest extends SAPTestSupport {
 
 	@Test

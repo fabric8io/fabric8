@@ -14,7 +14,7 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.processor;
 
 import java.util.Date;
 
@@ -23,16 +23,33 @@ import org.fusesource.camel.component.sap.SAPEndpoint;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
 import org.fusesource.camel.component.sap.util.RfcUtil;
+import org.fusesource.sap.example.jaxb.BookFlightRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Processor that builds SAP Request object for BAPI_FLCONN_GETLIST RFC call. 
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class CreateFlightConnectionGetListRequest {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CreateFlightConnectionGetListRequest.class);
 
+	/**
+	 * Builds SAP Request Object for BAPI_FLCONN_GETLIST call using data from
+	 * the BOOK_FLIGHT request.
+	 * 
+	 * @param exchange
+	 * @throws Exception
+	 */
 	public void create(Exchange exchange) throws Exception {
+
+		// Get BOOK_FLIGHT Request JAXB Bean object.
 		BookFlightRequest bookFlightRequest = exchange.getIn().getBody(BookFlightRequest.class);
 
+		// Create SAP Request object from target endpoint.
 		SAPEndpoint endpoint = exchange.getContext().getEndpoint("sap:destination:nplDest:BAPI_FLCONN_GETLIST", SAPEndpoint.class);
 		Structure request = endpoint.getRequest();
 
@@ -84,6 +101,7 @@ public class CreateFlightConnectionGetListRequest {
 			throw new Exception("No End Destination");
 		}
 
+		// Put request object into body of exchange message.
 		exchange.getIn().setBody(request);
 
 	}

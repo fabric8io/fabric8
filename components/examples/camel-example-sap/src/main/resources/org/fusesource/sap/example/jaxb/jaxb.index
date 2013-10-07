@@ -14,3 +14,7 @@
 # permissions and limitations under the License.
 #
 BookFlightRequest
+BookFlightResponse
+ConnectionInfo
+ConnectionInfoTable
+FlightInfo

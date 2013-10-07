@@ -37,6 +37,9 @@ import com.sap.conn.jco.server.JCoServerFunctionHandler;
 
 /**
  * The SAP consumer.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
  */
 public class SAPConsumer extends DefaultConsumer implements JCoServerFunctionHandler {
 

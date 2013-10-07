@@ -14,10 +14,16 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.bean;
 
 import java.util.Date;
 
+/**
+ * Bean containing Passenger Information.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class PassengerInfo {
 	
 	private String formOfAddress;

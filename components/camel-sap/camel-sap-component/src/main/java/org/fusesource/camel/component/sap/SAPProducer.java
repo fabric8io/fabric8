@@ -25,6 +25,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The SAP producer.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
  */
 public class SAPProducer extends DefaultProducer {
 	private static final transient Logger LOG = LoggerFactory

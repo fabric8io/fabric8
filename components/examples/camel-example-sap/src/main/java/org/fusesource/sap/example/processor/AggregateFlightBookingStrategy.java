@@ -14,17 +14,25 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.processor;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.processor.aggregate.AggregationStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class AggregateFlightBookingStrategy implements AggregationStrategy {
 
 	private static final Logger LOG = LoggerFactory.getLogger(AggregateFlightBookingStrategy.class);
 
+	/**
+	 * Merges the message headers of sub-routes.
+	 * <p>{@inheritDoc}
+	 */
 	@Override
 	public Exchange aggregate(Exchange oldExchange, Exchange newExchange) {
         String to = newExchange.getProperty(Exchange.TO_ENDPOINT, String.class);
@@ -35,25 +43,37 @@ public class AggregateFlightBookingStrategy implements AggregationStrategy {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Adding Flight Connection Info to exchange.");
 			}
-        	return aggregate("flightConnectionInfo", oldExchange, newExchange);
+        	return mergeHeaderIntoOldExchange("flightConnectionInfo", oldExchange, newExchange);
         } else if (to.contains("FlightCustomerInfo")){
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Adding Flight Customer Info to exchange.");
 			}
-        	return aggregate("flightCustomerInfo", oldExchange, newExchange);
+        	return mergeHeaderIntoOldExchange("flightCustomerInfo", oldExchange, newExchange);
         } else {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("Adding Passenger Info to exchange.");
 			}
-        	return aggregate("passengerInfo", oldExchange, newExchange);
+        	return mergeHeaderIntoOldExchange("passengerInfo", oldExchange, newExchange);
         }
 	}
 	
-    public Exchange aggregate(String message, Exchange oldExchange, Exchange newExchange) {
+	/**
+	 * Merges the message header of input message in new exchange with message
+	 * headers of input message in old exchange.
+	 * 
+	 * @param messageHeader
+	 *            - the name of message header to merge.
+	 * @param oldExchange
+	 *            - the old exchange.
+	 * @param newExchange
+	 *            - the new exchange.
+	 * @return The merged exchange.
+	 */
+    public Exchange mergeHeaderIntoOldExchange(String messageHeader, Exchange oldExchange, Exchange newExchange) {
 
         Exchange answer = oldExchange == null ? newExchange : oldExchange;
         
-        answer.getIn().setHeader(message, newExchange.getIn().getHeader(message));
+        answer.getIn().setHeader(messageHeader, newExchange.getIn().getHeader(messageHeader));
 
         return answer;
     }

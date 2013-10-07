@@ -43,6 +43,7 @@ import org.fusesource.camel.component.sap.model.rfc.RfcPackage;
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl#getImportParameterList <em>Import Parameter List</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl#getExportParameterList <em>Export Parameter List</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl#getChangingParameterList <em>Changing Parameter List</em>}</li>
+ *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl#getTableParameterList <em>Table Parameter List</em>}</li>
  *   <li>{@link org.fusesource.camel.component.sap.model.rfc.impl.FunctionTemplateImpl#getExceptionList <em>Exception List</em>}</li>
  * </ul>
  * </p>
@@ -241,6 +242,25 @@ public class FunctionTemplateImpl extends EObjectImpl implements FunctionTemplat
 	 * <!-- end-user-doc -->
 	 * @generated NOT
 	 */
+	public List<ListFieldMetaData> getTableParameterList() {
+		return getTables();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
+	public void setTableParameterList(List<ListFieldMetaData> newTableParameterList) {
+		getTables().clear();
+		getTables().addAll(newTableParameterList);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated NOT
+	 */
 	public List<AbapException> getExceptionList() {
 		return getExceptions();
 	}
@@ -279,6 +299,8 @@ public class FunctionTemplateImpl extends EObjectImpl implements FunctionTemplat
 				return getExportParameterList();
 			case RfcPackage.FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST:
 				return getChangingParameterList();
+			case RfcPackage.FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST:
+				return getTableParameterList();
 			case RfcPackage.FUNCTION_TEMPLATE__EXCEPTION_LIST:
 				return getExceptionList();
 		}
@@ -323,6 +345,9 @@ public class FunctionTemplateImpl extends EObjectImpl implements FunctionTemplat
 			case RfcPackage.FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST:
 				setChangingParameterList((List<ListFieldMetaData>)newValue);
 				return;
+			case RfcPackage.FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST:
+				setTableParameterList((List<ListFieldMetaData>)newValue);
+				return;
 			case RfcPackage.FUNCTION_TEMPLATE__EXCEPTION_LIST:
 				setExceptionList((List<AbapException>)newValue);
 				return;
@@ -362,6 +387,9 @@ public class FunctionTemplateImpl extends EObjectImpl implements FunctionTemplat
 			case RfcPackage.FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST:
 				setChangingParameterList((List<ListFieldMetaData>)null);
 				return;
+			case RfcPackage.FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST:
+				setTableParameterList((List<ListFieldMetaData>)null);
+				return;
 			case RfcPackage.FUNCTION_TEMPLATE__EXCEPTION_LIST:
 				setExceptionList((List<AbapException>)null);
 				return;
@@ -393,6 +421,8 @@ public class FunctionTemplateImpl extends EObjectImpl implements FunctionTemplat
 				return getExportParameterList() != null;
 			case RfcPackage.FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST:
 				return getChangingParameterList() != null;
+			case RfcPackage.FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST:
+				return getTableParameterList() != null;
 			case RfcPackage.FUNCTION_TEMPLATE__EXCEPTION_LIST:
 				return getExceptionList() != null;
 		}

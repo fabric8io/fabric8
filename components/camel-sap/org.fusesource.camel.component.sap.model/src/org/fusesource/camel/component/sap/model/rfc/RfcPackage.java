@@ -1159,13 +1159,22 @@ public interface RfcPackage extends EPackage {
 	int FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST = 7;
 
 	/**
+	 * The feature id for the '<em><b>Table Parameter List</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST = 8;
+
+	/**
 	 * The feature id for the '<em><b>Exception List</b></em>' attribute.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int FUNCTION_TEMPLATE__EXCEPTION_LIST = 8;
+	int FUNCTION_TEMPLATE__EXCEPTION_LIST = 9;
 
 	/**
 	 * The number of structural features of the '<em>Function Template</em>' class.
@@ -1174,7 +1183,7 @@ public interface RfcPackage extends EPackage {
 	 * @generated
 	 * @ordered
 	 */
-	int FUNCTION_TEMPLATE_FEATURE_COUNT = 9;
+	int FUNCTION_TEMPLATE_FEATURE_COUNT = 10;
 
 	/**
 	 * The meta object id for the '{@link org.fusesource.camel.component.sap.model.rfc.impl.RecordMetaDataImpl <em>Record Meta Data</em>}' class.
@@ -2866,6 +2875,17 @@ public interface RfcPackage extends EPackage {
 	EAttribute getFunctionTemplate_ChangingParameterList();
 
 	/**
+	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getTableParameterList <em>Table Parameter List</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Table Parameter List</em>'.
+	 * @see org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getTableParameterList()
+	 * @see #getFunctionTemplate()
+	 * @generated
+	 */
+	EAttribute getFunctionTemplate_TableParameterList();
+
+	/**
 	 * Returns the meta object for the attribute '{@link org.fusesource.camel.component.sap.model.rfc.FunctionTemplate#getExceptionList <em>Exception List</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -4307,6 +4327,14 @@ public interface RfcPackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute FUNCTION_TEMPLATE__CHANGING_PARAMETER_LIST = eINSTANCE.getFunctionTemplate_ChangingParameterList();
+
+		/**
+		 * The meta object literal for the '<em><b>Table Parameter List</b></em>' attribute feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EAttribute FUNCTION_TEMPLATE__TABLE_PARAMETER_LIST = eINSTANCE.getFunctionTemplate_TableParameterList();
 
 		/**
 		 * The meta object literal for the '<em><b>Exception List</b></em>' attribute feature.

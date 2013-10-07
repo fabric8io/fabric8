@@ -225,6 +225,8 @@
         volatile="true" transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="changingParameterList"
         eType="#//ParameterList" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tableParameterList" eType="#//ParameterList"
+        volatile="true" transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="exceptionList" eType="#//AbapExceptionList"
         volatile="true" transient="true" derived="true"/>
   </eClassifiers>

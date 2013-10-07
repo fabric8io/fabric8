@@ -80,8 +80,6 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="25" />
 					<property name="unicodeByteLength" value="50" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -89,8 +87,6 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="15" />
 					<property name="unicodeByteLength" value="30" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -98,26 +94,20 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="25" />
 					<property name="unicodeByteLength" value="50" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
 					<property name="name" value="PASSBIRTH" />
 					<property name="type" value="DATE" />
 					<property name="byteLength" value="8" />
-					<property name="unicodeByteLength" value="8" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
+					<property name="unicodeByteLength" value="16" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
 					<property name="name" value="FLIGHTDATE" />
 					<property name="type" value="DATE" />
 					<property name="byteLength" value="8" />
-					<property name="unicodeByteLength" value="8" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
+					<property name="unicodeByteLength" value="16" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -125,8 +115,6 @@
 					<property name="type" value="NUM" />
 					<property name="byteLength" value="8" />
 					<property name="unicodeByteLength" value="8" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -134,8 +122,6 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="3" />
 					<property name="unicodeByteLength" value="6" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -143,8 +129,6 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="3" />
 					<property name="unicodeByteLength" value="6" />
-					<property name="decimals" value="0" />
-					<property name="import" value="true" />
 				</bean>
 			</list>
 		</property>
@@ -156,8 +140,6 @@
 					<property name="type" value="NUM" />
 					<property name="byteLength" value="8" />
 					<property name="unicodeByteLength" value="16" />
-					<property name="decimals" value="0" />
-					<property name="export" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -166,7 +148,6 @@
 					<property name="byteLength" value="12" />
 					<property name="unicodeByteLength" value="12" />
 					<property name="decimals" value="4" />
-					<property name="export" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -175,7 +156,6 @@
 					<property name="byteLength" value="12" />
 					<property name="unicodeByteLength" value="12" />
 					<property name="decimals" value="4" />
-					<property name="export" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -183,8 +163,6 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="5" />
 					<property name="unicodeByteLength" value="10" />
-					<property name="decimals" value="0" />
-					<property name="export" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -192,8 +170,6 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="15" />
 					<property name="unicodeByteLength" value="30" />
-					<property name="decimals" value="0" />
-					<property name="export" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
@@ -201,30 +177,24 @@
 					<property name="type" value="CHAR" />
 					<property name="byteLength" value="25" />
 					<property name="unicodeByteLength" value="50" />
-					<property name="decimals" value="0" />
-					<property name="export" value="true" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
 					<property name="name" value="PASSBIRTH" />
 					<property name="type" value="DATE" />
 					<property name="byteLength" value="8" />
-					<property name="unicodeByteLength" value="8" />
-					<property name="decimals" value="0" />
-					<property name="export" value="true" />
+					<property name="unicodeByteLength" value="16" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
 					<property name="name" value="FLTINFO" />
 					<property name="type" value="STRUCTURE" />
-					<property name="export" value="true" />
 					<property name="recordMetaData" ref="flightInfo" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.ListFieldMetaDataImpl">
 					<property name="name" value="CONNINFO" />
 					<property name="type" value="TABLE" />
-					<property name="changing" value="true" />
 					<property name="recordMetaData" ref="connectionInfo" />
 				</bean>
 			</list>
@@ -244,7 +214,6 @@
 					<property name="byteOffset" value="0" />
 					<property name="unicodeByteLength" value="20" />
 					<property name="unicodeByteOffset" value="0" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -254,7 +223,6 @@
 					<property name="byteOffset" value="10" />
 					<property name="unicodeByteLength" value="40" />
 					<property name="unicodeByteOffset" value="20" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -264,7 +232,6 @@
 					<property name="byteOffset" value="30" />
 					<property name="unicodeByteLength" value="16" />
 					<property name="unicodeByteOffset" value="60" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -274,7 +241,6 @@
 					<property name="byteOffset" value="38" />
 					<property name="unicodeByteLength" value="12" />
 					<property name="unicodeByteOffset" value="76" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -284,7 +250,6 @@
 					<property name="byteOffset" value="44" />
 					<property name="unicodeByteLength" value="40" />
 					<property name="unicodeByteOffset" value="88" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -294,7 +259,6 @@
 					<property name="byteOffset" value="64" />
 					<property name="unicodeByteLength" value="16" />
 					<property name="unicodeByteOffset" value="128" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -304,7 +268,6 @@
 					<property name="byteOffset" value="72" />
 					<property name="unicodeByteLength" value="12" />
 					<property name="unicodeByteOffset" value="144" />
-					<property name="decimals" value="0" />
 				</bean>
 			</list>
 		</property>
@@ -323,7 +286,6 @@
 					<property name="byteOffset" value="0" />
 					<property name="unicodeByteLength" value="2" />
 					<property name="unicodeByteOffset" value="0" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -333,7 +295,6 @@
 					<property name="byteOffset" value="1" />
 					<property name="unicodeByteLength" value="40" />
 					<property name="unicodeByteOffset" value="2" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -343,7 +304,6 @@
 					<property name="byteOffset" value="21" />
 					<property name="unicodeByteLength" value="20" />
 					<property name="unicodeByteOffset" value="42" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -353,7 +313,6 @@
 					<property name="byteOffset" value="31" />
 					<property name="unicodeByteLength" value="40" />
 					<property name="unicodeByteOffset" value="62" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -363,7 +322,6 @@
 					<property name="byteOffset" value="51" />
 					<property name="unicodeByteLength" value="16" />
 					<property name="unicodeByteOffset" value="102" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -373,7 +331,6 @@
 					<property name="byteOffset" value="59" />
 					<property name="unicodeByteLength" value="12" />
 					<property name="unicodeByteOffset" value="118" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -383,7 +340,6 @@
 					<property name="byteOffset" value="65" />
 					<property name="unicodeByteLength" value="40" />
 					<property name="unicodeByteOffset" value="130" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -393,7 +349,6 @@
 					<property name="byteOffset" value="85" />
 					<property name="unicodeByteLength" value="16" />
 					<property name="unicodeByteOffset" value="170" />
-					<property name="decimals" value="0" />
 				</bean>
 				<bean
 					class="org.fusesource.camel.component.sap.model.rfc.impl.FieldMetaDataImpl">
@@ -403,39 +358,38 @@
 					<property name="byteOffset" value="93" />
 					<property name="unicodeByteLength" value="12" />
 					<property name="unicodeByteOffset" value="186" />
-					<property name="decimals" value="0" />
 				</bean>
 			</list>
 		</property>
 	</bean>	
 
 	<bean id="aggregateFlightBookingStrategy"
-		class="org.fusesource.sap.example.AggregateFlightBookingStrategy" />
+		class="org.fusesource.sap.example.processor.AggregateFlightBookingStrategy" />
 
 	<bean id="createFlightConnectionGetListRequest"
-		class="org.fusesource.sap.example.CreateFlightConnectionGetListRequest"/>
+		class="org.fusesource.sap.example.processor.CreateFlightConnectionGetListRequest"/>
 	<bean id="createFlightConnectionGetDetailRequest"
-		class="org.fusesource.sap.example.CreateFlightConnectionGetDetailRequest"/>
+		class="org.fusesource.sap.example.processor.CreateFlightConnectionGetDetailRequest"/>
 	<bean id="createFlightCustomerGetListRequest"
-		class="org.fusesource.sap.example.CreateFlightCustomerGetListRequest"/>
+		class="org.fusesource.sap.example.processor.CreateFlightCustomerGetListRequest"/>
 	<bean id="createFlightTripRequest"
-		class="org.fusesource.sap.example.CreateFlightTripRequest"/>
+		class="org.fusesource.sap.example.processor.CreateFlightTripRequest"/>
 
-	<bean id="returnFlightBookingResponse"
-		class="org.fusesource.sap.example.ReturnFlightBookingResponse"/>
+	<bean id="returnFlightTripResponse"
+		class="org.fusesource.sap.example.processor.ReturnFlightTripResponse"/>
 	<bean id="returnPassengerInfo"
-		class="org.fusesource.sap.example.ReturnPassengerInfo" />
+		class="org.fusesource.sap.example.processor.ReturnPassengerInfo" />
 	<bean id="returnFlightCustomerInfo"
-		class="org.fusesource.sap.example.ReturnFlightCustomerInfo" />
+		class="org.fusesource.sap.example.processor.ReturnFlightCustomerInfo" />
 	<bean id="returnFlightConnectionInfo"
-		class="org.fusesource.sap.example.ReturnFlightConnectionInfo" />
+		class="org.fusesource.sap.example.processor.ReturnFlightConnectionInfo" />
 
 
 	<camelContext xmlns="http://camel.apache.org/schema/spring">
     <route>
         <from uri="sap:server:nplServer:BOOK_FLIGHT"/>
         <unmarshal>
-            <jaxb prettyPrint="true" contextPath="org.fusesource.sap.example"/>
+            <jaxb prettyPrint="true" contextPath="org.fusesource.sap.example.jaxb"/>
         </unmarshal>
         <multicast stopOnException="true" strategyRef="aggregateFlightBookingStrategy">
             <to uri="direct:getFlightConnectionInfo"/>
@@ -443,6 +397,9 @@
             <to uri="direct:getPassengerInfo"/>
         </multicast>
         <to uri="direct:createFlightTrip"/>
+        <marshal>
+            <jaxb prettyPrint="true" contextPath="org.fusesource.sap.example.jaxb"/>
+        </marshal>
     </route>
     <route>
         <from uri="direct:getFlightConnectionInfo"/>
@@ -466,7 +423,7 @@
         <from uri="direct:createFlightTrip"/>
         <to uri="bean:createFlightTripRequest"/>
         <to uri="sap:destination:nplDest:BAPI_FLTRIP_CREATE?transacted=true"/>
-        <to uri="bean:returnFlightBookingResponse"/>
+        <to uri="bean:returnFlightTripResponse"/>
     </route>
 </camelContext>
 

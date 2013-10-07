@@ -24,6 +24,13 @@ import org.slf4j.LoggerFactory;
 
 import com.sap.conn.jco.JCoDestination;
 
+/**
+ * A Camel synchronization object which commits or rolls back an SAP transaction
+ * upon successful completion or failure of an exchange.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ * 
+ */
 public class SAPDestinationTransaction extends SynchronizationAdapter {
 
 	private static final Logger LOG = LoggerFactory

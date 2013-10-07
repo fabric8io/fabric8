@@ -5,6 +5,12 @@ import org.apache.camel.test.spring.CamelSpringTestSupport;
 import org.junit.Test;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+/**
+ * Integration test cases for server RFC calls.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class ITestServerCall extends CamelSpringTestSupport {
 
 	@Test

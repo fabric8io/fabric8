@@ -14,8 +14,14 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.bean;
 
+/**
+ * Bean containing Airfare Price Information.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class PriceInfo {
 	
 	private String economyClassAirfare;

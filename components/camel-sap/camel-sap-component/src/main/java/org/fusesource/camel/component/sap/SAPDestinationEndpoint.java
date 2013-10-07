@@ -29,6 +29,9 @@ import com.sap.conn.jco.JCoDestinationManager;
 
 /**
  * Represents an SAP destination endpoint for outbound communication to SAP.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
  */
 public class SAPDestinationEndpoint extends SAPEndpoint {
 

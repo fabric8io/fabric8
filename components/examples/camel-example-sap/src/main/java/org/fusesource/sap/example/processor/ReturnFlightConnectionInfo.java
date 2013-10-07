@@ -14,10 +14,9 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.processor;
 
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -25,26 +24,49 @@ import java.util.List;
 import org.apache.camel.Exchange;
 import org.fusesource.camel.component.sap.model.rfc.Structure;
 import org.fusesource.camel.component.sap.model.rfc.Table;
+import org.fusesource.sap.example.bean.FlightConnectionInfo;
+import org.fusesource.sap.example.bean.FlightHop;
+import org.fusesource.sap.example.bean.PriceInfo;
+import org.fusesource.sap.example.bean.SeatAvailibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Processor that builds Flight Connection Info object.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class ReturnFlightConnectionInfo {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ReturnFlightConnectionInfo.class);
 
+	/**
+	 * Builds Flight Connection Info bean from BAPI_FLCONN_GETDETAIL response in
+	 * exchange message body and adds to exchange message's header.
+	 * 
+	 * @param exchange
+	 * @throws Exception
+	 */
 	public void createFlightConnectionInfo(Exchange exchange) throws Exception {
-		SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+		
 		Structure flightConnectionGetDetailResponse = exchange.getIn().getBody(Structure.class);
 
 		if (flightConnectionGetDetailResponse == null) {
 			throw new Exception("No Flight Connection Get Detail Response");
 		}
-
+		
+		// Create flight connection info bean.
 		FlightConnectionInfo flightConnectionInfo = new FlightConnectionInfo();
 
+		//
+		// Add connection data to flight connection info bean.
+		// 
+		
 		Structure connectionData = flightConnectionGetDetailResponse.get("CONNECTION_DATA", Structure.class);
 		if (connectionData != null) {
 
+			// Add travel agency number to flight connection info if set.
 			String travelAgencyNumber = connectionData.get("AGENCYNUM", String.class);
 			if (travelAgencyNumber != null) {
 				flightConnectionInfo.setTravelAgencyNumber(travelAgencyNumber);
@@ -53,6 +75,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add flight connection number to flight connection info if set.
 			String flightConnectionNumber = connectionData.get("FLIGHTCONN", String.class);
 			if (flightConnectionNumber != null) {
 				flightConnectionInfo.setFlightConnectionNumber(flightConnectionNumber);
@@ -61,6 +84,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure date to flight connection info if set.
 			Date departureDate = connectionData.get("FLIGHTDATE", Date.class);
 			if (departureDate != null) {
 				flightConnectionInfo.setDepartureDate(departureDate);
@@ -69,6 +93,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure airport to flight connection info if set.
 			String departureAirport = connectionData.get("AIRPORTFR", String.class);
 			if (departureAirport != null) {
 				flightConnectionInfo.setDepartureAirport(departureAirport);
@@ -77,6 +102,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure city to flight connection info if set.
 			String departureCity = connectionData.get("CITYFROM", String.class);
 			if (departureCity != null) {
 				flightConnectionInfo.setDepartureCity(departureCity);
@@ -85,6 +111,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival airport to flight connection info if set.
 			String arrivalAirport = connectionData.get("AIRPORTTO", String.class);
 			if (arrivalAirport != null) {
 				flightConnectionInfo.setArrivalAirport(arrivalAirport);
@@ -93,6 +120,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival city to flight connection info if set.
 			String arrivalCity = connectionData.get("CITYTO", String.class);
 			if (arrivalCity != null) {
 				flightConnectionInfo.setArrivalCity(arrivalCity);
@@ -101,6 +129,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add number of hops to flight connection info if set.
 			String numberOfHops = connectionData.get("NUMHOPS", String.class);
 			if (numberOfHops != null) {
 				flightConnectionInfo.setNumberOfHops(numberOfHops);
@@ -109,6 +138,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure time to flight connection info if set.
 			Date departureTime = connectionData.get("DEPTIME", Date.class);
 			if (departureTime != null) {
 				flightConnectionInfo.setDepartureTime(departureTime);
@@ -117,6 +147,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival time to flight connection info if set.
 			Date arrivalTime = connectionData.get("ARRTIME", Date.class);
 			if (arrivalTime != null) {
 				flightConnectionInfo.setArrivalTime(arrivalTime);
@@ -125,6 +156,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival date to flight connection info if set.
 			Date arrivalDate = connectionData.get("ARRDATE", Date.class);
 			if (arrivalDate != null) {
 				flightConnectionInfo.setArrivalDate(arrivalDate);
@@ -133,6 +165,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add flight time to flight connection info if set.
 			Integer flightTime = connectionData.get("FLIGHTTIME", Integer.class);
 			if (flightTime != null) {
 				flightConnectionInfo.setFlightTime(flightTime.toString());
@@ -143,13 +176,20 @@ public class ReturnFlightConnectionInfo {
 
 		}
 
+		//
+		// Add flight hop list to flight connection info bean.
+		// 
+		
 		@SuppressWarnings("unchecked")
 		Table<Structure> hopList = flightConnectionGetDetailResponse.get("FLIGHT_HOP_LIST", Table.class);
 		List<FlightHop> flightHopList = new ArrayList<FlightHop>();
 
 		for (Structure hop : hopList) {
+			
+			// Create flight hop object.
 			FlightHop flightHop = new FlightHop();
 
+			// Add hop number to flight hop if set.
 			String hopNumber = hop.get("HOP", String.class);
 			if (hopNumber != null) {
 				flightHop.setHopNumber(hopNumber);
@@ -158,6 +198,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add airline code to flight hop if set.
 			String airlineCode = hop.get("AIRLINEID", String.class);
 			if (airlineCode != null) {
 				flightHop.setAirlineCode(airlineCode);
@@ -166,6 +207,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add airline name to flight hop if set.
 			String airlineName = hop.get("AIRLINE", String.class);
 			if (airlineName != null) {
 				flightHop.setAirlineName(airlineName);
@@ -174,6 +216,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add flight connection number to flight hop if set.
 			String flightConnectionNumber = hop.get("CONNECTID", String.class);
 			if (flightConnectionNumber != null) {
 				flightHop.setFlightConnectionNumber(flightConnectionNumber);
@@ -182,6 +225,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure airport to flight hop if set.
 			String depatureAirport = hop.get("AIRPORTFR", String.class);
 			if (depatureAirport != null) {
 				flightHop.setDepatureAirport(depatureAirport);
@@ -190,6 +234,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure city to flight hop if set.
 			String depatureCity = hop.get("CITYFROM", String.class);
 			if (depatureCity != null) {
 				flightHop.setDepatureCity(depatureCity);
@@ -198,6 +243,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure country to flight hop if set.
 			String departureCountry = hop.get("CTRYFR", String.class);
 			if (departureCountry != null) {
 				flightHop.setDepartureCountry(departureCountry);
@@ -206,6 +252,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure country code to flight hop if set.
 			String departureCountryIso = hop.get("CTRYFR_ISO", String.class);
 			if (departureCountryIso != null) {
 				flightHop.setDepartureCountryIso(departureCountryIso);
@@ -214,6 +261,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival airport to flight hop if set.
 			String arrivalAirport = hop.get("AIRPORTTO", String.class);
 			if (arrivalAirport != null) {
 				flightHop.setArrivalAirport(arrivalAirport);
@@ -222,6 +270,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival city to flight hop if set.
 			String arrivalCity = hop.get("CITYTO", String.class);
 			if (arrivalCity != null) {
 				flightHop.setArrivalCity(arrivalCity);
@@ -230,6 +279,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival country to flight hop if set.
 			String arrivalCountry = hop.get("CTRYTO", String.class);
 			if (arrivalCountry != null) {
 				flightHop.setArrivalCountry(arrivalCountry);
@@ -238,6 +288,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add arrival country code to flight hop if set.
 			String arrivalCountryIso = hop.get("CTRYTO_ISO", String.class);
 			if (arrivalCountryIso != null) {
 				flightHop.setArrivalCountryIso(arrivalCountryIso);
@@ -246,42 +297,43 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add departure date to flight hop if set.
 			Date departureDate = hop.get("DEPDATE", Date.class);
 			if (departureDate != null) {
-				String departureDateString = dateTimeFormat.format(departureDate);
 				flightHop.setDepatureDate(departureDate);
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("Set departure date = '{}' in flight hop", departureDateString);
+					LOG.debug("Set departure date = '{}' in flight hop", departureDate);
 				}
 			}
 
+			// Add departure time to flight hop if set.
 			Date departureTime = hop.get("DEPTIME", Date.class);
 			if (departureTime != null) {
-				String departureTimeString = dateTimeFormat.format(departureTime);
 				flightHop.setDepatureTime(departureTime);
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("Set departure time = '{}' in flight hop", departureTimeString);
+					LOG.debug("Set departure time = '{}' in flight hop", departureTime);
 				}
 			}
 
+			// Add arrival date to flight hop if set.
 			Date arrivalDate = hop.get("ARRDATE", Date.class);
 			if (arrivalDate != null) {
-				String arrivalDateString = dateTimeFormat.format(arrivalDate);
 				flightHop.setArrivalDate(arrivalDate);
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("Set arrival date = '{}' in flight hop", arrivalDateString);
+					LOG.debug("Set arrival date = '{}' in flight hop", arrivalDate);
 				}
 			}
 
+			// Add arrival time to flight hop if set.
 			Date arrivalTime = hop.get("ARRTIME", Date.class);
 			if (arrivalTime != null) {
-				String arrivalTimeString = dateTimeFormat.format(arrivalTime);
 				flightHop.setArrivalTime(arrivalTime);
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("Set arrival time = '{}' in flight hop", arrivalTimeString);
+					LOG.debug("Set arrival time = '{}' in flight hop", arrivalTime);
 				}
 			}
 
+			// Add aircraft type to flight hop if set.
 			String aircraftType = hop.get("PLANETYPE", String.class);
 			if (aircraftType != null) {
 				flightHop.setAircraftType(aircraftType);
@@ -290,19 +342,27 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add flight hop
 			flightHopList.add(flightHop);
 		}
 
+		// Add flight hop list to flight connection info.
 		flightConnectionInfo.setFlightHopList(flightHopList);
 
+		//
+		// Add availability list to flight connection info bean.
+		// 
+		
 		@SuppressWarnings("unchecked")
 		Table<Structure> availibilityList = flightConnectionGetDetailResponse.get("AVAILIBILITY", Table.class);
 		List<SeatAvailibility> seatAvailiblityList = new ArrayList<SeatAvailibility>();
 
 		for (Structure availibility : availibilityList) {
 
+			// Create seat availability object.
 			SeatAvailibility seatAvailiblity = new SeatAvailibility();
 
+			// Add hop number to availability if set.
 			String hopNumber = availibility.get("HOP", String.class);
 			if (hopNumber != null) {
 				seatAvailiblity.setHopNumber(hopNumber);
@@ -311,6 +371,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add economy class seat capacity to availability if set.
 			Integer economyClassSeatCapacity =  availibility.get("ECONOMAX", Integer.class);
 			if (economyClassSeatCapacity != null) {
 				seatAvailiblity.setEconomyClassSeatCapacity(economyClassSeatCapacity.toString());
@@ -319,6 +380,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add economy class free seats to availability if set.
 			Integer economyClassFreeSeats =  availibility.get("ECONOFREE", Integer.class);
 			if (economyClassFreeSeats != null) {
 				seatAvailiblity.setEconomyClassFreeSeats(economyClassFreeSeats.toString());
@@ -327,6 +389,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add business class seat capacity to availability if set.
 			Integer businessClassSeatCapacity =  availibility.get("BUSINMAX", Integer.class);
 			if (businessClassSeatCapacity != null) {
 				seatAvailiblity.setBusinessClassSeatCapacity(businessClassSeatCapacity.toString());
@@ -335,6 +398,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add business class free seats to availability if set.
 			Integer businessClassFreeSeats =  availibility.get("BUSINFREE", Integer.class);
 			if (businessClassFreeSeats != null) {
 				seatAvailiblity.setBusinessClassFreeSeats(businessClassFreeSeats.toString());
@@ -343,6 +407,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add first class seat capacity to availability if set.
 			Integer firstClassClassSeatCapacity =  availibility.get("FIRSTMAX", Integer.class);
 			if (firstClassClassSeatCapacity != null) {
 				seatAvailiblity.setFirstClassClassSeatCapacity(firstClassClassSeatCapacity.toString());
@@ -351,6 +416,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add first class free seats to availability if set.
 			Integer firstClassFreeSeats =  availibility.get("FIRSTFREE", Integer.class);
 			if (firstClassFreeSeats != null) {
 				seatAvailiblity.setFirstClassFreeSeats(firstClassFreeSeats.toString());
@@ -359,16 +425,25 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add availability to list.
 			seatAvailiblityList.add(seatAvailiblity);
 		}
 
+		// Add availability list to flight connection info.
 		flightConnectionInfo.setSeatAvailibilityList(seatAvailiblityList);
 
+		//
+		// Add price info to flight connection info bean.
+		// 
+		
 		Structure prices = (Structure) flightConnectionGetDetailResponse.get("PRICE_INFO", Structure.class);
 
 		if (prices != null) {
+			
+			// Create price info object.
 			PriceInfo priceInfo = new PriceInfo();
 
+			// Add economy class airfare to availability if set.
 			BigDecimal economyClassAirfare =  prices.get("PRICE_ECO1", BigDecimal.class);
 			if (economyClassAirfare != null) {
 				priceInfo.setEconomyClassAirfare(economyClassAirfare.toString());
@@ -377,6 +452,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add economy class child airfare to availability if set.
 			BigDecimal economyClassChildAirfare =  prices.get("PRICE_ECO2", BigDecimal.class);
 			if (economyClassChildAirfare != null) {
 				priceInfo.setEconomyClassChildAirfare(economyClassChildAirfare.toString());
@@ -385,6 +461,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add economy class small child airfare to availability if set.
 			BigDecimal economyClassSmallChildAirfare =  prices.get("PRICE_ECO3", BigDecimal.class);
 			if (economyClassSmallChildAirfare != null) {
 				priceInfo.setEconomyClassSmallChildAirfare(economyClassSmallChildAirfare.toString());
@@ -393,6 +470,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add business class airfare to availability if set.
 			BigDecimal businessClassAirfare =  prices.get("PRICE_BUS1", BigDecimal.class);
 			if (businessClassAirfare != null) {
 				priceInfo.setBusinessClassAirfare(businessClassAirfare.toString());
@@ -401,6 +479,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add business class child airfare to availability if set.
 			BigDecimal businessClassChildAirfare =  prices.get("PRICE_BUS2", BigDecimal.class);
 			if (businessClassChildAirfare != null) {
 				priceInfo.setBusinessClassChildAirfare(businessClassChildAirfare.toString());
@@ -409,6 +488,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add business class small child airfare to availability if set.
 			BigDecimal businessClassSmallChildAirfare =  prices.get("PRICE_BUS3", BigDecimal.class);
 			if (businessClassSmallChildAirfare != null) {
 				priceInfo.setBusinessClassSmallChildAirfare(businessClassSmallChildAirfare.toString());
@@ -417,6 +497,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add first class airfare to availability if set.
 			BigDecimal firstClassAirfare =  prices.get("PRICE_FST1", BigDecimal.class);
 			if (firstClassAirfare != null) {
 				priceInfo.setBusinessClassAirfare(firstClassAirfare.toString());
@@ -425,6 +506,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add first class child airfare to availability if set.
 			BigDecimal firstClassChildAirfare =  prices.get("PRICE_FST2", BigDecimal.class);
 			if (firstClassChildAirfare != null) {
 				priceInfo.setBusinessClassChildAirfare(firstClassChildAirfare.toString());
@@ -433,6 +515,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add first class child airfare to availability if set.
 			BigDecimal firstClassSmallChildAirfare =  prices.get("PRICE_FST3", BigDecimal.class);
 			if (firstClassSmallChildAirfare != null) {
 				priceInfo.setBusinessClassSmallChildAirfare(firstClassSmallChildAirfare.toString());
@@ -441,6 +524,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add first class small child airfare to availability if set.
 			BigDecimal flightTaxes =  prices.get("TAX", BigDecimal.class);
 			if (flightTaxes != null) {
 				priceInfo.setFlightTaxes(flightTaxes.toString());
@@ -449,6 +533,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add currency type to availability if set.
 			String currency = prices.get("CURR", String.class);
 			if (currency != null) {
 				priceInfo.setCurrency(currency);
@@ -457,6 +542,7 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add currency code to availability if set.
 			String currencyIso = prices.get("CURR_ISO", String.class);
 			if (currencyIso != null) {
 				priceInfo.setCurrencyIso(currencyIso);
@@ -465,9 +551,11 @@ public class ReturnFlightConnectionInfo {
 				}
 			}
 
+			// Add price info.
 			flightConnectionInfo.setPriceInfo(priceInfo);
 		}
 		
+		// Put flight connection info object into header of exchange message.
 		exchange.getIn().setHeader("flightConnectionInfo", flightConnectionInfo);
 	}
 

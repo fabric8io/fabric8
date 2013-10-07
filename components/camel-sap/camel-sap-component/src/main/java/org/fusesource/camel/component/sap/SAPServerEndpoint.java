@@ -31,6 +31,9 @@ import com.sap.conn.jco.server.JCoServerFactory;
 
 /**
  * Represents an SAP server endpoint for inbound communication from SAP.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
  */
 public class SAPServerEndpoint extends SAPEndpoint {
 	

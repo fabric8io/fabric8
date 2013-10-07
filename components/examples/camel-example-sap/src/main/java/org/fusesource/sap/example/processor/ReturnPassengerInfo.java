@@ -14,24 +14,43 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.processor;
 
 import java.util.Date;
 
 import org.apache.camel.Exchange;
+import org.fusesource.sap.example.bean.PassengerInfo;
+import org.fusesource.sap.example.jaxb.BookFlightRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Processor that builds Passenger Info object.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class ReturnPassengerInfo {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ReturnPassengerInfo.class);
 
 	
+	/**
+	 * Builds Passenger Info bean from BOOK_FLIGHT request in exchange message
+	 * body and adds to exchange message's header.
+	 * 
+	 * @param exchange
+	 * @throws Exception
+	 */
 	public void createPassengerInfo(Exchange exchange) {
+		
+		// Retrieve SAP request object from body of exchange message.
 		BookFlightRequest bookFlightRequest = exchange.getIn().getBody(BookFlightRequest.class);
 		
+		// Create passenger info bean.
 		PassengerInfo passengerInfo = new PassengerInfo();
 		
+		// Add passenger form of address to passenger info if set.
 		String passengerFormOfAddress = bookFlightRequest.getPassengerFormOfAddress();
 		if (passengerFormOfAddress != null) {
 			passengerInfo.setFormOfAddress(passengerFormOfAddress);
@@ -40,6 +59,7 @@ public class ReturnPassengerInfo {
 			}
 		}
 		
+		// Add passenger name to passenger info if set.
 		String passengerName = bookFlightRequest.getPassengerName();
 		if (passengerName != null) {
 			passengerInfo.setName(passengerName);
@@ -48,6 +68,7 @@ public class ReturnPassengerInfo {
 			}
 		}
 		
+		// Add passenger date of birth to passenger info if set.
 		Date passengerDateOfBirth = bookFlightRequest.getPassengerDateOfBirth();
 		if (passengerDateOfBirth != null) {
 			passengerInfo.setDateOfBirth(passengerDateOfBirth);
@@ -56,6 +77,7 @@ public class ReturnPassengerInfo {
 			}
 		}
 		
+		// Put passenger info bean into header of exchange message. 
 		exchange.getIn().setHeader("passengerInfo", passengerInfo);
 	}
 

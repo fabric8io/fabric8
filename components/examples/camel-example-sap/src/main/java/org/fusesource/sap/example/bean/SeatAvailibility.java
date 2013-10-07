@@ -14,8 +14,14 @@
  * permissions and limitations under the License.
  * 
  */
-package org.fusesource.sap.example;
+package org.fusesource.sap.example.bean;
 
+/**
+ * Bean containing Seat Availability information.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class SeatAvailibility {
 	
 	private String hopNumber;

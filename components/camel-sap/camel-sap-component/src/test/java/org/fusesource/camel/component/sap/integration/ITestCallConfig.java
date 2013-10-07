@@ -33,6 +33,12 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import com.sap.conn.jco.JCoDestination;
 import com.sap.conn.jco.JCoDestinationManager;
 
+/**
+ * Integration test cases for destination RFC calls.
+ * 
+ * @author William Collins <punkhornsw@gmail.com>
+ *
+ */
 public class ITestCallConfig extends CamelSpringTestSupport {
 
 	@Test
