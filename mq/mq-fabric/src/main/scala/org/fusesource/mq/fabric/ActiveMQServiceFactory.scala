@@ -37,6 +37,7 @@ import org.apache.activemq.broker.{TransportConnector, BrokerService}
 import scala.collection.JavaConversions._
 import java.lang.{ThreadLocal, Thread}
 import org.apache.activemq.ActiveMQConnectionFactory
+import org.apache.activemq.spring.SpringBrokerContext
 import org.osgi.framework.{ServiceRegistration, BundleContext}
 import org.apache.activemq.network.DiscoveryNetworkConnector
 import java.util
@@ -107,6 +108,10 @@ object ActiveMQServiceFactory {
           broker.addNetworkConnector(nc)
         }
       }
+      var brokerContext = new SpringBrokerContext
+      brokerContext.setConfigurationUrl(resource.getURL.toExternalForm)
+      brokerContext.setApplicationContext(ctx)
+      broker.setBrokerContext(brokerContext)
       (ctx, broker, resource)
     } finally {
       CONFIG_PROPERTIES.remove()
