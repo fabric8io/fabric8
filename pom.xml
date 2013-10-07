@@ -160,6 +160,8 @@
         <felix-utils-version>1.1.0</felix-utils-version>
         <felix-resolver-version>1.0.0</felix-resolver-version>
         <felix-scr-version>1.8.0.redhat-${full-perfectus-build}</felix-scr-version>
+        <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
+        <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
         <fuse-cdc-version>1.1.0</fuse-cdc-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
@@ -1095,8 +1097,13 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.scr.annotations</artifactId>
+                <artifactId>org.apache.felix.scr</artifactId>
                 <version>${felix-scr-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.annotations</artifactId>
+                <version>${felix-scr-annotations-version}</version>
             </dependency>
             <!-- Equinox -->
             <dependency>
@@ -1423,6 +1430,18 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>${felix-scr-plugin-version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 
     <modules>
         <module>common-util</module>
