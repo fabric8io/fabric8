@@ -1,20 +1,17 @@
 package org.fusesource.common.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.nio.file.Path;
 import java.util.Set;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * A helper method to get the namespaces on an XML file
@@ -27,18 +24,6 @@ public class XmlHelper {
      * Returns true if the file can be parsed as XML and it contains one of the given namespace URs
      */
     public static boolean hasNamespace(File file, String... namespaceURis) {
-        try {
-            return hasNamespace(getNamespaces(file), namespaceURis);
-        } catch (Exception e) {
-            LOG.warn("Failed to parse XML " + file + ". " + e, e);
-            return false;
-        }
-    }
-
-    /**
-     * Returns true if the file can be parsed as XML and it contains one of the given namespace URs
-     */
-    public static boolean hasNamespace(Path file, String... namespaceURis) {
         try {
             return hasNamespace(getNamespaces(file), namespaceURis);
         } catch (Exception e) {
@@ -72,12 +57,12 @@ public class XmlHelper {
     }
 
     /**
-     * Returns true if the set containers one of the given namespace URIs
+     * Returns true if the set of namespaces containers one of the given given namespace URIs
      * @param namespaces
      * @param namespaceURis
      * @return
      */
-    protected static boolean hasNamespace(Set<String> namespaces, String... namespaceURis) {
+    public static boolean hasNamespace(Set<String> namespaces, String... namespaceURis) {
         if (namespaces != null) {
             for (String namespaceURi : namespaceURis) {
                 if (namespaces.contains(namespaceURi)) {
@@ -94,14 +79,6 @@ public class XmlHelper {
      */
     public static Set<String> getNamespaces(File file) throws ParserConfigurationException, SAXException, IOException {
         return getNamespaces(new InputSource(new FileReader(file)));
-    }
-
-    /**
-     * Returns the namespace URIs found in the given XML file
-     */
-    public static Set<String> getNamespaces(Path path)
-            throws IOException, ParserConfigurationException, SAXException {
-        return getNamespaces(path.toUri().toURL().openStream());
     }
 
     /**

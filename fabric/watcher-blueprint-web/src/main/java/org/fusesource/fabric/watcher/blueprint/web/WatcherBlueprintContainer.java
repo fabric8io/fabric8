@@ -30,8 +30,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.aries.blueprint.container.BlueprintContainerImpl;
-import org.fusesource.common.util.XmlHelper;
 import org.fusesource.fabric.watcher.PathHelper;
+import org.fusesource.fabric.watcher.Paths;
 import org.fusesource.fabric.watcher.Processor;
 import org.fusesource.fabric.watcher.file.FileWatcher;
 import org.osgi.service.blueprint.container.BlueprintContainer;
@@ -166,7 +166,7 @@ public class WatcherBlueprintContainer extends FileWatcher {
     }
 
     protected BlueprintContainer createContainer(Path path, URL url) throws Exception {
-        if (!XmlHelper.hasNamespace(path, BLUEPRINT_NAMESPACE_URI)) {
+        if (!Paths.hasNamespace(path, BLUEPRINT_NAMESPACE_URI)) {
             LOG.info("Ignoring XML file " + path + " which is not a blueprint XML");
             return null;
         }

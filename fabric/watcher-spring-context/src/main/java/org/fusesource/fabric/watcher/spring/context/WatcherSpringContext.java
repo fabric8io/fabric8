@@ -26,7 +26,7 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.fusesource.common.util.XmlHelper;
+import org.fusesource.fabric.watcher.Paths;
 import org.fusesource.fabric.watcher.Processor;
 import org.fusesource.fabric.watcher.file.FileWatcher;
 import org.slf4j.Logger;
@@ -158,7 +158,7 @@ public class WatcherSpringContext extends FileWatcher {
     }
 
     protected FileSystemXmlApplicationContext createContext(Path path, String url) {
-        if (!XmlHelper.hasNamespace(path, SPRING_BEANS_NAMESPACE_URI)) {
+        if (!Paths.hasNamespace(path, SPRING_BEANS_NAMESPACE_URI)) {
             LOG.info("Ignoring XML file " + path + " which is not a spring XML");
             return null;
         }
