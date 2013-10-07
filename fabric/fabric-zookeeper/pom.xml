@@ -62,7 +62,7 @@
         </fuse.osgi.services.export>
         <fuse.osgi.capabilities.provide><![CDATA[
             service-reference;effective:=active;objectClass=org.apache.curator.framework.CuratorFramework,
-            service-reference;effective:=active;objectClass:List&lt;String&gt;="org.apache.curator.framework.api.ACLProvider,org.fusesource.fabric.org.apache.zookeeper.ACLManager",
+            service-reference;effective:=active;objectClass:List<String>="org.apache.curator.framework.api.ACLProvider,org.fusesource.fabric.org.apache.zookeeper.ACLManager",
             service-reference;effective:=active;objectClass=org.osgi.service.url.URLStreamHandlerService;url.handler.protocol=zk
         ]]></fuse.osgi.capabilities.provide>
         <fuse.osgi.private.pkg>
