@@ -28,7 +28,7 @@
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
         <bundle>mvn:org.apache.felix/org.apache.felix.configadmin/${felix-configadmin-version}</bundle>
 
-        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.version}</bundle>
+        <bundle>mvn:org.ops4j.pax.url/pax-url-mvn/${pax.url.mvn.version}</bundle>
         <bundle>mvn:org.ops4j.pax.url/pax-url-wrap/${pax.url.version}</bundle>
 
         <bundle>mvn:org.ops4j.pax.logging/pax-logging-api/${pax.logging.version}</bundle>
@@ -159,6 +159,7 @@
         <feature version="${project.version}">fabric-git-server</feature>
         <feature version="${project.version}">fabric-boot-commands</feature>
         <feature version="${project.version}">fabric-redirect</feature>
+        <bundle>mvn:org.osgi/org.osgi.compendium/${osgi-compendium-version}</bundle>
     </feature>
 
     <feature name="fabric-core" version="${project.version}" resolver="(obr)">

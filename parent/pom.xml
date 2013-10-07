@@ -35,11 +35,10 @@
 
     <dependencies>
 
-        <!-- test -->
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit-version}</version>
+            <groupId>org.ops4j.pax.exam</groupId>
+            <artifactId>pax-exam-junit4</artifactId>
+            <version>${pax-exam-version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

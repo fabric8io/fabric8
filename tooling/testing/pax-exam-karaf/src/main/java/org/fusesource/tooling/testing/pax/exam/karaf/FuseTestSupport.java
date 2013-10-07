@@ -20,11 +20,10 @@ package org.fusesource.tooling.testing.pax.exam.karaf;
 import org.apache.felix.service.command.CommandProcessor;
 import org.apache.felix.service.command.CommandSession;
 import org.apache.karaf.features.FeaturesService;
-import org.junit.Assert;
 import org.ops4j.pax.exam.CoreOptions;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.ProbeBuilder;
 import org.ops4j.pax.exam.TestProbeBuilder;
-import org.ops4j.pax.exam.junit.ProbeBuilder;
 import org.ops4j.pax.exam.options.MavenArtifactProvisionOption;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
@@ -33,14 +32,12 @@ import org.osgi.framework.Constants;
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
 
 public class FuseTestSupport {
 
@@ -219,7 +216,7 @@ public class FuseTestSupport {
         System.err.println(executeCommand("features:install " + feature));
         FeaturesService featuresService = getOsgiService(FeaturesService.class);
         System.err.println(executeCommand("osgi:list -t 0"));
-        Assert.assertTrue("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
+        assertTrue("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
     }
 
     /**
@@ -232,7 +229,7 @@ public class FuseTestSupport {
         System.err.println(executeCommand("features:uninstall " + feature));
         FeaturesService featuresService = getOsgiService(FeaturesService.class);
         System.err.println(executeCommand("osgi:list -t 0"));
-        Assert.assertFalse("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
+        assertFalse("Expected " + feature + " feature to be installed.", featuresService.isInstalled(featuresService.getFeature(feature)));
     }
 
 

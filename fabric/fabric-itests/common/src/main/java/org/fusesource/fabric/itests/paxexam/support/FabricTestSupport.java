@@ -18,18 +18,13 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
-import org.fusesource.fabric.api.Container;
-import org.fusesource.fabric.api.CreateChildContainerOptions;
-import org.fusesource.fabric.api.CreateContainerMetadata;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.Profile;
-import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
+import org.ops4j.pax.exam.karaf.options.DoNotModifyLogOption;
 import org.osgi.service.blueprint.container.BlueprintContainer;
 
 import javax.management.JMX;
@@ -38,7 +33,6 @@ import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-
 import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -47,14 +41,11 @@ import java.util.concurrent.TimeUnit;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.*;
 
 public class FabricTestSupport extends FuseTestSupport {
 

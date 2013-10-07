@@ -25,8 +25,8 @@ import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
 import java.util.HashSet;

@@ -17,24 +17,20 @@
 
 package org.fusesource.esb.itests.pax.exam.karaf;
 
-import org.apache.karaf.features.FeaturesService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openengsb.labs.paxexam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.Configuration;
-import org.ops4j.pax.exam.junit.ExamReactorStrategy;
-import org.ops4j.pax.exam.junit.JUnit4TestRunner;
-import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
+import org.ops4j.pax.exam.junit.PaxExam;
+import org.ops4j.pax.exam.karaf.options.LogLevelOption;
+import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
+import org.ops4j.pax.exam.spi.reactors.PerMethod;
 
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.*;
 
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.logLevel;
-
-@RunWith(JUnit4TestRunner.class)
-@ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@RunWith(PaxExam.class)
+@ExamReactorStrategy(PerMethod.class)
 public class EsbExampleFeaturesTest extends EsbTestSupport {
 
     @Test
@@ -42,10 +38,8 @@ public class EsbExampleFeaturesTest extends EsbTestSupport {
         installAndCheckFeature("examples-cxf-osgi");
         unInstallAndCheckFeature("examples-cxf-osgi");
     }
-
     @Test
     public void testCxfJaxrs() throws Exception {
-        FeaturesService s;
         installAndCheckFeature("examples-cxf-jaxrs");
         unInstallAndCheckFeature("examples-cxf-jaxrs");
     }

@@ -17,17 +17,16 @@
 
 package org.fusesource.esb.itests.pax.exam.karaf;
 
-import java.io.File;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 
+import java.io.File;
 
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.editConfigurationFilePut;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
-import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.useOwnExamBundlesStartLevel;
+import static org.ops4j.pax.exam.CoreOptions.bootDelegationPackage;
 import static org.ops4j.pax.exam.CoreOptions.maven;
+import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.*;
 
 public class EsbTestSupport extends FuseTestSupport {
     static final String GROUP_ID = "org.jboss.fuse";
@@ -54,12 +53,34 @@ public class EsbTestSupport extends FuseTestSupport {
      */
     protected Option esbDistributionConfiguration() {
         return new DefaultCompositeOption(
-                new Option[]{karafDistributionConfiguration().frameworkUrl(
-                        maven().groupId(GROUP_ID).artifactId(ARTIFACT_ID).versionAsInProject().type("zip"))
-                        .karafVersion(getKarafVersion()).name("JBoss Fuse Distro").unpackDirectory(new File("target/paxexam/unpack/")),
+                new Option[]{
+                        karafDistributionConfiguration()
+                                .frameworkUrl(
+                                        maven()
+                                                .groupId(GROUP_ID)
+                                                .artifactId(ARTIFACT_ID)
+                                                .versionAsInProject()
+                                                .type("zip"))
+                                .karafVersion(getKarafVersion())
+                                .name("JBoss Fuse Distro")
+                                .unpackDirectory(new File("target/paxexam/unpack/"))
+                                .useDeployFolder(false),
+                        // Don't bother with local console output as it just ends up cluttering the logs
+                        configureConsole().ignoreLocalConsole(),
                         useOwnExamBundlesStartLevel(50),
-                      editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
-                      mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf"))
+                        editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50"),
+                        //We need to delegate org.osgi.framework to bootloader because, when pax exam loads karaf, it puts
+                        //felix framework jar file in the top of the list, felix jar has BundleContext, just as karaf.jar.
+                        //When ServiceInjector tries to inject BundleContext into test class, "BundleContext.class == type"
+                        //returns false and BundleContext can never be resolved. The problem is that the first BundleContext
+                        //is loaded by one classloader from karaf.jar and the second BundleContext by another classloader from felix jar,
+                        //By delegating org.osgi.framework we make sure that equality returns true, since both classes are loaded by the same classloader
+                        bootDelegationPackage("org.osgi.framework"),
+                        mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf"))
+                        // Remember that the test executes in another process.  If you want to debug it, you need
+                        // to tell Pax Exam to launch that process with debugging enabled.  Launching the test class itself with
+                        // debugging enabled (for example in Eclipse) will not get you the desired results.
+                        //debugConfiguration("5000", true),
                 });
     }
 }
