@@ -162,6 +162,7 @@
         <felix-scr-version>1.8.0.redhat-${full-perfectus-build}</felix-scr-version>
         <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
         <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
+        <felix-gogo-version>0.11.0.redhat-${full-perfectus-build}</felix-gogo-version>
         <fuse-cdc-version>1.1.0</fuse-cdc-version>
         <guava-version>14.0.1</guava-version>
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
@@ -1104,6 +1105,11 @@
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.scr.annotations</artifactId>
                 <version>${felix-scr-annotations-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.gogo.runtime</artifactId>
+                <version>${felix-gogo-version}</version>
             </dependency>
             <!-- Equinox -->
             <dependency>

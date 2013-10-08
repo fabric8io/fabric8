@@ -370,6 +370,7 @@
         <felix-fileinstall-version>3.3.11.${snapshot-build}</felix-fileinstall-version>
         <felix-framework-version>4.0.3.${snapshot-build}</felix-framework-version>
         <felix-framework-security-version>2.0.1.${snapshot-build}</felix-framework-security-version>
+        <felix-gogo-version>0.11.0.${snapshot-build}</felix-gogo-version>
         <karaf-version>2.3.0.${snapshot-build}</karaf-version>
         <servicemix.components.version>2013.01.0.${snapshot-build}</servicemix.components.version>
         <servicemix.features.version>4.5.0.${snapshot-build}</servicemix.features.version>

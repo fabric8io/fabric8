@@ -571,8 +571,8 @@
 
     <!-- Container Connect -->
     <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory" />
-    <reference-list id="agents" interface="org.apache.sshd.agent.SshAgent" availability="optional" activation="eager">
-        <reference-listener ref="agentFactory" bind-method="registerAgent" unbind-method="unregisterAgent" />
+    <reference-list id="commandSessions" interface="org.apache.felix.service.command.CommandSession" availability="optional" activation="eager">
+        <reference-listener ref="agentFactory" bind-method="registerCommandSession" unbind-method="unregisterCommandSession" />
     </reference-list>
 
     <bean id="sshClient" class="org.apache.sshd.SshClient" factory-method="setUpDefaultClient" scope="prototype">
