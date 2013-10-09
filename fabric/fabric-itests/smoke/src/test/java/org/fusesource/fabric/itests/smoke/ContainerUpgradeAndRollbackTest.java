@@ -8,7 +8,6 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.WaitForConfigurationChange;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -49,7 +48,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      *
      * @throws Exception
      */
-    @Ignore
     @Test
     public void testContainerUpgradeAndRollback() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
@@ -93,7 +91,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      *
      * @throws Exception
      */
-    @Ignore
     @Test
     public void testContainerAfterVersionUpgradeAndDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
