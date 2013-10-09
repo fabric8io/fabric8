@@ -16,7 +16,7 @@
  */
 package org.fusesource.fabric.groups;
 
-public interface MultiGroup<T> extends Group<T> {
+public interface MultiGroup<T extends NodeState> extends Group<T> {
 
     /**
      * Check if we are the master.

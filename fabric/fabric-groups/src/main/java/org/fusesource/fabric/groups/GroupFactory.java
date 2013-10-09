@@ -18,8 +18,8 @@ package org.fusesource.fabric.groups;
 
 public interface GroupFactory {
 
-    <T> Group<T> createGroup(String path, Class<T> clazz);
+    <T extends NodeState> Group<T> createGroup(String path, Class<T> clazz);
 
-    <T> Group<T> createMultiGroup(String path, Class<T> clazz);
+    <T extends NodeState> Group<T> createMultiGroup(String path, Class<T> clazz);
 
 }

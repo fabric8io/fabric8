@@ -26,7 +26,7 @@ import org.osgi.util.tracker.ServiceTrackerCustomizer;
 /**
  *
  */
-public class TrackingZooKeeperGroup<T> extends DelegateZooKeeperGroup<T> {
+public class TrackingZooKeeperGroup<T extends NodeState> extends DelegateZooKeeperGroup<T> {
 
     private final BundleContext bundleContext;
     private final ServiceTracker<CuratorFramework, CuratorFramework> tracker;

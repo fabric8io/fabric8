@@ -24,7 +24,7 @@ package org.fusesource.fabric.groups;
  *
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
-public interface GroupListener<T> {
+public interface GroupListener<T extends NodeState> {
 
     enum GroupEvent {
         CONNECTED,

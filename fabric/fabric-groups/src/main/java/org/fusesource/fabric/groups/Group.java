@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-public interface Group<T> extends Closeable {
+public interface Group<T extends NodeState> extends Closeable {
 
     /**
      * Are we connected with the cluster?

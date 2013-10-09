@@ -48,15 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InterruptedIOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -75,10 +67,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * be prepared for false-positives and false-negatives. Additionally, always use the version number
  * when updating data to avoid overwriting another process' change.</p>
  */
-public class ZooKeeperGroup<T> implements Group<T> {
+public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
+
+    static public final ObjectMapper MAPPER = new ObjectMapper();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
-    private final ObjectMapper mapper = new ObjectMapper();
     private final Class<T> clazz;
     private final CuratorFramework client;
     private final String path;
@@ -89,6 +82,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
     protected final ConcurrentMap<String, ChildData<T>> currentData = Maps.newConcurrentMap();
     private final AtomicBoolean started = new AtomicBoolean();
     protected final SequenceComparator sequenceComparator = new SequenceComparator();
+    private final String session;
 
 
     private final Watcher childrenWatcher = new Watcher() {
@@ -152,6 +146,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
         this.clazz = clazz;
         this.executorService = executorService;
         ensurePath = client.newNamespaceAwareEnsurePath(path);
+        this.session = UUID.randomUUID().toString();
     }
 
     /**
@@ -218,6 +213,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
     public void update(T state) {
         T oldState = this.state;
         this.state = state;
+        this.state.setSession(session);
         if (started.get()) {
             boolean update = state == null && oldState != null
                         ||   state != null && oldState == null
@@ -240,19 +236,33 @@ public class ZooKeeperGroup<T> implements Group<T> {
                         id = null;
                     }
                 }
-            } else if (id == null) {
-                id = client.create().creatingParentsIfNeeded()
-                        .withProtection()
+            } else {
+
+                if (id == null) {
+                    // We could have created the sequence, but then have crashed and our entry is already registered,
+                    // find out by looking up entry by the matching uuid.
+                    Map<String, T> members = members();
+                    for (Map.Entry<String, T> entry : members.entrySet()) {
+                        T v = entry.getValue();
+                        if( session.equals(v.getSession()) && state.getContainer().equals(v.getContainer()) ) {
+                            id = entry.getKey();
+                            return;
+                        }
+                    }
+                }
+
+                if (id == null) {
+                    id = client.create().creatingParentsIfNeeded()
                         .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
                         .forPath(path + "/0", encode(state));
-            } else {
-                try {
-                    client.setData().forPath(id, encode(state));
-                } catch (KeeperException.NoNodeException e) {
-                    id = client.create().creatingParentsIfNeeded()
-                            .withProtection()
-                            .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
-                            .forPath(path + "/0", encode(state));
+                } else {
+                    try {
+                        client.setData().forPath(id, encode(state));
+                    } catch (KeeperException.NoNodeException e) {
+                        id = client.create().creatingParentsIfNeeded()
+                                .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
+                                .forPath(path + "/0", encode(state));
+                    }
                 }
             }
         }
@@ -494,7 +504,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
     private byte[] encode(T state) {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            mapper.writeValue(baos, state);
+            MAPPER.writeValue(baos, state);
             return baos.toByteArray();
         } catch (IOException e) {
             throw new IllegalStateException("Unable to decode data", e);
@@ -503,7 +513,7 @@ public class ZooKeeperGroup<T> implements Group<T> {
 
     private T decode(byte[] data) {
         try {
-            return mapper.readValue(data, clazz);
+            return MAPPER.readValue(data, clazz);
         } catch (IOException e) {
             throw new IllegalStateException("Unable to decode data", e);
         }

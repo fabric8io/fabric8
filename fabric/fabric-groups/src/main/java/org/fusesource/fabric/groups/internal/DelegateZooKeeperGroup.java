@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  *
  */
-public class DelegateZooKeeperGroup<T> implements Group<T> {
+public class DelegateZooKeeperGroup<T extends NodeState> implements Group<T> {
 
     private final String path;
     private final Class<T> clazz;

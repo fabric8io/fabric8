@@ -17,6 +17,7 @@
 package org.fusesource.fabric.groups;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
@@ -28,6 +29,9 @@ public class NodeState {
 
     @JsonProperty
     public String container;
+
+    @JsonProperty
+    public String session;
 
     public NodeState() {
     }
@@ -57,4 +61,21 @@ public class NodeState {
         this.container = container;
     }
 
+
+    public String getSession() {
+        return session;
+    }
+
+    public void setSession(String session) {
+        this.session = session;
+    }
+
+    @Override
+    public String toString() {
+        try {
+            return ZooKeeperGroup.MAPPER.writeValueAsString(this);
+        } catch (Exception e) {
+            return super.toString();
+        }
+    }
 }

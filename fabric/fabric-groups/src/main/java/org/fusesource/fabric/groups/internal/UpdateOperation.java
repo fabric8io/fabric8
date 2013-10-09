@@ -20,7 +20,7 @@ package org.fusesource.fabric.groups.internal;
 
 import org.fusesource.fabric.groups.NodeState;
 
-class UpdateOperation<T> implements Operation
+class UpdateOperation<T extends NodeState> implements Operation
 {
     private final ZooKeeperGroup<T> cache;
     private final T node;

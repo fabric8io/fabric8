@@ -45,12 +45,12 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
     }
 
     @Override
-    public <T> Group<T> createGroup(String path, Class<T> clazz) {
+    public <T extends NodeState> Group<T> createGroup(String path, Class<T> clazz) {
         return delegate.createGroup(path, clazz);
     }
 
     @Override
-    public <T> Group<T> createMultiGroup(String path, Class<T> clazz) {
+    public <T extends NodeState> Group<T> createMultiGroup(String path, Class<T> clazz) {
         throw new IllegalStateException("not supported");
     }
 
@@ -114,7 +114,7 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
         }
 
         @Override
-        public <T> Group<T> createGroup(String path, Class<T> clazz) {
+        public <T extends NodeState> Group<T> createGroup(String path, Class<T> clazz) {
             return new DelegateZooKeeperGroup<T>(path, clazz) {
                 @Override
                 public void start() {
@@ -132,7 +132,7 @@ public class OsgiManagedGroupFactory implements ManagedGroupFactory {
         }
 
         @Override
-        public <T> Group<T> createMultiGroup(String path, Class<T> clazz) {
+        public <T extends NodeState> Group<T> createMultiGroup(String path, Class<T> clazz) {
             throw new IllegalStateException("not supported");
         }
 
