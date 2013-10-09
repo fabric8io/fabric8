@@ -78,27 +78,32 @@ public class GitHelpers {
         return hasHead;
     }
 
-    public static void checkoutBranch(Git git, String branch, String remote) throws GitAPIException {
+    public static void createOrCheckoutBranch(Git git, String branch, String remote) throws GitAPIException {
+        Ref ref = null;
         String current = currentBranch(git);
-        if (equals(current, branch)) {
-            return;
+        if (!equals(current, branch) && !localBranchExists(git, branch) ) {
+            ref = git.checkout().setName(branch).setForce(true).setCreateBranch(true).call();
+            configureBranch(git, branch, remote);
+        } else {
+            ref = git.checkout().setName(branch).setForce(true).call();
         }
-        // lets check if the branch exists
-        CheckoutCommand command = git.checkout().setName(branch);
-        boolean exists = GitHelpers.localBranchExists(git, branch);
-        if (!exists) {
-            command = command.setCreateBranch(true).setForce(true);
-/*
-            command = command.setCreateBranch(true).setForce(true).
-                    setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).
-                    setStartPoint(remote + "/" + branch);
-*/
-        }
-        Ref ref = command.call();
         if (LOG.isDebugEnabled()) {
             LOG.debug("Checked out branch " + branch + " with results " + ref.getName());
         }
-        configureBranch(git, branch, remote);
+    }
+
+    public static void checkoutBranch(Git git, String branch) throws GitAPIException {
+        String current = currentBranch(git);
+        if (equals(current, branch)) {
+            return;
+        } else if (localBranchExists(git, branch)) {
+            Ref ref = git.checkout().setName(branch).setForce(true).call();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("Checked out branch " + branch + " with results " + ref.getName());
+            }
+        } else {
+            LOG.debug("Branch " + branch + "not found!");
+        }
     }
 
     protected static void configureBranch(Git git, String branch, String remote) {

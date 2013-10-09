@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -57,7 +59,6 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
-import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStorePlugin;
@@ -69,6 +70,7 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.git.GitService;
+import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.AbstractDataStore;
@@ -130,7 +132,9 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     private final ValidatingReference<GitService> gitService = new ValidatingReference<GitService>();
 
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
+
     private final Object gitOperationMonitor = new Object();
+    @GuardedBy("CopyOnWriteArraySet") private final Set<String> versions = new CopyOnWriteArraySet<String>();
 
     private final GitListener gitListener = new GitListener() {
         @Override
@@ -152,11 +156,13 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                                     config.setString("remote", "origin", "url", actualUrl);
                                     config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                                     config.save();
+                                    //Make sure that we don't delete branches at this pull.
+                                    doPull(git, getCredentialsProvider(), false);
+                                    doPush(git, context);
                                 }
                                 return null;
                             }
                         });
-                        pull();
                     }
                 });
             }
@@ -204,9 +210,9 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 optionalService.addGitListener(gitListener);
                 remoteUrl = optionalService.getRemoteUrl();
                 gitListener.onRemoteUrlChanged(remoteUrl);
-                pull();
             }
 
+            getVersions();
             LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
@@ -303,8 +309,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         assertValid();
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                createVersion(version);
-                checkoutVersion(git, version);
+                createOrCheckoutVersion(git, version);;
                 // now lets recursively add files
                 File toDir = GitHelpers.getRootGitDirectory(git);
                 if (Strings.isNotBlank(destinationPath)) {
@@ -315,7 +320,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 } else {
                     recursiveCopyAndAdd(git, from, toDir, destinationPath, true);
                 }
-                context.setPushBranch(version);
                 context.commit("Imported from " + from);
                 return null;
             }
@@ -329,8 +333,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
                 // TODO lets checkout the previous versionu first!
-                checkoutVersion(git, version);
-                context.setPushBranch(version);
+                createOrCheckoutVersion(git, version);
                 context.requirePush();
                 return null;
             }
@@ -345,8 +348,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             public Void call(Git git, GitContext context) throws Exception {
                 // lets checkout the parent version first
                 checkoutVersion(git, parentVersionId);
-                checkoutVersion(git, toVersion);
-                context.setPushBranch(toVersion);
+                createOrCheckoutVersion(git, toVersion);
                 context.requirePush();
                 return null;
             }
@@ -361,7 +363,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public List<String> getVersions() {
         assertValid();
-        return gitReadOperation(new GitOperation<List<String>>() {
+        return gitOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
                 List<String> answer = new ArrayList<String>();
@@ -377,7 +379,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
                 return answer;
             }
-        });
+        }, false);
     }
 
     @Override
@@ -389,7 +391,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public List<String> getProfiles(final String version) {
         assertValid();
-        return gitReadOperation(new GitOperation<List<String>>() {
+        return gitOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 List<String> answer = new ArrayList<String>();
                 File profilesDir = getProfilesDirectory(git);
@@ -404,7 +406,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
                 return answer;
             }
-        });
+        }, !hasVersion(version));
     }
 
     private void doAddProfileNames(List<String> answer, File profilesDir, String prefix) {
@@ -481,7 +483,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 doRecursiveDeleteAndRemove(git, profileDirectory);
-                context.setPushBranch(version);
                 context.commit("Removed profile " + profile);
                 return null;
             }
@@ -520,7 +521,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public long getLastModified(final String version, final String profile) {
         assertValid();
-        Long answer = gitReadOperation(new GitOperation<Long>() {
+        Long answer = gitOperation(new GitOperation<Long>() {
             public Long call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
@@ -537,14 +538,14 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
                 return answer;
             }
-        });
+        }, !hasVersion(version));
         return answer != null ? answer.longValue() : 0;
     }
 
     @Override
     public Collection<String> listFiles(final String version, final Iterable<String> profiles, final String path) {
         assertValid();
-        return gitReadOperation(new GitOperation<Collection<String>>() {
+        return gitOperation(new GitOperation<Collection<String>>() {
             public Collection<String> call(Git git, GitContext context) throws Exception {
                 SortedSet<String> answer = new TreeSet<String>();
                 for (String profile : profiles) {
@@ -563,18 +564,18 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
                 return answer;
             }
-        });
+        }, !hasVersion(version));
     }
 
     @Override
     public Map<String, byte[]> getFileConfigurations(final String version, final String profile) {
         assertValid();
-        return gitReadOperation(new GitOperation<Map<String, byte[]>>() {
+        return gitOperation(new GitOperation<Map<String, byte[]>>() {
             public Map<String, byte[]> call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 return doGetFileConfigurations(git, profile);
             }
-        });
+        }, !hasVersion(version));
     }
 
     protected Map<String, byte[]> doGetFileConfigurations(Git git, String profile) throws IOException {
@@ -602,14 +603,14 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
         assertValid();
-        return gitReadOperation(new GitOperation<byte[]>() {
+        return gitOperation(new GitOperation<byte[]>() {
             public byte[] call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
                 File file = new File(profileDirectory, fileName);
                 return doLoadFileConfiguration(file);
             }
-        });
+        }, !hasVersion(version));
     }
 
     @Override
@@ -650,7 +651,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             public Void call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 doSetFileConfiguration(git, profile, fileName, configuration);
-                context.setPushBranch(version);
                 context.commit("Updated " + fileName + " for profile " + profile);
                 return null;
             }
@@ -682,7 +682,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public Map<String, String> getConfiguration(final String version, final String profile, final String pid) {
         assertValid();
-        return gitReadOperation(new GitOperation<Map<String, String>>() {
+        return gitOperation(new GitOperation<Map<String, String>>() {
             public Map<String, String> call(Git git, GitContext context) throws Exception {
                 checkoutVersion(git, GitProfiles.getBranch(version, profile));
                 File profileDirectory = getProfileDirectory(git, profile);
@@ -694,7 +694,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     return new HashMap<String, String>();
                 }
             }
-        });
+        }, !hasVersion(version));
     }
 
     @Override
@@ -822,14 +822,11 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         return gitOperation(null, operation, true);
     }
 
-    /**
-     * Performs a read only set of operations on the git repository
-     * so that a pull is not done first
-     */
-    public <T> T gitReadOperation(GitOperation<T> operation) {
+    public <T> T gitOperation(GitOperation<T> operation, boolean pullFirst) {
         assertValid();
-        return gitOperation(null, operation, false);
+        return gitOperation(null, operation, pullFirst);
     }
+
 
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
         assertValid();
@@ -857,7 +854,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 RevCommit statusBefore = CommitUtils.getHead(repository);
 
                 if (pullFirst) {
-                    doPull(git, credentialsProvider);
+                    doPull(git, credentialsProvider, false);
                 }
 
                 T answer = operation.call(git, context);
@@ -930,12 +927,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             return Collections.EMPTY_LIST;
         }
 
-        String branch = gitContext != null && gitContext.getPushBranch() != null ? gitContext.getPushBranch() : GitHelpers.currentBranch(git);
-        if (!branch.equals(MASTER_BRANCH)) {
-            return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(MASTER_BRANCH), new RefSpec(branch)).call();
-        } else {
-            return git.push().setCredentialsProvider(credentialsProvider).setRefSpecs(new RefSpec(branch)).call();
-        }
+        return git.push().setCredentialsProvider(credentialsProvider).setPushAll().call();
     }
 
     protected CredentialsProvider getCredentialsProvider() throws Exception {
@@ -972,9 +964,12 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     }
 
     /**
-     * Performs a pull so the git repo is pretty much up to date before we start performing operations on it
+     * Performs a pull so the git repo is pretty much up to date before we start performing operations on it.
+     * @param git                   The {@link Git} instance to use.
+     * @param credentialsProvider   The {@link CredentialsProvider} to use.
+     * @param doDeleteBranches      Flag that determines wether local branches that don't exist in remote should get deleted.
      */
-    protected void doPull(Git git, CredentialsProvider credentialsProvider) {
+    protected void doPull(Git git, CredentialsProvider credentialsProvider, boolean doDeleteBranches) {
         assertValid();
         try {
             Repository repository = git.getRepository();
@@ -1040,18 +1035,20 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 //Check if any remote branches was found as a guard for unwanted deletions.
                 if (!remoteBranches.containsKey(version) && !remoteBranches.isEmpty()) {
                     //We never want to delete the master branch.
-                    if (!version.equals(MASTER_BRANCH)) {
+                    if (doDeleteBranches && !version.equals(MASTER_BRANCH)) {
                         try {
                             git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                         } catch (CannotDeleteCurrentBranchException ex) {
                             git.checkout().setName(MASTER_BRANCH).setForce(true).call();
                             git.branchDelete().setBranchNames(localBranches.get(version).getName()).setForce(true).call();
                         }
+                        removeVersion(version);
                         hasChanged = true;
                     }
                 }
                 // Create new local branches
                 else if (!localBranches.containsKey(version)) {
+                    addVersion(version);
                     git.checkout().setCreateBranch(true).setName(version).setStartPoint(remote +"/" + version).setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).setForce(true).call();
                     hasChanged = true;
                 } else {
@@ -1098,7 +1095,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         profileDirectory.mkdirs();
         Files.writeToFile(metadataFile, "#Profile:" + profile + "\n", Charset.defaultCharset());
         doAddFiles(git, profileDirectory, metadataFile);
-        context.setPushBranch(version);
         context.commit("Added profile " + profile);
         return profile;
     }
@@ -1203,9 +1199,16 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         }
     }
 
+    protected void createOrCheckoutVersion(Git git, String version) throws GitAPIException {
+        assertValid();
+        addVersion(version);
+        GitHelpers.createOrCheckoutBranch(git, version, remote);
+    }
+
     protected void checkoutVersion(Git git, String version) throws GitAPIException {
         assertValid();
-        GitHelpers.checkoutBranch(git, version, remote);
+        addVersion(version);
+        GitHelpers.checkoutBranch(git, version);
     }
 
     protected void doAddFiles(Git git, File... files) throws GitAPIException, IOException {
@@ -1284,6 +1287,16 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             }
         }
         super.setDataStoreProperties(properties);
+    }
+
+    void addVersion(String version) {
+        if(!MASTER_BRANCH.equals(version)) {
+            versions.add(version);
+        }
+    }
+
+    void removeVersion(String version) {
+        versions.remove(version);
     }
 
     void bindGitService(GitService service) {

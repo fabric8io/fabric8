@@ -16,6 +16,9 @@
  */
 package org.fusesource.fabric.git.internal;
 
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -27,6 +30,7 @@ import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.fusesource.fabric.api.DataStorePlugin;
+import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
@@ -40,6 +44,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
@@ -58,9 +63,20 @@ public final class CachingGitDataStore extends GitDataStore implements DataStore
 
     public static final String TYPE = "caching-git";
 
-    private static final VersionData NOT_LOADED = new VersionData();
-
-    @GuardedBy("cachedVersions") private final Map<String, VersionData> cachedVersions = new HashMap<String, VersionData>();
+    @GuardedBy("LoadingCache") private final LoadingCache<String, VersionData> cachedVersions = CacheBuilder.newBuilder()
+            .build(new CacheLoader<String, VersionData>() {
+                @Override
+                public VersionData load(final String version) throws Exception {
+                    return gitOperation(new GitOperation<VersionData>() {
+                        public VersionData call(Git git, GitContext context) throws Exception {
+                            VersionData data = new VersionData();
+                            pouplateVersionData(git, version, data);
+                            pouplateVersionData(git, "master", data);
+                            return data;
+                        }
+                    }, !hasVersion(version));
+                }
+            });
 
     @Activate
     void activate(ComponentContext context) {
@@ -72,60 +88,15 @@ public final class CachingGitDataStore extends GitDataStore implements DataStore
         super.deactivate();
     }
 
-    public List<String> getVersions() {
-        assertValid();
-        List<String> versions = null;
-        // See if we already have the list of versions
-        synchronized (cachedVersions) {
-            if (!cachedVersions.isEmpty()) {
-                versions = new ArrayList<String>(cachedVersions.keySet());
-            }
-        }
-        // If not, load them
-        if (versions == null) {
-            versions = super.getVersions();
-            // and update the cache with NOT_LOADED version data
-            synchronized (cachedVersions) {
-                if (cachedVersions.isEmpty()) {
-                    for (String version : versions) {
-                        cachedVersions.put(version, NOT_LOADED);
-                    }
-                }
-            }
-        }
-        return versions;
-    }
-
     protected VersionData getVersionData(String version) {
         assertValid();
-        // Ensure the list of versions is loaded
-        getVersions();
-        VersionData data;
-        // Check if the version has already been loaded
-        synchronized (cachedVersions) {
+        VersionData data = null;
+        try {
             data = cachedVersions.get(version);
-        }
-        if (data == NOT_LOADED) {
-            // If not, load it ...
-            data = loadVersion(version);
-            // ... and update the cache
-            synchronized (cachedVersions) {
-                cachedVersions.put(version, data);
-            }
+        } catch (ExecutionException e) {
+            FabricException.launderThrowable(e);
         }
         return data;
-    }
-
-    protected VersionData loadVersion(final String version) {
-        assertValid();
-        return gitReadOperation(new GitOperation<VersionData>() {
-            public VersionData call(Git git, GitContext context) throws Exception {
-                VersionData data = new VersionData();
-                pouplateVersionData(git, version, data);
-                pouplateVersionData(git, "master", data);
-                return data;
-            }
-        });
     }
 
     protected void pouplateVersionData(Git git, String branch, VersionData data) throws Exception {
@@ -225,10 +196,8 @@ public final class CachingGitDataStore extends GitDataStore implements DataStore
 
     @Override
     protected void clearCaches() {
-        synchronized (cachedVersions) {
-            assertValid();
-            cachedVersions.clear();
-        }
+        assertValid();
+        cachedVersions.invalidateAll();
     }
 
     @Override
