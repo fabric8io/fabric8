@@ -34,8 +34,7 @@ Before building and running this quick start you need:
 Build and Deploy the Quickstart
 -------------------------
 
-1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder
-* Change your working directory to `quckstarts/rest` directory.
+1. Change your working directory to `secure-rest` directory.
 * Run `mvn clean install` to build the quickstart.
 * Verify `etc/users.properties` from the JBoss Fuse installation contains the following 'admin' user configured: `admin=admin,admin` (it is commented by default)
 * Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
@@ -43,8 +42,8 @@ Build and Deploy the Quickstart
 
         osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/secure-rest/<project version>
 
-* Fuse should give you on id when the bundle is deployed
-* You can check that everything is ok by issue the command:
+* Fuse should give you an id when the bundle is deployed
+* You can check that everything is ok by issuing  the command:
 
         osgi:list
    your bundle should be present at the end of the list
@@ -89,7 +88,7 @@ message indicating a security exception at this time.
 In this quick start project, we also provide integration tests which perform a few HTTP requests to test our Web services. We
 created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fuse:
 
-1. Change to the `quickstarts/secure-rest` directory.
+1. Change to the `secure-rest` directory.
 2. Run the following command:
 
         mvn -Ptest
@@ -100,7 +99,7 @@ The tests in `src/test/java/org.jboss.quickstarts.fuse.rest.secure/CrmSecureTest
 
 You can use a command-line utility, such as cURL or wget, to perform the HTTP requests.  We have provided a few files with sample XML representations in `src/test/resources`, so we will use those for testing our services.
 
-1. Open a command prompt and change directory to `quickstarts/secure-rest`.
+1. Open a command prompt and change directory to `secure-rest`.
 2. Run the following curl commands (curl commands may not be available on all platforms):
 
     * Create a customer

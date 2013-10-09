@@ -41,16 +41,15 @@ Before building and running this quick start you need:
 Build and Deploy the Quickstart
 -------------------------
 
-1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder
-*. Change your working directory to `quckstarts/errors` directory.
+1. Change your working directory to `errors` directory.
 *. Run `mvn clean install` to build the quickstart.
 *. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 *. In the JBoss Fuse console, enter the following command:
 
         osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/errors/<project version>
 
-*. Fuse should give you on id when the bundle is deployed
-*. You can check that everything is ok by issue the command:
+*. Fuse should give you an id when the bundle is deployed
+*. You can check that everything is ok by issuing  the command:
 
         osgi:list
    your bundle should be present at the end of the list
@@ -64,7 +63,7 @@ To use the application be sure to have deployed the quickstart in Fuse as descri
 1. As soon as the Camel route has been started, you will see a directory `work/errors/input` in your JBoss Fuse installation.
 2. Copy the file you find in this quick start's `src/main/resources/data` directory to the newly created
 `work/errors/input` directory.
-4. Wait a few moment and you will find the files in directories under `work/errors`:
+4. Wait a few moments and you will find the files in directories under `work/errors`:
 
   * `order4.xml` will always end up in the `work/errors/validation` directory
   * other files will end up in `work/errors/done` or `work/errors/deadletter` depending on the runtime exceptions that occur
