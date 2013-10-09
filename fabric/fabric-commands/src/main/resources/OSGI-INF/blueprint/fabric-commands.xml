@@ -570,10 +570,9 @@
     <bean id="resolverCompleter" class="org.fusesource.fabric.boot.commands.support.ResolverCompleter"/>
 
     <!-- Container Connect -->
-    <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory" />
-    <reference-list id="commandSessions" interface="org.apache.felix.service.command.CommandSession" availability="optional" activation="eager">
-        <reference-listener ref="agentFactory" bind-method="registerCommandSession" unbind-method="unregisterCommandSession" />
-    </reference-list>
+    <bean id="agentFactory" class="org.apache.karaf.shell.ssh.KarafAgentFactory">
+        <property name="bundleContext" ref="blueprintBundleContext"/>
+    </bean>
 
     <bean id="sshClient" class="org.apache.sshd.SshClient" factory-method="setUpDefaultClient" scope="prototype">
         <property name="agentFactory" ref="agentFactory" />
