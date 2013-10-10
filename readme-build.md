@@ -26,6 +26,12 @@ Build Fuse ESB and run the associated tests
 Build all modules and run the associated smoke tests
 
     > mvn -Prelease clean install
+
+Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
+
+If you want to build everything without running tests and get right to running fabric with a default user
+
+    > mvn clean install -Dtest=false -Dgpg.skip=true -Pdev,release
     
 Test Profiles
 -------------
@@ -55,5 +61,4 @@ Build all modules and run all tests
 Build Fuse Fabric and skip the smoke tests
 
     > mvn -Dts.skip.smoke clean install
-    
     
