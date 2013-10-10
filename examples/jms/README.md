@@ -41,22 +41,21 @@ Before building and running this quick start you need:
 Build and Deploy the Quickstart
 -------------------------
 
-1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder to install quickstart bom in your local repository
-2. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
+1. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 
         admin=admin,admin
 
     If some other user is configured you will need to modify the 'activemq' bean in src/main/resources/OSGI-INF/blueprint/camel-context.xml to use the user defined in etc/users.properties.
 
-3. Change your working directory to `quckstarts/jms` directory.
+* Change your working directory to `jms` directory.
 * Run `mvn clean install` to build the quickstart.
 * Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 * In the JBoss Fuse console, enter the following command:
 
         osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/jms/<project version>
 
-* Fuse should give you on id when the bundle is deployed
-* You can check that everything is ok by issue the command:
+* Fuse should give you an id when the bundle is deployed
+* You can check that everything is ok by issuing  the command:
 
         osgi:list
    your bundle should be present at the end of the list

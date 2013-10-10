@@ -16,11 +16,11 @@ In this example, an orders file containing several orders for zoos around the wo
 
 We first want to make sure we retain a copy of the original file. This is done using the Wiretap EIP.
 
-After saving the original, we want want to split the file up into the individual orders. This is done using the Splitter EIP.
+After saving the original, we want to split the file up into the individual orders. This is done using the Splitter EIP.
 
 Then we want to store the orders in separate directories by geographical region. This is done using a Recipient List EIP.
 
-Finally, we want to filter out the orders that container more than 100 animals and generate a message for the strategic account team. This is done using a Filter EIP.
+Finally, we want to filter out the orders that contain more than 100 animals and generate a message for the strategic account team. This is done using a Filter EIP.
 
 In studying this example you will learn:
 
@@ -57,16 +57,15 @@ Before building and running this example you need:
 Build and Deploy the Quickstart
 -------------------------
 
-1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder
-*. Change your working directory to `quckstarts/eip` directory.
+1. Change your working directory to `eip` directory.
 *. Run `mvn clean install` to build the quickstart.
 *. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 *. In the JBoss Fuse console, enter the following command:
 
         osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/eip/<project version>
 
-*. Fuse should give you on id when the bundle is deployed
-*. You can check that everything is ok by issue the command:
+*. Fuse should give you an id when the bundle is deployed
+*. You can check that everything is ok by issuing  the command:
 
         osgi:list
    your bundle should be present at the end of the list
@@ -80,7 +79,7 @@ To use the application be sure to have deployed the quickstart in Fuse as descri
 1. As soon as the Camel route has been started, you will see a directory `work/eip/input` in your JBoss Fuse installation.
 2. Copy the file you find in this example's `src/main/resources/data` directory to the newly created `work/eip/input`
 directory.
-3. Wait a few moment and you will find multiple files organized by geographical region under `work/eip/output':
+3. Wait a few moments and you will find multiple files organized by geographical region under `work/eip/output':
 ** `2012_0003.xml` and `2012_0005.xml` in `work/eip/output/AMER`
 ** `2012_0020.xml` in `work/eip/output/APAC`
 ** `2012_0001.xml`, `2012_0002.xml` and `2012_0004.xml` in `work/eip/output/EMEA`
