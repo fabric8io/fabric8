@@ -167,14 +167,14 @@ public final class CachingGitDataStore extends GitDataStore implements DataStore
         assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
-        return p.lastModified;
+        return p != null ? p.lastModified : 0;
     }
 
     public byte[] getFileConfiguration(final String version, final String profile, final String fileName) {
         assertValid();
         VersionData v = getVersionData(version);
         ProfileData p = v != null && v.profiles != null ? v.profiles.get(profile) : null;
-        return p.configurations != null ? p.configurations.get(fileName) : null;
+        return p != null && p.configurations != null ? p.configurations.get(fileName) : null;
     }
 
     public Map<String, byte[]> getFileConfigurations(String version, String profile) {
