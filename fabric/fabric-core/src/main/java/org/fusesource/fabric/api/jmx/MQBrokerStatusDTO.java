@@ -34,6 +34,7 @@ public class MQBrokerStatusDTO {
     private Boolean master;
     private boolean alive;
     private String jolokiaUrl;
+    private String[] networks;
 
     public MQBrokerStatusDTO() {
     }
@@ -43,6 +44,7 @@ public class MQBrokerStatusDTO {
         setProfile(configDTO.profile());
         setBrokerName(configDTO.getBrokerName());
         setGroup(configDTO.getGroup());
+        setNetworks(configDTO.getNetworks());
     }
 
     @Override
@@ -155,5 +157,13 @@ public class MQBrokerStatusDTO {
 
     public String getJolokiaUrl() {
         return jolokiaUrl;
+    }
+
+    public void setNetworks(String[] networks) {
+        this.networks = networks;
+    }
+
+    public String[] getNetworks() {
+        return networks;
     }
 }
