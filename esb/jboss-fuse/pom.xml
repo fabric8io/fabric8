@@ -295,7 +295,7 @@
                                         append="true" eol="unix">
                                     <fileset file="target/shared/system-smx.properties" />
                                 </concat>
-                                <echo file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/system.properties" append="true">profile=${project.artifactId}</echo>
+                                <echo file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/system.properties" append="true">profiles=${project.artifactId}</echo>
                                 <replace file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/config.properties" token="Fuse Fabric" value="JBoss Fuse"/>
                             </target>
                         </configuration>

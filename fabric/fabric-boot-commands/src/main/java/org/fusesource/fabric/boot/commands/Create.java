@@ -94,8 +94,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
 
     @Override
     protected Object doExecute() throws Exception {
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder().version(version);
         String name = System.getProperty(SystemProperties.KARAF_NAME);
+        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder().fromSystemProperties();
+        builder.version(version);
+
         if (containers == null || containers.isEmpty()) {
             containers = Arrays.asList(name);
         }
