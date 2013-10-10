@@ -136,19 +136,19 @@ public class ContainerFacade implements Container, HasId {
     @Override
     public void setProfiles(Profile[] profiles) {
         List<String> ids = Helpers.extractIds(profiles);
-        Helpers.exec(j4p, "applyProfilesToContainers(java.lang.String, java.util.List, java.util.List", getVersion().getId(), ids, Helpers.toList(id) );
+        Helpers.exec(j4p, "applyProfilesToContainers(java.lang.String, java.util.List, java.util.List)", getVersion().getId(), ids, Helpers.toList(id) );
     }
 
     @Override
     public void addProfiles(Profile... profiles) {
         List<String> ids = Helpers.extractIds(profiles);
-        Helpers.exec(j4p, "addProfilesToContainer(java.lang.String, java.util.List", id, ids);
+        Helpers.exec(j4p, "addProfilesToContainer(java.lang.String, java.util.List)", id, ids);
     }
 
     @Override
     public void removeProfiles(Profile... profiles) {
         List<String> ids = Helpers.extractIds(profiles);
-        Helpers.exec(j4p, "removeProfilesFromContainer(java.lang.String, java.util.List", id, ids);
+        Helpers.exec(j4p, "removeProfilesFromContainer(java.lang.String, java.util.List)", id, ids);
     }
 
     @Override
