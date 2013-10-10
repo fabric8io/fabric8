@@ -97,6 +97,19 @@
       "search": {},
       "hash": "",
       "routeParams": "{\"type\":\"donut\",\"title\":\"Loaded Clases\",\"mbean\":\"java.lang:type=ClassLoading\",\"total\":\"TotalLoadedClassCount\",\"terms\":\"LoadedClassCount,UnloadedClassCount\",\"remaining\":\"-\"}"
+    },
+    {
+      "id": "w8",
+      "title": "Logs",
+      "row": 5,
+      "col": 1,
+      "size_x": 9,
+      "size_y": 1,
+      "path": "logs",
+      "include": "app/log/html/logs.html",
+      "search": {},
+      "hash": "",
+      "routeParams": "{}"
     }
   ],
   "id": "4e799b382a813112b3",
