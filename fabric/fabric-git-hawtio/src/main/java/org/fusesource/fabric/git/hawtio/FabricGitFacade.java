@@ -160,6 +160,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         gitWriteOperation(personIdent, new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
+                checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 return doRevert(git, rootDir, branch, objectId, blobPath, commitMessage, personIdent);
             }
@@ -172,6 +173,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         gitWriteOperation(personIdent, new GitOperation<RevCommit>() {
             public RevCommit call(Git git, GitContext context) throws Exception {
+                checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 return doRename(git, rootDir, branch, oldPath, newPath, commitMessage, personIdent);
             }
@@ -184,6 +186,7 @@ public final class FabricGitFacade extends GitFacadeSupport implements Validatab
         final PersonIdent personIdent = new PersonIdent(authorName, authorEmail);
         gitWriteOperation(personIdent, new GitOperation<RevCommit>() {
             public RevCommit call(Git git, GitContext context) throws Exception {
+                checkoutBranch(git, branch);
                 File rootDir = getRootGitDirectory(git);
                 return doRemove(git, rootDir, branch, path, commitMessage, personIdent);
             }
