@@ -25,7 +25,7 @@
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>secure-rest</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>JBoss Fuse :: Examples :: Secure Restful Web Services</name>
     <description>Secure Restful Web Services Example using JAX-RS Basic Authentication with JBoss Fuse</description>
     <properties>
@@ -39,9 +39,8 @@
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
-        <version.maven-jar-plugin>2.4</version.maven-jar-plugin>
         <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
-
+        <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>7.3.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
     </properties>
@@ -130,22 +129,29 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${version.maven-jar-plugin}</version>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.maven-bundle-plugin}</version>
+                <extensions>true</extensions>
                 <configuration>
-                    <archive>
-                        <index>true</index>
-                        <manifestEntries>
-                            <Import-Package>
-                                org.eclipse.jetty.plus.jaas,
-                                org.apache.karaf.jaas.boot.principal,*
-                            </Import-Package>
-                        </manifestEntries>
-                    </archive>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Import-Package>
+                            javax.xml.bind.annotation,
+                            javax.ws.rs,
+                            javax.ws.rs.core,
+                            org.apache.karaf.jaas.boot.principal,
+                            org.eclipse.jetty.plus.jaas,
+                            org.apache.cxf.interceptor.security,
+                            org.osgi.service.blueprint
+                        </Import-Package>
+                        <Export-Package>
+                            org.jboss.quickstarts.fuse.rest.secure
+                        </Export-Package>
+                    </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 
