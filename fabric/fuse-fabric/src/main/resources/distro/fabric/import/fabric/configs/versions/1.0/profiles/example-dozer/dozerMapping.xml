@@ -3,5 +3,57 @@
   <mapping map-id="Customer to Person">
     <class-a>org.apache.invoice.Customer</class-a>
     <class-b>org.apache.invoice.Person</class-b>
+    <field>
+      <a>contactPhoneNumber</a>
+      <b>contactPhoneNumber</b>
+    </field>
+    <field>
+      <a>email</a>
+      <b>email</b>
+    </field>
+    <field>
+      <a>firstName</a>
+      <b>firstName</b>
+    </field>
+    <field>
+      <a>lastName</a>
+      <b>lastName</b>
+    </field>
+    <field>
+      <a>address</a>
+      <b>address</b>
+    </field>
+  </mapping>
+  <mapping map-id="Person to Customer">
+    <class-a>org.apache.invoice.Person</class-a>
+    <class-b>org.apache.invoice.Customer</class-b>
+    <field>
+      <a>ZIPPostalCode</a>
+      <b>ZIPPostalCode</b>
+    </field>
+    <field>
+      <a>addressLine1</a>
+      <b>addressLine1</b>
+    </field>
+    <field>
+      <a>address</a>
+      <b>address</b>
+    </field>
+    <field>
+      <a>contactPhoneNumber</a>
+      <b>contactPhoneNumber</b>
+    </field>
+    <field>
+      <a>email</a>
+      <b>email</b>
+    </field>
+    <field>
+      <a>firstName</a>
+      <b>firstName</b>
+    </field>
+    <field>
+      <a>lastName</a>
+      <b>lastName</b>
+    </field>
   </mapping>
 </mappings>
