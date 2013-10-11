@@ -354,6 +354,11 @@ public class ProfileImpl implements Profile {
     }
 
     @Override
+    public boolean exists() {
+        return service.getVersion(version).hasProfile(id);
+    }
+
+    @Override
     public String toString() {
         return "ProfileImpl[" +
                 "id='" + id + '\'' +

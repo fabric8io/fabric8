@@ -183,10 +183,10 @@ public class ContainerImpl implements Container {
         List<String> profileIds = service.getDataStore().getContainerProfiles(id);
         List<Profile> profiles = new ArrayList<Profile>();
         for (String profileId : profileIds) {
-            profiles.add(version.getProfile(profileId));
+            profiles.add(new ProfileImpl(profileId, version.getId(), service));
         }
         if (profiles.isEmpty()) {
-            profiles.add(version.getProfile(ZkDefs.DEFAULT_PROFILE));
+            profiles.add(new ProfileImpl(ZkDefs.DEFAULT_PROFILE, version.getId(), service));
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }
@@ -224,7 +224,9 @@ public class ContainerImpl implements Container {
         }
 
         for (Profile addedProfile : addedProfiles) {
-            if (!updatedProfileList.contains(addedProfile)) {
+            if (!addedProfile.exists()) {
+                throw new IllegalArgumentException("Profile "+addedProfile.getId()+" doesn't exist.");
+            } else if (!updatedProfileList.contains(addedProfile)) {
                 updatedProfileList.add(addedProfile);
             }
         }

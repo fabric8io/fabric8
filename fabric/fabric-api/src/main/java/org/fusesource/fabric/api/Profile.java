@@ -157,6 +157,12 @@ public interface Profile extends Comparable<Profile>, HasId {
     boolean agentConfigurationEquals(Profile other);
 
     /**
+     * Checks if the profile exists.
+     * @return
+     */
+    boolean exists();
+
+    /**
      * Returns true if this profile is Abstract. Abstract profiles should not be provisioned by default,
      * they are intended to be inherited
      */

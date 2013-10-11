@@ -22,11 +22,14 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
+import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.jansi.Ansi;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -81,6 +84,22 @@ public abstract class FabricCommand extends OsgiCommandSupport {
         return sb.toString();
     }
 
+    protected String toString(Iterable<String> profiles) {
+        if (profiles == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (String profile : profiles) {
+            if (!first) {
+                sb.append(", ");
+            }
+            sb.append(profile);
+            first = false;
+        }
+        return sb.toString();
+    }
+
     protected Profile[] getProfiles(String version, List<String> names) {
         return getProfiles(fabricService.getVersion(version), names);
     }
@@ -100,7 +119,7 @@ public abstract class FabricCommand extends OsgiCommandSupport {
                 }
             }
             if (profile == null) {
-                throw new IllegalArgumentException("Profile " + name + " not found.");
+                profiles.add(new ProfileImpl(name, version.getId(), fabricService));
             }
             profiles.add(profile);
         }
