@@ -84,6 +84,8 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     protected final SequenceComparator sequenceComparator = new SequenceComparator();
     private final String session;
 
+    private volatile String id;
+    private T state;
 
     private final Watcher childrenWatcher = new Watcher() {
         @Override
@@ -113,9 +115,6 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             handleStateChange(newState);
         }
     };
-
-    protected String id;
-    private T state;
 
     /**
      * @param client the client
@@ -177,7 +176,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     public void close() throws IOException {
         if (started.compareAndSet(true, false)) {
             client.getConnectionStateListenable().removeListener(connectionStateListener);
-            executorService.shutdownNow();
+            executorService.shutdown();
             try {
                 executorService.awaitTermination(5, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
@@ -534,5 +533,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             map.put(node, val);
         }
         return map;
+    }
+
+    public String getId() {
+        return id;
     }
 }

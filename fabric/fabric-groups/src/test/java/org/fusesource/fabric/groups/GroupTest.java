@@ -30,6 +30,7 @@ import org.junit.Test;
 import java.io.File;
 import java.net.ServerSocket;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -176,6 +177,36 @@ public class GroupTest {
         assertTrue(group.isMaster());
 
         group.close();
+        curator.close();
+        cnxnFactory.shutdown();
+        cnxnFactory.join();
+    }
+
+    //Tests that if close() is executed right after start(), there are no left over entries.
+    //(see  https://github.com/jboss-fuse/fuse/issues/133)
+    @Test
+    public void testGroupClose() throws Exception {
+        int port = findFreePort();
+        NIOServerCnxnFactory cnxnFactory = startZooKeeper(port);
+
+        CuratorFramework curator = CuratorFrameworkFactory.builder()
+                .connectString("localhost:" + port)
+                .retryPolicy(new RetryNTimes(10, 100))
+                .build();
+        curator.start();
+        curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+        String groupNode =  "/singletons/test" + System.currentTimeMillis();
+
+        for (int i = 0; i < 10; i++) {
+            Group<NodeState> group = new ZooKeeperGroup<NodeState>(curator, groupNode, NodeState.class);
+            group.add(listener);
+            group.update(new NodeState("foo"));
+            group.start();
+            group.close();
+            List<String> entries = curator.getChildren().forPath(groupNode);
+            assertTrue(entries.isEmpty());
+        }
+
         curator.close();
         cnxnFactory.shutdown();
         cnxnFactory.join();

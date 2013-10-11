@@ -50,7 +50,7 @@ public class ZooKeeperMultiGroup<T extends NodeState> extends ZooKeeperGroup<T> 
         for (ChildData child : children) {
             NodeState node = (NodeState) child.getNode();
             if (node.id.equals(name)) {
-                if (child.getPath().equals(id)) {
+                if (child.getPath().equals(getId())) {
                     return true;
                 } else {
                     return false;
