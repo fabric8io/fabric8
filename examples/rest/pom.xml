@@ -28,7 +28,7 @@
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>rest</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>JBoss Fuse :: Examples :: RESTful WebService</name>
     <description>RESTful WebService Example using JAX-RS with JBoss Fuse</description>
 
@@ -45,7 +45,7 @@
         <maven.compiler.target>1.6</maven.compiler.target>
         <maven.compiler.source>1.6</maven.compiler.source>
         <version.maven-surefire-plugin>2.15</version.maven-surefire-plugin>
-
+        <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
         <!-- the version of the JBoss Fuse BOM, defining all the dependency versions -->
         <jboss.fuse.bom.version>7.3.0.redhat-SNAPSHOT</jboss.fuse.bom.version>
     </properties>
@@ -134,7 +134,28 @@
                     <target>${maven.compiler.target}</target>
                 </configuration>
             </plugin>
-
+             <!-- Need to setup the OSGi meta information here -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.maven-bundle-plugin}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Description>${project.description}</Bundle-Description>
+                        <Import-Package>
+                            javax.ws.rs,
+                            javax.ws.rs.core,
+                            javax.xml.bind.annotation,
+                            org.osgi.service.blueprint
+                        </Import-Package>
+                        <Export-Package>
+                            org.jboss.quickstarts.fuse.rest
+                        </Export-Package>
+                    </instructions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
