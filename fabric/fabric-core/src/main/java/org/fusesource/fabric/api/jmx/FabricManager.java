@@ -399,6 +399,13 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public void setProfileAttribute(String versionId, String profileId, String attributeId, String value) {
+        Version version = getFabricService().getVersion(versionId);
+        Profile profile = version.getProfile(profileId);
+        profile.setAttribute(attributeId, value);
+    }
+
+    @Override
     public String containerCreateOptionsType(String id) {
         CreateContainerMetadata<?> metadata = getContainerMetaData(id);
         if (metadata == null) {
