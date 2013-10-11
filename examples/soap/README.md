@@ -38,15 +38,16 @@ Build and Deploy the Quickstart
 
 To build the quick start:
 
-1.Change your working directory to `soap` directory.
+1. Make sure you have once launched the build from `quickstarts` root by running `mvn clean install` in `quickstarts` folder to install quickstart bom in your local repository
+* Change your working directory to `quickstarts/soap` directory.
 * Run `mvn clean install` to build the quickstart.
 * Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 * In the JBoss Fuse console, enter the following command:
 
-        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/soap/<project version>
+        osgi:install -s mvn:org.jboss.quickstarts.fuse/soap/${project.version}
 
-* Fuse should give you an id when the bundle is deployed
-* You can check that everything is ok by issuing  the command:
+* Fuse should give you on id when the bundle is deployed
+* You can check that everything is ok by issue the command:
 
         osgi:list
    your bundle should be present at the end of the list
@@ -89,7 +90,7 @@ You can also use "cxf:list-endpoints" in Fuse to check the state of all CXF web 
          STATUS: 200
 
          <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.fuse.jboss.org/"><return>Hello John Doe</return>
+           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://soap.fuse.quickstarts.jboss.org/"><return>Hello John Doe</return>
            </ns2:sayHiResponse>
           </soap:Body>
         </soap:Envelope>
@@ -105,7 +106,7 @@ You can also use "cxf:list-endpoints" in Fuse to check the state of all CXF web 
 In this cxf-jaxws quistart, we also provide an integration test which can perform a few HTTP requests to test our web services. We
 created a Maven `test` profile to allow us to run tests code with a simple Maven command after having deployed the bundle to Fuse:
 
-1. Change to the `soap` directory.
+1. Change to the `quickstarts/soap` directory.
 2. Run the following command:
 
         mvn -Ptest
@@ -115,7 +116,7 @@ created a Maven `test` profile to allow us to run tests code with a simple Maven
 
         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
           <soap:Body>
-            <ns2:sayHiResponse xmlns:ns2="http://jaxws.cxf.examples.fuse.jboss.org/">
+            <ns2:sayHiResponse xmlns:ns2="http://soap.fuse.quickstarts.jboss.org/">
               <return>Hello John Doe</return>
             </ns2:sayHiResponse>
           </soap:Body>
@@ -149,4 +150,3 @@ To stop and undeploy the bundle in Fuse:
 2. To stop and uninstall the bundle enter
 
         osgi:uninstall <id>
-
