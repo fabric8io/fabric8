@@ -288,11 +288,9 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
     }
 
     @Override
-    public void createContainerConfig(CreateContainerMetadata metadata) {
+    public void createContainerConfig(String containerId, CreateContainerOptions options) {
         assertValid();
         try {
-            CreateContainerOptions options = metadata.getCreateOptions();
-            String containerId = metadata.getContainerName();
             String parent = options.getParent();
             String versionId = options.getVersion() != null ? options.getVersion() : getDefaultVersion();
             Set<String> profileIds = options.getProfiles();
@@ -311,6 +309,35 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
             setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
             setData(getCurator(), ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
+        }
+    }
+
+    @Override
+    public void createContainerConfig(CreateContainerMetadata metadata) {
+        assertValid();
+        try {
+            CreateContainerOptions options = metadata.getCreateOptions();
+            String containerId = metadata.getContainerName();
+//            String parent = options.getParent();
+//            String versionId = options.getVersion() != null ? options.getVersion() : getDefaultVersion();
+//            Set<String> profileIds = options.getProfiles();
+//            if (profileIds == null || profileIds.isEmpty()) {
+//                profileIds = new LinkedHashSet<String>();
+//                profileIds.add("default");
+//            }
+//            StringBuilder sb = new StringBuilder();
+//            for (String profileId : profileIds) {
+//                if (sb.length() > 0) {
+//                    sb.append(" ");
+//                }
+//                sb.append(profileId);
+//            }
+//
+//            setData(getCurator(), ZkPath.CONFIG_CONTAINER.getPath(containerId), versionId);
+//            setData(getCurator(), ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(versionId, containerId), sb.toString());
+//            setData(getCurator(), ZkPath.CONTAINER_PARENT.getPath(containerId), parent);
 
             setContainerMetadata(metadata);
 

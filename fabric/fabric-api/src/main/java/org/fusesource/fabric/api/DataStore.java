@@ -76,6 +76,8 @@ public interface DataStore {
 
     void deleteContainer(String containerId);
 
+    void createContainerConfig(String containerId, CreateContainerOptions options);
+
     void createContainerConfig(CreateContainerMetadata metadata);
 
     CreateContainerMetadata getContainerMetadata(String containerId, ClassLoader classLoader);

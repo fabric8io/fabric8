@@ -315,6 +315,20 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
                 throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
 
+            if (!options.isEnsembleServer()) {
+                String originalName = options.getName();
+                int number = Math.max(options.getNumber(), 1);
+                for (int i = 1; i <= number; i++) {
+                    String containerName;
+                    if (options.getNumber() >= 1) {
+                        containerName = originalName + i;
+                    } else {
+                        containerName = originalName;
+                    }
+                    getDataStore().createContainerConfig(containerName, options);
+                }
+            }
+
             Set<? extends CreateContainerMetadata> metadatas = provider.create(options);
 
             for (CreateContainerMetadata metadata : metadatas) {

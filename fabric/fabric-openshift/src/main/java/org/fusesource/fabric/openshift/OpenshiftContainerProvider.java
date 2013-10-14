@@ -23,9 +23,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.openshift.client.IGearProfile;
+import com.openshift.client.OpenShiftTimeoutException;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -80,7 +82,6 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
 
     private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
 
-    private static final String REGISTRY_CART = "https://raw.github.com/jboss-fuse/fuse-registry-openshift-cartridge/master/metadata/manifest.yml";
     private static final String PLAIN_CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
     private static final String SCHEME = "openshift";
 
@@ -171,10 +172,9 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         }
 
         // TODO need to check in the profile too?
-        boolean fuseCart = false;
+        boolean fuseCart = options.isEnsembleServer();
         if (cartridgeUrl == null) {
-            cartridgeUrl = options.isEnsembleServer() ? REGISTRY_CART : PLAIN_CART;
-            fuseCart = true;
+            cartridgeUrl = PLAIN_CART;
         }
         String[] cartridgeUrls = cartridgeUrl.split(" ");
         LOG.info("Creating cartridges: " + cartridgeUrl);
@@ -198,9 +198,29 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             if (userEnvVars.isEmpty()) {
                 userEnvVars = null;
             }
-            IApplication application = domain.createApplication(options.getName(), cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
 
-            String containerName = application.getName() + "-" + application.getUUID();
+            String containerName;
+            if (options.getNumber() >= 1) {
+                containerName = options.getName() + i;
+            } else {
+                containerName = options.getName();
+            }
+
+            long t0 = System.currentTimeMillis();
+            IApplication application;
+            try {
+                application = domain.createApplication(containerName, cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
+            } catch (OpenShiftTimeoutException e) {
+                long t1;
+                do {
+                    Thread.sleep(5000);
+                    application = domain.getApplicationByName(containerName);
+                    if (application != null) {
+                        break;
+                    }
+                    t1 = System.currentTimeMillis();
+                } while (t1  - t0 < TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES));
+            }
             LOG.info("Created application " + containerName);
 
             // now lets add all the embedded cartridges
