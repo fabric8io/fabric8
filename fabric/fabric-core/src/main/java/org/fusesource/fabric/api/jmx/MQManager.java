@@ -165,7 +165,8 @@ public class MQManager implements MQManagerMXBean {
                 list = new HashMap<String, MQBrokerStatusDTO>();
                 groupMap.put(key, list);
             }
-            list.put(status.getContainer(), status);
+            String statusPath = String.format("%s/%s", status.getContainer(), status.getBrokerName());
+            list.put(statusPath, status);
         }
         // now lets check the cluster status for each group
         Set<Map.Entry<String, Map<String, MQBrokerStatusDTO>>> entries = groupMap.entrySet();
@@ -182,11 +183,11 @@ public class MQManager implements MQManagerMXBean {
                     if (!text.isEmpty()) {
                         ObjectMapper mapper = new ObjectMapper();
                         Map<String, Object> map = mapper.readValue(data, HashMap.class);
-
                         String id = stringValue(map, "id", "container");
                         if (id != null) {
                             String container = stringValue(map, "container", "agent");
-                            MQBrokerStatusDTO containerStatus = containerMap.get(container);
+                            String statusPath = String.format("%s/%s", container, id);
+                            MQBrokerStatusDTO containerStatus = containerMap.get(statusPath);
                             if (containerStatus != null) {
                                 Boolean master = null;
                                 List services = listValue(map, "services");
