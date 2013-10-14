@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.google.common.base.Charsets;
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
@@ -39,6 +40,8 @@ public class ProfileDisplay extends FabricCommand {
     private String version;
     @Option(name = "--overlay", aliases = "-o", description = "Shows the effective profile settings, taking into account the settings inherited from parent profiles.")
     private Boolean overlay = false;
+    @Option(name = "--display-resources", aliases = "-r", description = "Displays the content of additional profile resources.")
+    private Boolean displayResources = false;
     @Argument(index = 0, required = true, name = "profile", description = "The name of the profile.")
     @CompleterValues(index = 0)
     private String name;
@@ -91,10 +94,12 @@ public class ProfileDisplay extends FabricCommand {
         Profile profile = overlay ? p.getOverlay() : p;
 
         Map<String, Map<String, String>> configuration = profile.getConfigurations();
+        Map<String, byte[]> resources = profile.getFileConfigurations();
         Map<String,String> agentConfiguration = profile.getContainerConfiguration();
         List<String> agentProperties = new ArrayList<String>();
         List<String> systemProperties = new ArrayList<String>();
         List<String> configProperties = new ArrayList<String>();
+        List<String> otherResources = new ArrayList<String>();
         for (Map.Entry<String, String> entry : agentConfiguration.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
@@ -159,6 +164,20 @@ public class ProfileDisplay extends FabricCommand {
                 output.println("  " + values.getKey() + " " + values.getValue());
             }
             output.println("\n");
+        }
+
+        output.println("\nOther resources");
+        output.println("----------------------------");
+        for (Map.Entry<String,byte[]> resource : resources.entrySet()) {
+            String name = resource.getKey();
+            if (!name.endsWith(".properties")) {
+                output.println("Resource: " + resource.getKey());
+                if (displayResources) {
+                    output.println(new String(resource.getValue(), Charsets.UTF_8));
+
+                    output.println("\n");
+                }
+            }
         }
     }
 
