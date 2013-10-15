@@ -46,11 +46,14 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
 
     private static final String EMPTY = "";
 
+    public static final String VERSIONS_PID = "org.fusesource.fabric.version";
+    public static final String VERSION_PREFIX = "${version:";
+    public static final String VERSION_POSTFIX = "}";
+
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
     @Reference(referenceInterface = DataStore.class)
     private final ValidatingReference<DataStore> dataStore = new ValidatingReference<DataStore>();
-    private String targetPid = "org.fusesource.fabric.version";
 
     @Activate
     void activate(ComponentContext context) {
@@ -78,9 +81,9 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
                 Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
                 String pidPey = value.substring(SCHEME.length() + 1);
                 ProfileOverlayImpl profileOverlay = new ProfileOverlayImpl(profile, false, dataStore.get());
-                String answer = substituteFromProfile(profileOverlay, targetPid, pidPey);
+                String answer = substituteFromProfile(profileOverlay, VERSIONS_PID, pidPey);
                 if (answer != null) {
-                    answer = replaceVersions(answer, profileOverlay);
+                    answer = replaceVersions(profileOverlay, answer);
                 }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Replaced value " + value + " with answer: " + answer);
@@ -96,20 +99,18 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
     /**
      * Lets replace any other instances of ${version:key} with the value
      */
-    protected String replaceVersions(String value, ProfileOverlayImpl profileOverlay) {
+    public static String replaceVersions(Profile profileOverlay, String value) {
         // TODO we should really support other completions here too other than ${version:
-        String prefix = "${version:";
-        String postfix = "}";
         boolean replaced;
         do {
             replaced = false;
-            int startIdx = value.indexOf(prefix);
+            int startIdx = value.indexOf(VERSION_PREFIX);
             if (startIdx >= 0) {
-                int keyIdx = startIdx + prefix.length();
-                int endIdx = value.indexOf(postfix, keyIdx);
+                int keyIdx = startIdx + VERSION_PREFIX.length();
+                int endIdx = value.indexOf(VERSION_POSTFIX, keyIdx);
                 if (endIdx > 0) {
                     String newKey = value.substring(keyIdx, endIdx);
-                    String newValue = substituteFromProfile(profileOverlay, targetPid, newKey);
+                    String newValue = substituteFromProfile(profileOverlay, VERSIONS_PID, newKey);
                     if (newValue != null) {
                         value = value.substring(0, startIdx) + newValue + value.substring(endIdx + 1);
                     }
@@ -120,7 +121,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
         return value;
     }
 
-    private String substituteFromProfile(Profile profile, String pid, String key) {
+    private static String substituteFromProfile(Profile profile, String pid, String key) {
         Map<String, String> configuration = profile.getConfiguration(pid);
         if (configuration.containsKey(key)) {
             return configuration.get(key);

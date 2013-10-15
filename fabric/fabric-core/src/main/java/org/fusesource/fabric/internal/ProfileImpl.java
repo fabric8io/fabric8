@@ -21,6 +21,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.service.VersionPropertyPointerResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,15 +137,27 @@ public class ProfileImpl implements Profile {
         try {
             Properties containerProps = getContainerProperties(p);
             ArrayList<String> rc = new ArrayList<String>();
+            String prefix = type + ".";
             for ( Map.Entry<Object, Object> e : containerProps.entrySet() ) {
-                if ( ((String)e.getKey()).startsWith(type + ".") ) {
-                    rc.add((String)e.getValue());
+                if ( ((String)e.getKey()).startsWith(prefix) ) {
+                    String value = replaceVersionResolver(p, (String) e.getValue());
+                    rc.add(value);
                 }
             }
             return rc;
 
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
+        }
+    }
+
+    private static String replaceVersionResolver(Profile p, String value) {
+        // TODO we maybe need to consider other kinds of resolver here?
+        if (value.indexOf(VersionPropertyPointerResolver.VERSION_PREFIX) > 0) {
+            // lets only make an overlay profile if we have a version to replace
+            return VersionPropertyPointerResolver.replaceVersions(p.getOverlay(), value);
+        } else {
+            return value;
         }
     }
 
