@@ -1467,7 +1467,6 @@
                 <module>bai</module>
                 <module>components</module>
                 <module>esb</module>
-                <module>examples</module>
                 <module>fmc</module>
                 <module>patch</module>
                 <module>security</module>

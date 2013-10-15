@@ -22,7 +22,7 @@ Linux/Unix or 'bin\fuse.bat' on Windows.
 
 Examples
 -------------
-Examples with instructions are in the 'examples' directory.
+Examples with instructions are in the 'quickstarts' directory.
 
 Documentation
 -------------

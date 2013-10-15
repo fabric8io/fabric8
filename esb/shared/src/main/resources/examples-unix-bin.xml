@@ -19,8 +19,8 @@
     <fileSets>
         <!-- Copy over the examples with filtering -->
         <fileSet>
-            <directory>../../examples</directory>
-            <outputDirectory>/examples</outputDirectory>
+            <directory>../../quickstarts</directory>
+            <outputDirectory>/quickstarts</outputDirectory>
             <excludes>
                 <exclude>**/target/</exclude>
                 <exclude>**/target/*</exclude>
