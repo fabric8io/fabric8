@@ -25,7 +25,6 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.ContainerOptions;
-import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -41,7 +40,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
-import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWORD;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 
 @Command(name = "join", scope = "fabric", description = "Join a container to an existing fabric", detailedDescription = "classpath:join.txt")
@@ -232,15 +230,13 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     }
 
     public void installBundles() throws BundleException {
-        Bundle bundleFabricCommands = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-commands",
-                "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
+        BundleUtils bundleUtils = new BundleUtils(bundleContext);
+        Bundle bundleFabricCommands = bundleUtils.findBundle("org.fusesource.fabric.fabric-commands");
         bundleFabricCommands.start();
 
         if (!nonManaged) {
-            Bundle bundleFabricConfigAdmin = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
-                    "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
-            Bundle bundleFabricAgent = BundleUtils.findOrInstallBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
-                    "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricConfigAdmin = bundleUtils.findBundle("org.fusesource.fabric.fabric-configadmin");
+            Bundle bundleFabricAgent = bundleUtils.findBundle("org.fusesource.fabric.fabric-agent");
             bundleFabricConfigAdmin.start();
             bundleFabricAgent.start();
         }

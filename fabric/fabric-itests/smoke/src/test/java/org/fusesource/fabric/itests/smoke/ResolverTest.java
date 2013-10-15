@@ -17,6 +17,12 @@
 
 package org.fusesource.fabric.itests.smoke;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+
+import java.util.Set;
+
 import junit.framework.Assert;
 
 import org.apache.curator.framework.CuratorFramework;
@@ -25,10 +31,8 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.utils.BundleUtils;
-import org.fusesource.fabric.utils.OsgiUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -38,13 +42,6 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.blueprint.container.BlueprintContainer;
-
-import java.util.Set;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -138,7 +135,7 @@ public class ResolverTest extends FabricTestSupport {
         waitForFabricCommands();
 
         //We stop the config admin bridge, since the next step is going to hung the container if we do propagate the change to config admin.
-        BundleUtils.findAndStopBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin");
+        new BundleUtils(bundleContext).findAndStopBundle("org.fusesource.fabric.fabric-configadmin");
         //We want to make sure that the child points to the parent, so we change the parent resolvers and assert.
         System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
         Assert.assertEquals("localip", getSubstitutedPath(curator, ZkPath.CONTAINER_RESOLVER.getPath(child.getId())));

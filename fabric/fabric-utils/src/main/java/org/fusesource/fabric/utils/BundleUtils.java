@@ -23,30 +23,13 @@ import org.osgi.framework.BundleException;
 
 public class BundleUtils {
 
-    private BundleUtils() {
-        //Utility Class
+    private final BundleContext bundleContext;
+
+    public BundleUtils(BundleContext bundleContext) {
+        this.bundleContext = bundleContext;
     }
 
-    public static Bundle instalBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
-        Bundle bundle = findBundle(bundleContext, bsn);
-        if (bundle == null) {
-            bundle = bundleContext.installBundle(url);
-        }
-        return bundle;
-    }
-
-    public static Bundle installOrStopBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
-        Bundle bundle = findBundle(bundleContext, bsn);
-        if (bundle == null) {
-            bundle = bundleContext.installBundle(url);
-        }
-        if (bundle.getState() == Bundle.ACTIVE) {
-            bundle.stop();
-        }
-        return bundle;
-    }
-
-    public static Bundle findBundle(BundleContext bundleContext, String bsn) throws BundleException {
+    public Bundle findBundle(String bsn) throws BundleException {
         for (Bundle b : bundleContext.getBundles()) {
             if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
                 return b;
@@ -55,16 +38,11 @@ public class BundleUtils {
         return null;
     }
 
-    public static Bundle findAndStopBundle(BundleContext bundleContext, String bsn) throws BundleException {
-        Bundle bundle = findBundle(bundleContext, bsn);
+    public Bundle findAndStopBundle(String bsn) throws BundleException {
+        Bundle bundle = findBundle(bsn);
         if (bundle != null && bundle.getState() == Bundle.ACTIVE) {
             bundle.stop();
         }
         return bundle;
-    }
-
-    public static Bundle findOrInstallBundle(BundleContext bundleContext, String bsn, String url) throws BundleException {
-        Bundle bundle = findBundle(bundleContext, bsn);
-        return bundle != null ? bundle : bundleContext.installBundle(url);
     }
 }

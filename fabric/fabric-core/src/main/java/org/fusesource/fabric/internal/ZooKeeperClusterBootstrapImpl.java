@@ -16,6 +16,19 @@
  */
 package org.fusesource.fabric.internal;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.UnknownHostException;
+import java.util.Collections;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -33,9 +46,12 @@ import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.OsgiUtils;
+import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -43,23 +59,6 @@ import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.net.UnknownHostException;
-import java.util.Collections;
-import java.util.Dictionary;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
-
-import static org.fusesource.fabric.utils.BundleUtils.instalBundle;
-import static org.fusesource.fabric.utils.BundleUtils.installOrStopBundle;
-import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
@@ -75,12 +74,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
     @GuardedBy("this") private Map<String, String> configuration;
-    @GuardedBy("this") private BundleContext bundleContext;
+    @GuardedBy("this") private BundleUtils bundleUtils;
 
     @Activate
     synchronized void activate(BundleContext bundleContext, Map<String,String> configuration) {
-        this.bundleContext = bundleContext;
-        this.configuration = Collections.unmodifiableMap(configuration);
+        this.configuration = Collections.unmodifiableMap(new HashMap<String,String>(configuration));
+        this.bundleUtils = new BundleUtils(bundleContext);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -93,14 +92,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Deactivate
     synchronized void deactivate() {
         deactivateComponent();
-    }
-
-    private synchronized Map<String, String> getConfiguration() {
-        return configuration;
-    }
-
-    private synchronized BundleContext getBundleContext() {
-        return bundleContext;
     }
 
     private void createOnActivate() {
@@ -129,13 +120,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             String zooKeeperServerHost = options.getBindAddress();
             int zooKeeperServerPort = options.getZooKeeperServerPort();
             int zooKeeperServerConnectionPort = options.getZooKeeperServerConnectionPort();
-            int mappedPort = mapPortToRange(zooKeeperServerPort, minimumPort, maximumPort);
+            int mappedPort = Ports.mapPortToRange(zooKeeperServerPort, minimumPort, maximumPort);
 			String connectionUrl = getConnectionAddress() + ":" + zooKeeperServerConnectionPort;
 
             // Create configuration
             updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
-            Map<String, String> configuration = getConfiguration();
             registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
 
             // Create the client configuration
@@ -160,9 +150,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void clean() {
         assertValid();
         try {
-            BundleContext bundleContext = getBundleContext();
-            Bundle bundleFabricZooKeeper = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-zookeeper",
-                    "mvn:org.fusesource.fabric/fabric-zookeeper/" + FabricConstants.FABRIC_VERSION);
+            Bundle bundleFabricZooKeeper = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-zookeeper");
 
             for (; ; ) {
                 Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
@@ -253,17 +241,15 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
 
     private void startBundles(CreateEnsembleOptions options) throws BundleException {
-        // Install or stop the fabric-configadmin bridge
-        BundleContext bundleContext = getBundleContext();
-        Bundle bundleFabricAgent = installOrStopBundle(bundleContext, "org.fusesource.fabric.fabric-agent",
-                "mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
-        Bundle bundleFabricConfigAdmin = instalBundle(bundleContext, "org.fusesource.fabric.fabric-configadmin",
-                "mvn:org.fusesource.fabric/fabric-configadmin/" + FabricConstants.FABRIC_VERSION);
-        Bundle bundleFabricCommands = instalBundle(bundleContext, "org.fusesource.fabric.fabric-commands  ",
-                "mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
 
-        bundleFabricCommands.start();
-        bundleFabricConfigAdmin.start();
+        // Install the required bundles
+        Bundle bundleFabricAgent = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-agent");
+        //Bundle bundleFabricConfigAdmin = bundleUtils.installBundle("org.fusesource.fabric.fabric-configadmin", FABRIC_CONFIGADMIN_URL);
+        //Bundle bundleFabricCommands = bundleUtils.installBundle("org.fusesource.fabric.fabric-commands", FABRIC_COMMANDS_URL);
+
+        //bundleFabricCommands.start();
+        //bundleFabricConfigAdmin.start();
+
         //Check if the agent is configured to auto start.
         if (options.isAgentEnabled()) {
             bundleFabricAgent.start();
@@ -324,7 +310,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     private static Properties getProperties(CuratorFramework client, String file, Properties defaultValue) throws Exception {
         try {
-            String v = getStringData(client, file);
+            String v = ZooKeeperUtils.getStringData(client, file);
             if (v != null) {
                 return DataStoreHelpers.toProperties(v);
             } else {
