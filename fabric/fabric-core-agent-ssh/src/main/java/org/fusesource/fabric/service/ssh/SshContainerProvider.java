@@ -29,6 +29,7 @@ import com.jcraft.jsch.Session;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreationStateListener;
 import org.fusesource.fabric.api.FabricException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,8 +58,7 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
     /**
      * Creates an {@link org.fusesource.fabric.api.Container} with the given name pointing to the specified zooKeeperUrl.
      */
-    public Set<CreateSshContainerMetadata> create(CreateSshContainerOptions options) {
-        Set<CreateSshContainerMetadata> result = new LinkedHashSet<CreateSshContainerMetadata>();
+    public CreateSshContainerMetadata create(CreateSshContainerOptions options, CreationStateListener listener) {
         try {
             String path = options.getPath();
             String host = options.getHost();
@@ -71,31 +71,21 @@ public class SshContainerProvider implements ContainerProvider<CreateSshContaine
                 port = 22;
             }
 
-            String originalName = new String(options.getName());
-            int number = Math.max(options.getNumber(), 1);
-            for (int i = 1; i <= number; i++) {
-                String containerName;
-                if (options.getNumber() >= 1) {
-                    containerName = originalName + i;
-                } else {
-                    containerName = originalName;
-                }
-                CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
-                metadata.setCreateOptions(options);
-                metadata.setContainerName(containerName);
-                String script = buildInstallAndStartScript(containerName, options);
-                logger.debug("Running script on host {}:\n{}", host, script);
-                try {
-                    runScriptOnHost(options,script);
-                } catch (Throwable ex) {
-                    metadata.setFailure(ex);
-                }
-                result.add(metadata);
+            String containerName = options.getName();
+            CreateSshContainerMetadata metadata = new CreateSshContainerMetadata();
+            metadata.setCreateOptions(options);
+            metadata.setContainerName(containerName);
+            String script = buildInstallAndStartScript(containerName, options);
+            logger.debug("Running script on host {}:\n{}", host, script);
+            try {
+                runScriptOnHost(options,script);
+            } catch (Throwable ex) {
+                metadata.setFailure(ex);
             }
+            return metadata;
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
         }
-        return result;
     }
 
     @Override

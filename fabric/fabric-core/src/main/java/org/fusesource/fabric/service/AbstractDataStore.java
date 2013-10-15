@@ -288,16 +288,13 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
     }
 
     @Override
-    public void createContainerConfig(String containerId, CreateContainerOptions options) {
+    public void createContainerConfig(CreateContainerOptions options) {
         assertValid();
         try {
             String parent = options.getParent();
-            String versionId = options.getVersion() != null ? options.getVersion() : getDefaultVersion();
+            String containerId = options.getName();
+            String versionId = options.getVersion();
             Set<String> profileIds = options.getProfiles();
-            if (profileIds == null || profileIds.isEmpty()) {
-                profileIds = new LinkedHashSet<String>();
-                profileIds.add("default");
-            }
             StringBuilder sb = new StringBuilder();
             for (String profileId : profileIds) {
                 if (sb.length() > 0) {

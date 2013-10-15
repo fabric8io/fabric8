@@ -58,9 +58,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         @JsonIgnore
         Map<String, CreateContainerMetadata> metadataMap = new HashMap<String, CreateContainerMetadata>();
 
-        @JsonIgnore
-        transient CreationStateListener creationStateListener = new NullCreationStateListener();
-
         public B preferredAddress(final String preferredAddress) {
             this.preferredAddress = preferredAddress;
             return (B) this;
@@ -117,11 +114,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return (B) this;
         }
 
-        public B creationStateListener(final CreationStateListener creationStateListener) {
-            this.creationStateListener = creationStateListener;
-            return (B) this;
-        }
-
         public String getName() {
             return name;
         }
@@ -170,16 +162,12 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
             return metadataMap;
         }
 
-        public CreationStateListener getCreationStateListener() {
-            return creationStateListener;
-        }
-
 
         public CreateContainerBasicOptions build() {
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
                     maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
-                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess, creationStateListener);
+                    number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
         }
     }
 
@@ -208,7 +196,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
 
     final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
-    final transient CreationStateListener creationStateListener;
 
     public CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
                                        int minimumPort, int maximumPort, Set<String> profiles, String version,
@@ -217,7 +204,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
                                        Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
-                                       String jvmOpts, boolean adminAccess, CreationStateListener creationStateListener) {
+                                       String jvmOpts, boolean adminAccess) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort,
                 zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, autoImportEnabled, importPath, users);
@@ -233,7 +220,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
         this.zookeeperUrl = zookeeperUrl;
         this.jvmOpts = jvmOpts;
         this.adminAccess = adminAccess;
-        this.creationStateListener = creationStateListener;
     }
 
     public static Builder<? extends Builder> builder() {
@@ -318,10 +304,6 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
     public boolean isAdminAccess() {
         return adminAccess;
-    }
-
-    public CreationStateListener getCreationStateListener() {
-        return creationStateListener;
     }
 
     public Map<String, CreateContainerMetadata<T>> getMetadataMap() {

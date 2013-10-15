@@ -82,6 +82,8 @@ public interface FabricService {
      */
     CreateContainerMetadata[] createContainers(CreateContainerOptions options);
 
+    CreateContainerMetadata[] createContainers(CreateContainerOptions options, CreationStateListener listener);
+
     Set<Class<? extends CreateContainerBasicOptions>> getSupportedCreateContainerOptionTypes();
 
     Set<Class<? extends CreateContainerBasicMetadata>> getSupportedCreateContainerMetadataTypes();

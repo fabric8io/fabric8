@@ -35,6 +35,7 @@ import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateChildContainerMetadata;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.CreationStateListener;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.PortService;
@@ -75,23 +76,23 @@ public final class ChildContainerProvider extends AbstractComponent implements C
     }
 
     @Override
-    public Set<CreateChildContainerMetadata> create(final CreateChildContainerOptions options) throws Exception {
+    public CreateChildContainerMetadata create(final CreateChildContainerOptions options, final CreationStateListener listener) throws Exception {
         assertValid();
 
         final Container parent = fabricService.get().getContainer(options.getParent());
         ContainerTemplate containerTemplate =  new ContainerTemplate(parent, options.getJmxUser(), options.getJmxPassword(), false);
 
-        return containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<Set<CreateChildContainerMetadata>>() {
-            public Set<CreateChildContainerMetadata> doWithAdminService(AdminServiceMBean adminService) throws Exception {
-                return doCreate(adminService, options, parent);
+        return containerTemplate.execute(new ContainerTemplate.AdminServiceCallback<CreateChildContainerMetadata>() {
+            public CreateChildContainerMetadata doWithAdminService(AdminServiceMBean adminService) throws Exception {
+                return doCreate(adminService, options, listener, parent);
             }
         });
     }
 
-    private Set<CreateChildContainerMetadata> doCreate(AdminServiceMBean adminService,
-                                                       CreateChildContainerOptions options,
-                                                       final Container parent) throws Exception {
-        final Set<CreateChildContainerMetadata> result = new LinkedHashSet<CreateChildContainerMetadata>();
+    private CreateChildContainerMetadata doCreate(AdminServiceMBean adminService,
+                                                  CreateChildContainerOptions options,
+                                                  CreationStateListener listener,
+                                                  final Container parent) throws Exception {
         StringBuilder jvmOptsBuilder = new StringBuilder();
 
         jvmOptsBuilder.append("-server -Dcom.sun.management.jmxremote")
@@ -142,68 +143,58 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         features.add("fabric-agent");
         features.add("fabric-git");
         //features.addAll(defaultProfile.getFeatures());
-        String originalName = options.getName();
+        String containerName = options.getName();
 
         PortService portService = fabricService.get().getPortService();
         Set<Integer> usedPorts = portService.findUsedPortByHost(parent);
 
-        int number = Math.max(options.getNumber(), 1);
-        for (int i = 1; i <= number; i++) {
-            String containerName;
-            if (options.getNumber() >= 1) {
-                containerName = originalName + i;
-            } else {
-                containerName = originalName;
+        CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
+
+        metadata.setCreateOptions(options);
+        metadata.setContainerName(containerName);
+        int minimumPort = parent.getMinimumPort();
+        int maximumPort = parent.getMaximumPort();
+
+        fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
+        fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
+        inheritAddresses(fabricService.get(), parent.getId(), containerName, options);
+
+        //We are creating a container instance, just for the needs of port registration.
+        Container child = new ContainerImpl(parent, containerName, fabricService.get()) {
+            @Override
+            public String getIp() {
+                return parent.getIp();
             }
-            CreateChildContainerMetadata metadata = new CreateChildContainerMetadata();
+        };
 
-            metadata.setCreateOptions(options);
-            metadata.setContainerName(containerName);
-            int minimumPort = parent.getMinimumPort();
-            int maximumPort = parent.getMaximumPort();
-
-            fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMin, String.valueOf(minimumPort));
-            fabricService.get().getDataStore().setContainerAttribute(containerName, DataStore.ContainerAttribute.PortMax, String.valueOf(maximumPort));
-            inheritAddresses(fabricService.get(), parent.getId(), containerName, options);
-
-            //We are creating a container instance, just for the needs of port registration.
-            Container child = new ContainerImpl(parent, containerName, fabricService.get()) {
-                @Override
-                public String getIp() {
-                    return parent.getIp();
-                }
-            };
-
-            int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT , minimumPort, maximumPort);
-            int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100 , minimumPort, maximumPort);
-            int sshPort = portService.registerPort(child, "org.apache.karaf.shell", "sshPort", sshFrom, sshTo, usedPorts);
+        int sshFrom = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT , minimumPort, maximumPort);
+        int sshTo = mapPortToRange(Ports.DEFAULT_KARAF_SSH_PORT + 100 , minimumPort, maximumPort);
+        int sshPort = portService.registerPort(child, "org.apache.karaf.shell", "sshPort", sshFrom, sshTo, usedPorts);
 
 
-            int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT , minimumPort, maximumPort);
-            int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100 , minimumPort, maximumPort);
-            portService.registerPort(child, "org.ops4j.pax.web", "org.osgi.service.http.port", httpFrom, httpTo, usedPorts);
+        int httpFrom = mapPortToRange(Ports.DEFAULT_HTTP_PORT , minimumPort, maximumPort);
+        int httpTo = mapPortToRange(Ports.DEFAULT_HTTP_PORT + 100 , minimumPort, maximumPort);
+        portService.registerPort(child, "org.ops4j.pax.web", "org.osgi.service.http.port", httpFrom, httpTo, usedPorts);
 
-            int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT , minimumPort, maximumPort);
-            int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100 , minimumPort, maximumPort);
-            int rmiServerPort = portService.registerPort(child, "org.apache.karaf.management", "rmiServerPort", rmiServerFrom, rmiServerTo, usedPorts);
+        int rmiServerFrom = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT , minimumPort, maximumPort);
+        int rmiServerTo = mapPortToRange(Ports.DEFAULT_RMI_SERVER_PORT + 100 , minimumPort, maximumPort);
+        int rmiServerPort = portService.registerPort(child, "org.apache.karaf.management", "rmiServerPort", rmiServerFrom, rmiServerTo, usedPorts);
 
-            int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT , minimumPort, maximumPort);
-            int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100 , minimumPort, maximumPort);
-            int rmiRegistryPort = portService.registerPort(child, "org.apache.karaf.management", "rmiRegistryPort", rmiRegistryFrom, rmiRegistryTo, usedPorts);
+        int rmiRegistryFrom = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT , minimumPort, maximumPort);
+        int rmiRegistryTo = mapPortToRange(Ports.DEFAULT_RMI_REGISTRY_PORT + 100 , minimumPort, maximumPort);
+        int rmiRegistryPort = portService.registerPort(child, "org.apache.karaf.management", "rmiRegistryPort", rmiRegistryFrom, rmiRegistryTo, usedPorts);
 
 
-            try {
-                adminService.createInstance(containerName,
-                        sshPort,
-                        rmiRegistryPort,
-                        rmiServerPort, null, jvmOptsBuilder.toString(), collectionAsString(features), featuresUrls);
-                adminService.startInstance(containerName, null);
-            } catch (Throwable t) {
-                metadata.setFailure(t);
-            }
-            result.add(metadata);
+        try {
+            adminService.createInstance(containerName,
+                    sshPort,
+                    rmiRegistryPort,
+                    rmiServerPort, null, jvmOptsBuilder.toString(), collectionAsString(features), featuresUrls);
+            adminService.startInstance(containerName, null);
+        } catch (Throwable t) {
+            metadata.setFailure(t);
         }
-        return result;
+        return metadata;
     }
 
     @Override

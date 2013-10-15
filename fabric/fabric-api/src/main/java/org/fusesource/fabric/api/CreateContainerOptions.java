@@ -70,8 +70,6 @@ public interface CreateContainerOptions extends Serializable, Cloneable {
 
     boolean isAdminAccess();
 
-    CreationStateListener getCreationStateListener();
-
     Map<String, ? extends CreateContainerMetadata> getMetadataMap();
 
     Set<String> getProfiles();

@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Component;
@@ -41,6 +42,7 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreationStateListener;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
@@ -100,7 +102,6 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
     @GuardedBy("volatile & assertValid()") private volatile BundleContext bundleContext;
 
     @Activate
@@ -112,7 +113,6 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     @Deactivate
     void deactivate() {
         deactivateComponent();
-        executorService.shutdown();
     }
 
     @Override
@@ -121,75 +121,49 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     }
 
     @Override
-    public Set<CreateJCloudsContainerMetadata> create(CreateJCloudsContainerOptions input) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
+    public CreateJCloudsContainerMetadata create(CreateJCloudsContainerOptions input, CreationStateListener listener) throws MalformedURLException, RunNodesException, URISyntaxException, InterruptedException {
         assertValid();
-        Set<? extends NodeMetadata> metadata = null;
         CreateJCloudsContainerOptions options = input.updateComputeService(getOrCreateComputeService(input));
-        int number = Math.max(options.getNumber(), 1);
-        int suffix = 1;
 
-        final Set<CreateJCloudsContainerMetadata> result = new LinkedHashSet<CreateJCloudsContainerMetadata>();
+        listener.onStateChange("Looking up for compute service.");
+        ComputeService computeService = getOrCreateComputeService(options);
+        if (computeService == null) {
+            throw new IllegalStateException("Compute service could not be found or created.");
+        }
+
+        Template template = ToTemplate.apply(options);
+
+        listener.onStateChange(String.format(OVERVIEW_FORMAT, 1, options.getContextName()));
 
         try {
-            options.getCreationStateListener().onStateChange("Looking up for compute service.");
-            ComputeService computeService = getOrCreateComputeService(options);
-
-            if (computeService == null) {
-                throw new IllegalStateException("Compute service could not be found or created.");
+            Set<? extends NodeMetadata> metadata = computeService.createNodesInGroup(options.getGroup(), 1, template);
+            if (metadata == null || metadata.size() != 1) {
+                throw new IllegalStateException("JClouds created " + metadata.size() + " containers instead of 1");
+            }
+            NodeMetadata nodeMetadata = metadata.iterator().next();
+            switch (nodeMetadata.getStatus()) {
+                case RUNNING:
+                    listener.onStateChange(String.format(NODE_CREATED_FORMAT, nodeMetadata.getName()));
+                    break;
+                default:
+                    listener.onStateChange(String.format(NODE_ERROR_FORMAT, nodeMetadata.getStatus()));
             }
 
-            Template template = ToTemplate.apply(options);
-
-            options.getCreationStateListener().onStateChange(String.format(OVERVIEW_FORMAT, number, options.getContextName()));
-
-            try {
-                metadata = computeService.createNodesInGroup(options.getGroup(), number, template);
-                for (NodeMetadata nodeMetadata : metadata) {
-                    switch (nodeMetadata.getStatus()) {
-                        case RUNNING:
-                            options.getCreationStateListener().onStateChange(String.format(NODE_CREATED_FORMAT, nodeMetadata.getName()));
-                            break;
-                        default:
-                            options.getCreationStateListener().onStateChange(String.format(NODE_ERROR_FORMAT, nodeMetadata.getStatus()));
-                    }
-                }
-            } catch (RunNodesException ex) {
-                CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
-                failureMetdata.setCreateOptions(options);
-                failureMetdata.setFailure(ex);
-                result.add(failureMetdata);
-                return result;
-            }
-
-            String originalName = new String(options.getName());
-            CountDownLatch countDownLatch = new CountDownLatch(number);
-
-            for (NodeMetadata nodeMetadata : metadata) {
-                String containerName;
-                if (options.getNumber() >= 1) {
-                    containerName = originalName + (suffix++);
-                } else {
-                    containerName = originalName;
-                }
-                CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(containerName,
-                        nodeMetadata, options, computeService, firewallManagerFactory.get(), template.getOptions(), result,
-                        countDownLatch);
-                executorService.execute(installationTask);
-            }
-
-            if (!countDownLatch.await(15, TimeUnit.MINUTES)) {
-                throw new FabricException("Error waiting for container installation.");
-            }
-
-        } catch (Throwable t) {
-                for (int i = result.size(); i < number; i++) {
-                    CreateJCloudsContainerMetadata failureMetdata = new CreateJCloudsContainerMetadata();
-                    failureMetdata.setCreateOptions(options);
-                    failureMetdata.setFailure(t);
-                    result.add(failureMetdata);
-                }
+            CloudContainerInstallationTask installationTask = new CloudContainerInstallationTask(
+                    options.getName(),
+                    nodeMetadata,
+                    options,
+                    computeService,
+                    firewallManagerFactory.get(),
+                    template.getOptions(),
+                    listener);
+            return installationTask.install();
+        } catch (Throwable ex) {
+            CreateJCloudsContainerMetadata failureMetadata = new CreateJCloudsContainerMetadata();
+            failureMetadata.setCreateOptions(options);
+            failureMetadata.setFailure(ex);
+            return failureMetadata;
         }
-        return result;
     }
 
     @Override
@@ -280,15 +254,12 @@ public class JcloudsContainerProvider extends AbstractComponent implements Conta
     private synchronized ComputeService getOrCreateComputeService(CreateJCloudsContainerOptions options) {
         ComputeService computeService = null;
         if (options != null) {
-            Object object = options.getComputeService();
-            if (object instanceof ComputeService) {
-                computeService = (ComputeService) object;
-            }
+            computeService = options.getComputeService();
             if (computeService == null && options.getContextName() != null) {
                 computeService = computeRegistry.get().getIfPresent(options.getContextName());
             }
             if (computeService == null) {
-                options.getCreationStateListener().onStateChange("Compute Service not found. Creating ...");
+//                listener.onStateChange("Compute Service not found. Creating ...");
                 //validate options and make sure a compute service can be created.
                 if (Strings.isNullOrEmpty(options.getProviderName()) || Strings.isNullOrEmpty(options.getIdentity()) || Strings.isNullOrEmpty(options.getCredential())) {
                     throw new IllegalArgumentException("Cannot create compute service. A registered cloud provider or the provider name, identity and credential options are required");

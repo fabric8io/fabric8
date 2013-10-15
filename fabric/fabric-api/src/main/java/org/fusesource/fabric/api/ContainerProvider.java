@@ -29,7 +29,7 @@ public interface ContainerProvider<O extends CreateContainerOptions, M extends C
      * @return          A set of {@link CreateContainerMetadata}, which contains information about the created container.
      * @throws Exception
      */
-    Set<M> create(O options) throws Exception;
+    M create(O options, CreationStateListener listener) throws Exception;
 
     /**
      * Start the container

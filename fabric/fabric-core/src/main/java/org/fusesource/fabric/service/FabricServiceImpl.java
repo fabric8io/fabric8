@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -41,6 +42,8 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.Service;
+import org.codehaus.jackson.map.DeserializationConfig;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.ContainerAutoScalerFactory;
@@ -50,11 +53,13 @@ import org.fusesource.fabric.api.CreateContainerBasicMetadata;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.CreationStateListener;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.FabricStatus;
+import org.fusesource.fabric.api.NullCreationStateListener;
 import org.fusesource.fabric.api.PatchService;
 import org.fusesource.fabric.api.PortService;
 import org.fusesource.fabric.api.Profile;
@@ -81,6 +86,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Strings;
 
 import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.service", description = "Fabric Service")
@@ -307,50 +315,95 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
-    public CreateContainerMetadata[] createContainers(final CreateContainerOptions options) {
+    public CreateContainerMetadata[] createContainers(CreateContainerOptions options) {
+        return createContainers(options, null);
+    }
+
+    @Override
+    public CreateContainerMetadata[] createContainers(CreateContainerOptions options, CreationStateListener listener) {
         assertValid();
         try {
-            ContainerProvider provider = getProvider(options.getProviderType());
+            final ContainerProvider provider = getProvider(options.getProviderType());
             if (provider == null) {
                 throw new FabricException("Unable to find a container provider supporting '" + options.getProviderType() + "'");
             }
 
-            if (!options.isEnsembleServer()) {
-                String originalName = options.getName();
-                int number = Math.max(options.getNumber(), 1);
-                for (int i = 1; i <= number; i++) {
-                    String containerName;
-                    if (options.getNumber() >= 1) {
-                        containerName = originalName + i;
-                    } else {
-                        containerName = originalName;
-                    }
-                    getDataStore().createContainerConfig(containerName, options);
-                }
+            String originalName = options.getName();
+            if (originalName == null || originalName.length() == 0) {
+                throw new FabricException("A name must be specified when creating containers");
             }
 
-            Set<? extends CreateContainerMetadata> metadatas = provider.create(options);
+            if (listener == null) {
+                listener = new NullCreationStateListener();
+            }
 
-            for (CreateContainerMetadata metadata : metadatas) {
-                if (metadata.isSuccess()) {
-                    Container parent = options.getParent() != null ? getContainer(options.getParent()) : null;
-                    //An ensemble server can be created without an existing ensemble.
-                    //In this case container config will be created by the newly created container.
-                    //TODO: We need to make sure that this entries are somehow added even to ensemble servers.
-                    if (!options.isEnsembleServer()) {
-                        getDataStore().createContainerConfig(metadata);
-                    }
-                    ContainerImpl container = new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this);
-                    metadata.setContainer(container);
-                    container.setMetadata(metadata);
-                    LOGGER.info("The container " + metadata.getContainerName() + " has been successfully created");
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            Map optionsMap = mapper.readValue(mapper.writeValueAsString(options), Map.class);
+            String versionId = options.getVersion() != null ? options.getVersion() : getDataStore().getDefaultVersion();
+            Set<String> profileIds = options.getProfiles();
+            if (profileIds == null || profileIds.isEmpty()) {
+                profileIds = new LinkedHashSet<String>();
+                profileIds.add("default");
+            }
+            optionsMap.put("version", versionId);
+            optionsMap.put("profiles", profileIds);
+            optionsMap.put("number", 0);
+
+            final List<CreateContainerMetadata> metadatas = new CopyOnWriteArrayList<CreateContainerMetadata>();
+            int orgNumber = options.getNumber();
+            int number = Math.max(orgNumber, 1);
+            final CountDownLatch latch = new CountDownLatch(number);
+            for (int i = 1; i <= number; i++) {
+                String containerName;
+                if (orgNumber >= 1) {
+                    containerName = originalName + i;
                 } else {
-                    LOGGER.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
+                    containerName = originalName;
                 }
+                optionsMap.put("name", containerName);
+                Class cl = options.getClass().getClassLoader().loadClass(options.getClass().getName() + "$Builder");
+                CreateContainerBasicOptions.Builder builder = (CreateContainerBasicOptions.Builder) mapper.readValue(mapper.writeValueAsString(optionsMap), cl);
+                final CreateContainerOptions containerOptions = builder.build();
+                final CreationStateListener containerListener = listener;
+                new Thread("Creating container " + containerName) {
+                    public void run() {
+                        try {
+                            getDataStore().createContainerConfig(containerOptions);
+                            CreateContainerMetadata metadata = provider.create(containerOptions, containerListener);
+                            if (metadata.isSuccess()) {
+                                Container parent = containerOptions.getParent() != null ? getContainer(containerOptions.getParent()) : null;
+                                //An ensemble server can be created without an existing ensemble.
+                                //In this case container config will be created by the newly created container.
+                                //TODO: We need to make sure that this entries are somehow added even to ensemble servers.
+                                if (!containerOptions.isEnsembleServer()) {
+                                    getDataStore().createContainerConfig(metadata);
+                                }
+                                ContainerImpl container = new ContainerImpl(parent, metadata.getContainerName(), FabricServiceImpl.this);
+                                metadata.setContainer(container);
+                                container.setMetadata(metadata);
+                                LOGGER.info("The container " + metadata.getContainerName() + " has been successfully created");
+                            } else {
+                                LOGGER.info("The creation of the container " + metadata.getContainerName() + " has failed", metadata.getFailure());
+                            }
+                            metadatas.add(metadata);
+                        } catch (Throwable t) {
+                            CreateContainerBasicMetadata metadata = new CreateContainerBasicMetadata();
+                            metadata.setCreateOptions(containerOptions);
+                            metadata.setFailure(t);
+                            metadatas.add(metadata);
+                        } finally {
+                            latch.countDown();
+                        }
+                    }
+                }.start();
+            }
+            if (!latch.await(15, TimeUnit.MINUTES)) {
+                throw new FabricException("Timeout waiting for container creation");
             }
             return metadatas.toArray(new CreateContainerMetadata[metadatas.size()]);
         } catch (Exception e) {
-            LOGGER.error("Failed to create container " + e, e);
+            LOGGER.error("Failed to create containers " + e, e);
             throw FabricException.launderThrowable(e);
         }
     }

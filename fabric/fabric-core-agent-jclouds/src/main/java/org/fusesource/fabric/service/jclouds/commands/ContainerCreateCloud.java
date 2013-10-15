@@ -142,7 +142,6 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
         .zookeeperPassword(isEnsembleServer && zookeeperPassword != null ? zookeeperPassword : fabricService.getZookeeperPassword())
         .jvmOpts(jvmOpts)
         .environmentalVariable(environmentalVariables)
-        .creationStateListener(new PrintStreamCreationStateListener(System.out))
         .version(version)
         .withUser(newUser, newUserPassword, newUserRole)
         .profiles(getProfileNames())
@@ -153,7 +152,7 @@ public class ContainerCreateCloud extends ContainerCreateSupport {
             builder.path(path);
         }
 
-        CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build());
+        CreateContainerMetadata[] metadatas = fabricService.createContainers(builder.build(), new PrintStreamCreationStateListener(System.out));
 
         if (isEnsembleServer && metadatas != null && metadatas.length > 0 && metadatas[0].isSuccess()) {
             ShellUtils.storeZookeeperPassword(session, metadatas[0].getCreateOptions().getZookeeperPassword());

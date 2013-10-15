@@ -130,13 +130,17 @@ public class FabricServiceFacade implements FabricService {
 
     @Override
     public CreateContainerMetadata[] createContainers(CreateContainerOptions createContainerOptions) {
-
         Map options = Helpers.getObjectMapper().convertValue(createContainerOptions, Map.class);
 
         Helpers.exec(getJolokiaClient(), "createContainers(java.util.Map)", options);
 
         // JMX API doesn't currently return this...
         return new CreateContainerMetadata[0];
+    }
+
+    @Override
+    public CreateContainerMetadata[] createContainers(CreateContainerOptions createContainerOptions, CreationStateListener listener) {
+        return createContainers(createContainerOptions);
     }
 
     @Override

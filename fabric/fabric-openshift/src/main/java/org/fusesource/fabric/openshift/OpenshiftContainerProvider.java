@@ -39,6 +39,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerAutoScaler;
 import org.fusesource.fabric.api.ContainerAutoScalerFactory;
 import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreationStateListener;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.NameValidator;
 import org.fusesource.fabric.api.Profile;
@@ -82,7 +83,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
 
     private static final transient Logger LOG = LoggerFactory.getLogger(OpenshiftContainerProvider.class);
 
-    private static final String PLAIN_CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
+    private static final String CART = "https://raw.github.com/jboss-fuse/fuse-openshift-cartridge/master/metadata/manifest.yml";
     private static final String SCHEME = "openshift";
 
     @Reference(referenceInterface = IOpenShiftConnection.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY)
@@ -144,12 +145,10 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Override
-    public Set<CreateOpenshiftContainerMetadata> create(CreateOpenshiftContainerOptions options) throws Exception {
+    public CreateOpenshiftContainerMetadata create(CreateOpenshiftContainerOptions options, CreationStateListener listener) throws Exception {
         assertValid();
-        Set<CreateOpenshiftContainerMetadata> metadata = new HashSet<CreateOpenshiftContainerMetadata>();
         IUser user = getOrCreateConnection(options).getUser();
         IDomain domain =  getOrCreateDomain(user, options);
-        int number = Math.max(options.getNumber(), 1);
         String cartridgeUrl = null;
         Set<String> profiles = options.getProfiles();
         String versionId = options.getVersion();
@@ -174,7 +173,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         // TODO need to check in the profile too?
         boolean fuseCart = options.isEnsembleServer();
         if (cartridgeUrl == null) {
-            cartridgeUrl = PLAIN_CART;
+            cartridgeUrl = CART;
         }
         String[] cartridgeUrls = cartridgeUrl.split(" ");
         LOG.info("Creating cartridges: " + cartridgeUrl);
@@ -184,8 +183,9 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         String zookeeperUrl = fabricService.get().getZookeeperUrl();
         String zookeeperPassword = fabricService.get().getZookeeperPassword();
 
-        Map<String,String> userEnvVars = new HashMap<String, String>();
+        Map<String,String> userEnvVars = null;
         if (fuseCart) {
+            userEnvVars = new HashMap<String, String>();
             userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_URL", zookeeperUrl);
             userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD", zookeeperPassword);
         }
@@ -194,58 +194,46 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         int timeout = IHttpClient.NO_TIMEOUT;
         ApplicationScale scale = null;
 
-        for (int i = 1; i <= number; i++) {
-            if (userEnvVars.isEmpty()) {
-                userEnvVars = null;
-            }
+        String containerName = options.getName();
 
-            String containerName;
-            if (options.getNumber() >= 1) {
-                containerName = options.getName() + i;
-            } else {
-                containerName = options.getName();
-            }
-
-            long t0 = System.currentTimeMillis();
-            IApplication application;
-            try {
-                application = domain.createApplication(containerName, cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
-            } catch (OpenShiftTimeoutException e) {
-                long t1;
-                do {
-                    Thread.sleep(5000);
-                    application = domain.getApplicationByName(containerName);
-                    if (application != null) {
-                        break;
-                    }
-                    t1 = System.currentTimeMillis();
-                } while (t1  - t0 < TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES));
-            }
-            LOG.info("Created application " + containerName);
-
-            // now lets add all the embedded cartridges
-            List<IEmbeddableCartridge> list = new ArrayList<IEmbeddableCartridge>();
-            for (int idx = 1,  size = cartridgeUrls.length; idx < size; idx++) {
-                String embeddedUrl = cartridgeUrls[idx];
-                LOG.info("Adding embedded cartridge: " + embeddedUrl);
-                list.add(new EmbeddableCartridge(embeddedUrl));
-            }
-            if (!list.isEmpty()) {
-                application.addEmbeddableCartridges(list);
-            }
-
-            String gitUrl = application.getGitUrl();
-/*
-            // now we pass in the environemnt variables we don't need to restart
-            if (!options.isEnsembleServer()) {
-                application.restart();
-            }
-*/
-            CreateOpenshiftContainerMetadata meta = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog(), gitUrl);
-            meta.setContainerName(containerName);
-            meta.setCreateOptions(options);
-            metadata.add(meta);
+        long t0 = System.currentTimeMillis();
+        IApplication application;
+        try {
+            application = domain.createApplication(containerName, cartridge, scale, new GearProfile(options.getGearProfile()), initGitUrl, timeout, userEnvVars);
+        } catch (OpenShiftTimeoutException e) {
+            long t1;
+            do {
+                Thread.sleep(5000);
+                application = domain.getApplicationByName(containerName);
+                if (application != null) {
+                    break;
+                }
+                t1 = System.currentTimeMillis();
+            } while (t1  - t0 < TimeUnit.MILLISECONDS.convert(15, TimeUnit.MINUTES));
         }
+        LOG.info("Created application " + containerName);
+
+        // now lets add all the embedded cartridges
+        List<IEmbeddableCartridge> list = new ArrayList<IEmbeddableCartridge>();
+        for (int idx = 1,  size = cartridgeUrls.length; idx < size; idx++) {
+            String embeddedUrl = cartridgeUrls[idx];
+            LOG.info("Adding embedded cartridge: " + embeddedUrl);
+            list.add(new EmbeddableCartridge(embeddedUrl));
+        }
+        if (!list.isEmpty()) {
+            application.addEmbeddableCartridges(list);
+        }
+
+        String gitUrl = application.getGitUrl();
+/*
+        // now we pass in the environemnt variables we don't need to restart
+        if (!options.isEnsembleServer()) {
+            application.restart();
+        }
+*/
+        CreateOpenshiftContainerMetadata metadata = new CreateOpenshiftContainerMetadata(domain.getId(), application.getUUID(), application.getCreationLog(), gitUrl);
+        metadata.setContainerName(containerName);
+        metadata.setCreateOptions(options);
         return metadata;
     }
 
