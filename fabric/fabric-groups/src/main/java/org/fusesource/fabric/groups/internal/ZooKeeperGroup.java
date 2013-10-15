@@ -123,7 +123,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
      */
     public ZooKeeperGroup(CuratorFramework client, String path, Class<T> clazz) {
         this(client, path, clazz,
-                Executors.newSingleThreadExecutor(ThreadUtils.newThreadFactory("PathChildrenCache")));
+                Executors.newSingleThreadExecutor(ThreadUtils.newThreadFactory("ZooKeeperGroup")));
     }
 
     /**
@@ -138,7 +138,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     /**
      * @param client          the client
      * @param path            path to watch
-     * @param executorService ExecutorService to use for the PathChildrenCache's background thread
+     * @param executorService ExecutorService to use for the ZooKeeperGroup's background thread
      */
     public ZooKeeperGroup(CuratorFramework client, String path, Class<T> clazz, final ExecutorService executorService) {
         this.client = client;
