@@ -19,7 +19,7 @@ This quick start combines use of the Camel Recipient List, which allows you to a
 In studying this quick start you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy a Fuse Application Bundle (FAB) in JBoss Fuse
+* how to build and deploy an OSGi bundle in JBoss Fuse
 * how to use the CBR enterprise integration pattern
 
 For more information see:
@@ -48,7 +48,7 @@ Build and Deploy the Quickstart
 * Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 * In the JBoss Fuse console, enter the following command:
 
-        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/cbr/<project version>
+        osgi:install -s mvn:org.jboss.quickstarts.fuse/cbr/<project version>
 
 * Fuse should give you an id when the bundle is deployed
 

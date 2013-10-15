@@ -24,7 +24,7 @@
     <groupId>org.jboss.quickstarts.fuse</groupId>
     <artifactId>errors</artifactId>
     <version>6.1.0.redhat-SNAPSHOT</version>
-    <packaging>jar</packaging>
+    <packaging>bundle</packaging>
     <name>JBoss Fuse :: Examples :: Error Handling</name>
     <description>Handle errors in the Camel m</description>
 
@@ -36,6 +36,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <version.compiler.plugin>2.3.1</version.compiler.plugin>
+        <version.maven-bundle-plugin>2.3.4</version.maven-bundle-plugin>
 
         <!-- maven-compiler-plugin -->
         <maven.compiler.target>1.6</maven.compiler.target>
@@ -159,6 +160,12 @@
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>${version.maven-bundle-plugin}</version>
+                <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>

@@ -18,7 +18,7 @@ This quickstart show you how to add a default error handler to your Camel contex
 In studying this quick start you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy a Fuse Application Bundle (FAB) in JBoss Fuse
+* how to build and deploy an OSGi bundle in JBoss Fuse
 * how to define a default error handler to your Camel context
 * how to define exception-specific error handling routines
 
@@ -46,7 +46,7 @@ Build and Deploy the Quickstart
 *. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 *. In the JBoss Fuse console, enter the following command:
 
-        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/errors/<project version>
+        osgi:install -s mvn:org.jboss.quickstarts.fuse/errors/<project version>
 
 *. Fuse should give you an id when the bundle is deployed
 *. You can check that everything is ok by issuing  the command:

@@ -25,7 +25,7 @@ Finally, we want to filter out the orders that contain more than 100 animals and
 In studying this example you will learn:
 
 * how to define a Camel route using the Blueprint XML syntax
-* how to build and deploy a Fuse Application Bundle (FAB) in JBoss Fuse
+* how to build and deploy an OSGi bundle in JBoss Fuse
 * how to combine multiple Enterprise Integration Patterns to create an integration solution
 * how to use the Wiretap EIP to copy messages as they pass through a route
 * how to use the Splitter EIP to split large messages into smaller ones
@@ -62,7 +62,7 @@ Build and Deploy the Quickstart
 *. Start JBoss Fuse 6 by running bin/fuse (on Linux) or bin\fuse.bat (on Windows).
 *. In the JBoss Fuse console, enter the following command:
 
-        osgi:install -s fab:mvn:org.jboss.quickstarts.fuse/eip/<project version>
+        osgi:install -s mvn:org.jboss.quickstarts.fuse/eip/<project version>
 
 *. Fuse should give you an id when the bundle is deployed
 *. You can check that everything is ok by issuing  the command:
