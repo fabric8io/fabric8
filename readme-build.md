@@ -23,6 +23,10 @@ Build Fuse ESB and run the associated tests
 
     > mvn -Pesb clean install
     
+Build Fuse Fabric using last Hawtio Snapshot and run the associated tests
+
+    > mvn -Phawtio-snapshot clean install
+    
 Build all modules and run the associated smoke tests
 
     > mvn -Prelease clean install
