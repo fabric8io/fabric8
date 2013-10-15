@@ -9,7 +9,7 @@
 # @author thomas.diesler@jboss.com
 # @since 15-Sep-2013
 
-mvn -pl fabric/fabric-aggregator -am -ff clean install | tee mvn.out
+mvn -ff clean install | tee mvn.out
 
 killall java
 
