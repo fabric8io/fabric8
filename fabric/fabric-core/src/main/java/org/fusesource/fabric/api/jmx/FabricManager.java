@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  */
@@ -735,13 +736,35 @@ public class FabricManager implements FabricManagerMBean {
     public String getConfigurationFile(String versionId, String profileId, String fileName) {
         return Base64.encodeBase64String(getFabricService().getVersion(versionId).getProfile(profileId).getFileConfigurations().get(fileName));
     }
+
+    @Override
+    public Map<String, Object> getConfigurationFiles(String versionId, List<String> profileIds, String filename) {
+        Pattern pattern = Pattern.compile(filename);
+        Map<String, Object> answer = new HashMap<String, Object>();
+        Version version = getFabricService().getVersion(versionId);
+        for (String profileId : profileIds) {
+            Profile profile = version.getProfile(profileId);
+            if (profile != null) {
+                Map<String, String> files = new HashMap<String, String>();
+                Map<String, byte[]> configs = profile.getFileConfigurations();
+
+                for (String key : configs.keySet()) {
+                    if (pattern.matcher(key).matches()) {
+                        files.put(key, Base64.encodeBase64String(configs.get(key)));
+                    }
+                }
+                answer.put(profileId, files);
+            }
+        }
+        return answer;
+    }
     
     @Override
     public void deleteConfigurationFile(String versionId, String profileId, String fileName) {
         Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
         Map<String, byte[]> configs = profile.getFileConfigurations();
         configs.remove(fileName);
-        profile.setFileConfigurations(configs);        
+        profile.setFileConfigurations(configs);
     }
 
     @Override

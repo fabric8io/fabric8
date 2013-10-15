@@ -148,6 +148,8 @@ public interface FabricManagerMBean {
     void deleteConfigurationFile(String versionId, String profileId, String fileName);
     
     String getConfigurationFile(String versionId, String profileId, String fileName);
+
+    Map<String, Object> getConfigurationFiles(String versionId, List<String> profileIds, String regex);
     
     void setConfigurationFile(String versionId, String profileId, String fileName, String data);
 
