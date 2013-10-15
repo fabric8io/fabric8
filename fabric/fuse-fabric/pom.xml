@@ -244,21 +244,6 @@
            </dependency>
        </dependencies>
 
-    <repositories>
-        <!-- needed for xerces -->
-        <repository>
-            <id>servicemix.m2-repo</id>
-            <name>ServiceMix Maven 2 repository</name>
-            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
        <build>
            <defaultGoal>install</defaultGoal>
            <resources>
@@ -544,6 +529,15 @@ TODO - zapped to try fix perfectus!
            </pluginManagement>
        </build>
 
+    <repositories>
+        <!-- needed for xerces -->
+        <repository>
+            <id>servicemix.m2-repo</id>
+            <name>ServiceMix Maven 2 repository</name>
+            <url>http://svn.apache.org/repos/asf/servicemix/m2-repo</url>
+        </repository>
+    </repositories>
+    
     <profiles>
         <profile>
             <id>dev</id>
@@ -555,4 +549,4 @@ TODO - zapped to try fix perfectus!
             </properties>
         </profile>
     </profiles>
-   </project>
+</project>

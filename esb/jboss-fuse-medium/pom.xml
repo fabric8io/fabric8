@@ -28,9 +28,8 @@
 
     <artifactId>jboss-fuse-medium</artifactId>
     <packaging>pom</packaging>
-    <name>[TODO]${project.artifactId}</name>
-    <description>JBoss Fuse :: Assembly (Medium)</description>
-
+    
+    <name>JBoss Fuse :: Assembly (Medium)</name>
 
     <build>
         <plugins>

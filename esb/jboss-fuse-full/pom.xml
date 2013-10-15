@@ -27,8 +27,8 @@
 
     <artifactId>jboss-fuse-full</artifactId>
     <packaging>pom</packaging>
-    <name>[TODO]${project.artifactId}</name>
-    <description>JBoss Fuse :: Assembly (Full)</description>
+    
+    <name>JBoss Fuse :: Assembly (Full)</name>
 
     <dependencies>
         <dependency>
@@ -100,6 +100,21 @@
         </plugins>
     </build>
 
+    <repositories>
+        <!-- Gemini Blueprint repository -->
+        <repository>
+            <id>zodiac-repository</id>
+            <name>Zodiac Release Repository</name>
+            <url>http://zodiac.springsource.com/maven/bundles/release</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+    
     <profiles>
         <profile>
             <id>release</id>

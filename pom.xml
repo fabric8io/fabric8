@@ -399,50 +399,6 @@
 
     <repositories>
         <repository>
-            <id>repo1.maven</id>
-            <name>Maven Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-        </repository>
-        <!-- lets include the OSS sonatype repo in case releases haven't sync'd yet ;) -->
-        <repository>
-            <id>sonatype.releases</id>
-            <name>Sonatype Releases Repo</name>
-            <url>https://oss.sonatype.org/content/repositories/releases</url>
-        </repository>
-        <repository> <!-- Temporary repo for accessing Fuse 6.1 RCs -->
-            <id>fusesource.61</id>
-            <name>FuseSource Community Early Access 61 Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>fusesource.m2</id>
-            <name>FuseSource Community Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-        <repository>
             <id>jboss-public-repository-group</id>
             <name>JBoss Public Repository Group</name>
             <url>http://repository.jboss.org/nexus/content/groups/public/</url>
@@ -457,6 +413,42 @@
             </snapshots>
         </repository>
         <repository>
+          <id>jboss-thirdparty-uploads</id>
+          <name>JBoss Thirdparty Uploads</name>
+          <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-uploads</url>
+          <layout>default</layout>
+          <releases>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+          </releases>
+          <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+          </snapshots>
+        </repository>
+        <repository> 
+            <id>fusesource.61</id>
+            <name>FuseSource Community Early Access 61 Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/repositories/jboss-fuse-6.1.x</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
+            <id>fusesource.ea</id>
+            <name>FuseSource Community Early Access Release Repository</name>
+            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+        <repository>
             <id>fusesource.m2-snapshot</id>
             <name>FuseSource Community Snapshot Repository</name>
             <url>http://repo.fusesource.com/nexus/content/repositories/snapshots</url>
@@ -467,137 +459,20 @@
                 <enabled>false</enabled>
             </releases>
         </repository>
+        <!-- needed for springframework -->
         <repository>
-            <id>fusesource.nexus.m2-snapshot</id>
-            <name>FuseSource Community Snapshot Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
+            <id>com.springsource.repository.bundles.release</id>
+            <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/release</url>
         </repository>
         <repository>
-            <id>apache.snapshots</id>
-            <name>Apache Development Snapshot Repository</name>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>com.springsource.repository.bundles.external</id>
+            <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+            <url>http://repository.springsource.com/maven/bundles/external</url>
         </repository>
-
-        <repository>
-          <id>java.net.m2</id>
-          <url>http://download.java.net/maven/2</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-
-        <!-- for the bdb je dependency -->
-        <repository>
-          <id>oracleReleases</id>
-          <url>http://download.oracle.com/maven</url>
-          <layout>default</layout>
-        </repository>
-
-        <!-- for elasticsearch -->
-        <repository>
-            <id>oss.sonatype.releases</id>
-            <url>http://oss.sonatype.org/content/repositories/releases</url>
-            <layout>default</layout>
-        </repository>
-
-        <!-- for hawtio -->
-        <repository>
-          <id>oss-sonatype-staging</id>
-          <name>Sonatype Staging Repository</name>
-          <url>https://oss.sonatype.org/content/groups/staging</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-          <id>oss-sonatype-snapshots</id>
-          <name>OSS Sonatype Nexus Snapshots</name>
-          <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-          <releases><enabled>false</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-        <!-- Gemini Blueprint repository -->
-        <repository>
-            <id>zodiac-repository</id>
-            <name>Zodiac Release Repository</name>
-            <url>http://zodiac.springsource.com/maven/bundles/release</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>scriptengines-repository</id>
-            <name>Scriptengines Release Repository</name>
-            <url>http://scriptengines.googlecode.com/svn/m2-repo</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-		<repository>
-		    <id>com.springsource.repository.bundles.release</id>
-		    <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
-		    <url>http://repository.springsource.com/maven/bundles/release</url>
-		</repository>
-		<repository>
-		    <id>com.springsource.repository.bundles.external</id>
-		    <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
-		    <url>http://repository.springsource.com/maven/bundles/external</url>
-		</repository>
     </repositories>
 
     <pluginRepositories>
-        <pluginRepository>
-            <id>fusesource.nexus.m2-snapshot</id>
-            <name>FuseSource Community Snapshot Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/public-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </pluginRepository>
-
-        <pluginRepository>
-            <id>apache.snapshots</id>
-            <name>Apache Development Snapshot Repository</name>
-            <url>https://repository.apache.org/content/repositories/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </pluginRepository>
-
-         <pluginRepository>
-            <id>fusesource.m2</id>
-            <name>FuseSource Community Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/repositories/public</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-
         <pluginRepository>
             <id>fusesource.61</id>
             <name>FuseSource Community Early Access 61 Repository</name>
@@ -609,21 +484,7 @@
                 <enabled>true</enabled>
             </releases>
         </pluginRepository>
-
-         <pluginRepository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-
-    </pluginRepositories>
-
+   </pluginRepositories>
 
     <dependencyManagement>
         <dependencies>
@@ -1525,7 +1386,6 @@
           <activation>
             <jdk>[1.7,)</jdk>
           </activation>
-
           <modules>
             <module>gateway</module>
           </modules>
