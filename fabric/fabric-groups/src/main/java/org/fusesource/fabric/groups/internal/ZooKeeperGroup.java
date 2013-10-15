@@ -71,7 +71,8 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
 
     static public final ObjectMapper MAPPER = new ObjectMapper();
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
+    static private final Logger LOG = LoggerFactory.getLogger(ZooKeeperGroup.class);
+
     private final Class<T> clazz;
     private final CuratorFramework client;
     private final String path;
@@ -407,7 +408,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
      * @param e the exception
      */
     protected void handleException(Throwable e) {
-        log.error("", e);
+        LOG.error("", e);
         e.printStackTrace();
     }
 

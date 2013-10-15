@@ -57,6 +57,6 @@ public class ZooKeeperMultiGroup<T extends NodeState> extends ZooKeeperGroup<T> 
                 }
             }
         }
-        return true;
+        return false;
     }
 }
