@@ -30,6 +30,7 @@
 
     <properties>
         <developerUserPassword></developerUserPassword>
+        <redhat-docs-url>http://access.redhat.com/site/documentation/en-US/JBoss_Fuse/6.1</redhat-docs-url>
     </properties>
 
        <prerequisites>
