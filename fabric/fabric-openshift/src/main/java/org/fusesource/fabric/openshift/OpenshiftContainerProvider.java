@@ -169,9 +169,6 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
             }
             cartridgeUrl = openshiftConfigOverlay.get("cartridge");
         }
-
-        // TODO need to check in the profile too?
-        boolean fuseCart = options.isEnsembleServer();
         if (cartridgeUrl == null) {
             cartridgeUrl = CART;
         }
@@ -184,7 +181,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         String zookeeperPassword = fabricService.get().getZookeeperPassword();
 
         Map<String,String> userEnvVars = null;
-        if (fuseCart) {
+        if (!options.isEnsembleServer()) {
             userEnvVars = new HashMap<String, String>();
             userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_URL", zookeeperUrl);
             userEnvVars.put("OPENSHIFT_FUSE_ZOOKEEPER_PASSWORD", zookeeperPassword);
