@@ -30,7 +30,8 @@
 
     <properties>
         <developerUserPassword></developerUserPassword>
-        <redhat-docs-url>http://access.redhat.com/site/documentation/en-US/JBoss_Fuse/6.1</redhat-docs-url>
+        <jbfuse-docs-url>http://access.redhat.com/site/documentation/en-US/JBoss_Fuse/6.1</jbfuse-docs-url>
+        <jbamq-docs-url>https://access.redhat.com/site/documentation/en-US/JBoss_A-MQ/6.1</jbamq-docs-url>
     </properties>
 
        <prerequisites>
