@@ -23,6 +23,9 @@
     <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
     <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
     <repository>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.assemblies.features/spring/${karaf-version}/xml/features</repository>
+    <repository>mvn:org.apache.karaf.assemblies.features/enterprise/${karaf-version}/xml/features</repository>
 
     <feature name="karaf" version="${karaf-version}" resolver="(obr)">
         <!-- we need 1.2.9-SNAPSHOT as 1.2.8 does not advertise the ConfigurationAdmin service -->
@@ -217,11 +220,20 @@
 
     <feature name="mq-fabric" version="${fuse.version}" resolver="(obr)">
         <feature version="${project.version}">fabric-groups</feature>
+<!--
+        <feature version="${karaf-version}">spring</feature>
+-->
         <feature version="${activemq-version}">activemq</feature>
         <bundle dependency="true">mvn:com.weiglewilczek.scala-lang-osgi/scala-library/${scala-osgi-version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-log/${project.version}</bundle>
         <bundle>mvn:org.apache.xbean/xbean-classloader/${xbean-version}</bundle>
         <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
+    </feature>
+
+    <feature name="mq-fabric-client" version="${fuse.version}" resolver="(obr)">
+        <feature version="${fuse.version}">mq-fabric</feature>
+        <bundle>mvn:org.jboss.amq/mq-fabric-client/${fuse.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
     </feature>
 
     <feature name="mq-fabric-http-discovery" version="${fuse.version}" resolver="(obr)">
