@@ -41,11 +41,9 @@ public class ContainerDelete extends ContainerLifecycleCommand {
         applyUpdatedCredentials(found);
         if (recursive) {
             for (Container child : found.getChildren()) {
-                child.stop(force);
                 child.destroy(force);
             }
         }
-        found.stop(force);
         found.destroy(force);
         return null;
     }

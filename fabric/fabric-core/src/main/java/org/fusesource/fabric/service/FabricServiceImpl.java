@@ -291,8 +291,15 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
         assertValid();
         String containerId = container.getId();
         LOGGER.info("Destroying container {}", containerId);
-        ContainerProvider provider = getProvider(container);
-        provider.destroy(container);
+        ContainerProvider provider = getProvider(container, true);
+        if (provider == null && !force) {
+            // Should throw an exception
+            getProvider(container);
+        }
+        if (provider != null) {
+            provider.stop(container);
+            provider.destroy(container);
+        }
         try {
             portService.get().unregisterPort(container);
             getDataStore().deleteContainer(container.getId());
@@ -302,13 +309,23 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     private ContainerProvider getProvider(Container container) {
+        return getProvider(container, false);
+    }
+
+    private ContainerProvider getProvider(Container container, boolean returnNull) {
         CreateContainerMetadata metadata = container.getMetadata();
         String type = metadata != null ? metadata.getCreateOptions().getProviderType() : null;
         if (type == null) {
+            if (returnNull) {
+                return null;
+            }
             throw new UnsupportedOperationException("Container " + container.getId() + " has not been created using Fabric");
         }
         ContainerProvider provider = getProvider(type);
         if (provider == null) {
+            if (returnNull) {
+                return null;
+            }
             throw new UnsupportedOperationException("Container provider " + type + " not supported");
         }
         return provider;
