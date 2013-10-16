@@ -8,6 +8,7 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.WaitForConfigurationChange;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -45,8 +46,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      * 5. verify that child is provisioned according to the new version
      * 6. rollback containers.
      * 7. verify that the child is provisioned according to the old version.
-     *
-     * @throws Exception
      */
     @Test
     public void testContainerUpgradeAndRollback() throws Exception {
@@ -88,8 +87,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     /**
      * The purpose of this test is that everything works ok, even if the container is created after the version.
      * This is a test for the issue: http://fusesource.com/issues/browse/FABRIC-363
-     *
-     * @throws Exception
      */
     @Test
     public void testContainerAfterVersionUpgradeAndDowngrade() throws Exception {
@@ -129,10 +126,9 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
 
     /**
      * This is a test for http://fusesource.com/issues/browse/FABRIC-367.
-     *
-     * @throws Exception
      */
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testContainerAfterVersionDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
