@@ -16,35 +16,8 @@
  */
 package org.fusesource.fabric.git.internal;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.ReferenceCardinality;
-import org.apache.felix.scr.annotations.ReferencePolicy;
-import org.apache.felix.scr.annotations.References;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -60,17 +33,12 @@ import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.DataStorePlugin;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.PlaceholderResolver;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.git.GitService;
-import org.fusesource.fabric.groups.GroupListener;
 import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.AbstractDataStore;
@@ -84,13 +52,16 @@ import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 /**
  * A git based implementation of {@link DataStore} which stores the profile configuration
@@ -640,7 +611,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         }
 
         for (String pid : oldCfgs.keySet()) {
-            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, getPidFromFileName(pid)));
+            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, pid));
         }
     }
 
@@ -671,7 +642,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
     protected File getPidFile(File profileDirectory, String pid) {
         assertValid();
-        return new File(profileDirectory, pid + ".properties");
+        return new File(profileDirectory, pid);
     }
 
     protected String getPidFromFileName(String relativePath) throws IOException {
