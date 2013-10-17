@@ -33,12 +33,15 @@ public class MQServiceImpl implements MQService {
     }
 
     @Override
-    public Profile createMQProfile(String versionId, String profile, String brokerName, Map<String, String> configs, boolean replicated) {
+    public Profile createOrUpdateMQProfile(String versionId, String profile, String brokerName, Map<String, String> configs, boolean replicated) {
         Version version = fabricService.getVersion(versionId);
 
-        String parentProfileName = replicated ? MQ_PROFILE_REPLICATED : MQ_PROFILE_BASE;
-        if( configs!=null && configs.containsKey("parent") ) {
+        String parentProfileName = null;
+        if (configs != null && configs.containsKey("parent")) {
             parentProfileName = configs.remove("parent");
+        }
+        if (Strings.isNullOrBlank(parentProfileName)) {
+            parentProfileName = replicated ? MQ_PROFILE_REPLICATED : MQ_PROFILE_BASE;
         }
 
         Profile parentProfile = version.getProfile(parentProfileName);
@@ -78,7 +81,39 @@ public class MQServiceImpl implements MQService {
             }
             result.setConfiguration(pidName, config);
         }
-        
+        return result;
+    }
+
+    @Override
+    public Profile createOrUpdateMQClientProfile(String versionId, String profile, String group, String parentProfileName) {
+        Version version = fabricService.getVersion(versionId);
+
+        Profile parentProfile = null;
+        if (Strings.isNotBlank(parentProfileName)) {
+            parentProfile = version.getProfile(parentProfileName);
+        }
+        Profile result = parentProfile;
+        if (group != null && profile != null) {
+            // create a profile if it doesn't exist
+            Map config = null;
+            if (!version.hasProfile(profile)) {
+                result = version.createProfile(profile);
+            } else {
+                result = version.getProfile(profile);
+            }
+
+            // set the parent if its specified
+            if (parentProfile != null) {
+                result.setParents(new Profile[]{parentProfile});
+            }
+
+            Map<String, String> parentProfileConfig = result.getConfiguration(MQ_CONNECTION_FACTORY_PID);
+            if (config == null) {
+                config = parentProfileConfig;
+            }
+            config.put(GROUP, group);
+            result.setConfiguration(MQ_CONNECTION_FACTORY_PID, config);
+        }
         return result;
     }
 

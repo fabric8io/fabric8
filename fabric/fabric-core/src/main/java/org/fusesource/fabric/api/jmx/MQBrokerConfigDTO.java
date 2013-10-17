@@ -30,6 +30,8 @@ public class MQBrokerConfigDTO {
     private String brokerName;
     private String profile;
     private String parentProfile;
+    private String clientProfile;
+    private String clientParentProfile;
     private List<String> properties;
     private String configUrl;
     private String data;
@@ -108,13 +110,23 @@ public class MQBrokerConfigDTO {
     }
 
     /**
-     * Returns the configured profile name or defaults it to "mq-$group-$brokerName"
+     * Returns the configured profile name or defaults it to "mq-broker-$group.$brokerName"
      */
     public String profile() {
         if (Strings.isNullOrBlank(profile)) {
-            profile = "mq-" + group() + "-" + getBrokerName();
+            profile = "mq-broker-" + group() + "." + getBrokerName();
         }
         return profile;
+    }
+
+    /**
+     * Returns the client connection profile name or defaults it to "mq-client-$group"
+     */
+    public String clientProfile() {
+        if (Strings.isNullOrBlank(clientProfile)) {
+            clientProfile = "mq-client-" + group();
+        }
+        return clientProfile;
     }
 
 
@@ -160,6 +172,28 @@ public class MQBrokerConfigDTO {
 
     public void setParentProfile(String parentProfile) {
         this.parentProfile = parentProfile;
+    }
+
+    /**
+     * Returns the profile that clients use to connect to this group
+     */
+    public String getClientProfile() {
+        return clientProfile;
+    }
+
+    public void setClientProfile(String clientProfile) {
+        this.clientProfile = clientProfile;
+    }
+
+    /**
+     * Returns the parent profile for the client profile. Defaults to "default"
+     */
+    public String getClientParentProfile() {
+        return clientParentProfile;
+    }
+
+    public void setClientParentProfile(String clientParentProfile) {
+        this.clientParentProfile = clientParentProfile;
     }
 
     /**

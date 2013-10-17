@@ -45,8 +45,14 @@ public class MQCreate extends FabricCommand {
     @Option(name = "--parent-profile", description = "The parent profile to extend")
     protected String parentProfile;
 
-    @Option(name = "--profile", description = "The profile name to create/update if defining N+1 broker groups (otherwise this is defaulted to the broker name)")
+    @Option(name = "--profile", description = "The profile name to create/update if defining N+1 broker groups (otherwise this is defaulted to the broker name). Defaults to 'mq-broker-$GROUP.$NAME'")
     protected String profile;
+
+    @Option(name = "--client-profile", description = "The profile name for clients to use to connect to the broker group. Defaults to 'mq-client-$GROUP'")
+    protected String clientProfile;
+
+    @Option(name = "--client-parent-profile", description = "The parent profile used for the client-profile for clients connecting to the broker group. Defaults to 'default'")
+    protected String clientParentProfile;
 
     @Option(name = "--property", aliases = {"-D"}, description = "Additional properties to define in the profile")
     List<String> properties;
@@ -155,6 +161,8 @@ public class MQCreate extends FabricCommand {
         dto.setJvmOpts(jvmOpts);
         dto.setBrokerName(name);
         dto.setProfile(profile);
+        dto.setClientProfile(clientProfile);
+        dto.setClientParentProfile(clientParentProfile);
         dto.setNetworks(networks);
         dto.setNetworksPassword(networksPassword);
         dto.setNetworksUserName(networksUserName);

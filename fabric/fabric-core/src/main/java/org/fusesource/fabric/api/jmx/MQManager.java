@@ -27,7 +27,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.Containers;
-import org.fusesource.fabric.api.CreateChildContainerOptions;
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
@@ -441,7 +440,7 @@ public class MQManager implements MQManagerMXBean {
             configuration.put(MINIMUM_INSTANCES, minInstances.toString());
         }
 
-        Profile profile = mqService.createMQProfile(version, profileName, brokerName, configuration, dto.kind().equals(BrokerKind.Replicated));
+        Profile profile = mqService.createOrUpdateMQProfile(version, profileName, brokerName, configuration, dto.kind().equals(BrokerKind.Replicated));
         String profileId = profile.getId();
         ProfileRequirements profileRequirement = requirements.getOrCreateProfileRequirement(profileId);
         Integer minimumInstances = profileRequirement.getMinimumInstances();
@@ -462,6 +461,11 @@ public class MQManager implements MQManagerMXBean {
         if (minimumInstances == null || minimumInstances.intValue() < requiredInstances) {
             profileRequirement.setMinimumInstances(requiredInstances);
             fabricService.setRequirements(requirements);
+        }
+
+        String clientProfile = dto.clientProfile();
+        if (Strings.isNotBlank(clientProfile)) {
+            mqService.createOrUpdateMQClientProfile(version, clientProfile, group, dto.getClientParentProfile());
         }
         return profile;
     }

@@ -24,10 +24,23 @@ public interface MQService {
     static final String MQ_PROFILE_REPLICATED = "mq-replicated";
 
     static final String MQ_PID_TEMPLATE = "org.fusesource.mq.fabric.template";
+    static final String MQ_CONNECTION_FACTORY_PID = "org.fusesource.mq.fabric.cf";
 
     static final String MQ_FABRIC_SERVER_PID_PREFIX = "org.fusesource.mq.fabric.server-";
 
-    Profile createMQProfile(String version, String profile, String brokerName, Map<String, String> configs, boolean replicated);
+    /**
+     * Creates or updates the profile for the given broker and configuration
+     *
+     * @return the updated or created profile
+     */
+    Profile createOrUpdateMQProfile(String version, String profile, String brokerName, Map<String, String> configs, boolean replicated);
+
+    /**
+     * Creates of updates the profile for clients to connec to the given broker group
+     *
+     * @return the updated or created profile
+     */
+    Profile createOrUpdateMQClientProfile(String versionId, String profile, String group, String parentProfileName);
 
     String getConfig(String version, String config);
 
