@@ -169,7 +169,7 @@
         <guava.osgi.version.clean>13.0.1</guava.osgi.version.clean>
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
-        <hawtdispatch-version>1.17</hawtdispatch-version>
+        <hawtdispatch-version>1.18</hawtdispatch-version>
         <hawtio-version>1.2-M-redhat-72</hawtio-version>
         <jackson-version>1.9.10</jackson-version>
         <jasypt-version>1.9.0</jasypt-version>
