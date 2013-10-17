@@ -32,9 +32,12 @@
 
   <properties>
     <fuse.osgi.export>org.fusesource.mq.fabric.factory;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
-<!--
-    <fuse.osgi.services.export>javax.jms.ConnectionFactory</fuse.osgi.services.export>
--->
+
+    <!-- lets see the meta inf discovery stuff from mq-fabric -->
+    <fuse.osgi.import>
+      org.fusesource.mq.fabric*,
+      *
+    </fuse.osgi.import>
     <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
   </properties>
 
@@ -43,16 +46,9 @@
         <groupId>org.apache.felix</groupId>
         <artifactId>org.apache.felix.scr.annotations</artifactId>
     </dependency>
-<!--
-    <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-client</artifactId>
-    </dependency>
--->
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-osgi</artifactId>
-      <version>${activemq-version}</version>
     </dependency>
     <dependency>
       <groupId>org.jboss.amq</groupId>

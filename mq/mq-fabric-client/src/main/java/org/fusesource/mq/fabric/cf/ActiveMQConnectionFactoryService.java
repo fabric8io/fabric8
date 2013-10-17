@@ -54,7 +54,7 @@ public class ActiveMQConnectionFactoryService extends ActiveMQConnectionFactory 
         String group = Maps.stringValue(properties, "group", "default");
         String brokerUrl = Maps.stringValue(properties, "brokerUrl");
         if (brokerUrl == null) {
-            brokerUrl  ="discover:(fabric:" + group + ")";
+            brokerUrl = "discovery:(fabric:" + group + ")";
         }
         setBrokerURL(brokerUrl);
 
