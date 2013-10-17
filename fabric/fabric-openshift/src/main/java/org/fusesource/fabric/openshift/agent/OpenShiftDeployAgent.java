@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.openshift.client.IApplication;
 import com.openshift.client.IOpenShiftConnection;
@@ -86,7 +87,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
     @Reference(referenceInterface = FabricService.class)
     private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService downloadExecutor = Executors.newSingleThreadExecutor();
     private final Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -117,6 +118,17 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
         } catch (Exception e) {
             LOGGER.warn("Failed to remove git server from registry.", e);
         }
+        shutdownExecutor(downloadExecutor);
+    }
+
+    private void shutdownExecutor(ExecutorService executor) {
+        executor.shutdown();
+        try {
+            executor.awaitTermination(1, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+            // Ignore
+        }
+        executor.shutdownNow();
     }
 
     @Override
@@ -257,7 +269,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
         String webappDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_WEBAPPS);
         String deployDir = relativePath(container, openshiftConfiguration, OpenShiftConstants.PROPERTY_DEPLOY_JARS);
         if (webappDir != null || deployDir != null) {
-            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), container.getOverlayProfile(), executorService);
+            DownloadManager downloadManager = DownloadManagers.createDownloadManager(fabricService.get(), container.getOverlayProfile(), downloadExecutor);
             DeploymentUpdater deploymentUpdater = new DeploymentUpdater(downloadManager, container, webappDir, deployDir);
             deploymentUpdater.setRepositories(Maps.stringValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_REPOSITORIES, OpenShiftConstants.DEFAULT_REPOSITORIES));
             deploymentUpdater.setCopyFilesIntoGit(Maps.booleanValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_COPY_BINARIES_TO_GIT, false));
