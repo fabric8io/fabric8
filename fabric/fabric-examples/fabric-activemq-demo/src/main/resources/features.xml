@@ -20,7 +20,7 @@
     <repository>mvn:org.fusesource.fabric/fuse-fabric/${project.version}/xml/features</repository>
 
     <feature name="fabric-activemq-demo" version="${project.version}" resolver="(obr)">
-        <feature>mq-fabric</feature>
+        <feature version="${fuse.version}">mq-fabric-client</feature>
         <bundle>mvn:org.jboss.amq/mq-client/${fuse.version}</bundle>
         <bundle>mvn:org.fusesource.examples/fabric-activemq-demo/${pom.version}</bundle>
     </feature>

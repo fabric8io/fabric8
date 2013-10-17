@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.demo.activemq;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.felix.scr.annotations.*;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -35,8 +36,8 @@ public class ActiveMQConsumerFactory extends AbstractComponent {
     private static final Logger LOG = LoggerFactory.getLogger(ActiveMQProducerFactory.class);
     ConsumerThread consumer;
     ActiveMQService consumerService;
-    @Reference(referenceInterface = FabricService.class)
-    private final ValidatingReference<FabricService> fabricService = new ValidatingReference<FabricService>();
+    @Reference(referenceInterface = ActiveMQConnectionFactory.class)
+    private ActiveMQConnectionFactory connectionFactory;
 
     @Activate
     void activate(ComponentContext context, Map<String, String> properties) throws Exception {
@@ -47,15 +48,7 @@ public class ActiveMQConsumerFactory extends AbstractComponent {
     @Modified
     void updated(Map<String, String> properties) throws Exception {
         try {
-            String brokerUrl = (String) properties.get("brokerUrl");
-            if (brokerUrl == null) {
-                brokerUrl = "discover:(fabric:default)";
-            }
-            String password = (String)properties.get("password");
-            if (password == null) {
-                password = fabricService.get().getZookeeperPassword();
-            }
-            consumerService = new ActiveMQService((String)properties.get("username"), password, brokerUrl);
+            consumerService = new ActiveMQService(connectionFactory);
             consumerService.setMaxAttempts(10);
             consumerService.start();
             String destination = (String) properties.get("destination");
@@ -77,13 +70,5 @@ public class ActiveMQConsumerFactory extends AbstractComponent {
             consumer.setRunning(false);
             consumerService.stop();
         }
-    }
-
-    void bindFabricService(FabricService fabricService) {
-        this.fabricService.bind(fabricService);
-    }
-
-    void unbindFabricService(FabricService fabricService) {
-        this.fabricService.unbind(fabricService);
     }
 }
