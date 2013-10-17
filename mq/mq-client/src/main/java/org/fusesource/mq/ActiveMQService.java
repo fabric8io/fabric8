@@ -40,11 +40,15 @@ public class ActiveMQService implements JMSService {
 
 
     public ActiveMQService(String user, String password, String brokerUrl) {
-        connectionFactory = new ActiveMQConnectionFactory(user, password, brokerUrl);
+        this(new ActiveMQConnectionFactory(user, password, brokerUrl));
     }
 
     public ActiveMQService(String brokerUrl) {
         this(null, null, brokerUrl);
+    }
+
+    public ActiveMQService(ActiveMQConnectionFactory connectionFactory) {
+        this.connectionFactory = connectionFactory;
     }
 
     public ConnectionFactory getConnectionFactory() {
