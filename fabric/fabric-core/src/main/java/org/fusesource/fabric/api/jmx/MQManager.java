@@ -316,18 +316,18 @@ public class MQManager implements MQManagerMXBean {
         if (version != null) {
             Profile[] profiles = version.getProfiles();
             for (Profile profile : profiles) {
-                Map<String, Map<String, String>> configurations = profile.getConfigurations();
-                Set<Map.Entry<String, Map<String, String>>> entries = configurations.entrySet();
-                for (Map.Entry<String, Map<String, String>> entry : entries) {
-                    String key = entry.getKey();
-                    if (isBrokerConfigPid(key)) {
-                        String brokerName = getBrokerNameFromPID(key);
-                        String profileId = profile.getId();
-
-                        // ignore if we don't have any requirements or instances as it could be profiles such
-                        // as the out of the box mq-default / mq-amq etc
-                        if (requirements.hasMinimumInstances(profileId) || profile.getAssociatedContainers().length > 0) {
-                            profileMap.put(brokerName, profile);
+                // ignore if we don't have any requirements or instances as it could be profiles such
+                // as the out of the box mq-default / mq-amq etc
+                String profileId = profile.getId();
+                if (requirements.hasMinimumInstances(profileId) || profile.getAssociatedContainers().length > 0) {
+                    Profile overlay = profile.getOverlay();
+                    Map<String, Map<String, String>> configurations = overlay.getConfigurations();
+                    Set<Map.Entry<String, Map<String, String>>> entries = configurations.entrySet();
+                    for (Map.Entry<String, Map<String, String>> entry : entries) {
+                        String key = entry.getKey();
+                        if (isBrokerConfigPid(key)) {
+                            String brokerName = getBrokerNameFromPID(key);
+                            profileMap.put(brokerName, overlay);
                         }
                     }
                 }
