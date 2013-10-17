@@ -1308,6 +1308,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     }
 
     public String toString() {
-        return getClass().getSimpleName() + "(" + gitService.get() + ")";
+        return getClass().getSimpleName() + "(" + gitService.getOptional() + ")";
     }
 }
