@@ -39,6 +39,7 @@
   <modules>
     <module>mq-fabric</module>
     <module>mq-fabric-client</module>
+    <module>mq-client</module>
   </modules>
 
     <profiles>
@@ -46,7 +47,6 @@
             <id>release</id>
             <modules>
                 <module>jboss-a-mq</module>
-                <module>mq-client</module>
                 <module>mq-branding</module>
                 <module>mq-http-discovery</module>
                 <module>mq-web-console</module>
@@ -62,7 +62,6 @@
             <id>amq</id>
             <modules>
                 <module>jboss-a-mq</module>
-                <module>mq-client</module>
                 <module>mq-branding</module>
                 <module>mq-http-discovery</module>
                 <module>mq-web-console</module>
