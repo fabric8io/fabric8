@@ -85,6 +85,29 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>remove-fabric-bundles</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target name="remove-fabric-agent">
+                                <echo message="Removing fabric-agent, fabric-commands and fabric-configadmin from etc/startup.properties"/>
+                                <propertyfile file="target/dependencies/unix/fuse-fabric-${fabric-version}/etc/startup.properties">
+                                    <entry operation="del" key="org/fusesource/fabric/fabric-agent/${fabric.version}/fabric-agent-${fabric.version}.jar" />
+                                    <entry operation="del" key="org/fusesource/fabric/fabric-commands/${fabric.version}/fabric-commands-${fabric.version}.jar" />
+                                    <entry operation="del" key="org/fusesource/fabric/fabric-configadmin/${fabric.version}/fabric-configadmin-${fabric.version}.jar" />
+                                </propertyfile>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
