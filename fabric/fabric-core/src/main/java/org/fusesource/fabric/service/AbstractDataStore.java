@@ -84,6 +84,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
 
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
+    private final ExecutorService callbacksExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService cacheExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService placeholderExecutor = Executors.newCachedThreadPool();
     private final AtomicBoolean active = new AtomicBoolean(false);
@@ -119,6 +120,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
             Closeables.closeQuitely(treeCache);
             treeCache = null;
 
+            callbacksExecutor.shutdownNow();
             cacheExecutor.shutdownNow();
             placeholderExecutor.shutdownNow();
         }
@@ -157,6 +159,15 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
     }
 
     protected void runCallbacks() {
+        callbacksExecutor.submit(new Runnable() {
+            @Override
+            public void run() {
+                doRunCallbacks();
+            }
+        });
+    }
+
+    protected void doRunCallbacks() {
         assertValid();
         for (Runnable callback : callbacks) {
             try {
