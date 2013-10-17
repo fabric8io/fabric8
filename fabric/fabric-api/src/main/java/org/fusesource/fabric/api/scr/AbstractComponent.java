@@ -33,12 +33,6 @@ public abstract class AbstractComponent implements Validatable {
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractComponent.class);
 
     /* This uses volatile to make sure that every thread sees the last written value
-     *
-     * - The use of AtomicBoolean would be wrong because it does not guarantee that
-     *   prior written state is also seen by other threads
-     *
-     * - Synchronizing all methods in here would also work, but would effectively cause
-     *   a lock acquisition on every public method in every component
      */
     private ValidationSupport active = new ValidationSupport();
 
