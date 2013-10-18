@@ -219,7 +219,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         setData(curator.get(), CONTAINER_JMX.getPath(container.getId()), jmxUrl);
         fabricService.get().getPortService().registerPort(container, MANAGEMENT_PID, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
         fabricService.get().getPortService().registerPort(container, MANAGEMENT_PID, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
-        Configuration configuration = configAdmin.get().getConfiguration(MANAGEMENT_PID);
+        Configuration configuration = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
         updateIfNeeded(configuration, RMI_REGISTRY_BINDING_PORT_KEY, rmiRegistryPort);
         updateIfNeeded(configuration, RMI_SERVER_BINDING_PORT_KEY, rmiServerPort);
     }
@@ -258,7 +258,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         String sshUrl = getSshUrl(container.getId(), sshConnectionPort);
         setData(curator.get(), CONTAINER_SSH.getPath(container.getId()), sshUrl);
         fabricService.get().getPortService().registerPort(container, SSH_PID, SSH_BINDING_PORT_KEY, sshPort);
-        Configuration configuration = configAdmin.get().getConfiguration(SSH_PID);
+        Configuration configuration = configAdmin.get().getConfiguration(SSH_PID, null);
         updateIfNeeded(configuration, SSH_BINDING_PORT_KEY, sshPort);
     }
 
@@ -288,12 +288,12 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
         String httpUrl = getHttpUrl(protocol, container.getId(), httpConnectionPort);
         setData(curator.get(), CONTAINER_HTTP.getPath(container.getId()), httpUrl);
         fabricService.get().getPortService().registerPort(container, HTTP_PID, HTTP_BINDING_PORT_KEY, httpPort);
-        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID);
+        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         updateIfNeeded(configuration, HTTP_BINDING_PORT_KEY, httpPort);
     }
 
     private boolean isHttpEnabled() throws IOException {
-        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID);
+        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         Dictionary properties = configuration.getProperties();
         if (properties != null && properties.get(HTTP_ENABLED) != null) {
             return Boolean.parseBoolean(String.valueOf(properties.get(HTTP_ENABLED)));
@@ -303,7 +303,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
     }
 
     private boolean isHttpsEnabled() throws IOException {
-        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID);
+        Configuration configuration = configAdmin.get().getConfiguration(HTTP_PID, null);
         Dictionary properties = configuration.getProperties();
         if (properties != null && properties.get(HTTPS_ENABLED) != null) {
             return Boolean.parseBoolean(String.valueOf(properties.get(HTTPS_ENABLED)));
@@ -343,7 +343,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
      * In the later case, the port will be checked against the already registered ports and will be increased, till it doesn't match the used ports.
      */
     private int getOrAllocatePortForKey(Container container, String pid, String key, int defaultValue) throws IOException, KeeperException, InterruptedException {
-        Configuration config = configAdmin.get().getConfiguration(pid);
+        Configuration config = configAdmin.get().getConfiguration(pid, null);
         Set<Integer> unavailable = fabricService.get().getPortService().findUsedPortByHost(container);
         int port = fabricService.get().getPortService().lookupPort(container, pid, key);
         if (port > 0) {
@@ -370,7 +370,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
      */
     private int getPortForKey(Container container, String pid, String key, int defaultValue) throws IOException {
         int port = defaultValue;
-        Configuration config = configAdmin.get().getConfiguration(pid);
+        Configuration config = configAdmin.get().getConfiguration(pid, null);
         if (config.getProperties() != null && config.getProperties().get(key) != null) {
             try {
                 port = Integer.parseInt((String) config.getProperties().get(key));
@@ -390,6 +390,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
             if (dictionary != null) {
                 if (!String.valueOf(value).equals(dictionary.get(key))) {
                     dictionary.put(key, String.valueOf(value));
+                    configuration.setBundleLocation(null);
                     configuration.update(dictionary);
                 }
             }
@@ -458,7 +459,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
 
                 String name = System.getProperty(SystemProperties.KARAF_NAME);
                 if (event.getPid().equals(SSH_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
-                    Configuration config = configAdmin.get().getConfiguration(SSH_PID);
+                    Configuration config = configAdmin.get().getConfiguration(SSH_PID, null);
                     int sshPort = Integer.parseInt((String) config.getProperties().get(SSH_BINDING_PORT_KEY));
                     int sshConnectionPort = getSshConnectionPort(current, sshPort);
                     String sshUrl = getSshUrl(name, sshConnectionPort);
@@ -469,7 +470,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     }
                 }
                 if (event.getPid().equals(HTTP_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
-                    Configuration config = configAdmin.get().getConfiguration(HTTP_PID);
+                    Configuration config = configAdmin.get().getConfiguration(HTTP_PID, null);
                     boolean httpEnabled = isHttpEnabled();
                     boolean httpsEnabled = isHttpsEnabled();
                     String protocol = httpsEnabled && !httpEnabled ? "https" : "http";
@@ -483,7 +484,7 @@ public final class KarafContainerRegistration extends AbstractComponent implemen
                     }
                 }
                 if (event.getPid().equals(MANAGEMENT_PID) && event.getType() == ConfigurationEvent.CM_UPDATED) {
-                    Configuration config = configAdmin.get().getConfiguration(MANAGEMENT_PID);
+                    Configuration config = configAdmin.get().getConfiguration(MANAGEMENT_PID, null);
                     int rmiServerPort = Integer.parseInt((String) config.getProperties().get(RMI_SERVER_BINDING_PORT_KEY));
                     int rmiServerConnectionPort = getRmiServerConnectionPort(current, rmiServerPort);
                     int rmiRegistryPort = Integer.parseInt((String) config.getProperties().get(RMI_REGISTRY_BINDING_PORT_KEY));

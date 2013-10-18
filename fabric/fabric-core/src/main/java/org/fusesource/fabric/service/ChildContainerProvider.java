@@ -138,8 +138,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         Profile defaultProfile = parent.getVersion().getProfile("default");
         String featuresUrls = collectionAsString(defaultProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
-        //TODO: This is a temporary fix till we address the url handlers in the deployment agent.
-        features.add("war");
+
         features.add("fabric-agent");
         features.add("fabric-git");
         //features.addAll(defaultProfile.getFeatures());
