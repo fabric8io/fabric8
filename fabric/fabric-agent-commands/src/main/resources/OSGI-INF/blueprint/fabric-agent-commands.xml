@@ -34,7 +34,7 @@
         -->
       </action>
       <optional-completers>
-        <entry key="--parents" value-ref="profileCompleter"/>
+        <entry key="--profile" value-ref="profileCompleter"/>
         <entry key="--version" value-ref="versionCompleter"/>
       </optional-completers>
     </command>

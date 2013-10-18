@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -53,6 +54,7 @@ public class ProfileDownloader {
     private final ExecutorService executorService;
     private final Set<File> processedFiles = new HashSet<File>();
     private boolean stopOnFailure;
+    private final Map<String,Exception> errors = new HashMap<String, Exception>();
 
     public ProfileDownloader(FabricService fabricService, File target, boolean force, ExecutorService executorService) {
         this.fabricService = fabricService;
@@ -73,7 +75,9 @@ public class ProfileDownloader {
                 try {
                     downloadProfile(profile);
                 } catch (Exception e) {
-                    LOG.error("Failed to download profile " + profile.getId() + " " + e, e);
+                    String id = profile.getId();
+                    errors.put(id, e);
+                    LOG.error("Failed to download profile " + id + " " + e, e);
                 }
             }
         }
@@ -156,8 +160,20 @@ public class ProfileDownloader {
         return repositories;
     }
 
+    /**
+     * Returns the number of files succesfully processed
+     */
     public int getProcessedFileCount() {
         return processedFiles.size();
+    }
+
+
+    /**
+     * Returns the list of profile IDs which failed
+     */
+
+    public List<String> getFailedProfileIDs() {
+        return new ArrayList<String>(errors.keySet());
     }
 
     protected void addFeatures(Set<Feature> features, Profile profile, DownloadManager downloadManager) throws Exception {

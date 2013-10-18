@@ -10,6 +10,8 @@ import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -84,7 +86,11 @@ public class ProfileDownload extends FabricCommand {
         } else {
             downloader.downloadVersion(ver);
         }
-        System.out.println("Downloaded " + downloader.getProcessedFileCount() + " to " + target);
+        List<String> failedProfileIDs = downloader.getFailedProfileIDs();
+        System.out.println("Downloaded " + downloader.getProcessedFileCount() + " file(s) to " + target);
+        if (failedProfileIDs.size() > 0) {
+            System.out.println("Failed to download these profiles: " + failedProfileIDs + ". Check the logs for details");
+        }
         return null;
     }
 }
