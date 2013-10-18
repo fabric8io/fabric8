@@ -130,11 +130,11 @@ public class ProfileDownloader {
      */
     public static String getMavenCoords(String bundle) {
         if (bundle.startsWith("mvn:")) {
-            return bundle;
+            return bundle.substring(4);
         } else {
             int idx = bundle.indexOf(":mvn:", 1);
             if (idx > 0) {
-                return bundle.substring(idx + 1);
+                return bundle.substring(idx + 5);
             }
         }
         return null;
@@ -194,8 +194,6 @@ public class ProfileDownloader {
                         + " for profile " + profile.getId()
                         + " in repositories " + repositoryCollection);
             } else {
-
-
                 features.add(search);
             }
         }

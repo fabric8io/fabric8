@@ -25,16 +25,16 @@ import static org.junit.Assert.assertEquals;
 public class ProfileDownloaderTest {
     @Test
     public void testMavenUri() throws Exception {
-        String mvnUri = "mvn:org.apache.camel/camel-core/2.12.0";
-        assertMavenURI(mvnUri, mvnUri);
-        assertMavenURI("wrap:" + mvnUri, mvnUri);
-        assertMavenURI("fab:" + mvnUri, mvnUri);
+        String gav = "org.apache.camel/camel-core/2.12.0";
+        assertMavenURI("mvn:" + gav, gav);
+        assertMavenURI("wrap:mvn:" + gav, gav);
+        assertMavenURI("fab:mvn:" + gav, gav);
         assertMavenURI("profile:foo", null);
     }
 
     public static void assertMavenURI(String mvnUri, String expected) {
         String actual = ProfileDownloader.getMavenCoords(mvnUri);
-        assertEquals("mvn URI for '" + mvnUri + "'", expected, actual);
+        assertEquals("GAV for '" + mvnUri + "'", expected, actual);
     }
 
 }
