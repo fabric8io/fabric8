@@ -183,7 +183,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 gitListener.onRemoteUrlChanged(remoteUrl);
             }
 
-            getVersions();
+            forceGetVersions();
             LOG.info("starting to pull from remote repository every " + pullPeriod + " millis");
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
@@ -334,6 +334,10 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public List<String> getVersions() {
         assertValid();
+        return new ArrayList<String>(versions);
+    }
+
+    protected List<String> forceGetVersions() {
         return gitOperation(new GitOperation<List<String>>() {
             public List<String> call(Git git, GitContext context) throws Exception {
                 Collection<String> branches = RepositoryUtils.getBranches(git.getRepository());
@@ -348,6 +352,8 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                         }
                     }
                 }
+                versions.clear();
+                versions.addAll(answer);
                 return answer;
             }
         }, false);
