@@ -39,6 +39,7 @@
   <modules>
     <module>mq-fabric</module>
     <module>mq-fabric-client</module>
+    <module>mq-camel</module>
     <module>mq-client</module>
   </modules>
 
