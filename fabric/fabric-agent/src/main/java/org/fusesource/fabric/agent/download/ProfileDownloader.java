@@ -95,14 +95,8 @@ public class ProfileDownloader {
 
         Set<String> bundles = new LinkedHashSet<String>();
         Set<Feature> features = new LinkedHashSet<Feature>();
-        List<String> bundleList = profile.getBundles();
-        for (String bundle : bundleList) {
-            String mvnCoords = getMavenCoords(bundle);
-            if (mvnCoords != null) {
-                bundles.add(mvnCoords);
-            }
-        }
-        bundles.addAll(bundleList);
+        addMavenBundles(bundles, profile.getBundles());
+        addMavenBundles(bundles, profile.getFabs());
         addFeatures(features, profile, downloadManager);
 
         Map<String, File> files = AgentUtils.downloadBundles(downloadManager, features, bundles,
@@ -130,9 +124,13 @@ public class ProfileDownloader {
         }
     }
 
+
+    /**
+     * Returns the mvn coordinates URL from the URI string, stripping any prefix like "wrap:" or "war: " or whatnot; or return null if there is no maven URL inside the URI
+     */
     public static String getMavenCoords(String bundle) {
         if (bundle.startsWith("mvn:")) {
-            return bundle.substring(4);
+            return bundle;
         } else {
             int idx = bundle.indexOf(":mvn:", 1);
             if (idx > 0) {
@@ -153,7 +151,7 @@ public class ProfileDownloader {
                 try {
                     AgentUtils.addRepository(downloadManager, repositories, repoUri);
                 } catch (Exception e) {
-                    LOG.warn("Failed to add repository " + repositoryUrl + ". " + e);
+                    LOG.warn("Failed to add repository " + repositoryUrl + " for profile " + profile.getId() + ". " + e);
                 }
             }
         }
@@ -176,6 +174,15 @@ public class ProfileDownloader {
         return new ArrayList<String>(errors.keySet());
     }
 
+
+    protected void addMavenBundles(Set<String> bundles, List<String> bundleList) {
+        for (String bundle : bundleList) {
+            String mvnCoords = getMavenCoords(bundle);
+            if (mvnCoords != null) {
+                bundles.add(mvnCoords);
+            }
+        }
+    }
     protected void addFeatures(Set<Feature> features, Profile profile, DownloadManager downloadManager) throws Exception {
         List<String> featureNames = profile.getFeatures();
         Map<URI, Repository> repositories = getRepositories(profile, downloadManager);
@@ -183,8 +190,12 @@ public class ProfileDownloader {
             Collection<Repository> repositoryCollection = repositories.values();
             Feature search = FeatureUtils.search(featureName, repositoryCollection);
             if (search == null) {
-                LOG.warn("Could not find feature " + featureName + " in repositories " + repositoryCollection);
+                LOG.warn("Could not find feature " + featureName
+                        + " for profile " + profile.getId()
+                        + " in repositories " + repositoryCollection);
             } else {
+
+
                 features.add(search);
             }
         }
