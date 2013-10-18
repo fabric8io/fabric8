@@ -43,6 +43,7 @@ import org.eclipse.jgit.transport.URIish;
 import org.fusesource.common.util.Maps;
 import org.fusesource.common.util.Strings;
 import org.fusesource.fabric.agent.download.DownloadManager;
+import org.fusesource.fabric.agent.download.DownloadManagers;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricService;

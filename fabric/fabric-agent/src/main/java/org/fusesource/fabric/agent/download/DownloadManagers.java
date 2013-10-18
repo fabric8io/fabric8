@@ -34,8 +34,6 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * Helper class for creating a DownloadManager.
- *
- * TODO we could maybe reuse this code between process-fabric and fabric-openshift?
  */
 public class DownloadManagers {
     /**
