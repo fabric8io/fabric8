@@ -99,8 +99,8 @@ public final class CommandUtils {
                     return c1.getParent().getId().compareTo(c2.getId());
                 }
 
-                //if both are childs the compare their parents
-                if (!c1.isRoot() && !c2.isRoot()) {
+                // if both are children of different parents, then compare their parents
+                if (!c1.isRoot() && !c2.isRoot() && !c1.getParent().equals(c2.getParent())) {
                    return c1.getParent().getId().compareTo(c2.getParent().getId());
                 }
 
