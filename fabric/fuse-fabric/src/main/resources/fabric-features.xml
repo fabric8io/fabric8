@@ -147,6 +147,11 @@
         <bundle>mvn:org.fusesource.fabric/fabric-extender-listener/${project.version}</bundle>
     </feature>
 
+    <feature name="fabric-agent-commands" version="${project.version}" resolver="(obr)">
+        <feature version="${project.version}">fabric-agent</feature>
+        <bundle>mvn:org.fusesource.fabric/fabric-agent-commands/${project.version}</bundle>
+    </feature>
+
     <feature name="fabric-web" version="${project.version}" resolver="(obr)">
         <feature version="${karaf-version}">http</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-web/${project.version}</bundle>
