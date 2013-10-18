@@ -141,6 +141,7 @@ public class GroupTest {
     }
 
     @Test
+    @Ignore("[FABRIC-509] Fix fabric/fabric-groups tests")
     public void testRejoinAfterDisconnect() throws Exception {
         int port = findFreePort();
 
