@@ -30,18 +30,9 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Activate;
-import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
-import org.apache.felix.scr.annotations.Service;
+import org.apache.felix.scr.annotations.*;
 import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.DataStore;
-import org.fusesource.fabric.api.DataStoreRegistrationHandler;
-import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -52,11 +43,10 @@ import org.fusesource.fabric.utils.OsgiUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.BundleException;
+import org.osgi.framework.*;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,9 +65,11 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @GuardedBy("this") private Map<String, String> configuration;
     @GuardedBy("this") private BundleUtils bundleUtils;
+    @GuardedBy("this") private BundleContext bundleContext;
 
     @Activate
     synchronized void activate(BundleContext bundleContext, Map<String,String> configuration) {
+        this.bundleContext = bundleContext;
         this.configuration = Collections.unmodifiableMap(new HashMap<String,String>(configuration));
         this.bundleUtils = new BundleUtils(bundleContext);
         new Thread(new Runnable() {
@@ -141,9 +133,53 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             startBundles(options);
             //Wait until Fabric Service becomes available.
             OsgiUtils.waitForSerice(FabricService.class, null, FABRIC_SERVICE_TIMEOUT );
+            waitForSuccessfulDeploymentOf(System.getProperty("karaf.name"), "fabric-ensemble-0000-1");
+
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
 		}
+    }
+
+    private void waitForSuccessfulDeploymentOf(String containerName, String profileName) throws InterruptedException {
+        while(true) {
+            ServiceTracker tracker = null;
+            try {
+                Filter osgiFilter = FrameworkUtil.createFilter("(" + org.osgi.framework.Constants.OBJECTCLASS + "=" + FabricService.class.getName() + ")");
+                tracker = new ServiceTracker(bundleContext, osgiFilter, null);
+                tracker.open(true);
+                tracker.waitForService(1000);
+                FabricService fs = (FabricService) tracker.getService();
+                if( fs!=null ) {
+                    Container container = fs.getContainer(containerName);
+
+                    if( container.isAlive() &&
+                            contains(container.getProfiles(), profileName) &&
+                            "success".equals(container.getProvisionStatus()) ) {
+                        return;
+                    }
+
+                    System.out.println(String.format("Waiting for container %s to deploy profile %s", containerName, profileName));
+                    Thread.sleep(1000);
+                } else {
+                    System.out.println(String.format("Waiting for fabric service to come online"));
+                }
+            } catch (Exception e) {
+                System.out.println(String.format("Waiting for fabric service to come online"));
+            } finally {
+                tracker.close();
+            }
+        }
+    }
+
+    private boolean contains(Profile[] profiles, String profileName) {
+        if( profiles==null )
+            return false;
+        for (Profile profile : profiles) {
+            if( profileName.equals(profile.getId()) ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
