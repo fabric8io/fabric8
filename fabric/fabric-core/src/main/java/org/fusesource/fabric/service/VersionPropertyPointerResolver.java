@@ -123,7 +123,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
 
     private static String substituteFromProfile(Profile profile, String pid, String key) {
         Map<String, String> configuration = profile.getConfiguration(pid);
-        if (configuration.containsKey(key)) {
+        if (configuration != null && configuration.containsKey(key)) {
             return configuration.get(key);
         } else return EMPTY;
     }
