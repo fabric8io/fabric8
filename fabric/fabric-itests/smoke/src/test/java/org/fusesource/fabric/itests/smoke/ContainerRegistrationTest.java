@@ -6,6 +6,7 @@ import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -49,6 +50,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
 
 
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testJmxPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Thread.sleep(3000);
