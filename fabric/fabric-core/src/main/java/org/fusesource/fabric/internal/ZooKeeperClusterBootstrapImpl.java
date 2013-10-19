@@ -16,6 +16,40 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.scr.annotations.Activate;
+import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
+import org.apache.felix.scr.annotations.Reference;
+import org.apache.felix.scr.annotations.ReferenceCardinality;
+import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.Service;
+import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.CreateEnsembleOptions;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStoreRegistrationHandler;
+import org.fusesource.fabric.api.DynamicReference;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricService;
+import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
+import org.fusesource.fabric.api.jcip.GuardedBy;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.utils.BundleUtils;
+import org.fusesource.fabric.utils.HostUtils;
+import org.fusesource.fabric.utils.Ports;
+import org.fusesource.fabric.zookeeper.ZkDefs;
+import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,27 +62,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Properties;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.*;
-import org.apache.zookeeper.KeeperException;
-import org.fusesource.fabric.api.*;
-import org.fusesource.fabric.api.jcip.GuardedBy;
-import org.fusesource.fabric.api.jcip.ThreadSafe;
-import org.fusesource.fabric.api.scr.AbstractComponent;
-import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.utils.BundleUtils;
-import org.fusesource.fabric.utils.HostUtils;
-import org.fusesource.fabric.utils.OsgiUtils;
-import org.fusesource.fabric.utils.Ports;
-import org.fusesource.fabric.zookeeper.ZkDefs;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
-import org.osgi.framework.*;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.util.tracker.ServiceTracker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.TimeUnit;
 
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
@@ -57,11 +71,14 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
     private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
+    private static final String NAME = System.getProperty("karaf.name");
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
+    @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
+    private final DynamicReference<FabricService> fabricService = new DynamicReference<FabricService>("Fabric Service", FABRIC_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS);
 
     @GuardedBy("this") private Map<String, String> configuration;
     @GuardedBy("this") private BundleUtils bundleUtils;
@@ -132,54 +149,27 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             }
             startBundles(options);
             //Wait until Fabric Service becomes available.
-            OsgiUtils.waitForSerice(FabricService.class, null, FABRIC_SERVICE_TIMEOUT );
-            waitForSuccessfulDeploymentOf(System.getProperty("karaf.name"), "fabric-ensemble-0000-1");
+            FabricService fs = fabricService.get();
+            if (options.isAgentEnabled()) {
+                waitForSuccessfulDeploymentOf(fs, NAME);
+            }
 
 		} catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
 		}
     }
 
-    private void waitForSuccessfulDeploymentOf(String containerName, String profileName) throws InterruptedException {
-        while(true) {
-            ServiceTracker tracker = null;
-            try {
-                Filter osgiFilter = FrameworkUtil.createFilter("(" + org.osgi.framework.Constants.OBJECTCLASS + "=" + FabricService.class.getName() + ")");
-                tracker = new ServiceTracker(bundleContext, osgiFilter, null);
-                tracker.open(true);
-                tracker.waitForService(1000);
-                FabricService fs = (FabricService) tracker.getService();
-                if( fs!=null ) {
-                    Container container = fs.getContainer(containerName);
-
-                    if( container.isAlive() &&
-                            contains(container.getProfiles(), profileName) &&
-                            "success".equals(container.getProvisionStatus()) ) {
-                        return;
-                    }
-
-                    System.out.println(String.format("Waiting for container %s to deploy profile %s", containerName, profileName));
-                    Thread.sleep(1000);
-                } else {
-                    System.out.println(String.format("Waiting for fabric service to come online"));
+    private void waitForSuccessfulDeploymentOf(FabricService fabricService, String containerName) throws InterruptedException {
+        System.out.println(String.format("Waiting for container %s to provision.", containerName));
+        while (true) {
+            if (fabricService != null) {
+                Container container = fabricService.getContainer(containerName);
+                if (container.isAlive() && "success".equals(container.getProvisionStatus())) {
+                    return;
                 }
-            } catch (Exception e) {
-                System.out.println(String.format("Waiting for fabric service to come online"));
-            } finally {
-                tracker.close();
+                Thread.sleep(1000);
             }
         }
-    }
-
-    private boolean contains(Profile[] profiles, String profileName) {
-        if( profiles==null )
-            return false;
-        for (Profile profile : profiles) {
-            if( profileName.equals(profile.getId()) ) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -371,5 +361,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     void unbindRegistrationHandler(DataStoreRegistrationHandler service) {
         this.registrationHandler.unbind(service);
+    }
+
+    void bindFabricService(FabricService service) {
+        this.fabricService.bind(service);
+    }
+
+    void unbindFabricService(FabricService service) {
+        this.fabricService.unbind();
     }
 }
