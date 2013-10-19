@@ -48,6 +48,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      * 7. verify that the child is provisioned according to the old version.
      */
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testContainerUpgradeAndRollback() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
