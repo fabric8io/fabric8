@@ -79,7 +79,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         this.groupName = groupName;
     }
 
-    static class ActiveMQNode extends NodeState {
+    public static class ActiveMQNode extends NodeState {
         @JsonProperty
         String[] services;
     }
