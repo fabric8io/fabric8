@@ -57,7 +57,6 @@ public class FabricDiscoveryServlet extends HttpServlet {
     }
 
     public FabricDiscoveryServlet() {
-        System.out.println("init");
     }
 
     @Override
