@@ -25,15 +25,15 @@
   </parent>
 
   <groupId>org.jboss.amq</groupId>
-  <artifactId>mq-camel</artifactId>
+  <artifactId>mq-fabric-cf</artifactId>
   <packaging>bundle</packaging>
 
-  <name>JBoss A-MQ Fabric Camel Component</name>
+  <name>JBoss A-MQ Fabric Connection Factory</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>org.fusesource.mq.fabric.factory;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
 
-    <!-- lets explicitly import the mq-fabric and cf code -->
+    <!-- lets explicitly import the mq-fabric code -->
     <fuse.osgi.import>
       org.fusesource.mq.fabric*,
       *
@@ -51,17 +51,8 @@
       <artifactId>activemq-osgi</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.apache.activemq</groupId>
-      <artifactId>activemq-camel</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.jboss.amq</groupId>
         <artifactId>mq-fabric</artifactId>
-        <version>${project.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.jboss.amq</groupId>
-        <artifactId>mq-fabric-client</artifactId>
         <version>${project.version}</version>
     </dependency>
     <dependency>

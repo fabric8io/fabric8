@@ -33,7 +33,8 @@ import javax.jms.JMSException;
 import java.util.Map;
 
 /**
- * A Camel component for A-MQ when used inside a Fabric
+ * A Camel component for A-MQ which uses the Fabric MQ {@link ActiveMQConnectionFactory} service
+ * for connecting to the correct broker group in the fabric.
  */
 public class AMQComponent extends ActiveMQComponent {
 

@@ -1,6 +1,6 @@
 # Example Camel MQ
 
-This example shows you how to integrate Camel routes with the A-MQ message broker.
+This example shows you how to integrate Camel routes with the A-MQ message broker using Fuse Fabric to discover the broker.
 
 There are two routes in this example:
 

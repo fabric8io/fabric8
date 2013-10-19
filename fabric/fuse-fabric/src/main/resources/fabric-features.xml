@@ -235,9 +235,9 @@
         <bundle>mvn:org.jboss.amq/mq-fabric/${fuse.version}</bundle>
     </feature>
 
-    <feature name="mq-fabric-client" version="${fuse.version}" resolver="(obr)">
+    <feature name="mq-fabric-cf" version="${fuse.version}" resolver="(obr)">
         <feature version="${fuse.version}">mq-fabric</feature>
-        <bundle>mvn:org.jboss.amq/mq-fabric-client/${fuse.version}</bundle>
+        <bundle>mvn:org.jboss.amq/mq-fabric-cf/${fuse.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
     </feature>
 
@@ -247,10 +247,10 @@
         <bundle>mvn:org.jboss.amq/mq-http-discovery/${fuse.version}</bundle>
     </feature>
 
-    <feature name="mq-camel" version="${fuse.version}" resolver="(obr)">
-        <feature version="${fuse.version}">mq-fabric-client</feature>
+    <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
+        <feature version="${fuse.version}">mq-fabric-cf</feature>
         <feature version="${activemq-version}">activemq-camel</feature>
-        <bundle>mvn:org.jboss.amq/mq-camel/${fuse.version}</bundle>
+        <bundle>mvn:org.jboss.amq/mq-fabric-camel/${fuse.version}</bundle>
     </feature>
 
     <feature name="mq-web-console" version="${fuse.version}" resolver="(obr)">

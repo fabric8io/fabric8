@@ -25,13 +25,13 @@
   </parent>
 
   <groupId>org.jboss.amq</groupId>
-  <artifactId>mq-fabric-client</artifactId>
+  <artifactId>mq-fabric-camel</artifactId>
   <packaging>bundle</packaging>
 
-  <name>JBoss A-MQ Fabric Connection Factory</name>
+  <name>JBoss A-MQ Fabric Camel Component</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.mq.fabric.factory;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>org.fusesource.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
 
     <!-- lets explicitly import the mq-fabric and cf code -->
     <fuse.osgi.import>
@@ -51,8 +51,17 @@
       <artifactId>activemq-osgi</artifactId>
     </dependency>
     <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
+    </dependency>
+    <dependency>
       <groupId>org.jboss.amq</groupId>
         <artifactId>mq-fabric</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jboss.amq</groupId>
+        <artifactId>mq-fabric-cf</artifactId>
         <version>${project.version}</version>
     </dependency>
     <dependency>
@@ -91,6 +100,49 @@
             </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-package-maven-plugin</artifactId>
+        <version>${camel-version}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-components-list</goal>
+            </goals>
+            <phase>generate-resources</phase>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.camel</groupId>
+        <artifactId>camel-package-maven-plugin</artifactId>
+        <version>${camel-version}</version>
+      </plugin>
+    </plugins>
+  </reporting>
+  <profiles>
+    <!-- enables the APT dependency so that it can be disabled in IDE builds -->
+    <profile>
+      <id>apt</id>
+      <activation>
+        <!-- don't enable on jdk 1.6 as it would not work and also it causes build problems by the CI-Server -->
+        <jdk>[1.7,)</jdk>
+      </activation>
+
+      <dependencies>
+        <!-- enable the APT processor -->
+        <dependency>
+          <groupId>org.apache.camel</groupId>
+          <artifactId>apt</artifactId>
+          <version>${camel-version}</version>
+          <scope>provided</scope>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
 </project>
