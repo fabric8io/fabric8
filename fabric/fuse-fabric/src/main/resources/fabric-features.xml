@@ -247,6 +247,12 @@
         <bundle>mvn:org.jboss.amq/mq-http-discovery/${fuse.version}</bundle>
     </feature>
 
+    <feature name="mq-camel" version="${fuse.version}" resolver="(obr)">
+        <feature version="${fuse.version}">mq-fabric-client</feature>
+        <feature version="${activemq-version}">activemq-camel</feature>
+        <bundle>mvn:org.jboss.amq/mq-camel/${fuse.version}</bundle>
+    </feature>
+
     <feature name="mq-web-console" version="${fuse.version}" resolver="(obr)">
         <feature version="[2,3)">war</feature>
         <feature>eventadmin</feature>

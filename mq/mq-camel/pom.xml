@@ -28,12 +28,12 @@
   <artifactId>mq-camel</artifactId>
   <packaging>bundle</packaging>
 
-  <name>JBoss A-MQ Camel Component</name>
+  <name>JBoss A-MQ Fabric Camel Component</name>
 
   <properties>
-    <fuse.osgi.export>org.fusesource.mq.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
+    <fuse.osgi.export>org.fusesource.mq.fabric.camel;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
 
-    <!-- lets see the meta inf discovery stuff from mq-fabric -->
+    <!-- lets explicitly import the mq-fabric and cf code -->
     <fuse.osgi.import>
       org.fusesource.mq.fabric*,
       *

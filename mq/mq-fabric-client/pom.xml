@@ -33,7 +33,7 @@
   <properties>
     <fuse.osgi.export>org.fusesource.mq.fabric.factory;version=${fuse.osgi.version};-noimport:=true</fuse.osgi.export>
 
-    <!-- lets see the meta inf discovery stuff from mq-fabric -->
+    <!-- lets explicitly import the mq-fabric and cf code -->
     <fuse.osgi.import>
       org.fusesource.mq.fabric*,
       *
