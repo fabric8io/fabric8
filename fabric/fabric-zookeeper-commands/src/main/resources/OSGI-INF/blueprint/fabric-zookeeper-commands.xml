@@ -76,6 +76,11 @@
                 <null/>
             </completers>
         </command>
+        <command name="zk/kill">
+            <action class="org.fusesource.fabric.zookeeper.commands.Kill">
+                <property name="curator" ref="curator"/>
+            </action>
+        </command>
     </command-bundle>
 
     <bean id="znodeCompleter" class="org.fusesource.fabric.commands.support.ZNodeCompleter">
