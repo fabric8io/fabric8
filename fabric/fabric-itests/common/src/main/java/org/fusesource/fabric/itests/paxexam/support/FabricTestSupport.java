@@ -305,11 +305,11 @@ public class FabricTestSupport extends FuseTestSupport {
         return JMX.newMBeanProxy(mbsc, mbeanName, clazz, true);
     }
 
-    private Option envAsSystemProperty(String name) {
+   public Option envAsSystemProperty(String name) {
         return envAsSystemProperty(name, "");
     }
 
-    private Option envAsSystemProperty(String name, String defaultValue) {
+    public Option envAsSystemProperty(String name, String defaultValue) {
         String value = System.getenv(name);
         return editConfigurationFilePut("etc/system.properties", name, (value != null && !value.isEmpty()) ? value : defaultValue);
     }

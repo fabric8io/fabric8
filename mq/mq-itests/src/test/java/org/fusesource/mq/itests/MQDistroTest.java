@@ -25,11 +25,8 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.karaf.tooling.exam.options.LogLevelOption;
-import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.ops4j.pax.exam.junit.Configuration;
 import org.ops4j.pax.exam.junit.ExamReactorStrategy;
@@ -40,30 +37,25 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import javax.jms.ConnectionFactory;
 import javax.jms.Session;
 import javax.jms.TextMessage;
-
 import java.io.File;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.*;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.keepRuntimeFolder;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.logLevel;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.ops4j.pax.exam.CoreOptions.maven;
 
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-524] Fix mq-itests")
-public class MQDistroTest extends FuseTestSupport {
+public class MQDistroTest extends MQTestSupport {
 
-    static final String MQ_GROUP_ID = "org.jboss.amq";
-    static final String MQ_ARTIFACT_ID = "jboss-a-mq";
     static final String WEB_CONSOLE_URL = "http://localhost:8181/activemqweb/";
-    public static final String USER_NAME_ND_PASSWORD = "fusemq";
+    public static final String USER_NAME_ND_PASSWORD = "admin";
 
     @Test
-    public void testMQ() throws Exception {
-
+    public void testWebConsoleAndClient() throws Exception {
         // send message via webconsole, consume from jms openwire
         HttpClient client = new HttpClient();
 
@@ -141,29 +133,15 @@ public class MQDistroTest extends FuseTestSupport {
         process.waitFor();
         assertEquals("consumer worked, exit(0)?", 0, process.exitValue());
 
+        System.out.println(executeCommand("activemq:bstat"));
     }
 
     @Configuration
     public Option[] config() {
         return new Option[]{
-                mqDistributionConfiguration(), keepRuntimeFolder(),
+                new DefaultCompositeOption(mqDistributionConfiguration()), keepRuntimeFolder(),
                 mavenBundle("commons-httpclient", "commons-httpclient").versionAsInProject().type("jar"),
                 logLevel(LogLevelOption.LogLevel.INFO)
         };
     }
-
-    protected Option mqDistributionConfiguration() {
-        return new DefaultCompositeOption(
-                new Option[]{karafDistributionConfiguration().frameworkUrl(
-                maven().groupId(MQ_GROUP_ID).artifactId(MQ_ARTIFACT_ID).versionAsInProject().type("zip"))
-                        .karafVersion("2.2.2").name("Fabric MQ Distro").unpackDirectory(new File("target/paxexam/unpack/")),
-                mavenBundle("org.fusesource.tooling.testing","pax-exam-karaf", MavenUtils.getArtifactVersion("org.fusesource.tooling.testing", "pax-exam-karaf")),
-                mavenBundle("org.fusesource.fabric.itests", "fabric-pax-exam", MavenUtils.getArtifactVersion("org.fusesource.fabric.itests", "fabric-pax-exam")),
-                useOwnExamBundlesStartLevel(50),
-                editConfigurationFilePut("etc/users.properties", "fusemq", "fusemq,admin"),
-                editConfigurationFilePut("etc/system.properties", "activemq.jmx.user", "fusemq"),
-                editConfigurationFilePut("etc/system.properties", "activemq.jmx.password", "fusemq"),
-                editConfigurationFilePut("etc/config.properties", "karaf.startlevel.bundle", "50")});
-    }
-
 }
