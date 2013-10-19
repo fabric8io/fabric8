@@ -154,11 +154,21 @@ public class Provision {
      * @throws Exception
      */
     public static void provisioningSuccess(Collection<Container> containers, Long timeout) throws Exception {
-        containerStatus(containers, timeout);
-        for (Container container : containers) {
-            if (!"success".equals(container.getProvisionStatus())) {
-				throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
-			}
+        boolean running = true;
+        long startedAt = System.currentTimeMillis();
+        long remaining = timeout;
+        while (running && !Thread.interrupted()) {
+            containerStatus(containers, remaining);
+            remaining = timeout + startedAt - System.currentTimeMillis();
+
+            for (Container container : containers) {
+                if (!"success".equals(container.getProvisionStatus())) {
+                    if (startedAt + timeout < System.currentTimeMillis())
+                        throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
+                } else {
+                    running = false;
+                }
+            }
         }
     }
 
