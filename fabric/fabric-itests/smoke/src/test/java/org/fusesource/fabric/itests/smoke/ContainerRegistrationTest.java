@@ -24,6 +24,7 @@ import java.util.Set;
  */
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
 public class ContainerRegistrationTest extends FabricTestSupport {
 
     @After
@@ -50,7 +51,6 @@ public class ContainerRegistrationTest extends FabricTestSupport {
 
 
     @Test
-    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testJmxPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Thread.sleep(3000);
