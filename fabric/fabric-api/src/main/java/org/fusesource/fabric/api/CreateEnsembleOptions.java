@@ -47,6 +47,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
         @JsonProperty
         boolean agentEnabled = true;
         @JsonProperty
+        boolean waitForProvision = true;
+        @JsonProperty
+        long provisionTimeout = 120000L;
+        @JsonProperty
         boolean autoImportEnabled = true;
         @JsonProperty
         String importPath = DEFAULT_IMPORT_PATH;
@@ -136,6 +140,15 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return (B) this;
         }
 
+        public B provisionTimeout(final long provisionTimeout) {
+            this.provisionTimeout = provisionTimeout;
+            return (B) this;
+        }
+
+        public B waitForProvision(final boolean waitForProvision) {
+            this.waitForProvision = waitForProvision;
+            return (B) this;
+        }
 
         public B importPath(final String importPath) {
             this.importPath = importPath;
@@ -170,6 +183,14 @@ public class CreateEnsembleOptions extends ContainerOptions {
             this.users = users;
         }
 
+        public void setWaitForProvision(boolean waitForProvision) {
+            this.waitForProvision = waitForProvision;
+        }
+
+        public void setProvisionTimeout(long provisionTimeout) {
+            this.provisionTimeout = provisionTimeout;
+        }
+
         public int getZooKeeperServerPort() {
             return zooKeeperServerPort;
         }
@@ -202,6 +223,14 @@ public class CreateEnsembleOptions extends ContainerOptions {
             return users;
         }
 
+        public boolean isWaitForProvision() {
+            return waitForProvision;
+        }
+
+        public long getProvisionTimeout() {
+            return provisionTimeout;
+        }
+
         /**
          * Generate a random String that can be used as a Zookeeper password.
          *
@@ -224,7 +253,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
 
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, autoImportEnabled, importPath, users);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users);
         }
     }
 
@@ -239,6 +268,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
     @JsonProperty
     final boolean agentEnabled;
     @JsonProperty
+    final boolean waitForProvision;
+    @JsonProperty
+    final long provisionTimeout;
+    @JsonProperty
     final boolean autoImportEnabled;
     @JsonProperty
     final String importPath;
@@ -249,13 +282,15 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder<Builder>();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
         this.zookeeperPassword = zookeeperPassword;
         this.ensembleStart = ensembleStart;
         this.agentEnabled = agentEnabled;
+        this.waitForProvision = waitForProvision;
+        this.provisionTimeout = provisionTimeout;
         this.autoImportEnabled = autoImportEnabled;
         this.importPath = importPath;
         this.users = users;
@@ -291,6 +326,14 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public Map<String, String> getUsers() {
         return users;
+    }
+
+    public boolean isWaitForProvision() {
+        return waitForProvision;
+    }
+
+    public long getProvisionTimeout() {
+        return provisionTimeout;
     }
 
     @Override

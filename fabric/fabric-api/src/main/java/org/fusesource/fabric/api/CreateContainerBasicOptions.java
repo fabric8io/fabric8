@@ -165,7 +165,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
 
         public CreateContainerBasicOptions build() {
             return new CreateContainerBasicOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort,
-                    maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, autoImportEnabled,
+                    maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled,
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
                     number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
         }
@@ -200,14 +200,14 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
     public CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
                                        int minimumPort, int maximumPort, Set<String> profiles, String version,
                                        Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort,
-                                       String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled,
+                                       String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled,
                                        String importPath, Map<String, String> users, String name, String parent,
                                        String providerType, boolean ensembleServer, String preferredAddress,
                                        Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
                                        String jvmOpts, boolean adminAccess) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort,
-                zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, autoImportEnabled, importPath, users);
+                zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users);
 
         this.name = name;
         this.parent = parent;

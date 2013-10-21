@@ -59,6 +59,10 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     String bindAddress;
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
+    @Option(name = "--no-wait", multiValued = false, description = "Flag to not wait for the initial container provisioning")
+    private boolean noWait=false;
+    @Option(name = "--provision-timeout", multiValued = false, description = "How long to wait (milliseconds) for the initial container provisioning")
+    private long provisionTimeout=120000L;
     @Option(name = "-t", aliases = {"--time"}, description = "How long to wait (milliseconds) for the ensemble to start up before trying to import the default data")
     long ensembleStartupTime = 2000L;
     @Option(name = "-p", aliases = "--profile", multiValued = true, description = "Chooses the profile of the container.")
@@ -95,7 +99,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     @Override
     protected Object doExecute() throws Exception {
         String name = System.getProperty(SystemProperties.KARAF_NAME);
-        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder().fromSystemProperties();
+        CreateEnsembleOptions.Builder builder = CreateEnsembleOptions.builder().fromSystemProperties().provisionTimeout(provisionTimeout).waitForProvision(!noWait);
         builder.version(version);
 
         if (containers == null || containers.isEmpty()) {

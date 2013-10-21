@@ -30,12 +30,14 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DynamicReference;
+import org.fusesource.fabric.api.DynamicReferenceException;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.fabric.api.scr.InvalidComponentException;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.HostUtils;
@@ -148,10 +150,12 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 props.save();
             }
             startBundles(options);
-            //Wait until Fabric Service becomes available.
-            FabricService fs = fabricService.get();
-            if (options.isAgentEnabled()) {
-                waitForSuccessfulDeploymentOf(fs, NAME);
+            if (options.isWaitForProvision()) {
+                //Wait until Fabric Service becomes available.
+                FabricService fs = fabricService.get();
+                if (options.isAgentEnabled()) {
+                    waitForSuccessfulDeploymentOf(NAME, options.getProvisionTimeout());
+                }
             }
 
 		} catch (Exception e) {
@@ -159,15 +163,24 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 		}
     }
 
-    private void waitForSuccessfulDeploymentOf(FabricService fabricService, String containerName) throws InterruptedException {
+    private void waitForSuccessfulDeploymentOf(String containerName, long timeout) throws InterruptedException {
         System.out.println(String.format("Waiting for container %s to provision.", containerName));
-        while (true) {
-            if (fabricService != null) {
-                Container container = fabricService.getContainer(containerName);
+        long startedAt = System.currentTimeMillis();
+        while (!Thread.interrupted() && startedAt + timeout > System.currentTimeMillis()) {
+            try {
+                Container container = fabricService.get().getContainer(containerName);
                 if (container.isAlive() && "success".equals(container.getProvisionStatus())) {
                     return;
                 }
                 Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } catch (DynamicReferenceException e) {
+                //ignore and retry
+            } catch (InvalidComponentException e) {
+                //ignore and retry
+            } catch (Throwable t) {
+                FabricException.launderThrowable(t);
             }
         }
     }

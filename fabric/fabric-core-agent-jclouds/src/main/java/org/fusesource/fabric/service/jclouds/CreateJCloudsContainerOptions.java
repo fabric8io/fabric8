@@ -414,7 +414,7 @@ public class CreateJCloudsContainerOptions extends CreateContainerBasicOptions<C
                                          ComputeService computeService, String path, Map<String, String> environmentalVariables) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort,
-                zookeeperPassword,ensembleStart, agentEnabled, autoImportEnabled, importPath, users, name, parent, providerType,
+                zookeeperPassword,ensembleStart, agentEnabled,false, 0, autoImportEnabled, importPath, users, name, parent, providerType,
                 ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
 
         this.osFamily = osFamily;
