@@ -51,9 +51,9 @@
                 </property>
             </activation>
             <modules>
+                <module>smoke</module>
                 <module>basic</module>
                 <module>pojosr</module>
-                <module>smoke</module>
                 <module>wildfly</module>
             </modules>
         </profile>
