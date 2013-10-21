@@ -411,7 +411,6 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
      */
     protected void handleException(Throwable e) {
         LOG.error("", e);
-        e.printStackTrace();
     }
 
     @VisibleForTesting
