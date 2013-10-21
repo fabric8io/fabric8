@@ -46,6 +46,7 @@ import org.osgi.service.blueprint.container.BlueprintContainer;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
 public class ResolverTest extends FabricTestSupport {
 
     @After
@@ -87,7 +88,6 @@ public class ResolverTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
