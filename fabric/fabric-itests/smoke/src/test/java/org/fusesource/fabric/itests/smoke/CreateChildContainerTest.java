@@ -98,6 +98,7 @@ public class CreateChildContainerTest extends FabricTestSupport {
      * Even though the issue is specific to ssh containers the same principals apply to child.
      */
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testContainerWithPasswordChange() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
