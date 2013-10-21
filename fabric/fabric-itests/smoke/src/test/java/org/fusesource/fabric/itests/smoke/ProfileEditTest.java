@@ -24,7 +24,6 @@ import static junit.framework.Assert.assertNotNull;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -48,7 +47,7 @@ public class ProfileEditTest extends FabricTestSupport {
         waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key=value default"));
 
-        //Check that my.pid has been added to the default profile        
+        //Check that my.pid has been added to the default profile
         Profile profile = fabricService.getDefaultVersion().getProfile("default");
         Assert.assertNotNull(profile);
         Map<String, Map<String, String>> configurations = profile.getConfigurations();
@@ -58,8 +57,8 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertNotNull(myPid);
         Assert.assertTrue(myPid.containsKey("key"));
         Assert.assertEquals("value", myPid.get("key"));
-        
-        
+
+
         //Check append options for a pid.
         System.err.println(executeCommand("fabric:profile-edit --append --pid my.pid/key=othervalue default"));
         configurations = profile.getConfigurations();
@@ -68,7 +67,7 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertNotNull(myPid);
         Assert.assertTrue(myPid.containsKey("key"));
         Assert.assertEquals("value,othervalue", myPid.get("key"));
-        
+
         System.err.println(executeCommand("fabric:profile-edit --remove --pid my.pid/key=value default"));
         configurations = profile.getConfigurations();
         Assert.assertTrue(configurations.containsKey("my.pid"));
@@ -76,7 +75,7 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertNotNull(myPid);
         Assert.assertTrue(myPid.containsKey("key"));
         Assert.assertEquals("othervalue", myPid.get("key"));
-        
+
         //Check append options for a pid.
         System.err.println(executeCommand("fabric:profile-edit --remove --pid my.pid/key=othervalue default"));
         configurations = profile.getConfigurations();
@@ -85,7 +84,7 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertNotNull(myPid);
         Assert.assertTrue(myPid.containsKey("key"));
         Assert.assertEquals("", myPid.get("key"));
-        
+
         //Check assign option with '='.
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key=prop1=value1 default"));
         configurations = profile.getConfigurations();
@@ -94,7 +93,7 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertNotNull(myPid);
         Assert.assertTrue(myPid.containsKey("key"));
         Assert.assertEquals("prop1=value1", myPid.get("key"));
-        
+
         //Check multiple properties
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key1=value1 --pid my.pid/key2=value2 default"));
         configurations = profile.getConfigurations();
@@ -106,11 +105,12 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertTrue(myPid.containsKey("key2"));
         Assert.assertEquals("value2", myPid.get("key2"));
     }
-    
-    
+
+
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testImportPid() throws Exception {
-        System.err.println(executeCommands("config:edit my.pid","config:propset key1 value1","config:propset key2 value2", "config:update"));        
+        System.err.println(executeCommands("config:edit my.pid","config:propset key1 value1","config:propset key2 value2", "config:update"));
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
@@ -118,7 +118,7 @@ public class ProfileEditTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid --import-pid default"));
 
         Thread.sleep(DEFAULT_WAIT);
-        //Check that my.pid has been added to the default profile        
+        //Check that my.pid has been added to the default profile
         Profile profile = fabricService.getDefaultVersion().getProfile("default");
         Assert.assertNotNull(profile);
         Map<String, Map<String, String>> configurations = profile.getConfigurations();
