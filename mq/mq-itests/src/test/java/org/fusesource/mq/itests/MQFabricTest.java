@@ -26,7 +26,6 @@ import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -36,8 +35,10 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -93,71 +94,65 @@ public class MQFabricTest extends MQTestSupport {
     public void testMQCreateWithFailover() throws Exception {
         final String brokerName = "testBroker";
         final String groupName = "testGroup";
-        final CountDownLatch serviceLatch = new CountDownLatch(1);
-        final CountDownLatch failOverLatch = new CountDownLatch(3);
+        final Semaphore semaphore = new Semaphore(0);
 
         System.out.println(executeCommand("fabric:create -n"));
         Thread.sleep(5000);
-        Set<Container> containers = ContainerBuilder.child(2).withName("child").assertProvisioningResult().build();
-        String names = containerNames(containers);
-
         //Wait for zookeeper service to become available.
         CuratorFramework curatorFramework = getCurator();
 
         final FabricDiscoveryAgent discoveryAgent = new FabricDiscoveryAgent();
         discoveryAgent.setCurator(curatorFramework);
         discoveryAgent.setGroupName(groupName);
-        discoveryAgent.setDiscoveryListener( new DiscoveryListener() {
+        discoveryAgent.setDiscoveryListener(new DiscoveryListener() {
             @Override
             public void onServiceAdd(DiscoveryEvent discoveryEvent) {
-                serviceLatch.countDown();
-                failOverLatch.countDown();
+                System.out.println("Service added:" + discoveryEvent);
+                semaphore.release(1);
             }
 
             @Override
             public void onServiceRemove(DiscoveryEvent discoveryEvent) {
-                failOverLatch.countDown();
             }
         });
-
         discoveryAgent.start();
 
-        System.out.println(executeCommand("fabric:mq-create --group "+groupName+" --assign-container " + names+" " + brokerName));
-        Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
+        System.out.println(executeCommand("fabric:mq-create --group " + groupName + " " + brokerName));
+        Set<Container> containers = ContainerBuilder.child(2).withName("child").withProfiles("mq-broker-"+groupName+"."+brokerName).assertProvisioningResult().build();
+        System.out.println(executeCommand("fabric:container-list"));
 
-        System.out.println("Waiting for master.");
-        serviceLatch.await(30, TimeUnit.SECONDS);
-        System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
+        for (int i = 0; i < 2; i++) {
+            System.out.println("Waiting for master.");
+            assertTrue(semaphore.tryAcquire(30, TimeUnit.SECONDS));
+            semaphore.drainPermits();
+            System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
 
-        //Get the master and stop it gracefully.
-        FabricDiscoveryAgent.ActiveMQNode master = discoveryAgent.getGroup().master();
-        assertNotNull(master);
-        String masterName = master.getContainer();
-        assertNotNull(master.getContainer());
-        FabricService fabricService = getFabricService();
+            //Get the master and stop it gracefully.
+            FabricDiscoveryAgent.ActiveMQNode master = discoveryAgent.getGroup().master();
+            assertNotNull(master);
+            String masterName = master.getContainer();
+            assertNotNull(master.getContainer());
+            FabricService fabricService = getFabricService();
 
-        System.out.println("Stopping the master.");
-        Container masterContainer = fabricService.getContainer(masterName);
-        masterContainer.stop();
-        masterContainer.start();
+            System.out.println("Stopping the master: "+masterName+".");
+            Container masterContainer = fabricService.getContainer(masterName);
+            masterContainer.stop();
+            masterContainer.start();
+            Provision.provisioningSuccess(Arrays.asList(masterContainer), PROVISION_TIMEOUT);
 
-        System.out.println("Waiting for failover.");
-        failOverLatch.await(30, TimeUnit.SECONDS);
-        System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
-    }
-
-    String containerNames(Set<Container> containers) {
-        StringBuilder sb = new StringBuilder();
-        boolean first = true;
-        for (Container container : containers) {
-            if (first) {
-                first = false;
-            } else {
-                sb.append(",");
-            }
-            sb.append(container.getId());
+            System.out.println("Waiting for failover.");
+            assertTrue(semaphore.tryAcquire(30, TimeUnit.SECONDS));
+            semaphore.drainPermits();
+            System.out.println(executeCommand("fabric:cluster-list | grep -A 1 " + groupName));
+            master = discoveryAgent.getGroup().master();
+            masterName = master.getContainer();
+            assertNotNull(master.getContainer());
+            System.out.println("Stopping the master: "+masterName+".");
+            masterContainer = fabricService.getContainer(masterName);
+            masterContainer.stop();
+            masterContainer.start();
+            Provision.provisioningSuccess(Arrays.asList(masterContainer), PROVISION_TIMEOUT);
         }
-        return sb.toString();
     }
 
     @Configuration
