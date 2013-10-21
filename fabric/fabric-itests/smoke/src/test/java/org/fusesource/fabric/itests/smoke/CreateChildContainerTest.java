@@ -26,6 +26,7 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -34,7 +35,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
 
 import java.util.Set;
 
@@ -54,13 +54,11 @@ public class CreateChildContainerTest extends FabricTestSupport {
     @Test
     public void testLocalChildCreation() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
+        ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
     }
 
     /**
      * This is a test for: http://fusesource.com/issues/browse/FABRIC-370
-     *
-     * @throws Exception
      */
     @Test
     public void testContainerDelete() throws Exception {
@@ -84,10 +82,9 @@ public class CreateChildContainerTest extends FabricTestSupport {
 
     /**
      * http://fusesource.com/issues/browse/FABRIC-351
-     *
-     * @throws Exception
      */
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testContainerWithJvmOpts() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.child(1).withName("child").
@@ -99,7 +96,6 @@ public class CreateChildContainerTest extends FabricTestSupport {
      * This is a test for regressions after adding:
      * https://fusesource.com/issues/browse/FABRIC-482
      * Even though the issue is specific to ssh containers the same principals apply to child.
-     * @throws Exception
      */
     @Test
     public void testContainerWithPasswordChange() throws Exception {
