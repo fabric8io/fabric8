@@ -100,6 +100,7 @@ public class MQProfileTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
     public void testMQCreateMS() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
 
