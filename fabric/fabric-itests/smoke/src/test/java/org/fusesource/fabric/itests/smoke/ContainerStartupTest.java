@@ -19,6 +19,7 @@ package org.fusesource.fabric.itests.smoke;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -61,6 +62,7 @@ public class ContainerStartupTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testLocalFabricClusterWithPassword() throws Exception {
         System.out.println(executeCommand("fabric:create -n --clean --zookeeper-password testpassword root"));
 
