@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
 public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
 
     @After
@@ -48,7 +49,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      * 7. verify that the child is provisioned according to the old version.
      */
     @Test
-    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testContainerUpgradeAndRollback() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
@@ -129,7 +129,6 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      * This is a test for http://fusesource.com/issues/browse/FABRIC-367.
      */
     @Test
-    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testContainerAfterVersionDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
