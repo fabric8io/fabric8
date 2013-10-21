@@ -271,6 +271,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     @Override
     public Map<String, T> members() {
         List<ChildData<T>> children = new ArrayList<ChildData<T>>(currentData.values());
+        Collections.sort(children, sequenceComparator);
         Map<String, T> members = new LinkedHashMap<String, T>();
         for (ChildData<T> child : children) {
             members.put(child.getPath(), child.getNode());
