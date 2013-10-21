@@ -213,7 +213,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     public void update(T state) {
         T oldState = this.state;
         this.state = state;
-        this.state.setSession(session);
+        if (state != null) {
+            this.state.setSession(session);
+        }
         if (started.get()) {
             boolean update = state == null && oldState != null
                         ||   state != null && oldState == null
