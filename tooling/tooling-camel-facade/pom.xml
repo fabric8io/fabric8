@@ -28,9 +28,10 @@
 
   <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-camel-facade</artifactId>
-  <name>[TODO]${project.artifactId}</name>
   <packaging>bundle</packaging>
 
+  <name>FuseSource :: Tooling :: Camel Facade</name>
+  
   <properties>
     <fuse.osgi.import.pkg>
       org.apache.camel*;version="[2.10,3)";resolution:=optional,

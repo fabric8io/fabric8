@@ -28,9 +28,10 @@
 
   <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-activemq-facade</artifactId>
-  <name>[TODO]${project.artifactId}</name>
   <packaging>bundle</packaging>
 
+  <name>FuseSource :: Tooling :: ActiveMQ Facade</name>
+  
   <properties>
     <fuse.osgi.import.pkg>
       org.apache.activemq*;resolution:=optional,

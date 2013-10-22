@@ -30,8 +30,7 @@
   <artifactId>camel-tooling-util</artifactId>
   <packaging>bundle</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
-  <description>FuseSource :: Camel Tooling Util</description>
+  <name>FuseSource :: Tooling :: Camel Util</name>
 
   <properties>
     <fuse.osgi.export>

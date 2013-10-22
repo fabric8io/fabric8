@@ -27,9 +27,10 @@
 
   <groupId>org.fusesource.fabric</groupId>
   <artifactId>tooling-servicemix-facade</artifactId>
-  <name>[TODO]${project.artifactId}</name>
   <packaging>bundle</packaging>
 
+  <name>FuseSource :: Tooling :: ServiceMix Facade</name>
+  
   <properties>
     <fuse.osgi.import.pkg>
       org.apache.servicemix.nmr*;version="[1.5,2)";resolution:=optional,

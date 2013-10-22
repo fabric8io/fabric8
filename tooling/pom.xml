@@ -35,12 +35,6 @@
 
     <modules>
         <module>testing</module>
-        <module>camel-tooling-util</module>
-        <module>tooling-activemq-facade</module>
-        <module>tooling-camel-facade</module>
-	<module>tooling-fabric-all</module>
-	<module>tooling-jclouds-all</module>
-        <module>tooling-servicemix-facade</module>
     </modules>
 
     <profiles>
@@ -53,8 +47,8 @@
                 <module>examples</module>
                 <module>tooling-activemq-facade</module>
                 <module>tooling-camel-facade</module>
-		<module>tooling-fabric-all</module>
-		<module>tooling-jclouds-all</module>
+                <module>tooling-fabric-all</module>
+                <module>tooling-jclouds-all</module>
                 <module>tooling-servicemix-facade</module>
             </modules>
         </profile>

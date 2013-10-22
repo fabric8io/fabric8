@@ -30,8 +30,7 @@
   <artifactId>tooling-jclouds-all</artifactId>
   <packaging>bundle</packaging>
 
-  <name>[TODO]${project.artifactId}</name>
-  <description>FuseSource :: Tooling JClouds All</description>
+  <name>FuseSource :: Tooling :: JClouds All</name>
 
   <properties>
     <fuse.osgi.activator>org.jclouds.osgi.Activator</fuse.osgi.activator>
