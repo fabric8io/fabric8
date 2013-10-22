@@ -156,7 +156,7 @@ public class ContainerImpl implements Container {
         if (versionId == null) {
             return null;
         }
-        return new VersionImpl(versionId, service);
+        return service.getVersion(versionId);
     }
 
     @Override
@@ -183,10 +183,10 @@ public class ContainerImpl implements Container {
         List<String> profileIds = service.getDataStore().getContainerProfiles(id);
         List<Profile> profiles = new ArrayList<Profile>();
         for (String profileId : profileIds) {
-            profiles.add(new ProfileImpl(profileId, version.getId(), service));
+            profiles.add(version.getProfile(profileId));
         }
         if (profiles.isEmpty()) {
-            profiles.add(new ProfileImpl(ZkDefs.DEFAULT_PROFILE, version.getId(), service));
+            profiles.add(version.getProfile(ZkDefs.DEFAULT_PROFILE));
         }
         return profiles.toArray(new Profile[profiles.size()]);
     }

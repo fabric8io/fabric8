@@ -60,7 +60,8 @@ public interface Version extends Comparable<Version>, HasId {
     /**
      * Gets a profile with the given name.
      * @param profileId name of the profile to get.
-     * @return {@link Profile} with the given name. Returns <code>null</code> if it doesn't exist.
+     * @return {@link Profile} with the given name.
+     * @throws FabricException if it doesn't exist.
      */
     Profile getProfile(String profileId);
 

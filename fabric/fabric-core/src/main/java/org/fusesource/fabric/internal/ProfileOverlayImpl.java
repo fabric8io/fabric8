@@ -346,7 +346,7 @@ public class ProfileOverlayImpl implements Profile {
     public long getLastModified() {
         long lastModified = self.getLastModified();
         for (Profile parent : getParents()) {
-            Profile parentOverlay = new ProfileOverlayImpl(parent);
+            Profile parentOverlay = parent.getOverlay();
             lastModified = Math.max(lastModified, parentOverlay.getLastModified());
         }
         return lastModified;

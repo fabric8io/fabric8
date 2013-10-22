@@ -743,8 +743,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     @Override
     public Profile createProfile(String version, String name) {
         assertValid();
-        getDataStore().createProfile(version, name);
-        return new ProfileImpl(name, version, this);
+        return getVersion(version).createProfile(name);
     }
 
     @Override

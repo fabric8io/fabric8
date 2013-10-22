@@ -84,6 +84,7 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
                 if (overlayMatcher.matches()) {
                     String targetPid = overlayMatcher.group(1);
                     String targetProperty = overlayMatcher.group(2);
+                    // TODO: we should not use getCurrentContainer as we could substitue for another container
                     Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
                     return substituteFromProfile(new ProfileOverlayImpl(profile, false, dataStore.get()), targetPid, targetProperty);
                 } else if (explicitMatcher.matches()) {

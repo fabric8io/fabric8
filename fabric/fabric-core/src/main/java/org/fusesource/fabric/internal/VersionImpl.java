@@ -157,6 +157,8 @@ public class VersionImpl implements Version {
                     targetProfile.setAttribute(entry.getKey(), entry.getValue());
                 }
 
+                // TODO: what about child profiles ?
+
                 for (Container container : profile.getAssociatedContainers()) {
                     Profile[] containerProfiles = container.getProfiles();
                     Set<Profile> profileSet = new HashSet<Profile>(Arrays.asList(containerProfiles));

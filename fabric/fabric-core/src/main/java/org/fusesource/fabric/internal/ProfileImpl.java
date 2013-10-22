@@ -21,9 +21,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.service.VersionPropertyPointerResolver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.fusesource.fabric.api.Version;
 
 import java.io.IOException;
 import java.util.*;
@@ -179,8 +177,9 @@ public class ProfileImpl implements Profile {
             }
             str = str.trim();
             List<Profile> profiles = new ArrayList<Profile>();
+            Version v = service.getVersion(version);
             for (String p : str.split(" ")) {
-                profiles.add(new ProfileImpl(p, version, service));
+                profiles.add(v.getProfile(p));
             }
             return profiles.toArray(new Profile[profiles.size()]);
         } catch (Exception e) {
@@ -286,6 +285,7 @@ public class ProfileImpl implements Profile {
     }
 
     public void delete(boolean force) {
+        // TODO: what about child profiles ?
         Container[] containers = getAssociatedContainers();
         if (containers.length == 0) {
             service.getDataStore().deleteProfile(version, id);

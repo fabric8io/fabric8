@@ -78,6 +78,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
         assertValid();
         try {
             if (Strings.isNotBlank(value)) {
+                // TODO: we should not use getCurrentContainer as we could substitue for another container
                 Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
                 String pidPey = value.substring(SCHEME.length() + 1);
                 ProfileOverlayImpl profileOverlay = new ProfileOverlayImpl(profile, false, dataStore.get());
