@@ -179,7 +179,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
             client.getConnectionStateListenable().removeListener(connectionStateListener);
             executorService.shutdown();
             try {
-                executorService.awaitTermination(5, TimeUnit.SECONDS);
+                if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                  executorService.shutdownNow();
+                }
             } catch (InterruptedException e) {
                 throw (IOException) new InterruptedIOException().initCause(e);
             }
@@ -490,7 +492,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     }
 
     private void mainLoop() {
-        while (!Thread.currentThread().isInterrupted()) {
+        while (started.get() && !Thread.currentThread().isInterrupted()) {
             try {
                 operations.take().invoke();
             } catch (InterruptedException e) {
