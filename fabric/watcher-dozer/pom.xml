@@ -46,7 +46,6 @@
     <dependency>
       <groupId>org.fusesource.fabric</groupId>
       <artifactId>watcher-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
 
     <!-- testing -->
@@ -77,9 +76,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>pertest</forkMode>
-          <excludes>
-            <exclude>**/CamelSpringDozerTest.*</exclude>
-          </excludes>
         </configuration>
       </plugin>
 
