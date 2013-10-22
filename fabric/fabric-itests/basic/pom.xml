@@ -33,12 +33,10 @@
         <dependency>
             <groupId>org.fusesource.tooling.testing</groupId>
             <artifactId>pax-exam-karaf</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.fusesource.fabric.itests</groupId>
             <artifactId>fabric-itests-common</artifactId>
-            <version>${project.version}</version>
         </dependency>
 
         <dependency>
@@ -213,7 +211,6 @@
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>${surefire-version}</version>
                 <configuration>
                     <forkMode>pertest</forkMode>
                     <useSystemClassLoader>true</useSystemClassLoader>
@@ -261,7 +258,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven-jar-plugin-version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -278,7 +274,6 @@
         <!-- modifies the plugin config inherited from oss-parent -->
         <profile>
             <id>long</id>
-
             <build>
                 <plugins>
                     <plugin>
