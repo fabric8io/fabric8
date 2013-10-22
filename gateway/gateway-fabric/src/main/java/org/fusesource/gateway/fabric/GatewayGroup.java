@@ -108,40 +108,45 @@ public class GatewayGroup {
 
     protected void treeCacheEvent(PathChildrenCacheEvent event) {
         ChildData childData = event.getData();
+        if (childData == null) {
+            return;
+
+        }
         String path = childData.getPath();
         PathChildrenCacheEvent.Type type = event.getType();
         byte[] data = childData.getData();
-        if (data != null && data.length > 0 && path != null) {
-            if (path.startsWith(zkPath)) {
-                path = path.substring(zkPath.length());
-            }
-            boolean remove = false;
-            switch (type) {
-                case CHILD_ADDED:
-                case CHILD_UPDATED:
-                    break;
-                case CHILD_REMOVED:
-                    remove = true;
-                    break;
-                default:
-                    return;
-            }
-            ServiceDTO dto = null;
-            try {
-                dto = mapper.readValue(data, ServiceDTO.class);
-                expandPropertyResolvers(dto);
-                System.out.println("Got event type " + type + " path: " + path + " data: " + dto);
+        if (data == null || data.length == 0 || path == null) {
+            return;
+        }
+        if (path.startsWith(zkPath)) {
+            path = path.substring(zkPath.length());
+        }
+        boolean remove = false;
+        switch (type) {
+            case CHILD_ADDED:
+            case CHILD_UPDATED:
+                break;
+            case CHILD_REMOVED:
+                remove = true;
+                break;
+            default:
+                return;
+        }
+        ServiceDTO dto = null;
+        try {
+            dto = mapper.readValue(data, ServiceDTO.class);
+            expandPropertyResolvers(dto);
+            System.out.println("Got event type " + type + " path: " + path + " data: " + dto);
 
-                if (remove) {
-                    serviceMap.serviceRemoved(path, dto);
-                } else {
-                    serviceMap.serviceUpdated(path, dto);
-                }
-            } catch (IOException e) {
-                LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
-            } catch (URISyntaxException e) {
-                LOG.warn("Failed to update URI for dto: " + dto + ", .Reason: " + e, e);
+            if (remove) {
+                serviceMap.serviceRemoved(path, dto);
+            } else {
+                serviceMap.serviceUpdated(path, dto);
             }
+        } catch (IOException e) {
+            LOG.warn("Failed to parse the JSON: " + new String(data) + ". Reason: " + e, e);
+        } catch (URISyntaxException e) {
+            LOG.warn("Failed to update URI for dto: " + dto + ", .Reason: " + e, e);
         }
     }
 
