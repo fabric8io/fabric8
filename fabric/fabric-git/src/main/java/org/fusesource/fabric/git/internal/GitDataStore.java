@@ -894,17 +894,22 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
      */
     protected Iterable<PushResult> doPush(Git git, GitContext gitContext, CredentialsProvider credentialsProvider) throws Exception {
         assertValid();
-        Repository repository = git.getRepository();
-        StoredConfig config = repository.getConfig();
-        String url = config.getString("remote", remote, "url");
-        if (Strings.isNullOrBlank(url)) {
-            LOG.info("No remote repository defined yet for the git repository at " + GitHelpers
-                    .getRootGitDirectory(git)
-                    + " so not doing a push");
+        try {
+            Repository repository = git.getRepository();
+            StoredConfig config = repository.getConfig();
+            String url = config.getString("remote", remote, "url");
+            if (Strings.isNullOrBlank(url)) {
+                LOG.info("No remote repository defined yet for the git repository at " + GitHelpers
+                        .getRootGitDirectory(git)
+                        + " so not doing a push");
+                return Collections.EMPTY_LIST;
+            }
+
+            return git.push().setCredentialsProvider(credentialsProvider).setPushAll().call();
+        } catch (Exception ex) {
+            LOG.debug("Push failed. This will be ignored.", ex);
             return Collections.EMPTY_LIST;
         }
-
-        return git.push().setCredentialsProvider(credentialsProvider).setPushAll().call();
     }
 
     protected CredentialsProvider getCredentialsProvider() throws Exception {
