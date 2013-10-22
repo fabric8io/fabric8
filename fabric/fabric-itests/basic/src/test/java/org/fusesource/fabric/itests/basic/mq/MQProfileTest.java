@@ -67,6 +67,7 @@ public class MQProfileTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
     public void testMQCreateBasic() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         //addStagingRepoToDefaultProfile();
