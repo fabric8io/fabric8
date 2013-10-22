@@ -48,7 +48,7 @@ public class FuseTestSupport {
     public static final Long SYSTEM_TIMEOUT = 30000L;
     public static final Long DEFAULT_WAIT = 10000L;
     public static final Long PROVISION_TIMEOUT = 300000L;
-    public static final Long COMMAND_TIMEOUT = 30000L;
+    public static final Long COMMAND_TIMEOUT = 70000L;
 
     protected ExecutorService executor = Executors.newCachedThreadPool();
 
