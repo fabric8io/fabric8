@@ -38,7 +38,6 @@
     <dependency>
         <groupId>org.fusesource.fabric</groupId>
         <artifactId>fabric-maven-proxy</artifactId>
-        <version>${project.version}</version>
     </dependency>
 
     <!-- aether stuff -->
@@ -115,18 +114,6 @@
   </dependencies>
 
   <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <excludes>
-            <!-- TODO fix this when we've a sample... -->
-            <exclude>**/PomegranateSampleTest.*</exclude>
-          </excludes>
-        </configuration>
-      </plugin>
-    </plugins>
     <resources>
       <resource>
         <directory>src/main/resources</directory>

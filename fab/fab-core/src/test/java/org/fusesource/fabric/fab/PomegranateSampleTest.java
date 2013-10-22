@@ -31,6 +31,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Lets check that we can parse the pom.xml from the sample pomegranate web app
  */
+@Ignore("[FABRIC-617] Fix fab/fab-core tests")
 public class PomegranateSampleTest {
     private static final transient Log LOG = LogFactory.getLog(PomegranateSampleTest.class);
 
