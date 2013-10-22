@@ -105,9 +105,7 @@
                 <module>watcher-blueprint-web</module>
                 <module>watcher-core</module>
                 <module>watcher-dynamic-jaxb</module>
-                <!-- hangs the build
                 <module>watcher-dozer</module>
-                -->
                 <module>watcher-spring-context</module>
             </modules>
         </profile>

@@ -77,6 +77,9 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <forkMode>pertest</forkMode>
+          <excludes>
+            <exclude>**/CamelSpringDozerTest.*</exclude>
+          </excludes>
         </configuration>
       </plugin>
 
