@@ -76,11 +76,11 @@ public class FabricGateway extends AbstractComponent {
                 }
 
                 // TODO detect changes in the config and add/remove groups based on that?
-                GatewayGroup webGroup = createWebGroup(80);
+                GatewayGroup webGroup = createWebGroup(9000);
                 addGroup(webGroup);
 
                 // hard code for now until we figure out the configuration
-                GatewayGroup messagingGroup = createMessagingGroup("tcp", 61616);
+                GatewayGroup messagingGroup = createMessagingGroup("tcp", 61000);
                 addGroup(messagingGroup);
 
                 updated(properties);

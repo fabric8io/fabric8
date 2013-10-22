@@ -35,6 +35,7 @@
           *
         </fuse.osgi.import>
         <fuse.osgi.private.pkg>
+          META-INF.services.*,
         </fuse.osgi.private.pkg>
       <!-- not required in private.pkg
           com.sun.nio.sctp*,

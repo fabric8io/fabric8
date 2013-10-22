@@ -21,10 +21,14 @@
         <fuse.osgi.import>
             META-INF.services.*,
             org.fusesource.gateway.*,
+            org.vertx.java.core.impl,
             org.vertx*,
             io.netty*,
             *
         </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+          META-INF.services.*,
+        </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
     </properties>
 

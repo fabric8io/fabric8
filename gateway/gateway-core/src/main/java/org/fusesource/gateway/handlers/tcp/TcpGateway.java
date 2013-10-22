@@ -18,6 +18,8 @@ package org.fusesource.gateway.handlers.tcp;
 
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.handlers.Gateway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Handler;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.net.NetServer;
@@ -26,6 +28,8 @@ import org.vertx.java.core.net.NetSocket;
 /**
  */
 public class TcpGateway implements Gateway {
+    private static final transient Logger LOG = LoggerFactory.getLogger(TcpGateway.class);
+
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final int port;
@@ -46,10 +50,13 @@ public class TcpGateway implements Gateway {
         }
         server = vertx.createNetServer().connectHandler(handler);
         if (host != null) {
+            LOG.info("Listening on port " + port + " and host " + host);
             server = server.listen(port, host);
         } else {
+            LOG.info("Listening on port " + port);
             server = server.listen(port);
         }
+
     }
 
     @Override

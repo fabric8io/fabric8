@@ -18,12 +18,16 @@ package org.fusesource.gateway.handlers.http;
 
 import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.handlers.Gateway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 import org.vertx.java.core.http.HttpServer;
 
 /**
  */
 public class HttpGateway implements Gateway {
+    private static final transient Logger LOG = LoggerFactory.getLogger(HttpGateway.class);
+
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final int port;
@@ -44,8 +48,10 @@ public class HttpGateway implements Gateway {
         }
         server = vertx.createHttpServer().requestHandler(handler);
         if (host != null) {
+            LOG.info("Listening on port " + port + " and host " + host);
             server = server.listen(port, host);
         } else {
+            LOG.info("Listening on port " + port);
             server = server.listen(port);
         }
     }
