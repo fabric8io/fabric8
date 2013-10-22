@@ -135,29 +135,18 @@ public class ProfileImpl implements Profile {
 
     public static List<String> getContainerConfigList(Profile p, ConfigListType type) {
         try {
-            Properties containerProps = getContainerProperties(p);
+            Map<String, String> containerProps = p.getContainerConfiguration();
             ArrayList<String> rc = new ArrayList<String>();
             String prefix = type + ".";
-            for ( Map.Entry<Object, Object> e : containerProps.entrySet() ) {
-                if ( ((String)e.getKey()).startsWith(prefix) ) {
-                    String value = replaceVersionResolver(p, (String) e.getValue());
-                    rc.add(value);
+            for ( Map.Entry<String, String> e : containerProps.entrySet() ) {
+                if ( (e.getKey()).startsWith(prefix) ) {
+                    rc.add(e.getValue());
                 }
             }
             return rc;
 
         } catch (Exception e) {
             throw FabricException.launderThrowable(e);
-        }
-    }
-
-    private static String replaceVersionResolver(Profile p, String value) {
-        // TODO we maybe need to consider other kinds of resolver here?
-        if (value.indexOf(VersionPropertyPointerResolver.VERSION_PREFIX) > 0) {
-            // lets only make an overlay profile if we have a version to replace
-            return VersionPropertyPointerResolver.replaceVersions(p.getOverlay(), value);
-        } else {
-            return value;
         }
     }
 
@@ -180,15 +169,6 @@ public class ProfileImpl implements Profile {
             map.put(prefix + value, value);
         }
         p.setConfigurations(config);
-    }
-
-    public static Properties getContainerProperties(Profile p) throws IOException {
-        byte[] b = p.getFileConfigurations().get(AGENT_PID + ".properties");
-        if (b != null) {
-            return DataStoreHelpers.toProperties(b);
-        } else {
-            return new Properties();
-        }
     }
 
     public Profile[] getParents() {
