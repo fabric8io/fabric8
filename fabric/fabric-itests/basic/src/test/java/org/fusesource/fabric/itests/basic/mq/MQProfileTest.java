@@ -25,6 +25,7 @@ import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
 public class MQProfileTest extends FabricTestSupport {
 
     ArrayList<Container> containers = new ArrayList<Container>();
@@ -67,7 +68,6 @@ public class MQProfileTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
     public void testMQCreateBasic() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         //addStagingRepoToDefaultProfile();
@@ -101,7 +101,6 @@ public class MQProfileTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
     public void testMQCreateMS() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
 
@@ -133,7 +132,6 @@ public class MQProfileTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore
     public void testMQCreateNetwork() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         addStagingRepoToDefaultProfile();
