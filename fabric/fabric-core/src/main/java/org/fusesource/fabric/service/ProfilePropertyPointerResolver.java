@@ -46,7 +46,6 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
     private static final String SCHEME = "profile";
 
     private static final Pattern OVERLAY_PROFILE_PROPERTY_URL_PATTERN = Pattern.compile("profile:([^ /]+)/([^ =/]+)");
-    private static final Pattern EXPLICIT_PROFILE_PROPERTY_URL_PATTERN = Pattern.compile("profile:([^ /]+)/([^ =/]+)/([^ =/]+)");
 
     private static final String EMPTY = "";
 
@@ -74,25 +73,16 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
      * Resolves the placeholder found inside the value, for the specific key of the pid.
      */
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         try {
             if (value != null) {
                 Matcher overlayMatcher = OVERLAY_PROFILE_PROPERTY_URL_PATTERN.matcher(value);
-                Matcher explicitMatcher = EXPLICIT_PROFILE_PROPERTY_URL_PATTERN.matcher(value);
 
                 if (overlayMatcher.matches()) {
                     String targetPid = overlayMatcher.group(1);
                     String targetProperty = overlayMatcher.group(2);
-                    // TODO: we should not use getCurrentContainer as we could substitue for another container
-                    Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
-                    return substituteFromProfile(new ProfileOverlayImpl(profile, false, dataStore.get()), targetPid, targetProperty);
-                } else if (explicitMatcher.matches()) {
-                    String profileId = explicitMatcher.group(1);
-                    String targetPid = explicitMatcher.group(2);
-                    String targetProperty = explicitMatcher.group(3);
-                    Profile profile = fabricService.get().getCurrentContainer().getVersion().getProfile(profileId);
-                    return substituteFromProfile(profile, targetPid, targetProperty);
+                    return substituteFromProfile(configs, targetPid, targetProperty);
                 }
             }
         } catch (Exception e) {
@@ -101,11 +91,13 @@ public final class ProfilePropertyPointerResolver extends AbstractComponent impl
         return EMPTY;
     }
 
-    private String substituteFromProfile(Profile profile, String pid, String key) {
-        Map<String, String> configuration = profile.getConfiguration(pid);
-        if (configuration.containsKey(key)) {
+    private String substituteFromProfile(Map<String, Map<String, String>> configs, String pid, String key) {
+        Map<String, String> configuration = configs.get(pid);
+        if (configuration != null && configuration.containsKey(key)) {
             return configuration.get(key);
-        } else return EMPTY;
+        } else {
+            return EMPTY;
+        }
     }
 
     void bindFabricService(FabricService fabricService) {

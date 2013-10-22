@@ -223,7 +223,7 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
                         if (toSubstitute != null && toSubstitute.contains(":")) {
                             String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
                             if (availableResolvers.containsKey(scheme)) {
-                                return availableResolvers.get(scheme).resolve(pid, key, toSubstitute);
+                                return availableResolvers.get(scheme).resolve(configs, pid, key, toSubstitute);
                             }
                         }
                         return substituteBundleProperty(toSubstitute, getBundleContext());

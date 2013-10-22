@@ -74,17 +74,15 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
      * Resolves the placeholder found inside the value, for the specific key of the pid.
      */
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         try {
             if (Strings.isNotBlank(value)) {
                 // TODO: we should not use getCurrentContainer as we could substitue for another container
-                Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();
                 String pidPey = value.substring(SCHEME.length() + 1);
-                ProfileOverlayImpl profileOverlay = new ProfileOverlayImpl(profile, false, dataStore.get());
-                String answer = substituteFromProfile(profileOverlay, VERSIONS_PID, pidPey);
+                String answer = substituteFromProfile(configs, VERSIONS_PID, pidPey);
                 if (answer != null) {
-                    answer = replaceVersions(profileOverlay, answer);
+                    answer = replaceVersions(configs, answer);
                 }
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Replaced value " + value + " with answer: " + answer);
@@ -100,7 +98,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
     /**
      * Lets replace any other instances of ${version:key} with the value
      */
-    public static String replaceVersions(Profile profileOverlay, String value) {
+    public static String replaceVersions(Map<String, Map<String, String>> configs, String value) {
         // TODO we should really support other completions here too other than ${version:
         boolean replaced;
         do {
@@ -111,7 +109,7 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
                 int endIdx = value.indexOf(VERSION_POSTFIX, keyIdx);
                 if (endIdx > 0) {
                     String newKey = value.substring(keyIdx, endIdx);
-                    String newValue = substituteFromProfile(profileOverlay, VERSIONS_PID, newKey);
+                    String newValue = substituteFromProfile(configs, VERSIONS_PID, newKey);
                     if (newValue != null) {
                         value = value.substring(0, startIdx) + newValue + value.substring(endIdx + 1);
                     }
@@ -122,11 +120,13 @@ public final class VersionPropertyPointerResolver extends AbstractComponent impl
         return value;
     }
 
-    private static String substituteFromProfile(Profile profile, String pid, String key) {
-        Map<String, String> configuration = profile.getConfiguration(pid);
+    private static String substituteFromProfile(Map<String, Map<String, String>> configs, String pid, String key) {
+        Map<String, String> configuration = configs.get(pid);
         if (configuration != null && configuration.containsKey(key)) {
             return configuration.get(key);
-        } else return EMPTY;
+        } else {
+            return EMPTY;
+        }
     }
 
     void bindFabricService(FabricService fabricService) {

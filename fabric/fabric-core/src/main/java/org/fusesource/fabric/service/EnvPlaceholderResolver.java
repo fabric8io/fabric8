@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.Map;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -48,7 +50,7 @@ public final class EnvPlaceholderResolver extends AbstractComponent implements P
     }
 
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         if (value != null && value.length() > ENV_SCHEME.length())  {
             String name = value.substring(ENV_SCHEME.length() + 1);

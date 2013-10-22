@@ -78,7 +78,7 @@ public class ContainerPlaceholderResolverTest {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
         resolver.bindFabricService(fabricService);
         resolver.activate(EasyMock.createMock(ComponentContext.class));
-        assertEquals("root",resolver.resolve(null, null, "container:name"));
+        assertEquals("root",resolver.resolve(null, null, null, "container:name"));
         verify(fabricService);
         verify(dataStore);
     }
@@ -88,10 +88,10 @@ public class ContainerPlaceholderResolverTest {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
         resolver.bindFabricService(fabricService);
         resolver.activate(EasyMock.createMock(ComponentContext.class));
-        assertEquals(ip,resolver.resolve(null, null, "container:ip"));
-        assertEquals(localhostname,resolver.resolve(null, null, "container:localhostname"));
-        assertEquals(bindaddress,resolver.resolve(null, null, "container:bindaddress"));
-        assertEquals(containerResolver,resolver.resolve(null, null, "container:resolver"));
+        assertEquals(ip,resolver.resolve(null, null, null, "container:ip"));
+        assertEquals(localhostname,resolver.resolve(null, null, null, "container:localhostname"));
+        assertEquals(bindaddress,resolver.resolve(null, null, null, "container:bindaddress"));
+        assertEquals(containerResolver,resolver.resolve(null, null, null, "container:resolver"));
 
         verify(fabricService);
         verify(dataStore);
@@ -102,10 +102,10 @@ public class ContainerPlaceholderResolverTest {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
         resolver.bindFabricService(fabricService);
         resolver.activate(EasyMock.createMock(ComponentContext.class));
-        assertEquals(ip,resolver.resolve(null, null, "container:root/ip"));
-        assertEquals(localhostname,resolver.resolve(null, null, "container:root/localhostname"));
-        assertEquals(bindaddress,resolver.resolve(null, null, "container:root/bindaddress"));
-        assertEquals(containerResolver,resolver.resolve(null, null, "container:root/resolver"));
+        assertEquals(ip,resolver.resolve(null, null, null, "container:root/ip"));
+        assertEquals(localhostname,resolver.resolve(null, null, null, "container:root/localhostname"));
+        assertEquals(bindaddress,resolver.resolve(null, null, null, "container:root/bindaddress"));
+        assertEquals(containerResolver,resolver.resolve(null, null, null, "container:root/resolver"));
 
         verify(fabricService);
         verify(dataStore);
@@ -116,10 +116,10 @@ public class ContainerPlaceholderResolverTest {
         ContainerPlaceholderResolver resolver = new ContainerPlaceholderResolver();
         resolver.bindFabricService(fabricService);
         resolver.activate(EasyMock.createMock(ComponentContext.class));
-        assertEquals(ip,resolver.resolve(null, null, "container:root/IP"));
-        assertEquals(localhostname,resolver.resolve(null, null, "container:root/LocalHostName"));
-        assertEquals(bindaddress,resolver.resolve(null, null, "container:root/Bindaddress"));
-        assertEquals(containerResolver,resolver.resolve(null, null, "container:root/Resolver"));
+        assertEquals(ip,resolver.resolve(null, null, null, "container:root/IP"));
+        assertEquals(localhostname,resolver.resolve(null, null, null, "container:root/LocalHostName"));
+        assertEquals(bindaddress,resolver.resolve(null, null, null, "container:root/Bindaddress"));
+        assertEquals(containerResolver,resolver.resolve(null, null, null, "container:root/Resolver"));
 
         verify(fabricService);
         verify(dataStore);

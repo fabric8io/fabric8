@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.Map;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -60,7 +62,7 @@ public final class ZookeeperPlaceholderResolver extends AbstractComponent implem
     }
 
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         try {
             return new String(ZkPath.loadURL(curator.get(), value), "UTF-8");

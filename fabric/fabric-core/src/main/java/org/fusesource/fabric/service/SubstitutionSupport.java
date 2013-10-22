@@ -69,7 +69,7 @@ public abstract class SubstitutionSupport {
                         if (toSubstitute != null && toSubstitute.contains(":")) {
                             String scheme = toSubstitute.substring(0, toSubstitute.indexOf(":"));
                             if (placeholderResolvers.containsKey(scheme)) {
-                                return placeholderResolvers.get(scheme).resolve(pid, key, toSubstitute);
+                                return placeholderResolvers.get(scheme).resolve(configs, pid, key, toSubstitute);
                             }
                         }
                         return substituteBundleProperty(toSubstitute, getBundleContext());

@@ -78,7 +78,7 @@ public final class ContainerPlaceholderResolver extends AbstractComponent implem
     }
 
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         Matcher namedMatcher = NAMED_CONTAINER_PATTERN.matcher(value);
         Matcher currentMatcher = CURRENT_CONTAINER_PATTERN.matcher(value);

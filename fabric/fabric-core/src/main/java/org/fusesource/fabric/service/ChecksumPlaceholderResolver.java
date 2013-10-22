@@ -18,6 +18,7 @@ package org.fusesource.fabric.service;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Map;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -56,7 +57,7 @@ public final class ChecksumPlaceholderResolver extends AbstractComponent impleme
     }
 
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         InputStream is = null;
         try {

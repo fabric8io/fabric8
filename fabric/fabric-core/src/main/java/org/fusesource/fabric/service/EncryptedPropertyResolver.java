@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.Map;
+
 import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_ALGORITHM;
 import static org.fusesource.fabric.zookeeper.ZkPath.AUTHENTICATION_CRYPT_PASSWORD;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
@@ -61,7 +63,7 @@ public final class EncryptedPropertyResolver extends AbstractComponent implement
     }
 
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         return getEncryptor().decrypt(value.substring(CRYPT_SCHEME.length() + 1));
     }

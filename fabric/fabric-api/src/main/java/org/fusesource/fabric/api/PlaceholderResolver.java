@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.Map;
+
 public interface PlaceholderResolver {
 
     /**
@@ -31,6 +33,6 @@ public interface PlaceholderResolver {
      * @param value     The value with the placeholder.
      * @return          The resolved value or EMPTY_STRING.
      */
-    public String resolve(String pid, String key, String value);
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value);
 
 }

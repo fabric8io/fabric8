@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.service;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -73,7 +74,7 @@ public final class PortPlaceholderResolver extends AbstractComponent implements 
      * @return The resolved value or EMPTY_STRING.
      */
     @Override
-    public String resolve(String pid, String key, String value) {
+    public String resolve(Map<String, Map<String, String>> configs, String pid, String key, String value) {
         assertValid();
         Matcher matcher = PORT_PROPERTY_URL_PATTERN.matcher(value);
         if (!matcher.matches()) {

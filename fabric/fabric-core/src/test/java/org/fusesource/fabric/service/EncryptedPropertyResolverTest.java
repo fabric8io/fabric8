@@ -46,7 +46,7 @@ public class EncryptedPropertyResolverTest {
         EncryptedPropertyResolver resolver = new EncryptedPropertyResolver();
         resolver.bindCurator(curator);
         resolver.activate(createMock(ComponentContext.class));
-        assertEquals("encryptedpassword",resolver.resolve(null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
+        assertEquals("encryptedpassword",resolver.resolve(null, null, null, "crypt:URdoo9++D3tsoC9ODrTfLNK5WzviknO3Ig6qbI2HuvQ="));
         verify(curator);
         verify(getDataBuilder);
     }
