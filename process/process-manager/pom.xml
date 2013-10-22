@@ -125,10 +125,6 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <workingDirectory>target</workingDirectory>
-                    <excludes>
-                        <!-- TODO - exclude for now until we've an install task -->
-                        <exclude>**/ProcessControllerTest.*</exclude>
-                    </excludes>
                 </configuration>
             </plugin>
 

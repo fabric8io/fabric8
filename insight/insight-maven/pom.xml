@@ -157,7 +157,6 @@
       </plugin>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>${surefire-version}</version>
         <configuration>
           <excludes>
             <!-- lets exclude the really slow unit tests for now -->
