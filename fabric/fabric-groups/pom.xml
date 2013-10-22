@@ -63,7 +63,6 @@
       <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
-      <version>${jackson-version}</version>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>
@@ -73,23 +72,4 @@
 
   </dependencies>
 
-  <build>
-    <plugins>
-
-      <!-- Tests are failing on windows, need to investigate -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          
-          <excludes>
-            <!-- ESB-1687 -->
-            <exclude>**/ClusteredSingletonTest.*</exclude>
-          </excludes> 
-         
-        </configuration>
-      </plugin>
-      
-    </plugins>
-  </build>
 </project>
