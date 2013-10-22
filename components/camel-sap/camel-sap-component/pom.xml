@@ -27,7 +27,7 @@
 	</parent>
 
 	<artifactId>camel-sap</artifactId>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 
 	<name>[TODO]JBoss Fuse :: Components :: SAP JCO :: Camel Component</name>
 	<url>http://fusesource.org</url>
@@ -35,6 +35,28 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<fuse.osgi.import>
+			org.eclipse.*;resolution:=optional,
+			*
+		</fuse.osgi.import>
+		<fuse.osgi.export>
+			org.fusesource.camel.component.sap;version=${project.version},
+			org.fusesource.camel.component.sap.converter;version=${project.version},
+			org.fusesource.camel.component.sap.model.rfc;version=${project.version},
+			org.fusesource.camel.component.sap.model.rfc.impl;version=${project.version},
+			org.fusesource.camel.component.sap.util;version=${project.version},
+			org.eclipse.emf.ecore
+		</fuse.osgi.export>
+		<fuse.osgi.services.export>org.apache.camel.spi.ComponentResolver;component=sap</fuse.osgi.services.export>
+		<fuse.osgi.embed.dependency>
+			org.eclipse.emf.common,
+			org.eclipse.emf.ecore,
+			org.eclipse.emf.ecore.xmi,
+			org.eclipse.emf.edit,
+			org.fusesource.camel.component.sap,
+			org.fusesource.camel.component.sap.model
+			org.fusesource.camel.component.sap.model.edit
+		</fuse.osgi.embed.dependency>
 	</properties>
 
 	<dependencies>

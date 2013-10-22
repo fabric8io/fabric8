@@ -27,7 +27,7 @@
 
 	<groupId>org.fusesource.sap.example</groupId>
 	<artifactId>camel-example-sap</artifactId>
-	<packaging>jar</packaging>
+	<packaging>bundle</packaging>
 
 	<name>[TODO]Camel SAP Example</name>
 	<url>http://www.myorganization.org</url>
@@ -35,6 +35,13 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<fuse.osgi.import>*</fuse.osgi.import>
+		<fuse.osgi.export>
+			org.fusesource.sap.example;version=${project.version},
+			org.fusesource.sap.example.bean;version=${project.version},
+			org.fusesource.sap.example.jaxb;version=${project.version},
+			org.fusesource.sap.example.processor;version=${project.version}
+		</fuse.osgi.export>
 	</properties>
 
 	<dependencies>
