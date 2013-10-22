@@ -11,3 +11,4 @@ This directory contains:
   * fuse-cdc-assembly-${fuse-cdc-version}.zip for Windows
   * fuse-cdc-assembly-${fuse-cdc-version}.tar.gz for Unix, Linux and MacOS
 * a sample Fuse CDC assembly definition file
+
