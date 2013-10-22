@@ -23,6 +23,7 @@ import org.apache.karaf.tooling.exam.options.LogLevelOption;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.mq.fabric.FabricDiscoveryAgent;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -43,6 +44,7 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-621] Fix mq/mq-itests")
 public class MQFabricTest extends MQTestSupport {
 
     @After
