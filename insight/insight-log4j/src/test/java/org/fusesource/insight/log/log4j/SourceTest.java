@@ -16,16 +16,16 @@
  */
 package org.fusesource.insight.log.log4j;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertTrue;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 
-/**
- */
+@Ignore("[FABRIC-512] Fix insight tests")
 public class SourceTest {
     private Log4jLogQuery logQuery = new Log4jLogQuery();
     protected String mavenCoords = "org.apache.camel:camel-core:2.10.3";

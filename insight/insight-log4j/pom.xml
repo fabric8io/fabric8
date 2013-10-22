@@ -43,12 +43,10 @@
     <dependency>
       <groupId>log4j</groupId>
       <artifactId>log4j</artifactId>
-      <version>${log4j-version}</version>
     </dependency>
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-log4j12</artifactId>
-      <version>${slf4j-version}</version>
     </dependency>
 
       <!-- override old version of commons-codec -->
@@ -66,14 +64,12 @@
     <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-mapper-asl</artifactId>
-      <version>${jackson-version}</version>
     </dependency>
 
     <!-- testing -->
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-core</artifactId>
-      <version>${camel-version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -81,17 +77,11 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
-          <excludes>
-            <!-- TODO disable this until we can get it to work in the CI build -->
-            <exclude>**/SourceTest.java</exclude>
-          </excludes>
         </configuration>
       </plugin>
     </plugins>
-
-
   </build>
+  
 </project>
