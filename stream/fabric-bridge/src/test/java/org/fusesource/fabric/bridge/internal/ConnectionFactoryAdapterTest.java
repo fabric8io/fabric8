@@ -20,6 +20,7 @@ import org.apache.activemq.pool.PooledConnectionFactory;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,9 @@ import javax.jms.ConnectionFactory;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+@Ignore("[FABRIC-555] Fix stream/fabric-bridge tests")
 public class ConnectionFactoryAdapterTest  {
-	
+
 	private PooledConnectionFactory connectionFactory;
 	private ConnectionFactoryAdapter adapter;
     private static final Logger LOG = LoggerFactory.getLogger(ConnectionFactoryAdapterTest.class);
@@ -57,7 +59,7 @@ public class ConnectionFactoryAdapterTest  {
 		assertNotNull("Null marshaled bytes", bytes);
 		assertFalse("Empty marshaled bytes", bytes.length == 0);
 	}
-	
+
 	@Test
 	public void testUnmarshalByteArray() throws Exception {
 		byte[] bytes = adapter.marshal(connectionFactory);
