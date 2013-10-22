@@ -5,6 +5,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.FabricFeaturesTest;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.junit.After;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -17,6 +18,7 @@ import java.util.Set;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
 public class CamelProfileTest extends FabricFeaturesTest {
 
     @After
