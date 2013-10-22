@@ -190,6 +190,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         assertValid();
         try {
             Bundle bundleFabricZooKeeper = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-zookeeper");
+            Bundle bundleFabricGit = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-git");
 
             for (; ; ) {
                 Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
@@ -212,7 +213,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 delete(newZkDir);
             }
 
+            File gitDir = new File("data/git");
+            if (gitDir.isDirectory()) {
+                delete(gitDir);
+            }
+
             bundleFabricZooKeeper.start();
+            bundleFabricGit.start();
         } catch (Exception e) {
             throw new FabricException("Unable to delete zookeeper configuration", e);
         }
