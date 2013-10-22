@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>gateway-project</artifactId>
+        <groupId>org.fusesource.fabric</groupId>
+        <version>7.3.0.redhat-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>gateway-core</artifactId>
+    <packaging>bundle</packaging>
+    
+    <name>Fuse Gateway :: Core</name>
+
+    <properties>
+        <fuse.osgi.export>
+            org.fusesource.gateway*;version=${fabric.version};-noimport:=true,
+            org.vertx*;version=${fabric.version};-noimport:=true,
+            io.netty*;version=${fabric.version};-noimport:=true,
+        </fuse.osgi.export>
+        <fuse.osgi.import>
+          META-INF.services.*,
+          com.fasterxml*,
+          !com.hazelcast*,
+          !com.barchart.udt*,
+          !com.google.protobuf*,
+          !com.jcraft.jzlib*,
+          !com.sun.nio.sctp*,
+          !gnu.io*,
+          !javassist*,
+          !org.jboss.marshalling*,
+          !sun.misc*,
+          *
+        </fuse.osgi.import>
+        <fuse.osgi.private.pkg>
+        </fuse.osgi.private.pkg>
+      <!-- not required in private.pkg
+          com.sun.nio.sctp*,
+          gnu.io*,
+          javassist*,
+          org.jboss.marshalling*
+          com.google.protobuf*,
+          com.jcraft.jzlib*,
+      -->
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.scr.annotations</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>io.vertx</groupId>
+          <artifactId>vertx-core</artifactId>
+          <version>${vertx-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.fusesource.fabric</groupId>
+            <artifactId>common-util</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+
+</project>

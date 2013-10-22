@@ -172,6 +172,7 @@
         <hawtdispatch-version>1.18</hawtdispatch-version>
         <hawtio-version>1.2-M-redhat-73</hawtio-version>
         <jackson-version>1.9.10</jackson-version>
+        <jackson-2-version>2.2.2</jackson-2-version>
         <jasypt-version>1.9.0</jasypt-version>
         <jaxb-api-version>2.1</jaxb-api-version>
         <jaxb-version>2.1.13</jaxb-version>
@@ -252,6 +253,7 @@
         <sshj.version>0.7.0</sshj.version>
         <surefire-version>2.12</surefire-version>
         <tinybundles-version>1.0.0</tinybundles-version>
+        <vertx-version>2.0.2-final</vertx-version>
         <wagon-webdav-plugin-version>1.0-beta-7</wagon-webdav-plugin-version>
         <war-plugin-version>2.1.1</war-plugin-version>
         <wildfly-version>8.0.0.Alpha4</wildfly-version>
@@ -1413,6 +1415,22 @@
                 <version>${jackson-version}</version>
             </dependency>
             <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-databind</artifactId>
+              <version>${jackson-2-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-core</artifactId>
+              <version>${jackson-2-version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.fasterxml.jackson.core</groupId>
+              <artifactId>jackson-annotations</artifactId>
+              <version>${jackson-2-version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava-version}</version>
@@ -1454,6 +1472,7 @@
         <module>common-util</module>
         <module>fab</module>
         <module>fabric</module>
+        <module>gateway</module>
         <module>insight</module>
         <module>mq</module>
         <module>parent</module>
