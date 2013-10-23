@@ -31,6 +31,7 @@ public class HttpGateway implements Gateway {
     private final Vertx vertx;
     private final ServiceMap serviceMap;
     private final int port;
+    private final String protocol = "http";
     private String host;
     private HttpServer server;
     private HttpGatewayHandler handler;
@@ -39,6 +40,15 @@ public class HttpGateway implements Gateway {
         this.vertx = vertx;
         this.serviceMap = serviceMap;
         this.port = port;
+    }
+
+    @Override
+    public String toString() {
+        return "HttpGateway{" +
+                "protocol='" + protocol + '\'' +
+                ", port=" + port +
+                ", host='" + host + '\'' +
+                '}';
     }
 
     @Override
@@ -71,6 +81,19 @@ public class HttpGateway implements Gateway {
 
     public void setHost(String host) {
         this.host = host;
+    }
+
+    public Vertx getVertx() {
+        return vertx;
+    }
+
+    public ServiceMap getServiceMap() {
+        return serviceMap;
+    }
+
+    @Override
+    public String getProtocol() {
+        return protocol;
     }
 }
 

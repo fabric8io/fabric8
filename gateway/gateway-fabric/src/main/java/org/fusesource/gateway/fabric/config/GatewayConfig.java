@@ -14,28 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.gateway.handlers;
+package org.fusesource.gateway.fabric.config;
 
-import org.fusesource.gateway.ServiceMap;
-import org.vertx.java.core.Vertx;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * The Gateway configuration
  */
-public interface Gateway {
+public class GatewayConfig {
+    private List<ListenConfig> listeners = new ArrayList<ListenConfig>();
 
-    void init();
+    @Override
+    public String toString() {
+        return "GatewayConfig{" +
+                "listeners=" + listeners +
+                '}';
+    }
 
-    void destroy();
+    public List<ListenConfig> getListeners() {
+        return listeners;
+    }
 
-    int getPort();
-
-    String getHost();
-
-    void setHost(String host);
-
-    Vertx getVertx();
-
-    ServiceMap getServiceMap();
-
-    String getProtocol();
+    public void setListeners(List<ListenConfig> listeners) {
+        this.listeners = listeners;
+    }
 }

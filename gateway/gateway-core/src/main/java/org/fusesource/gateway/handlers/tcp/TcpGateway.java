@@ -46,6 +46,15 @@ public class TcpGateway implements Gateway {
     }
 
     @Override
+    public String toString() {
+        return "TcpGateway{" +
+                "protocol='" + protocol + '\'' +
+                ", port=" + port +
+                ", host='" + host + '\'' +
+                '}';
+    }
+
+    @Override
     public void init() {
         if (handler == null) {
             handler = new TcpGatewayHandler(this);
@@ -81,14 +90,17 @@ public class TcpGateway implements Gateway {
         this.host = host;
     }
 
+    @Override
     public Vertx getVertx() {
         return vertx;
     }
 
+    @Override
     public ServiceMap getServiceMap() {
         return serviceMap;
     }
 
+    @Override
     public String getProtocol() {
         return protocol;
     }

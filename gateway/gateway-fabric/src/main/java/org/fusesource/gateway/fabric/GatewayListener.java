@@ -43,8 +43,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Watches a ZooKeeper path for all services inside the path which may take part in the load balancer
  */
-public class GatewayGroup {
-    private static final transient Logger LOG = LoggerFactory.getLogger(GatewayGroup.class);
+public class GatewayListener {
+    private static final transient Logger LOG = LoggerFactory.getLogger(GatewayListener.class);
 
     private final CuratorFramework curator;
     private final String zkPath;
@@ -66,17 +66,17 @@ public class GatewayGroup {
     private volatile TreeCache treeCache;
 
 
-    public GatewayGroup(CuratorFramework curator, String zkPath, ServiceMap serviceMap, Gateway gateway) {
+    public GatewayListener(CuratorFramework curator, String zkPath, Gateway gateway) {
         this.curator = curator;
         this.zkPath = zkPath;
-        this.serviceMap = serviceMap;
+        this.serviceMap = gateway.getServiceMap();
         this.gateway = gateway;
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
     public String toString() {
-        return "GatewayGroup(zkPath: " + zkPath + " gateway: " + gateway + ")";
+        return "GatewayListener(zkPath: " + zkPath + " gateway: " + gateway + ")";
     }
 
     protected TreeCache getTreeCache() {
