@@ -27,10 +27,16 @@ import java.util.Map;
 import java.util.Properties;
 
 public class DataStoreHelpers {
+
+
     public static byte[] toBytes(Properties source) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         source.store(baos, null);
         return baos.toByteArray();
+    }
+
+    public static byte[] toBytes(Map<String, String> source) throws IOException {
+        return toBytes(toProperties(source));
     }
 
     public static Properties toProperties(byte[] source) throws IOException {
@@ -45,6 +51,10 @@ public class DataStoreHelpers {
             rc.put((String) entry.getKey(), (String) entry.getValue());
         }
         return rc;
+    }
+
+    public static Map<String, String> toMap(byte[] source) throws IOException {
+        return toMap(toProperties(source));
     }
 
     public static Properties toProperties(Map<String, String> source) {

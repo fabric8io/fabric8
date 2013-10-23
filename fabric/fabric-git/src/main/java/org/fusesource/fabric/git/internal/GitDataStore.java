@@ -54,8 +54,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.*;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -91,6 +93,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
     public static final String AGENT_METADATA_FILE = "org.fusesource.fabric.agent.properties";
+    private static final String PROPERTIES_SUFFIX = ".properties";
     public static final String TYPE = "git";
 
     /**
@@ -563,6 +566,14 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         return configurations;
     }
 
+    protected Map<String, Map<String, String>> doGetConfigurations(Git git, String profile) throws IOException {
+        assertValid();
+        Map<String, Map<String, String>> configurations = new HashMap<String, Map<String, String>>();
+        File profileDirectory = getProfileDirectory(git, profile);
+        doPutConfigurations(configurations, profileDirectory, profileDirectory);
+        return configurations;
+    }
+
     private void doPutFileConfigurations(Map<String, byte[]> configurations, File profileDirectory, File directory) throws IOException {
         File[] files = directory.listFiles();
         if (files != null) {
@@ -572,6 +583,18 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     configurations.put(relativePath, doLoadFileConfiguration(file));
                 } else if (file.isDirectory()) {
                     doPutFileConfigurations(configurations, profileDirectory, file);
+                }
+            }
+        }
+    }
+
+    private void doPutConfigurations(Map<String, Map<String, String>> configurations, File profileDirectory, File directory) throws IOException {
+        File[] files = directory.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getPath().endsWith(PROPERTIES_SUFFIX)) {
+                    String relativePath = getFilePattern(profileDirectory, file);
+                    configurations.put(DataStoreHelpers.stripSuffix(relativePath, PROPERTIES_SUFFIX), doLoadConfiguration(file));
                 }
             }
         }
@@ -621,6 +644,22 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         }
     }
 
+    protected void doSetConfigurations(Git git, File profileDirectory, String profile, Map<String, Map<String, String>> configurations) throws IOException, GitAPIException {
+        assertValid();
+        Map<String, Map<String, String>> oldCfgs = doGetConfigurations(git, profile);
+
+        for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
+            String pid = entry.getKey();
+            oldCfgs.remove(pid);
+            Map<String, String> newCfg = entry.getValue();
+            doSetConfiguration(git, profile, pid, newCfg);
+        }
+
+        for (String pid : oldCfgs.keySet()) {
+            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, pid));
+        }
+    }
+
     @Override
     public void setFileConfiguration(final String version, final String profile, final String fileName, final byte[] configuration) {
         assertValid();
@@ -646,6 +685,18 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         }
     }
 
+    protected void doSetConfiguration(Git git, String profile, String pid, Map<String, String> configuration) throws IOException, GitAPIException {
+        assertValid();
+        File profileDirectory = getProfileDirectory(git, profile);
+        File file = new File(profileDirectory, pid + PROPERTIES_SUFFIX);
+        if (configuration == null) {
+            doRecursiveDeleteAndRemove(git, file);
+        } else {
+            Files.writeToFile(file, DataStoreHelpers.toBytes(configuration));
+            doAddFiles(git, file);
+        }
+    }
+
     protected File getPidFile(File profileDirectory, String pid) {
         assertValid();
         return new File(profileDirectory, pid);
@@ -653,7 +704,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
     protected String getPidFromFileName(String relativePath) throws IOException {
         assertValid();
-        return DataStoreHelpers.stripSuffix(relativePath, ".properties");
+        return DataStoreHelpers.stripSuffix(relativePath, PROPERTIES_SUFFIX);
     }
 
     @Override
@@ -666,7 +717,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 File file = getPidFile(profileDirectory, pid);
                 if (file.isFile() && file.exists()) {
                     byte[] data = Files.readBytes(file);
-                    return DataStoreHelpers.toMap(DataStoreHelpers.toProperties(data));
+                    return DataStoreHelpers.toMap(data);
                 } else {
                     return new HashMap<String, String>();
                 }
@@ -675,20 +726,18 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     }
 
     @Override
-    public void setConfigurations(String version, String profile, Map<String, Map<String, String>> configurations) {
+    public void setConfigurations(final String version, final String profile, final Map<String, Map<String, String>> configurations) {
         assertValid();
-        Map<String, byte[]> fileConfigs = new HashMap<String, byte[]>();
-        try {
-            for (Map.Entry<String, Map<String, String>> entry : configurations.entrySet()) {
-                String pid = entry.getKey();
-                Map<String, String> map = entry.getValue();
-                byte[] data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(map));
-                fileConfigs.put(pid + ".properties", data);
+        gitOperation(new GitOperation<Void>() {
+            public Void call(Git git, GitContext context) throws Exception {
+                checkoutVersion(git, GitProfiles.getBranch(version, profile));
+                File profileDirectory = getProfileDirectory(git, profile);
+                doSetConfigurations(git, profileDirectory, profile, configurations);
+                context.setPushBranch(version);
+                context.commit("Updated configuration for profile " + profile);
+                return null;
             }
-        } catch (IOException e) {
-            throw FabricException.launderThrowable(e);
-        }
-        setFileConfigurations(version, profile, fileConfigs);
+        });
     }
 
     @Override
@@ -700,7 +749,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         } catch (IOException e) {
             throw FabricException.launderThrowable(e);
         }
-        setFileConfiguration(version, profile, pid + ".properties", data);
+        setFileConfiguration(version, profile, pid + PROPERTIES_SUFFIX, data);
     }
 
     @Override
@@ -1146,7 +1195,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             String[] list = profileDir.list();
             if (list != null) {
                 for (String file : list) {
-                    if (file.endsWith(".properties") || file.endsWith(".mvel")) {
+                    if (file.endsWith(PROPERTIES_SUFFIX) || file.endsWith(".mvel")) {
                         return true;
                     }
                 }
@@ -1237,6 +1286,13 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             return Files.readBytes(file);
         }
         return null;
+    }
+
+    protected Map<String, String> doLoadConfiguration(File file) throws IOException {
+        assertValid();
+        Properties props = new Properties();
+        props.load(new StringReader(Files.toString(file)));
+        return DataStoreHelpers.toMap(props);
     }
 
     protected String getFilePattern(File rootDir, File file) throws IOException {
