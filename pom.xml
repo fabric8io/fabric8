@@ -1472,7 +1472,8 @@
         <module>common-util</module>
         <module>fab</module>
         <module>fabric</module>
-        <module>gateway</module>
+        <!-- has 1.7 vertx dependency
+        <module>gateway</module -->
         <module>insight</module>
         <module>mq</module>
         <module>parent</module>
