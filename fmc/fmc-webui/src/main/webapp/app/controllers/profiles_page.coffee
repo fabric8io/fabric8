@@ -47,7 +47,22 @@ define [
   class CreateNewVersionBody extends FON.TemplateController
     template: jade["profiles_page/create_version.jade"]
     elements:
+      "input[name='name']": "name"
       "ul.parents": "ul"
+
+    initialize: ->
+      super
+      @accept = @options.accept if @options.accept
+
+    maybe_enable_create: (self) ->
+      if !self.validated_control.validate()
+        self.accept.addClass("disabled")
+      else
+        self.accept.removeClass("disabled")
+
+    compare: (text) ->
+      _.find @model, (p) ->
+        p == text
 
     on_render: ->
       collection = new FON.CollectionController
@@ -59,6 +74,28 @@ define [
 
       collection.render()
 
+      @validated_control = new FON.ValidatingTextInput
+        control: @name
+        controller: @
+        validator: (text) =>
+          regex = /^[a-zA-Z0-9_.-]*$/
+          if !text || text == ""
+            ok: false,
+            msg: "You must specify a version name"
+          else if @compare(text)
+            ok: false,
+            msg: "Version name must be unique"
+          else if !regex.test(text)
+            ok: false,
+            msg: "Name can only contain letters, numbers, \u201c-\u201d, \u201c.\u201d and \u201c_\u201d "
+          else
+            ok: true,
+            msg: ""
+        cb: @maybe_enable_create
+
+      @name.bind "DOMNodeInsertedIntoDocument", => @maybe_enable_create @
+
+
 
   class CreateNewVersionDialog extends FON.Dialog
     accept: -> "Create"
@@ -67,6 +104,8 @@ define [
     on_display: (body, options) ->
       controller = new CreateNewVersionBody
         model: @model
+        accept: @accept_btn
+
       body.append controller.render().el
 
     on_accept: (body, options) ->
@@ -152,6 +191,7 @@ define [
         controller: @
         validator: (text) =>
           regex = /^[a-zA-Z0-9_-]*$/
+          regex = /^[a-zA-Z0-9_.-]*$/
           if !text || text == ""
             ok: false,
             msg: "You must specify a profile name"
@@ -161,6 +201,9 @@ define [
           else if @compare(text)
             ok: false,
             msg: "Profile names must be unique"
+          else if !regex.test(text)
+            ok: false,
+            msg: "Name can only contain letters, numbers, \u201c-\u201d, \u201c.\u201d and \u201c_\u201d "
           else
             ok: true,
             msg: ""
