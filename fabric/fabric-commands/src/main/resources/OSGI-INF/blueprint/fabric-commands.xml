@@ -175,7 +175,7 @@
         </action>
       </command>
 
-        <command name="fabric/container-domains">
+        <command name="fabric/container-jmx-domains">
             <action class="org.fusesource.fabric.commands.ContainerDomains">
                 <property name="fabricService" ref="fabricService"/>
             </action>

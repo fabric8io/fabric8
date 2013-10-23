@@ -24,7 +24,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
 import static org.fusesource.fabric.utils.FabricValidations.validateContainersName;
 
-@Command(name = "container-domains", scope = "fabric", description = "Lists a container's JMX domains.")
+@Command(name = "container-jmx-domains", scope = "fabric", description = "Lists a container's JMX domains.")
 public class ContainerDomains extends FabricCommand {
 
     @Argument(index = 0, name = "container", description = "The container name", required = true, multiValued = false)
