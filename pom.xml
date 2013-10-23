@@ -170,7 +170,7 @@
         <hadoop-version>1.2.1</hadoop-version>
         <hawtbuf-version>1.9</hawtbuf-version>
         <hawtdispatch-version>1.18</hawtdispatch-version>
-        <hawtio-version>1.2-M-redhat-73</hawtio-version>
+        <hawtio-version>1.2-M-redhat-74</hawtio-version>
         <jackson-version>1.9.10</jackson-version>
         <jackson-2-version>2.2.2</jackson-2-version>
         <jasypt-version>1.9.0</jasypt-version>
