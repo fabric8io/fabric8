@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory
 import reflect.BeanProperty
 import java.util.{Properties, Dictionary}
 import collection.mutable.HashMap
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.{AtomicInteger, AtomicBoolean}
 import org.springframework.core.io.Resource
 import org.apache.activemq.spring.Utils
 import org.apache.xbean.spring.context.ResourceXmlApplicationContext
@@ -206,6 +206,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
 
 
     val started = new AtomicBoolean
+    val startAttempt = new AtomicInteger
 
     var pool_enabled = false
     def update_pool_state = this.synchronized {
@@ -323,7 +324,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     def start = {
       // Startup async so that we do not block the ZK event thread.
       def trystartup:Unit = {
-        start_thread = new Thread("Startup for ActiveMQ Broker: " + name) {
+        start_thread = new Thread("Startup for ActiveMQ Broker-" + startAttempt.incrementAndGet() + ": " + name) {
 
           def configure_ports(service: BrokerService, properties: Properties) = {
             service.getTransportConnectors.foreach {
@@ -363,18 +364,21 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
 
               // ok boot up the server..
               server = createBroker(config, properties)
+              configure_ports(server._2, properties)
+              server._2.start()
+              info("Broker %s has started.", name)
+
+              server._2.waitUntilStarted
               server._2.addShutdownHook(new Runnable(){
                 def run:Unit = {
                   // Start up the server again if it shutdown.  Perhaps
                   // it has lost a Locker and wants a restart.
-                  if(started.get){
+                  if(started.get && server._2.isRestartAllowed && server._2.isRestartRequested){
+                    info("restarting after shutdown on restart request")
                     trystartup
                   }
                 }
               })
-              configure_ports(server._2, properties)
-              server._2.start()
-              info("Broker %s has started.", name)
 
               if( replicating ) {
                 discoveryAgent = new FabricDiscoveryAgent
@@ -410,7 +414,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
                 }
                 start_failure = e
             } finally {
-              if(started.get && start_failure!=null && !isInterrupted){
+              if(started.get && start_failure!=null && !isInterrupted && server._2.isRestartAllowed){
                 trystartup
               } else {
                 start_thread = null
