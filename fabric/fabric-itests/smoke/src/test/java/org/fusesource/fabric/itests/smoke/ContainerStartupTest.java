@@ -39,6 +39,7 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
 public class ContainerStartupTest extends FabricTestSupport {
 
 
@@ -62,7 +63,6 @@ public class ContainerStartupTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testLocalFabricClusterWithPassword() throws Exception {
         System.out.println(executeCommand("fabric:create -n --clean --zookeeper-password testpassword root"));
 
