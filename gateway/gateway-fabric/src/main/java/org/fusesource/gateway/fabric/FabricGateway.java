@@ -24,17 +24,13 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
-import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.common.util.ClassLoaders;
 import org.fusesource.fabric.api.scr.AbstractComponent;
-import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.gateway.ServiceMap;
 import org.fusesource.gateway.fabric.config.GatewayConfig;
+import org.fusesource.gateway.fabric.config.GatewaysConfig;
 import org.fusesource.gateway.fabric.config.ListenConfig;
-import org.fusesource.gateway.handlers.http.HttpGateway;
-import org.fusesource.gateway.handlers.tcp.TcpGateway;
 import org.osgi.framework.Bundle;
 import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
@@ -43,7 +39,6 @@ import org.vertx.java.core.Vertx;
 import org.vertx.java.core.VertxFactory;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +82,7 @@ public class FabricGateway extends AbstractComponent {
                     vertx = VertxFactory.newVertx();
                 }
 
-                GatewayConfig config = loadConfig();
+                GatewaysConfig config = loadConfig();
                 if (config != null) {
                     createListeners(config);
                 }
@@ -116,29 +111,29 @@ public class FabricGateway extends AbstractComponent {
         return curator;
     }
 
-    protected void createListeners(GatewayConfig config) {
-        List<ListenConfig> listeners = config.getListeners();
-        for (ListenConfig listenerConfig : listeners) {
-            createListener(listenerConfig);
+    protected void createListeners(GatewaysConfig config) {
+        List<GatewayConfig> listeners = config.getGateways();
+        for (GatewayConfig gatewayConfig : listeners) {
+            createListener(gatewayConfig);
         }
     }
 
-    protected void createListener(ListenConfig listenerConfig) {
+    protected void createListener(GatewayConfig config) {
         try {
-            GatewayListener listener = listenerConfig.createListener(this);
+            GatewayListener listener = config.createListener(this);
             if (listener != null) {
                 listener.init();
-                LOG.info("Started " + listener + " from " + listenerConfig);
+                LOG.info("Started " + listener + " from " + config);
                 listeners.add(listener);
             }
         } catch (Exception e) {
-            LOG.info("Failed to create listener " + listenerConfig + ". Reason: " + e);
+            LOG.info("Failed to create listener " + config + ". Reason: " + e);
         }
     }
 
-    protected GatewayConfig loadConfig() throws IOException {
+    protected GatewaysConfig loadConfig() throws IOException {
         try {
-            return mapper.readValue(new URL(configurationUrl), GatewayConfig.class);
+            return mapper.readValue(new URL(configurationUrl), GatewaysConfig.class);
         } catch (IOException e) {
             LOG.error("Failed to load configuration " + configurationUrl + ". Reason: " + e, e);
             return null;

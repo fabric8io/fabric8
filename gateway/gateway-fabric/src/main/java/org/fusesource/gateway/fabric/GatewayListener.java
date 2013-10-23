@@ -48,12 +48,12 @@ public class GatewayListener {
 
     private final CuratorFramework curator;
     private final String zkPath;
+    private final ServiceMap serviceMap;
+    private final List<Gateway> gateways;
 
     private final ExecutorService treeCacheExecutor = Executors.newSingleThreadExecutor();
     private final AtomicBoolean active = new AtomicBoolean(false);
     private final ObjectMapper mapper = new ObjectMapper();
-    private final ServiceMap serviceMap;
-    private final Gateway gateway;
 
     private final PathChildrenCacheListener treeListener = new PathChildrenCacheListener() {
         @Override
@@ -66,17 +66,17 @@ public class GatewayListener {
     private volatile TreeCache treeCache;
 
 
-    public GatewayListener(CuratorFramework curator, String zkPath, Gateway gateway) {
+    public GatewayListener(CuratorFramework curator, String zkPath, ServiceMap serviceMap, List<Gateway> gateways) {
         this.curator = curator;
         this.zkPath = zkPath;
-        this.serviceMap = gateway.getServiceMap();
-        this.gateway = gateway;
+        this.serviceMap = serviceMap;
+        this.gateways = gateways;
         mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Override
     public String toString() {
-        return "GatewayListener(zkPath: " + zkPath + " gateway: " + gateway + ")";
+        return "GatewayListener(zkPath: " + zkPath + " gateways: " + gateways + ")";
     }
 
     protected TreeCache getTreeCache() {
@@ -92,17 +92,22 @@ public class GatewayListener {
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
             LOG.info("Started a group listener for " + zkPath);
-            gateway.init();
+            for (Gateway gateway : gateways) {
+                gateway.init();
+            }
         }
     }
 
     public void destroy() {
         if (active.compareAndSet(true, false)) {
-            gateway.destroy();
             treeCache.getListenable().removeListener(treeListener);
             Closeables.closeQuitely(treeCache);
             treeCache = null;
             treeCacheExecutor.shutdownNow();
+
+            for (Gateway gateway : gateways) {
+                gateway.destroy();
+            }
         }
     }
 

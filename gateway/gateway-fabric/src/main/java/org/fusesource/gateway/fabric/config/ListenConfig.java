@@ -35,7 +35,6 @@ import org.vertx.java.core.Vertx;
 public class ListenConfig {
     private static final transient Logger LOG = LoggerFactory.getLogger(ListenConfig.class);
 
-    private String zooKeeperPath;
     private int port;
     private String host;
     private String protocol;
@@ -43,8 +42,7 @@ public class ListenConfig {
     @Override
     public String toString() {
         return "ListenConfig{" +
-                "zooKeeperPath='" + zooKeeperPath + '\'' +
-                ", protocol='" + protocol + '\'' +
+                "protocol='" + protocol + '\'' +
                 ", port=" + port +
                 ", host='" + host + '\'' +
                 '}';
@@ -60,15 +58,13 @@ public class ListenConfig {
         if (port != that.port) return false;
         if (host != null ? !host.equals(that.host) : that.host != null) return false;
         if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) return false;
-        if (!zooKeeperPath.equals(that.zooKeeperPath)) return false;
 
         return true;
     }
 
     @Override
     public int hashCode() {
-        int result = zooKeeperPath.hashCode();
-        result = 31 * result + port;
+        int result = port;
         result = 31 * result + (host != null ? host.hashCode() : 0);
         result = 31 * result + (protocol != null ? protocol.hashCode() : 0);
         return result;
@@ -80,25 +76,9 @@ public class ListenConfig {
 
 
     /**
-     * Factory method to create a {@link org.fusesource.gateway.fabric.GatewayListener} from
-     * the configuration
+     * Factory method to create a new gateway for this configuration
      */
-    public GatewayListener createListener(FabricGateway owner) {
-        Gateway gateway = createGateway(owner);
-        String zkPath = getZooKeeperPath();
-        if (zkPath == null) {
-            LOG.warn("No ZooKeeperPath for listener so ignoring " + this);
-            return null;
-        }
-        if (gateway == null) {
-            return null;
-        }
-        CuratorFramework curator = owner.getCurator();
-        return new GatewayListener(curator, zkPath, gateway);
-    }
-
-    protected Gateway createGateway(FabricGateway owner) {
-        ServiceMap serviceMap = new ServiceMap();
+    public Gateway createGateway(FabricGateway owner, ServiceMap serviceMap) {
         Vertx vertx = owner.getVertx();
         Gateway answer;
         if (isWebProtocol()) {
@@ -137,13 +117,5 @@ public class ListenConfig {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
-    }
-
-    public String getZooKeeperPath() {
-        return zooKeeperPath;
-    }
-
-    public void setZooKeeperPath(String zooKeeperPath) {
-        this.zooKeeperPath = zooKeeperPath;
     }
 }
