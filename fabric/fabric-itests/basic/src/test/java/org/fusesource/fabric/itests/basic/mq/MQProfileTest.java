@@ -25,7 +25,6 @@ import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
 public class MQProfileTest extends FabricTestSupport {
 
     ArrayList<Container> containers = new ArrayList<Container>();
@@ -62,7 +61,7 @@ public class MQProfileTest extends FabricTestSupport {
 
         containers.addAll(ContainerBuilder.create().withName("example").withProfiles("example-mq").assertProvisioningResult().build());
         // give it a bit time
-        Thread.sleep(5000);
+        Thread.sleep(10000);
         assertEquals("Producer not present", 1, bean.getTotalProducerCount());
         assertEquals("Consumer not present", 1, bean.getTotalConsumerCount());
     }
@@ -91,7 +90,7 @@ public class MQProfileTest extends FabricTestSupport {
 
         containers.addAll(ContainerBuilder.create().withName("example").withProfiles("example-mq").assertProvisioningResult().build());
         // give it a bit time
-        Thread.sleep(5000);
+        Thread.sleep(10000);
 
         installAndCheckFeature("activemq");
 
@@ -116,6 +115,7 @@ public class MQProfileTest extends FabricTestSupport {
         waitForProvisionSuccess(container2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 
         installAndCheckFeature("activemq");
+        Thread.sleep(10000);
 
         BrokerViewMBean broker1 = (BrokerViewMBean)getMBean(container1, new ObjectName("org.apache.activemq:type=Broker,brokerName=ms-broker"), BrokerViewMBean.class);
 
@@ -149,7 +149,8 @@ public class MQProfileTest extends FabricTestSupport {
         containers.add(container2);
         waitForProvisionSuccess(container2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 
-        containers.addAll(ContainerBuilder.create().withName("example").withProfiles("example-mq-cluster").assertProvisioningResult().build());
+        containers.addAll(ContainerBuilder.create().withName("example-producer").withProfiles("example-mq-producer").withProfiles("mq-client-us-east").assertProvisioningResult().build());
+        containers.addAll(ContainerBuilder.create().withName("example-consumer").withProfiles("example-mq-consumer").withProfiles("mq-client-us-west").assertProvisioningResult().build());
         // give it a bit time
         Thread.sleep(10000);
 
