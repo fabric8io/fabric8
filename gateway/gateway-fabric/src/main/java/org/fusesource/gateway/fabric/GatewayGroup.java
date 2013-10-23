@@ -91,7 +91,7 @@ public class GatewayGroup {
             treeCache = new TreeCache(curator, zkPath, true, false, true, treeCacheExecutor);
             treeCache.start(TreeCache.StartMode.NORMAL);
             treeCache.getListenable().addListener(treeListener);
-            System.out.println("Started a group listener for " + zkPath);
+            LOG.info("Started a group listener for " + zkPath);
             gateway.init();
         }
     }
@@ -136,8 +136,6 @@ public class GatewayGroup {
         try {
             dto = mapper.readValue(data, ServiceDTO.class);
             expandPropertyResolvers(dto);
-            System.out.println("Got event type " + type + " path: " + path + " data: " + dto);
-
             if (remove) {
                 serviceMap.serviceRemoved(path, dto);
             } else {

@@ -60,7 +60,7 @@ public class FabricGateway extends AbstractComponent {
 
     @Activate
     public void activate(ComponentContext context, final Map<String, String> properties) throws Exception {
-        System.out.println("Activating the gateway " + this);
+        LOG.info("Activating the gateway " + this);
 
         // TODO support injecting of the ClassLoader without depending on OSGi APIs
         // see https://github.com/jboss-fuse/fuse/issues/104
