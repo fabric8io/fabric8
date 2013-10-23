@@ -18,6 +18,7 @@ package org.fusesource.fabric.boot.commands.support;
 
 import org.apache.felix.gogo.commands.Option;
 import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.FabricAuthenticationException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
@@ -131,6 +132,20 @@ public abstract class ContainerCreateSupport extends FabricCommand {
         }
     }
 
+    protected void rethrowAuthenticationErrors(CreateContainerMetadata[] metadata) {
+        FabricAuthenticationException rethrow = null;
+        for (CreateContainerMetadata md : metadata) {
+            if (md.getFailure() instanceof FabricAuthenticationException) {
+                rethrow = (FabricAuthenticationException) md.getFailure();
+            } else {
+                return;
+            }
+        }
+        if (rethrow != null) {
+            throw rethrow;
+        }
+    }
+
     private static Profile getProfile(Profile[] profiles, String name, Version version) {
         if (profiles == null || profiles.length == 0) {
             return null;
@@ -144,8 +159,6 @@ public abstract class ContainerCreateSupport extends FabricCommand {
 
         return null;
     }
-
-
 
     public Map<String, String> getDataStoreProperties() {
         Map<String, String> options = new HashMap<String, String>(fabricService.getDataStore().getDataStoreProperties());

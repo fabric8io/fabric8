@@ -24,7 +24,7 @@ public class CreateContainerBasicMetadata<O extends CreateContainerOptions> impl
 
     static final long serialVersionUID = 7432148266874950445L;
 
-    private String containerName;
+    private String containerName = "<not available>";
     private O createOptions;
     private transient Throwable failure;
     private transient Container container;

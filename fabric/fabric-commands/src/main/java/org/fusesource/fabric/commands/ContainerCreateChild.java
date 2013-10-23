@@ -77,9 +77,10 @@ public class ContainerCreateChild extends ContainerCreateSupport {
 
         try {
             metadatas = fabricService.createContainers(builder.build());
+            rethrowAuthenticationErrors(metadatas);
             ShellUtils.storeFabricCredentials(session, jmxUser, jmxPassword);
         } catch (FabricAuthenticationException ex) {
-            //If authentication fails, prompts for credentilas and try again.
+            //If authentication fails, prompts for credentials and try again.
             username = null;
             password = null;
             promptForJmxCredentialsIfNeeded();
