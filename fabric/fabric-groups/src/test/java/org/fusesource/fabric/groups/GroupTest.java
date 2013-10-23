@@ -35,6 +35,7 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+@Ignore("[FABRIC-509] Fix fabric/fabric-groups tests")
 public class GroupTest {
 
     private GroupListener listener = new GroupListener<NodeState>() {
@@ -71,7 +72,6 @@ public class GroupTest {
     }
 
     @Test
-    @Ignore("[FABRIC-509] Fix fabric/fabric-groups tests")
     public void testJoinAfterConnect() throws Exception {
         int port = findFreePort();
 
@@ -107,7 +107,6 @@ public class GroupTest {
     }
 
     @Test
-    @Ignore("[FABRIC-509] Fix fabric/fabric-groups tests")
     public void testJoinBeforeConnect() throws Exception {
         int port = findFreePort();
 
@@ -141,7 +140,6 @@ public class GroupTest {
     }
 
     @Test
-    @Ignore("[FABRIC-509] Fix fabric/fabric-groups tests")
     public void testRejoinAfterDisconnect() throws Exception {
         int port = findFreePort();
 
