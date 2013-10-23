@@ -44,6 +44,7 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerImpl;
+import org.fusesource.fabric.internal.ProfileOverlayImpl;
 import org.fusesource.fabric.utils.AuthenticationUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -135,7 +136,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + DataStore.DATASTORE_TYPE_PID +"." + key + "=" + value);
         }
 
-        Profile defaultProfile = parent.getVersion().getProfile("default");
+        Profile defaultProfile = new ProfileOverlayImpl(parent.getVersion().getProfile("default"), true, fabricService.get().getDataStore());
         String featuresUrls = collectionAsString(defaultProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
 
