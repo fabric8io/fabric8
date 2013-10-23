@@ -78,6 +78,7 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
                                     }
                                 };
                                 client = createClient(url, handler);
+                                System.out.println("Created client " + client);
                             } catch (MalformedURLException e) {
                                 LOG.warn("Failed to parse URL: " + urlText + ". " + e, e);
                             }
@@ -87,6 +88,7 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
             }
         }
         if (client == null) {
+            System.out.println("No connection available so closing");
             // fail to route
             socket.close();
         }
