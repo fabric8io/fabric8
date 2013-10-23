@@ -34,6 +34,8 @@ import org.vertx.java.core.net.NetSocket;
 import org.vertx.java.core.streams.Pump;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
 
@@ -71,8 +73,9 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
                         if (Strings.notEmpty(urlString)) {
                             // lets create a client for this request...
                             try {
-                                URL url = new URL(urlString);
-                                String urlProtocol = url.getProtocol();
+                                URI uri = new URI(urlString);
+                                //URL url = new URL(urlString);
+                                String urlProtocol = uri.getScheme();
                                 if (Objects.equal(protocol, urlProtocol)) {
                                     Handler<AsyncResult<NetSocket>> handler = new Handler<AsyncResult<NetSocket>>() {
                                         public void handle(final AsyncResult<NetSocket> asyncSocket) {
@@ -81,12 +84,14 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
                                             Pump.createPump(socket, clientSocket).start();
                                         }
                                     };
-                                    client = createClient(url, handler);
+                                    client = createClient(uri, handler);
                                     System.out.println("Created client " + client);
                                     break;
                                 }
                             } catch (MalformedURLException e) {
                                 LOG.warn("Failed to parse URL: " + urlString + ". " + e, e);
+                            } catch (URISyntaxException e) {
+                                LOG.warn("Failed to parse URI: " + urlString + ". " + e, e);
                             }
                         }
                     }
@@ -103,7 +108,7 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     /**
      * Creates a new client for the given URL and handler
      */
-    protected NetClient createClient(URL url, Handler<AsyncResult<NetSocket>> handler) throws MalformedURLException {
+    protected NetClient createClient(URI url, Handler<AsyncResult<NetSocket>> handler) throws MalformedURLException {
         NetClient client = vertx.createNetClient();
         return client.connect(url.getPort(), url.getHost(), handler);
     }
