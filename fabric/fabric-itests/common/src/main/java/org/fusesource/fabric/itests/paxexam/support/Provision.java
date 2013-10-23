@@ -71,6 +71,9 @@ public class Provision {
      * @throws Exception
      */
     public static void containersAlive(Collection<Container> containers, boolean alive, Long timeout) throws Exception {
+        if (containers.isEmpty()) {
+            return;
+        }
         CompletionService<Boolean> completionService = new ExecutorCompletionService<Boolean>(EXECUTOR);
         List<Future<Boolean>> waitForProvisionTasks = new LinkedList<Future<Boolean>>();
         StringBuilder sb = new StringBuilder();

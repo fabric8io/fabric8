@@ -17,6 +17,10 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.DynamicReference;
+import org.fusesource.fabric.api.DynamicReferenceException;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.scr.InvalidComponentException;
 
 import java.util.concurrent.Callable;
 
@@ -37,10 +41,22 @@ public class WaitForAliveTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        for (long t = 0; (container.isAlive() != alive  && t < provisionTimeOut); t += 2000L) {
-            Thread.sleep(2000L);
-            System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive());
+        boolean isAlive = false;
+        for (long t = 0; (isAlive != alive  && t < provisionTimeOut); t += 2000L) {
+            try {
+                System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive());
+                isAlive = container.isAlive();
+                if (!isAlive) {
+                    Thread.sleep(2000L);
+                }
+            } catch (DynamicReferenceException e) {
+                return false;
+            } catch (FabricException e) {
+              //Ignore and retry
+            } catch (InvalidComponentException e) {
+                //Ignore and retry.
+            }
         }
-        return container.isAlive() == alive;
+        return isAlive == alive;
     }
 }

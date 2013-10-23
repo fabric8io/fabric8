@@ -241,13 +241,13 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     public FabricService getFabricService() {
-        FabricService fabricService = ServiceLocator.getOsgiService(FabricService.class);
+        FabricService fabricService = ServiceProxy.getOsgiServiceProxy(FabricService.class);
         assertNotNull(fabricService);
         return fabricService;
     }
 
     public CuratorFramework getCurator() {
-        CuratorFramework curator = ServiceLocator.getOsgiService(CuratorFramework.class);
+        CuratorFramework curator = ServiceProxy.getOsgiServiceProxy(CuratorFramework.class);
         assertNotNull(curator);
         return curator;
     }

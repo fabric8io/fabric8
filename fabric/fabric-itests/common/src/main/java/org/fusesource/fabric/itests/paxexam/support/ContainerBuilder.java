@@ -41,6 +41,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+import static org.fusesource.fabric.itests.paxexam.support.ServiceProxy.getOsgiServiceProxy;
 
 public abstract class ContainerBuilder<T extends ContainerBuilder, B extends CreateContainerBasicOptions.Builder> {
 
@@ -185,7 +186,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
     }
 
     public Future<Set<Container>> prepareAsync(B builder) {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
         CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
         return completionService.submit(new CreateContainerTask(fabricService, builder));
     }
@@ -199,7 +200,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      */
     public Set<Container> build(Collection<B> buildersList) {
         Set<Container> containers = new HashSet<Container>();
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
         CompletionService<Set<Container>> completionService = new ExecutorCompletionService<Set<Container>>(executorService);
 
         int tasks = 0;
@@ -259,7 +260,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * Destroy all containers
      */
     public static void destroy() {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
         for (Container c : CONTAINERS) {
             try {
                 //We want to use the latest metadata
@@ -277,7 +278,7 @@ public abstract class ContainerBuilder<T extends ContainerBuilder, B extends Cre
      * The container directory will not get deleted.
      */
     public static void stop() {
-        FabricService fabricService = getOsgiService(FabricService.class);
+        FabricService fabricService = getOsgiServiceProxy(FabricService.class);
         for (Container c : CONTAINERS) {
             try {
                 //We want to use the latest metadata
