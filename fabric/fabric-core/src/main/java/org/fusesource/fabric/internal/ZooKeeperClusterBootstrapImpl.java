@@ -17,6 +17,7 @@
 package org.fusesource.fabric.internal;
 
 import org.apache.curator.framework.CuratorFramework;
+
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
@@ -66,6 +67,23 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * ZooKeeperClusterBootstrap
+ * |_ ConfigurationAdmin
+ * |_ DataStoreRegistrationHandler (@see DataStoreManager)
+ * |  |_ DataStorePlugin (optional,multiple) (@see CachingGitDataStore)
+ * |     |_ CuratorFramework (@see ManagedCuratorFramework)
+ * |     |_ GitService (@see FabricGitServiceImpl)
+ * |     |_ PlaceholderResolver (optional,multiple)
+ * |_ FabricService (@see FabricServiceImpl)
+ *    |_ ConfigurationAdmin
+ *    |_ CuratorFramework --^
+ *    |_ DataStorePlugin --^
+ *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
+ *    |  |_ FabricService --^
+ *    |_ PortService (@see ZookeeperPortService)
+ *       |_ CuratorFramework --^
+ */
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
 @Service(ZooKeeperClusterBootstrap.class)
