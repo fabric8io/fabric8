@@ -147,6 +147,11 @@ public class ProfileFacade implements Profile, HasId {
     }
 
     @Override
+    public Profile getOverlay(boolean substitute) {
+        throw new UnsupportedOperationException("The method is not yet implemented.");
+    }
+
+    @Override
     public boolean isOverlay() {
         return getFieldValue("overlay");
     }
