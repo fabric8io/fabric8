@@ -29,6 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vertx.java.core.Vertx;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Represents a listener
  */
@@ -38,6 +41,7 @@ public class ListenConfig {
     private int port;
     private String host;
     private String protocol;
+    private List<RuleConfig> rules = new ArrayList<RuleConfig>();
 
     @Override
     public String toString() {
@@ -45,6 +49,7 @@ public class ListenConfig {
                 "protocol='" + protocol + '\'' +
                 ", port=" + port +
                 ", host='" + host + '\'' +
+                ", rules=" + rules +
                 '}';
     }
 
@@ -58,6 +63,7 @@ public class ListenConfig {
         if (port != that.port) return false;
         if (host != null ? !host.equals(that.host) : that.host != null) return false;
         if (protocol != null ? !protocol.equals(that.protocol) : that.protocol != null) return false;
+        if (rules != null ? !rules.equals(that.rules) : that.rules != null) return false;
 
         return true;
     }
@@ -67,6 +73,7 @@ public class ListenConfig {
         int result = port;
         result = 31 * result + (host != null ? host.hashCode() : 0);
         result = 31 * result + (protocol != null ? protocol.hashCode() : 0);
+        result = 31 * result + (rules != null ? rules.hashCode() : 0);
         return result;
     }
 
@@ -117,5 +124,13 @@ public class ListenConfig {
 
     public void setProtocol(String protocol) {
         this.protocol = protocol;
+    }
+
+    public List<RuleConfig> getRules() {
+        return rules;
+    }
+
+    public void setRules(List<RuleConfig> rules) {
+        this.rules = rules;
     }
 }

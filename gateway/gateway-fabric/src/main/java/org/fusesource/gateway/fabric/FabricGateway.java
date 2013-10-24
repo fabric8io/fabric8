@@ -28,6 +28,7 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fusesource.common.util.ClassLoaders;
 import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.fusesource.gateway.fabric.config.ConfigParser;
 import org.fusesource.gateway.fabric.config.GatewayConfig;
 import org.fusesource.gateway.fabric.config.GatewaysConfig;
 import org.fusesource.gateway.fabric.config.ListenConfig;
@@ -59,10 +60,9 @@ public class FabricGateway extends AbstractComponent {
 
     private List<GatewayListener> listeners = new ArrayList<GatewayListener>();
     private Vertx vertx;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ConfigParser configParser = new ConfigParser();
 
     public FabricGateway() {
-        mapper.configure(DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     @Activate
@@ -133,7 +133,7 @@ public class FabricGateway extends AbstractComponent {
 
     protected GatewaysConfig loadConfig() throws IOException {
         try {
-            return mapper.readValue(new URL(configurationUrl), GatewaysConfig.class);
+            return configParser.load(configurationUrl);
         } catch (IOException e) {
             LOG.error("Failed to load configuration " + configurationUrl + ". Reason: " + e, e);
             return null;
