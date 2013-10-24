@@ -1472,8 +1472,6 @@
         <module>common-util</module>
         <module>fab</module>
         <module>fabric</module>
-        <!-- has 1.7 vertx dependency
-        <module>gateway</module -->
         <module>insight</module>
         <module>mq</module>
         <module>parent</module>
@@ -1521,5 +1519,17 @@
                 <hawtio-version>1.2-SNAPSHOT</hawtio-version>
             </properties>
         </profile>
+
+        <profile>
+          <id>jdk17</id>
+          <activation>
+            <jdk>[1.7,)</jdk>
+          </activation>
+
+          <modules>
+            <module>gateway</module>
+          </modules>
+        </profile>
+
     </profiles>
 </project>
