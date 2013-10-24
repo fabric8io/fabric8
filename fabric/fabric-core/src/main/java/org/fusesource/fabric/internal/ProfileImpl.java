@@ -240,6 +240,10 @@ public class ProfileImpl implements Profile {
         return new ProfileOverlayImpl(this);
     }
 
+    public Profile getOverlay(boolean substitute) {
+        return new ProfileOverlayImpl(this, substitute, getService().getDataStore());
+    }
+
     @Override
     public Map<String, byte[]> getFileConfigurations() {
         return getService().getDataStore().getFileConfigurations(version, id);

@@ -127,6 +127,13 @@ public interface Profile extends Comparable<Profile>, HasId {
     Profile getOverlay();
 
     /**
+     * Same as getOverlay() but also perform variable substitutions
+     * @param substitute
+     * @return
+     */
+    Profile getOverlay(boolean substitute);
+
+    /**
      * Indicate if this profile is an overlay or not.
      *
      * @return

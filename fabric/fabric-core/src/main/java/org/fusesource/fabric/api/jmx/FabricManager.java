@@ -630,7 +630,7 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public Map<String, Object> getProfileFeatures(String versionId, String profileId) {
         Profile profile = getFabricService().getVersion(versionId).getProfile(profileId);
-        Profile overlay = profile.getOverlay();
+        Profile overlay = profile.getOverlay(true);
 
         Map<String, Boolean> isParentFeature = new HashMap<String, Boolean>();
 

@@ -39,6 +39,10 @@ public class ProfileOverlayImpl implements Profile {
         this(self, false, null);
     }
 
+    public ProfileOverlayImpl(Profile self, boolean substitute) {
+        this(self, substitute, null);
+    }
+
     public ProfileOverlayImpl(Profile self, boolean substitute, DataStore dataStore) {
         this.self = self;
         this.substitute = substitute;
@@ -194,6 +198,11 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public Profile getOverlay() {
         return this;
+    }
+
+    @Override
+    public Profile getOverlay(boolean substitute) {
+        return new ProfileOverlayImpl(this.self, substitute);
     }
 
     @Override
