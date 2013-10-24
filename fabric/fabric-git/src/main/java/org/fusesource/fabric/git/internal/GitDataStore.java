@@ -211,7 +211,13 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 threadPool.shutdown();
                 try {
                     //Give some time to the running task to complete.
-                    threadPool.awaitTermination(5, TimeUnit.SECONDS);
+                    if (!threadPool.awaitTermination(5, TimeUnit.SECONDS)) {
+                        threadPool.shutdownNow();
+                    }
+                } catch (InterruptedException ex) {
+                    threadPool.shutdownNow();
+                    // Preserve interrupt status.
+                    Thread.currentThread().interrupt();
                 } catch (Exception ex) {
                     throw FabricException.launderThrowable(ex);
                 }
