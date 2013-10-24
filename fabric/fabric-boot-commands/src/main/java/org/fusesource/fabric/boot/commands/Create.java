@@ -59,7 +59,7 @@ public class Create extends EnsembleCommandSupport implements org.fusesource.fab
     String bindAddress;
     @Option(name = "-n", aliases = "--non-managed", multiValued = false, description = "Flag to keep the container non managed")
     private boolean nonManaged;
-    @Option(name = "--wait-for-provisioning", multiValued = false, description = "Flag to not wait for the initial container provisioning")
+    @Option(name = "--wait-for-provisioning", multiValued = false, description = "Flag to wait for the initial container provisioning")
     private boolean waitForProvisioning=false;
     @Option(name = "--provision-timeout", multiValued = false, description = "How long to wait (milliseconds) for the initial container provisioning")
     private long provisionTimeout=120000L;
