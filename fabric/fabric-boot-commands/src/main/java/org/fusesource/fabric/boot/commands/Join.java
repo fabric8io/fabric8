@@ -25,6 +25,7 @@ import org.apache.felix.gogo.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.zookeeper.KeeperException;
 import org.fusesource.fabric.api.ContainerOptions;
+import org.fusesource.fabric.internal.FabricConstants;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
@@ -232,12 +233,20 @@ public class Join extends OsgiCommandSupport implements org.fusesource.fabric.bo
     public void installBundles() throws BundleException {
         BundleUtils bundleUtils = new BundleUtils(bundleContext);
         Bundle bundleFabricCommands = bundleUtils.findBundle("org.fusesource.fabric.fabric-commands");
+        if (bundleFabricCommands == null) {
+            bundleFabricCommands = bundleUtils.installBundle("mvn:org.fusesource.fabric/fabric-commands/" + FabricConstants.FABRIC_VERSION);
+        }
         bundleFabricCommands.start();
+        Bundle bundleFabricAgent = bundleUtils.findBundle("org.fusesource.fabric.fabric-agent");
 
-        if (!nonManaged) {
-            Bundle bundleFabricConfigAdmin = bundleUtils.findBundle("org.fusesource.fabric.fabric-configadmin");
-            Bundle bundleFabricAgent = bundleUtils.findBundle("org.fusesource.fabric.fabric-agent");
-            bundleFabricConfigAdmin.start();
+        if (nonManaged && bundleFabricAgent == null) {
+            //do nothing
+        } else if (nonManaged && bundleFabricAgent != null) {
+            bundleFabricAgent.stop();
+        } else if (bundleFabricAgent == null) {
+            bundleFabricAgent = bundleUtils.installBundle("mvn:org.fusesource.fabric/fabric-agent/" + FabricConstants.FABRIC_VERSION);
+            bundleFabricAgent.start();
+        } else {
             bundleFabricAgent.start();
         }
     }

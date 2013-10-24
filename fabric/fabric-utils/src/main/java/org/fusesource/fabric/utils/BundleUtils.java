@@ -29,6 +29,10 @@ public class BundleUtils {
         this.bundleContext = bundleContext;
     }
 
+    public Bundle installBundle(String location) throws BundleException {
+            return bundleContext.installBundle(location);
+    }
+
     public Bundle findBundle(String bsn) throws BundleException {
         for (Bundle b : bundleContext.getBundles()) {
             if (b.getSymbolicName() != null && b.getSymbolicName().equals(bsn)) {
