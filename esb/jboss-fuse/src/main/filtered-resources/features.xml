@@ -211,7 +211,8 @@
         <bundle dependency="true">mvn:org.jruby/jruby-stdlib/${jruby.version}</bundle>
         <bundle>mvn:com.google.code.scriptengines/scriptengines-groovy/${scriptengines.version}</bundle>
         <bundle>mvn:com.google.code.scriptengines/scriptengines-javascript/${scriptengines.version}</bundle>
-        <bundle>mvn:com.google.code.scriptengines/scriptengines-jruby/${scriptengines.version}</bundle>
+        <!-- [FABRIC-632] Cannot download scriptengines-jruby 
+        <bundle>mvn:com.google.code.scriptengines/scriptengines-jruby/${scriptengines.version}</bundle -->
         <bundle>mvn:org.apache.servicemix/servicemix-scripting/${servicemix-components-version}</bundle>
     </feature>
     <feature name="servicemix-validation" version="${servicemix-components-version}" resolver="(obr)" start-level='50'>
