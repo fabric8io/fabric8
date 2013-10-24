@@ -74,7 +74,6 @@
         <module>fabric-zookeeper</module>
         <module>fabric-zookeeper-spring</module>
         
-        <module>fuse-fabric</module>
         <!--
         TODO disabled until they work in 2.12 of camel
         <module>fabric-camel-c24io</module>
@@ -107,6 +106,7 @@
                 <module>watcher-dynamic-jaxb</module>
                 <module>watcher-dozer</module>
                 <module>watcher-spring-context</module>
+                <module>fuse-fabric</module>
             </modules>
         </profile>
         <profile>
@@ -142,5 +142,16 @@
                 <module>fabric-scala</module>
             </modules>
         </profile>
+
+      <profile>
+        <id>jdk17</id>
+        <activation>
+          <jdk>[1.7,)</jdk>
+        </activation>
+
+        <modules>
+          <module>fuse-fabric</module>
+        </modules>
+      </profile>
     </profiles>
 </project>

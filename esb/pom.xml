@@ -195,17 +195,17 @@
     <modules>
         <module>shared</module>
         <module>esb-branding</module>
-        <module>jboss-fuse</module>
-        <module>jboss-fuse-minimal</module>
-        <module>esb-itests</module>
     </modules>
     
     <profiles>
         <profile>
             <id>release</id>
             <modules>
-                <module>jboss-fuse-medium</module>
-                <module>jboss-fuse-full</module>
+              <module>jboss-fuse</module>
+              <module>jboss-fuse-minimal</module>
+              <module>jboss-fuse-medium</module>
+              <module>jboss-fuse-full</module>
+              <module>esb-itests</module>
             </modules>
         </profile>
         <profile>
@@ -218,5 +218,19 @@
             <modules>
             </modules>
         </profile>
+
+
+      <profile>
+        <id>jdk17</id>
+        <activation>
+          <jdk>[1.7,)</jdk>
+        </activation>
+
+        <modules>
+          <module>jboss-fuse</module>
+          <module>jboss-fuse-minimal</module>
+          <module>esb-itests</module>
+        </modules>
+      </profile>
     </profiles>
 </project>
