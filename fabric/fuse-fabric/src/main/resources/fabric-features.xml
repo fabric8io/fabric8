@@ -570,13 +570,15 @@
         <bundle>mvn:org.fusesource.fabric/fabric-jolokia/${project.version}</bundle>
     </feature>
 
+  <!-- 1.7 dep with vertx - gateway-core module excluded from build
     <feature name="gateway-core" version="${project.version}" resolver="(obr)">
         <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
-        <bundle>mvn:org.fusesource.fabric/gateway-core/${project.version}</bundle>
+        <bundle>mvn:org.fusesource.fabric/gateway-core/${project.version}</bundle -->
 <!--
         we embed it for now since its not a bundle
         <bundle>mvn:io.vertx/vertx-core/${vertx-version}</bundle>
 -->
+  <!-- 1.7 dep with vertx - gateway-core module excluded from build
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
@@ -587,5 +589,5 @@
         <feature version="${project.version}">fabric-groups</feature>
         <feature version="${project.version}">gateway-core</feature>
         <bundle>mvn:org.fusesource.fabric/gateway-fabric/${project.version}</bundle>
-    </feature>
+    </feature -->
 </features>
