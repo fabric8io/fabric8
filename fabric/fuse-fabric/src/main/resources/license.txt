@@ -20,5 +20,5 @@ This end user license agreement (“EULA”) governs the use of any of the versi
 
 7.	General. If any provision of this EULA is held to be unenforceable, the enforceability of the remaining provisions shall not be affected. Any claim, controversy or dispute arising under or relating to this EULA shall be governed by the laws of the State of New York and of the United States, without regard to any conflict of laws provisions. The rights and obligations of the parties to this EULA shall not be governed by the United Nations Convention on the International Sale of Goods. 
 
-Copyright © 2012 Red Hat, Inc. All rights reserved. "Red Hat", “JBoss”, “Fuse”, and the Red Hat "Shadowman" logo  are trademarks of Red Hat, Inc. "Linux" is a registered trademark of Linus Torvalds. All other trademarks are the property of their respective owners.
+Copyright © 2013 Red Hat, Inc. All rights reserved. "Red Hat", “JBoss”, “Fuse”, and the Red Hat "Shadowman" logo  are trademarks of Red Hat, Inc. "Linux" is a registered trademark of Linus Torvalds. All other trademarks are the property of their respective owners.
 
