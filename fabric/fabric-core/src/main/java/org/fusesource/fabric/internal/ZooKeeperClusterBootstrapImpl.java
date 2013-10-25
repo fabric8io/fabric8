@@ -168,15 +168,13 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 props.save();
             }
             startBundles(options);
-            if (options.isWaitForProvision()) {
-                //Wait until Fabric Service becomes available.
-                FabricService fs = fabricService.get();
-                if (options.isAgentEnabled()) {
-                    waitForSuccessfulDeploymentOf(NAME, options.getProvisionTimeout());
-                }
+            //Wait until Fabric Service becomes available.
+            FabricService fs = fabricService.get();
+            if (options.isWaitForProvision() && options.isAgentEnabled()) {
+                waitForSuccessfulDeploymentOf(NAME, options.getProvisionTimeout());
             }
 
-		} catch (Exception e) {
+        } catch (Exception e) {
 			throw new FabricException("Unable to create zookeeper server configuration", e);
 		}
     }
