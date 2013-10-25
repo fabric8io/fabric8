@@ -57,6 +57,11 @@
 			org.fusesource.camel.component.sap.model
 			org.fusesource.camel.component.sap.model.edit
 		</fuse.osgi.embed.dependency>
+		
+		<!-- Temporary Overrides for testing 
+		<camel-version>2.12.0</camel-version>
+		<karaf-version>2.3.3</karaf-version>
+		-->
 	</properties>
 
 	<dependencies>
@@ -171,6 +176,28 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>target/classes/features.xml</file>
+                                    <type>xml</type>
+                                    <classifier>features</classifier>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
