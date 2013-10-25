@@ -155,7 +155,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             // Create configuration
             updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
-            registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, configuration, options));
+            registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, options));
 
             // Create the client configuration
             createZooKeeeperConfig(connectionUrl, options);

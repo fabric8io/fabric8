@@ -21,7 +21,6 @@ import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
 import org.apache.karaf.jaas.modules.Encryption;
 import org.apache.karaf.jaas.modules.encryption.EncryptionSupport;
-import org.apache.zookeeper.CreateMode;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreTemplate;
@@ -29,7 +28,6 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.curator.CuratorACLManager;
-import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
@@ -51,7 +49,6 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
     private final String connectionUrl;
-    private final Map<String, String> bootstrapConfiguration;
     private final CreateEnsembleOptions options;
 
     private final String karafName = System.getProperty(SystemProperties.KARAF_NAME);
@@ -59,9 +56,8 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
 
-    public DataStoreBootstrapTemplate(String connectionUrl, Map<String, String> bootstrapConfiguration, CreateEnsembleOptions options) {
+    public DataStoreBootstrapTemplate(String connectionUrl, CreateEnsembleOptions options) {
         this.connectionUrl = connectionUrl;
-        this.bootstrapConfiguration = bootstrapConfiguration;
         this.options = options;
         this.version = options.getVersion();
     }
@@ -86,10 +82,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             if (options.isAutoImportEnabled()) {
                 dataStore.importFromFileSystem(options.getImportPath());
             }
-
-            // configure the registry
-            byte[] dataStoreData = DataStoreHelpers.toBytes(DataStoreHelpers.toStringProperties(bootstrapConfiguration));
-            ZooKeeperUtils.create(curator, ZkPath.BOOTSTRAP.getPath(), dataStoreData, CreateMode.PERSISTENT);
 
             // set the fabric configuration
             setData(curator, ZkPath.CONFIG_DEFAULT_VERSION.getPath(), version);

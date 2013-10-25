@@ -51,7 +51,31 @@
             org.fusesource.fabric.api.ZooKeeperClusterBootstrap,
             org.fusesource.fabric.api.ZooKeeperClusterService
         </fuse.osgi.services.export>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+        <fuse.osgi.service.component>
+            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/org.fusesource.fabric.api.jmx.ClusterBootstrapManager.xml,
+            OSGI-INF/org.fusesource.fabric.api.jmx.ClusterServiceManager.xml,
+            OSGI-INF/org.fusesource.fabric.api.jmx.MQManager.xml,
+            OSGI-INF/org.fusesource.fabric.internal.locks.LockServiceImpl.xml,
+            OSGI-INF/org.fusesource.fabric.internal.ZooKeeperClusterBootstrapImpl.xml,
+            OSGI-INF/org.fusesource.fabric.internal.ZooKeeperClusterServiceImpl.xml,
+            OSGI-INF/org.fusesource.fabric.service.ChecksumPlaceholderResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.ChildContainerProvider.xml,
+            OSGI-INF/org.fusesource.fabric.service.ContainerPlaceholderResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.DataStoreManager.xml,
+            OSGI-INF/org.fusesource.fabric.service.EncryptedPropertyResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.EnvPlaceholderResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.FabricMBeanRegistrationListener.xml,
+            OSGI-INF/org.fusesource.fabric.service.FabricServiceImpl.xml,
+            OSGI-INF/org.fusesource.fabric.service.KarafContainerRegistration.xml,
+            OSGI-INF/org.fusesource.fabric.service.PortPlaceholderResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.ProfilePropertyPointerResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.ProfileUrlHandler.xml,
+            OSGI-INF/org.fusesource.fabric.service.VersionPropertyPointerResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.ZooKeeperDataStore.xml,
+            OSGI-INF/org.fusesource.fabric.service.ZookeeperPlaceholderResolver.xml,
+            OSGI-INF/org.fusesource.fabric.service.ZookeeperPortService.xml
+        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>
