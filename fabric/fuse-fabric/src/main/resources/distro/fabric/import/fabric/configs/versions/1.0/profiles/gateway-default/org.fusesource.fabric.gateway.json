@@ -5,7 +5,7 @@
       "listeners": [
         {
           "protocol": "http",
-          "port": 9000
+          "port": 8080
         }
       ]
     },
@@ -14,15 +14,23 @@
       "listeners": [
         {
           "protocol": "tcp",
-          "port": 61000
+          "port": 61616
         },
         {
           "protocol": "amqp",
-          "port": 61001
+          "port": 5672
         },
         {
           "protocol": "stomp",
-          "port": 61002
+          "port": 61613
+        },
+        {
+          "protocol": "mqtt",
+          "port": 5672
+        },
+        {
+          "protocol": "ws",
+          "port": 61614
         }
       ]
     }
