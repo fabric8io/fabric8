@@ -58,8 +58,6 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
 
     @Override
     public void handle(final NetSocket socket) {
-        LOG.info("Proxying socket from: " + socket);
-
         NetClient client = null;
         List<String> paths = serviceMap.getPaths();
         String path = pathChooser.choose(paths);
@@ -84,8 +82,7 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
                                             Pump.createPump(socket, clientSocket).start();
                                         }
                                     };
-                                    client = createClient(uri, handler);
-                                    System.out.println("Created client " + client);
+                                    client = createClient(socket, uri, handler);
                                     break;
                                 }
                             } catch (MalformedURLException e) {
@@ -108,8 +105,11 @@ public class TcpGatewayHandler implements Handler<NetSocket> {
     /**
      * Creates a new client for the given URL and handler
      */
-    protected NetClient createClient(URI url, Handler<AsyncResult<NetSocket>> handler) throws MalformedURLException {
+    protected NetClient createClient(NetSocket socket, URI url, Handler<AsyncResult<NetSocket>> handler) throws MalformedURLException {
         NetClient client = vertx.createNetClient();
-        return client.connect(url.getPort(), url.getHost(), handler);
+        int port = url.getPort();
+        String host = url.getHost();
+        LOG.info("Connecting " + socket.remoteAddress() + " to host " + host + " port " + port);
+        return client.connect(port, host, handler);
     }
 }
