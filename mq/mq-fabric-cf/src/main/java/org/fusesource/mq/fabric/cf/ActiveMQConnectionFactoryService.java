@@ -36,7 +36,7 @@ import java.util.Map;
  * registry so that it can be used from JMS or Camel
  */
 @Service(ActiveMQConnectionFactory.class)
-@Component(name = "org.fusesource.mq.fabric.cf", description = "ActiveMQ Connection Factory Service", immediate = true, configurationFactory = true)
+@Component(name = "org.fusesource.mq.fabric.cf", description = "Fabric ActiveMQ Connection Factory Service", immediate = true, configurationFactory = true)
 public class ActiveMQConnectionFactoryService extends ActiveMQConnectionFactory {
     private static final transient Logger LOG = LoggerFactory.getLogger(ActiveMQConnectionFactoryService.class);
 
