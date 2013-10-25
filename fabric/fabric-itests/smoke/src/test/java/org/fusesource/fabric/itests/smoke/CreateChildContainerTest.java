@@ -17,14 +17,13 @@
 
 package org.fusesource.fabric.itests.smoke;
 
-import junit.framework.Assert;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 
-import org.apache.curator.framework.CuratorFramework;
+import java.util.Set;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
-import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.fusesource.fabric.zookeeper.ZkPath;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -36,15 +35,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Set;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
+@Ignore("[FABRIC-641] Fix fabric smoke CreateChildContainerTest")
 public class CreateChildContainerTest extends FabricTestSupport {
 
     @After
@@ -59,29 +52,6 @@ public class CreateChildContainerTest extends FabricTestSupport {
     }
 
     /**
-     * This is a test for: http://fusesource.com/issues/browse/FABRIC-370
-     */
-    @Test
-    public void testContainerDelete() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        System.err.println(executeCommand("fabric:version-create"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-        CuratorFramework curator = getOsgiService(CuratorFramework.class);
-        for (Container c : containers) {
-            try {
-                c.destroy();
-                Assert.assertNull(exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.1", c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath("1.0", c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONTAINER.getPath(c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONTAINER_DOMAINS.getPath(c.getId())));
-                Assert.assertNull(exists(curator, ZkPath.CONTAINER_PROVISION.getPath(c.getId())));
-            } catch (Exception ex) {
-                //ignore
-            }
-        }
-    }
-
-    /**
      * http://fusesource.com/issues/browse/FABRIC-351
      */
     @Test
@@ -90,31 +60,6 @@ public class CreateChildContainerTest extends FabricTestSupport {
         Set<Container> containers = ContainerBuilder.child(1).withName("child").
                 withJvmOpts("-Xms512m -XX:MaxPermSize=512m -Xmx2048m -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5008")
                 .assertProvisioningResult().build();
-    }
-
-    /**
-     * This is a test for regressions after adding:
-     * https://fusesource.com/issues/browse/FABRIC-482
-     * Even though the issue is specific to ssh containers the same principals apply to child.
-     */
-    @Test
-    public void testContainerWithPasswordChange() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        Set<Container> containers = ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-        Thread.sleep(5000);
-        Container container = containers.iterator().next();
-        System.err.println(
-                executeCommands(
-                        "jaas:manage --realm karaf --module org.fusesource.fabric.jaas.ZookeeperLoginModule",
-                        "jaas:userdel admin",
-                        "jaas:useradd admin newpassword",
-                        "jaas:roleadd admin admin",
-                        "jaas:update"
-
-                )
-        );
-        System.err.println(executeCommand("fabric:container-stop --user admin --password newpassword "+container.getId()));
-        Provision.containersAlive(containers, false, 6 * DEFAULT_TIMEOUT);
     }
 
     @Configuration
