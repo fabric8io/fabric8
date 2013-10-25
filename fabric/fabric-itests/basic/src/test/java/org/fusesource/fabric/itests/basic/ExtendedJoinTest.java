@@ -14,9 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.itests.smoke;
-
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+package org.fusesource.fabric.itests.basic;
 
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
@@ -39,10 +37,12 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
 @Ignore("[FABRIC-646] Fix fabric smoke JoinTest")
-public class JoinTest extends FabricTestSupport {
+public class ExtendedJoinTest extends FabricTestSupport {
 
     private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service org.fusesource.fabric.boot.commands.service.Join";
 
@@ -50,28 +50,48 @@ public class JoinTest extends FabricTestSupport {
 	public void tearDown() throws InterruptedException {
 	}
 
+	/**
+	 * This is a test for FABRIC-353.
+	 */
 	@Test
-	public void testJoin() throws Exception {
+	public void testJoinAndAddToEnsemble() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
         AdminService adminService = ServiceLocator.getOsgiService(AdminService.class);
-        String version = System.getProperty("fabric.version");
+
+		String version = System.getProperty("fabric.version");
         System.err.println(executeCommand("admin:create --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-boot-commands child1"));
+        System.err.println(executeCommand("admin:create --featureURL mvn:org.fusesource.fabric/fuse-fabric/" + version + "/xml/features --feature fabric-boot-commands child2"));
 		try {
 			System.err.println(executeCommand("admin:start child1"));
-            Provision.instanceStarted(Arrays.asList("child1"), PROVISION_TIMEOUT);
+			System.err.println(executeCommand("admin:start child2"));
+            Provision.instanceStarted(Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
             System.err.println(executeCommand("admin:list"));
             String joinCommand = "fabric:join -f --zookeeper-password "+ fabricService.getZookeeperPassword() +" " + fabricService.getZookeeperUrl();
+
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE));
             System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child1").getSshPort() + " localhost " + joinCommand));
-            Provision.containersExist(Arrays.asList("child1"), PROVISION_TIMEOUT);
-            Container child1 = fabricService.getContainer("child1");
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + WAIT_FOR_JOIN_SERVICE));
+            System.err.println(executeCommand("ssh -l karaf -P karaf -p " + adminService.getInstance("child2").getSshPort() + " localhost " + joinCommand));
+            Provision.containersExist(Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
+			Container child1 = fabricService.getContainer("child1");
+			Container child2 = fabricService.getContainer("child2");
 			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+			waitForProvisionSuccess(child2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
+			Thread.sleep(5000);
+            getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
+			System.err.println(executeCommand("fabric:container-list"));
+			System.err.println(executeCommand("fabric:ensemble-remove --force child1 child2"));
+			Thread.sleep(5000);
+            getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
 			System.err.println(executeCommand("admin:stop child1"));
+			System.err.println(executeCommand("admin:stop child2"));
 		}
 	}
+
 
 	@Configuration
 	public Option[] config() {
