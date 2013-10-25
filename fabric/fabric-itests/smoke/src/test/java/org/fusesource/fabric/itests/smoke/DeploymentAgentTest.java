@@ -1,5 +1,10 @@
 package org.fusesource.fabric.itests.smoke;
 
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
+import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
+
+import java.util.Set;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
@@ -16,17 +21,9 @@ import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
-import java.util.Set;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
-
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
+@Ignore("[FABRIC-642] Fix fabric smoke DeploymentAgentTest")
 public class DeploymentAgentTest extends FabricTestSupport {
 
 	@After
@@ -42,8 +39,6 @@ public class DeploymentAgentTest extends FabricTestSupport {
 	 * Note: This test makes sense to run using remote containers that have an empty maven repo.
 	 *
 	 * http://fusesource.com/issues/browse/FABRIC-398
-	 *
-	 * @throws Exception
 	 */
 	@Test
 	public void testFeatureRepoResolution() throws Exception {
@@ -56,83 +51,6 @@ public class DeploymentAgentTest extends FabricTestSupport {
 		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
 	    //Also remove local repository
 		System.out.println(executeCommand("profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --pid test-profile 1.1"));
-
-		Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
-
-		//We want to remove all repositories from fabric-agent.
-		for (Container container : containers) {
-			System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
-			System.out.flush();
-		}
-		Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-		System.out.println(executeCommand("fabric:container-list"));
-
-		for (Container container : containers) {
-			System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
-			System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn"));
-			System.out.flush();
-		}
-	}
-
-	/**
-	 * The purpose of this test is to make sure that fabs can be downloaded before they are resolved by the fabric-maven-proxy.
-	 * http://fusesource.com/issues/browse/FABRIC-397
-	 * Note: This test is better run using remote containers that have an empty maven repo.
-	 *
-	 * @throws Exception
-	 */
-	@Test
-	public void testFab() throws Exception {
-		System.out.println(executeCommand("fabric:create -n"));
-		//We are just want to use a feature repository that is not part of the distribution.
-		System.out.println(executeCommand("fabric:profile-create --parents camel test-profile"));
-		System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --fabs mvn:org.jboss.fuse.examples/cbr/" + System.getProperty("fabric.version") + " test-profile 1.1"));
-		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
-		//Also remove local repository
-		System.out.println(executeCommand("profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
-		System.out.println(executeCommand("profile-edit --pid org.ops4j.pax.url.mvn/org.ops4j.pax.url.mvn.localRepository=file:tmp2@id=tmpRepo default 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --pid test-profile 1.1"));
-
-		Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
-
-		//We want to remove all repositories from fabric-agent.
-		for (Container container : containers) {
-			System.out.println(executeCommand("fabric:container-upgrade 1.1 " + container.getId()));
-			System.out.flush();
-		}
-		Provision.provisioningSuccess(containers, PROVISION_TIMEOUT);
-		System.out.println(executeCommand("fabric:container-list"));
-
-		for (Container container : containers) {
-			System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " osgi:list"));
-			System.out.println(executeCommand("fabric:container-connect -u admin -p admin " + container.getId() + " config:proplist --pid org.ops4j.pax.url.mvn"));
-			System.out.flush();
-		}
-	}
-
-	/**
-	 * The purpose of this test is to make sure that fabs can be downloaded before they are resolved by the fabric-maven-proxy.
-	 * This test uses fabs defines inside features.
-	 * http://fusesource.com/issues/browse/FABRIC-397
-	 * Note: This test is better run using remote containers that have an empty maven repo.
-	 *
-	 * @throws Exception
-	 */
-	@Test
-	public void testFabFromFeature() throws Exception {
-		System.out.println(executeCommand("fabric:create -n"));
-		//We are just want to use a feature repository that is not part of the distribution.
-		System.out.println(executeCommand("fabric:profile-create --parents camel test-profile"));
-		System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --repositories mvn:org.jboss.fuse.examples/project/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --features example-cbr test-profile 1.1"));
-
-		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
-		//Also remove local repository
-		System.out.println(executeCommand("profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));
-		System.out.println(executeCommand("profile-edit --pid org.ops4j.pax.url.mvn/org.ops4j.pax.url.mvn.localRepository=file:tmp2@id=tmpRepo default 1.1"));
 		System.out.println(executeCommand("fabric:profile-edit --pid test-profile 1.1"));
 
 		Set<Container> containers = ContainerBuilder.create().withName("cnt").withProfiles("test-profile").assertProvisioningResult().build();
