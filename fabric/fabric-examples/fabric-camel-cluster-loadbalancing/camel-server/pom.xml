@@ -43,7 +43,6 @@
              This is important to make sure that camel-jetty component will be available,
              when we publish the fabric endpoint -->
         <osgi-import-pkg>
-            org.linkedin.org.apache.zookeeper.client,
             org.apache.camel.component.jetty,
             *
         </osgi-import-pkg>
