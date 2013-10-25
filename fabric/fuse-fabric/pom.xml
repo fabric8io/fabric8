@@ -169,6 +169,16 @@
                <groupId>org.jboss.amq</groupId>
                <artifactId>mq-fabric</artifactId>
            </dependency>
+           <dependency>
+             <groupId>org.fusesource.fabric</groupId>
+             <artifactId>gateway-core</artifactId>
+             <version>${project.version}</version>
+           </dependency>
+           <dependency>
+             <groupId>org.fusesource.fabric</groupId>
+             <artifactId>gateway-fabric</artifactId>
+             <version>${project.version}</version>
+           </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
                 to get this building in offline mode -->
