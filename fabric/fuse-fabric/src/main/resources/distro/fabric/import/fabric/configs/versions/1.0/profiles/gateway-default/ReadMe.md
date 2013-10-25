@@ -1,1 +1,1 @@
-Exposes all the web applications in the Fabric over a HTTP web proxy
+Provides a HTTP and TCP gateway to all the web applications and message brokers running in the Fabric
