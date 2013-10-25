@@ -38,6 +38,10 @@ public class EnsembleRemove extends EnsembleCommandSupport {
     @Option(name = "-f", aliases = "--force", multiValued = false, description = "Flag to force the addition without prompt")
     private boolean force = false;
 
+    @Option(name = "--migration-timeout", multiValued = false, description = "Timeout to wait for containers to migrate to the new ensemble")
+    private long migrationTimeout = CreateEnsembleOptions.DEFAULT_MIGRATION_TIMEOUT;
+
+
     @Argument(required = true, multiValued = true, description = "List of containers to be removed. Must be an even number of containers.")
     private List<String> containers;
 
@@ -60,7 +64,10 @@ public class EnsembleRemove extends EnsembleCommandSupport {
             } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
                 service.removeFromCluster(containers);
             } else {
-                CreateEnsembleOptions options = CreateEnsembleOptions.builder().zookeeperPassword(zookeeperPassword).build();
+                CreateEnsembleOptions options = CreateEnsembleOptions.builder()
+                        .zookeeperPassword(zookeeperPassword)
+                        .migrationTimeout(migrationTimeout)
+                        .build();
                 service.removeFromCluster(containers, options);
             }
             System.out.println("Updated Zookeeper connection string: "+ service.getZooKeeperUrl());

@@ -33,6 +33,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
     public static String ZOOKEEPER_SERVER_PORT = "zookeeper.server.port";
     public static String ZOOKEEPER_SERVER_CONNECTION_PORT = "zookeeper.server.connection.port";
     public static final String ROLE_DELIMITER = ",";
+    public static final long DEFAULT_MIGRATION_TIMEOUT = 120000L;
 
     public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
 
@@ -50,6 +51,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
         boolean waitForProvision = true;
         @JsonProperty
         long provisionTimeout = 120000L;
+        @JsonProperty
+        long migrationTimeout = DEFAULT_MIGRATION_TIMEOUT;
         @JsonProperty
         boolean autoImportEnabled = true;
         @JsonProperty
@@ -137,6 +140,11 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
         public B autoImportEnabled(Boolean autoImportEnabled) {
             this.autoImportEnabled = autoImportEnabled;
+            return (B) this;
+        }
+
+        public B migrationTimeout(final long migrationTimeout) {
+            this.migrationTimeout = migrationTimeout;
             return (B) this;
         }
 
@@ -253,7 +261,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
 
         public CreateEnsembleOptions build() {
-            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users);
+            return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users);
         }
     }
 
@@ -272,6 +280,8 @@ public class CreateEnsembleOptions extends ContainerOptions {
     @JsonProperty
     final long provisionTimeout;
     @JsonProperty
+    final long migrationTimeout;
+    @JsonProperty
     final boolean autoImportEnabled;
     @JsonProperty
     final String importPath;
@@ -282,7 +292,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         return new Builder<Builder>();
     }
 
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
         this.zooKeeperServerPort = zooKeeperServerPort;
         this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
@@ -291,6 +301,7 @@ public class CreateEnsembleOptions extends ContainerOptions {
         this.agentEnabled = agentEnabled;
         this.waitForProvision = waitForProvision;
         this.provisionTimeout = provisionTimeout;
+        this.migrationTimeout = migrationTimeout;
         this.autoImportEnabled = autoImportEnabled;
         this.importPath = importPath;
         this.users = users;
@@ -334,6 +345,10 @@ public class CreateEnsembleOptions extends ContainerOptions {
 
     public long getProvisionTimeout() {
         return provisionTimeout;
+    }
+
+    public long getMigrationTimeout() {
+        return migrationTimeout;
     }
 
     @Override

@@ -319,7 +319,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     // Wait until all containers switched
                     long t0 = System.currentTimeMillis();
                     boolean allStarted = false;
-                    while (!allStarted && System.currentTimeMillis() - t0 < 60 * 1000) {
+                    while (!allStarted && System.currentTimeMillis() - t0 < options.getMigrationTimeout()) {
                         allStarted = true;
                         for (Container container : allContainers) {
                             allStarted &= exists(dst, ZkPath.CONTAINER_ALIVE.getPath(container.getId())) != null;

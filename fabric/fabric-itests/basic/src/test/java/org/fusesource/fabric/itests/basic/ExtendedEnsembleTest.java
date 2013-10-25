@@ -74,7 +74,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
             addedContainers.add(cnt1);
             addedContainers.add(cnt2);
             WaitForServiceAddingTask<CuratorFramework> waitTask = new WaitForServiceAddingTask<CuratorFramework>(CuratorFramework.class, null);
-            System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
+            System.err.println(executeCommand("fabric:ensemble-add --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
             Future<CuratorFramework> future = excutorService.submit(waitTask);
             CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
@@ -99,7 +99,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
             Container cnt1 = addedContainers.removeFirst();
             Container cnt2 = addedContainers.removeFirst();
             WaitForServiceAddingTask<CuratorFramework> waitTask = new WaitForServiceAddingTask<CuratorFramework>(CuratorFramework.class, null);
-            System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
+            System.err.println(executeCommand("fabric:ensemble-remove --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
             Future<CuratorFramework> future = excutorService.submit(waitTask);
             CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
             curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
@@ -146,7 +146,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
                 WaitForServiceAddingTask<CuratorFramework> waitTask = new WaitForServiceAddingTask<CuratorFramework>(CuratorFramework.class, null);
-                System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
+                System.err.println(executeCommand("fabric:ensemble-add --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
                 Future<CuratorFramework> future = excutorService.submit(waitTask);
                 CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
                 curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
@@ -177,7 +177,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
                 WaitForServiceAddingTask<CuratorFramework> waitTask = new WaitForServiceAddingTask<CuratorFramework>(CuratorFramework.class, null);
-                System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
+                System.err.println(executeCommand("fabric:ensemble-remove --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
                 Future<CuratorFramework> future = excutorService.submit(waitTask);
                 CuratorFramework curator = future.get(60, TimeUnit.SECONDS);
                 curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
@@ -201,7 +201,6 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005", false)
         };
     }
 }

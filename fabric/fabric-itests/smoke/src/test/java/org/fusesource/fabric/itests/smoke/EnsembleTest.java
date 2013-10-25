@@ -48,7 +48,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-643] Fix fabric smoke EnsembleTest")
 public class EnsembleTest extends FabricTestSupport {
 
     private final ExecutorService excutorService = Executors.newCachedThreadPool();
@@ -70,12 +69,8 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = containerQueue.removeFirst();
                 addedContainers.add(cnt1);
                 addedContainers.add(cnt2);
-                WaitForServiceAddingTask<CuratorFramework> waitTask = new WaitForServiceAddingTask<CuratorFramework>(CuratorFramework.class, null);
                 System.err.println(executeCommand("fabric:container-resolver-list"));
-                System.err.println(executeCommand("fabric:ensemble-add --force " + cnt1.getId() + " " + cnt2.getId()));
-                Future<CuratorFramework> future = excutorService.submit(waitTask);
-                CuratorFramework curator = future.get(120, TimeUnit.SECONDS);
-                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+                System.err.println(executeCommand("fabric:ensemble-add --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 Thread.sleep(5000);
                 System.err.println(executeCommand("fabric:container-list"));
@@ -94,12 +89,8 @@ public class EnsembleTest extends FabricTestSupport {
                 Container cnt2 = addedContainers.removeFirst();
                 containerQueue.add(cnt1);
                 containerQueue.add(cnt2);
-                WaitForServiceAddingTask<CuratorFramework> waitTask = new WaitForServiceAddingTask<CuratorFramework>(CuratorFramework.class, null);
                 System.err.println(executeCommand("fabric:container-resolver-list"));
-                System.err.println(executeCommand("fabric:ensemble-remove --force " + cnt1.getId() + " " + cnt2.getId()));
-                Future<CuratorFramework> future = excutorService.submit(waitTask);
-                CuratorFramework curator = future.get(120, TimeUnit.SECONDS);
-                curator.getZookeeperClient().blockUntilConnectedOrTimedOut();
+                System.err.println(executeCommand("fabric:ensemble-remove --force --migration-timeout 240000 " + cnt1.getId() + " " + cnt2.getId(), 240000L, false));
                 System.err.println(executeCommand("config:proplist --pid org.fusesource.fabric.zookeeper"));
                 Thread.sleep(5000);
                 System.err.println(executeCommand("fabric:container-list"));

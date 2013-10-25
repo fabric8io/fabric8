@@ -38,6 +38,9 @@ public class EnsembleAdd extends EnsembleCommandSupport {
     @Option(name = "-f", aliases = "--force", multiValued = false, description = "Flag to force the addition without prompt")
     private boolean force = false;
 
+    @Option(name = "--migration-timeout", multiValued = false, description = "Timeout to wait for containers to migrate to the new ensemble")
+    private long migrationTimeout = CreateEnsembleOptions.DEFAULT_MIGRATION_TIMEOUT;
+
     @Argument(required = true, multiValued = true, description = "List of containers to be added")
     private List<String> containers;
 
@@ -60,7 +63,10 @@ public class EnsembleAdd extends EnsembleCommandSupport {
                 } else if (zookeeperPassword == null || zookeeperPassword.isEmpty()) {
                     service.addToCluster(containers);
                 } else {
-                    CreateEnsembleOptions options = CreateEnsembleOptions.builder().zookeeperPassword(zookeeperPassword).build();
+                    CreateEnsembleOptions options = CreateEnsembleOptions.builder()
+                            .zookeeperPassword(zookeeperPassword)
+                            .migrationTimeout(migrationTimeout)
+                            .build();
                     service.addToCluster(containers, options);
                 }
             }

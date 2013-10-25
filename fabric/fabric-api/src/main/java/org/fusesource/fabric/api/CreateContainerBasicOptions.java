@@ -207,7 +207,7 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
                                        String jvmOpts, boolean adminAccess) {
 
         super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort,
-                zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, autoImportEnabled, importPath, users);
+                zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, DEFAULT_MIGRATION_TIMEOUT, autoImportEnabled, importPath, users);
 
         this.name = name;
         this.parent = parent;

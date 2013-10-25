@@ -76,11 +76,11 @@ public class ExtendedJoinTest extends FabricTestSupport {
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
             Provision.containersStatus(Arrays.asList(child1, child2), "success", PROVISION_TIMEOUT);
-			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
+			System.err.println(executeCommand("fabric:ensemble-add --force --migration-timeout 240000 child1 child2", 240000L, false));
 			Thread.sleep(5000);
             getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
-			System.err.println(executeCommand("fabric:ensemble-remove --force child1 child2"));
+			System.err.println(executeCommand("fabric:ensemble-remove --force --migration-timeout 240000 child1 child2", 240000L, false));
 			Thread.sleep(5000);
             getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();
 			System.err.println(executeCommand("fabric:container-list"));
