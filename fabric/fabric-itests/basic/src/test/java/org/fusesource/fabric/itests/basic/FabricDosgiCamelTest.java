@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.fusesource.fabric.itests.smoke;
+package org.fusesource.fabric.itests.basic;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
@@ -46,7 +46,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
+@Ignore("[FABRIC-644] Fix fabric smoke FabricDosgiCamelTest")
 public class FabricDosgiCamelTest extends FabricTestSupport {
 
     @After
