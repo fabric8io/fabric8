@@ -13,7 +13,7 @@ What is it?
 This quickstart demonstrates how to handle exceptions that occur while routing messages with Camel.
 
 This quickstart show you how to add a default error handler to your Camel context for all uncaught exceptions.
- Additionally, it will show you how to add exception handling routines for dealing with specific exception types.
+Additionally, it will show you how to add exception handling routines for dealing with specific exception types.
 
 In studying this quick start you will learn:
 
@@ -39,7 +39,7 @@ Before building and running this quick start you need:
 
 
 Build and Deploy the Quickstart
--------------------------
+-------------------------------
 
 1. Change your working directory to `errors` directory.
 *. Run `mvn clean install` to build the quickstart.
@@ -56,7 +56,7 @@ Build and Deploy the Quickstart
 
 
 Use the bundle
--------------------
+--------------
 
 To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
 
@@ -78,7 +78,7 @@ To use the application be sure to have deployed the quickstart in Fuse as descri
         ...
 
 Undeploy the Bundle
---------------------
+-------------------
 
 To stop and undeploy the bundle in Fuse:
 

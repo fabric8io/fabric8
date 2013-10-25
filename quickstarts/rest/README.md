@@ -31,7 +31,7 @@ Before building and running this quick start you need:
 * JBoss Fuse 6
 
 Build and Deploy the Quickstart
--------------------------
+-------------------------------
 
 1. Change your working directory to `rest` directory.
 * Run `mvn clean install` to build the quickstart.
@@ -48,7 +48,7 @@ Build and Deploy the Quickstart
 
 
 Use the bundle
-----------------
+--------------
 
 ### Browsing Web service metadata
 
@@ -138,7 +138,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
         config:update
 
 Undeploy the Bundle
---------------------
+-------------------
 
 To stop and undeploy the bundle in Fuse:
 

@@ -34,7 +34,7 @@ Before building and running this quick start you need:
 
 
 Build and Deploy the Quickstart
--------------------------
+-------------------------------
 
 To build the quick start:
 
@@ -53,7 +53,7 @@ To build the quick start:
 
 
 Use the bundle
-----------------
+--------------
 
 There are several ways you can interact with the running web services: you can browse the web service metadata,
 but you can also invoke the web services in a few different ways.
@@ -141,7 +141,7 @@ By default CXF Servlet is assigned a '/cxf' alias. You can change it in a couple
     JBoss Fuse will create org.apache.cxf.osgi.cfg file in the /etc directory and and set the entry as we did in the first way after the commands are run, you need to restart the CXF bundle to load the change.
     
 Undeploy the Bundle
---------------------
+-------------------
 
 To stop and undeploy the bundle in Fuse:
 
@@ -149,3 +149,4 @@ To stop and undeploy the bundle in Fuse:
 2. To stop and uninstall the bundle enter
 
         osgi:uninstall <id>
+

@@ -34,7 +34,7 @@ Before building and running this quick start you need:
 
 
 Build and Deploy the Quickstart
--------------------------
+-------------------------------
 To build the quick start:
 
 1. Change your working directory to `secure-soap` directory.
@@ -53,7 +53,7 @@ To build the quick start:
    your bundle should be present at the end of the list
 
 Use the bundle
-----------------
+--------------
 There are several ways you can interact with the running Web services:
 * browse the Web service metadata
 * access the service in a Web browser
@@ -139,7 +139,7 @@ By default CXF Servlet is assigned a `/cxf` alias. You can change it in a couple
         config:update
 
 Undeploy the Bundle
---------------------
+-------------------
 
 To stop and undeploy the bundle in Fuse:
 
@@ -147,3 +147,4 @@ To stop and undeploy the bundle in Fuse:
 2. To stop and uninstall the bundle enter
 
         osgi:uninstall <id>
+

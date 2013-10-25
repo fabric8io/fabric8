@@ -55,7 +55,7 @@ Before building and running this example you need:
 
 
 Build and Deploy the Quickstart
--------------------------
+-------------------------------
 
 1. Change your working directory to `eip` directory.
 *. Run `mvn clean install` to build the quickstart.
@@ -72,7 +72,7 @@ Build and Deploy the Quickstart
 
 
 Use the bundle
--------------------
+--------------
 
 To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
 
@@ -92,7 +92,7 @@ directory.
         ...
 
 Undeploy the Bundle
---------------------
+-------------------
 
 To stop and undeploy the bundle in Fuse:
 

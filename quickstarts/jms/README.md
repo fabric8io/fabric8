@@ -20,7 +20,7 @@ In studying this quick start you will learn:
 * how to connect to the local ActiveMQ broker
 * how to define a Camel route using the Blueprint XML syntax
 * how to build and deploy an OSGi bundle in JBoss Fuse
-* how to use the CBR enterprise integration pattern
+* how to use the Content Based Router (CBR) enterprise integration pattern
 
 For more information see:
 
@@ -39,7 +39,7 @@ Before building and running this quick start you need:
 
 
 Build and Deploy the Quickstart
--------------------------
+-------------------------------
 
 1. Verify etc/users.properties from the JBoss Fuse installation contains the following 'admin' user configured:
 
@@ -62,7 +62,7 @@ Build and Deploy the Quickstart
 
 
 Use the bundle
--------------------
+--------------
 
 To use the application be sure to have deployed the quickstart in Fuse as described above. Successful deployment will create and start a Camel route in Fuse.
 
@@ -80,7 +80,7 @@ To use the application be sure to have deployed the quickstart in Fuse as descri
         Done processing order1.xml
 
 Undeploy the Bundle
---------------------
+-------------------
 
 To stop and undeploy the bundle in Fuse:
 
