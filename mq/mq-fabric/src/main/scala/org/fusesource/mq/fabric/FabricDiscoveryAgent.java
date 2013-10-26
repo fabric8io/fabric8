@@ -233,7 +233,7 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
         }
     }
 
-    synchronized  public void stop() throws Exception {
+    synchronized public void stop() throws Exception {
         if( startCounter.decrementAndGet()==0 ) {
             running.set(false);
             try {

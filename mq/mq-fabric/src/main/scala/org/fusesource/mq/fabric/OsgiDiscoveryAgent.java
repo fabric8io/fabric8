@@ -20,6 +20,7 @@ import org.apache.activemq.command.DiscoveryEvent;
 import org.apache.activemq.transport.discovery.DiscoveryAgent;
 import org.apache.activemq.transport.discovery.DiscoveryListener;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -79,7 +80,7 @@ public class OsgiDiscoveryAgent implements DiscoveryAgent {
     synchronized private Set<String> doLookup(long freshness) {
 
         Set<String> rc = new HashSet<String>();
-        BundleContext context = Activator.BUNDLE_CONTEXT.get();
+        BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
         if( context!=null ) {
 
             ServiceReference reference = context.getServiceReference(ConfigurationAdmin.class.getName());

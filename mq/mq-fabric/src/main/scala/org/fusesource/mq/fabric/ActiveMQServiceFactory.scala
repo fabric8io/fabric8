@@ -22,7 +22,6 @@ import org.osgi.service.cm.ManagedServiceFactory
 import org.slf4j.LoggerFactory
 import reflect.BeanProperty
 import java.util.{Properties, Dictionary}
-import collection.mutable.HashMap
 import java.util.concurrent.atomic.{AtomicInteger, AtomicBoolean}
 import org.springframework.core.io.Resource
 import org.apache.activemq.spring.Utils
@@ -33,14 +32,13 @@ import java.net.{URL, URI}
 import org.apache.xbean.spring.context.impl.URIEditor
 import org.springframework.beans.factory.FactoryBean
 import org.apache.activemq.util.IntrospectionSupport
-import org.apache.activemq.broker.{TransportConnector, BrokerService}
+import org.apache.activemq.broker.BrokerService
 import scala.collection.JavaConversions._
 import java.lang.{ThreadLocal, Thread}
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.spring.SpringBrokerContext
 import org.osgi.framework.{ServiceRegistration, BundleContext}
 import org.apache.activemq.network.DiscoveryNetworkConnector
-import java.util
 import collection.mutable
 import org.apache.curator.framework.CuratorFramework
 import org.fusesource.mq.fabric.FabricDiscoveryAgent.ActiveMQNode
@@ -126,16 +124,9 @@ class ConfigurationProperties extends FactoryBean[Properties] {
   def isSingleton = false
 }
 
-class ActiveMQServiceFactory extends ManagedServiceFactory {
+class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFramework) extends ManagedServiceFactory {
 
   import ActiveMQServiceFactory._
-
-  @BeanProperty
-  var bundleContext: BundleContext = null
-  @BeanProperty
-  var curator: CuratorFramework = null
-
-  var owned_pools = Set[String]()
 
   @volatile
   var fabricService:FabricService = _
@@ -148,6 +139,8 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     this.fabricService = null;
   }
   
+  var owned_pools = Set[String]()
+
   def can_own_pool(cc:ClusteredConfiguration) = this.synchronized {
     if( cc.pool==null )
       true
@@ -182,12 +175,12 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
         ActiveMQServiceFactory.this.synchronized {
           configurations.values.foreach { c=>
             if ( c!=cc && c.pool == cc.pool ) {
-              c.update_pool_state
+              c.update_pool_state()
             }
           }
         }
       }
-    }.start
+    }.start()
   }
   
 
@@ -209,9 +202,9 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     val startAttempt = new AtomicInteger
 
     var pool_enabled = false
-    def update_pool_state = this.synchronized {
+    def update_pool_state() = this.synchronized {
       val value = can_own_pool(this)
-      if( pool_enabled != value) {
+      if( pool_enabled != value ) {
         pool_enabled = value
         if( value ) {
           if( pool!=null ) {
@@ -227,8 +220,8 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       }
     }
     var discoveryAgent:FabricDiscoveryAgent = null
-    @volatile
     var start_thread:Thread = _
+    var stop_thread:Thread = _
     @volatile
     var server:(ResourceXmlApplicationContext, BrokerService, Resource) = _
 
@@ -251,7 +244,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     if (standalone) {
       if (started.compareAndSet(false, true)) {
         info("Standalone broker %s is starting.", name)
-        start
+        start()
       }
     } else if (replicating) {
       if (started.compareAndSet(false, true)) {
@@ -273,7 +266,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
               if (started.compareAndSet(false, true)) {
                 if (take_pool(ClusteredConfiguration.this)) {
                   info("Broker %s is now the master, starting the broker.", name)
-                  start
+                  start()
                 } else {
                   update_pool_state
                   started.set(false)
@@ -295,10 +288,10 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
           }
         }
       })
-      update_pool_state
+      update_pool_state()
     }
 
-    def close = this.synchronized {
+    def close() = this.synchronized {
       if(  pool_enabled || (replicating && discoveryAgent!=null)  ) {
         discoveryAgent.stop()
       }
@@ -306,13 +299,18 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
         return_pool(ClusteredConfiguration.this)
       }
       if(started.compareAndSet(true, false)) {
-        stop(false)
+        stop()
+      }
+      var t = stop_thread // working with a volatile
+      while(t!=null) {
+        t.join()
+        t = stop_thread // when the start up thread gives up trying to start this gets set to null.
       }
     }
 
     def osgiRegister(broker: BrokerService): Unit = {
       val connectionFactory = new ActiveMQConnectionFactory("vm://" + broker.getBrokerName + "?create=false")
-      cfServiceRegistration = bundleContext.registerService(classOf[javax.jms.ConnectionFactory].getName, connectionFactory, HashMap("name" -> broker.getBrokerName))
+      cfServiceRegistration = bundleContext.registerService(classOf[javax.jms.ConnectionFactory].getName, connectionFactory, mutable.HashMap("name" -> broker.getBrokerName))
       debug("registerService of type " + classOf[javax.jms.ConnectionFactory].getName  + " as: " + connectionFactory + " with name: " + broker.getBrokerName + "; " + cfServiceRegistration)
     }
 
@@ -321,151 +319,152 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       debug("unregister connection factory for: " + broker.getBrokerName + "; " + cfServiceRegistration)
     }
 
-    def start = {
+    def start() = this.synchronized {
       // Startup async so that we do not block the ZK event thread.
-      def trystartup:Unit = {
-        start_thread = new Thread("Startup for ActiveMQ Broker-" + startAttempt.incrementAndGet() + ": " + name) {
-
-          def configure_ports(service: BrokerService, properties: Properties) = {
-            service.getTransportConnectors.foreach {
-              t => {
-                val portKey = t.getName() + "-port"
-                if (properties.containsKey(portKey)) {
-                  val template = t.getUri;
-                  t.setUri(new URI(template.getScheme, template.getUserInfo, template.getHost,
-                    Integer.valueOf("" + properties.get(portKey)),
-                    template.getPath, template.getQuery, template.getFragment))
-                }
-              }
-            }
+      info("Broker %s is being started.", name)
+      start_thread = new Thread("Startup for ActiveMQ Broker-" + startAttempt.incrementAndGet() + ": "+name) {
+        override def run() {
+          var t = this.synchronized { stop_thread } // working with a volatile
+          while(t!=null) {
+            t.join()
+            t = this.synchronized { stop_thread } // when the start up thread gives up trying to start this gets set to null.
           }
-
-          override def run() {
-            var start_failure:Throwable = null
-            try {
-
-              // If we are in a fabric, let pass along the zk password in the props.
-              val fs = fabricService
-              if( fs != null ) {
-                val container = fs.getCurrentContainer
-                if( !properties.containsKey("container.id") ) {
-                  properties.setProperty("container.id", container.getId)
-                }
-                if( !properties.containsKey("container.ip") ) {
-                  properties.setProperty("container.ip", container.getIp)
-                }
-                if( !properties.containsKey("zookeeper.url") ) {
-                  properties.setProperty("zookeeper.url", fs.getZookeeperUrl)
-                }
-                if( !properties.containsKey("zookeeper.password") ) {
-                  properties.setProperty("zookeeper.password", fs.getZookeeperPassword)
-                }
-              }
-
-              // ok boot up the server..
-              server = createBroker(config, properties)
-              configure_ports(server._2, properties)
-              server._2.start()
-              info("Broker %s has started.", name)
-
-              server._2.waitUntilStarted
-              server._2.addShutdownHook(new Runnable(){
-                def run:Unit = {
-                  // Start up the server again if it shutdown.  Perhaps
-                  // it has lost a Locker and wants a restart.
-                  if(started.get && server._2.isRestartAllowed && server._2.isRestartRequested){
-                    info("restarting after shutdown on restart request")
-                    trystartup
-                  }
-                }
-              })
-
-              if( replicating ) {
-                discoveryAgent = new FabricDiscoveryAgent
-                discoveryAgent.setAgent(System.getProperty("karaf.name"))
-                discoveryAgent.setId(name)
-                discoveryAgent.setGroupName(group)
-                discoveryAgent.setCurator(curator)
-                discoveryAgent.start()
-              }
-
-              // Update the advertised endpoint URIs that clients can use.
-              if (!standalone || replicating) {
-                discoveryAgent.setServices( connectors.flatMap { name=>
-                  val connector = server._2.getConnectorByName(name)
-                  if ( connector==null ) {
-                    warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
-                    None
-                  } else {
-                    Some(connector.getConnectUri.getScheme + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getPublishableConnectURI.getPort)
-                  }
-                })
-              }
-
-              if (registerService) osgiRegister(server._2)
-            } catch {
-              case e:Throwable =>
-                info("Broker %s failed to start.  Will try again in 10 seconds", name)
-                LOG.error("Exception on start: " + e, e)
-                try {
-                  Thread.sleep(1000 * 10)
-                } catch {
-                  case ignore:InterruptedException =>
-                }
-                start_failure = e
-            } finally {
-              if(started.get && start_failure!=null && !isInterrupted && server._2.isRestartAllowed){
-                trystartup
-              } else {
-                start_thread = null
-                if (server != null) {
-                  last_modified = server._3.lastModified()
-                }
-              }
-            }
-          }
+          doStart()
+          this.synchronized { start_thread = null }
         }
-        start_thread.start()
       }
-      trystartup
+      start_thread.start()
     }
 
-    val stop_runnable = new Runnable {
-      override def run() {
-        val s = server // working with a volatile
-        if( s!=null ) {
-          try {
-            s._2.stop()
-            s._2.waitUntilStopped()
-            if (registerService) {
-              osgiUnregister(s._2)
-            }
-          } catch {
-            case e:Throwable => LOG.debug("Exception on stop: " + e,  e)
-          }
-          try {
-            s._1.close()
-          } catch {
-            case e:Throwable => LOG.debug("Exception on close: " + e,  e)
-          }
-          server = null
-        }
-
-        var t = start_thread // working with a volatile
+    def stop() = this.synchronized {
+      info("Broker %s is being stopped.", name)
+      stop_thread = new Thread("Stop for ActiveMQ Broker: "+name) {
+        override def run() {
+          var t = this.synchronized { start_thread } // working with a volatile
           while(t!=null) {
             t.interrupt()
             t.join()
-            t = start_thread // when the start up thread gives up trying to start this gets set to null.
+            t = this.synchronized { start_thread }  // when the start up thread gives up trying to start this gets set to null.
           }
+          doStop()
+          this.synchronized { stop_thread = null }
+        }
+      }
+      stop_thread.start()
+    }
+
+    private def doStart() {
+      var start_failure:Throwable = null
+      try {
+        // If we are in a fabric, let pass along the zk password in the props.
+        val fs = fabricService
+        if( fs != null ) {
+          val container = fs.getCurrentContainer
+          if( !properties.containsKey("container.id") ) {
+            properties.setProperty("container.id", container.getId)
+          }
+          if( !properties.containsKey("container.ip") ) {
+            properties.setProperty("container.ip", container.getIp)
+          }
+          if( !properties.containsKey("zookeeper.url") ) {
+            properties.setProperty("zookeeper.url", fs.getZookeeperUrl)
+          }
+          if( !properties.containsKey("zookeeper.password") ) {
+            properties.setProperty("zookeeper.password", fs.getZookeeperPassword)
+          }
+        }
+        // ok boot up the server..
+        server = createBroker(config, properties)
+        // configure ports
+        server._2.getTransportConnectors.foreach {
+          t => {
+            val portKey = t.getName + "-port"
+            if (properties.containsKey(portKey)) {
+              val template = t.getUri
+              t.setUri(new URI(template.getScheme, template.getUserInfo, template.getHost,
+                Integer.valueOf("" + properties.get(portKey)),
+                template.getPath, template.getQuery, template.getFragment))
+            }
+          }
+        }
+        server._2.start()
+        info("Broker %s has started.", name)
+
+        server._2.waitUntilStarted
+        server._2.addShutdownHook(new Runnable(){
+          def run():Unit = {
+            // Start up the server again if it shutdown.  Perhaps
+            // it has lost a Locker and wants a restart.
+            if(started.get && server!=null && server._2.isRestartAllowed && server._2.isRestartRequested){
+              info("restarting after shutdown on restart request")
+              start()
+            }
+          }
+        })
+
+        if( replicating ) {
+          discoveryAgent = new FabricDiscoveryAgent
+          discoveryAgent.setAgent(System.getProperty("karaf.name"))
+          discoveryAgent.setId(name)
+          discoveryAgent.setGroupName(group)
+          discoveryAgent.setCurator(curator)
+          discoveryAgent.start()
+        }
+
+        // Update the advertised endpoint URIs that clients can use.
+        if (!standalone || replicating) {
+          discoveryAgent.setServices( connectors.flatMap { name=>
+            val connector = server._2.getConnectorByName(name)
+            if ( connector==null ) {
+              warn("ActiveMQ broker '%s' does not have a connector called '%s'", name, name)
+              None
+            } else {
+              Some(connector.getConnectUri.getScheme + "://${zk:" + System.getProperty("karaf.name") + "/ip}:" + connector.getPublishableConnectURI.getPort)
+            }
+          })
+        }
+
+        if (registerService) osgiRegister(server._2)
+      } catch {
+        case e:Throwable =>
+          info("Broker %s failed to start.  Will try again in 10 seconds", name)
+          LOG.error("Exception on start: " + e, e)
+          try {
+            Thread.sleep(1000 * 10)
+          } catch {
+            case ignore:InterruptedException =>
+          }
+          start_failure = e
+      } finally {
+        if(started.get && start_failure!=null){
+          start()
+        } else {
+          start_thread = null
+          if (server != null) {
+            last_modified = server._3.lastModified()
+          }
+        }
       }
     }
-    
-    def stop(async: Boolean = true) = {
-      info("Broker %s is being stopped.", name)
-      if (async) {
-        new Thread(stop_runnable, "Stop for ActiveMQ Broker: "+name).start
-      } else {
-        stop_runnable.run()
+
+    private def doStop() {
+      val s = server // working with a volatile
+      if( s!=null ) {
+        try {
+          s._2.stop()
+          s._2.waitUntilStopped()
+          if (registerService) {
+            osgiUnregister(s._2)
+          }
+        } catch {
+          case e:Throwable => LOG.debug("Exception on stop: " + e,  e)
+        }
+        try {
+          s._1.close()
+        } catch {
+          case e:Throwable => LOG.debug("Exception on close: " + e,  e)
+        }
+        server = null
       }
     }
   }
@@ -473,7 +472,7 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
   ////////////////////////////////////////////////////////////////////////////
   // Maintain a registry of configuration based on ManagedServiceFactory events.
   ////////////////////////////////////////////////////////////////////////////
-  val configurations = new HashMap[String, ClusteredConfiguration]
+  val configurations = new mutable.HashMap[String, ClusteredConfiguration]
 
   class ConfigThread extends Thread {
 
@@ -497,10 +496,6 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
     }
   }
 
-  val config_thread = new ConfigThread()
-  config_thread.setName("ActiveMQ Configuration Watcher")
-  config_thread.start()
-
   def updated(pid: String, properties: Dictionary[java.lang.String, _]): Unit = this.synchronized {
     try {
       deleted(pid)
@@ -509,18 +504,26 @@ class ActiveMQServiceFactory extends ManagedServiceFactory {
       case e: Exception => throw new ConfigurationException(null, "Unable to parse ActiveMQ configuration: " + e.getMessage).initCause(e).asInstanceOf[ConfigurationException]
     }
   }
+
   def deleted(pid: String): Unit = this.synchronized {
-    configurations.remove(pid).foreach(_.close)
+    configurations.remove(pid).foreach(_.close())
   }
 
-  def destroy: Unit = this.synchronized {
-    configurations.keys.toArray.foreach(deleted(_))
+  def getName: String = "ActiveMQ Server Controller"
+
+  //
+  // Lifecycle
+  //
+
+  val config_thread : ConfigThread = new ConfigThread
+  config_thread.setName("ActiveMQ Configuration Watcher")
+  config_thread.start()
+
+  def destroy(): Unit = this.synchronized {
     config_thread.running = false
     config_thread.interrupt()
-  }
-
-  def getName: String = {
-    return "ActiveMQ Server Controller"
+    config_thread.join()
+    configurations.keys.toArray.foreach(deleted)
   }
 
 }

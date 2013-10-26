@@ -32,6 +32,7 @@
 
   <properties>
     <fuse.osgi.services.export>javax.jms.ConnectionFactory</fuse.osgi.services.export>
+    <fuse.osgi.activator>org.fusesource.mq.fabric.Activator</fuse.osgi.activator>
   </properties>
 
   <dependencies>
