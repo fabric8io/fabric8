@@ -18,10 +18,12 @@
 package org.fusesource.fabric.itests.basic;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -71,7 +73,7 @@ public class SelfUpdateTest extends FabricTestSupport {
         System.out.println(executeCommand("fabric:profile-display --version 1.1 default"));
         System.out.println(executeCommand("fabric:container-upgrade 1.1 child1"));
         Thread.sleep(5000);
-        waitForProvisionSuccess(fabricService.getContainer("child1"), PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+        Provision.provisioningSuccess(Arrays.asList(fabricService.getContainer("child1")), PROVISION_TIMEOUT);
         System.out.println(executeCommand("fabric:container-list"));
     }
 
