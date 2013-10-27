@@ -34,7 +34,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
                 <!--<module>camel-cxf-code-first-archetype</module>
                 <module>camel-cxf-contract-first-archetype</module>

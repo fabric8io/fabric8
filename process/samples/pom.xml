@@ -103,7 +103,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
                 <module>process-sample-camel-spring-just-xml</module>
             </modules>

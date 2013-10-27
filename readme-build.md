@@ -6,7 +6,7 @@ There are three main build targets associated with corresponding maven profiles
 * fab: Fuse Fabric
 * amq: Fuse A-MQ
 * esb: Fuse ESB
-* release: All of the above
+* all: All of the above
 
 Examples
 --------
@@ -29,7 +29,7 @@ Build Fuse Fabric using last Hawtio Snapshot and run the associated tests
     
 Build all modules and run the associated smoke tests
 
-    > mvn -Prelease clean install
+    > mvn -Pall clean install
 
 Note, to avoid getting prompted for a gpg key add **-Dgpg.skip=true**
 
@@ -60,7 +60,7 @@ Build Fuse Fabric and run all tests
     
 Build all modules and run all tests
 
-    > mvn -Prelease -Dts.all clean install
+    > mvn -Pall -Dts.all clean install
     
 Build Fuse Fabric and skip the smoke tests
 

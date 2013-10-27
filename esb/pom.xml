@@ -199,7 +199,7 @@
     
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
               <module>jboss-fuse</module>
               <module>jboss-fuse-minimal</module>
@@ -211,6 +211,8 @@
         <profile>
             <id>esb</id>
             <modules>
+              <module>jboss-fuse</module>
+              <module>esb-itests</module>
             </modules>
         </profile>
         <profile>

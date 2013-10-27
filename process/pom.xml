@@ -50,7 +50,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
             </modules>
         </profile>

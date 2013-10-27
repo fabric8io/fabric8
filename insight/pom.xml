@@ -45,19 +45,6 @@
 
     <profiles>
         <profile>
-            <id>release</id>
-            <modules>
-                <module>insight-activemq</module>
-                <module>insight-camel</module>
-                <module>insight-eshead</module>
-                <module>insight-jetty</module>
-                <module>insight-kibana3</module>
-                <module>insight-log4j</module>
-                <module>insight-maven</module>
-                <module>insight-metrics</module>
-            </modules>
-        </profile>
-        <profile>
             <id>all</id>
             <modules>
                 <module>insight-activemq</module>

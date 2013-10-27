@@ -38,7 +38,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
                 <module>cxf-demo-feature</module>
                 <module>cxf-server</module>

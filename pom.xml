@@ -1481,7 +1481,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
                 <module>bai</module>
                 <module>components</module>

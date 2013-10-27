@@ -45,7 +45,7 @@
 
     <profiles>
         <profile>
-            <id>release</id>
+            <id>all</id>
             <modules>
                 <module>jboss-a-mq</module>
                 <module>mq-branding</module>
