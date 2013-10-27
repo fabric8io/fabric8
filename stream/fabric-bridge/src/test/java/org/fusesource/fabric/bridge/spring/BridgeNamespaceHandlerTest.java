@@ -23,6 +23,7 @@ import org.fusesource.fabric.bridge.model.BridgedDestination;
 import org.fusesource.fabric.bridge.model.BrokerConfig;
 import org.fusesource.fabric.bridge.model.DispatchPolicy;
 import org.fusesource.fabric.bridge.model.RemoteBridge;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,6 +127,7 @@ public class BridgeNamespaceHandlerTest  {
     }
 
     @Test
+    @Ignore("[FABRIC-555] Fix stream/fabric-bridge tests")
     public void testGatewayConnectorWithRefs() {
         GatewayConnector bean = applicationContext.getBean("mygatewayconnectorwithrefs", GatewayConnector.class);
         LOG.info(bean.toString());
