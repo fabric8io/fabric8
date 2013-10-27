@@ -17,12 +17,14 @@
 
 package org.fusesource.fabric.itests.smoke;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.service.ssh.CreateSshContainerOptions;
 import org.junit.After;
 import org.junit.Before;
@@ -96,7 +98,7 @@ public class CreateSshContainerTest extends FabricTestSupport {
             }
             assertTrue("Expected successful creation of remote ssh container",metadata[0].isSuccess());
             assertNotNull("Expected successful creation of remote ssh container",metadata[0].getContainer());
-            waitForProvisionSuccess(metadata[0].getContainer(), PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(metadata[0].getContainer()), "success", PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
             System.out.println(executeCommand("fabric:container-resolver-list"));
             Container ssh1 = getFabricService().getContainer("ssh1");
@@ -108,7 +110,7 @@ public class CreateSshContainerTest extends FabricTestSupport {
             ssh2.stop();
             assertFalse(ssh2.isAlive());
             ssh2.start();
-            waitForProvisionSuccess(ssh2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(ssh2), "success", PROVISION_TIMEOUT);
             assertTrue(ssh2.isAlive());
             ssh2.stop();
 
@@ -117,7 +119,7 @@ public class CreateSshContainerTest extends FabricTestSupport {
             assertFalse(ssh1.isAlive());
             System.out.println(executeCommand("fabric:container-list -v"));
             ssh1.start();
-            waitForProvisionSuccess(ssh1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(ssh1), "success", PROVISION_TIMEOUT);
             System.out.println(executeCommand("fabric:container-list -v"));
             assertTrue(ssh1.isAlive());
         }

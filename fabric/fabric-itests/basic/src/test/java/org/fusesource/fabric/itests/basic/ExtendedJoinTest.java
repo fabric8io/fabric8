@@ -75,8 +75,7 @@ public class ExtendedJoinTest extends FabricTestSupport {
             Provision.containersExist(Arrays.asList("child1", "child2"), PROVISION_TIMEOUT);
 			Container child1 = fabricService.getContainer("child1");
 			Container child2 = fabricService.getContainer("child2");
-			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
-			waitForProvisionSuccess(child2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(child1, child2), "success", PROVISION_TIMEOUT);
 			System.err.println(executeCommand("fabric:ensemble-add --force child1 child2"));
 			Thread.sleep(5000);
             getCurator().getZookeeperClient().blockUntilConnectedOrTimedOut();

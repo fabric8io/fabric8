@@ -63,8 +63,7 @@ public class ResolverTest extends FabricTestSupport {
         Assert.assertEquals("localhostname", current.getResolver());
         String sshUrlWithLocalhostResolver = current.getSshUrl();
 
-        //We need to wait till fabric commands are available.
-        getOsgiService(BlueprintContainer.class, "(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+        waitForFabricCommands();
         System.err.println(executeCommand("fabric:container-resolver-set --container root localip"));
         Assert.assertEquals("localip", current.getResolver());
         String sshUrlWithLocalIpResolver = current.getSshUrl();

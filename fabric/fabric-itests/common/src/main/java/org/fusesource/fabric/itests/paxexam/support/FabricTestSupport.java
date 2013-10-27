@@ -104,7 +104,7 @@ public class FabricTestSupport extends FuseTestSupport {
             Profile profile = version.getProfile(profileName);
             assertNotNull("Expected to find profile with name:" + profileName, profile);
             container.setProfiles(new Profile[]{profile});
-            waitForProvisionSuccess(container, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
             return container;
         }
         throw new Exception("Could container not created");
@@ -126,34 +126,6 @@ public class FabricTestSupport extends FuseTestSupport {
         }
     }
 
-
-    /**
-     * Waits for a container to successfully provision.
-     */
-    protected void waitForProvisionSuccess(Container container) throws Exception {
-    	waitForProvisionSuccess(container, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
-    }
-
-    /**
-     * Waits for a container to successfully provision.
-     */
-    protected void waitForProvisionSuccess(Container container, long timeout, TimeUnit unit) throws Exception {
-        System.err.println("Waiting for container: " + container.getId() + " to succesfully provision");
-        boolean success = container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null;
-        for (long t = 0; !success && t < unit.toMillis(timeout); t += 1000) {
-            if (container.getProvisionException() != null) {
-                throw new Exception(container.getProvisionException());
-            }
-            Thread.sleep(1000);
-            System.err.println("DataStore:" + container.getFabricService().getDataStore());
-            success = container.isAlive() && container.getProvisionStatus().equals("success") && container.getSshUrl() != null;
-            System.err.println("Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus());
-        }
-        System.err.println("Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Ssh URL:" + container.getSshUrl());
-        if (!success) {
-            throw new Exception("Could not provision " + container.getId() + " Alive:" + container.isAlive() + " Status:" + container.getProvisionStatus() + " Ssh URL:" + container.getSshUrl());
-        }
-    }
 
     /**
      * Creates a child container, waits for succesfull provisioning and asserts, its asigned the right profile.
@@ -221,7 +193,7 @@ public class FabricTestSupport extends FuseTestSupport {
             //This is required so that waitForProvisionSuccess doesn't retrun before the deployment agent kicks in.
             setData(getCurator(), ZkPath.CONTAINER_PROVISION_RESULT.getPath(containerName), "switching profile");
             container.setProfiles(profiles);
-            waitForProvisionSuccess(container, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
         }
         return same;
     }

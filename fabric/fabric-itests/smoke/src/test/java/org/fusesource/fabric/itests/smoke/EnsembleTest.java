@@ -61,7 +61,7 @@ public class EnsembleTest extends FabricTestSupport {
     @Test
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Thread.sleep(5000);
+        waitForFabricCommands();
         Deque<Container> containerQueue = new LinkedList<Container>(ContainerBuilder.create(2).withName("ens").assertProvisioningResult().build());
         Deque<Container> addedContainers = new LinkedList<Container>();
 
@@ -117,7 +117,6 @@ public class EnsembleTest extends FabricTestSupport {
     public Option[] config() {
         return new Option[]{
                 new DefaultCompositeOption(fabricDistributionConfiguration()),
-                //debugConfiguration("5005", false)
         };
     }
 }

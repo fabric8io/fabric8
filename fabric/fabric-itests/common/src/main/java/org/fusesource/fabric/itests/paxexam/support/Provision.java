@@ -166,9 +166,13 @@ public class Provision {
 
             for (Container container : containers) {
                 if (!"success".equals(container.getProvisionStatus())) {
-                    if (startedAt + timeout < System.currentTimeMillis())
+                    if(container.getProvisionException() != null) {
+                        throw new Exception(container.getProvisionException());
+                    }
+                    else if (startedAt + timeout < System.currentTimeMillis()) {
                         throw new Exception("Container " + container.getId() + " failed to provision. Status:" + container.getProvisionStatus() + " Exception:" + container.getProvisionException());
-                } else {
+                    }
+                }  else {
                     running = false;
                 }
             }

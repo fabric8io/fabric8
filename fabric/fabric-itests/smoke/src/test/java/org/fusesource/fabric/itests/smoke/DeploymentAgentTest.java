@@ -43,6 +43,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 	@Test
 	public void testFeatureRepoResolution() throws Exception {
 		System.out.println(executeCommand("fabric:create -n"));
+        waitForFabricCommands();
 		//We are just want to use a feature repository that is not part of the distribution.
 		System.out.println(executeCommand("fabric:profile-create --parents camel test-profile"));
 		System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
@@ -74,8 +75,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 	public Option[] config() {
 		return new Option[]{
 				new DefaultCompositeOption(fabricDistributionConfiguration()),
-				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID)),
-				debugConfiguration("5005", false)
+				editConfigurationFilePut("etc/system.properties", "fabric.version", MavenUtils.asInProject().getVersion(GROUP_ID, ARTIFACT_ID))
 		};
 	}
 }

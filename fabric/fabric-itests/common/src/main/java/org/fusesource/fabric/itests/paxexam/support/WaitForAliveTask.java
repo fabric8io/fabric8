@@ -41,12 +41,12 @@ public class WaitForAliveTask implements Callable<Boolean> {
 
     @Override
     public Boolean call() throws Exception {
-        boolean isAlive = false;
+        boolean isAlive = isAlive(container);
         for (long t = 0; (isAlive != alive  && t < provisionTimeOut); t += 2000L) {
             try {
                 System.out.println("Container:" + container.getId() + " Alive:" + container.isAlive());
-                isAlive = container.isAlive();
-                if (!isAlive) {
+                isAlive = isAlive(container);
+                if (isAlive != alive) {
                     Thread.sleep(2000L);
                 }
             } catch (DynamicReferenceException e) {
@@ -58,5 +58,13 @@ public class WaitForAliveTask implements Callable<Boolean> {
             }
         }
         return isAlive == alive;
+    }
+
+    private boolean isAlive(Container c) {
+        try {
+            return c.isAlive();
+        } catch (Throwable t) {
+            return false;
+        }
     }
 }

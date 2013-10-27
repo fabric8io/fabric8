@@ -65,7 +65,7 @@ public class JoinTest extends FabricTestSupport {
             Provision.containersExist(Arrays.asList("child1"), PROVISION_TIMEOUT);
             Container child1 = fabricService.getContainer("child1");
             System.err.println(executeCommand("fabric:container-list"));
-			waitForProvisionSuccess(child1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+            Provision.containersStatus(Arrays.asList(child1), "success", PROVISION_TIMEOUT);
 			System.err.println(executeCommand("fabric:container-list"));
 		} finally {
 			System.err.println(executeCommand("admin:stop child1"));

@@ -65,7 +65,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
         Deque<Container> addedContainers = new LinkedList<Container>();
 
         System.err.println(executeCommand("fabric:version-create"));
-        Thread.sleep(5000);
+        waitForFabricCommands();
         System.err.println(executeCommand("fabric:container-upgrade --all 1.2"));
 
         for (int e = 0; e < 3 && containerQueue.size() >= 2 && containerQueue.size() % 2 == 0; e++) {
@@ -123,7 +123,7 @@ public class ExtendedEnsembleTest extends FabricTestSupport {
     @Test
     public void testAddAndRemoveWithPartialVersionUpgrades() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Thread.sleep(5000);
+        waitForFabricCommands();
         System.err.println(executeCommand("fabric:version-create"));
         System.err.println(executeCommand("fabric:container-upgrade --all 1.1"));
 

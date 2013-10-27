@@ -92,8 +92,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     @Test
     public void testContainerAfterVersionUpgradeAndDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
-        //TODO: We have sporadic failures here, due to containers not being upgraded, without a tiny little sleep period.
-        Thread.sleep(5000);
+        waitForFabricCommands();
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();
         //Make sure that the profile change has been applied before changing the version
@@ -131,6 +130,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
     @Test
     public void testContainerAfterVersionDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
+        waitForFabricCommands();
         System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
         System.out.println(executeCommand("fabric:container-upgrade --all 1.1"));
         Set<Container> containers = ContainerBuilder.create().withName("camel").withProfiles("feature-camel").assertProvisioningResult().build();

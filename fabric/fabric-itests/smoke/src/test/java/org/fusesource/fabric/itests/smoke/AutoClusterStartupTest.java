@@ -55,7 +55,6 @@ public class AutoClusterStartupTest extends FabricTestSupport {
     protected FabricService fabricService;
 
     @Test
-    @Ignore("[FABRIC-521] Fix fabric/fabric-itests/fabric-itests-smoke")
     public void testLocalFabricCluster() throws Exception {
         fabricService = getFabricService();
         //Test autostartup.

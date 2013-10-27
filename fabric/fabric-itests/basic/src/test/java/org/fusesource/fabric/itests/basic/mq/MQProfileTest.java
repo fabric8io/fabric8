@@ -4,6 +4,7 @@ import org.apache.activemq.broker.jmx.BrokerViewMBean;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -17,6 +18,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import javax.management.ObjectName;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -82,7 +84,7 @@ public class MQProfileTest extends FabricTestSupport {
 
         Container container = getFabricService().getContainer("mq1");
         containers.add(container);
-        waitForProvisionSuccess(container, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+        Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
 
         BrokerViewMBean bean = (BrokerViewMBean)getMBean(container, new ObjectName("org.apache.activemq:type=Broker,brokerName=mq"), BrokerViewMBean.class);
 
@@ -108,13 +110,11 @@ public class MQProfileTest extends FabricTestSupport {
 
         executeCommand("mq-create --create-container broker --jmx-user admin --jmx-password admin ms-broker");
         Container container1 = getFabricService().getContainer("broker1");
-        containers.add(container1);
-        waitForProvisionSuccess(container1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
-
         Container container2 = getFabricService().getContainer("broker2");
+        containers.add(container1);
         containers.add(container2);
-        waitForProvisionSuccess(container2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
 
+        Provision.containersStatus(containers, "success", PROVISION_TIMEOUT);
         installAndCheckFeature("activemq");
         Thread.sleep(10000);
 
@@ -140,15 +140,13 @@ public class MQProfileTest extends FabricTestSupport {
         Thread.sleep(10000);
 
         executeCommand("mq-create --group us-east --networks us-west --create-container us-east --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-east");
+        executeCommand("mq-create --group us-west --networks us-east --create-container us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
         Container container1 = getFabricService().getContainer("us-east1");
         containers.add(container1);
-        waitForProvisionSuccess(container1, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
-
-
-        executeCommand("mq-create --group us-west --networks us-east --create-container us-west --jmx-user admin --jmx-password admin --networks-username admin --networks-password admin --minimumInstances 1 us-west");
         Container container2 = getFabricService().getContainer("us-west1");
         containers.add(container2);
-        waitForProvisionSuccess(container2, PROVISION_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        Provision.containersStatus(containers, "success", PROVISION_TIMEOUT);
 
         containers.addAll(ContainerBuilder.create().withName("example-producer").withProfiles("example-mq-producer").withProfiles("mq-client-us-east").assertProvisioningResult().build());
         containers.addAll(ContainerBuilder.create().withName("example-consumer").withProfiles("example-mq-consumer").withProfiles("mq-client-us-west").assertProvisioningResult().build());

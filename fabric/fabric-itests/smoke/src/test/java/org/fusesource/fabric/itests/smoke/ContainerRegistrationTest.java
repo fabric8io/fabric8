@@ -35,7 +35,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     @Test
     public void testSshPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Thread.sleep(3000);
+        waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
         Assert.assertTrue(Provision.profileAvailable("child-profile", "1.0", DEFAULT_TIMEOUT));
         Set<Container> containers = ContainerBuilder.create(1,1).withName("cnt").withProfiles("child-profile").assertProvisioningResult().build();
@@ -53,7 +53,7 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     @Test
     public void testJmxPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        Thread.sleep(3000);
+        waitForFabricCommands();
 		System.err.println(executeCommand("fabric:profile-create --parents default child-profile"));
         Set<Container> containers = ContainerBuilder.create(1,1).withName("cnt").withProfiles("child-profile").assertProvisioningResult().build();
 
