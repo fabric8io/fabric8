@@ -144,7 +144,8 @@
                             org.apache.karaf.jaas.boot.principal,
                             org.eclipse.jetty.plus.jaas,
                             org.apache.cxf.interceptor.security,
-                            org.osgi.service.blueprint
+                            org.osgi.service.blueprint,
+                            org.slf4j
                         </Import-Package>
                         <Export-Package>
                             org.jboss.quickstarts.fuse.rest.secure

@@ -27,6 +27,9 @@ import javax.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This Java class with be hosted in the URI path defined by the @Path annotation. @Path annotations on the methods
  * of this class always refer to a path relative to the path defined at the class level.
@@ -37,6 +40,9 @@ import java.util.Map;
  */
 @Path("/customerservice/")
 public class CustomerService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
+
     long currentId = 123;
     Map<Long, Customer> customers = new HashMap<Long, Customer>();
     Map<Long, Order> orders = new HashMap<Long, Order>();
@@ -58,7 +64,7 @@ public class CustomerService {
     @Path("/customers/{id}/")
     @Produces("application/xml")
     public Customer getCustomer(@PathParam("id") String id) {
-        System.out.println("----invoking getCustomer, Customer id is: " + id);
+        LOG.info("Invoking getCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
         return c;
@@ -78,7 +84,7 @@ public class CustomerService {
     @PUT
     @Path("/customers/")
     public Response updateCustomer(Customer customer) {
-        System.out.println("----invoking updateCustomer, Customer name is: " + customer.getName());
+        LOG.info("Invoking updateCustomer, Customer name is: {}", customer.getName());
         Customer c = customers.get(customer.getId());
         Response r;
         if (c != null) {
@@ -107,7 +113,7 @@ public class CustomerService {
     @POST
     @Path("/customers/")
     public Response addCustomer(Customer customer) {
-        System.out.println("----invoking addCustomer, Customer name is: " + customer.getName());
+        LOG.info("Invoking addCustomer, Customer name is: {}", customer.getName());
         customer.setId(++currentId);
 
         customers.put(customer.getId(), customer);
@@ -125,7 +131,7 @@ public class CustomerService {
     @DELETE
     @Path("/customers/{id}/")
     public Response deleteCustomer(@PathParam("id") String id) {
-        System.out.println("----invoking deleteCustomer, Customer id is: " + id);
+        LOG.info("Invoking deleteCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
 
@@ -151,7 +157,7 @@ public class CustomerService {
      */
     @Path("/orders/{orderId}/")
     public Order getOrder(@PathParam("orderId") String orderId) {
-        System.out.println("----invoking getOrder, Order id is: " + orderId);
+        LOG.info("Invoking getOrder, Order id is: {}", orderId);
         long idNumber = Long.parseLong(orderId);
         Order c = orders.get(idNumber);
         return c;
