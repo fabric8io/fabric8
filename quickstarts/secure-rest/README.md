@@ -128,7 +128,7 @@ You can define additional users in the JAAS realm in two ways:
 
 2. Using the `jaas:` commands in the JBoss Fuse console:
 
-            jaas:manage --realm karaf
+            jaas:manage --realm karaf --index 1
             jaas:useradd myuser mysecretpassword
             jaas:update
 
