@@ -1,6 +1,5 @@
 package org.fusesource.fabric.itests.smoke;
 
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.util.Set;
@@ -10,7 +9,6 @@ import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.MavenUtils;
@@ -46,8 +44,8 @@ public class DeploymentAgentTest extends FabricTestSupport {
 		//We are just want to use a feature repository that is not part of the distribution.
 		System.out.println(executeCommand("fabric:profile-create --parents camel test-profile"));
 		System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-cluster/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1"));
-		System.out.println(executeCommand("fabric:profile-edit --features camel-server test-profile 1.1"));
+		System.out.println(executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1"));
+		System.out.println(executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1"));
 		//We remove all repositories from agent config but the maven central to rely on the fabric-maven-proxy.
 	    //Also remove local repository
 		System.out.println(executeCommand("profile-edit --pid org.fusesource.fabric.agent/org.ops4j.pax.url.mvn.repositories=http://repo1.maven.org/maven2@id=m2central default 1.1"));

@@ -34,7 +34,6 @@
       <module>fabric-camel-dosgi</module>
       <module>fabric-cxf-demo</module>
       <module>fabric-camel-cxf</module>
-      <module>fabric-camel-cluster-loadbalancing</module>
 	</modules>
 
     <profiles>
@@ -42,6 +41,7 @@
             <id>all</id>
             <modules>
               <module>fabric-camel-demo</module>
+              <module>fabric-camel-cluster-loadbalancing</module>
             </modules>
         </profile>
         <profile>
