@@ -28,7 +28,7 @@ System requirements
 -------------------
 Before building and running this quick start you need:
 
-* Maven 3.0.3 or higher
+* Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
 * JBoss Fuse 6
 
@@ -70,27 +70,6 @@ After you deployed this quick start, you will see the `HelloWorldSecurity` servi
     http://localhost:8181/cxf/HelloWorldSecurity?wsdl
 
 
-### To run a Web client:
-
-1. Open the `client.html`, which is located in the same directory as this README file, in your favorite browser.
-2. Click the **Send** button to send a request.
-
-   Once the request has been successfully sent, a response similar to the following should appear in the right-hand panel of the web page:
-
-         STATUS: 200
-
-         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://secure.soap.fuse.quickstarts.jboss.org/">
-             <return>Hello John Doe</return>
-           </ns2:sayHiResponse>
-          </soap:Body>
-        </soap:Envelope>
-
-**Note:** If you use Safari, right click the window and select **Show Source**.
-**Note:** The EnableCORSInterceptor specified for the jaxws:endpoint is only for the CORS http header check of modern browser when use client.html to do the test.
-      You can use the Java client instead to test your web service (see below).
-
-
 ### To run the test:
 
 In this cxf-jaxws quistart, we also provide an integration test which can perform a few HTTP requests to test our web services. We
@@ -104,9 +83,21 @@ created a Maven `test` profile to allow us to run tests code with a simple Maven
 The test uses a client proxy for the Web service to invoke the remote method - in reality,
 a SOAP message will be sent to the server and the response SOAP message will be received and handled.  You will see this output from the remote method:
 
-        Apr 4, 2012 7:48:13 AM org.apache.cxf.service.factory.ReflectionServiceFactoryBean buildServiceFromClass
+        Apr 4, 2013 7:48:13 AM org.apache.cxf.service.factory.ReflectionServiceFactoryBean buildServiceFromClass
         INFO: Creating Service {http://secure.soap.fuse.quickstarts.jboss.org}HelloWorldService from class org.jboss.fuse.examples.cxf.jaxws.security.HelloWorld
         Hello World
+
+
+### To run a Web client:
+
+You can use an external tool such as SoapUI to test web services. 
+
+When using SoapUI with WS Security, then configure the request properties as follows:
+
+* Username = admin
+* Password = admin
+* Authentication Type = Global HTTP Settings
+* WSS-Password Type = PasswordText
 
 
 ### Managing the user credentials
@@ -119,7 +110,7 @@ You can define additional users in the JAAS realm in two ways:
 
 2. Using the jaas: commands in the JBoss Fuse console:
 
-            jaas:manage --realm karaf
+            jaas:manage --realm karaf --index 1
             jaas:useradd myuser mysecretpassword
             jaas:update
 

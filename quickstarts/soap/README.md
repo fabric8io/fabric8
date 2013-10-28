@@ -28,7 +28,7 @@ System requirements
 -------------------
 Before building and running this quick start you need:
 
-* Maven 3.0.3 or higher
+* Maven 3.0.4 or higher
 * JDK 1.6 or 1.7
 * JBoss Fuse 6
 
@@ -81,23 +81,7 @@ You can also use "cxf:list-endpoints" in Fuse to check the state of all CXF web 
 
 ### To run a Web client:
 
-1. Open the client.html, which is located in the same directory as this README file, in your favorite browser.
-2. Click the Send button to send a request.
-
-   Once the request has been successfully sent, a response similar to the following should appear in the right-hand panel of the web page:
-
-         STATUS: 200
-
-         <soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-           <soap:Body><ns2:sayHiResponse xmlns:ns2="http://soap.fuse.quickstarts.jboss.org/"><return>Hello John Doe</return>
-           </ns2:sayHiResponse>
-          </soap:Body>
-        </soap:Envelope>
-
-  **Note**: If you use Safari, right click the window and select 'Show Source'.
-  
-  **Note**: If you get Status: 0 in the right-hand panel instead, your browser no longer supports a cross-domain HTTP request from JavaScript
-      You can use the Java client instead to test your web service (see below).
+You can use an external tool such as SoapUI to test web services.
 
 
 ### To run the test:
