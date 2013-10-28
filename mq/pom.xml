@@ -38,8 +38,6 @@
 
   <modules>
     <module>mq-fabric</module>
-    <module>mq-fabric-cf</module>
-    <module>mq-fabric-camel</module>
     <module>mq-client</module>
   </modules>
 
@@ -49,6 +47,8 @@
             <modules>
                 <module>jboss-a-mq</module>
                 <module>mq-branding</module>
+                <module>mq-fabric-camel</module>
+                <module>mq-fabric-cf</module>
                 <module>mq-http-discovery</module>
                 <module>mq-web-console</module>
                 <module>mq-itests</module>
@@ -64,6 +64,8 @@
             <modules>
                 <module>jboss-a-mq</module>
                 <module>mq-branding</module>
+                <module>mq-fabric-camel</module>
+                <module>mq-fabric-cf</module>
                 <module>mq-http-discovery</module>
                 <module>mq-web-console</module>
                 <module>mq-itests</module>
