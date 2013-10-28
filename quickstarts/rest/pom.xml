@@ -148,7 +148,8 @@
                             javax.ws.rs,
                             javax.ws.rs.core,
                             javax.xml.bind.annotation,
-                            org.osgi.service.blueprint
+                            org.osgi.service.blueprint,
+                            org.slf4j
                         </Import-Package>
                         <Export-Package>
                             org.jboss.quickstarts.fuse.rest

@@ -70,6 +70,7 @@ public final class CrmTest {
     @Test
     public void getCustomerTest() throws Exception {
         LOG.info("Sent HTTP GET request to query customer info");
+
         url = new URL(CUSTOMER_TEST_URL);
         InputStream in = null;
         try {
@@ -95,8 +96,8 @@ public final class CrmTest {
      */
     @Test
     public void getProductOrderTest() throws Exception {
-
         LOG.info("Sent HTTP GET request to query sub resource product info");
+
         url = new URL(PRODUCT_ORDER_TEST_URL);
         try {
             in = url.openStream();
@@ -117,12 +118,11 @@ public final class CrmTest {
      * the add_customer.xml file to add a new customer to the system.
      * <p/>
      * On the server side, it matches the CustomerService's addCustomer() method
-     *
-     * @throws Exception
      */
     @Test
     public void postCustomerTest() throws IOException {
         LOG.info("Sent HTTP POST request to add customer");
+
         String inputFile = this.getClass().getResource("/add_customer.xml").getFile();
         File input = new File(inputFile);
         PostMethod post = new PostMethod(CUSTOMER_SERVICE_URL);
@@ -148,8 +148,8 @@ public final class CrmTest {
             // done
             post.releaseConnection();
         }
-        Assert.assertTrue(res.contains("Jack"));
 
+        Assert.assertTrue(res.contains("Jack"));
     }
 
     /**
@@ -157,13 +157,9 @@ public final class CrmTest {
      * the update_customer.xml file to update the customer information for customer 123.
      * <p/>
      * On the server side, it matches the CustomerService's updateCustomer() method
-     *
-     * @throws Exception
      */
     @Test
-    public void putCutomerTest() throws IOException {
-
-
+    public void putCustomerTest() throws IOException {
         LOG.info("Sent HTTP PUT request to update customer info");
 
         String inputFile = this.getClass().getResource("/update_customer.xml").getFile();
@@ -184,13 +180,11 @@ public final class CrmTest {
             LOG.error("Please read the README.md file in 'rest' quick start root");
             Assert.fail("Connection error");
         } finally {
-            // Release current connection to the connection pool once you are
-            // done
+            // Release current connection to the connection pool once you are done
             put.releaseConnection();
         }
 
         Assert.assertEquals(result, 200);
     }
-
 
 }
