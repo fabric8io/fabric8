@@ -47,17 +47,14 @@
 			org.fusesource.camel.component.sap.util;version=${project.version},
 			org.eclipse.emf.ecore
 		</fuse.osgi.export>
+		<fuse.osgi.private.pkg>
+			org.eclipse.emf.common.*,
+			org.eclipse.emf.ecore.*,
+			org.eclipse.emf.edit.*,
+			org.fusesource.camel.component.sap.*;-split-package:=merge-first
+		</fuse.osgi.private.pkg>
 		<fuse.osgi.services.export>org.apache.camel.spi.ComponentResolver;component=sap</fuse.osgi.services.export>
-		<fuse.osgi.embed.dependency>
-			org.eclipse.emf.common,
-			org.eclipse.emf.ecore,
-			org.eclipse.emf.ecore.xmi,
-			org.eclipse.emf.edit,
-			org.fusesource.camel.component.sap,
-			org.fusesource.camel.component.sap.model
-			org.fusesource.camel.component.sap.model.edit
-		</fuse.osgi.embed.dependency>
-		
+		 
 		<!-- Temporary Overrides for testing 
 		<camel-version>2.12.0</camel-version>
 		<karaf-version>2.3.3</karaf-version>
@@ -74,21 +71,25 @@
 			<groupId>org.eclipse.emf</groupId>
 			<artifactId>org.eclipse.emf.common</artifactId>
 			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.emf</groupId>
 			<artifactId>org.eclipse.emf.ecore</artifactId>
 			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.emf</groupId>
 			<artifactId>org.eclipse.emf.ecore.xmi</artifactId>
 			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.emf</groupId>
 			<artifactId>org.eclipse.emf.edit</artifactId>
 			<scope>compile</scope>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
@@ -113,10 +114,12 @@
 		<dependency>
 			<groupId>org.fusesource</groupId>
 			<artifactId>org.fusesource.camel.component.sap</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.fusesource</groupId>
 			<artifactId>org.fusesource.camel.component.sap.model</artifactId>
+			<optional>true</optional>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.camel</groupId>
