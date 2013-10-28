@@ -278,8 +278,10 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
                 info("Broker %s is now a slave, stopping the broker.", name)
                 stop()
               } else {
-                info("Broker %s is slave", name)
-                discoveryAgent.setServices(Array[String]())
+                if (event.equals(GroupEvent.CHANGED)) {
+                  info("Broker %s is slave", name)
+                  discoveryAgent.setServices(Array[String]())
+                }
               }
             }
           } else {
