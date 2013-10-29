@@ -646,7 +646,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         }
 
         for (String pid : oldCfgs.keySet()) {
-            doRecursiveDeleteAndRemove(git, getPidFile(profileDirectory, pid));
+            doRecursiveDeleteAndRemove(git, new File(profileDirectory, pid));
         }
     }
 
@@ -705,7 +705,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
     protected File getPidFile(File profileDirectory, String pid) {
         assertValid();
-        return new File(profileDirectory, pid);
+        return new File(profileDirectory, pid + PROPERTIES_SUFFIX);
     }
 
     protected String getPidFromFileName(String relativePath) throws IOException {
