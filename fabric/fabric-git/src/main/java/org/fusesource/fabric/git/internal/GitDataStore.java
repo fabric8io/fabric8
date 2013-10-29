@@ -199,6 +199,9 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 public void run() {
                     LOG.debug("Performing timed pull");
                     pull();
+                    //a commit that failed to push for any reason, will not get pushed until the next commit.
+                    //periodically pushing can address this issue.
+                    push();
                 }
             }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
         } catch (Exception ex) {
@@ -887,8 +890,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     git.stashCreate().setPerson(personIdent)
                             .setWorkingDirectoryMessage("Stash before a write").call();
                 }
-                String originalBranch = repository.getBranch();
-                RevCommit statusBefore = CommitUtils.getHead(repository);
 
                 if (pullFirst) {
                     doPull(git, getCredentialsProvider(), false);
@@ -905,11 +906,12 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     git.commit().setMessage(message).call();
                 }
 
-                git.checkout().setName(originalBranch).call();
-
-                if (requirePush || hasChanged(git, statusBefore.getName(), CommitUtils.getHead(repository).getName())) {
-                    clearCaches();
+                if (requirePush) {
                     doPush(git, context, getCredentialsProvider());
+                }
+
+                if (context.isRequireCommit()) {
+                    clearCaches();
                     fireChangeNotifications();
                 }
                 return answer;
@@ -1062,7 +1064,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
             }
 
-            // Check git commmits
+            // Check git commits
             for (String version : gitVersions) {
                 // Delete unneeded local branches.
                 //Check if any remote branches was found as a guard for unwanted deletions.
@@ -1227,6 +1229,20 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                     return null;
                 }
             });
+        } catch (Exception e) {
+            LOG.warn("Failed to perform a pull " + e, e);
+        }
+    }
+
+    protected void push() {
+        assertValid();
+        try {
+            gitOperation(new GitOperation<Object>() {
+                public Object call(Git git, GitContext context) throws Exception {
+                    context.requirePush();
+                    return null;
+                }
+            }, false);
         } catch (Exception e) {
             LOG.warn("Failed to perform a pull " + e, e);
         }
