@@ -52,7 +52,6 @@ import java.io.ObjectStreamClass;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,6 +77,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 public abstract class AbstractDataStore extends AbstractComponent implements DataStore, PathChildrenCacheListener {
 
     private static final transient Logger LOG = LoggerFactory.getLogger(AbstractDataStore.class);
+    private static final String NAME = System.getProperty("karaf.name");
 
     public static final String REQUIREMENTS_JSON_PATH = "/fabric/configs/org.fusesource.fabric.requirements.json";
     public static final String JVM_OPTIONS_PATH = "/fabric/configs/org.fusesource.fabric.containers.jvmOptions";
@@ -148,14 +148,29 @@ public abstract class AbstractDataStore extends AbstractComponent implements Dat
     public void childEvent(CuratorFramework client, PathChildrenCacheEvent event) throws Exception {
         if (isValid()) {
             switch (event.getType()) {
-            case CHILD_ADDED:
-            case CHILD_REMOVED:
-            case CHILD_UPDATED:
-            case INITIALIZED:
-                runCallbacks();
-                break;
+                case CHILD_ADDED:
+                case CHILD_REMOVED:
+                case CHILD_UPDATED:
+                case INITIALIZED:
+                    if (shouldRunCallbacks(event.getData().getPath())) {
+                        runCallbacks();
+                    }
+                    break;
+            }
         }
-        }
+    }
+
+    /**
+     * Checks if the container should react to a change in the specified path.
+     * @param path  The path that has been updated.
+     * @return
+     */
+    private boolean shouldRunCallbacks(String path) {
+        return path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
+            path.equals(ZkPath.CONFIG_ENSEMBLE_URL.getPath()) ||
+            path.equals(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()) ||
+            path.equals(ZkPath.CONFIG_CONTAINER.getPath(NAME));
+
     }
 
     protected void runCallbacks() {

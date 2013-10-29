@@ -24,15 +24,21 @@ import org.eclipse.jgit.api.ListBranchCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.errors.CannotDeleteCurrentBranchException;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
+import org.eclipse.jgit.lib.ObjectId;
+import org.eclipse.jgit.lib.ObjectReader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
+import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
+import org.eclipse.jgit.treewalk.AbstractTreeIterator;
+import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.fusesource.fabric.api.*;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
@@ -901,7 +907,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
                 git.checkout().setName(originalBranch).call();
 
-                if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
+                if (requirePush || hasChanged(git, statusBefore.getName(), CommitUtils.getHead(repository).getName())) {
                     clearCaches();
                     doPush(git, context, getCredentialsProvider());
                     fireChangeNotifications();
@@ -924,15 +930,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
         LOG.debug("Firing change notifications!");
         clearCaches();
         runCallbacks();
-    }
-
-    // Returns true if a commit has been done, so we need to try push it
-    private boolean hasChanged(RevCommit statusBefore, RevCommit statusAfter) {
-        return !isCommitEqual(statusBefore.getId(), statusAfter.getId());
-    }
-
-    private static boolean isCommitEqual(Object a, Object b) {
-        return (a == b) || (a != null && a.equals(b));
     }
 
     /**
@@ -1095,7 +1092,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                         git.checkout().setName("HEAD").setForce(true).call();
                         git.checkout().setName(version).setForce(true).call();
                         MergeResult result = git.merge().setStrategy(MergeStrategy.THEIRS).include(remoteBranches.get(version).getObjectId()).call();
-                        if (result.getMergeStatus() != MergeResult.MergeStatus.ALREADY_UP_TO_DATE) {
+                        if (result.getMergeStatus() != MergeResult.MergeStatus.ALREADY_UP_TO_DATE && hasChanged(git, localCommit, remoteCommit)) {
                             hasChanged = true;
                         }
                         // TODO: handle conflicts
@@ -1307,6 +1304,46 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             relativePath = relativePath.substring(1);
         }
         return relativePath;
+    }
+
+    /**
+     * Checks if there is an actual difference between two commits.
+     * In some cases a container may push a commit, without actually modifying anything.
+     * So comparing the commit hashes is not always enough. We need to acutally diff the two commits.
+     * @param git       The {@link Git} instance to use.
+     * @param before    The hash of the first commit.
+     * @param after     The hash of the second commit.
+     * @return
+     * @throws IOException
+     * @throws GitAPIException
+     */
+    private boolean hasChanged(Git git, String before, String after) throws IOException, GitAPIException {
+        if(isCommitEqual(before, after)) {
+            return false;
+        }
+        Repository db = git.getRepository();
+        List<DiffEntry> entries = git.diff().setOldTree(getTreeIterator(db, before)).setNewTree(getTreeIterator(db, after)).call();
+        return entries.size() > 0;
+    }
+
+    private AbstractTreeIterator getTreeIterator(Repository db, String name)
+            throws IOException {
+        Git g;
+        final ObjectId id = db.resolve(name);
+        if (id == null)
+            throw new IllegalArgumentException(name);
+        final CanonicalTreeParser p = new CanonicalTreeParser();
+        final ObjectReader or = db.newObjectReader();
+        try {
+            p.reset(or, new RevWalk(db).parseTree(id));
+            return p;
+        } finally {
+            or.release();
+        }
+    }
+
+    private static boolean isCommitEqual(Object a, Object b) {
+        return (a == b) || (a != null && a.equals(b));
     }
 
     @Override
