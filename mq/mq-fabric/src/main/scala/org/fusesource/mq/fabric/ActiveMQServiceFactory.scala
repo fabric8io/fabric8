@@ -37,7 +37,7 @@ import scala.collection.JavaConversions._
 import java.lang.{ThreadLocal, Thread}
 import org.apache.activemq.ActiveMQConnectionFactory
 import org.apache.activemq.spring.SpringBrokerContext
-import org.osgi.framework.{ServiceRegistration, BundleContext}
+import org.osgi.framework.{ServiceReference, ServiceRegistration, BundleContext}
 import org.apache.activemq.network.DiscoveryNetworkConnector
 import collection.mutable
 import org.apache.curator.framework.CuratorFramework
@@ -46,6 +46,7 @@ import org.fusesource.fabric.groups.{Group, GroupListener}
 import GroupListener.GroupEvent
 import org.fusesource.fabric.api.FabricService
 import org.apache.xbean.classloader.MultiParentClassLoader
+import org.osgi.util.tracker.{ServiceTrackerCustomizer, ServiceTracker}
 
 object ActiveMQServiceFactory {
   final val LOG= LoggerFactory.getLogger(classOf[ActiveMQServiceFactory])
@@ -124,21 +125,16 @@ class ConfigurationProperties extends FactoryBean[Properties] {
   def isSingleton = false
 }
 
-class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFramework) extends ManagedServiceFactory {
+class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServiceFactory
+  with ServiceTrackerCustomizer[CuratorFramework,CuratorFramework] {
 
   import ActiveMQServiceFactory._
 
-  @volatile
-  var fabricService:FabricService = _
 
-  def bindFabricService(fs:FabricService) = {
-    fabricService = fs
-  }
+  //
+  // Pool management
+  //
 
-  def unbindFabricService(fabricService:FabricService) = {
-    this.fabricService = null;
-  }
-  
   var owned_pools = Set[String]()
 
   def can_own_pool(cc:ClusteredConfiguration) = this.synchronized {
@@ -229,6 +225,72 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
 
     var last_modified:Long = -1
 
+    def updateCurator(curator: CuratorFramework) = {
+      if (discoveryAgent != null) {
+        discoveryAgent.stop()
+        discoveryAgent = null
+        if (started.compareAndSet(true, false)) {
+          info("Lost zookeeper service for broker %s, stopping the broker.", name)
+          stop()
+          var t = this.synchronized { stop_thread }
+          while(t!=null) {
+            t.join()
+            t = this.synchronized { stop_thread } // when the stop thread is done this gets set to null.
+          }
+          return_pool(this)
+          pool_enabled = false
+        }
+      }
+      if (curator != null) {
+        info("Found zookeeper service for broker %s.", name)
+        discoveryAgent = new FabricDiscoveryAgent
+        discoveryAgent.setAgent(System.getProperty("karaf.name"))
+        discoveryAgent.setId(name)
+        discoveryAgent.setGroupName(group)
+        discoveryAgent.setCurator(curator)
+        if (replicating) {
+          discoveryAgent.start()
+          if (started.compareAndSet(false, true)) {
+            info("Replicating broker %s is starting.", name)
+            start()
+          }
+        } else {
+          discoveryAgent.getGroup.add(new GroupListener[ActiveMQNode]() {
+            def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
+              if (event.equals(GroupEvent.CONNECTED) || event.equals(GroupEvent.CHANGED)) {
+                if (discoveryAgent.getGroup.isMaster(name)) {
+                  if (started.compareAndSet(false, true)) {
+                    if (take_pool(ClusteredConfiguration.this)) {
+                      info("Broker %s is now the master, starting the broker.", name)
+                      start()
+                    } else {
+                      update_pool_state()
+                      started.set(false)
+                    }
+                  }
+                } else {
+                  if (started.compareAndSet(true, false)) {
+                    return_pool(ClusteredConfiguration.this)
+                    info("Broker %s is now a slave, stopping the broker.", name)
+                    stop()
+                  } else {
+                    if (event.equals(GroupEvent.CHANGED)) {
+                      info("Broker %s is slave", name)
+                      discoveryAgent.setServices(Array[String]())
+                    }
+                  }
+                }
+              } else {
+                info("Disconnected from the group", name)
+                discoveryAgent.setServices(Array[String]())
+              }
+            }
+          })
+          info("Broker %s is waiting to become the master", name)
+          update_pool_state()
+        }
+      }
+    }
 
     def ensure_broker_name_is_set = {
       if (!properties.containsKey("broker-name")) {
@@ -246,55 +308,12 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
         info("Standalone broker %s is starting.", name)
         start()
       }
-    } else if (replicating) {
-      if (started.compareAndSet(false, true)) {
-        info("Replicating broker %s is starting.", name)
-        start
-      }
     } else {
-      info("Broker %s is waiting to become the master", name)
-
-      discoveryAgent = new FabricDiscoveryAgent
-      discoveryAgent.setAgent(System.getProperty("karaf.name"))
-      discoveryAgent.setId(name)
-      discoveryAgent.setGroupName(group)
-      discoveryAgent.setCurator(curator)
-      discoveryAgent.getGroup.add(new GroupListener[ActiveMQNode]() {
-        def groupEvent(group: Group[ActiveMQNode], event: GroupEvent) {
-          if (event.equals(GroupEvent.CONNECTED) || event.equals(GroupEvent.CHANGED)) {
-            if (discoveryAgent.getGroup.isMaster(name)) {
-              if (started.compareAndSet(false, true)) {
-                if (take_pool(ClusteredConfiguration.this)) {
-                  info("Broker %s is now the master, starting the broker.", name)
-                  start()
-                } else {
-                  update_pool_state
-                  started.set(false)
-                }
-              }
-            } else {
-              if (started.compareAndSet(true, false)) {
-                return_pool(ClusteredConfiguration.this)
-                info("Broker %s is now a slave, stopping the broker.", name)
-                stop()
-              } else {
-                if (event.equals(GroupEvent.CHANGED)) {
-                  info("Broker %s is slave", name)
-                  discoveryAgent.setServices(Array[String]())
-                }
-              }
-            }
-          } else {
-            info("Disconnected from the group", name)
-            discoveryAgent.setServices(Array[String]())
-          }
-        }
-      })
-      update_pool_state()
+      updateCurator(curator)
     }
 
     def close() = this.synchronized {
-      if(  pool_enabled || (replicating && discoveryAgent!=null)  ) {
+      if( discoveryAgent!=null ) {
         discoveryAgent.stop()
       }
       if( pool_enabled ) {
@@ -303,10 +322,10 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
       if(started.compareAndSet(true, false)) {
         stop()
       }
-      var t = stop_thread // working with a volatile
+      var t = this.synchronized { stop_thread }
       while(t!=null) {
         t.join()
-        t = stop_thread // when the start up thread gives up trying to start this gets set to null.
+        t = this.synchronized { stop_thread } // when the stop thread is done this gets set to null.
       }
     }
 
@@ -359,7 +378,7 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
       var start_failure:Throwable = null
       try {
         // If we are in a fabric, let pass along the zk password in the props.
-        val fs = fabricService
+        val fs = fabricService.getService
         if( fs != null ) {
           val container = fs.getCurrentContainer
           if( !properties.containsKey("container.id") ) {
@@ -403,15 +422,6 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
             }
           }
         })
-
-        if( replicating ) {
-          discoveryAgent = new FabricDiscoveryAgent
-          discoveryAgent.setAgent(System.getProperty("karaf.name"))
-          discoveryAgent.setId(name)
-          discoveryAgent.setGroupName(group)
-          discoveryAgent.setCurator(curator)
-          discoveryAgent.start()
-        }
 
         // Update the advertised endpoint URIs that clients can use.
         if (!standalone || replicating) {
@@ -483,10 +493,17 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
     override def run() {
       while (running) {
         configurations.values.foreach(c => {
-          if (c.config_check && c.last_modified != -1 && c.server._3.lastModified() != c.last_modified) {
-            c.last_modified = c.server._3.lastModified()
-            info("updating " + c.properties)
-            updated(c.properties.get("service.pid").asInstanceOf[String], c.properties.asInstanceOf[Dictionary[java.lang.String, _]])
+          try {
+            if (c.config_check && c.last_modified != -1 && c.server != null) {
+              val lm = c.server._3.lastModified()
+              if( lm != c.last_modified ) {
+                c.last_modified = lm
+                info("updating " + c.properties)
+                updated(c.properties.get("service.pid").asInstanceOf[String], c.properties.asInstanceOf[Dictionary[java.lang.String, _]])
+              }
+            }
+          } catch {
+            case t: Throwable => {}
           }
         })
         try {
@@ -513,19 +530,66 @@ class ActiveMQServiceFactory(bundleContext: BundleContext, curator: CuratorFrame
 
   def getName: String = "ActiveMQ Server Controller"
 
-  //
-  // Lifecycle
-  //
-
   val config_thread : ConfigThread = new ConfigThread
   config_thread.setName("ActiveMQ Configuration Watcher")
   config_thread.start()
+
+  //
+  // Curator and FabricService tracking
+  //
+  val fabricService = new ServiceTracker[FabricService,FabricService](bundleContext, classOf[FabricService], null)
+  fabricService.open()
+
+  var curator: CuratorFramework = _
+  val boundCuratorRefs = new java.util.ArrayList[ServiceReference[CuratorFramework]]()
+  val curatorService = new ServiceTracker[CuratorFramework,CuratorFramework](bundleContext, classOf[CuratorFramework], this)
+  curatorService.open()
+
+
+  def addingService(reference: ServiceReference[CuratorFramework]): CuratorFramework = {
+    val curator = bundleContext.getService(reference)
+    boundCuratorRefs.add( reference )
+    java.util.Collections.sort( boundCuratorRefs )
+    val bind = boundCuratorRefs.get( 0 )
+    if( bind == reference )
+      bindCurator( curator )
+    else
+      bindCurator( curatorService.getService( bind ) )
+    curator
+  }
+
+  def modifiedService(reference: ServiceReference[CuratorFramework], service: CuratorFramework) = {
+  }
+
+  def removedService(reference: ServiceReference[CuratorFramework], service: CuratorFramework) = {
+    boundCuratorRefs.remove( reference )
+    if( boundCuratorRefs.isEmpty )
+      bindCurator( null )
+    else
+      bindCurator( curatorService.getService( boundCuratorRefs.get( 0 ) ) )
+  }
+
+  def bindCurator( curator: CuratorFramework ) = {
+    this.curator = curator
+    ActiveMQServiceFactory.this.synchronized {
+      configurations.values.foreach { c=>
+        c.updateCurator(curator)
+      }
+    }
+  }
+
+  //
+  // Lifecycle
+  //
 
   def destroy(): Unit = this.synchronized {
     config_thread.running = false
     config_thread.interrupt()
     config_thread.join()
     configurations.keys.toArray.foreach(deleted)
+    fabricService.close()
+    curatorService.close()
   }
+
 
 }
