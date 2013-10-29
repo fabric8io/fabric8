@@ -871,7 +871,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
             try {
                 Git git = getGit();
                 Repository repository = git.getRepository();
-                CredentialsProvider credentialsProvider = getCredentialsProvider();
                 // lets default the identity if none specified
                 if (personIdent == null) {
                     personIdent = new PersonIdent(repository);
@@ -886,7 +885,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 RevCommit statusBefore = CommitUtils.getHead(repository);
 
                 if (pullFirst) {
-                    doPull(git, credentialsProvider, false);
+                    doPull(git, getCredentialsProvider(), false);
                 }
 
                 T answer = operation.call(git, context);
@@ -904,7 +903,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
 
                 if (requirePush || hasChanged(statusBefore, CommitUtils.getHead(repository))) {
                     clearCaches();
-                    doPush(git, context, credentialsProvider);
+                    doPush(git, context, getCredentialsProvider());
                     fireChangeNotifications();
                 }
                 return answer;
