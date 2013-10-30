@@ -16,7 +16,13 @@
  */
 package org.fusesource.fabric.itests.smoke;
 
-import junit.framework.Assert;
+import java.util.Arrays;
+import java.util.Deque;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
@@ -24,6 +30,8 @@ import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
+import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -32,13 +40,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-
-import java.util.Arrays;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -52,6 +53,7 @@ public class EnsembleTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-643] Fix fabric smoke EnsembleTest")
     public void testAddAndRemove() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
