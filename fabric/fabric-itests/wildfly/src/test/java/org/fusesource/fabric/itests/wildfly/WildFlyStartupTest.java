@@ -20,10 +20,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
+import org.fusesource.fabric.itests.paxexam.support.Provision;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.junit.Assert;
 import org.junit.Ignore;
@@ -55,7 +57,7 @@ public class WildFlyStartupTest extends WildFlyTestSupport {
 
 			// Add the WildFly profile and start the process
 			executeCommand("container-add-profile child1 controller-wildfly");
-			waitForProvisionSuccess(container);
+			Provision.containersStatus(Arrays.asList(container), "success", PROVISION_TIMEOUT);
 
 			// FIXME: [FABRIC-541] process-list broken for remote containers
 			// String response = executeCommand("process-list child1");
