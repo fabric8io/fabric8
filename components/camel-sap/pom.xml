@@ -206,6 +206,46 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+          		<artifactId>maven-source-plugin</artifactId>
+          		<executions>
+          			<execution>
+          				<id>attach-sources</id>
+          				<goals>
+          					<goal>aggregate</goal>
+          				</goals>
+          				<configuration>
+          					<finalName>camel-sap-${project.version}</finalName>
+          					<attach>false</attach>
+          				</configuration>
+          			</execution>
+          		</executions>
+			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>attach-artifacts</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <configuration>
+							<file>target/camel-sap-${project.version}-sources.jar</file>
+							<groupId>org.fusesource</groupId>
+							<artifactId>camel-sap</artifactId>
+							<version>${project.version}</version>
+							<packaging>jar</packaging>
+							<classifier>sources</classifier>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+		</plugins>
 	</build>
 	<modules>
 		<module>org.fusesource.camel.component.sap.model</module>
