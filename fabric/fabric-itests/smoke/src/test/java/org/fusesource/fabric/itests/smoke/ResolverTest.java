@@ -89,6 +89,7 @@ public class ResolverTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-648] Fix fabric smoke ResolverTest")
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         getOsgiService(ContainerRegistration.class);
