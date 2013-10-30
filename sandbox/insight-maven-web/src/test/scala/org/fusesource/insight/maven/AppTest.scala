@@ -10,7 +10,6 @@ import org.scalatest.FunSuite
  * Unit test for My Ap
  */
 @RunWith(classOf[JUnitRunner])
-@Ignore("[FABRIC-512] Fix insight-maven-web tests")
 class AppTest extends FunSuite with WebServerMixin with WebDriverMixin {
 
   test("home page") {

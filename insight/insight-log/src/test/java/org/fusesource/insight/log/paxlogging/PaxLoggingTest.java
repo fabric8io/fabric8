@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@Ignore("[FABRIC-675] Fix insight log PaxLoggingTest")
 public class PaxLoggingTest {
     String info1 = "InfoOne message";
     String info2 = "InfoTwo message";
@@ -48,9 +48,7 @@ public class PaxLoggingTest {
 
     protected LogQuery logQuery = new LogQuery();
 
-    // TODO
-    @Ignore
-    //@Test
+    @Test
     public void testQueryOfLogMessages() throws Exception {
         // lets wait until the last moment to create the logger so we've time to configure the appender
         Logger LOG = LoggerFactory.getLogger(PaxLoggingTest.class);

@@ -46,7 +46,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.w3c.dom.Document;
 
-@Ignore("[FABRIC-517] Fix tooling tests")
+@Ignore("[FABRIC-517] Fix tooling camel LocalCamelFacadeTest")
 public class LocalCamelFacadeTest extends CamelTestSupport {
 
     private LocalCamelFacade local;
@@ -170,7 +170,6 @@ public class LocalCamelFacadeTest extends CamelTestSupport {
     }
 
     @Test
-    @Ignore
     public void testBrowsableEndpoints() throws Exception {
         template.sendBody("seda:out", "Hello World");
 

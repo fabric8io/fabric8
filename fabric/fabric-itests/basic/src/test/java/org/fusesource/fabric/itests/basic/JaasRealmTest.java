@@ -40,11 +40,10 @@ import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOs
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-665] Fix fabric basic JaasRealmTest")
 public class JaasRealmTest extends FabricTestSupport {
 
-    //TODO: This test needs rewrite as significant changes has been done.
     @Test
-    @Ignore
     public void testJaasRealm() throws Exception {
          //Wait for configAdmin service to become available.
         ConfigurationAdmin configAdmin = getOsgiService(ConfigurationAdmin.class);
@@ -76,14 +75,7 @@ public class JaasRealmTest extends FabricTestSupport {
         assertEquals("karaf",jmxRealm);
     }
 
-    /**
-     * Reads a property from {@code ConfigurationAdmin}.
-     * @param configAdmin
-     * @param pid          The confiugration PID.
-     * @param propertyName The name of the property to read.
-     * @return             The property value or null if pid or propertyName does not exist.
-     */
-   public String readProperty(ConfigurationAdmin configAdmin, String pid, String propertyName) throws IOException {
+   private String readProperty(ConfigurationAdmin configAdmin, String pid, String propertyName) throws IOException {
         String value = null;
             org.osgi.service.cm.Configuration config = configAdmin.getConfiguration(pid);
             if (config != null) {

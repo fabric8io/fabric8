@@ -41,10 +41,10 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-574] Fix fabric wildfly WildFlyStartupTest")
 public class WildFlyStartupTest extends WildFlyTestSupport {
 
 	@Test
-	@Ignore("[FABRIC-574] Fix fabric/fabric-itests/wildfly tests")
 	public void testWildFlyProcess() throws Exception {
 
 		executeCommand("fabric:create -n");

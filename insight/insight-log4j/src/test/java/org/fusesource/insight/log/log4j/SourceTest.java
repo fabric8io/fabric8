@@ -25,7 +25,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("[FABRIC-512] Fix insight tests")
+@Ignore("[FABRIC-512] Fix insight log4j SourceTest")
 public class SourceTest {
     private Log4jLogQuery logQuery = new Log4jLogQuery();
     protected String mavenCoords = "org.apache.camel:camel-core:2.10.3";

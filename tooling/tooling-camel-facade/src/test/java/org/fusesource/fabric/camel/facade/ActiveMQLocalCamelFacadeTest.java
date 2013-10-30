@@ -32,9 +32,7 @@ import org.junit.Test;
 
 import static org.apache.camel.component.jms.JmsComponent.jmsComponentAutoAcknowledge;
 
-/**
- *
- */
+@Ignore("[FABRIC-677] Fix tooling camel ActiveMQLocalCamelFacadeTest")
 public class ActiveMQLocalCamelFacadeTest extends CamelTestSupport {
 
     private LocalCamelFacade local;
@@ -64,7 +62,6 @@ public class ActiveMQLocalCamelFacadeTest extends CamelTestSupport {
         return answer;
     }
 
-    @Ignore
     @Test
     public void testBrowsableEndpointsWithJMX() throws Exception {
         template.sendBody("direct:start", "Hello World");

@@ -35,7 +35,7 @@ import java.util.List;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-@Ignore("[FABRIC-509] Fix fabric/fabric-groups tests")
+@Ignore("[FABRIC-509] Fix fabric groups GroupTest")
 public class GroupTest {
 
     private GroupListener listener = new GroupListener<NodeState>() {

@@ -51,7 +51,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-621] Fix mq/mq-itests")
+@Ignore("[FABRIC-682] Fix mq smoke MQDistroTest")
 public class MQDistroTest extends MQTestSupport {
 
     static final String WEB_CONSOLE_URL = "http://localhost:8181/activemqweb/";

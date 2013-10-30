@@ -35,9 +35,7 @@ import javax.management.remote.JMXServiceURL;
 
 import static org.apache.camel.util.ServiceHelper.startServices;
 
-/**
- */
-@Ignore("Run this test manually.")
+@Ignore("[FABRIC-679] Fix tooling camel JmxTemplateRemoteCamelFacadeTest")
 public class JmxTemplateRemoteCamelFacadeTest extends RemoteCamelFacadeTest {
     private static final Logger LOG = LoggerFactory.getLogger(JmxTemplateRemoteCamelFacadeTest.class);
 

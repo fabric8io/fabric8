@@ -47,10 +47,7 @@ import org.junit.Test;
 import org.junit.Ignore;
 import org.w3c.dom.Document;
 
-/**
- *
- */
-@Ignore
+@Ignore("[FABRIC-680] Fix tooling camel RemoteCamelFacadeTest")
 public class RemoteCamelFacadeTest extends CamelTestSupport {
 
     protected CamelFacade remote;
@@ -173,7 +170,6 @@ public class RemoteCamelFacadeTest extends CamelTestSupport {
         assertEquals("seda://out", uris.get(2));
     }
 
-    @Ignore
     @Test
     public void testBrowsableEndpoints() throws Exception {
         template.sendBody("seda:out", "Hello World");

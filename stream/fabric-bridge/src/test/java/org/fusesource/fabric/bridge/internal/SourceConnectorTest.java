@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Dhiraj Bokde
  */
-@Ignore("[FABRIC-555] Fix stream/fabric-bridge tests")
+@Ignore("[FABRIC-685] Fix stream bridge SourceConnectorTest")
 public class SourceConnectorTest extends AbstractConnectorTestSupport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(SourceConnectorTest.class);

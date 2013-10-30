@@ -53,8 +53,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-// TODO - see what the deal with this test is...
-@Ignore
+@Ignore("[FABRIC-663] Fix fabric core ContainerImplTest")
 public class ContainerImplTest {
 
     public static final String CONTAINER_ID = "test";

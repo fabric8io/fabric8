@@ -34,7 +34,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore("[FABRIC-528] Fix fabric/fabric-camel tests")
+@Ignore("[FABRIC-528] Fix fabric camel MasterEndpointFailoverTest")
 public class MasterEndpointFailoverTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
 
@@ -54,7 +54,7 @@ public class MasterEndpointFailoverTest {
         serverFactoryBean.setPurge(true);
         serverFactoryBean.setPort(9004);
         serverFactoryBean.afterPropertiesSet();
-        
+
         // Create the zkClientBean
         zkClientBean.setConnectString("localhost:9004");
         CuratorFramework client = zkClientBean.getObject();

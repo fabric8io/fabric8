@@ -18,7 +18,7 @@ import java.util.Set;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
+@Ignore("[FABRIC-667] Fix fabric basic CamelProfileTest")
 public class CamelProfileTest extends FabricFeaturesTest {
 
     @After

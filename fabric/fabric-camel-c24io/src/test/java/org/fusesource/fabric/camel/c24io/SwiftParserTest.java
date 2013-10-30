@@ -30,10 +30,10 @@ import java.util.List;
 /**
  * Tests the use of the {@link SwiftFormat}
  */
+@Ignore("[FABRIC-664] Fix fabric camel SwiftParserTest")
 public class SwiftParserTest extends CamelTestSupport {
 
-    @Ignore
-    public void TODO_testParsingMessage() throws Exception {
+    public void testParsingMessage() throws Exception {
         MockEndpoint resultEndpoint = getMockEndpoint("mock:result");
         MockEndpoint marshalledEndpoint = getMockEndpoint("mock:marshalled");
 

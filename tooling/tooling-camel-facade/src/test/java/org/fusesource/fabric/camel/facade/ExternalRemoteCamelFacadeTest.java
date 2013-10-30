@@ -32,10 +32,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
-@Ignore("Run this test manually. For example startup the example from Camel: http://camel.apache.org/management-example.html")
+@Ignore("[FABRIC-678] Fix tooling camel ExternalRemoteCamelFacadeTest")
 public class ExternalRemoteCamelFacadeTest extends TestCase {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExternalRemoteCamelFacadeTest.class);

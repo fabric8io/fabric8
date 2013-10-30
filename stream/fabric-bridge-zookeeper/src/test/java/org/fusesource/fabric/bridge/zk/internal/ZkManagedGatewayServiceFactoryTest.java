@@ -40,7 +40,7 @@ import java.util.Hashtable;
 /**
  * @author Dhiraj Bokde
  */
-@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
+@Ignore("[FABRIC-686] Fix fabric bridge zookeeper ZkManagedGatewayServiceFactoryTest")
 public class ZkManagedGatewayServiceFactoryTest extends AbstractConnectorTestSupport {
 
     private static final String CONNECTION_FACTORY_CLASS_NAME = ConnectionFactory.class.getName();

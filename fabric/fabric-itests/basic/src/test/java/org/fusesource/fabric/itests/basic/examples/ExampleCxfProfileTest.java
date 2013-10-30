@@ -40,7 +40,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
+@Ignore("[FABRIC-672] Fix fabric basic ExampleCxfProfileTest")
 public class ExampleCxfProfileTest extends FabricTestSupport {
     @After
     public void tearDown() throws InterruptedException {

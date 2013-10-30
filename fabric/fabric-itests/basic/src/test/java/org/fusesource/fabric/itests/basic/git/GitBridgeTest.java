@@ -18,10 +18,8 @@
 package org.fusesource.fabric.itests.basic.git;
 
 import org.eclipse.jgit.api.Git;
-import org.eclipse.jgit.api.PullResult;
 import org.eclipse.jgit.lib.IndexDiff;
 import org.eclipse.jgit.revwalk.RevCommit;
-import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.treewalk.FileTreeIterator;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
@@ -41,7 +39,6 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.Set;
 
@@ -50,7 +47,7 @@ import static org.junit.Assert.*;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
+@Ignore("[FABRIC-590] Fix fabric basic GitBridgeTest")
 public class GitBridgeTest extends FabricGitTestSupport {
 
     File testrepo = new File("testRepo");
@@ -65,7 +62,6 @@ public class GitBridgeTest extends FabricGitTestSupport {
         testrepo.mkdirs();
     }
 
-    @Ignore
     @Test
     public void testCreateProfileInGit() throws Exception {
         String testProfileNameBase = "mytestprofile-";
@@ -92,7 +88,6 @@ public class GitBridgeTest extends FabricGitTestSupport {
         }
     }
 
-    @Ignore
     @Test
     public void testCreateProfileInZk() throws Exception {
         String testProfileNameBase = "mytestprofile-";
@@ -120,7 +115,6 @@ public class GitBridgeTest extends FabricGitTestSupport {
         }
     }
 
-    @Ignore
     @Test
     public void testCreateProfilesMixed() throws Exception {
         String testZkProfilebase = "zkprofile-";

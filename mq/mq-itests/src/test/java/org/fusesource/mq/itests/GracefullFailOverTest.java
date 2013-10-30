@@ -48,7 +48,7 @@ import static org.junit.Assert.assertNotNull;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-621] Fix mq/mq-itests")
+@Ignore("[FABRIC-621] Fix mq smoke GracefullFailOverTest")
 public class GracefullFailOverTest extends MQTestSupport {
 
     @After

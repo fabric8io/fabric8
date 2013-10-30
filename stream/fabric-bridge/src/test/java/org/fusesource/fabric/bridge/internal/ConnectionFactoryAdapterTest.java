@@ -30,7 +30,7 @@ import javax.jms.ConnectionFactory;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
-@Ignore("[FABRIC-555] Fix stream/fabric-bridge tests")
+@Ignore("[FABRIC-684] Fix stream bridge ConnectionFactoryAdapterTest")
 public class ConnectionFactoryAdapterTest  {
 
 	private PooledConnectionFactory connectionFactory;

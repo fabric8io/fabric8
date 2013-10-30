@@ -16,22 +16,18 @@
  */
 package org.fusesource.fabric.bridge.zk.spring;
 
-import org.fusesource.fabric.bridge.internal.AbstractConnectorTestSupport;
-import org.fusesource.fabric.bridge.model.BridgeDestinationsConfig;
 import org.fusesource.fabric.bridge.zk.ZkBridgeConnector;
 import org.fusesource.fabric.bridge.zk.ZkGatewayConnector;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.jms.JMSException;
-import javax.jms.TextMessage;
-
-@Ignore("[FABRIC-516] Fix fabric-bridge-zookeeper tests")
+@Ignore("[FABRIC-687] Fix fabric bridge zookeeper ZkBridgeNamespaceHandlerTest")
 public class ZkBridgeNamespaceHandlerTest extends AbstractZkConnectorTestSupport {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ZkBridgeNamespaceHandlerTest.class);

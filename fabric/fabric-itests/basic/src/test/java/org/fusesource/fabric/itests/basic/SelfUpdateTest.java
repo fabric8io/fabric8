@@ -19,8 +19,6 @@ package org.fusesource.fabric.itests.basic;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
@@ -46,7 +44,7 @@ import static org.ops4j.pax.exam.CoreOptions.maven;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
+@Ignore("[FABRIC-666] Fix fabric basic SelfUpdateTest")
 public class SelfUpdateTest extends FabricTestSupport {
 
     private static final String FABRIC_FEATURE_REPO_URL = "mvn:org.fusesource.fabric/fuse-fabric/%s/xml/features";

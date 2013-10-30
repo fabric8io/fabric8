@@ -36,7 +36,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-520] Fix esb-itests")
+@Ignore("[FABRIC-662] Fix esb smoke EsbFeaturesTest")
 public class EsbFeaturesTest extends EsbTestSupport {
 
     @Test
@@ -50,7 +50,7 @@ public class EsbFeaturesTest extends EsbTestSupport {
         installAndCheckFeature("saaj");
         unInstallAndCheckFeature("saaj");
     }
-	
+
     @Test
     public void testCxfOsgi() throws Exception {
         installAndCheckFeature("cxf-osgi");
@@ -161,7 +161,6 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore("This makes the test hung")
     public void testServicemixScripting() throws Exception {
         installAndCheckFeature("servicemix-scripting");
         unInstallAndCheckFeature("servicemix-scripting");
@@ -180,7 +179,6 @@ public class EsbFeaturesTest extends EsbTestSupport {
     }
 
     @Test
-    @Ignore
     public void testServicemixWsn2005() throws Exception {
         installAndCheckFeature("mq-fabric");
         installAndCheckFeature("servicemix-wsn2005");

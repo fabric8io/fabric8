@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.*;
 
+@Ignore("[FABRIC-676] Fix tooling amq LocalBrokerFacadeTest")
 public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(LocalBrokerFacadeTest.class);
@@ -92,7 +93,6 @@ public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
         assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
     }
 
-    @Ignore
     @Test
     public void testGetQueueProducersWithDynamicProducers() throws Exception {
         assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
@@ -117,7 +117,6 @@ public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
         assertEquals(0, brokerFacade.getQueueProducers(QUEUE_NAME).size());
     }
 
-    @Ignore
     @Test
     public void testGetTopicProducers() throws Exception {
         assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());
@@ -143,7 +142,6 @@ public class LocalBrokerFacadeTest extends EmbeddedBrokerTestSupport {
     }
 
 
-    @Ignore
     @Test
     public void testGetTopicProducersWithDynamicProducers() throws Exception {
         assertEquals(0, brokerFacade.getTopicProducers(TOPIC_NAME).size());

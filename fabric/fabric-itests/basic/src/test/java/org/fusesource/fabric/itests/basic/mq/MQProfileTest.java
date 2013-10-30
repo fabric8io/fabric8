@@ -20,14 +20,12 @@ import javax.management.ObjectName;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
 import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
+@Ignore("[FABRIC-674] Fix fabric basic MQProfileTest")
 public class MQProfileTest extends FabricTestSupport {
 
     ArrayList<Container> containers = new ArrayList<Container>();

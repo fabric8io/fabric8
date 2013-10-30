@@ -18,7 +18,7 @@ package org.fusesource.fabric.git.internal;
 
 import org.junit.Ignore;
 
-@Ignore("[FABRIC-535] Fix fabric/fabric-git-hawtio tests")
+@Ignore("[FABRIC-535] Fix fabric git CachingGitDataStoreTest")
 public class CachingGitDataStoreTest extends GitDataStoreTest {
 
     protected GitDataStore createDataStore() {

@@ -35,7 +35,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-520] Fix esb-itests")
+@Ignore("[FABRIC-661] Fix esb smoke EsbExampleFeaturesTest")
 public class EsbExampleFeaturesTest extends EsbTestSupport {
 
     @Test

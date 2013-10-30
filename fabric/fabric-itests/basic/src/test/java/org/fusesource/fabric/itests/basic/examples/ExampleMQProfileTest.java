@@ -43,6 +43,7 @@ import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-673] Fix fabric basic ExampleMQProfileTest")
 public class ExampleMQProfileTest extends FabricTestSupport {
 
     @After
@@ -51,7 +52,6 @@ public class ExampleMQProfileTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-590] Fix fabric/fabric-itests/fabric-itests-basic")
     public void testExample() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         CuratorFramework curator = getCurator();

@@ -42,12 +42,10 @@ import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.gitective.core.RepositoryUtils;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.osgi.service.component.ComponentContext;
 
-@Ignore("[FABRIC-535] Fix fabric/fabric-git-hawtio tests")
-public class GitDataStoreTest {
+public abstract class GitDataStoreTest {
 
     /**
      * Should we use the old way of importing data into Fabric

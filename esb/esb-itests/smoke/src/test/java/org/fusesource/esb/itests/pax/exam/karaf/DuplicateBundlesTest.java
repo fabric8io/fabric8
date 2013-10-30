@@ -49,7 +49,7 @@ import static org.openengsb.labs.paxexam.karaf.options.KarafDistributionOption.l
  */
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-520] Fix esb-itests")
+@Ignore("[FABRIC-660] Fix esb smoke DuplicateBundlesTest")
 public class DuplicateBundlesTest extends EsbTestSupport {
 
     @Test
