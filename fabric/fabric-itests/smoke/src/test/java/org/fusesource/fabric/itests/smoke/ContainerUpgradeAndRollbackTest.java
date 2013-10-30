@@ -127,6 +127,7 @@ public class ContainerUpgradeAndRollbackTest extends FabricTestSupport {
      * This is a test for http://fusesource.com/issues/browse/FABRIC-367.
      */
     @Test
+    @Ignore("[FABRIC-640] Fix fabric smoke ContainerUpgradeAndRollbackTest")
     public void testContainerAfterVersionDowngrade() throws Exception {
         System.out.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
