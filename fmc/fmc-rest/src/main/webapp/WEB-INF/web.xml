@@ -82,7 +82,7 @@
               org.fusesource.fabric.webui.patching.VersionUpgradeResource
               org.fusesource.fabric.webui.patching.MavenArtifactResource
               org.fusesource.fabric.webui.log.LogResource
-              org.fusesource.fabric.webui.org.apache.zookeeper.ZooKeeperResource
+              org.fusesource.fabric.webui.zookeeper.ZooKeeperResource
               org.fusesource.fabric.webui.system.SystemResource
               org.fusesource.fabric.webui.users.UsersResource
           </param-value>

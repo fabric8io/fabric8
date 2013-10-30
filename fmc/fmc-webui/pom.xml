@@ -92,8 +92,8 @@
             <supportedProjectType>war</supportedProjectType>
           </supportedProjectTypes>
           <instructions>
-            <Webapp-Context>/</Webapp-Context>
-            <Web-ContextPath>/</Web-ContextPath>
+            <Webapp-Context>/fmc</Webapp-Context>
+            <Web-ContextPath>/fmc</Web-ContextPath>
             <Bundle-Activator>org.fusesource.fmc.webui.Activator</Bundle-Activator>
             <Bundle-ClassPath>fmc-webui-branding.jar,.,WEB-INF/classes</Bundle-ClassPath>
             <Bundle-Name>${project.description}</Bundle-Name>

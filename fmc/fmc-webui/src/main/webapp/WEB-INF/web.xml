@@ -28,7 +28,7 @@
 
   <servlet-mapping>
     <servlet-name>dev-servlet</servlet-name>
-    <url-pattern>/*</url-pattern>
+    <url-pattern>/fmc/*</url-pattern>
   </servlet-mapping>
 
   <welcome-file-list>
