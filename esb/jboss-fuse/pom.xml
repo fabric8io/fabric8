@@ -161,7 +161,8 @@
                                 <feature>camel-blueprint</feature>
                                 <feature>war</feature>
                                 <feature>fabric-redirect</feature>
-                                <feature>hawtio</feature>
+                                <feature>hawtio-core</feature>
+                                <feature>hawtio-karaf-terminal</feature>
 
                                 <!-- FuseSource only : Fabric -->
                                 <feature>fabric-bundle</feature>

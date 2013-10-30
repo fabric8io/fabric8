@@ -115,7 +115,8 @@
                                 <feature>process-manager</feature>
                                 <feature>jolokia</feature>
                                 <feature>fabric-redirect</feature>
-                                <feature>hawtio</feature>
+                                <feature>hawtio-core</feature>
+                                <feature>hawtio-karaf-terminal</feature>
                             </features>
                             <includeMvnBasedDescriptors>true</includeMvnBasedDescriptors>
                             <repository>target/features-repo</repository>
