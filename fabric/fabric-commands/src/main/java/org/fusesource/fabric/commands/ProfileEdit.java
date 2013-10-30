@@ -136,13 +136,6 @@ public class ProfileEdit extends FabricCommand {
         String pid = AGENT_PID;
         boolean editInLine = false;
 
-        Map<String, Map<String, String>> config = profile.getConfigurations();
-        Map<String, String> pidConfig = config.get(pid);
-
-        if (pidConfig == null) {
-            pidConfig = new HashMap<String, String>();
-        }
-
         if (delete || remove) {
             editInLine = true;
         }
@@ -169,7 +162,7 @@ public class ProfileEdit extends FabricCommand {
         }
 
         if (pidProperties != null && pidProperties.length > 0) {
-            handlePid(pidProperties, profile);
+            editInLine = handlePid(pidProperties, profile);
         }
 
         if (systemProperties != null && systemProperties.length > 0) {
@@ -182,10 +175,7 @@ public class ProfileEdit extends FabricCommand {
             handleConfigProperties(configProperties, profile);
         }
 
-        if (editInLine) {
-            config.put(pid, pidConfig);
-            profile.setConfigurations(config);
-        } else {
+        if (!editInLine) {
             resource = resource != null ? resource : "org.fusesource.fabric.agent.properties";
             //If a single pid has been selected, but not a key value has been specified or import has been selected,
             //then open the resource in the editor.
@@ -202,30 +192,34 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleFeatures(String[] features, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String feature : features) {
             if (delete) {
                 System.out.println("Deleting feature:" + feature + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             } else {
                 System.out.println("Adding feature:" + feature + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(profile.getConfiguration(AGENT_PID), FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
+            updateConfig(conf, FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
+            profile.setConfiguration(AGENT_PID, conf);
         }
     }
 
     /**
      * Adds or remove the specified feature repositories to the specified profile.
-     * @param features  The array of feature repositories.
+     * @param repositories  The array of feature repositories.
      * @param profile   The target profile.
      */
-    private void handleFeatureRepositories(String[] features, Profile profile) {
+    private void handleFeatureRepositories(String[] repositories, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String repositoryURI : repositories) {
             if (set) {
-                System.out.println("Adding feature repository:" + repositoryURI + " to profile:" + profile + " version:" + versionName);
+                System.out.println("Adding feature repository:" + repositoryURI + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             } else if (delete) {
-                System.out.println("Deleting feature repository:" + repositoryURI + " from profile:" + profile + " version:" + versionName);
+                System.out.println("Deleting feature repository:" + repositoryURI + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(profile.getConfiguration(AGENT_PID), REPOSITORY_PREFIX + repositoryURI.replace('/', '_'), repositoryURI, set, delete);
+            updateConfig(conf, REPOSITORY_PREFIX + repositoryURI.replace('/', '_'), repositoryURI, set, delete);
         }
+        profile.setConfiguration(AGENT_PID, conf);
     }
 
     /**
@@ -234,14 +228,16 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleBundles(String[] bundles, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String bundle : bundles) {
             if (set) {
-                System.out.println("Adding bundle:" + bundle + " to profile:" + profile + " version:" + versionName);
+                System.out.println("Adding bundle:" + bundle + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             } else if (delete) {
-                System.out.println("Deleting bundle:" + bundle + " from profile:" + profile + " version:" + versionName);
+                System.out.println("Deleting bundle:" + bundle + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(profile.getConfiguration(AGENT_PID), BUNDLE_PREFIX + bundle.replace('/', '_'), bundle, set, delete);
+            updateConfig(conf, BUNDLE_PREFIX + bundle.replace('/', '_'), bundle, set, delete);
         }
+        profile.setConfiguration(AGENT_PID, conf);
     }
 
     /**
@@ -250,14 +246,16 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleFabs(String[] fabs, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String fab : fabs) {
             if (set) {
-                System.out.println("Adding FAB:" + fab + " to profile:" + profile + " version:" + versionName);
+                System.out.println("Adding FAB:" + fab + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             } else if (delete) {
-                System.out.println("Deleting FAB:" + fab + " from profile:" + profile + " version:" + versionName);
+                System.out.println("Deleting FAB:" + fab + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(profile.getConfiguration(AGENT_PID), FAB_PREFIX + fab.replace('/', '_'), fab, set, delete);
+            updateConfig(conf, FAB_PREFIX + fab.replace('/', '_'), fab, set, delete);
         }
+        profile.setConfiguration(AGENT_PID, conf);
     }
 
     /**
@@ -266,22 +264,26 @@ public class ProfileEdit extends FabricCommand {
      * @param profile       The target profile.
      */
     private void handleOverrides(String[] overrides, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String overrie : overrides) {
             if (set) {
-                System.out.println("Adding override:" + overrie + " to profile:" + profile + " version:" + versionName);
+                System.out.println("Adding override:" + overrie + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             } else if (delete) {
-                System.out.println("Deleting override:" + overrie + " from profile:" + profile + " version:" + versionName);
+                System.out.println("Deleting override:" + overrie + " from profile:" + profile.getId() + " version:" + profile.getVersion());
             }
-            updateConfig(profile.getConfiguration(AGENT_PID), OVERRIDE_PREFIX + overrie.replace('/', '_'), overrie, set, delete);
+            updateConfig(conf, OVERRIDE_PREFIX + overrie.replace('/', '_'), overrie, set, delete);
         }
+        profile.setConfiguration(AGENT_PID, conf);
     }
 
     /**
      * Adds or remove the specified system properties to the specified profile.
      * @param pidProperties         The array of system properties.
      * @param profile               The target profile.
+     * @return                      True if the edit can take place in line.
      */
-    private void handlePid(String[] pidProperties, Profile profile) {
+    private boolean handlePid(String[] pidProperties, Profile profile) {
+        boolean editInline = true;
         for (String pidProperty : pidProperties) {
             String currentPid = null;
 
@@ -294,17 +296,21 @@ public class ProfileEdit extends FabricCommand {
                 currentPid = pidProperty;
             }
 
-            Map<String, String> existingConfig = profile.getConfiguration(currentPid);
-
+            Map<String, String> conf = profile.getConfiguration(currentPid);
             //We only support import when a single pid is specified
             if (pidProperties.length == 1 && importPid) {
                 System.out.println("Importing pid:" + currentPid + " to profile:" + profile.getId() + " version:" + profile.getVersion());
-                importPidFromLocalConfigAdmin(currentPid, existingConfig);
+                importPidFromLocalConfigAdmin(currentPid, conf);
+                profile.setConfiguration(currentPid, conf);
+                return true;
             }
 
 
             Map<String, String> configMap = extractConfigs(keyValuePair);
-            if (configMap.isEmpty() && delete) {
+            if (configMap.isEmpty() && set) {
+                editInline = false;
+            } else if (configMap.isEmpty() && delete) {
+                editInline = true;
                 System.out.println("Deleting pid:" + currentPid + " from profile:" + profile.getId() + " version:" + profile.getVersion());
                 Map<String, Map<String,String>> profileConfigs = profile.getConfigurations();
                 profileConfigs.remove(currentPid);
@@ -315,21 +321,23 @@ public class ProfileEdit extends FabricCommand {
                     String value = configEntries.getValue();
                     if (value == null && delete) {
                         System.out.println("Deleting key:" + key + " from pid:" + currentPid + " and profile:" + profile.getId() + " version:" +  profile.getVersion());
-                        existingConfig.remove(key);
+                        conf.remove(key);
                     } else {
                         if (append) {
-                            System.out.println("Appending value:" + value + " key:" + key + " from pid:" + currentPid + " and profile:" + profile.getId() + " version:" +  profile.getVersion());
+                            System.out.println("Appending value:" + value + " key:" + key + " to pid:" + currentPid + " and profile:" + profile.getId() + " version:" +  profile.getVersion());
                         } else if (remove) {
                             System.out.println("Removing value:" + value + " key:" + key + " from pid:" + currentPid + " and profile:" + profile.getId() + " version:" +  profile.getVersion());
-                        } else {
-                            System.out.println("Setting value:" + value + " key:" + key + " from pid:" + currentPid + " and profile:" + profile.getId() + " version:" +  profile.getVersion());
+                        } else if(set) {
+                            System.out.println("Setting value:" + value + " key:" + key + " on pid:" + currentPid + " and profile:" + profile.getId() + " version:" +  profile.getVersion());
                         }
-                        updatedDelimitedList(existingConfig, key, value, delimiter, set, delete, append, remove);
+                        updatedDelimitedList(conf, key, value, delimiter, set, delete, append, remove);
                     }
                 }
-                profile.setConfiguration(currentPid, existingConfig);
+                editInline = true;
+                profile.setConfiguration(currentPid, conf);
             }
         }
+        return editInline;
     }
 
 
@@ -339,23 +347,25 @@ public class ProfileEdit extends FabricCommand {
      * @param profile               The target profile.
      */
     private void handleSystemProperties(String[] systemProperties, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String systemProperty : systemProperties) {
             Map<String, String> configMap = extractConfigs(systemProperty);
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
                 String key = configEntries.getKey();
                 String value = configEntries.getValue();
                 if (append) {
-                    System.out.println("Appending value:" + value + " key:" + key + " from system properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Appending value:" + value + " key:" + key + " from system properties and profile:" + profile.getId() + " version:" + profile.getVersion());
                 } else if (delete) {
-                    System.out.println("Deleting key:" + key + " from system properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Deleting key:" + key + " from system properties and profile:" + profile.getId() + " version:" + profile.getVersion());
                 } else if (set) {
-                    System.out.println("Setting value:" + value + " key:" + key + " from system properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Setting value:" + value + " key:" + key + " from system properties and profile:" + profile.getId() + " version:" + profile.getVersion());
                 } else {
-                    System.out.println("Removing value:" + value + " key:" + key + " from system properties and profile:" + profile + " version:" + versionName);
+                    System.out.println("Removing value:" + value + " key:" + key + " from system properties and profile:" + profile.getId() + " version:" + profile.getVersion());
                 }
-                updatedDelimitedList(profile.getConfiguration(AGENT_PID), SYSTEM_PREFIX + key, value, delimiter, set, delete, append, remove);
+                updatedDelimitedList(conf, SYSTEM_PREFIX + key, value, delimiter, set, delete, append, remove);
             }
         }
+        profile.setConfiguration(AGENT_PID, conf);
     }
 
     /**
@@ -364,6 +374,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile               The target profile.
      */
     private void handleConfigProperties(String[] configProperties, Profile profile) {
+        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
         for (String configProperty : configProperties) {
             Map<String, String> configMap = extractConfigs(configProperty);
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
@@ -375,12 +386,11 @@ public class ProfileEdit extends FabricCommand {
                     System.out.println("Deleting key:" + key + " from config properties and profile:" + profile + " version:" + versionName);
                 } else if (set) {
                     System.out.println("Setting value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionName);
-                } else {
-                    System.out.println("Removing value:" + value + " key:" + key + " from config properties and profile:" + profile + " version:" + versionName);
                 }
-                updatedDelimitedList(profile.getConfiguration(AGENT_PID), CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
+                updatedDelimitedList(conf, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
             }
         }
+        profile.setConfiguration(AGENT_PID, conf);
     }
 
 
