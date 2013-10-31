@@ -72,7 +72,6 @@
             OSGI-INF/org.fusesource.fabric.service.ProfilePropertyPointerResolver.xml,
             OSGI-INF/org.fusesource.fabric.service.ProfileUrlHandler.xml,
             OSGI-INF/org.fusesource.fabric.service.VersionPropertyPointerResolver.xml,
-            OSGI-INF/org.fusesource.fabric.service.ZooKeeperDataStore.xml,
             OSGI-INF/org.fusesource.fabric.service.ZookeeperPlaceholderResolver.xml,
             OSGI-INF/org.fusesource.fabric.service.ZookeeperPortService.xml
         </fuse.osgi.service.component>

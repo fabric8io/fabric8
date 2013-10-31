@@ -301,9 +301,9 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
 
                     // Perform cleanup when the new datastore has been registered.
                     final AtomicReference<DataStore> result = new AtomicReference<DataStore>();
-                    registrationHandler.get().addRegistrationCallback(new DataStoreTemplate() {
+                    registrationHandler.get().setRegistrationCallback(new DataStoreTemplate() {
                         @Override
-                        public void doWith(DataStore dataStore) throws Exception {
+                        public void doWith(DataStore dataStore) {
                             synchronized (result) {
                                 result.set(dataStore);
                                 result.notifyAll();

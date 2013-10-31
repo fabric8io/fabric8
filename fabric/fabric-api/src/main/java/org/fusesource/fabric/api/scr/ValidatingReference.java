@@ -58,7 +58,7 @@ public class ValidatingReference<T> {
     public T get() {
         T ref = reference.get();
         if (ref == null)
-            throw new InvalidComponentException();
+            throw new InvalidComponentException("Reference not available");
         return ref;
     }
 

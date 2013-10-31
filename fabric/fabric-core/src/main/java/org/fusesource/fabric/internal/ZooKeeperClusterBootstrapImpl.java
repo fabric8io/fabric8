@@ -71,14 +71,13 @@ import java.util.concurrent.TimeUnit;
  * ZooKeeperClusterBootstrap
  * |_ ConfigurationAdmin
  * |_ DataStoreRegistrationHandler (@see DataStoreManager)
- * |  |_ DataStorePlugin (optional,multiple) (@see CachingGitDataStore)
- * |     |_ CuratorFramework (@see ManagedCuratorFramework)
- * |     |_ GitService (@see FabricGitServiceImpl)
- * |     |_ PlaceholderResolver (optional,multiple)
- * |_ FabricService (@see FabricServiceImpl)
+ * |_ FabricService (optional,unary) (@see FabricServiceImpl)
  *    |_ ConfigurationAdmin
- *    |_ CuratorFramework --^
- *    |_ DataStorePlugin --^
+ *    |_ CuratorFramework (@see ManagedCuratorFramework)
+ *    |_ DataStore (@see CachingGitDataStore)
+ *    |  |_ CuratorFramework --^
+ *    |  |_ GitService (@see FabricGitServiceImpl)
+ *    |  |_ PlaceholderResolver (optional,multiple)
  *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
  *    |  |_ FabricService --^
  *    |_ PortService (@see ZookeeperPortService)
@@ -90,7 +89,7 @@ import java.util.concurrent.TimeUnit;
 public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent implements ZooKeeperClusterBootstrap {
 
     private static final Long FABRIC_SERVICE_TIMEOUT = 60000L;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ZooKeeperClusterBootstrapImpl.class);
     private static final String NAME = System.getProperty("karaf.name");
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
@@ -105,21 +104,16 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @GuardedBy("this") private BundleContext bundleContext;
 
     @Activate
-    synchronized void activate(BundleContext bundleContext, Map<String, ?> configuration) {
+    void activate(BundleContext bundleContext, Map<String, ?> configuration) {
         this.bundleContext = bundleContext;
         this.configuration = Collections.unmodifiableMap(new HashMap<String, Object>(configuration));
         this.bundleUtils = new BundleUtils(bundleContext);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                createOnActivate();
-                activateComponent();
-            }
-        }).start();
+        createOnActivate();
+        activateComponent();
     }
 
     @Deactivate
-    synchronized void deactivate() {
+    void deactivate() {
         deactivateComponent();
     }
 
@@ -128,7 +122,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
         try {
             userProps = new org.apache.felix.utils.properties.Properties(new File(System.getProperty("karaf.home") + "/etc/users.properties"));
         } catch (IOException e) {
-            LOGGER.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
+            LOG.warn("Failed to load users from etc/users.properties. No users will be imported.", e);
         }
         CreateEnsembleOptions createOpts = CreateEnsembleOptions.builder().fromSystemProperties().users(userProps).build();
         if (createOpts.isEnsembleStart()) {
@@ -155,7 +149,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
             // Create configuration
             updateDataStoreConfig(options.getDataStoreProperties());
             createZooKeeeperServerConfig(zooKeeperServerHost, mappedPort, options);
-            registrationHandler.get().addRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, options));
+            registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, options));
 
             // Create the client configuration
             createZooKeeeperConfig(connectionUrl, options);

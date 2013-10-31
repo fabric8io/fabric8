@@ -21,7 +21,6 @@ import static org.easymock.EasyMock.eq;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.classextension.EasyMock.createMock;
 import static org.easymock.classextension.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.reset;
 import static org.easymock.classextension.EasyMock.verify;
 import static org.fusesource.fabric.zookeeper.ZkDefs.DEFAULT_PROFILE;
 import static org.fusesource.fabric.zookeeper.ZkPath.CONFIG_CONTAINER;
@@ -69,13 +68,15 @@ public class ContainerImplTest {
 
     @Before
     public void setUp() {
+        /*
         ZooKeeperDataStore zooKeeperDataStore = new ZooKeeperDataStore();
         zooKeeperDataStore.bindCurator(curator);
-        //zooKeeperDataStore.activate(createMock(ComponentContext.class));
+        zooKeeperDataStore.activate(createMock(ComponentContext.class));
         fabricService.bindDataStore(zooKeeperDataStore);
         fabricService.bindCurator(curator);
         // [TODO] how did this ever work?
         reset(container);
+        */
     }
 
     @Test

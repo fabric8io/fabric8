@@ -17,14 +17,14 @@
 package org.fusesource.fabric.service.ssh;
 
 import org.codehaus.jackson.annotate.JsonProperty;
-
 import org.fusesource.fabric.api.CreateContainerBasicOptions;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
-import org.fusesource.fabric.api.CreationStateListener;
+import org.fusesource.fabric.api.jcip.NotThreadSafe;
 
 import java.io.File;
 import java.net.URI;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +34,7 @@ import java.util.Set;
 /**
  * Arguments for creating a new container via SSH
  */
+@NotThreadSafe // because base class isn't
 public class CreateSshContainerOptions extends CreateContainerBasicOptions<CreateSshContainerOptions> implements CreateRemoteContainerOptions {
 
     private static final long serialVersionUID = -1171578973712670970L;
@@ -42,6 +43,107 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
 
     static final int DEFAULT_SSH_RETRIES = 1;
     static final int DEFAULT_SSH_PORT = 22;
+
+    @JsonProperty
+    private final String username;
+    @JsonProperty
+    private final String password;
+    @JsonProperty
+    private final String host;
+    @JsonProperty
+    private final int port;
+    @JsonProperty
+    private final int sshRetries;
+    @JsonProperty
+    private final int retryDelay;
+    @JsonProperty
+    private final String privateKeyFile;
+    @JsonProperty
+    private final String passPhrase;
+    @JsonProperty
+    private final String path;
+
+    @JsonProperty
+    private final Map<String, String> environmentalVariables; // keep imutable
+
+    public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
+        this.username = username;
+        this.password = password;
+        this.host = host;
+        this.port = port;
+        this.sshRetries = sshRetries;
+        this.retryDelay = retryDelay;
+        this.privateKeyFile = privateKeyFile;
+        this.passPhrase = passPhrase;
+        this.path = path;
+        this.environmentalVariables = Collections.unmodifiableMap(new HashMap<String, String>(environmentalVariables));
+    }
+
+    @Override
+    public CreateContainerOptions updateCredentials(String newUser, String newPassword) {
+        return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
+                getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
+                getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
+                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), newUser != null ? newUser : username,
+                newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getHost() {
+        return host;
+    }
+
+
+    public int getPort() {
+        return port;
+    }
+
+    public int getSshRetries() {
+        return sshRetries;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public Map<String, String> getEnvironmentalVariables() {
+        return environmentalVariables;
+    }
+
+    public String getPrivateKeyFile() {
+        //We check for a parameter first as the privateKeyFile has a default value assigned.
+        return privateKeyFile;
+    }
+
+    public String getPassPhrase() {
+        return passPhrase;
+    }
+
+    @Override
+    public String getHostNameContext() {
+        return "none";
+    }
+
+    public CreateSshContainerOptions clone() throws CloneNotSupportedException {
+        return (CreateSshContainerOptions) super.clone();
+    }
+
+    @Override
+    public String toString() {
+        return "createSshContainer(" + getUsername() + "@" + getHost() + ":" + getPort() + " " + getPath() + ")";
+    }
 
     public static class Builder extends CreateContainerBasicOptions.Builder<Builder> {
 
@@ -223,105 +325,5 @@ public class CreateSshContainerOptions extends CreateContainerBasicOptions<Creat
                     getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
                     getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), username, password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
         }
-    }
-
-    @JsonProperty
-    private final String username;
-    @JsonProperty
-    private final String password;
-    @JsonProperty
-    private final String host;
-    @JsonProperty
-    private final int port;
-    @JsonProperty
-    private final int sshRetries;
-    @JsonProperty
-    private final int retryDelay;
-    @JsonProperty
-    private final String privateKeyFile;
-    @JsonProperty
-    private final String passPhrase;
-    @JsonProperty
-    private final String path;
-    @JsonProperty
-    private final Map<String, String> environmentalVariables;
-
-    public CreateSshContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean autoImportEnabled, String importPath, Map<String, String> users, String name, String parent, String providerType, boolean ensembleServer, String preferredAddress, Map<String, Properties> systemProperties, int number, URI proxyUri, String zookeeperUrl, String jvmOpts, boolean adminAccess, String username, String password, String host, int port, int sshRetries, int retryDelay, String privateKeyFile, String passPhrase, String path, Map<String, String> environmentalVariables) {
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, false, 0, autoImportEnabled, importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties, number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
-        this.username = username;
-        this.password = password;
-        this.host = host;
-        this.port = port;
-        this.sshRetries = sshRetries;
-        this.retryDelay = retryDelay;
-        this.privateKeyFile = privateKeyFile;
-        this.passPhrase = passPhrase;
-        this.path = path;
-        this.environmentalVariables = environmentalVariables;
-    }
-
-    @Override
-    public CreateContainerOptions updateCredentials(String newUser, String newPassword) {
-        return new CreateSshContainerOptions(getBindAddress(), getResolver(), getGlobalResolver(), getManualIp(), getMinimumPort(),
-                getMaximumPort(), getProfiles(), getVersion(), getDataStoreProperties(), getZooKeeperServerPort(), getZooKeeperServerConnectionPort(), getZookeeperPassword(), isEnsembleStart(), isAgentEnabled(), isAutoImportEnabled(),
-                getImportPath(), getUsers(), getName(), getParent(), "ssh", isEnsembleServer(), getPreferredAddress(), getSystemProperties(),
-                getNumber(), getProxyUri(), getZookeeperUrl(), getJvmOpts(), isAdminAccess(), newUser != null ? newUser : username,
-                newPassword != null ? newPassword : password, host, port, sshRetries, retryDelay, privateKeyFile, passPhrase, path, environmentalVariables);
-    }
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getHost() {
-        return host;
-    }
-
-
-    public int getPort() {
-        return port;
-    }
-
-    public int getSshRetries() {
-        return sshRetries;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public Map<String, String> getEnvironmentalVariables() {
-        return environmentalVariables;
-    }
-
-    public String getPrivateKeyFile() {
-        //We check for a parameter first as the privateKeyFile has a default value assigned.
-        return privateKeyFile;
-    }
-
-    public String getPassPhrase() {
-        return passPhrase;
-    }
-
-    @Override
-    public String getHostNameContext() {
-        return "none";
-    }
-
-    public CreateSshContainerOptions clone() throws CloneNotSupportedException {
-        return (CreateSshContainerOptions) super.clone();
-    }
-
-    @Override
-    public String toString() {
-        return "createSshContainer(" + getUsername() + "@" + getHost() + ":" + getPort() + " " + getPath() + ")";
     }
 }

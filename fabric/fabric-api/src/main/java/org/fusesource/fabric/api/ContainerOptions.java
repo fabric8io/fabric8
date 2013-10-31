@@ -16,21 +16,106 @@
  */
 package org.fusesource.fabric.api;
 
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.fabric.api.jcip.Immutable;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
+
+@Immutable
+@ThreadSafe
 public class ContainerOptions implements Serializable {
 
     public static String BIND_ADDRESS = "bind.address";
     public static String PROFILES = "profiles";
     public static String VERSION = "version";
     public static String DEFAULT_VERSION = "1.0";
+
+    final String bindAddress;
+    final String resolver;
+    final String globalResolver;
+    final String manualIp;
+    final int minimumPort;
+    final int maximumPort;
+    final String version;
+
+    // keep these immutable
+    final Set<String> profiles;
+    final Map<String, String> dataStoreProperties;
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties) {
+        this.bindAddress = bindAddress;
+        this.resolver = resolver;
+        this.globalResolver = globalResolver;
+        this.manualIp = manualIp;
+        this.minimumPort = minimumPort;
+        this.maximumPort = maximumPort;
+        this.version = version;
+        this.profiles = Collections.unmodifiableSet(new HashSet<String>(profiles));;
+        this.dataStoreProperties = Collections.unmodifiableMap(new HashMap<String, String>(dataStoreProperties != null ? dataStoreProperties : Collections.<String, String>emptyMap()));
+    }
+
+
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public String getResolver() {
+        return resolver;
+    }
+
+    public String getGlobalResolver() {
+        return globalResolver;
+    }
+
+    public String getManualIp() {
+        return manualIp;
+    }
+
+    public int getMinimumPort() {
+        return minimumPort;
+    }
+
+    public int getMaximumPort() {
+        return maximumPort;
+    }
+
+    public Set<String> getProfiles() {
+        return profiles;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public Map<String, String> getDataStoreProperties() {
+        return dataStoreProperties;
+    }
+
+    @Override
+    public String toString() {
+        return "ContainerOptions{" +
+                "bindAddress='" + bindAddress + '\'' +
+                ", resolver='" + resolver + '\'' +
+                ", globalResolver='" + globalResolver + '\'' +
+                ", manualIp='" + manualIp + '\'' +
+                ", minimumPort=" + minimumPort +
+                ", maximumPort=" + maximumPort +
+                ", profiles=" + profiles +
+                ", dataStoreProperties=" + dataStoreProperties +
+                '}';
+    }
 
     public static class Builder<B extends Builder> implements Cloneable {
 
@@ -243,82 +328,5 @@ public class ContainerOptions implements Serializable {
         public B clone() throws CloneNotSupportedException {
             return (B) super.clone();
         }
-    }
-
-    final String bindAddress;
-    final String resolver;
-    final String globalResolver;
-    final String manualIp;
-    final int minimumPort;
-    final int maximumPort;
-    final Set<String> profiles;
-    final String version;
-    final Map<String, String> dataStoreProperties;
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    ContainerOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties) {
-        this.bindAddress = bindAddress;
-        this.resolver = resolver;
-        this.globalResolver = globalResolver;
-        this.manualIp = manualIp;
-        this.minimumPort = minimumPort;
-        this.maximumPort = maximumPort;
-        this.profiles = profiles;
-        this.version = version;
-        this.dataStoreProperties = dataStoreProperties != null ? dataStoreProperties : new HashMap<String, String>();
-    }
-
-
-    public String getBindAddress() {
-        return bindAddress;
-    }
-
-    public String getResolver() {
-        return resolver;
-    }
-
-    public String getGlobalResolver() {
-        return globalResolver;
-    }
-
-    public String getManualIp() {
-        return manualIp;
-    }
-
-    public int getMinimumPort() {
-        return minimumPort;
-    }
-
-    public int getMaximumPort() {
-        return maximumPort;
-    }
-
-    public Set<String> getProfiles() {
-        return profiles;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public Map<String, String> getDataStoreProperties() {
-        return dataStoreProperties;
-    }
-
-    @Override
-    public String toString() {
-        return "ContainerOptions{" +
-                "bindAddress='" + bindAddress + '\'' +
-                ", resolver='" + resolver + '\'' +
-                ", globalResolver='" + globalResolver + '\'' +
-                ", manualIp='" + manualIp + '\'' +
-                ", minimumPort=" + minimumPort +
-                ", maximumPort=" + maximumPort +
-                ", profiles=" + profiles +
-                ", dataStoreProperties=" + dataStoreProperties +
-                '}';
     }
 }

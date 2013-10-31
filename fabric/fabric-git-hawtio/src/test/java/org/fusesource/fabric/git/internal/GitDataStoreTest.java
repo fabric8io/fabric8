@@ -100,11 +100,11 @@ public abstract class GitDataStoreTest {
         dataStore = createDataStore();
         dataStore.bindCuratorForTesting(curator);
         dataStore.bindGitService(gitService);
-        dataStore.activate(EasyMock.createMock(ComponentContext.class));
+        //dataStore.activate();
         Map<String, String> datastoreProperties = new HashMap<String, String>();
         datastoreProperties.put(GitDataStore.GIT_REMOTE_URL, remoteUrl);
-        dataStore.setDataStoreProperties(datastoreProperties);
-        dataStore.start();
+        //dataStore.setDataStoreProperties(datastoreProperties);
+        //dataStore.start();
     }
 
     protected GitDataStore createDataStore() {
@@ -113,7 +113,7 @@ public abstract class GitDataStoreTest {
 
     @After
     public void tearDown() throws Exception {
-        dataStore.deactivate();
+        //dataStore.deactivate();
         sfb.destroy();
     }
 

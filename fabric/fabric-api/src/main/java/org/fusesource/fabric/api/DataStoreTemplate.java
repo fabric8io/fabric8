@@ -23,8 +23,6 @@ public interface DataStoreTemplate {
 
     /**
      * Perform an operation on the specified {@link DataStore}.
-     * @param dataStore
-     * @throws Exception
      */
-    void doWith(DataStore dataStore) throws Exception;
+    void doWith(DataStore dataStore);
 }

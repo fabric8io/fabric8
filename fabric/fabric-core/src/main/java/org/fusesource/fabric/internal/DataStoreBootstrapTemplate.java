@@ -64,7 +64,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
 
     @Override
-    public void doWith(DataStore dataStore) throws Exception {
+    public void doWith(DataStore dataStore) {
         int minimumPort = options.getMinimumPort();
         int maximumPort = options.getMaximumPort();
         String zooKeeperServerHost = options.getBindAddress();

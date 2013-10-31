@@ -18,6 +18,7 @@ package org.fusesource.fabric.api;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.fabric.api.jcip.NotThreadSafe;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,9 +27,153 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+@NotThreadSafe
 public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> extends CreateEnsembleOptions implements CreateContainerOptions {
 
     static final long serialVersionUID = -663983552172109587L;
+
+    @JsonProperty
+    final String name;
+    @JsonProperty
+    final String parent;
+    @JsonProperty
+    final String providerType;
+    @JsonProperty
+    final boolean ensembleServer;
+    @JsonProperty
+    final String preferredAddress;
+    @JsonProperty
+    final Integer number;
+    @JsonProperty
+    final URI proxyUri;
+    @JsonProperty
+    final String zookeeperUrl;
+    @JsonProperty
+    final String jvmOpts;
+    @JsonProperty
+    final boolean adminAccess;
+
+    @JsonProperty
+    final Map<String, Properties> systemProperties; // [TODO] make immutable
+
+    final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
+
+    protected CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
+                                       int minimumPort, int maximumPort, Set<String> profiles, String version,
+                                       Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort,
+                                       String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled,
+                                       String importPath, Map<String, String> users, String name, String parent,
+                                       String providerType, boolean ensembleServer, String preferredAddress,
+                                       Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
+                                       String jvmOpts, boolean adminAccess) {
+
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort,
+                zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, DEFAULT_MIGRATION_TIMEOUT, autoImportEnabled, importPath, users);
+
+        this.name = name;
+        this.parent = parent;
+        this.providerType = providerType;
+        this.ensembleServer = ensembleServer;
+        this.preferredAddress = preferredAddress;
+        this.number = number;
+        this.proxyUri = proxyUri;
+        this.zookeeperUrl = zookeeperUrl;
+        this.jvmOpts = jvmOpts;
+        this.adminAccess = adminAccess;
+        this.systemProperties = systemProperties;
+    }
+
+    public static Builder<? extends Builder> builder() {
+        return new Builder<Builder>();
+    }
+
+    public String getProviderType() {
+        return providerType;
+    }
+
+    @Override
+    public CreateContainerOptions updateCredentials(String user, String credential) {
+        throw new UnsupportedOperationException();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getParent() {
+        return parent;
+    }
+
+
+    public boolean isEnsembleServer() {
+        return ensembleServer;
+    }
+
+    public String getPreferredAddress() {
+        return preferredAddress;
+    }
+
+    @Override
+    public String getBindAddress() {
+        return bindAddress;
+    }
+
+    public String getResolver() {
+        return resolver;
+    }
+
+    @Override
+    public String getManualIp() {
+        return manualIp;
+    }
+
+
+    @Override
+    public int getMinimumPort() {
+        return minimumPort;
+    }
+
+    @Override
+    public int getMaximumPort() {
+        return maximumPort;
+    }
+
+    @Override
+    public Map<String, Properties> getSystemProperties() {
+        return systemProperties;
+    }
+
+    public Integer getNumber() {
+        return number;
+    }
+
+    public URI getProxyUri() {
+        return proxyUri;
+    }
+
+    public String getZookeeperUrl() {
+        return zookeeperUrl;
+    }
+
+    public String getZookeeperPassword() {
+        return zookeeperPassword;
+    }
+
+    public String getJvmOpts() {
+        return jvmOpts;
+    }
+
+    public boolean isAdminAccess() {
+        return adminAccess;
+    }
+
+    public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
+        return metadataMap;
+    }
+
+    public String getVersion() {
+        return version;
+    }
 
     public static class Builder<B extends Builder> extends CreateEnsembleOptions.Builder<B> {
 
@@ -169,148 +314,5 @@ public class CreateContainerBasicOptions<T extends CreateContainerBasicOptions> 
                     importPath, users, name, parent, providerType, ensembleServer, preferredAddress, systemProperties,
                     number, proxyUri, zookeeperUrl, jvmOpts, adminAccess);
         }
-    }
-
-    @JsonProperty
-    final String name;
-    @JsonProperty
-    final String parent;
-    @JsonProperty
-    final String providerType;
-    @JsonProperty
-    final boolean ensembleServer;
-    @JsonProperty
-    final String preferredAddress;
-    @JsonProperty
-    final Map<String, Properties> systemProperties;
-    @JsonProperty
-    final Integer number;
-    @JsonProperty
-    final URI proxyUri;
-    @JsonProperty
-    final String zookeeperUrl;
-    @JsonProperty
-    final String jvmOpts;
-    @JsonProperty
-    final boolean adminAccess;
-
-
-    final Map<String, CreateContainerMetadata<T>> metadataMap = new HashMap<String, CreateContainerMetadata<T>>();
-
-    public CreateContainerBasicOptions(String bindAddress, String resolver, String globalResolver, String manualIp,
-                                       int minimumPort, int maximumPort, Set<String> profiles, String version,
-                                       Map<String, String> dataStoreProperties, int getZooKeeperServerPort, int zooKeeperServerConnectionPort,
-                                       String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, boolean autoImportEnabled,
-                                       String importPath, Map<String, String> users, String name, String parent,
-                                       String providerType, boolean ensembleServer, String preferredAddress,
-                                       Map<String, Properties> systemProperties, Integer number, URI proxyUri, String zookeeperUrl,
-                                       String jvmOpts, boolean adminAccess) {
-
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, getZooKeeperServerPort,
-                zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, DEFAULT_MIGRATION_TIMEOUT, autoImportEnabled, importPath, users);
-
-        this.name = name;
-        this.parent = parent;
-        this.providerType = providerType;
-        this.ensembleServer = ensembleServer;
-        this.preferredAddress = preferredAddress;
-        this.systemProperties = systemProperties;
-        this.number = number;
-        this.proxyUri = proxyUri;
-        this.zookeeperUrl = zookeeperUrl;
-        this.jvmOpts = jvmOpts;
-        this.adminAccess = adminAccess;
-    }
-
-    public static Builder<? extends Builder> builder() {
-        return new Builder<Builder>();
-    }
-
-    public String getProviderType() {
-        return providerType;
-    }
-
-    @Override
-    public CreateContainerOptions updateCredentials(String user, String credential) {
-        throw new UnsupportedOperationException();
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-
-    public boolean isEnsembleServer() {
-        return ensembleServer;
-    }
-
-    public String getPreferredAddress() {
-        return preferredAddress;
-    }
-
-    @Override
-    public String getBindAddress() {
-        return bindAddress;
-    }
-
-    public String getResolver() {
-        return resolver;
-    }
-
-    @Override
-    public String getManualIp() {
-        return manualIp;
-    }
-
-
-    @Override
-    public int getMinimumPort() {
-        return minimumPort;
-    }
-
-    @Override
-    public int getMaximumPort() {
-        return maximumPort;
-    }
-
-    @Override
-    public Map<String, Properties> getSystemProperties() {
-        return systemProperties;
-    }
-
-    public Integer getNumber() {
-        return number;
-    }
-
-    public URI getProxyUri() {
-        return proxyUri;
-    }
-
-    public String getZookeeperUrl() {
-        return zookeeperUrl;
-    }
-
-    public String getZookeeperPassword() {
-        return zookeeperPassword;
-    }
-
-    public String getJvmOpts() {
-        return jvmOpts;
-    }
-
-    public boolean isAdminAccess() {
-        return adminAccess;
-    }
-
-    public Map<String, CreateContainerMetadata<T>> getMetadataMap() {
-        return metadataMap;
-    }
-
-    public String getVersion() {
-        return version;
     }
 }

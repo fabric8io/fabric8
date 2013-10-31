@@ -17,12 +17,17 @@
 package org.fusesource.fabric.api;
 
 import org.codehaus.jackson.annotate.JsonProperty;
+import org.fusesource.fabric.api.jcip.Immutable;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Immutable
+@ThreadSafe
 public class CreateEnsembleOptions extends ContainerOptions {
 
     public static final String AGENT_AUTOSTART = "agent.auto.start";
@@ -34,6 +39,105 @@ public class CreateEnsembleOptions extends ContainerOptions {
     public static String ZOOKEEPER_SERVER_CONNECTION_PORT = "zookeeper.server.connection.port";
     public static final String ROLE_DELIMITER = ",";
     public static final long DEFAULT_MIGRATION_TIMEOUT = 120000L;
+
+    @JsonProperty
+    final int zooKeeperServerPort;
+    @JsonProperty
+    final int zooKeeperServerConnectionPort;
+    @JsonProperty
+    final String zookeeperPassword;
+    @JsonProperty
+    final boolean ensembleStart;
+    @JsonProperty
+    final boolean agentEnabled;
+    @JsonProperty
+    final boolean waitForProvision;
+    @JsonProperty
+    final long provisionTimeout;
+    @JsonProperty
+    final long migrationTimeout;
+    @JsonProperty
+    final boolean autoImportEnabled;
+    @JsonProperty
+    final String importPath;
+
+    @JsonProperty
+    final Map<String, String> users; // keep immutable
+
+    public static Builder<? extends Builder> builder() {
+        return new Builder<Builder>();
+    }
+
+    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
+        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
+        this.zooKeeperServerPort = zooKeeperServerPort;
+        this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
+        this.zookeeperPassword = zookeeperPassword;
+        this.ensembleStart = ensembleStart;
+        this.agentEnabled = agentEnabled;
+        this.waitForProvision = waitForProvision;
+        this.provisionTimeout = provisionTimeout;
+        this.migrationTimeout = migrationTimeout;
+        this.autoImportEnabled = autoImportEnabled;
+        this.importPath = importPath;
+        this.users = Collections.unmodifiableMap(new HashMap<String, String>(users));
+    }
+
+    public int getZooKeeperServerPort() {
+        return zooKeeperServerPort;
+    }
+
+    public int getZooKeeperServerConnectionPort() {
+        return zooKeeperServerConnectionPort;
+    }
+
+    public String getZookeeperPassword() {
+        return zookeeperPassword;
+    }
+
+    public boolean isEnsembleStart() {
+        return ensembleStart;
+    }
+
+    public boolean isAgentEnabled() {
+        return agentEnabled;
+    }
+
+    public boolean isAutoImportEnabled() {
+        return autoImportEnabled;
+    }
+
+    public String getImportPath() {
+        return importPath;
+    }
+
+    public Map<String, String> getUsers() {
+        return users;
+    }
+
+    public boolean isWaitForProvision() {
+        return waitForProvision;
+    }
+
+    public long getProvisionTimeout() {
+        return provisionTimeout;
+    }
+
+    public long getMigrationTimeout() {
+        return migrationTimeout;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " CreateEnsembleOptions{" +
+                "zooKeeperServerPort=" + zooKeeperServerPort +
+                ", zookeeperPassword='" + zookeeperPassword + '\'' +
+                ", agentEnabled=" + agentEnabled +
+                ", autoImportEnabled=" + autoImportEnabled +
+                ", importPath='" + importPath + '\'' +
+                ", users=" + users +
+                '}';
+    }
 
     public static class Builder<B extends Builder> extends ContainerOptions.Builder<B> {
 
@@ -263,103 +367,5 @@ public class CreateEnsembleOptions extends ContainerOptions {
         public CreateEnsembleOptions build() {
             return new CreateEnsembleOptions(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties, zooKeeperServerPort, zooKeeperServerConnectionPort, zookeeperPassword, ensembleStart, agentEnabled, waitForProvision, provisionTimeout, migrationTimeout, autoImportEnabled, importPath, users);
         }
-    }
-
-    @JsonProperty
-    final int zooKeeperServerPort;
-    @JsonProperty
-    final int zooKeeperServerConnectionPort;
-    @JsonProperty
-    final String zookeeperPassword;
-    @JsonProperty
-    final boolean ensembleStart;
-    @JsonProperty
-    final boolean agentEnabled;
-    @JsonProperty
-    final boolean waitForProvision;
-    @JsonProperty
-    final long provisionTimeout;
-    @JsonProperty
-    final long migrationTimeout;
-    @JsonProperty
-    final boolean autoImportEnabled;
-    @JsonProperty
-    final String importPath;
-    @JsonProperty
-    final Map<String, String> users;
-
-    public static Builder<? extends Builder> builder() {
-        return new Builder<Builder>();
-    }
-
-    CreateEnsembleOptions(String bindAddress, String resolver, String globalResolver, String manualIp, int minimumPort, int maximumPort, Set<String> profiles, String version, Map<String, String> dataStoreProperties, int zooKeeperServerPort, int zooKeeperServerConnectionPort, String zookeeperPassword, boolean ensembleStart, boolean agentEnabled, boolean waitForProvision, long provisionTimeout, long migrationTimeout, boolean autoImportEnabled, String importPath, Map<String, String> users) {
-        super(bindAddress, resolver, globalResolver, manualIp, minimumPort, maximumPort, profiles, version, dataStoreProperties);
-        this.zooKeeperServerPort = zooKeeperServerPort;
-        this.zooKeeperServerConnectionPort = zooKeeperServerConnectionPort;
-        this.zookeeperPassword = zookeeperPassword;
-        this.ensembleStart = ensembleStart;
-        this.agentEnabled = agentEnabled;
-        this.waitForProvision = waitForProvision;
-        this.provisionTimeout = provisionTimeout;
-        this.migrationTimeout = migrationTimeout;
-        this.autoImportEnabled = autoImportEnabled;
-        this.importPath = importPath;
-        this.users = users;
-    }
-
-    public int getZooKeeperServerPort() {
-        return zooKeeperServerPort;
-    }
-
-    public int getZooKeeperServerConnectionPort() {
-        return zooKeeperServerConnectionPort;
-    }
-
-    public String getZookeeperPassword() {
-        return zookeeperPassword;
-    }
-
-    public boolean isEnsembleStart() {
-        return ensembleStart;
-    }
-
-    public boolean isAgentEnabled() {
-        return agentEnabled;
-    }
-
-    public boolean isAutoImportEnabled() {
-        return autoImportEnabled;
-    }
-
-    public String getImportPath() {
-        return importPath;
-    }
-
-    public Map<String, String> getUsers() {
-        return users;
-    }
-
-    public boolean isWaitForProvision() {
-        return waitForProvision;
-    }
-
-    public long getProvisionTimeout() {
-        return provisionTimeout;
-    }
-
-    public long getMigrationTimeout() {
-        return migrationTimeout;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + " CreateEnsembleOptions{" +
-                "zooKeeperServerPort=" + zooKeeperServerPort +
-                ", zookeeperPassword='" + zookeeperPassword + '\'' +
-                ", agentEnabled=" + agentEnabled +
-                ", autoImportEnabled=" + autoImportEnabled +
-                ", importPath='" + importPath + '\'' +
-                ", users=" + users +
-                '}';
     }
 }

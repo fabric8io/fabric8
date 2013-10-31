@@ -20,13 +20,11 @@ public interface DataStoreRegistrationHandler {
 
     /**
      * Adds a {@link DataStoreTemplate} that will be executed before {@link DataStore} registration.
-     * @param template
      */
-    public void addRegistrationCallback(DataStoreTemplate template);
+    void setRegistrationCallback(DataStoreTemplate template);
 
     /**
      * Removes a {@link DataStoreTemplate} from initialization phase.
-     * @param template
      */
-    public void removeRegistrationCallback(DataStoreTemplate template);
+    DataStoreTemplate removeRegistrationCallback();
 }

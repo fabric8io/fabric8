@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 /**
  * @author Stan Lewis
@@ -50,16 +49,6 @@ public interface DataStore {
     //
     // Tracking
     //
-
-    /**
-     * Lifecycle method to be called, when DataStore is started.
-     */
-    void start();
-
-    /**
-     * Lifecycle method to be called when DataStore is stopped.
-     */
-    void stop();
 
     void trackConfiguration(Runnable callback);
     void untrackConfiguration(Runnable callback);
@@ -219,10 +208,4 @@ public interface DataStore {
     List<String> getEnsembleContainers();
 
     Map<String, String> getDataStoreProperties();
-
-    /**
-     * Sets the configuration properties for this DataStore implementation
-     */
-    void setDataStoreProperties(Map<String, String> dataStoreProperties);
-
 }

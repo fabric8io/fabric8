@@ -16,8 +16,34 @@
  */
 package org.fusesource.fabric.git.internal;
 
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.*;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.generateContainerToken;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getContainerLogin;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getPropertiesAsMap;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getStringData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setPropertiesAsMap;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.ListBranchCommand;
@@ -32,14 +58,15 @@ import org.eclipse.jgit.lib.Ref;
 import org.eclipse.jgit.lib.Repository;
 import org.eclipse.jgit.lib.StoredConfig;
 import org.eclipse.jgit.merge.MergeStrategy;
-import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevWalk;
 import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -52,39 +79,16 @@ import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.utils.PropertiesHelper;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.gitective.core.CommitUtils;
 import org.gitective.core.RepositoryUtils;
-import org.osgi.service.component.ComponentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.util.Properties;
-import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.*;
 
 /**
  * A git based implementation of {@link DataStore} which stores the profile configuration
  * versions in a branch per version and directory per profile.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.datastore.git", description = "Fabric Git DataStore")
-@References({
-        @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
-        @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
-        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
-}
-)
-@Service(DataStorePlugin.class)
-public class GitDataStore extends AbstractDataStore implements DataStorePlugin<GitDataStore> {
+public class GitDataStore extends AbstractDataStore<GitDataStore> {
     private static final transient Logger LOG = LoggerFactory.getLogger(GitDataStore.class);
 
     private static final String MASTER_BRANCH = "master";
@@ -114,7 +118,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     private final ScheduledExecutorService threadPool = Executors.newSingleThreadScheduledExecutor();
 
     private final Object gitOperationMonitor = new Object();
-    @GuardedBy("CopyOnWriteArraySet") private final Set<String> versions = new CopyOnWriteArraySet<String>();
+    private final Set<String> versions = new CopyOnWriteArraySet<String>();
 
     private final GitListener gitListener = new GitListener() {
         @Override
@@ -160,26 +164,13 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @GuardedBy("this") private String remoteUrl;
     @GuardedBy("this") private long pullPeriod = 1000;
 
-    @Activate
-    void activate(ComponentContext context) {
-        activateComponent();
-    }
-
-    @Deactivate
-    void deactivate() {
-        deactivateComponent();
-        stop();
-    }
-
     @Override
-    public void start() {
+    protected void activateInternal() {
         try {
-            super.start();
-            Map<String, String> properties = getDataStoreProperties();
-            if (properties != null) {
-                this.pullPeriod = PropertiesHelper.getLongValue(properties, GIT_PULL_PERIOD, this.pullPeriod);
-                this.remoteUrl = properties.get(GIT_REMOTE_URL);
-            }
+            super.activateInternal();
+            Map<String, String> configuration = getDataStoreProperties();
+            this.pullPeriod = PropertiesHelper.getLongValue(configuration, GIT_PULL_PERIOD, this.pullPeriod);
+            this.remoteUrl = configuration.get(GIT_REMOTE_URL);
 
             // [FIXME] Why can we not rely on the injected GitService
             GitService optionalService = gitService.getOptional();
@@ -210,7 +201,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     }
 
     @Override
-    public void stop() {
+    protected void deactivateInternal() {
         try {
             GitService optsrv = gitService.getOptional();
             if (optsrv != null) {
@@ -232,7 +223,7 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
                 }
             }
         } finally {
-            super.stop();
+            super.deactivateInternal();
         }
     }
 
@@ -1365,24 +1356,6 @@ public class GitDataStore extends AbstractDataStore implements DataStorePlugin<G
     @Override
     public String getType() {
         return TYPE;
-    }
-
-    @Override
-    public GitDataStore getDataStore() {
-        return this;
-    }
-
-    @Override
-    public void setDataStoreProperties(Map<String, String> dataStoreProperties) {
-        assertValid();
-        Map<String, String> properties = new HashMap<String, String>();
-        for (Map.Entry<String, String> entry : dataStoreProperties.entrySet()) {
-            String key = entry.getKey();
-            if (Arrays.asList(SUPPORTED_CONFIGURATION).contains(key)) {
-                properties.put(key, entry.getValue());
-            }
-        }
-        super.setDataStoreProperties(properties);
     }
 
     void addVersion(String version) {

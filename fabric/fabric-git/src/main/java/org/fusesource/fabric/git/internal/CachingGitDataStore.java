@@ -16,9 +16,15 @@
  */
 package org.fusesource.fabric.git.internal;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -29,38 +35,34 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
-import org.fusesource.fabric.api.DataStorePlugin;
+import org.fusesource.fabric.api.DataStore;
+import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.git.GitService;
 import org.fusesource.fabric.internal.DataStoreHelpers;
-import org.osgi.service.component.ComponentContext;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
 /**
  * A Caching version of {@link GitDataStore} to minimise the use of git operations
  * and speed things up a little
  */
 @ThreadSafe
-@Component(name = "org.fusesource.datastore.git.caching", description = "Fabric Git Caching DataStore")
+@Component(name = DataStore.DATASTORE_TYPE_PID, description = "Fabric Git Caching DataStore", immediate = true)
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
+        @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),
         @Reference(referenceInterface = CuratorFramework.class, bind = "bindCurator", unbind = "unbindCurator"),
-        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService")
+        @Reference(referenceInterface = GitService.class, bind = "bindGitService", unbind = "unbindGitService"),
 }
 )
-@Service(DataStorePlugin.class)
-public final class CachingGitDataStore extends GitDataStore implements DataStorePlugin<GitDataStore> {
+@Service(DataStore.class)
+public final class CachingGitDataStore extends GitDataStore {
 
     public static final String TYPE = "caching-git";
 
@@ -80,12 +82,12 @@ public final class CachingGitDataStore extends GitDataStore implements DataStore
             });
 
     @Activate
-    void activate(ComponentContext context) {
-        super.activate(context);
+    protected void activate(Map<String, ?> configuration) throws Exception {
+        super.activate(configuration);
     }
 
     @Deactivate
-    void deactivate() {
+    protected void deactivate() {
         super.deactivate();
     }
 
@@ -218,11 +220,6 @@ public final class CachingGitDataStore extends GitDataStore implements DataStore
     @Override
     public String getType() {
         return TYPE;
-    }
-
-    @Override
-    public CachingGitDataStore getDataStore() {
-        return this;
     }
 
     private static class VersionData {
