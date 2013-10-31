@@ -29,12 +29,10 @@ import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore("[FABRIC-528] Fix fabric camel MasterEndpointFailoverTest")
 public class MasterEndpointFailoverTest {
     private static final transient Logger LOG = LoggerFactory.getLogger(MasterEndpointFailoverTest.class);
 
@@ -81,8 +79,8 @@ public class MasterEndpointFailoverTest {
                 from("master:MasterEndpointFailoverTest:vm:start").to("mock:result2");
             }
         });
-
-        ServiceHelper.startServices(consumerContext1, consumerContext2, producerContext);
+        // Need to start at less one consumerContext to enable the vm queue for producerContext
+        ServiceHelper.startServices(consumerContext1, producerContext);
 
         result1Endpoint = consumerContext1.getEndpoint("mock:result1", MockEndpoint.class);
         result2Endpoint = consumerContext2.getEndpoint("mock:result2", MockEndpoint.class);
@@ -91,6 +89,7 @@ public class MasterEndpointFailoverTest {
     @After
     public void afterRun() throws Exception {
         ServiceHelper.stopServices(consumerContext1);
+        ServiceHelper.stopServices(consumerContext2);
         ServiceHelper.stopServices(producerContext);
         zkClientBean.destroy();
         serverFactoryBean.destroy();
