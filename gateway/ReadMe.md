@@ -1,0 +1,1 @@
+See the [Gateway docs](https://github.com/jboss-fuse/fuse/blob/master/doc/gateway.md) for more details
