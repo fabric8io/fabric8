@@ -24,6 +24,7 @@ import java.util.Set;
  */
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-638] Fix fabric smoke ContainerRegistrationTest")
 public class ContainerRegistrationTest extends FabricTestSupport {
 
     @After
@@ -32,7 +33,6 @@ public class ContainerRegistrationTest extends FabricTestSupport {
     }
 
     @Test
-    @Ignore("[FABRIC-638] Fix fabric smoke ContainerRegistrationTest")
     public void testSshPortRegistration() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
