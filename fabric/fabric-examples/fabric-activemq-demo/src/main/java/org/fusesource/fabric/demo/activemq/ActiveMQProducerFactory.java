@@ -18,9 +18,7 @@ package org.fusesource.fabric.demo.activemq;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.felix.scr.annotations.*;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.scr.AbstractComponent;
-import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.mq.ActiveMQService;
 import org.fusesource.mq.ProducerThread;
 import org.osgi.service.component.ComponentContext;
@@ -40,13 +38,13 @@ public class ActiveMQProducerFactory extends AbstractComponent {
     private ActiveMQConnectionFactory connectionFactory;
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) throws Exception {
+    void activate(ComponentContext context, Map<String, ?> properties) throws Exception {
        updated(properties);
        activateComponent();
     }
 
     @Modified
-    public void updated(Map<String, String> properties) throws Exception {
+    public void updated(Map<String, ?> properties) throws Exception {
         try {
             producerService = new ActiveMQService(connectionFactory);
             producerService.setMaxAttempts(10);

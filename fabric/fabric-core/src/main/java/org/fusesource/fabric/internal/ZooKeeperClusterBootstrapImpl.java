@@ -100,14 +100,14 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<FabricService> fabricService = new DynamicReference<FabricService>("Fabric Service", FABRIC_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS);
 
-    @GuardedBy("this") private Map<String, String> configuration;
+    @GuardedBy("this") private Map<String, ?> configuration;
     @GuardedBy("this") private BundleUtils bundleUtils;
     @GuardedBy("this") private BundleContext bundleContext;
 
     @Activate
-    synchronized void activate(BundleContext bundleContext, Map<String,String> configuration) {
+    synchronized void activate(BundleContext bundleContext, Map<String, ?> configuration) {
         this.bundleContext = bundleContext;
-        this.configuration = Collections.unmodifiableMap(new HashMap<String,String>(configuration));
+        this.configuration = Collections.unmodifiableMap(new HashMap<String, Object>(configuration));
         this.bundleUtils = new BundleUtils(bundleContext);
         new Thread(new Runnable() {
             @Override

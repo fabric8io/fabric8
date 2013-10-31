@@ -84,7 +84,7 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     //Reference not used, but it expresses the dependency of the git server on a jaas realm that supports container tokens.
     @Reference(target = "(supports.container.tokens=true)")
     private JaasRealm fabricJaasRelm;
-    
+
 
     @GuardedBy("volatile") private volatile Group<GitNode> group;
     @GuardedBy("volatile") private volatile String gitRemoteUrl;
@@ -93,9 +93,9 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
     private String role;
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) {
-        realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
-        role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
+    void activate(ComponentContext context, Map<String, ?> properties) {
+        realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? (String)properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
+        role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? (String)properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
 
         registerServlet();
         group = new ZooKeeperGroup(curator.get(), ZkPath.GIT.getPath(), GitNode.class);

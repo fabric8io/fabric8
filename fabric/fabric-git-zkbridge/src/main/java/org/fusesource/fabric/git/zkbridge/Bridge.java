@@ -95,8 +95,8 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
     @GuardedBy("volatile") private volatile long period = 1000;
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) {
-        period = Integer.parseInt(properties != null && properties.containsKey("period") ? properties.get("period") : "1000");
+    void activate(ComponentContext context, Map<String, ?> properties) {
+        period = Integer.parseInt(properties != null && properties.containsKey("period") ? (String)properties.get("period") : "1000");
         group = new ZooKeeperGroup<GitZkBridgeNode>(curator.get(), "/fabric/registry/clusters/gitzkbridge", GitZkBridgeNode.class);
         group.add(this);
         group.update(createState());

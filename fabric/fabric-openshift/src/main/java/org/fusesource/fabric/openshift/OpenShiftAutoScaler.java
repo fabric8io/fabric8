@@ -66,7 +66,7 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
     protected CreateOpenshiftContainerOptions.Builder createAuthoScaleOptions() {
         CreateOpenshiftContainerOptions.Builder builder = CreateOpenshiftContainerOptions.builder();
 
-        Map<String, String> properties = containerProvider.getProperties();
+        Map<String, ?> properties = containerProvider.getProperties();
 
         String serverUrl = validateProperty(properties,
                 "serverUrl",
@@ -101,10 +101,8 @@ public class OpenShiftAutoScaler implements ContainerAutoScaler {
     }
 
 
-    protected String validateProperty(Map<String, String> properties, String name, String propertyName, String envVarName, String defaultValue) {
-        String answer = Maps.stringValue(properties,
-                propertyName,
-                Systems.getEnvVar(envVarName, defaultValue));
+    protected String validateProperty(Map<String, ?> properties, String name, String propertyName, String envVarName, String defaultValue) {
+        String answer = Maps.stringValue(properties, propertyName, Systems.getEnvVar(envVarName, defaultValue));
         if (Strings.isNullOrBlank(answer)) {
             LOG.warn("No configured value for " + name + " in property " + propertyName + " or environment variable $" + envVarName);
         }

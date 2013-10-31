@@ -43,10 +43,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicReference;
-
 import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
 import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PID;
 import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PROPERTY;
@@ -69,14 +65,14 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
     @GuardedBy("this") private final List<DataStoreTemplate> registrationCallbacks = new ArrayList<DataStoreTemplate>();
 
     @GuardedBy("this") private BundleContext bundleContext;
-    @GuardedBy("this") private Map<String,String> configuration;
+    @GuardedBy("this") private Map<String, ?> configuration;
     @GuardedBy("this") private String type;
 
     @GuardedBy("this") private DataStore dataStore;
     @GuardedBy("this") private ServiceRegistration<DataStore> registration;
 
     @Activate
-    void activate(BundleContext bundleContext, Map<String,String> configuration) {
+    void activate(BundleContext bundleContext, Map<String, ?> configuration) {
         synchronized (this) {
             this.bundleContext = bundleContext;
             this.configuration = Collections.unmodifiableMap(configuration);
@@ -87,7 +83,7 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
     }
 
     @Modified
-    void update(Map<String,String> configuration) {
+    void update(Map<String, ?> configuration) {
         synchronized (this) {
             this.configuration = Collections.unmodifiableMap(configuration);
             this.type = readType(this.configuration);
@@ -133,10 +129,16 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
             pluginDataStore = dataStorePlugins.get(type);
         }
         if (pluginDataStore != null) {
-            Map<String,String> dataStoreProperties;
+            Map<String, String> dataStoreProperties;
             synchronized (this) {
                 dataStoreProperties = new HashMap<String, String>();
-                dataStoreProperties.putAll(configuration);
+                for(Map.Entry<String, ?> entry : configuration.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = entry.getValue();
+                    if (value instanceof String) {
+                        dataStoreProperties.put(key, (String) value);
+                    }
+                }
             }
             auxStore = pluginDataStore.getDataStore();
             auxStore.setDataStoreProperties(dataStoreProperties);
@@ -192,9 +194,9 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
      * Extracts the type from the specified map or System configuration.
      * @param configuration The map to use as a source.
      */
-    private static String readType(Map<String, String> configuration) {
+    private static String readType(Map<String, ?> configuration) {
         if (configuration.containsKey(DATASTORE_TYPE_PROPERTY) && configuration.get(DATASTORE_TYPE_PROPERTY) != null) {
-            return configuration.get(DATASTORE_TYPE_PROPERTY);
+            return configuration.get(DATASTORE_TYPE_PROPERTY).toString();
         } else {
             return System.getProperty(DATASTORE_TYPE_PID + "." + DATASTORE_TYPE_PROPERTY, DEFAULT_DATASTORE_TYPE);
         }

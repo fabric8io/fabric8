@@ -106,7 +106,7 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
     }
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) throws IOException {
+    void activate(ComponentContext context, Map<String, ?> properties) throws IOException {
         String localRepository = readProperty(properties, LOCAL_REPOSITORY_PROPERTY, DEFAULT_LOCAL_REPOSITORY);
         String remoteRepositories = readProperty(properties, REMOTE_REPOSITORIES_PROPERTY, "");
         boolean appendSystemRepos = Boolean.parseBoolean(readProperty(properties, APPEND_SYSTEM_REPOS_PROPERTY, "false"));
@@ -191,8 +191,8 @@ public final class MavenProxyRegistrationHandler extends AbstractComponent imple
         }
     }
 
-    private String readProperty(Map<String, String> properties, String key, String defaultValue) {
-        return properties != null && properties.containsKey(key) ? properties.get(key) : defaultValue;
+    private String readProperty(Map<String, ?> properties, String key, String defaultValue) {
+        return properties != null && properties.containsKey(key) ? properties.get(key).toString() : defaultValue;
     }
 
     @Override

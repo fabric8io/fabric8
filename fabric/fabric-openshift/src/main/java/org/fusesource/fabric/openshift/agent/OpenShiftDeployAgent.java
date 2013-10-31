@@ -99,7 +99,7 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
     @GuardedBy("volatile") private volatile Group<ControllerNode> group;
 
     @Activate
-    void activate(Map<String, String> properties) {
+    void activate(Map<String, ?> properties) {
         //this.realm =  properties != null && properties.containsKey(REALM_PROPERTY_NAME) ? properties.get(REALM_PROPERTY_NAME) : DEFAULT_REALM;
         //this.role =  properties != null && properties.containsKey(ROLE_PROPERTY_NAME) ? properties.get(ROLE_PROPERTY_NAME) : DEFAULT_ROLE;
         group = new ZooKeeperGroup(curator.get(), ZkPath.OPENSHIFT.getPath(), ControllerNode.class);

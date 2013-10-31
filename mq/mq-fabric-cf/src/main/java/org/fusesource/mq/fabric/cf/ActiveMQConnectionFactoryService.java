@@ -44,12 +44,12 @@ public class ActiveMQConnectionFactoryService extends ActiveMQConnectionFactory 
     private FabricService fabricService;
 
     @Activate
-    void activate(Map<String, String> properties) throws Exception {
+    void activate(Map<String, ?> properties) throws Exception {
        updated(properties);
     }
 
     @Modified
-    void updated(Map<String, String> properties) throws Exception {
+    void updated(Map<String, ?> properties) throws Exception {
         // lets set the properties from config admin
         String group = Maps.stringValue(properties, "group", "default");
         String brokerUrl = Maps.stringValue(properties, "brokerUrl");

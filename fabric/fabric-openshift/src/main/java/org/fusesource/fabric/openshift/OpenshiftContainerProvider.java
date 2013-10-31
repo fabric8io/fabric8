@@ -19,7 +19,6 @@ package org.fusesource.fabric.openshift;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -97,10 +96,10 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     private ObjectName objectName;
     private OpenShiftFacade mbean;
 
-    @GuardedBy("AtomicReference") private final AtomicReference<Map<String, String>> properties = new AtomicReference<Map<String, String>>();
+    @GuardedBy("AtomicReference") private final AtomicReference<Map<String, ?>> properties = new AtomicReference<Map<String, ?>>();
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
+    void activate(ComponentContext context, Map<String, ?> properties) throws MalformedObjectNameException, NotCompliantMBeanException, InstanceAlreadyExistsException, MBeanRegistrationException {
         updateConfiguration(properties);
         activateComponent();
         if (mbeanServer != null) {
@@ -113,7 +112,7 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
     }
 
     @Modified
-    void updated(Map<String, String> properties) {
+    void updated(Map<String, ?> properties) {
         updateConfiguration(properties);
     }
 
@@ -127,15 +126,15 @@ public final class OpenshiftContainerProvider extends AbstractComponent implemen
         deactivateComponent();
     }
 
-    private void updateConfiguration(Map<String, String> config) {
-        properties.set(Collections.unmodifiableMap(new HashMap<String, String>(config)));
+    private void updateConfiguration(Map<String, ?> config) {
+        properties.set(Collections.unmodifiableMap(new HashMap<String, Object>(config)));
     }
 
     FabricService getFabricService() {
         return fabricService.get();
     }
 
-    Map<String, String> getProperties() {
+    Map<String, ?> getProperties() {
         return properties.get();
     }
 

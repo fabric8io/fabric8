@@ -30,7 +30,7 @@ public final class ServletRegistrationHandler extends AbstractComponent {
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
     @Activate
-    void activate(ComponentContext context, Map<String, String> properties) {
+    void activate(ComponentContext context, Map<String, ?> properties) {
         try {
             FabricDiscoveryServlet discoveryServlet = new FabricDiscoveryServlet();
             discoveryServlet.setCurator(curator.get());
