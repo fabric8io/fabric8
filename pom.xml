@@ -1351,6 +1351,7 @@
                 <module>patch</module>
                 <module>security</module>
                 <module>stream</module>
+                <module>quickstarts</module>
             </modules>
         </profile>
         <profile>
