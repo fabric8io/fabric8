@@ -69,5 +69,5 @@ View the webconsole at http://localhost:8181/activemqweb
 Documentation
 -------------
 You can find documentation online at:
-https://access.redhat.com/knowledge/docs/JBoss_A-MQ/
+https://access.redhat.com/site/documentation/JBoss_A-MQ/
 

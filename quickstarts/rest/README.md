@@ -20,7 +20,7 @@ In studying this quick start you will learn:
 
 For more information see:
 
-* <https://access.redhat.com/knowledge/docs/JBoss_Fuse/> for more information about using JBoss Fuse
+* <https://access.redhat.com/site/documentation/JBoss_Fuse/> for more information about using JBoss Fuse
 
 System requirements
 -------------------

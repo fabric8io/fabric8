@@ -79,7 +79,7 @@
              title="Send">Send</a>
         </div>
         <div id="site-quicklinks"><P>
-          <a href="https://access.redhat.com/knowledge/docs/JBoss_A-MQ/"
+          <a href="https://access.redhat.com/site/documentation/JBoss_A-MQ/"
              title="Get help and support using JBoss A-MQ">Support</a></p>
         </div>
       </div>
