@@ -42,6 +42,9 @@ import org.junit.Test;
 @Ignore("[FABRIC-689] Fix fabric dosgi TransportFailureTest")
 public class TransportFailureTest {
 
+    private static long SLEEP_TIME = 100;
+    private static long MAX_DELAY = 1000;
+
     @Test
     public void testInvoke() throws Exception {
 
@@ -73,13 +76,13 @@ public class TransportFailureTest {
 
             long t0 = System.currentTimeMillis();
             try {
-                assertEquals("Hello Guillaume!", future1.get(2, TimeUnit.SECONDS));
+                assertEquals("Hello Guillaume!", future1.get(MAX_DELAY, TimeUnit.MILLISECONDS));
                 fail("Should have thrown an exception");
             } catch (Exception e) {
                 // Expected
                 long t1 = System.currentTimeMillis();
-                assertTrue(t1 - t0 > 50);
-                assertTrue(t1 - t0 < 150);
+                assertTrue(t1 - t0 > SLEEP_TIME / 2);
+                assertTrue(t1 - t0 < MAX_DELAY / 2);
             }
 
         }
@@ -99,7 +102,7 @@ public class TransportFailureTest {
                 @Override
                 public void run() {
                     try {
-                        Thread.sleep(100);
+                        Thread.sleep(SLEEP_TIME);
                         // Big introspection call to access the transport channel and close it, simulating
                         // a disconnect on the client side.
                         ((SocketChannel) get(get(get(get(get(callback, "val$helper"), "onComplete"), "this$1"), "val$transport"), "channel")).close();
