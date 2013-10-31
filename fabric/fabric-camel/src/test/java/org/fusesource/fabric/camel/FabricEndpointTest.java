@@ -21,6 +21,7 @@ import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -49,6 +50,7 @@ public class FabricEndpointTest extends AbstractJUnit4SpringContextTests {
     @After
     public void afterRun() throws Exception {
         lastServerBean = zkServerBean;
+        ServiceHelper.stopServices(camelContext);
     }
     protected static ZKServerFactoryBean lastServerBean;
     @AfterClass

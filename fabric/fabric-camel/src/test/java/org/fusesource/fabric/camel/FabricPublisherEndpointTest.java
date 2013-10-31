@@ -21,6 +21,7 @@ import junit.framework.Assert;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Route;
 import org.apache.camel.spring.SpringRouteBuilder;
+import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -35,7 +36,7 @@ import java.util.List;
 public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTests {
     private static final String ROUTE_NAME = "test_route_1";
 
-	@Autowired
+    @Autowired
     protected CamelContext camelContext;
 
     @Autowired
@@ -44,6 +45,7 @@ public class FabricPublisherEndpointTest extends AbstractJUnit4SpringContextTest
     @After
     public void afterRun() throws Exception {
         lastServerBean = zkServerBean;
+        ServiceHelper.stopServices(camelContext);
     }
     protected static ZKServerFactoryBean lastServerBean;
     @AfterClass

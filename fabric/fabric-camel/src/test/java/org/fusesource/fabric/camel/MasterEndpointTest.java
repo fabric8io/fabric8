@@ -26,6 +26,7 @@ import org.apache.camel.Produce;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.Route;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.util.ServiceHelper;
 import org.fusesource.fabric.zookeeper.spring.CuratorFactoryBean;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
 import org.junit.After;
@@ -59,6 +60,7 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
     public void afterRun() throws Exception {
         lastServerBean = zkServerBean;
         lastClientBean = zkClientBean;
+        ServiceHelper.stopServices(camelContext);
     }
 
     protected static ZKServerFactoryBean lastServerBean;
@@ -93,5 +95,6 @@ public class MasterEndpointTest extends AbstractJUnit4SpringContextTests {
         MockEndpoint.assertIsSatisfied(camelContext);
 
         System.out.println("===== completed test of Master endpoint!");
+ 
     }
 }
