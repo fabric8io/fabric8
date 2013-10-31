@@ -5,3 +5,9 @@ The Fuse Gateway provides a HTTP/HTTPS/TCP gateway for discovery and load balanc
 ### Running the Gateway
 
 From the CLI or Fuse Management Console just run an instance of the **gateway-default** profile on a machine you wish to use as the gateway (e.g. if using Red Hat clustering and VIPs on 2 boxes), or on the same machine as you wish to connect to services from non-Fabric Java clients (e.g. from a C based AMQP client).
+
+### Configuring the Gateway
+
+The gateway is run via a Profile in Fuse Fabric. The configuration file is called **org.fusesource.fabric.gateway.json**.
+
+Here's the [default configuration](https://github.com/jboss-fuse/fuse/blob/master/fabric/fuse-fabric/src/main/resources/distro/fabric/import/fabric/configs/versions/1.0/profiles/gateway-default/org.fusesource.fabric.gateway.json) that comes in the **gateway-default**. So you can edit the JSON to change which ports are proxied and to configure which clusters are discovered in ZooKeeper.
