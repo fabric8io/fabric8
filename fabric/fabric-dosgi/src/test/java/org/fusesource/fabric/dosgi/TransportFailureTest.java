@@ -39,7 +39,6 @@ import org.fusesource.hawtdispatch.DispatchQueue;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("[FABRIC-689] Fix fabric dosgi TransportFailureTest")
 public class TransportFailureTest {
 
     private static long SLEEP_TIME = 100;
