@@ -401,7 +401,7 @@ public class ProfileEdit extends FabricCommand {
         String version = profile.getVersion();
         String location = id + " " + version + " " + resource;
         //Call the editor
-        ConsoleEditor editor = editorFactory.create(getTerminal());
+        ConsoleEditor editor = editorFactory.create("simple",getTerminal(), System.in, System.out);
         editor.setTitle("Profile");
         editor.setOpenEnabled(false);
         editor.setContentManager(new DatastoreContentManager(getFabricService().getDataStore()));
