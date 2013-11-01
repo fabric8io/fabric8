@@ -214,10 +214,9 @@ public final class GitHttpServerRegistrationHandler extends AbstractComponent im
         String fabricRepoUrl = "${zk:" + KARAF_NAME + "/http}/git/fabric/";
         GitNode state = new GitNode();
         state.setId("fabric-repo");
-        state.setUrl(fabricRepoUrl);
         state.setContainer(KARAF_NAME);
         if (group != null && group.isMaster()) {
-            state.setServices(new String[] { fabricRepoUrl });
+            state.setUrl(fabricRepoUrl);
         }
         return state;
     }

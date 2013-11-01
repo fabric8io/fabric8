@@ -20,18 +20,16 @@ import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.NodeState;
 
 public class GitNode extends NodeState {
-	@JsonProperty
-	String url;
 
     @JsonProperty
     String[] services;
 
     public String getUrl() {
-        return url;
+        return services != null && services.length >= 1 ? services[0] : null;
     }
 
     public void setUrl(String url) {
-        this.url = url;
+        this.services = new String[] {url};
     }
 
     public String[] getServices() {
@@ -46,7 +44,7 @@ public class GitNode extends NodeState {
 	public String toString() {
 		return "GitNode{" +
 				"id='" + id + '\'' +
-				", url='" + url + '\'' +
+				", url='" + getUrl() + '\'' +
 				'}';
 	}
 }
