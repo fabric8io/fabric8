@@ -949,7 +949,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 return Collections.EMPTY_LIST;
             }
 
-            return git.push().setCredentialsProvider(credentialsProvider).setPushAll().call();
+            return git.push().setTimeout(10).setCredentialsProvider(credentialsProvider).setPushAll().call();
         } catch (Exception ex) {
             LOG.debug("Push failed. This will be ignored.", ex);
             return Collections.EMPTY_LIST;
@@ -1029,7 +1029,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
             boolean hasChanged = false;
             try {
-                git.fetch().setCredentialsProvider(credentialsProvider).setRemote(remote).call();
+                git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remote).call();
             } catch (Exception e) {
                 LOG.debug("Fetch failed. Ignoring");
                 return;
