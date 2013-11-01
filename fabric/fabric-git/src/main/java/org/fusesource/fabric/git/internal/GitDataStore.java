@@ -1042,16 +1042,12 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
                 if (ref.getName().startsWith("refs/remotes/" + remote + "/")) {
                     String name = ref.getName().substring(("refs/remotes/" + remote + "/").length());
-                    if (!name.endsWith("-tmp")) {
                         remoteBranches.put(name, ref);
                         gitVersions.add(name);
-                    }
                 } else if (ref.getName().startsWith("refs/heads/")) {
                     String name = ref.getName().substring(("refs/heads/").length());
-                    if (!name.endsWith("-tmp")) {
                         localBranches.put(name, ref);
                         gitVersions.add(name);
-                    }
                 }
             }
 
@@ -1059,7 +1055,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             for (String version : gitVersions) {
                 // Delete unneeded local branches.
                 //Check if any remote branches was found as a guard for unwanted deletions.
-                if (!remoteBranches.containsKey(version) && !remoteBranches.isEmpty()) {
+                if (remoteBranches.isEmpty()) {
+                    //Do nothing
+                } else if (!remoteBranches.containsKey(version)) {
                     //We never want to delete the master branch.
                     if (doDeleteBranches && !version.equals(MASTER_BRANCH)) {
                         try {
