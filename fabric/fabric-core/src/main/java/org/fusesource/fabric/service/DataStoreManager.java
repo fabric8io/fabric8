@@ -59,9 +59,6 @@ public final class DataStoreManager extends AbstractComponent implements DataSto
     @Override
     public DataStoreTemplate removeRegistrationCallback() {
         assertValid();
-        DataStoreTemplate template = registrationCallbacks.getAndSet(null);
-        if (template == null)
-            throw new IllegalStateException("Template not available");
-        return template;
+        return registrationCallbacks.getAndSet(null);
     }
 }

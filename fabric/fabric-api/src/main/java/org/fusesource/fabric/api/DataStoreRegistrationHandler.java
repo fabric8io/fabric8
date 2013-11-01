@@ -25,6 +25,7 @@ public interface DataStoreRegistrationHandler {
 
     /**
      * Removes a {@link DataStoreTemplate} from initialization phase.
+     * @return The {@link DataStoreTemplate} or null if no {@link DataStoreTemplate} is registered.
      */
     DataStoreTemplate removeRegistrationCallback();
 }

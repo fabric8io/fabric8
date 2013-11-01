@@ -134,7 +134,9 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         // Call the bootstrap {@link DataStoreTemplate}
         DataStoreRegistrationHandler templateRegistry = registrationHandler.get();
         DataStoreTemplate template = templateRegistry.removeRegistrationCallback();
-        template.doWith(this);
+        if (template != null) {
+            template.doWith(this);
+        }
     }
 
     protected void deactivateInternal() {
