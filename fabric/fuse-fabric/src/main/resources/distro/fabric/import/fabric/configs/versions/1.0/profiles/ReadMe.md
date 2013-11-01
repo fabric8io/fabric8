@@ -1,6 +1,6 @@
 ### Getting Started
 
-* [example](/fabric/profiles/example) for various examples and quickstarts of using [JBoss Fuse](http://www.jboss.org/products/fuse) and [JBoss A-MQ](http://www.jboss.org/products/amq)
+* [example](/fabric/profiles/example) for various examples and [quickstarts](/fabric/profiles/example/quickstarts) of using [JBoss Fuse](http://www.jboss.org/products/fuse) and [JBoss A-MQ](http://www.jboss.org/products/amq)
 * [jboss](/fabric/profiles/jboss) for the profiles for running various [JBoss Products](http://www.jboss.org/products)
 * [mq](/fabric/profiles/mq) for working with [JBoss A-MQ](http://www.jboss.org/products/amq)
 * [insight](/fabric/profiles/insight) for adding the collection of logs, metrics or messages using [ElasticSearch](http://www.elasticsearch.org/) so they can be queried such as with Kibana.
