@@ -136,7 +136,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                                 Repository repository = git.getRepository();
                                 StoredConfig config = repository.getConfig();
                                 String currentUrl = config.getString("remote", "origin", "url");
-                                if (!actualUrl.equals(currentUrl)) {
+                                if (actualUrl != null && !actualUrl.equals(currentUrl)) {
                                     config.setString("remote", "origin", "url", actualUrl);
                                     config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
                                     config.save();
