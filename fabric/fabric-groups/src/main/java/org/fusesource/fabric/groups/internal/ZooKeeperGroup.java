@@ -25,8 +25,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.api.BackgroundCallback;
-import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.framework.listen.ListenerContainer;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
@@ -221,6 +219,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
                         ||   state != null && oldState == null
                         || !Arrays.equals(encode(state), encode(oldState));
             if (update) {
+                offerOperation(new RefreshOperation(this, RefreshMode.FORCE_GET_DATA_AND_STAT));
                 offerOperation(new UpdateOperation<T>(this, state));
             }
         }
@@ -239,8 +238,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
                     }
                 }
             } else {
-
                 if (id == null) {
+                    //We explicitly refresh to prevent members() from returning stale data.
+                    refresh(RefreshMode.FORCE_GET_DATA_AND_STAT);
                     // We could have created the sequence, but then have crashed and our entry is already registered,
                     // find out by looking up entry by the matching uuid.
                     Map<String, T> members = members();
@@ -394,14 +394,9 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     }
 
     void getDataAndStat(final String fullPath) throws Exception {
-        BackgroundCallback getDataCallback = new BackgroundCallback() {
-            @Override
-            public void processResult(CuratorFramework client, CuratorEvent event) throws Exception {
-                applyNewData(fullPath, event.getResultCode(), event.getStat(), event.getData());
-            }
-        };
-
-        client.getData().usingWatcher(dataWatcher).inBackground(getDataCallback).forPath(fullPath);
+        Stat stat = new Stat();
+        byte[] data = client.getData().storingStatIn(stat).usingWatcher(dataWatcher).forPath(fullPath);
+        applyNewData(fullPath, KeeperException.Code.OK.intValue(), stat, data);
     }
 
     /**
@@ -443,8 +438,8 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
 
             case CONNECTED:
             case RECONNECTED: {
-                offerOperation(new UpdateOperation<T>(this, state));
                 offerOperation(new RefreshOperation(this, RefreshMode.FORCE_GET_DATA_AND_STAT));
+                offerOperation(new UpdateOperation<T>(this, state));
                 offerOperation(new EventOperation(this, GroupListener.GroupEvent.CONNECTED));
                 break;
             }
