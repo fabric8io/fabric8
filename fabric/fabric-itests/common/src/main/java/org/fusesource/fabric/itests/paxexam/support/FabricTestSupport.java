@@ -18,6 +18,7 @@
 package org.fusesource.fabric.itests.paxexam.support;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.apache.felix.service.command.Function;
 import org.apache.karaf.tooling.exam.options.DoNotModifyLogOption;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateChildContainerOptions;
@@ -225,7 +226,7 @@ public class FabricTestSupport extends FuseTestSupport {
     }
 
     protected void waitForFabricCommands() {
-        getOsgiService(BlueprintContainer.class, "(osgi.blueprint.container.symbolicname=org.fusesource.fabric.fabric-commands)", DEFAULT_TIMEOUT);
+        getOsgiService(Function.class, "(&(osgi.command.scope=fabric)(osgi.command.function=profile-edit))", DEFAULT_TIMEOUT);
     }
 
 
