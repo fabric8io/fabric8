@@ -28,7 +28,6 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.tooling.testing.pax.exam.karaf.FuseTestSupport;
-import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.ops4j.pax.exam.MavenUtils;
 import org.ops4j.pax.exam.Option;
 import org.osgi.service.blueprint.container.BlueprintContainer;
@@ -44,8 +43,6 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
@@ -71,10 +68,6 @@ public class FabricTestSupport extends FuseTestSupport {
 
     /**
      * Creates a child {@ling Agent} witht the given name.
-     *
-     * @param name   The name of the child {@ling Agent}.
-     * @param parent
-     * @return
      */
     protected Container createChildContainer(String name, String parent, String profileName) throws Exception {
         return createChildContainer(name, parent, profileName, null);

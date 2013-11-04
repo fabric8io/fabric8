@@ -22,15 +22,17 @@ import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
 import org.fusesource.fabric.api.DynamicReference;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
 public final class DelegatingInvocationHandler<T> implements InvocationHandler {
 
-    public static long DEFAULT_TIMEOUT = 20000L;
+    public static long DEFAULT_TIMEOUT = ServiceLocator.DEFAULT_TIMEOUT;
 
     private final DynamicReference<T> dynamicReference;
+    private final ServiceTracker<T, T> tracker;
 
     public DelegatingInvocationHandler(BundleContext context, Class<T> type) {
         this(context, type, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
@@ -38,7 +40,7 @@ public final class DelegatingInvocationHandler<T> implements InvocationHandler {
 
     public DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
         dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);
-        ServiceTracker<T, T> tracker = new ServiceTracker<T, T>(context, type, null) {
+        tracker = new ServiceTracker<T, T>(context, type, null) {
 
             @Override
             public T addingService(ServiceReference<T> reference) {

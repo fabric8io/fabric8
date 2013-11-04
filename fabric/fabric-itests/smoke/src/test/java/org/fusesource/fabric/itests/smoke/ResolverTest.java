@@ -19,7 +19,6 @@ package org.fusesource.fabric.itests.smoke;
 
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedPath;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 import java.util.Set;
 
@@ -28,11 +27,11 @@ import junit.framework.Assert;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerRegistration;
-import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.itests.paxexam.support.ContainerBuilder;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.fusesource.fabric.zookeeper.ZkPath;
+import org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator;
 import org.junit.After;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -43,7 +42,6 @@ import org.ops4j.pax.exam.junit.ExamReactorStrategy;
 import org.ops4j.pax.exam.junit.JUnit4TestRunner;
 import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
-import org.osgi.service.blueprint.container.BlueprintContainer;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
@@ -58,7 +56,7 @@ public class ResolverTest extends FabricTestSupport {
     public void testRootContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Container current = getFabricService().getCurrentContainer();
-        getOsgiService(ContainerRegistration.class);
+        ServiceLocator.getOsgiService(ContainerRegistration.class);
         Assert.assertEquals("localhostname", current.getResolver());
         String sshUrlWithLocalhostResolver = current.getSshUrl();
 
@@ -75,7 +73,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g manualip --manual-ip localhost -b localhost --clean"));
-        getOsgiService(ContainerRegistration.class);
+        ServiceLocator.getOsgiService(ContainerRegistration.class);
         Container current = getFabricService().getCurrentContainer();
         Assert.assertEquals("manualip", current.getResolver());
     }
@@ -83,7 +81,7 @@ public class ResolverTest extends FabricTestSupport {
     @Test
     public void testCreateWithGlobalAndLocalResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g manualip -r localhostname --manual-ip localhost --clean"));
-        getOsgiService(ContainerRegistration.class);
+        ServiceLocator.getOsgiService(ContainerRegistration.class);
         Container current = getFabricService().getCurrentContainer();
         Assert.assertEquals("localhostname", current.getResolver());
     }
@@ -92,7 +90,7 @@ public class ResolverTest extends FabricTestSupport {
     @Ignore("[FABRIC-648] Fix fabric smoke ResolverTest")
     public void testChildContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
-        getOsgiService(ContainerRegistration.class);
+        ServiceLocator.getOsgiService(ContainerRegistration.class);
         CuratorFramework curator = getCurator();
 
         Set<Container> containers = ContainerBuilder.create(1, 1).withName("child").withProfiles("default").assertProvisioningResult().build();
