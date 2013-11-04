@@ -163,6 +163,7 @@
         <felix-scr-version>1.8.0.redhat-${full-perfectus-build}</felix-scr-version>
         <felix-scr-plugin-version>1.15.0</felix-scr-plugin-version>
         <felix-scr-annotations-version>1.9.6</felix-scr-annotations-version>
+        <felix-scr-ds-annotations-version>1.2.4</felix-scr-ds-annotations-version>
         <felix-gogo-version>0.11.0.redhat-${full-perfectus-build}</felix-gogo-version>
         <fuse-cdc-version>1.1.0</fuse-cdc-version>
         <guava-version>14.0.1</guava-version>
@@ -490,154 +491,129 @@
         <dependencies>
             <!-- Fabric -->
             <dependency>
-              <groupId>org.fusesource.fabric</groupId>
-              <artifactId>fabric-api</artifactId>
-              <version>${fabric.version}</version>
-              <scope>provided</scope>
+                <groupId>org.fusesource.fabric</groupId>
+                <artifactId>fabric-api</artifactId>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-agent</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-boot-commands</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-camel</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-commands</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core-agent-jclouds</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-core-agent-ssh</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-configadmin</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-dosgi</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-extender-listener</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-features-service</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git-server</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-git-zkbridge</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-groups</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-jaas</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-ldap</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-maven-proxy</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-partition</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-redirect</artifactId>
                 <version>${project.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-utils</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-commands</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>fabric-zookeeper-spring</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric.itests</groupId>
@@ -665,9 +641,9 @@
                 <version>${fabric.version}</version>
             </dependency>
             <dependency>
-               <groupId>org.fusesource.insight</groupId>
-               <artifactId>insight-log-storage</artifactId>
-               <version>${fabric.version}</version>
+                <groupId>org.fusesource.insight</groupId>
+                <artifactId>insight-log-storage</artifactId>
+                <version>${fabric.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.insight</groupId>
@@ -678,25 +654,21 @@
                 <groupId>org.fusesource.fabric.virt</groupId>
                 <artifactId>org.fusesource.fabric.virt.commands</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric.virt</groupId>
                 <artifactId>org.fusesource.fabric.virt.services</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric.virt.bundles</groupId>
                 <artifactId>org.fusesource.fabric.virt.bundles.jna</artifactId>
                 <version>${jna-bundle-version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric.virt.bundles</groupId>
                 <artifactId>org.fusesource.fabric.virt.bundles.libvirt</artifactId>
-                 <version>${libvirt-bundle-version}</version>
-                <scope>provided</scope>
+                <version>${libvirt-bundle-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
@@ -707,13 +679,11 @@
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>process-fabric</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
                 <artifactId>watcher-core</artifactId>
                 <version>${fabric.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
@@ -745,26 +715,24 @@
                 <artifactId>mq-fabric</artifactId>
                 <version>${fuse.version}</version>
             </dependency>
-            
+
             <!-- OSGi -->
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
                 <version>${osgi-version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.compendium</artifactId>
                 <version>${osgi-compendium-version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.enterprise</artifactId>
                 <version>${osgi-enterprise-version}</version>
-                <scope>provided</scope>
             </dependency>
+
             <!-- Camel -->
             <dependency>
                 <groupId>org.apache.camel</groupId>
@@ -798,14 +766,15 @@
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
                 <version>${zookeeper-version}</version>
-                <scope>provided</scope>
             </dependency>
+
             <!-- Log4j -->
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j-version}</version>
             </dependency>
+
             <!-- Slf4j -->
             <dependency>
                 <groupId>org.slf4j</groupId>
@@ -822,6 +791,7 @@
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j-version}</version>
             </dependency>
+
             <!-- Commons Logging -->
             <dependency>
                 <groupId>commons-logging</groupId>
@@ -914,9 +884,9 @@
                 <version>${scala-osgi-version}</version>
             </dependency>
             <dependency>
-              <groupId>org.scala-lang</groupId>
-              <artifactId>scala-library</artifactId>
-              <version>${scala-version}</version>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>${scala-version}</version>
             </dependency>
 
             <!-- Others -->
@@ -972,6 +942,11 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.ds-annotations</artifactId>
+                <version>${felix-scr-ds-annotations-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.gogo.runtime</artifactId>
                 <version>${felix-gogo-version}</version>
             </dependency>
@@ -982,66 +957,65 @@
                 <version>3.6.0.v20100517</version>
             </dependency>
             <!-- Hawt stuff -->
-          <dependency>
-              <groupId>org.fusesource.hawtdispatch</groupId>
-              <artifactId>hawtdispatch</artifactId>
-              <version>${hawtdispatch-version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.fusesource.hawtdispatch</groupId>
-              <artifactId>hawtdispatch-transport</artifactId>
-              <version>${hawtdispatch-version}</version>
-          </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtdispatch</groupId>
+                <artifactId>hawtdispatch</artifactId>
+                <version>${hawtdispatch-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.fusesource.hawtdispatch</groupId>
+                <artifactId>hawtdispatch-transport</artifactId>
+                <version>${hawtdispatch-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.fusesource.hawtdispatch</groupId>
                 <artifactId>hawtdispatch-scala</artifactId>
                 <version>${hawtdispatch-version}</version>
             </dependency>
             <dependency>
-              <groupId>org.fusesource.hawtbuf</groupId>
-              <artifactId>hawtbuf</artifactId>
-              <version>${hawtbuf-version}</version>
-          </dependency>
+                <groupId>org.fusesource.hawtbuf</groupId>
+                <artifactId>hawtbuf</artifactId>
+                <version>${hawtbuf-version}</version>
+            </dependency>
             <!-- EasyMock -->
-          <dependency>
-              <groupId>org.easymock</groupId>
-              <artifactId>easymock</artifactId>
-              <version>2.4</version>
-          </dependency>
-          <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymockclassextension</artifactId>
-            <version>2.4</version>
-          </dependency>
-          <!-- JSCH -->
-          <dependency>
-              <groupId>org.apache.servicemix.bundles</groupId>
-              <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
-              <version>${jsch-smx-version}</version>
-          </dependency>
-           <!-- JCLOUDS -->
             <dependency>
-              <groupId>org.apache.jclouds</groupId>
-              <artifactId>jclouds-compute</artifactId>
-              <version>${jclouds-version}</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.jclouds.provider</groupId>
-              <artifactId>aws-ec2</artifactId>
-              <version>${jclouds-version}</version>
-          </dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymock</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.easymock</groupId>
+                <artifactId>easymockclassextension</artifactId>
+                <version>2.4</version>
+            </dependency>
+            <!-- JSCH -->
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.jsch</artifactId>
+                <version>${jsch-smx-version}</version>
+            </dependency>
+            <!-- JCLOUDS -->
+            <dependency>
+                <groupId>org.apache.jclouds</groupId>
+                <artifactId>jclouds-compute</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.jclouds.provider</groupId>
+                <artifactId>aws-ec2</artifactId>
+                <version>${jclouds-version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.apache.jclouds.api</groupId>
                 <artifactId>openstack-nova</artifactId>
                 <version>${jclouds-version}</version>
             </dependency>
-          <!-- LibVirt -->
+            <!-- LibVirt -->
             <dependency>
                 <groupId>net.java.dev.jna</groupId>
                 <artifactId>jna</artifactId>
                 <version>${jna-version}</version>
             </dependency>
-
             <dependency>
                 <groupId>org.libvirt</groupId>
                 <artifactId>libvirt</artifactId>
@@ -1049,11 +1023,11 @@
             </dependency>
 
 
-          <!-- Hadoop -->
-          <dependency>
-              <groupId>org.apache.hadoop</groupId>
-              <artifactId>hadoop-core</artifactId>
-              <version>${hadoop-version}</version>
+            <!-- Hadoop -->
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-core</artifactId>
+                <version>${hadoop-version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.hadoop</groupId>
@@ -1186,74 +1160,74 @@
                 <version>${jersey-version}</version>
             </dependency>
 
-          <dependency>
-              <groupId>commons-configuration</groupId>
-              <artifactId>commons-configuration</artifactId>
-              <version>1.8</version>
-          </dependency>
-          <dependency>
-              <groupId>org.apache.servicemix.bundles</groupId>
-              <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
-              <version>2.4_5</version>
-          </dependency>
-          <dependency>
-              <groupId>org.mortbay.jetty</groupId>
-              <artifactId>jetty</artifactId>
-              <version>6.1.26</version>
-          </dependency>
-          <dependency>
-              <groupId>org.mortbay.jetty</groupId>
-              <artifactId>jetty-util</artifactId>
-              <version>6.1.26</version>
-          </dependency>
+            <dependency>
+                <groupId>commons-configuration</groupId>
+                <artifactId>commons-configuration</artifactId>
+                <version>1.8</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.commons-lang</artifactId>
+                <version>2.4_5</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty</artifactId>
+                <version>6.1.26</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mortbay.jetty</groupId>
+                <artifactId>jetty-util</artifactId>
+                <version>6.1.26</version>
+            </dependency>
 
-          <dependency>
-              <groupId>org.apache.activemq</groupId>
-              <artifactId>activemq-osgi</artifactId>
-              <version>${activemq-version}</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-broker</artifactId>
-             <version>${activemq-version}</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-client</artifactId>
-             <version>${activemq-version}</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-camel</artifactId>
-             <version>${activemq-version}</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-pool</artifactId>
-             <version>${activemq-version}</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-kahadb-store</artifactId>
-             <version>${activemq-version}</version>
-          </dependency>
-          <dependency>
-             <groupId>org.apache.activemq</groupId>
-             <artifactId>activemq-spring</artifactId>
-             <version>${activemq-version}</version>
-             <exclusions>
-               <exclusion>
-                 <groupId>org.springframework</groupId>
-                 <artifactId>spring-beans</artifactId>
-                </exclusion>
-            </exclusions>
-          </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-osgi</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-broker</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-client</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-camel</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-pool</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-kahadb-store</artifactId>
+                <version>${activemq-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.activemq</groupId>
+                <artifactId>activemq-spring</artifactId>
+                <version>${activemq-version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-beans</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
 
-          <dependency>
-             <groupId>org.mvel</groupId>
-             <artifactId>mvel2</artifactId>
-             <version>${mvel-version}</version>
-          </dependency>
+            <dependency>
+                <groupId>org.mvel</groupId>
+                <artifactId>mvel2</artifactId>
+                <version>${mvel-version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>

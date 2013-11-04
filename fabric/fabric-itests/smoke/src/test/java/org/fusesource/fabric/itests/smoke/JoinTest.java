@@ -19,7 +19,6 @@ package org.fusesource.fabric.itests.smoke;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.karaf.admin.AdminService;
 import org.fusesource.fabric.api.Container;

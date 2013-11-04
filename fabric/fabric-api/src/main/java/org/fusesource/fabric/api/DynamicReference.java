@@ -16,9 +16,13 @@
  */
 package org.fusesource.fabric.api;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -26,24 +30,21 @@ import java.util.concurrent.atomic.AtomicReference;
  * The DynamicReference will return the object if available or wait for it for a configurable amount of time.
  * Usually solutions like SCR tackle the dynamic nature of references, but nothing prevents the user of obtaining
  * a reference to a deactivated component with unbound references.
- * @param <T>
  */
-public class DynamicReference<T> implements Callable<T> {
+public final class DynamicReference<T> implements Callable<T> {
 
     private static final long DEFAULT_TIMEOUT = 5000;
     private static final TimeUnit DEFAULT_TIMEUNIT = TimeUnit.MILLISECONDS;
     private static final String DEFAULT_NAME = "dynamic reference";
 
-    private static final String TIMEOUT_MESSAGE_FORMAT = "Gave up waiting for %s.";
-    private static final String INTERRUPTED_MESSAGE_FORMAT = "Interrupted while waiting for %s.";
+    private static final String TIMEOUT_MESSAGE_FORMAT = "Gave up waiting for: %s";
+    private static final String INTERRUPTED_MESSAGE_FORMAT = "Interrupted while waiting for: %s";
 
-    private final AtomicReference<T> ref = new AtomicReference<T>();
-    private final Semaphore semaphore = new Semaphore(0);
-
+    private final AtomicInteger revisionIndex = new AtomicInteger();
+    private final Map<Integer, ValueRevision> revisionMap = new HashMap<Integer, ValueRevision>();
     private final long timeout;
     private final TimeUnit timeUnit;
     private final String name;
-
 
     public DynamicReference() {
         this(DEFAULT_NAME, DEFAULT_TIMEOUT, DEFAULT_TIMEUNIT);
@@ -53,41 +54,24 @@ public class DynamicReference<T> implements Callable<T> {
         this(name, DEFAULT_TIMEOUT, DEFAULT_TIMEUNIT);
     }
 
-    /**
-     * Constructor
-     * @param name
-     * @param timeout
-     * @param timeUnit
-     */
     public DynamicReference(String name, long timeout, TimeUnit timeUnit) {
         this.name = name;
         this.timeout = timeout;
         this.timeUnit = timeUnit;
+        this.revisionMap.put(revisionIndex.incrementAndGet(), new ValueRevision());
     }
 
+    @Override
+    public T call() throws Exception {
+        return currentRevision().get(timeout, timeUnit);
+    }
 
     /**
      * Get the reference or wait until it becomes available.
      * @return Returns the reference or throws a {@link DynamicReferenceException}.
      */
     public T get() {
-        T value = ref.get();
-        long startAt = System.currentTimeMillis();
-        long remaining = timeout;
-        while (value == null && remaining > 0) {
-            try {
-                semaphore.tryAcquire(remaining, timeUnit);
-                value = ref.get();
-            } catch (InterruptedException ex) {
-                throw new DynamicReferenceException(String.format(INTERRUPTED_MESSAGE_FORMAT, name), ex);
-            }
-            remaining = timeout + startAt - System.currentTimeMillis();
-        }
-
-        if (value == null) {
-            throw new DynamicReferenceException(String.format(TIMEOUT_MESSAGE_FORMAT, name));
-        }
-        return value;
+        return currentRevision().get(timeout, timeUnit);
     }
 
     /**
@@ -95,33 +79,75 @@ public class DynamicReference<T> implements Callable<T> {
      * @return  The value or Null.
      */
     public T getIfPresent() {
-        return ref.get();
+        return currentRevision().getIfPresent();
     }
-
 
     /**
      * Binds the reference.
-     * @param value
      */
     public void bind(T value) {
-        if (value != null) {
-            ref.set(value);
-            semaphore.release();
-        } else {
-            unbind();
-        }
+        currentRevision().bind(value);
     }
 
     /**
      * Unbinds the reference.
      */
     public void unbind() {
-        this.semaphore.drainPermits();
-        this.ref.set(null);
+        synchronized (revisionMap) {
+
+            // Unbind the current revision
+            currentRevision().unbind();
+
+            // Remove old unused revisions
+            Iterator<ValueRevision> itrev = revisionMap.values().iterator();
+            while(itrev.hasNext()) {
+                ValueRevision auxrev = itrev.next();
+                if (auxrev.usageCount.get() == 0) {
+                    itrev.remove();
+                }
+            }
+
+            // Create a new revision
+            revisionMap.put(revisionIndex.incrementAndGet(), new ValueRevision());
+        }
     }
 
-    @Override
-    public T call() throws Exception {
-        return get();
+    ValueRevision currentRevision() {
+        synchronized (revisionMap) {
+            return revisionMap.get(revisionIndex.get());
+        }
+    }
+
+    class ValueRevision {
+        final CountDownLatch latch = new CountDownLatch(1);
+        final AtomicReference<T> ref = new AtomicReference<T>();
+        final AtomicInteger usageCount = new AtomicInteger();
+
+        void bind(T value) {
+            ref.set(value);
+            latch.countDown();
+        }
+
+        void unbind() {
+            ref.set(null);
+        }
+
+        T getIfPresent() {
+            return ref.get();
+        }
+
+        T get(long timeout, TimeUnit unit) {
+            usageCount.incrementAndGet();
+            try {
+                if (!latch.await(timeout, unit)) {
+                    throw new DynamicReferenceException(String.format(TIMEOUT_MESSAGE_FORMAT, name));
+                }
+            } catch (InterruptedException ex) {
+                throw new DynamicReferenceException(String.format(INTERRUPTED_MESSAGE_FORMAT, name), ex);
+            } finally {
+                usageCount.decrementAndGet();
+            }
+            return ref.get();
+        }
     }
 }

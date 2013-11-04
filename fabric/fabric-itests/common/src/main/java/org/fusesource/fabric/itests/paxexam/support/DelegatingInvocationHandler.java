@@ -16,7 +16,6 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
-import org.fusesource.fabric.api.DynamicReference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
@@ -27,33 +26,24 @@ import java.lang.reflect.Method;
 
 public class DelegatingInvocationHandler<T> implements InvocationHandler {
 
-    private final BundleContext bundleContext;
-    private final Class<T> type;
-    private final DynamicReference<T> ref = new DynamicReference<T>();
     private final ServiceTracker<T, T> tracker;
 
-
     public DelegatingInvocationHandler(BundleContext bundleContext, Class<T> type) {
-        this.bundleContext = bundleContext;
-        this.type = type;
         this.tracker = new ServiceTracker<T, T>(bundleContext, type, null) {
             @Override
             public T addingService(ServiceReference<T> reference) {
                 T service =  super.addingService(reference);
-                ref.bind(service);
                 return service;
             }
 
             @Override
             public void modifiedService(ServiceReference<T> reference, T service) {
                 super.modifiedService(reference, service);
-                ref.bind(service);
             }
 
             @Override
             public void removedService(ServiceReference<T> reference, T service) {
                 super.removedService(reference, service);
-                ref.unbind();
             }
         };
         tracker.open();
@@ -63,7 +53,8 @@ public class DelegatingInvocationHandler<T> implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            return method.invoke(ref.get(), args);
+            T service = tracker.waitForService(10000);
+            return method.invoke(service, args);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {

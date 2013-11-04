@@ -19,7 +19,6 @@ package org.fusesource.fabric.itests.smoke;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;

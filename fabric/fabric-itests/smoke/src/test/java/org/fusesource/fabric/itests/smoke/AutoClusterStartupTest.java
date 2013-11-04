@@ -20,13 +20,10 @@ package org.fusesource.fabric.itests.smoke;
 import org.apache.curator.framework.CuratorFramework;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.FabricRequirements;
 import org.fusesource.fabric.api.FabricService;
-import org.fusesource.fabric.api.ProfileRequirements;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -38,14 +35,12 @@ import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Dictionary;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.Assert.assertTrue;
-import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.debugConfiguration;
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 

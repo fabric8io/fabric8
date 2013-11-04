@@ -22,11 +22,14 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Id;
+import org.fusesource.fabric.api.jcip.ThreadSafe;
+import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.zookeeper.ACLManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,12 +42,10 @@ import java.util.concurrent.ConcurrentMap;
 
 import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
 
-@Component(name = "org.fusesource.fabric.zookeeper.acl",
-        description = "Fabric ZooKeeper ACL Manager",
-        policy = OPTIONAL,
-        immediate = true)
+@ThreadSafe
+@Component(name = "org.fusesource.fabric.zookeeper.acl", description = "Fabric ZooKeeper ACL Manager", policy = OPTIONAL, immediate = true)
 @Service({ACLManager.class, ACLProvider.class})
-public class CuratorACLManager implements ACLManager, ACLProvider {
+public class CuratorACLManager extends AbstractComponent implements ACLManager, ACLProvider {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CuratorACLManager.class);
     private final ConcurrentMap<String, String> acls = new ConcurrentHashMap<String, String>();
@@ -55,12 +56,13 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
     }
 
     @Activate
-    private void init(Map<String, ?> props) {
+    void activate(Map<String, ?> props) {
        updated(props);
+       activateComponent();
     }
 
     @Modified
-    private void updated(Map<String, ?> props) {
+    void updated(Map<String, ?> props) {
         for (Map.Entry<String, ?> entry : props.entrySet()) {
             String key = entry.getKey();
             if (key.startsWith("acls.")) {
@@ -70,14 +72,20 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
         }
     }
 
+    @Deactivate
+    void deactivate() {
+       deactivateComponent();
+    }
 
     @Override
     public List<ACL> getDefaultAcl() {
+        //assertValid();
         return getAclForPath("/");
     }
 
     @Override
     public List<ACL> getAclForPath(String path) {
+        //assertValid();
         String acl = findNodeAcls(adjustPath(path));
         if (acl == null) {
             throw new IllegalStateException("Could not find matching ACLs for " + path);
@@ -86,35 +94,35 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
     }
 
     @Override
-    public void registarAcl(String path, String acl) {
+    public void registerAcl(String path, String acl) {
+        //assertValid();
         acls.put(path, acl);
     }
 
     @Override
     public void unregisterAcl(String path) {
+        //assertValid();
         acls.remove(path);
     }
 
     @Override
     public void fixAcl(CuratorFramework curator, String path, boolean recursive) throws Exception {
-        doFixACLs(curator, path, recursive);
+        //assertValid();
+        fixAclInternal(curator, path, recursive);
     }
 
-    private void doFixACLs(CuratorFramework curator, String path, boolean recursive) throws Exception {
+    private void fixAclInternal(CuratorFramework curator, String path, boolean recursive) throws Exception {
         List<ACL> aclList = getAclForPath(path);
         curator.setACL().withACL(aclList).forPath(path);
         if (recursive) {
             for (String child : curator.getChildren().forPath(path)) {
-                doFixACLs(curator, path.equals("/") ? "/" + child : path + "/" + child, recursive);
+                fixAclInternal(curator, path.equals("/") ? "/" + child : path + "/" + child, recursive);
             }
         }
     }
 
     /**
      * Returns the ACL string for the specified path.
-     *
-     * @param path
-     * @return
      */
     private String findNodeAcls(String path) {
         String longestPath = "";
@@ -128,9 +136,6 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
 
     /**
      * Normalizes the specified path, by removing trailing slashes and adding leading ones if needed.
-     *
-     * @param path
-     * @return
      */
     private String adjustPath(String path) {
         if (path == null) {
@@ -148,9 +153,6 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
 
     /**
      * Parses a {@link String} representation of the {@link ACL} list.
-     *
-     * @param aclString
-     * @return
      */
     private List<ACL> parseACLs(String aclString) {
         List<ACL> acl;
@@ -174,9 +176,6 @@ public class CuratorACLManager implements ACLManager, ACLProvider {
 
     /**
      * Returns the int value of the permission {@link String}.
-     *
-     * @param permString
-     * @return
      */
     private int getPermFromString(String permString) {
         int perm = 0;

@@ -16,6 +16,20 @@
  */
 package org.fusesource.fabric.internal;
 
+import static org.fusesource.fabric.utils.Ports.mapPortToRange;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.retry.RetryNTimes;
@@ -28,23 +42,9 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.curator.CuratorACLManager;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
-
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.fusesource.fabric.utils.Ports.mapPortToRange;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
-import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
 public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
@@ -131,7 +131,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
             createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
 
-
             StringBuilder profilesBuilder = new StringBuilder();
             Set<String> profiles = options.getProfiles();
             profilesBuilder.append("fabric").append(" ").append("fabric-ensemble-0000-1");
@@ -147,12 +146,13 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             dataStore.setConfiguration(version, defaultProfile, "org.fusesource.fabric.jaas", configs);
 
             // outside of the profile storage area, so we'll keep these in zk
-            createDefault(curator, "/fabric/authentication/encryption.enabled", "true");
+            EncryptionSupport encryption = addUsersToZookeeper(curator, options.getUsers());
+            createDefault(curator, "/fabric/authentication/encryption.enabled", Boolean.valueOf(encryption != null).toString());
             createDefault(curator, "/fabric/authentication/domain", "karaf");
-            addUsersToZookeeper(curator, options.getUsers());
 
             createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_ALGORITHM.getPath(), "PBEWithMD5AndDES");
             createDefault(curator, ZkPath.AUTHENTICATION_CRYPT_PASSWORD.getPath(), options.getZookeeperPassword());
+
             //Ensure ACLs are from the beggining of the fabric tree.
             aclManager.fixAcl(curator, "/fabric", true);
         } catch (Exception ex) {
@@ -165,10 +165,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
 
     /**
      * Creates ZooKeeper client configuration.
-     *
-     * @param connectionUrl
-     * @param options
-     * @throws java.io.IOException
      */
     private CuratorFramework createCuratorFramework(String connectionUrl, CreateEnsembleOptions options) throws IOException {
         return CuratorFrameworkFactory.builder()
@@ -180,14 +176,14 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
                 .retryPolicy(new RetryNTimes(3, 500)).build();
     }
 
-    private void loadPropertiesFrom(Hashtable hashtable, String from) {
+    private void loadPropertiesFrom(Properties targetProperties, String from) {
         InputStream is = null;
         Properties properties = new Properties();
         try {
             is = new FileInputStream(from);
             properties.load(is);
             for (String key : properties.stringPropertyNames()) {
-                hashtable.put(key, properties.get(key));
+                targetProperties.put(key, properties.get(key));
             }
         } catch (Exception e) {
             // Ignore
@@ -202,26 +198,10 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         }
     }
 
-    private void loadPropertiesFrom(Hashtable hashtable, DataStore dataStore, String version, String profile,
-                                    String pid) {
-        Map<String, String> properties = dataStore.getConfiguration(version, profile, pid);
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            String key = entry.getKey();
-            String value = entry.getValue();
-            hashtable.put(key, value);
-        }
-    }
-
     /**
      * Adds users to the Zookeeper registry.
-     *
-     * @param curator
-     * @param users
-     * @throws org.apache.zookeeper.KeeperException
-     *
-     * @throws InterruptedException
      */
-    private void addUsersToZookeeper(CuratorFramework curator, Map<String, String> users) throws Exception {
+    private EncryptionSupport addUsersToZookeeper(CuratorFramework curator, Map<String, String> users) throws Exception {
         Pattern p = Pattern.compile("(.+),(.+)");
         Map<String, Object> options = new HashMap<String, Object>();
         options.put("encryption.prefix", "{CRYPT}");
@@ -230,19 +210,26 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         options.put("encryption.enabled", "true");
         options.put("encryption.algorithm", "MD5");
         options.put("encryption.encoding", "hexadecimal");
-        options.put(BundleContext.class.getName(), FrameworkUtil.getBundle(getClass()).getBundleContext());
-        EncryptionSupport encryptionSupport = new EncryptionSupport(options);
-        Encryption encryption = encryptionSupport.getEncryption();
+
+        Encryption encryption = null;
+        EncryptionSupport encryptionSupport = null;
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        if (bundle != null) {
+            options.put(BundleContext.class.getName(), bundle.getBundleContext());
+            encryptionSupport = new EncryptionSupport(options);
+            encryption = encryptionSupport.getEncryption();
+        }
 
         StringBuilder sb = new StringBuilder();
-
         for (Map.Entry<String, String> entry : users.entrySet()) {
             String user = entry.getKey();
             Matcher m = p.matcher(entry.getValue());
             if (m.matches() && m.groupCount() >= 2) {
                 String password = m.group(1).trim();
-                if (!password.startsWith(encryptionSupport.getEncryptionPrefix()) || !password.endsWith(encryptionSupport.getEncryptionSuffix())) {
-                    password = encryptionSupport.getEncryptionPrefix() + encryption.encryptPassword(m.group(1)).trim() + encryptionSupport.getEncryptionSuffix();
+                if (encryptionSupport != null && encryption != null) {
+                    if (!password.startsWith(encryptionSupport.getEncryptionPrefix()) || !password.endsWith(encryptionSupport.getEncryptionSuffix())) {
+                        password = encryptionSupport.getEncryptionPrefix() + encryption.encryptPassword(m.group(1)).trim() + encryptionSupport.getEncryptionSuffix();
+                    }
                 }
                 String role = m.group(2).trim();
                 sb.append(user).append("=").append(password).append(",").append(role).append("\n");
@@ -250,5 +237,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         }
         String allUsers = sb.toString();
         createDefault(curator, "/fabric/authentication/users", allUsers);
+
+        return encryptionSupport;
     }
 }

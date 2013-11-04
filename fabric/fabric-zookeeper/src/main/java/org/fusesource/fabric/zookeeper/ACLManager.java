@@ -20,7 +20,7 @@ import org.apache.curator.framework.CuratorFramework;
 
 public interface ACLManager {
 
-    void registarAcl(String path, String acl);
+    void registerAcl(String path, String acl);
     void unregisterAcl(String path);
     void fixAcl(CuratorFramework curator, String path, boolean recursive) throws Exception;
 }

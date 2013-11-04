@@ -87,8 +87,8 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     private final ExecutorService cacheExecutor = Executors.newSingleThreadExecutor();
     private final ExecutorService placeholderExecutor = Executors.newCachedThreadPool();
 
-    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     private final ConcurrentMap<String, DynamicReference<PlaceholderResolver>> placeholderResolvers = new ConcurrentHashMap<String, DynamicReference<PlaceholderResolver>>();
+    private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
     private final CopyOnWriteArrayList<Runnable> callbacks = new CopyOnWriteArrayList<Runnable>();
     private Map<String, String> dataStoreProperties;
     private TreeCache treeCache;
@@ -234,7 +234,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
         //Check for all required resolver schemes.
         Set<String> requiredSchemes = getSchemesForProfileConfigurations(configs);
         for (String scheme : requiredSchemes) {
-            placeholderResolvers.putIfAbsent(scheme, new DynamicReference<PlaceholderResolver>());
+            placeholderResolvers.putIfAbsent(scheme, new DynamicReference<PlaceholderResolver>(scheme));
         }
 
         //Wait for resolvers before starting to resolve.
@@ -732,8 +732,9 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     }
 
     protected void bindPlaceholderResolver(PlaceholderResolver resolver) {
-        placeholderResolvers.putIfAbsent(resolver.getScheme(), new DynamicReference<PlaceholderResolver>());
-        placeholderResolvers.get(resolver.getScheme()).bind(resolver);
+        String resolverScheme = resolver.getScheme();
+        placeholderResolvers.putIfAbsent(resolverScheme, new DynamicReference<PlaceholderResolver>(resolverScheme));
+        placeholderResolvers.get(resolverScheme).bind(resolver);
     }
 
     protected void unbindPlaceholderResolver(PlaceholderResolver resolver) {

@@ -52,7 +52,12 @@
         <fuse.osgi.require.bundle>
             org.fusesource.fabric.fabric-git
         </fuse.osgi.require.bundle>
-        <fuse.osgi.service.component>OSGI-INF/*</fuse.osgi.service.component>
+        <fuse.osgi.service.component>
+            <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/org.fusesource.fabric.git.internal.CachingGitDataStore.xml,
+            OSGI-INF/org.fusesource.fabric.git.internal.FabricGitServiceImpl.xml,
+            OSGI-INF/org.fusesource.fabric.git.internal.GitMasterListener.xml
+        </fuse.osgi.service.component>
     </properties>
 
     <dependencies>

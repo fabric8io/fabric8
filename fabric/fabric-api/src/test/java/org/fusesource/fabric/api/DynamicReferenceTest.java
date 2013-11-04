@@ -17,65 +17,77 @@
 package org.fusesource.fabric.api;
 
 import junit.framework.Assert;
+
 import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class DynamicReferenceTest {
 
     @Test
     public void testWithReference() {
-        String message = "foo";
         DynamicReference<String> dynamic = new DynamicReference<String>();
-        dynamic.bind(message);
-        Assert.assertEquals(message, dynamic.get());
+        dynamic.bind("foo");
+        Assert.assertEquals("foo", dynamic.get());
     }
 
-    @Test(expected = DynamicReferenceException.class)
+    @Test
     public void testNoReference() {
-        DynamicReference<String> dynamic = new DynamicReference<String>();
-        dynamic.get();
+        DynamicReference<String> dynamic = new DynamicReference<String>("noref", 100, TimeUnit.MILLISECONDS);
+        try {
+            dynamic.get();
+            Assert.fail("DynamicReferenceException expected");
+        } catch (DynamicReferenceException ex) {
+            Assert.assertEquals("Gave up waiting for: noref", ex.getMessage());
+        }
     }
 
-    @Test(expected = DynamicReferenceException.class)
+    @Test
     public void testUnbind() {
-        String message = "foo";
-        DynamicReference<String> dynamic = new DynamicReference<String>();
-        dynamic.bind(message);
-        Assert.assertEquals(message, dynamic.get());
+        DynamicReference<String> dynamic = new DynamicReference<String>("unbind", 100, TimeUnit.MILLISECONDS);
+        dynamic.bind("foo");
+        Assert.assertEquals("foo", dynamic.get());
         dynamic.unbind();
-        dynamic.get();
+        try {
+            dynamic.get();
+            Assert.fail("DynamicReferenceException expected");
+        } catch (DynamicReferenceException ex) {
+            Assert.assertEquals("Gave up waiting for: unbind", ex.getMessage());
+        }
     }
 
 
     @Test
     public void testWithConcurrency() {
         final DynamicReference<String> dynamic = new DynamicReference<String>();
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ExecutorService executor = Executors.newFixedThreadPool(1);
         executor.submit(new Runnable() {
             @Override
             public void run() {
                 int counter = 1;
                 while (true) {
-                    dynamic.bind(String.valueOf(counter++));
+                    try {
+                        dynamic.bind(String.valueOf(counter++));
+                        Thread.sleep(10);
+                        dynamic.unbind();
+                    } catch (InterruptedException e) {
+                        //ignore
+                    }
                 }
             }
         });
 
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    dynamic.unbind();
-                }
-            }
-        });
-
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 100; i++) {
             String msg = dynamic.get();
-            if (i % 1000 == 0) {
-                System.out.println(msg);
+            try {
+                if (i % 10 == 0) {
+                    Thread.sleep(10);
+                    System.out.println(msg);
+                }
+            } catch (InterruptedException e) {
+                //ignore
             }
         }
     }
