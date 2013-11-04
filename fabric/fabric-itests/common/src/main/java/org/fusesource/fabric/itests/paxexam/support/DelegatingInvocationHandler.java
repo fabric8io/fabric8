@@ -16,49 +16,57 @@
  */
 package org.fusesource.fabric.itests.paxexam.support;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
+
+import org.fusesource.fabric.api.DynamicReference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 import org.osgi.util.tracker.ServiceTracker;
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+public final class DelegatingInvocationHandler<T> implements InvocationHandler {
 
-public class DelegatingInvocationHandler<T> implements InvocationHandler {
+    public static long DEFAULT_TIMEOUT = 20000L;
 
-    private final ServiceTracker<T, T> tracker;
+    private final DynamicReference<T> dynamicReference;
 
-    public DelegatingInvocationHandler(BundleContext bundleContext, Class<T> type) {
-        this.tracker = new ServiceTracker<T, T>(bundleContext, type, null) {
+    public DelegatingInvocationHandler(BundleContext context, Class<T> type) {
+        this(context, type, DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS);
+    }
+
+    public DelegatingInvocationHandler(BundleContext context, Class<T> type, long timeout, TimeUnit unit) {
+        dynamicReference = new DynamicReference<T>(type.getSimpleName(), timeout, unit);
+        ServiceTracker<T, T> tracker = new ServiceTracker<T, T>(context, type, null) {
+
             @Override
             public T addingService(ServiceReference<T> reference) {
                 T service =  super.addingService(reference);
+                dynamicReference.bind(service);
                 return service;
             }
 
             @Override
             public void modifiedService(ServiceReference<T> reference, T service) {
                 super.modifiedService(reference, service);
+                dynamicReference.bind(service);
             }
 
             @Override
             public void removedService(ServiceReference<T> reference, T service) {
                 super.removedService(reference, service);
+                dynamicReference.unbind();
             }
         };
         tracker.open();
     }
 
-
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         try {
-            T service = tracker.waitForService(10000);
+            T service = dynamicReference.get();
             return method.invoke(service, args);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw e.getTargetException();
         }
