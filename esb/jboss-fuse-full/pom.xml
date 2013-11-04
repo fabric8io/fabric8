@@ -45,11 +45,6 @@
             <type>tar.gz</type>
             <classifier>unix-bin</classifier>
         </dependency>
-        <dependency>
-            <groupId>org.fusesource.fabric.bridge</groupId>
-            <artifactId>fabric-bridge-zookeeper</artifactId>
-            <version>${fabric-version}</version>
-        </dependency>
     </dependencies>
 
     <build>
