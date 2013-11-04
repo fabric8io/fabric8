@@ -32,3 +32,13 @@ If you omit a path then it installs into the **system folder** inside the curren
 
 
 By default files are not downloaded again if they already exist; but you can supply **--force** to force a redownload again.
+
+### Creating an offline repository for a maven project
+
+If you have a maven project and wish to create an offline repository for building it and its runtime dependencies you can use the [maven dependency plugin](http://maven.apache.org/plugins/maven-dependency-plugin/go-offline-mojo.html).
+
+For example if you are on the command line inside a maven project (such that the current directory has a pom.xml file) and you have [installed maven](http://maven.apache.org/download.cgi#Installation) you should be able to run this command
+
+    mvn org.apache.maven.plugins:maven-dependency-plugin:2.8:go-offline -Dmaven.repo.local=/tmp/cheese
+
+which will then download all the maven dependencies and plugins required to build the project to the **/tmp/cheese** directory. You probably want to use a different directory name though ;)
