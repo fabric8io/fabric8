@@ -41,10 +41,11 @@
         <profile>
             <id>all</id>
             <modules>
-                <module>archetypes</module>
-                <module>archetype-builder</module>
-                <module>camel-tooling-util</module>
                 <module>examples</module>
+                <module>archetype-builder</module>
+                <module>archetypes</module>
+
+                <module>camel-tooling-util</module>
                 <module>tooling-activemq-facade</module>
                 <module>tooling-camel-facade</module>
                 <module>tooling-fabric-all</module>
