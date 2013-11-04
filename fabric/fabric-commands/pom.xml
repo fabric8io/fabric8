@@ -44,6 +44,9 @@
             org.fusesource.fabric.utils,
             org.fusesource.fabric.utils.shell
         </fuse.osgi.private.pkg>
+        <fuse.osgi.symbolic.name>
+            ${project.groupId}.${project.artifactId};blueprint.graceperiod:=false
+        </fuse.osgi.symbolic.name>
     </properties>
 
     <dependencies>
