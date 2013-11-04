@@ -146,11 +146,29 @@ public final class ManagedCuratorFramework extends AbstractComponent {
             try {
                 Closeables.close(curatorFramework, true);
             } catch (IOException ex) {
-                //this should not happen as we swallow the excpetion.
+                //this should not happen as we swallow the exception.
             }
+            registration = null;
         }
-        this.registration = bundleContext.registerService(CuratorFramework.class.getName(), framework, new Hashtable<String, Object>());
+        // Delay the registration of the curator framework until it is connected
+        ConnectionStateListener listener = new ConnectionStateListener() {
+            @Override
+            public void stateChanged(CuratorFramework client, ConnectionState newState) {
+                if (newState == ConnectionState.CONNECTED) {
+                    synchronized (ManagedCuratorFramework.this) {
+                        if (registration == null) {
+                            registration = bundleContext.registerService(CuratorFramework.class.getName(), curatorFramework, new Hashtable<String, Object>());
+                            client.getConnectionStateListenable().removeListener(this);
+                        }
+                    }
+                }
+            }
+        };
+        framework.getConnectionStateListenable().addListener(listener);
         this.curatorFramework = framework;
+        if (framework.getZookeeperClient().isConnected()) {
+            listener.stateChanged(framework, ConnectionState.CONNECTED);
+        }
     }
 
     /**
