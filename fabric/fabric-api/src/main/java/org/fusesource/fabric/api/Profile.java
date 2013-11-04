@@ -81,6 +81,11 @@ public interface Profile extends Comparable<Profile>, HasId {
     List<String> getRepositories();
     List<String> getOverrides();
 
+    /**
+     * Returns the configuration file names that are available on this profile
+     */
+    List<String> getConfigurationFileNames();
+
     Map<String, byte[]> getFileConfigurations();
 
     /**

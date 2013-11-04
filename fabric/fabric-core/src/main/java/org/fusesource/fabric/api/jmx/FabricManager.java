@@ -738,6 +738,33 @@ public class FabricManager implements FabricManagerMBean {
     }
 
     @Override
+    public List<String> getConfigurationFileNames(String versionId, String profileId) {
+        Version version = getFabricService().getVersion(versionId);
+        Profile profile = version.getProfile(profileId);
+        if (profile != null) {
+            return profile.getConfigurationFileNames();
+        } else {
+            return new ArrayList<String>();
+        }
+    }
+
+    /**
+     * Returns a map of all the current configuration files in the profiles of the current container with the file name as the key and the profile ID as the value
+     */
+    @Override
+    public Map<String, String> currentContainerConfigurationFiles() {
+        String containerName = getCurrentContainerName();
+        FabricServiceImpl service = getFabricService();
+        Container container = service.getContainer(containerName);
+        if (container != null) {
+            Profile[] profiles = container.getProfiles();
+            return Profiles.getConfigurationFileNameMap(profiles);
+        }
+        return new HashMap<String, String>();
+    }
+
+
+    @Override
     public Map<String, Object> getConfigurationFiles(String versionId, List<String> profileIds, String filename) {
         Pattern pattern = Pattern.compile(filename);
         Map<String, Object> answer = new HashMap<String, Object>();

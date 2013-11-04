@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InvalidClassException;
 import java.io.ObjectInputStream;
 import java.io.ObjectStreamClass;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -694,6 +695,18 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
             config.remove(key);
         }
         setConfiguration(version, profile, AGENT_PID, config);
+    }
+
+    @Override
+    public List<String> getConfigurationFileNames(String version, String profile) {
+        assertValid();
+        // TODO this is an inefficient implementation; we could optimise away loading all the config files in an implementation
+        try {
+            Map<String, byte[]> configs = getFileConfigurations(version, profile);
+            return new ArrayList<String>(configs.keySet());
+        } catch (Exception e) {
+            throw FabricException.launderThrowable(e);
+        }
     }
 
     @Override

@@ -17,7 +17,12 @@
 package org.fusesource.fabric.api;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * Helper methods for working with profiles
@@ -31,4 +36,35 @@ public class Profiles {
         }
         return answer;
     }
+
+
+    /**
+     * Returns the configuration file names for the given profile
+     */
+    public static List<String> getConfigurationFileNames(Collection<Profile> profiles) {
+        Set<String> set = new HashSet<String>();
+        for (Profile profile : profiles) {
+            set.addAll(profile.getConfigurationFileNames());
+        }
+        return new ArrayList<String>(set);
+    }
+
+
+    /**
+     * Returns the configuration file names for the given profile
+     */
+    public static Map<String,String> getConfigurationFileNameMap(Profile[] profiles) {
+        Map<String, String> answer = new TreeMap<String, String>();
+        for (Profile profile : profiles) {
+            String id = profile.getId();
+            List<String> files = profile.getConfigurationFileNames();
+            for (String file : files) {
+                if (!answer.containsKey(file)) {
+                    answer.put(file, id);
+                }
+            }
+        }
+        return answer;
+    }
+
 }

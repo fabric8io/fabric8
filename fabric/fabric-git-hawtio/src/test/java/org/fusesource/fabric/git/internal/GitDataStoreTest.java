@@ -153,6 +153,12 @@ public abstract class GitDataStoreTest {
         assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml",
                 "http://camel.apache.org/schema/blueprint");
 
+        List<String> fileNames = dataStore.getConfigurationFileNames(version, "example-camel-fabric");
+        assertNotNull("Should have some file names", fileNames);
+        assertTrue("Should have some file names", fileNames.size() > 0);
+        assertTrue("Should contain 'came", fileNames.size() > 0);
+        assertCollectionContains("configurationFileNames", fileNames, "camel.xml");
+
         // lets test the profile attributes
         Map<String, String> profileAttributes = dataStore.getProfileAttributes(version, importedProfile);
         String parent = profileAttributes.get("parents");
@@ -302,6 +308,10 @@ public abstract class GitDataStoreTest {
 
         assertEquals("sizes of fileConfiguration.length and fileConfigurations[" + file + "].length",
                 fileConfiguration.length, pidBytes.length);
+    }
+
+    protected <T> void assertCollectionContains(String message, Collection<T> collection, T value) {
+        assertTrue(message + ".contains(" + value + ")", collection.contains(value));
     }
 
     protected void assertMapContains(String message, Map<String, String> map, String key,

@@ -83,6 +83,7 @@ public interface DataStore {
 
     boolean isContainerAlive(String id);
 
+
     public enum ContainerAttribute {
         BlueprintStatus,
         SpringStatus,
@@ -172,6 +173,8 @@ public interface DataStore {
 
     // File configurations, including Map based configurations
 
+
+    List<String> getConfigurationFileNames(String version, String id);
 
     Map<String, byte[]> getFileConfigurations(String version, String profile);
 

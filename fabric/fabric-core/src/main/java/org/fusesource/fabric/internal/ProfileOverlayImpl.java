@@ -20,6 +20,7 @@ import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Profiles;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.fusesource.fabric.internal.ProfileImpl.*;
+import static org.fusesource.fabric.internal.ProfileImpl.AGENT_PID;
+import static org.fusesource.fabric.internal.ProfileImpl.ConfigListType;
+import static org.fusesource.fabric.internal.ProfileImpl.getContainerConfigList;
 
 public class ProfileOverlayImpl implements Profile {
 
@@ -281,6 +284,12 @@ public class ProfileOverlayImpl implements Profile {
             }
         }
     }
+
+    @Override
+    public List<String> getConfigurationFileNames() {
+        return Profiles.getConfigurationFileNames(getInheritedProfiles());
+    }
+
 
     @Override
     public Map<String, byte[]> getFileConfigurations() {

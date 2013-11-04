@@ -146,8 +146,19 @@ public interface FabricManagerMBean {
     List<Map<String, Object>> getProfiles(String versionId, List<String> fields);
 
     void deleteConfigurationFile(String versionId, String profileId, String fileName);
-    
+
+    /**
+     * Returns all of the configuration files available in the given profile (with inheritance) returning a map of the file
+     * name to the profile which defines the
+     */
+    List<String> getConfigurationFileNames(String versionId, String profileId);
+
     String getConfigurationFile(String versionId, String profileId, String fileName);
+
+    /**
+     * Returns a map of all the current configuration files in the profiles of the current container with the file name as the key and the profile ID as the value
+     */
+    Map<String, String> currentContainerConfigurationFiles();
 
     Map<String, Object> getConfigurationFiles(String versionId, List<String> profileIds, String regex);
     
