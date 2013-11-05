@@ -34,10 +34,12 @@ import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.editConfigurationFilePut;
@@ -119,19 +121,43 @@ public class FuseTestSupport {
      * @return
      */
     protected String executeCommand(final String command) {
-       return executeCommand(command,COMMAND_TIMEOUT,false);
+       return executeCommands(COMMAND_TIMEOUT, false, command);
     }
 
-     /**
+    /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
+     *
+     * @param commands
+     * @return
+     */
+    protected String executeCommands(final String... commands) {
+        return executeCommands(COMMAND_TIMEOUT, false, commands);
+    }
+
+    /**
      * Executes a shell command and returns output as a String.
      * Commands have a default timeout of 10 seconds.
      * @param command The command to execute.
      * @param timeout The amount of time in millis to wait for the command to execute.
      * @param silent  Specifies if the command should be displayed in the screen.
+
      * @return
      */
-    protected String executeCommand(final String command, final Long timeout, final Boolean silent) {
-        String response;
+    protected String executeCommand(final String command, final long timeout, final boolean silent) {
+        return executeCommands(timeout, silent, command);
+    }
+
+     /**
+     * Executes a shell command and returns output as a String.
+     * Commands have a default timeout of 10 seconds.
+     * @param timeout The amount of time in millis to wait for the command to execute.
+     * @param silent  Specifies if the command should be displayed in the screen.
+      * @param commands The command to execute.
+     * @return
+     */
+    protected String executeCommands(final long timeout, final boolean silent, final String... commands) {
+        String response = null;
         final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         final PrintStream printStream = new PrintStream(byteArrayOutputStream);
         final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
@@ -140,73 +166,57 @@ public class FuseTestSupport {
         commandSession.put("USER", "karaf");
         FutureTask<String> commandFuture = new FutureTask<String>(
                 new Callable<String>() {
-                    public String call() {
-                        try {
-                            if (!silent) {
-                                System.out.println(command);
-                                System.out.flush();
+                    public String call() throws Exception {
+                        for (String command : commands) {
+                            boolean keepRunning = true;
+                            while (!Thread.currentThread().isInterrupted() && keepRunning) {
+                                try {
+                                    if (!silent) {
+                                        System.out.println(command);
+                                        System.out.flush();
+                                    }
+                                    commandSession.execute(command);
+                                    keepRunning = false;
+                                } catch (Exception e) {
+                                    if (retryException(e)) {
+                                        keepRunning = true;
+                                        sleep(1000);
+                                    } else {
+                                        throw new CommandExecutionException(e);
+                                    }
+                                }
                             }
-                            commandSession.execute(command);
-                        } catch (Exception e) {
-                            e.printStackTrace(System.err);
                         }
                         printStream.flush();
                         return byteArrayOutputStream.toString();
                     }
+
                 });
 
         try {
             executor.submit(commandFuture);
-            response =  commandFuture.get(timeout, TimeUnit.MILLISECONDS);
+            response = commandFuture.get(timeout, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            throw CommandExecutionException.launderThrowable(e.getCause());
         } catch (Exception e) {
-            e.printStackTrace(System.err);
-            response = "SHELL COMMAND TIMED OUT: ";
+            throw CommandExecutionException.launderThrowable(e);
         }
 
         return response;
     }
 
 
+    private static boolean retryException(Exception e) {
+        //The gogo runtime package is not exported, so we are just checking against the class name.
+        return e.getClass().getName().equals("org.apache.felix.gogo.runtime.CommandNotFoundException");
+    }
 
-    /**
-     * Executes multiple commands inside a Single Session.
-     * Commands have a default timeout of 10 seconds.
-     * @param commands
-     * @return
-     */
-    protected String executeCommands(final String ...commands) {
-        String response;
-        final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        final PrintStream printStream = new PrintStream(byteArrayOutputStream);
-        final CommandProcessor commandProcessor = getOsgiService(CommandProcessor.class);
-        final CommandSession commandSession = commandProcessor.createSession(System.in, printStream, printStream);
-        commandSession.put("APPLICATION", System.getProperty("karaf.name", "root"));
-        commandSession.put("USER", "karaf");
-        FutureTask<String> commandFuture = new FutureTask<String>(
-                new Callable<String>() {
-                    public String call() {
-                        try {
-                            for(String command:commands) {
-                             System.out.println(command);
-							 System.out.flush();
-                             commandSession.execute(command);
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace(System.err);
-                        }
-                        return byteArrayOutputStream.toString();
-                    }
-                });
-
+    private static void sleep(long millis) {
         try {
-            executor.submit(commandFuture);
-            response =  commandFuture.get(COMMAND_TIMEOUT, TimeUnit.MILLISECONDS);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            response = "SHELL COMMAND TIMED OUT: ";
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
-
-        return response;
     }
 
     /**
