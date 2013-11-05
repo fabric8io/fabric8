@@ -489,6 +489,12 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Utils -->
+            <dependency>
+                <groupId>org.fusesource</groupId>
+                <artifactId>maven-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!-- Fabric -->
             <dependency>
                 <groupId>org.fusesource.fabric</groupId>
@@ -1305,6 +1311,7 @@
 
     <modules>
         <module>common-util</module>
+        <module>maven-util</module>
         <module>fab</module>
         <module>fabric</module>
         <module>insight</module>

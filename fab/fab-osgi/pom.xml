@@ -38,7 +38,6 @@
         <fuse.osgi.import.before.defaults/>
         <fuse.osgi.import.additional/>
         <fuse.osgi.import.pkg>
-            org.fusesource.fabric.*;${fuse.osgi.import.fabric.version},
             !org.apache.maven.*,
             !org.codehaus.plexus.*,
             !org.codehaus.classworlds*,
@@ -57,9 +56,11 @@
             org.osgi.service.event;resolution:=optional,
             *
         </fuse.osgi.import.pkg>
+        <fuse.osgi.private.pkg>
+            org.fusesource.maven.util,
+        </fuse.osgi.private.pkg>
         <fuse.osgi.export>
-            !org.fusesource.fabric.maven.impl,
-            org.fusesource.fabric.*;version=${fuse.osgi.version};-noimport:=true,
+            org.fusesource.fabric.fab*;version=${fuse.osgi.version};-noimport:=true,
             org.codehaus.plexus*;-noimport:=true,
             org.sonatype.aether*;-noimport:=true,
             aQute.lib.osgi*;-noimport:=true,
