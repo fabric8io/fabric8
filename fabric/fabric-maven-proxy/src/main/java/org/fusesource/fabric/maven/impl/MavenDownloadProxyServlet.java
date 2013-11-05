@@ -17,24 +17,27 @@
 
 package org.fusesource.fabric.maven.impl;
 
+import org.fusesource.fabric.internal.FabricConstants;
+import org.fusesource.fabric.utils.Closeables;
+import org.fusesource.fabric.utils.Files;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.curator.framework.CuratorFramework;
-import org.apache.felix.scr.annotations.Reference;
-import org.fusesource.fabric.internal.FabricConstants;
-import org.fusesource.fabric.utils.Closeables;
-import org.fusesource.fabric.utils.Files;
-import org.osgi.service.http.HttpService;
 
 
 public class MavenDownloadProxyServlet extends MavenProxyServletSupport {

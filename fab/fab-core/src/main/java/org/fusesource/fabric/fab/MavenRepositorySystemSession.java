@@ -17,7 +17,6 @@
 
 package org.fusesource.fabric.fab;
 
-import org.fusesource.fabric.maven.impl.MavenUtils;
 import org.sonatype.aether.collection.DependencyGraphTransformer;
 import org.sonatype.aether.collection.DependencyManager;
 import org.sonatype.aether.collection.DependencySelector;
@@ -38,7 +37,7 @@ import org.sonatype.aether.util.graph.transformer.NearestVersionConflictResolver
 import org.sonatype.aether.util.graph.traverser.FatArtifactTraverser;
 import org.sonatype.aether.util.repository.DefaultAuthenticationSelector;
 import org.sonatype.aether.util.repository.DefaultMirrorSelector;
-import org.sonatype.aether.util.repository.DefaultProxySelector;
+import org.fusesource.maven.util.MavenUtils;
 
 /**
  * A simplistic repository system session that mimics Maven's behavior to help third-party developers that want to embed

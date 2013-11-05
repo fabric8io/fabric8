@@ -47,7 +47,7 @@
             com.google.common.collect,
             com.google.common.base,
             org.fusesource.fabric.utils,
-            org.fusesource.fabric.utils.mvn,
+            org.fusesource.maven.util,
             org.apache.commons.codec*,
             org.apache.commons.httpclient*,
             org.apache.felix.webconsole,
@@ -62,9 +62,15 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.fusesource</groupId>
+            <artifactId>maven-util</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-zookeeper</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.fusesource.fabric</groupId>
             <artifactId>fabric-utils</artifactId>
@@ -112,34 +118,15 @@
         </dependency>
 
         <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-impl</artifactId>
-            <version>${aether-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-connector-wagon</artifactId>
-            <version>${aether-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.aether</groupId>
-            <artifactId>aether-spi</artifactId>
-            <version>${aether-version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-aether-provider</artifactId>
             <version>${maven-version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-file</artifactId>
             <version>1.0-beta-7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.sonatype.plexus</groupId>
-            <artifactId>plexus-sec-dispatcher</artifactId>
-            <version>1.3</version>
         </dependency>
 
         <dependency>
@@ -147,19 +134,6 @@
             <artifactId>plexus-container-default</artifactId>
             <version>1.5.5</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-aether-provider</artifactId>
-            <version>${maven-version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.maven</groupId>
-            <artifactId>maven-settings-builder</artifactId>
-            <version>${maven-version}</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
