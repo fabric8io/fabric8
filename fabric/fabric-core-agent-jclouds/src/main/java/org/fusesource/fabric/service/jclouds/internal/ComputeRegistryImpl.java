@@ -80,7 +80,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
         assertValid();
         DynamicReference<ComputeService> ref = computeServices.get(name);
         if (ref != null) {
-            ref.unbind();
+            ref.unbind(null);
         }
     }
 
@@ -97,7 +97,7 @@ public class ComputeRegistryImpl extends AbstractComponent implements ComputeReg
         if (!Strings.isEmpty(name)) {
             DynamicReference<ComputeService> ref = computeServices.get(name);
             if (ref != null) {
-                ref.unbind();
+                ref.unbind(computeService);
             }
         }
     }

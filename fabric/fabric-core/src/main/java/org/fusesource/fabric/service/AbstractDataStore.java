@@ -751,7 +751,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     }
 
     protected void unbindPlaceholderResolver(PlaceholderResolver resolver) {
-        placeholderResolvers.get(resolver.getScheme()).unbind();
+        placeholderResolvers.get(resolver.getScheme()).unbind(resolver);
     }
 
     protected void bindRegistrationHandler(DataStoreRegistrationHandler service) {

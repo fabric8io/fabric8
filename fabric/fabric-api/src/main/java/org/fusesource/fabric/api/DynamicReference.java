@@ -16,14 +16,14 @@
  */
 package org.fusesource.fabric.api;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.fusesource.fabric.api.scr.AbstractComponent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An object that is intended to hold a reference to a dynamic object (e.g. OSGi services).
@@ -33,15 +33,15 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class DynamicReference<T> implements Callable<T> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractComponent.class);
+
     private static final long DEFAULT_TIMEOUT = 5000;
     private static final String DEFAULT_NAME = "dynamic reference";
 
     private static final String TIMEOUT_MESSAGE_FORMAT = "Gave up waiting for: %s";
     private static final String INTERRUPTED_MESSAGE_FORMAT = "Interrupted while waiting for: %s";
-    private static final String UNBOUND_MESSAGE_FORMAT = "Unbound while waiting for: %s";
 
-    private final AtomicInteger revisionIndex = new AtomicInteger();
-    private final Map<Integer, ValueRevision> revisionMap = new HashMap<Integer, ValueRevision>();
+    private final AtomicReference<ValueRevision> revision = new AtomicReference<ValueRevision>();
     private final long timeout;
     private final TimeUnit unit;
     private final String name;
@@ -58,7 +58,7 @@ public final class DynamicReference<T> implements Callable<T> {
         this.name = name;
         this.unit = unit;
         this.timeout = timeout;
-        this.revisionMap.put(revisionIndex.incrementAndGet(), new ValueRevision());
+        this.revision.set(new ValueRevision());
     }
 
     @Override
@@ -71,7 +71,12 @@ public final class DynamicReference<T> implements Callable<T> {
      * @return Returns the reference or throws a {@link DynamicReferenceException}.
      */
     public T get() {
-        return currentRevision().get(timeout, unit);
+        T value = currentRevision().get(timeout, unit);
+        while (value == null) {
+            LOG.warn("Unbound while waiting for: {}", name);
+            value = currentRevision().get(timeout, unit);
+        }
+        return value;
     }
 
     /**
@@ -92,44 +97,36 @@ public final class DynamicReference<T> implements Callable<T> {
     /**
      * Unbinds the reference.
      */
-    public void unbind() {
-        synchronized (revisionMap) {
-
-            // Unbind the current revision
-            currentRevision().unbind();
-
-            // Remove old unused revisions
-            Iterator<ValueRevision> itrev = revisionMap.values().iterator();
-            while(itrev.hasNext()) {
-                ValueRevision auxrev = itrev.next();
-                if (auxrev.usageCount.get() == 0) {
-                    itrev.remove();
-                }
+    public void unbind(T value) {
+        synchronized (revision) {
+            currentRevision().unbind(value);
+            if (currentRevision().getIfPresent() == null) {
+                revision.set(new ValueRevision());
             }
-
-            // Create a new revision
-            revisionMap.put(revisionIndex.incrementAndGet(), new ValueRevision());
         }
     }
 
     ValueRevision currentRevision() {
-        synchronized (revisionMap) {
-            return revisionMap.get(revisionIndex.get());
+        synchronized (revision) {
+            return revision.get();
         }
     }
 
     class ValueRevision {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<T> ref = new AtomicReference<T>();
-        final AtomicInteger usageCount = new AtomicInteger();
 
         void bind(T value) {
             ref.set(value);
             latch.countDown();
         }
 
-        void unbind() {
-            ref.set(null);
+        void unbind(T value) {
+            if (value != null) {
+                ref.compareAndSet(value, null);
+            } else {
+                ref.set(null);
+            }
             latch.countDown();
         }
 
@@ -137,23 +134,19 @@ public final class DynamicReference<T> implements Callable<T> {
             return ref.get();
         }
 
+        /**
+         * Waits for the ref to get bound/unbound
+         * If the ref got unbound while waiting, return null.
+         */
         T get(long timeout, TimeUnit unit) {
-            usageCount.incrementAndGet();
             try {
                 if (!latch.await(timeout, unit)) {
                     throw new DynamicReferenceException(String.format(TIMEOUT_MESSAGE_FORMAT, name));
                 }
             } catch (InterruptedException ex) {
                 throw new DynamicReferenceException(String.format(INTERRUPTED_MESSAGE_FORMAT, name), ex);
-            } finally {
-                usageCount.decrementAndGet();
             }
-
             T value = ref.get();
-            if (value == null) {
-                throw new DynamicReferenceException(String.format(UNBOUND_MESSAGE_FORMAT, name));
-            }
-
             return value;
         }
     }

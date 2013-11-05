@@ -231,6 +231,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     }
 
     void unbindFabricService(FabricService service) {
-        this.fabricService.unbind();
+        this.fabricService.unbind(service);
     }
 }

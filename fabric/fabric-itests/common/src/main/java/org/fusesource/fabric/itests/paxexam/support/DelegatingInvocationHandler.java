@@ -58,7 +58,7 @@ public final class DelegatingInvocationHandler<T> implements InvocationHandler {
             @Override
             public void removedService(ServiceReference<T> reference, T service) {
                 super.removedService(reference, service);
-                dynamicReference.unbind();
+                dynamicReference.unbind(service);
             }
         };
         tracker.open();

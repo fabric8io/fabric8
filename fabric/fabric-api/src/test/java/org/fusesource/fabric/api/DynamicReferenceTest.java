@@ -47,9 +47,10 @@ public class DynamicReferenceTest {
     @Test
     public void testUnbind() {
         DynamicReference<String> dynamic = new DynamicReference<String>("unbind", 100, TimeUnit.MILLISECONDS);
-        dynamic.bind("foo");
-        Assert.assertEquals("foo", dynamic.get());
-        dynamic.unbind();
+        String value = "foo";
+        dynamic.bind(value);
+        Assert.assertEquals(value, dynamic.get());
+        dynamic.unbind(value);
         try {
             dynamic.get();
             Assert.fail("DynamicReferenceException expected");
@@ -69,9 +70,10 @@ public class DynamicReferenceTest {
                 int counter = 1;
                 while (true) {
                     try {
-                        dynamic.bind(String.valueOf(counter++));
+                        String value = String.valueOf(counter++);
+                        dynamic.bind(value);
                         Thread.sleep(10);
-                        dynamic.unbind();
+                        dynamic.unbind(value);
                     } catch (InterruptedException e) {
                         //ignore
                     }
