@@ -33,7 +33,7 @@ import org.fusesource.fabric.api.CreateContainerMetadata;
 public class OpenShiftUtils {
     /**
      * Returns true if the given openshift configuration map has the
-     * {@link #PROPERTY_FABRIC_MANAGED} flag enabled
+     * {@link OpenShiftConstants#PROPERTY_FABRIC_MANAGED} flag enabled
      */
     public static boolean isFabricManaged(Map<String, String> openshiftConfiguration) {
         return Maps.booleanValue(openshiftConfiguration, OpenShiftConstants.PROPERTY_FABRIC_MANAGED, false);
@@ -91,9 +91,8 @@ public class OpenShiftUtils {
         CreateOpenshiftContainerOptions options = metadata.getCreateOptions();
         IOpenShiftConnection connection = OpenShiftUtils.createConnection(options);
         String containerName = container.getId();
-        String applicationName = containerName.substring(0, containerName.lastIndexOf("-"));
         IDomain domain = connection.getUser().getDomain(metadata.getDomainId());
-        return domain.getApplicationByName(applicationName);
+        return domain.getApplicationByName(containerName);
     }
 
     public static IApplication getApplication(Container container,
@@ -104,8 +103,7 @@ public class OpenShiftUtils {
     public static IApplication getApplication(Container container, CreateOpenshiftContainerMetadata metadata,
                                               IOpenShiftConnection connection) {
         String containerName = container.getId();
-        String applicationName = containerName.substring(0, containerName.lastIndexOf("-"));
         IDomain domain = connection.getUser().getDomain(metadata.getDomainId());
-        return domain.getApplicationByName(applicationName);
+        return domain.getApplicationByName(containerName);
     }
 }
