@@ -232,15 +232,12 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         if (started.compareAndSet(true, false)) {
           info("Lost zookeeper service for broker %s, stopping the broker.", name)
           stop()
-          var t = this.synchronized { stop_thread }
-          while(t!=null) {
-            t.join()
-            t = this.synchronized { stop_thread } // when the stop thread is done this gets set to null.
-          }
+          waitForStop()
           return_pool(this)
           pool_enabled = false
         }
       }
+      waitForStop()
       if (curator != null) {
         info("Found zookeeper service for broker %s.", name)
         discoveryAgent = new FabricDiscoveryAgent
@@ -312,21 +309,19 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
       updateCurator(curator)
     }
 
-    def close() = this.synchronized {
-      if( discoveryAgent!=null ) {
-        discoveryAgent.stop()
+    def close() = {
+      this.synchronized {
+        if( discoveryAgent!=null ) {
+          discoveryAgent.stop()
+        }
+        if( pool_enabled ) {
+          return_pool(ClusteredConfiguration.this)
+        }
+        if(started.compareAndSet(true, false)) {
+          stop()
+        }
       }
-      if( pool_enabled ) {
-        return_pool(ClusteredConfiguration.this)
-      }
-      if(started.compareAndSet(true, false)) {
-        stop()
-      }
-      var t = this.synchronized { stop_thread }
-      while(t!=null) {
-        t.join()
-        t = this.synchronized { stop_thread } // when the stop thread is done this gets set to null.
-      }
+      waitForStop()
     }
 
     def osgiRegister(broker: BrokerService): Unit = {
@@ -343,35 +338,29 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
     def start() = this.synchronized {
       // Startup async so that we do not block the ZK event thread.
       info("Broker %s is being started.", name)
-      start_thread = new Thread("Startup for ActiveMQ Broker-" + startAttempt.incrementAndGet() + ": "+name) {
-        override def run() {
-          var t = this.synchronized { stop_thread } // working with a volatile
-          while(t!=null) {
-            t.join()
-            t = this.synchronized { stop_thread } // when the start up thread gives up trying to start this gets set to null.
+      if (start_thread == null) {
+        start_thread = new Thread("Startup for ActiveMQ Broker-" + startAttempt.incrementAndGet() + ": "+name) {
+          override def run() {
+            waitForStop()
+            doStart()
           }
-          doStart()
-          this.synchronized { start_thread = null }
         }
+        start_thread.start()
       }
-      start_thread.start()
     }
 
     def stop() = this.synchronized {
       info("Broker %s is being stopped.", name)
-      stop_thread = new Thread("Stop for ActiveMQ Broker: "+name) {
-        override def run() {
-          var t = this.synchronized { start_thread } // working with a volatile
-          while(t!=null) {
-            t.interrupt()
-            t.join()
-            t = this.synchronized { start_thread }  // when the start up thread gives up trying to start this gets set to null.
+      if (stop_thread == null) {
+        stop_thread = new Thread("Stop for ActiveMQ Broker: "+name) {
+          override def run() {
+            interruptAndWaitForStart()
+            doStop()
+            ClusteredConfiguration.this.synchronized { stop_thread = null }
           }
-          doStop()
-          this.synchronized { stop_thread = null }
         }
+        stop_thread.start()
       }
-      stop_thread.start()
     }
 
     private def doStart() {
@@ -451,10 +440,9 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         if(started.get && start_failure!=null){
           start()
         } else {
-          start_thread = null
-          if (server != null) {
+          this.synchronized { start_thread = null }
+          if (server!=null && server._3!=null)
             last_modified = server._3.lastModified()
-          }
         }
       }
     }
@@ -479,7 +467,30 @@ class ActiveMQServiceFactory(bundleContext: BundleContext) extends ManagedServic
         server = null
       }
     }
+
+    private def interruptAndWaitForStart() {
+      var t = this.synchronized { start_thread }
+      while (t != null) {
+        t.interrupt()
+        info("Waiting for thread " + t.getName)
+        t.join()
+        info("Thread " + t.getName + " finished")
+        t = this.synchronized { start_thread } // when the start up thread gives up trying to start this gets set to null.
+      }
+    }
+
+    private def waitForStop() {
+      var t = this.synchronized { stop_thread }
+      while (t != null ) {
+        info("Waiting for thread " + t.getName)
+        t.join()
+        info("Thread " + t.getName + " finished")
+        t = this.synchronized { stop_thread } // when the stop thread is done this gets set to null.
+      }
+    }
+
   }
+
 
   ////////////////////////////////////////////////////////////////////////////
   // Maintain a registry of configuration based on ManagedServiceFactory events.
