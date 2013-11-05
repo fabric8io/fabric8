@@ -37,7 +37,6 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-647] Fix fabric smoke ProfileEditTest")
 public class ProfileEditTest extends FabricTestSupport {
 
     @Test
@@ -45,7 +44,6 @@ public class ProfileEditTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
-        waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key=value default"));
 
         //Check that my.pid has been added to the default profile
@@ -114,7 +112,6 @@ public class ProfileEditTest extends FabricTestSupport {
         System.err.println(executeCommand("fabric:create -n"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
-        waitForFabricCommands();
         System.err.println(executeCommand("fabric:profile-edit --pid my.pid --import-pid default"));
 
         //Check that my.pid has been added to the default profile
