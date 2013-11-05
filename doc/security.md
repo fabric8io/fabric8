@@ -1,10 +1,4 @@
----
-title: Fabric Security
-in_menu: true
-sort_info: 10
---- 
-
-# Fabric Security
+## Security
 
 This section describes how authentication and authorization works in fabric and how zookeeper is secured from external access.
 
