@@ -53,6 +53,7 @@ public class ResolverTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-648] Fix fabric smoke ResolverTest")
     public void testRootContainerResolver() throws Exception {
         System.err.println(executeCommand("fabric:create -n"));
         Container current = getFabricService().getCurrentContainer();
