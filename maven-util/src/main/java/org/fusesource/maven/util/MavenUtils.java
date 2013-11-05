@@ -1,4 +1,4 @@
-package org.fusesource.fabric.maven.impl;
+package org.fusesource.maven.util;
 
 import org.apache.maven.settings.Profile;
 import org.apache.maven.settings.Repository;
