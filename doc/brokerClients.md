@@ -10,9 +10,9 @@ If you are a JMS client then you can use the **mq-fabric-cf** module or feature;
 
 So all you need to do is lookup the ActiveMQConnectionFactory object in the OSGi regstry; or have it injected into you via SCR annotations; and you're good to go.
 
-Fabric comes with two profiles **example-mq-producer** and **example-mq-consumer**, which can be used to send and receive messages from the brokers. These profile uses SCR approach to [inject the connection factory](https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-examples/fabric-activemq-demo/src/main/java/org/fusesource/fabric/demo/activemq/ActiveMQConsumerFactory.java#L39) which then connects to the correct broker.
+Fabric comes with two profiles **example-mq-producer** and **example-mq-consumer**, which can be used to send and receive messages from the brokers. Or you can use **example-mq** profile which starts both producer and consumer in the same container. These profile uses SCR approach to [inject the connection factory](https://github.com/jboss-fuse/fuse/blob/master/fabric/fabric-examples/fabric-activemq-demo/src/main/java/org/fusesource/fabric/demo/activemq/ActiveMQConsumerFactory.java#L39) which then connects to the correct broker.
 
-Everytime you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create **us** and **emea** groups with the [Fuse Shell or Fuse Management Console](brokerTopology.md).
+Every time you create a profile for a broker group, a respective client profile for connection factory settings needed to connect to that group will be created. Imagine that you create **us** and **emea** groups with the [Fuse Shell or Fuse Management Console](brokerTopology.md).
 Then profiles **mq-client-us** and **mq-client-emea** will be also created. Then, for example, you could deploy the profiles
 
 * **example-mq-producer** and **mq-client-us** to connect the producer to the **us** broker group , or
@@ -50,7 +50,7 @@ Here's a step-by-step example that demonstrates how to create and connect to dif
 
         FuseFabric:karaf@root> container-list
         [id]                           [version] [alive] [profiles]                                         [provision status]
-        root*                          1.0       true    fabric, fabric-ensemble-0000-1                     success
+        root*                        1.0       true    fabric, fabric-ensemble-0000-1                     success
         node-emea                    1.0       true    default, mq-broker-emea.emea                       success
         node-us                      1.0       true    default, mq-broker-us.us                           success
 
@@ -59,9 +59,9 @@ Here's a step-by-step example that demonstrates how to create and connect to dif
         FuseFabric:karaf@root> cluster-list
         [cluster]                      [masters]                      [slaves]                       [services]
         fusemq/emea
-           emea                        node-emea                      -                              tcp://vidra.local:64023
+           emea                        node-emea                      -                              tcp://local:64023
         fusemq/us
-           us                          node-us                        -                              tcp://vidra.local:63986
+           us                          node-us                        -                              tcp://local:63986
 
     Now let's take a look at client profiles that are created for connecting to the brokers
 
@@ -106,5 +106,17 @@ For example the **example-camel-mq** profile is a simple profile defining a came
 
 If you deploy it with a client profile then it will connect to that client profile's broker group. e.g.
 
-* example-camel-mq and mq-client-us to connect the example-camel-mq to the **us** broker group
-* example-camel-mq and mq-client-emea to connect the example-camel-mq to the **emea** broker group
+* **example-camel-mq** and **mq-client-us** to connect camel route to the **us** broker group
+* **example-camel-mq** and **mq-client-emea** to connect camel route to the **emea** broker group
+
+To demonstrate this, we can reuse first three steps from the example above. Finally we'd start a camel demo that uses broker in **us** group with
+
+    FuseFabric:karaf@root> container-create-child --profile mq-client-us --profile example-camel-mq root example-us
+    The following containers have been created successfully:
+	    Container: example-us.
+
+In the similar fashion we can start a demo that uses *emea* group
+
+    FuseFabric:karaf@root> container-create-child --profile mq-client-emea --profile example-camel-mq root example-emea
+    The following containers have been created successfully:
+	    Container: example-emea.
