@@ -17,21 +17,13 @@
 package org.fusesource.fabric.zookeeper.bootstrap;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
@@ -44,155 +36,79 @@ import org.apache.zookeeper.server.ZooKeeperServer;
 import org.apache.zookeeper.server.persistence.FileTxnSnapLog;
 import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
+import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
-import org.osgi.service.cm.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.server", policy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.server.factory", configurationPid="org.fusesource.fabric.zookeeper.server", immediate = true)
 @Service(ZooKeeperServerFactory.class)
 public class ZooKeeperServerFactory extends AbstractComponent {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
-    private static final long TIMEOUT_BEFORE_INTERRUPT = 30000;
+    static final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperServerFactory.class);
 
     @Reference(referenceInterface = BootstrapConfiguration.class)
     private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
 
-    private final AtomicBoolean destroyed = new AtomicBoolean(false);
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();;
-    private final Map<String, Pair<Object, ServiceRegistration<?>>> services = new ConcurrentHashMap<String, Pair<Object, ServiceRegistration<?>>>();;
-
-    private BundleContext context;
+    private Destroyable destroyable;
+    private ServiceRegistration<?> registration;
 
     @Activate
     void activate(BundleContext context, Map<String, ?> configuration) throws Exception {
-        this.context = context;
-
-        activateInternal(configuration);
-
+        destroyable = activateInternal(context, configuration);
         activateComponent();
     }
 
-    private Properties toProperties(Map<String, ?> configuration) {
-        Properties properties = new Properties();
-        for (Map.Entry<String, ?> entry : configuration.entrySet()) {
-            String key = entry.getKey();
-            Object val = entry.getValue();
-            properties.put(key, val != null ? val.toString() : "");
-        }
-        return properties;
-    }
-
-    private Dictionary<String, ?> toDictionary(Map<String, ?> configuration) {
-        Dictionary<String, Object> properties = new Hashtable<String, Object>();
-        for (Map.Entry<String, ?> entry : configuration.entrySet()) {
-            String key = entry.getKey();
-            Object val = entry.getValue();
-            properties.put(key, val != null ? val.toString() : "");
-        }
-        return properties;
-    }
-
     @Modified
-    void updated(final Map<String, ?> configuration) throws ConfigurationException {
-        final String pid = (String) configuration.get("service.pid");
-        LOGGER.info("Configuration {} updated: {}", pid, configuration);
-        if (destroyed.get()) {
-            return;
-        }
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    internalUpdate(pid, configuration);
-                } catch (Throwable t) {
-                    LOGGER.warn("Error destroying service for ManagedServiceFactory " + this, t);
-                }
-            }
-        });
+    void modified(BundleContext context, Map<String, ?> configuration) throws Exception {
+        deactivateInternal();
+        destroyable = activateInternal(context, configuration);
     }
 
     @Deactivate
-    void deactivate() {
+    void deactivate() throws Exception {
         deactivateComponent();
-        if (destroyed.compareAndSet(false, true)) {
-            executor.shutdown();
-            try {
-                executor.awaitTermination(TIMEOUT_BEFORE_INTERRUPT, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Shutdown interrupted");
-            }
-            if (!executor.isTerminated()) {
-                executor.shutdownNow();
-                try {
-                    executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException("Shutdown interrupted");
-                }
-            }
-
-            while (!services.isEmpty()) {
-                String pid = services.keySet().iterator().next();
-                internalDelete(pid);
-            }
-        }
+        deactivateInternal();
     }
 
-    private Object activateInternal(Map<String, ?> configuration) throws Exception {
-        LOGGER.info("Creating zookeeper server with properties: {}", configuration);
+    private Destroyable activateInternal(BundleContext context, Map<String, ?> configuration) throws Exception {
+        LOGGER.info("Creating zookeeper server with: {}", configuration);
 
-        // Create myid file
-        Properties properties = toProperties(configuration);
-        String serverId = properties.getProperty("server.id");
-        if (serverId != null) {
-            properties.remove("server.id");
-            File myId = new File(properties.getProperty("dataDir"), "myid");
-            if (myId.exists() && !myId.delete()) {
-                throw new IOException("Failed to delete " + myId);
-            }
-            if (myId.getParentFile() == null || (!myId.getParentFile().exists() && !myId.getParentFile().mkdirs())) {
-                throw new IOException("Failed to create " + myId.getParent());
-            }
-            FileOutputStream fos = new FileOutputStream(myId);
-            try {
-                fos.write((serverId + "\n").getBytes());
-            } finally {
-                fos.close();
-            }
+        Properties props = new Properties();
+        for (Entry<String, ?> entry : configuration.entrySet()) {
+            props.put(entry.getKey(), entry.getValue());
         }
 
-        // Load properties
-        QuorumPeerConfig config = new QuorumPeerConfig();
-        config.parseProperties(properties);
-        if (!config.getServers().isEmpty()) {
+        QuorumPeerConfig peerConfig = getPeerConfig(props);
+
+        if (!peerConfig.getServers().isEmpty()) {
             NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
-            cnxnFactory.configure(config.getClientPortAddress(), config.getMaxClientCnxns());
+            cnxnFactory.configure(peerConfig.getClientPortAddress(), peerConfig.getMaxClientCnxns());
 
             QuorumPeer quorumPeer = new QuorumPeer();
-            quorumPeer.setClientPortAddress(config.getClientPortAddress());
-            quorumPeer.setTxnFactory(new FileTxnSnapLog(new File(config.getDataLogDir()), new File(config.getDataDir())));
-            quorumPeer.setQuorumPeers(config.getServers());
-            quorumPeer.setElectionType(config.getElectionAlg());
-            quorumPeer.setMyid(config.getServerId());
-            quorumPeer.setTickTime(config.getTickTime());
-            quorumPeer.setMinSessionTimeout(config.getMinSessionTimeout());
-            quorumPeer.setMaxSessionTimeout(config.getMaxSessionTimeout());
-            quorumPeer.setInitLimit(config.getInitLimit());
-            quorumPeer.setSyncLimit(config.getSyncLimit());
-            quorumPeer.setQuorumVerifier(config.getQuorumVerifier());
+            quorumPeer.setClientPortAddress(peerConfig.getClientPortAddress());
+            quorumPeer.setTxnFactory(new FileTxnSnapLog(new File(peerConfig.getDataLogDir()), new File(peerConfig.getDataDir())));
+            quorumPeer.setQuorumPeers(peerConfig.getServers());
+            quorumPeer.setElectionType(peerConfig.getElectionAlg());
+            quorumPeer.setMyid(peerConfig.getServerId());
+            quorumPeer.setTickTime(peerConfig.getTickTime());
+            quorumPeer.setMinSessionTimeout(peerConfig.getMinSessionTimeout());
+            quorumPeer.setMaxSessionTimeout(peerConfig.getMaxSessionTimeout());
+            quorumPeer.setInitLimit(peerConfig.getInitLimit());
+            quorumPeer.setSyncLimit(peerConfig.getSyncLimit());
+            quorumPeer.setQuorumVerifier(peerConfig.getQuorumVerifier());
             quorumPeer.setCnxnFactory(cnxnFactory);
             quorumPeer.setZKDatabase(new ZKDatabase(quorumPeer.getTxnFactory()));
-            quorumPeer.setLearnerType(config.getPeerType());
+            quorumPeer.setLearnerType(peerConfig.getPeerType());
 
             try {
-                LOGGER.debug("Starting quorum peer \"%s\" on address %s", quorumPeer.getMyid(), config.getClientPortAddress());
+                LOGGER.debug("Starting quorum peer \"%s\" on address %s", quorumPeer.getMyid(), peerConfig.getClientPortAddress());
                 quorumPeer.start();
                 LOGGER.debug("Started quorum peer \"%s\"", quorumPeer.getMyid());
             } catch (Exception e) {
@@ -200,22 +116,26 @@ public class ZooKeeperServerFactory extends AbstractComponent {
                 quorumPeer.shutdown();
                 throw e;
             }
-            return new ClusteredServer(quorumPeer);
+
+            // Register stats provider
+            ClusteredServer server = new ClusteredServer(quorumPeer);
+            registration = context.registerService(QuorumStats.Provider.class, server, null);
+
+            return server;
         } else {
-            ServerConfig cfg = new ServerConfig();
-            cfg.readFrom(config);
+            ServerConfig serverConfig = getServerConfig(peerConfig);
 
             ZooKeeperServer zkServer = new ZooKeeperServer();
-            FileTxnSnapLog ftxn = new FileTxnSnapLog(new File(cfg.getDataLogDir()), new File(cfg.getDataDir()));
+            FileTxnSnapLog ftxn = new FileTxnSnapLog(new File(serverConfig.getDataLogDir()), new File(serverConfig.getDataDir()));
             zkServer.setTxnLogFactory(ftxn);
-            zkServer.setTickTime(cfg.getTickTime());
-            zkServer.setMinSessionTimeout(cfg.getMinSessionTimeout());
-            zkServer.setMaxSessionTimeout(cfg.getMaxSessionTimeout());
+            zkServer.setTickTime(serverConfig.getTickTime());
+            zkServer.setMinSessionTimeout(serverConfig.getMinSessionTimeout());
+            zkServer.setMaxSessionTimeout(serverConfig.getMaxSessionTimeout());
             NIOServerCnxnFactory cnxnFactory = new NIOServerCnxnFactory();
-            cnxnFactory.configure(cfg.getClientPortAddress(), cfg.getMaxClientCnxns());
+            cnxnFactory.configure(serverConfig.getClientPortAddress(), serverConfig.getMaxClientCnxns());
 
             try {
-                LOGGER.debug("Starting ZooKeeper server on address %s", config.getClientPortAddress());
+                LOGGER.debug("Starting ZooKeeper server on address %s", peerConfig.getClientPortAddress());
                 cnxnFactory.startup(zkServer);
                 LOGGER.debug("Started ZooKeeper server");
             } catch (Exception e) {
@@ -223,101 +143,37 @@ public class ZooKeeperServerFactory extends AbstractComponent {
                 cnxnFactory.shutdown();
                 throw e;
             }
-            return new SimpleServer(zkServer, cnxnFactory);
+
+            // Register stats provider
+            SimpleServer server = new SimpleServer(zkServer, cnxnFactory);
+            registration = context.registerService(ServerStats.Provider.class, server, null);
+
+            return server;
         }
     }
 
-    private void doDestroy(Object obj) throws Exception {
-        LOGGER.info("Destroying zookeeper server");
-        ((Destroyable) obj).destroy();
-    }
-
-    private String[] getExposedClasses(Object obj) {
-        if (obj instanceof ServerStats.Provider) {
-            return new String[] { ServerStats.Provider.class.getName() };
-        } else if (obj instanceof QuorumStats.Provider) {
-            return new String[] { QuorumStats.Provider.class.getName() };
-        } else {
-            throw new IllegalStateException("Unsupported service type: " + obj.getClass().toString());
+    private void deactivateInternal() throws Exception {
+        LOGGER.info("Destroying zookeeper server: {}", destroyable);
+        if (registration != null) {
+            registration.unregister();
+        }
+        if (destroyable != null) {
+            destroyable.destroy();
         }
     }
 
-    public void deleted(final String pid) {
-        LOGGER.info("Configuration {} delete", pid);
-        if (destroyed.get()) {
-            return;
-        }
-        executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    internalDelete(pid);
-                } catch (Throwable throwable) {
-                    LOGGER.warn("Error destroying service for ManagedServiceFactory " + this, throwable);
-                }
-            }
-        });
+    private QuorumPeerConfig getPeerConfig(Properties props) throws IOException, ConfigException {
+        QuorumPeerConfig peerConfig = new QuorumPeerConfig();
+        peerConfig.parseProperties(props);
+        LOGGER.info("Created zookeeper peer configuration: {}", peerConfig);
+        return peerConfig;
     }
 
-    private Object doUpdate(Object t, Map<String, ?> configuration) throws Exception {
-        doDestroy(t);
-        return activateInternal(configuration);
-    }
-
-    private void internalUpdate(String pid, Map<String, ?> configuration) {
-        Dictionary<String, ?> dictionary = toDictionary(configuration);
-        Pair<Object, ServiceRegistration<?>> pair = services.get(pid);
-        if (pair != null) {
-            try {
-                Object t = doUpdate(pair.getFirst(), configuration);
-                pair.setFirst(t);
-                pair.getSecond().setProperties(dictionary);
-            } catch (Throwable throwable) {
-                internalDelete(pid);
-                LOGGER.warn("Error updating service for ManagedServiceFactory " + this, throwable);
-            }
-        } else {
-            if (destroyed.get()) {
-                return;
-            }
-            try {
-                Object t = activateInternal(configuration);
-                try {
-                    if (destroyed.get()) {
-                        throw new IllegalStateException("ManagedServiceFactory has been destroyed");
-                    }
-                    ServiceRegistration<?> registration = context.registerService(getExposedClasses(t), t, dictionary);
-                    services.put(pid, new Pair<Object, ServiceRegistration<?>>(t, registration));
-                } catch (Throwable throwable1) {
-                    try {
-                        doDestroy(t);
-                    } catch (Throwable throwable2) {
-                        // Ignore
-                    }
-                    throw throwable1;
-                }
-            } catch (Throwable throwable) {
-                if (!destroyed.get()) {
-                    LOGGER.warn("Error creating service for ManagedServiceFactory " + this, throwable);
-                }
-            }
-        }
-    }
-
-    private void internalDelete(String pid) {
-        Pair<Object, ServiceRegistration<?>> pair = services.remove(pid);
-        if (pair != null) {
-            try {
-                pair.getSecond().unregister();
-            } catch (Throwable t) {
-                LOGGER.info("Error unregistering service", t);
-            }
-            try {
-                doDestroy(pair.getFirst());
-            } catch (Throwable t) {
-                LOGGER.info("Error destroying service", t);
-            }
-        }
+    private ServerConfig getServerConfig(QuorumPeerConfig peerConfig) {
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.readFrom(peerConfig);
+        LOGGER.info("Created zookeeper server configuration: {}", serverConfig);
+        return serverConfig;
     }
 
     void bindBootstrapConfiguration(BootstrapConfiguration service) {
@@ -389,32 +245,6 @@ public class ZooKeeperServerFactory extends AbstractComponent {
         @Override
         public String getServerState() {
             return peer.getServerState();
-        }
-    }
-
-    static class Pair<U, V> {
-        private U first;
-        private V second;
-
-        public Pair(U first, V second) {
-            this.first = first;
-            this.second = second;
-        }
-
-        public U getFirst() {
-            return first;
-        }
-
-        public V getSecond() {
-            return second;
-        }
-
-        public void setFirst(U first) {
-            this.first = first;
-        }
-
-        public void setSecond(V second) {
-            this.second = second;
         }
     }
 }
