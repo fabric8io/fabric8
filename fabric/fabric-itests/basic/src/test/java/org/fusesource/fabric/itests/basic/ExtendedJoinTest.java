@@ -17,8 +17,6 @@
 package org.fusesource.fabric.itests.basic;
 
 import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.karaf.admin.AdminService;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricService;
@@ -41,6 +39,7 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-700] Fix fabric basic ExtendedJoinTest")
 public class ExtendedJoinTest extends FabricTestSupport {
 
     private static final String WAIT_FOR_JOIN_SERVICE = "wait-for-service org.fusesource.fabric.boot.commands.service.Join";
