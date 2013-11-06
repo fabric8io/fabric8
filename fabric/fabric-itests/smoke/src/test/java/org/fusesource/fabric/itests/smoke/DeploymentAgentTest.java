@@ -44,7 +44,7 @@ public class DeploymentAgentTest extends FabricTestSupport {
 		System.out.println(executeCommand("fabric:create -n"));
         waitForFabricCommands();
 		//We are just want to use a feature repository that is not part of the distribution.
-		System.out.println(executeCommand("fabric:profile-create --parents camel test-profile"));
+		System.out.println(executeCommand("fabric:profile-create --parents feature-camel test-profile"));
 		System.out.println(executeCommand("fabric:version-create --parent 1.0 1.1"));
 		System.out.println(executeCommand("fabric:profile-edit --repositories mvn:org.fusesource.examples.fabric-camel-dosgi/features/" + System.getProperty("fabric.version") + "/xml/features test-profile 1.1"));
 		System.out.println(executeCommand("fabric:profile-edit --features fabric-dosgi test-profile 1.1"));
