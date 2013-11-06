@@ -1,4 +1,4 @@
-package org.fusesource.fabric.bootstrap;
+package org.fusesource.fabric.zookeeper.bootstrap;
 /**
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
@@ -38,7 +38,6 @@ import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.internal.DataStoreBootstrapTemplate;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -48,11 +47,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.config.builder", immediate = true)
+@Component(name = BootstrapConfiguration.COMPONENT_NAME, immediate = true)
 @Service(BootstrapConfiguration.class)
 public class BootstrapConfiguration extends AbstractComponent {
 
-    final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
+
+    public static final String COMPONENT_NAME = "org.fusesource.fabric.zookeeper.configuration";
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();

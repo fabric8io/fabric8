@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.service;
+package org.fusesource.fabric.zookeeper.bootstrap;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -33,9 +33,9 @@ import org.fusesource.fabric.api.scr.AbstractComponent;
  * implementation to export.
  */
 @ThreadSafe
-@Component(name = "org.fusesource.datastore.manager", description = "DataStore Manager", immediate = true)
+@Component(name = "org.fusesource.datastore.template.registry", description = "DataStore Manager", immediate = true)
 @Service(DataStoreRegistrationHandler.class)
-public final class DataStoreManager extends AbstractComponent implements DataStoreRegistrationHandler {
+public final class DataStoreTemplateRegistry extends AbstractComponent implements DataStoreRegistrationHandler {
 
     private final AtomicReference<DataStoreTemplate> registrationCallbacks = new AtomicReference<DataStoreTemplate>();
 
