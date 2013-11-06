@@ -25,7 +25,7 @@ public class WorkerNode extends NodeState {
     String[] partitions;
 
     @JsonProperty
-    String url;
+    String[] services;
 
     public WorkerNode() {
     }
@@ -34,12 +34,12 @@ public class WorkerNode extends NodeState {
         super(id);
     }
 
-    public String getUrl() {
-        return url;
+    public String getDefinition() {
+        return services != null && services.length >= 1 ? services[0] : null;
     }
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setDefinition(String url) {
+        this.services = new String[] {url};
     }
 
     public String[] getPartitions() {
@@ -54,8 +54,8 @@ public class WorkerNode extends NodeState {
     public String toString() {
         return "WorkerNode{" +
                 "id='" + id + '\'' +
-                ", agent='" + container + '\'' +
-                ", url='" + url + '\'' +
+                ", container='" + container + '\'' +
+                ", services='" + services + '\'' +
                 ", partitions='" + partitions + '\'' +
                 '}';
     }

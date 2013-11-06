@@ -46,6 +46,7 @@ import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -69,14 +70,14 @@ public class DefaultTaskManager implements TaskManager, GroupListener<WorkerNode
     private final String taskDefinition;
     private final String partitionPath;
     private final CuratorFramework curator;
-    private final PathChildrenCache partitionCache;
     private final PartitionListener partitionListener;
     private final BalancingPolicy balancingPolicy;
     private final ObjectMapper mapper = new ObjectMapper();
     private final TypeReference<HashMap<String, String>> partitionTypeRef = new TypeReference<HashMap<String, String>>() {
     };
 
-    private NodeCache workerCache;
+    private volatile PathChildrenCache partitionCache;
+    private volatile NodeCache workerCache;
     private WorkerNode node;
     private final Set<Partition> assignedPartitions = new LinkedHashSet<Partition>();
 
@@ -88,7 +89,6 @@ public class DefaultTaskManager implements TaskManager, GroupListener<WorkerNode
         this.partitionPath = checkNotNull(partitionPath);
         this.partitionListener = partitionListener;
         this.balancingPolicy = balancingPolicy;
-        this.partitionCache = new PathChildrenCache(curator, partitionPath, true, false, executorService);
         this.group = new ZooKeeperGroup<WorkerNode>(curator, ZkPath.TASK.getPath(taskId), WorkerNode.class);
         this.group.add(this);
     }
@@ -100,43 +100,73 @@ public class DefaultTaskManager implements TaskManager, GroupListener<WorkerNode
             workerCache.getListenable().addListener(this);
             workerCache.start(true);
             ZooKeeperUtils.createDefault(curator, partitionPath, null);
-            partitionCache.getListenable().addListener(this);
-            partitionCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
-
-            partitionCache.rebuild();
-            workerCache.rebuild();
         } catch (Exception e) {
             throw Throwables.propagate(e);
         }
 
-        group.update(node);
+        group.update(createNode());
         group.start();
     }
 
     public void stop() {
         Closeables.closeQuitely(partitionCache);
         Closeables.closeQuitely(workerCache);
-        executorService.shutdown();
         Closeables.closeQuitely(group);
-        partitionListener.destroy();
+        executorService.shutdown();
+        partitionListener.stop(taskId, taskDefinition, assignedPartitions);
         assignedPartitions.clear();
         node = null;
+    }
+
+    private synchronized void startWatchingForTasks() {
+        try {
+            if (partitionCache == null) {
+                partitionCache = new PathChildrenCache(curator, partitionPath, true, false, executorService);
+                partitionCache.getListenable().addListener(this);
+                partitionCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+                partitionCache.rebuild();
+                workerCache.rebuild();
+            }
+        } catch (Exception e) {
+            LOGGER.error("Failed to start partition cache.", e);
+        }
+    }
+
+    private synchronized void stopWatchingForTasks() {
+        if (partitionCache != null) {
+            try {
+                partitionCache.close();
+                partitionCache = null;
+            } catch (IOException e) {
+                LOGGER.error("Failed to stop partition cache.", e);
+            }
+        }
     }
 
 
     @Override
     public void groupEvent(Group<WorkerNode> group, GroupEvent event) {
-        if (group.isConnected()) {
-            group.update(createNode());
-            if (group.isMaster()) {
-                executorService.submit(new RebalanceTask());
-            }
+        switch (event) {
+            case CONNECTED:
+            case CHANGED:
+                WorkerNode state = createNode();
+                if (group.isMaster()) {
+                    startWatchingForTasks();
+                    state.setDefinition(taskDefinition);
+                    group.update(state);
+                    executorService.submit(new RebalanceTask());
+                } else {
+                    group.update(state);
+                    stopWatchingForTasks();
+                }
+                break;
+            case DISCONNECTED:
+                stopWatchingForTasks();
         }
     }
 
     WorkerNode createNode() {
-        WorkerNode state = new WorkerNode(name);
-        state.setUrl(taskDefinition);
+        WorkerNode state = new WorkerNode(taskId);
         return state;
     }
 

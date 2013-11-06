@@ -138,7 +138,7 @@ public class VersionImpl implements Version {
             Profile p = this.getProfile(targetId);
 
             if (p != null) {
-                p.delete();
+                p.delete(force);
             }
         }
     }
