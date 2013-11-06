@@ -493,7 +493,7 @@
             <dependency>
                 <groupId>org.fusesource</groupId>
                 <artifactId>maven-util</artifactId>
-                <version>${project.version}</version>
+                <version>${fabric.version}</version>
             </dependency>
             <!-- Fabric -->
             <dependency>
