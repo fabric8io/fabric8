@@ -36,7 +36,7 @@ public interface FabricService {
      * Un-Track configuration changes.
      * @param callback The Callback to ignore.
      */
-    void unTrackConfiguration(Runnable callback);
+    void untrackConfiguration(Runnable callback);
 
     /**
      * Gets the existing {@link Container}s.

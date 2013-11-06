@@ -70,10 +70,10 @@ import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.internal.ContainerImpl;
-import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.internal.VersionImpl;
 import org.fusesource.fabric.utils.Constants;
+import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils;
@@ -173,7 +173,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
-    public void unTrackConfiguration(Runnable callback) {
+    public void untrackConfiguration(Runnable callback) {
         assertValid();
         getDataStore().untrackConfiguration(callback);
     }
@@ -814,7 +814,7 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
         try {
             if (b != null) {
-                p = DataStoreHelpers.toProperties(b);
+                p = DataStoreUtils.toProperties(b);
             } else {
                 p = new Properties();
             }
@@ -842,12 +842,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
 
         try {
             if (b != null) {
-                p = DataStoreHelpers.toProperties(b);
+                p = DataStoreUtils.toProperties(b);
             } else {
                 p = new Properties();
             }
             p.setProperty(key, value);
-            b = DataStoreHelpers.toBytes(p);
+            b = DataStoreUtils.toBytes(p);
             configs.put(pid, b);
             pr.setFileConfigurations(configs);
         } catch (Throwable t) {
