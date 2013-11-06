@@ -75,6 +75,7 @@
             OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.BootstrapConfiguration.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperClusterBootstrapImpl.xml,
+            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperServerConfiguration.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.curator.CuratorACLManager.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.curator.ManagedCuratorFramework.xml,
