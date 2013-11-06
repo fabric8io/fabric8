@@ -181,10 +181,12 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
      * @return
      */
     private boolean shouldRunCallbacks(String path) {
+        String currentVersion = getContainerVersion(NAME);
         return path.equals(ZkPath.CONFIG_ENSEMBLES.getPath()) ||
             path.equals(ZkPath.CONFIG_ENSEMBLE_URL.getPath()) ||
             path.equals(ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath()) ||
-            path.equals(ZkPath.CONFIG_CONTAINER.getPath(NAME));
+            path.equals(ZkPath.CONFIG_CONTAINER.getPath(NAME)) ||
+                (currentVersion != null && path.equals(ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(currentVersion, NAME)));
 
     }
 
