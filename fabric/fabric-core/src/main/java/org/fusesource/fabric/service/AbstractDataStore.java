@@ -16,9 +16,9 @@
  */
 package org.fusesource.fabric.service;
 
-import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
 import static org.fusesource.fabric.internal.PlaceholderResolverHelpers.getSchemesForProfileConfigurations;
 import static org.fusesource.fabric.internal.PlaceholderResolverHelpers.waitForPlaceHolderResolvers;
+import static org.fusesource.fabric.utils.DataStoreUtils.substituteBundleProperty;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.exists;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getByteData;
@@ -61,9 +61,9 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.Closeables;
+import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -717,8 +717,8 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
             Map<String, byte[]> configs = getFileConfigurations(version, profile);
             for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
                 if (entry.getKey().endsWith(".properties")) {
-                    String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
-                    configurations.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
+                    String pid = DataStoreUtils.stripSuffix(entry.getKey(), ".properties");
+                    configurations.put(pid, DataStoreUtils.toMap(DataStoreUtils.toProperties(entry.getValue())));
                 }
             }
             return configurations;

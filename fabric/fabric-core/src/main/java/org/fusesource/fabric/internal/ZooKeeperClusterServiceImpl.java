@@ -56,6 +56,7 @@ import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.ZooKeeperClusterService;
+import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
@@ -257,7 +258,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                 ensembleMemberProperties.put("clientPort", port1);
                 ensembleMemberProperties.put("clientPortAddress", bindAddress);
 
-                dataStore.get().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberConfigName, DataStoreHelpers.toBytes(ensembleMemberProperties));
+                dataStore.get().setFileConfiguration(version, ensembleMemberProfile, ensembleMemberConfigName, DataStoreUtils.toBytes(ensembleMemberProperties));
 
                 if (connectionUrl.length() > 0) {
                     connectionUrl += ",";
@@ -273,7 +274,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             String ensembleConfigName = "org.fusesource.fabric.zookeeper.server-" + newClusterId + ".properties";
-            dataStore.get().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreHelpers.toBytes(ensembleProperties));
+            dataStore.get().setFileConfiguration(version, ensembleProfile, ensembleConfigName, DataStoreUtils.toBytes(ensembleProperties));
 
             index = 1;
             for (String container : containers) {
@@ -285,7 +286,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             if (oldClusterId != null) {
-                Properties properties = DataStoreHelpers.toProperties(dataStore.get().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper"));
+                Properties properties = DataStoreUtils.toProperties(dataStore.get().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper"));
                 properties.put("zookeeper.url", getSubstitutedData(curator.get(), realConnectionUrl));
                 properties.put("zookeeper.password", options.getZookeeperPassword());
                 CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl).retryPolicy(new RetryOneTime(500))
