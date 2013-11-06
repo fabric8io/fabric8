@@ -65,16 +65,16 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new NamedThreadFactory("fabric-configadmin"));
 
     @Activate
-    void activate(ComponentContext context) {
+    synchronized void activate(ComponentContext context) {
         fabricService.get().trackConfiguration(this);
         activateComponent();
         submitUpdateJob();
     }
 
     @Deactivate
-    void deactivate() {
+    synchronized void deactivate() {
         deactivateComponent();
-        fabricService.get().untrackConfiguration(this);
+        fabricService.get().unTrackConfiguration(this);
         executor.shutdown();
         try {
             executor.awaitTermination(1, TimeUnit.MINUTES);
@@ -95,12 +95,12 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
         executor.submit(new Runnable() {
             @Override
             public void run() {
-                updateInternal();
+                update();
             }
         });
     }
 
-    private synchronized void updateInternal() {
+    private synchronized void update() {
         if (isValid()) {
             try {
                 Profile profile = fabricService.get().getCurrentContainer().getOverlayProfile();

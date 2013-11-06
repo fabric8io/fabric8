@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.bootstrap;
+package org.fusesource.fabric.internal;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -36,12 +36,13 @@ import org.fusesource.fabric.api.ZooKeeperClusterBootstrap;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.bootstrap.BootstrapConfiguration;
 import org.fusesource.fabric.utils.BundleUtils;
 import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
-import org.osgi.service.component.ComponentContext;
 
 /**
  * ZooKeeperClusterBootstrap
@@ -69,21 +70,18 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
+    @Reference(referenceInterface = BootstrapConfiguration.class)
+    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
-
-    @Reference(referenceInterface = BootstrapConfiguration.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
-    private final DynamicReference<BootstrapConfiguration> bootstrapConfiguration = new DynamicReference<BootstrapConfiguration>();
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<FabricService> fabricService = new DynamicReference<FabricService>("Fabric Service", FABRIC_SERVICE_TIMEOUT, TimeUnit.MILLISECONDS);
 
-    private ComponentContext componentContext;
     private BundleUtils bundleUtils;
 
     @Activate
-    void activate(ComponentContext componentContext) throws Exception {
-        this.bundleUtils = new BundleUtils(componentContext.getBundleContext());
-        this.componentContext = componentContext;
+    void activate(BundleContext bundleContext) throws Exception {
+        this.bundleUtils = new BundleUtils(bundleContext);
 
         BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
         CreateEnsembleOptions options = bootConfig.getBootstrapOptions();
@@ -103,8 +101,6 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void create(CreateEnsembleOptions options) {
         assertValid();
         try {
-            stopBundles();
-
             BootstrapConfiguration bootConfig = bootstrapConfiguration.get();
             String connectionUrl = bootConfig.getConnectionUrl(options);
             registrationHandler.get().setRegistrationCallback(new DataStoreBootstrapTemplate(connectionUrl, options));
@@ -148,12 +144,18 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     public void clean() {
         assertValid();
         try {
-            componentContext.disableComponent(BootstrapConfiguration.COMPONENT_NAME);
+            Bundle bundleFabricZooKeeper = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-zookeeper");
+            Bundle bundleFabricGit = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-git");
 
-            Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
-            if (configs != null && configs.length > 0) {
-                for (Configuration config : configs) {
-                    config.delete();
+            for (; ; ) {
+                Configuration[] configs = configAdmin.get().listConfigurations("(|(service.factoryPid=org.fusesource.fabric.zookeeper.server)(service.pid=org.fusesource.fabric.zookeeper))");
+                if (configs != null && configs.length > 0) {
+                    for (Configuration config : configs) {
+                        config.delete();
+                    }
+                    Thread.sleep(100);
+                } else {
+                    break;
                 }
             }
 
@@ -171,22 +173,21 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
                 delete(gitDir);
             }
 
-            componentContext.enableComponent(BootstrapConfiguration.COMPONENT_NAME);
-        } catch (RuntimeException rte) {
-            throw rte;
+            bundleFabricZooKeeper.start();
+            bundleFabricGit.start();
         } catch (Exception e) {
             throw new FabricException("Unable to delete zookeeper configuration", e);
         }
     }
 
-    private void stopBundles() throws BundleException {
-        bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-agent");
-    }
-
     private void startBundles(CreateEnsembleOptions options) throws BundleException {
-        Bundle agentBundle = bundleUtils.findBundle("org.fusesource.fabric.fabric-agent");
-        if (agentBundle != null && options.isAgentEnabled()) {
-            agentBundle.start();
+
+        // Install the required bundles
+        Bundle bundleFabricAgent = bundleUtils.findAndStopBundle("org.fusesource.fabric.fabric-agent");
+
+        //Check if the agent is configured to auto start.
+        if (options.isAgentEnabled()) {
+            bundleFabricAgent.start();
         }
     }
 

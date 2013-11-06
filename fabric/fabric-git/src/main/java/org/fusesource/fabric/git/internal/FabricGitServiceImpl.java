@@ -19,18 +19,21 @@ package org.fusesource.fabric.git.internal;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
-import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
+import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
-import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
+import org.fusesource.fabric.git.GitNode;
 import org.fusesource.fabric.git.GitService;
-import org.fusesource.fabric.zookeeper.bootstrap.BootstrapConfiguration;
+import org.fusesource.fabric.groups.Group;
 import org.osgi.service.component.ComponentContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -44,13 +47,11 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
     public static final String DEFAULT_GIT_PATH = File.separator + "git" + File.separator + "local" + File.separator + "fabric";
     public static final String DEFAULT_LOCAL_LOCATION = System.getProperty("karaf.data") + DEFAULT_GIT_PATH;
 
-    @Reference(referenceInterface = BootstrapConfiguration.class)
-    private final ValidatingReference<BootstrapConfiguration> bootstrapConfiguration = new ValidatingReference<BootstrapConfiguration>();
-
     private final File localRepo = new File(DEFAULT_LOCAL_LOCATION);
-    private final List<GitListener> listeners = new CopyOnWriteArrayList<GitListener>();
-    private volatile String remoteUrl;
-    private volatile Git git;
+
+    @GuardedBy("CopyOnWriteArrayList") private final List<GitListener> listeners = new CopyOnWriteArrayList<GitListener>();
+    @GuardedBy("volatile") private volatile String remoteUrl;
+    @GuardedBy("volatile") private volatile Git git;
 
     @Activate
     void activate(ComponentContext context) throws IOException {
@@ -121,13 +122,5 @@ public final class FabricGitServiceImpl extends AbstractComponent implements Git
 
     void setGitForTesting(Git git) {
         this.git = git;
-    }
-
-    void bindBootstrapConfiguration(BootstrapConfiguration service) {
-        this.bootstrapConfiguration.bind(service);
-    }
-
-    void unbindBootstrapConfiguration(BootstrapConfiguration service) {
-        this.bootstrapConfiguration.unbind(service);
     }
 }

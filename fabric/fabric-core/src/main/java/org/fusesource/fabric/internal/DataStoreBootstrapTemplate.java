@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.zookeeper.bootstrap;
+package org.fusesource.fabric.internal;
 
 import static org.fusesource.fabric.utils.Ports.mapPortToRange;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.createDefault;
@@ -39,7 +39,6 @@ import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreTemplate;
 import org.fusesource.fabric.api.FabricException;
-import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkPath;
 import org.fusesource.fabric.zookeeper.curator.CuratorACLManager;
@@ -96,7 +95,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             Properties zkProps = new Properties();
             zkProps.setProperty("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
             zkProps.setProperty("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
-            dataStore.setFileConfiguration(version, defaultProfile, "org.fusesource.fabric.zookeeper.properties", DataStoreUtils.toBytes(zkProps));
+            dataStore.setFileConfiguration(version, defaultProfile, "org.fusesource.fabric.zookeeper.properties", DataStoreHelpers.toBytes(zkProps));
 
             // configure the ensemble
             String ensembleProfile = dataStore.getProfile(version, "fabric-ensemble-0000", true);
@@ -110,7 +109,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("dataDir", "data/zookeeper/0000");
 
             loadPropertiesFrom(ensembleProps, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
-            dataStore.setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
+            dataStore.setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(ensembleProps));
 
             // configure this server in the ensemble
             String ensembleServerProfile = dataStore.getProfile(version, "fabric-ensemble-0000-1", true);
@@ -119,16 +118,16 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
             serverProps.put("clientPortAddress", zooKeeperServerHost);
-            dataStore.setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreUtils.toBytes(serverProps));
+            dataStore.setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreHelpers.toBytes(serverProps));
 
             setData(curator, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
             setData(curator, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), karafName);
 
             // configure fabric profile
             String fabricProfile = dataStore.getProfile(version, "fabric", true);
-            Properties agentProps = DataStoreUtils.toProperties(dataStore.getFileConfiguration(version, fabricProfile, "org.fusesource.fabric.agent.properties"));
+            Properties agentProps = DataStoreHelpers.toProperties(dataStore.getFileConfiguration(version, fabricProfile, "org.fusesource.fabric.agent.properties"));
             agentProps.put("feature.fabric-commands", "fabric-commands");
-            dataStore.setFileConfiguration(version, "fabric", "org.fusesource.fabric.agent.properties", DataStoreUtils.toBytes(agentProps));
+            dataStore.setFileConfiguration(version, "fabric", "org.fusesource.fabric.agent.properties", DataStoreHelpers.toBytes(agentProps));
 
             createDefault(curator, ZkPath.CONFIG_CONTAINER.getPath(karafName), version);
 

@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
-import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
@@ -43,8 +42,7 @@ import org.fusesource.fabric.api.PlaceholderResolver;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.git.GitService;
-import org.fusesource.fabric.utils.DataStoreUtils;
-
+import org.fusesource.fabric.internal.DataStoreHelpers;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -54,7 +52,7 @@ import com.google.common.cache.LoadingCache;
  * and speed things up a little
  */
 @ThreadSafe
-@Component(name = DataStore.DATASTORE_TYPE_PID, policy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(name = DataStore.DATASTORE_TYPE_PID, description = "Fabric Git Caching DataStore", immediate = true)
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),
@@ -150,8 +148,8 @@ public final class CachingGitDataStore extends GitDataStore {
         Map<String, Map<String, String>> substituted = new HashMap<String, Map<String, String>>();
         for (Map.Entry<String, byte[]> entry : configurations.entrySet()) {
             if (entry.getKey().endsWith(".properties")) {
-                String pid = DataStoreUtils.stripSuffix(entry.getKey(), ".properties");
-                substituted.put(pid, DataStoreUtils.toMap(DataStoreUtils.toProperties(entry.getValue())));
+                String pid = DataStoreHelpers.stripSuffix(entry.getKey(), ".properties");
+                substituted.put(pid, DataStoreHelpers.toMap(DataStoreHelpers.toProperties(entry.getValue())));
             }
         }
         ProfileData profileData = new ProfileData(lastModified, configurations, substituted);
