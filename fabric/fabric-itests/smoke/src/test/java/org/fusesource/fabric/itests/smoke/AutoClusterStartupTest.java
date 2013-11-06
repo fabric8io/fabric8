@@ -32,7 +32,6 @@ import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.internal.ContainerImpl;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
 import org.fusesource.fabric.itests.paxexam.support.Provision;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Option;
@@ -47,7 +46,6 @@ import org.osgi.service.cm.ConfigurationAdmin;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore
 public class AutoClusterStartupTest extends FabricTestSupport {
     protected FabricService fabricService;
 
