@@ -56,11 +56,13 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
     private final String version;
     private final CuratorACLManager aclManager = new CuratorACLManager();
 
+
     public DataStoreBootstrapTemplate(String connectionUrl, CreateEnsembleOptions options) {
         this.connectionUrl = connectionUrl;
         this.options = options;
         this.version = options.getVersion();
     }
+
 
     @Override
     public void doWith(DataStore dataStore) {
@@ -107,8 +109,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             ensembleProps.put("syncLimit", "5");
             ensembleProps.put("dataDir", "data/zookeeper/0000");
 
-            loadPropertiesFrom(ensembleProps, options.getImportPath()
-                    + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
+            loadPropertiesFrom(ensembleProps, options.getImportPath() + "/fabric/configs/versions/1.0/profiles/default/org.fusesource.fabric.zookeeper.server.properties");
             dataStore.setFileConfiguration(version, ensembleProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreUtils.toBytes(ensembleProps));
 
             // configure this server in the ensemble
@@ -118,8 +119,7 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             Properties serverProps = new Properties();
             serverProps.put("clientPort", String.valueOf(mappedPort));
             serverProps.put("clientPortAddress", zooKeeperServerHost);
-            dataStore.setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties",
-                    DataStoreUtils.toBytes(serverProps));
+            dataStore.setFileConfiguration(version, ensembleServerProfile, "org.fusesource.fabric.zookeeper.server-0000.properties", DataStoreUtils.toBytes(serverProps));
 
             setData(curator, ZkPath.CONFIG_ENSEMBLES.getPath(), "0000");
             setData(curator, ZkPath.CONFIG_ENSEMBLE.getPath("0000"), karafName);
@@ -137,9 +137,6 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
             profilesBuilder.append("fabric").append(" ").append("fabric-ensemble-0000-1");
             for (String p : profiles) {
                 profilesBuilder.append(" ").append(p);
-            }
-            if (!options.isAgentEnabled()) {
-                profilesBuilder.append(" ").append("unmanaged");
             }
 
             createDefault(curator, ZkPath.CONFIG_VERSIONS_CONTAINER.getPath(version, karafName), profilesBuilder.toString());
@@ -166,12 +163,18 @@ public class DataStoreBootstrapTemplate implements DataStoreTemplate {
         }
     }
 
+
     /**
      * Creates ZooKeeper client configuration.
      */
     private CuratorFramework createCuratorFramework(String connectionUrl, CreateEnsembleOptions options) throws IOException {
-        return CuratorFrameworkFactory.builder().connectString(connectionUrl).connectionTimeoutMs(15000).sessionTimeoutMs(60000).aclProvider(aclManager)
-                .authorization("digest", ("fabric:" + options.getZookeeperPassword()).getBytes()).retryPolicy(new RetryNTimes(3, 500)).build();
+        return CuratorFrameworkFactory.builder()
+                .connectString(connectionUrl)
+                .connectionTimeoutMs(15000)
+                .sessionTimeoutMs(60000)
+                .aclProvider(aclManager)
+                .authorization("digest", ("fabric:" + options.getZookeeperPassword()).getBytes())
+                .retryPolicy(new RetryNTimes(3, 500)).build();
     }
 
     private void loadPropertiesFrom(Properties targetProperties, String from) {

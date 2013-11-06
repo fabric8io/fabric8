@@ -65,13 +65,17 @@ import static org.fusesource.fabric.agent.resolver.UriNamespace.getUri;
 import static org.fusesource.fabric.agent.utils.AgentUtils.addMavenProxies;
 import static org.fusesource.fabric.agent.utils.AgentUtils.loadRepositories;
 
+import org.apache.felix.utils.version.VersionRange;
+
 public class DeploymentAgent implements ManagedService {
+
 
     private static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.id";
     private static final String SNAPSHOT = "SNAPSHOT";
     private static final String BLUEPRINT_PREFIX = "blueprint:";
     private static final String SPRING_PREFIX = "spring:";
     private static final Pattern SNAPSHOT_PATTERN = Pattern.compile(".*-SNAPSHOT((\\.\\w{3})?|\\$.*|\\?.*|\\#.*|\\&.*)");
+
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DeploymentAgent.class);
 
@@ -86,12 +90,14 @@ public class DeploymentAgent implements ManagedService {
     private ExecutorServiceFinder executorServiceFinder;
     private boolean resolveOptionalImports = false;
 
-    private final RequirementSort requirementSort = new RequirementSort();
+	private final RequirementSort requirementSort = new RequirementSort();
 
     private Properties checksums;
 
     public DeploymentAgent() throws MalformedURLException {
-        final MavenConfigurationImpl config = new MavenConfigurationImpl(new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn");
+        final MavenConfigurationImpl config = new MavenConfigurationImpl(
+                new PropertiesPropertyResolver(System.getProperties()), "org.ops4j.pax.url.mvn"
+        );
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         manager = new DownloadManager(config);
     }
@@ -231,7 +237,7 @@ public class DeploymentAgent implements ManagedService {
     }
 
     public boolean doUpdate(Dictionary<String, ?> props) throws Exception {
-        if (props == null || Boolean.parseBoolean((String) props.get("disabled"))) {
+        if (props == null) {
             return false;
         }
 
@@ -241,13 +247,17 @@ public class DeploymentAgent implements ManagedService {
         updateStatus("analyzing", null);
 
         // Building configuration
-        PropertiesPropertyResolver syspropsResolver = new PropertiesPropertyResolver(System.getProperties());
-        DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props, syspropsResolver);
-        final MavenConfigurationImpl config = new MavenConfigurationImpl(new DictionaryPropertyResolver(props, syspropsResolver), "org.ops4j.pax.url.mvn");
+        DictionaryPropertyResolver propertyResolver = new DictionaryPropertyResolver(props,
+                new PropertiesPropertyResolver(System.getProperties()));
+        final MavenConfigurationImpl config = new MavenConfigurationImpl(
+                new DictionaryPropertyResolver(props,
+                        new PropertiesPropertyResolver(System.getProperties())),
+                "org.ops4j.pax.url.mvn"
+        );
         config.setSettings(new MavenSettingsImpl(config.getSettingsFileUrl(), config.useFallbackRepositories()));
         manager = new DownloadManager(config, getDownloadExecutor());
         Map<String, String> properties = new HashMap<String, String>();
-        for (Enumeration e = props.keys(); e.hasMoreElements();) {
+        for (Enumeration e = props.keys(); e.hasMoreElements(); ) {
             Object key = e.nextElement();
             Object val = props.get(key);
             if (!"service.pid".equals(key) && !FABRIC_ZOOKEEPER_PID.equals(key)) {
@@ -288,7 +298,8 @@ public class DeploymentAgent implements ManagedService {
         }
 
         // Compute deployment
-        final Map<String, Repository> repositories = loadRepositories(manager, getPrefixedProperties(properties, "repository."));
+        final Map<String, Repository> repositories =
+                loadRepositories(manager, getPrefixedProperties(properties, "repository."));
 
         // Update bundles
         FabResolverFactoryImpl fabResolverFactory = new FabResolverFactoryImpl();
@@ -319,6 +330,7 @@ public class DeploymentAgent implements ManagedService {
         // TODO: handle default range policy on feature requirements
         // TODO: handle default range policy on feature dependencies requirements
 
+
         for (String uri : getPrefixedProperties(properties, "resources.")) {
             builder.addResourceRepository(new MetadataRepository(new HttpMetadataProvider(uri)));
         }
@@ -348,7 +360,8 @@ public class DeploymentAgent implements ManagedService {
         return result;
     }
 
-    private void install(Collection<Resource> allResources, Map<String, StreamProvider> providers) throws Exception {
+    private void install(Collection<Resource> allResources,
+                         Map<String, StreamProvider> providers) throws Exception {
 
         updateStatus("installing", null, allResources, false);
         Map<Resource, Bundle> resToBnd = new HashMap<Resource, Bundle>();
@@ -383,15 +396,15 @@ public class DeploymentAgent implements ManagedService {
                                 // if the checksum are different
                                 InputStream is = null;
                                 try {
-                                    is = getBundleInputStream(res, providers);
-                                    long newCrc = ChecksumUtils.checksum(is);
-                                    long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong(checksums.get(bundle.getLocation())) : 0l;
-                                    if (newCrc != oldCrc) {
-                                        LOGGER.debug("New snapshot available for " + bundle.getLocation());
-                                        update = true;
-                                        newCheckums.put(bundle.getLocation(), Long.toString(newCrc));
-                                    }
-                                } finally {
+                                is = getBundleInputStream(res, providers);
+                                long newCrc = ChecksumUtils.checksum(is);
+                                long oldCrc = checksums.containsKey(bundle.getLocation()) ? Long.parseLong(checksums.get(bundle.getLocation())) : 0l;
+                                if (newCrc != oldCrc) {
+                                    LOGGER.debug("New snapshot available for " + bundle.getLocation());
+                                    update = true;
+                                    newCheckums.put(bundle.getLocation(), Long.toString(newCrc));
+                                }
+                                }finally {
                                     if (is != null) {
                                         is.close();
                                     }
@@ -419,7 +432,8 @@ public class DeploymentAgent implements ManagedService {
             TreeMap<Version, Bundle> matching = new TreeMap<Version, Bundle>();
             VersionRange range = getMicroVersionRange(getVersion(resource));
             for (Bundle bundle : toDelete) {
-                if (bundle.getSymbolicName().equals(getSymbolicName(resource)) && range.contains(bundle.getVersion())) {
+                if (bundle.getSymbolicName().equals(getSymbolicName(resource))
+                        && range.contains(bundle.getVersion())) {
                     matching.put(bundle.getVersion(), bundle);
                 }
             }
@@ -557,7 +571,8 @@ public class DeploymentAgent implements ManagedService {
         LOGGER.info("Done.");
     }
 
-    protected InputStream getBundleInputStream(Resource resource, Map<String, StreamProvider> providers) throws IOException {
+    protected InputStream getBundleInputStream(Resource resource,
+                                               Map<String, StreamProvider> providers) throws IOException {
         String uri = getUri(resource);
         if (uri == null) {
             throw new IllegalStateException("Resource has no uri");
@@ -636,6 +651,7 @@ public class DeploymentAgent implements ManagedService {
         return new VersionRange(false, floor, ceil, true);
     }
 
+
     protected void findBundlesWithFragmentsToRefresh(Set<Bundle> toRefresh) {
         if (toRefresh.isEmpty()) {
             return;
@@ -685,7 +701,8 @@ public class DeploymentAgent implements ManagedService {
             if (rev != null) {
                 for (BundleRequirement req : rev.getDeclaredRequirements(null)) {
                     if (PackageNamespace.PACKAGE_NAMESPACE.equals(req.getNamespace())
-                            && PackageNamespace.RESOLUTION_OPTIONAL.equals(req.getDirectives().get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
+                            && PackageNamespace.RESOLUTION_OPTIONAL.equals(
+                                req.getDirectives().get(PackageNamespace.REQUIREMENT_RESOLUTION_DIRECTIVE))) {
                         // This requirement is an optional import package
                         for (Bundle provider : toRefresh) {
                             BundleRevision providerRev = provider.adapt(BundleRevision.class);
@@ -771,13 +788,11 @@ public class DeploymentAgent implements ManagedService {
     }
 
     private static boolean isUpdateable(Bundle bundle) {
-        return (SNAPSHOT_PATTERN.matcher(bundle.getLocation()).matches() || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(
-                SPRING_PREFIX));
+        return (SNAPSHOT_PATTERN.matcher(bundle.getLocation()).matches() || bundle.getLocation().startsWith(BLUEPRINT_PREFIX) || bundle.getLocation().startsWith(SPRING_PREFIX));
     }
 
     private static boolean isUpdateable(Resource resource) {
-        return (getVersion(resource).getQualifier().endsWith(SNAPSHOT) || SNAPSHOT_PATTERN.matcher(getUri(resource)).matches()
-                || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
+        return (getVersion(resource).getQualifier().endsWith(SNAPSHOT) || SNAPSHOT_PATTERN.matcher(getUri(resource)).matches() || getUri(resource).startsWith(BLUEPRINT_PREFIX) || getUri(resource).startsWith(SPRING_PREFIX));
     }
 
     interface ExecutorServiceFinder {
@@ -807,12 +822,17 @@ public class DeploymentAgent implements ManagedService {
 
         NamedThreadFactory(String prefix) {
             SecurityManager s = System.getSecurityManager();
-            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
-            namePrefix = prefix + "-" + poolNumber.getAndIncrement() + "-thread-";
+            group = (s != null) ? s.getThreadGroup() :
+                    Thread.currentThread().getThreadGroup();
+            namePrefix = prefix + "-" +
+                    poolNumber.getAndIncrement() +
+                    "-thread-";
         }
 
         public Thread newThread(Runnable r) {
-            Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+            Thread t = new Thread(group, r,
+                    namePrefix + threadNumber.getAndIncrement(),
+                    0);
             if (t.isDaemon())
                 t.setDaemon(false);
             if (t.getPriority() != Thread.NORM_PRIORITY)
