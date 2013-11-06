@@ -54,14 +54,6 @@ public final class LoggingPartitionListener extends AbstractComponent implements
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
-    public void destroy() {
-    }
-
-    @Override
     public void start(String taskId, String workBase, Set<Partition> partitions) {
         assertValid();
         for (Partition partition : partitions) {

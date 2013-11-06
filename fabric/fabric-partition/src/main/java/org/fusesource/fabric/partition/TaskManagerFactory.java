@@ -16,10 +16,6 @@
 
 package org.fusesource.fabric.partition;
 
-import com.google.common.base.Throwables;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
-
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
@@ -28,6 +24,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.ReferenceCardinality;
 import org.apache.felix.scr.annotations.ReferencePolicy;
+import org.apache.felix.scr.annotations.ReferencePolicyOption;
 import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
@@ -63,17 +60,23 @@ public final class TaskManagerFactory extends AbstractComponent {
     private static final String WORK_BALANCING_POLICY = "balancing.policy";
     private static final String WORKER_TYPE = "worker.type";
 
-    @Reference(referenceInterface = BalancingPolicy.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    @Reference(referenceInterface = BalancingPolicy.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC, policyOption = ReferencePolicyOption.GREEDY)
     private final ConcurrentMap<String, BalancingPolicy> balancingPolicies = new ConcurrentHashMap<String, BalancingPolicy>();
     @Reference(referenceInterface = PartitionListener.class, cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     private final ConcurrentMap<String, PartitionListener> partitionListeners = new ConcurrentHashMap<String, PartitionListener>();
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
+
+    private String taskId;
+    private String taskDefinition;
+    private String partitionsPath;
+    private String policyType;
+    private String workerType;
+
+    @GuardedBy("this") private TaskManager taskManager;
     @GuardedBy("this") private final ConcurrentMap<String, TaskManager> taskManagers = new ConcurrentHashMap<String, TaskManager>();
-    @GuardedBy("this") private final ConcurrentMap<String, Map<String,?>> pendingPids = new ConcurrentHashMap<String, Map<String,?>>();
-    @GuardedBy("this") private final Multimap<String, String> waitingOnBalancing = LinkedHashMultimap.create();
-    @GuardedBy("this") private final Multimap<String, String> waitingOnListener = LinkedHashMultimap.create();
+
 
     @Activate
     void activate(ComponentContext context, Map<String,?> properties) throws ConfigurationException {
@@ -84,43 +87,42 @@ public final class TaskManagerFactory extends AbstractComponent {
     @Deactivate
     void deactivate(Map<String,?> properties) {
         deactivateComponent();
-        deactivateInternal(properties);
+        deactivateInternal();
     }
 
     private synchronized void activateInternal(Map<String, ?> properties) throws ConfigurationException {
         validate(properties);
         String s = readString(properties, Constants.SERVICE_PID);
-        String taskId = readString(properties, TASK_ID_PROPERTY_NAME);
-        String taskDefinition = readString(properties, TASK_DEFINITION_PROPERTY_NAME);
-        String partitionsPath = readString(properties, PARTITIONS_PATH_PROPERTY_NAME);
-        String policyType = readString(properties, WORK_BALANCING_POLICY);
-        String workerType = readString(properties, WORKER_TYPE);
+        taskId = readString(properties, TASK_ID_PROPERTY_NAME);
+        taskDefinition = readString(properties, TASK_DEFINITION_PROPERTY_NAME);
+        partitionsPath = readString(properties, PARTITIONS_PATH_PROPERTY_NAME);
+        policyType = readString(properties, WORK_BALANCING_POLICY);
+        workerType = readString(properties, WORKER_TYPE);
+        startTaskManager();
+    }
 
+    private synchronized void deactivateInternal() {
+        stopTaskManager();
+    }
+
+    private synchronized void startTaskManager() {
         if (!balancingPolicies.containsKey(policyType)) {
-            waitingOnBalancing.put(policyType, s);
-            pendingPids.put(s, properties);
-            LOGGER.warn("Policy type {} not found. Will resume: {} when policy is made available.", policyType, s);
+            LOGGER.warn("Policy type {} not found. Will resume: {} when policy is made available.", policyType, taskId);
         } else if (!partitionListeners.containsKey(workerType)) {
-            waitingOnListener.put(workerType, s);
-            pendingPids.put(s, properties);
-            LOGGER.warn("Worker type {} not found. Will resume: {} when worker type is made available.", workerType, s);
+            LOGGER.warn("Worker type {} not found. Will resume: {} when worker type is made available.", workerType, taskId);
         } else {
             BalancingPolicy balancingPolicy = balancingPolicies.get(policyType);
             PartitionListener partitionListener = partitionListeners.get(workerType);
-
-            TaskManager taskManager = new DefaultTaskManager(curator.get(), taskId, taskDefinition, partitionsPath, partitionListener, balancingPolicy);
-            TaskManager oldTaskManager = taskManagers.put(s, taskManager);
-            if (oldTaskManager != null) {
-                oldTaskManager.stop();
-            }
+            taskManager = new DefaultTaskManager(curator.get(), taskId, taskDefinition, partitionsPath, partitionListener, balancingPolicy);
             taskManager.start();
         }
     }
 
-    private synchronized void deactivateInternal(Map<String, ?> properties) {
-        String s = readString(properties, Constants.SERVICE_PID);
-        TaskManager taskManager = taskManagers.remove(s);
-        taskManager.stop();
+    private synchronized void stopTaskManager() {
+        if (taskManager != null) {
+            taskManager.stop();
+            taskManager = null;
+        }
     }
 
     /**
@@ -154,48 +156,37 @@ public final class TaskManagerFactory extends AbstractComponent {
         }
     }
 
-    private void stopWorkManagerWithBalancingPolicy(Iterable<TaskManager> workManagers, String balancingPolicyType) {
-        for (TaskManager taskManager : filter(workManagers, new WorkManagerWithBalancingPolicy(balancingPolicyType))) {
-            taskManager.stop();
-        }
-    }
-
-    private void stopWorkManagerWithListener(Iterable<TaskManager> workManagers, String listenerType) {
-        for (TaskManager taskManager : filter(workManagers, new WorkManagerWithListener(listenerType))) {
-            taskManager.stop();
-        }
-    }
-
     void bindBalancingPolicy(BalancingPolicy balancingPolicy) {
-        balancingPolicies.put(balancingPolicy.getType(), balancingPolicy);
-        for (String pid : waitingOnBalancing.get(balancingPolicy.getType())) {
-            try {
-                activateInternal(pendingPids.remove(pid));
-            } catch (ConfigurationException e) {
-                Throwables.propagate(e);
-            }
+        String type = balancingPolicy.getType();
+        balancingPolicies.put(type, balancingPolicy);
+        if (type.equals(policyType)) {
+            startTaskManager();
         }
     }
 
     void unbindBalancingPolicy(BalancingPolicy balancingPolicy) {
-        balancingPolicies.remove(balancingPolicy.getType());
-        stopWorkManagerWithBalancingPolicy(taskManagers.values(), balancingPolicy.getType());
+        String type = balancingPolicy.getType();
+        balancingPolicies.remove(type);
+        if (type.equals(policyType)) {
+            stopTaskManager();
+        }
+
     }
 
     void bindPartitionListener(PartitionListener partitionListener) {
-        partitionListeners.put(partitionListener.getType(), partitionListener);
-        for (String pid : waitingOnListener.get(partitionListener.getType())) {
-            try {
-                activateInternal(pendingPids.remove(pid));
-            } catch (ConfigurationException e) {
-                Throwables.propagate(e);
-            }
+        String type = partitionListener.getType();
+        partitionListeners.put(type, partitionListener);
+        if (type.equals(workerType))  {
+            startTaskManager();
         }
     }
 
     void unbindPartitionListener(PartitionListener partitionListener) {
-        partitionListeners.remove(partitionListener.getType());
-        stopWorkManagerWithListener(taskManagers.values(), partitionListener.getType());
+        String type = partitionListener.getType();
+        partitionListeners.remove(type);
+        if (type.equals(workerType)) {
+            stopTaskManager();
+        }
     }
 
     void bindCurator(CuratorFramework curator) {

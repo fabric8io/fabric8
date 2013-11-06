@@ -22,15 +22,6 @@ public interface PartitionListener {
 
     String getType();
 
-    /**
-     * Initialize.
-     */
-    void init();
-
-    /**
-     * Destroy.
-     */
-    void destroy();
 
     /**
      * Start processing the assigned {@link Partition} items of the specified task.

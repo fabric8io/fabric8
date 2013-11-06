@@ -68,18 +68,8 @@ public final class ProfilePartitionListener extends AbstractComponent implements
 
     @Deactivate
     void deactivate() {
-        deactivateComponent();
         destroyInternal();
-    }
-
-    @Override
-    public void init() {
-        throw new UnsupportedOperationException("PartitionListener life cycle is managed");
-    }
-
-    @Override
-    public void destroy() {
-        throw new UnsupportedOperationException("PartitionListener life cycle is managed");
+        deactivateComponent();
     }
 
     private synchronized void destroyInternal() {
