@@ -45,12 +45,6 @@ public class CreateChildContainerTest extends FabricTestSupport {
         ContainerBuilder.destroy();
     }
 
-    @Test
-    public void testLocalChildCreation() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
-        ContainerBuilder.child(1).withName("child").assertProvisioningResult().build();
-    }
-
     /**
      * http://fusesource.com/issues/browse/FABRIC-351
      */

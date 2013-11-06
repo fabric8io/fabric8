@@ -41,8 +41,8 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 public class FabricCreateTest extends FabricTestSupport {
 
     @Test
-    public void testImportedProfiles() throws Exception {
-        System.err.println(executeCommand("fabric:create -n"));
+    public void testCreateWithProfileSelection() throws Exception {
+        System.err.println(executeCommand("fabric:create -n --profile feature-camel"));
         FabricService fabricService = getFabricService();
         assertNotNull(fabricService);
 
@@ -54,14 +54,6 @@ public class FabricCreateTest extends FabricTestSupport {
 
         Profile activeMq = fabricService.getDefaultVersion().getProfile("mq-default");
         assertNotNull(activeMq);
-    }
-
-
-    @Test
-    public void testCreateWithProfileSelection() throws Exception {
-        System.err.println(executeCommand("fabric:create -n --profile feature-camel"));
-        FabricService fabricService = getFabricService();
-        assertNotNull(fabricService);
 
 
         Profile[] profiles = fabricService.getCurrentContainer().getProfiles();

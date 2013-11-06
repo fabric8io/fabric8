@@ -103,37 +103,32 @@ public class ProfileEditTest extends FabricTestSupport {
         Assert.assertEquals("value1", myPid.get("key1"));
         Assert.assertTrue(myPid.containsKey("key2"));
         Assert.assertEquals("value2", myPid.get("key2"));
-    }
 
-
-    @Test
-    public void testImportPid() throws Exception {
-        System.err.println(executeCommands("config:edit my.pid","config:propset key1 value1","config:propset key2 value2", "config:update"));
-        System.err.println(executeCommand("fabric:create -n"));
-        FabricService fabricService = getFabricService();
-        assertNotNull(fabricService);
-        System.err.println(executeCommand("fabric:profile-edit --pid my.pid --import-pid default"));
+        //Check import pid
+        System.err.println(executeCommands("config:edit my.pid2","config:propset key1 value1","config:propset key2 value2", "config:update"));
+        System.err.println(executeCommand("fabric:profile-edit --pid my.pid2 --import-pid default"));
 
         //Check that my.pid has been added to the default profile
-        Profile profile = fabricService.getDefaultVersion().getProfile("default");
+        profile = fabricService.getDefaultVersion().getProfile("default");
         Assert.assertNotNull(profile);
-        Map<String, Map<String, String>> configurations = profile.getConfigurations();
+        configurations = profile.getConfigurations();
         Assert.assertNotNull(configurations);
-        Assert.assertTrue(configurations.containsKey("my.pid"));
-        Map<String, String> myPid = configurations.get("my.pid");
-        Assert.assertNotNull(myPid);
-        Assert.assertTrue(myPid.containsKey("key1"));
-        Assert.assertEquals("value1", myPid.get("key1"));
-        Assert.assertTrue(myPid.containsKey("key2"));
-        Assert.assertEquals("value2", myPid.get("key2"));
+        Assert.assertTrue(configurations.containsKey("my.pid2"));
+        Map<String, String> myPid2 = configurations.get("my.pid2");
+        Assert.assertNotNull(myPid2);
+        Assert.assertTrue(myPid2.containsKey("key1"));
+        Assert.assertEquals("value1", myPid2.get("key1"));
+        Assert.assertTrue(myPid2.containsKey("key2"));
+        Assert.assertEquals("value2", myPid2.get("key2"));
 
-        System.err.println(executeCommand("fabric:profile-edit --pid my.pid/key1 --delete default"));
-        Map<String,String> configuration = profile.getConfiguration("my.pid");
+        System.err.println(executeCommand("fabric:profile-edit --pid my.pid2/key1 --delete default"));
+        Map<String,String> configuration = profile.getConfiguration("my.pid2");
         Assert.assertFalse(configuration.containsKey("key1"));
 
-        System.err.println(executeCommand("fabric:profile-edit --pid my.pid --delete default"));
+        System.err.println(executeCommand("fabric:profile-edit --pid my.pid2 --delete default"));
         configurations = profile.getConfigurations();
-        Assert.assertFalse(configurations.containsKey("my.pid"));
+        Assert.assertFalse(configurations.containsKey("my.pid2"));
+
     }
 
 
