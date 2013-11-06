@@ -179,6 +179,10 @@
              <artifactId>gateway-fabric</artifactId>
              <version>${project.version}</version>
            </dependency>
+           <dependency>
+               <groupId>org.fusesource.fabric</groupId>
+               <artifactId>fabric-maven-proxy</artifactId>
+           </dependency>
 
            <!-- need this transitive of org.apache.servicemix.bundles.jasypt
                 to get this building in offline mode -->
