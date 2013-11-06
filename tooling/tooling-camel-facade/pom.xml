@@ -34,7 +34,7 @@
   
   <properties>
     <fuse.osgi.import.pkg>
-      org.apache.camel*;version="[2.10,3)";resolution:=optional,
+      org.apache.camel*;version="[2.12,3)";resolution:=optional,
       org.springframework*;resolution:=optional,
       *
     </fuse.osgi.import.pkg>

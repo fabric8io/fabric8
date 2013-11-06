@@ -170,11 +170,11 @@
               javax.xml.datatype,
               javax.xml.namespace,
               javax.xml.ws,
-              org.apache.camel;version="[2.10,3)",
-              org.apache.camel.builder;version="[2.10,3)",
-              org.apache.camel.model;version="[2.10,3)",
-              org.apache.cxf.interceptor;version="[2.6,3)",
-              org.apache.cxf.message;version="[2.6,3)",
+              org.apache.camel;version="[2.12,3)",
+              org.apache.camel.builder;version="[2.12,3)",
+              org.apache.camel.model;version="[2.12,3)",
+              org.apache.cxf.interceptor;version="[2.7,3)",
+              org.apache.cxf.message;version="[2.7,3)",
               org.slf4j;version="[1.6,2)"
             </Import-Package>
             <DynamicImport-Package>
