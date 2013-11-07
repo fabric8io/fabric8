@@ -24,12 +24,10 @@ import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.internal.ProfileImpl;
 import org.fusesource.fabric.zookeeper.ZkPath;
-import org.fusesource.jansi.Ansi;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,8 +38,6 @@ public abstract class FabricCommand extends OsgiCommandSupport {
     private CuratorFramework curator;
     protected FabricService fabricService;
     protected ConfigurationAdmin configurationAdmin;
-
-    protected static String AGENT_PID = "org.fusesource.fabric.agent";
 
     public FabricService getFabricService() {
         return fabricService;

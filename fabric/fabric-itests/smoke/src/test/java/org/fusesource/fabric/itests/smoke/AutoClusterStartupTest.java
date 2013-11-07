@@ -17,7 +17,16 @@
 
 package org.fusesource.fabric.itests.smoke;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
+
+import java.util.Arrays;
+import java.util.Dictionary;
+
 import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricService;
@@ -34,14 +43,6 @@ import org.ops4j.pax.exam.options.DefaultCompositeOption;
 import org.ops4j.pax.exam.options.extra.VMOption;
 import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 import org.osgi.service.cm.ConfigurationAdmin;
-
-import java.util.Arrays;
-import java.util.Dictionary;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.fusesource.tooling.testing.pax.exam.karaf.ServiceLocator.getOsgiService;
 
 
 @RunWith(JUnit4TestRunner.class)
@@ -66,7 +67,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         //Test that a generated password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
         ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
         assertTrue(String.valueOf(dictionary.get("zookeeper.url")).endsWith("2182"));
@@ -79,7 +80,8 @@ public class AutoClusterStartupTest extends FabricTestSupport {
                 new VMOption("-D" + CreateEnsembleOptions.ENSEMBLE_AUTOSTART + "=true"),
                 new VMOption("-D" + CreateEnsembleOptions.AGENT_AUTOSTART + "=false"),
                 new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_PORT + "=2182"),
-                new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_CONNECTION_PORT + "=2182")
+                new VMOption("-D" + CreateEnsembleOptions.ZOOKEEPER_SERVER_CONNECTION_PORT + "=2182"),
+                //KarafDistributionOption.debugConfiguration("5005", true)
         };
     }
 }

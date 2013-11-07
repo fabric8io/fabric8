@@ -17,10 +17,12 @@
 package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Profiles;
+import org.fusesource.fabric.utils.DataStoreUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.fusesource.fabric.internal.ProfileImpl.AGENT_PID;
 import static org.fusesource.fabric.internal.ProfileImpl.ConfigListType;
 import static org.fusesource.fabric.internal.ProfileImpl.getContainerConfigList;
 
@@ -107,7 +108,7 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public Map<String, String> getContainerConfiguration() {
-        Map<String, String> map = getConfigurations().get(AGENT_PID);
+        Map<String, String> map = getConfigurations().get(Constants.AGENT_PID);
         if (map == null) {
             map = new HashMap<String, String>();
         }
@@ -175,11 +176,11 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public boolean agentConfigurationEquals(Profile other) {
         ProfileOverlayImpl otherOverlay = new ProfileOverlayImpl(other, environment);
-        if (!getConfigurations().containsKey(AGENT_PID) && !otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
+        if (!getConfigurations().containsKey(Constants.AGENT_PID) && !otherOverlay.getConfigurations().containsKey(Constants.AGENT_PID)) {
             return true;
-        } else if (getConfigurations().containsKey(AGENT_PID) != otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
+        } else if (getConfigurations().containsKey(Constants.AGENT_PID) != otherOverlay.getConfigurations().containsKey(Constants.AGENT_PID)) {
             return false;
-        } else if (getConfigurations().containsKey(AGENT_PID) && !getConfigurations().get(AGENT_PID).equals(otherOverlay.getConfigurations().get(AGENT_PID))) {
+        } else if (getConfigurations().containsKey(Constants.AGENT_PID) && !getConfigurations().get(Constants.AGENT_PID).equals(otherOverlay.getConfigurations().get(Constants.AGENT_PID))) {
             return false;
         } else {
             return true;
@@ -265,8 +266,7 @@ public class ProfileOverlayImpl implements Profile {
                 SupplementControl ctrl = aggregate.get(fileName);
                 if (ctrl != null) {
                     // we can update the file..
-
-                    Properties childMap = DataStoreHelpers.toProperties(value);
+                    Properties childMap = DataStoreUtils.toProperties(value);
                     if (childMap.remove(DELETED) != null) {
                         ctrl.props.clear();
                     }
@@ -283,7 +283,7 @@ public class ProfileOverlayImpl implements Profile {
                 } else {
                     // new file..
                     ctrl = new SupplementControl();
-                    ctrl.props = DataStoreHelpers.toProperties(value);
+                    ctrl.props = DataStoreUtils.toProperties(value);
                     aggregate.put(fileName, ctrl);
                 }
             } else {
@@ -313,7 +313,7 @@ public class ProfileOverlayImpl implements Profile {
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                 SupplementControl ctrl = entry.getValue();
                 if (ctrl.props != null) {
-                    ctrl.data = DataStoreHelpers.toBytes(ctrl.props);
+                    ctrl.data = DataStoreUtils.toBytes(ctrl.props);
                 }
                 rc.put(entry.getKey(), ctrl.data);
             }
@@ -335,7 +335,7 @@ public class ProfileOverlayImpl implements Profile {
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                 SupplementControl ctrl = entry.getValue();
                 if (ctrl.props != null) {
-                    rc.put(DataStoreHelpers.stripSuffix(entry.getKey(), ".properties"), DataStoreHelpers.toMap(ctrl.props));
+                    rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), DataStoreUtils.toMap(ctrl.props));
                 }
             }
             if (substitute && dataStore != null) {

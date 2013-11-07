@@ -39,7 +39,6 @@ import org.apache.felix.scr.annotations.Service;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.PortService;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -54,8 +53,7 @@ public final class ZookeeperPortService extends AbstractComponent implements Por
     @Reference(referenceInterface = CuratorFramework.class)
     private final ValidatingReference<CuratorFramework> curator = new ValidatingReference<CuratorFramework>();
 
-    @GuardedBy("volatile and assertValid()")
-    private volatile InterProcessLock interProcessLock;
+    private InterProcessLock interProcessLock;
 
     @Activate
     void activate(ComponentContext context) {

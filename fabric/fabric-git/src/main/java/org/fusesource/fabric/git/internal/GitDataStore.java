@@ -43,6 +43,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.jgit.api.CreateBranchCommand;
 import org.eclipse.jgit.api.Git;
@@ -67,14 +68,13 @@ import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
-import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.ValidatingReference;
 import org.fusesource.fabric.git.GitListener;
 import org.fusesource.fabric.git.GitService;
-import org.fusesource.fabric.internal.DataStoreHelpers;
 import org.fusesource.fabric.internal.RequirementsJson;
 import org.fusesource.fabric.service.AbstractDataStore;
+import org.fusesource.fabric.utils.DataStoreUtils;
 import org.fusesource.fabric.utils.Files;
 import org.fusesource.fabric.utils.PropertiesHelper;
 import org.fusesource.fabric.utils.Strings;
@@ -98,7 +98,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public static final String GIT_REMOTE_URL = "gitRemoteUrl";
     public static final String GIT_REMOTE_USER = "gitRemoteUser";
     public static final String GIT_REMOTE_PASSWORD = "gitRemotePassword";
-    public static final String[] SUPPORTED_CONFIGURATION = {DATASTORE_TYPE_PROPERTY, GIT_REMOTE_URL, GIT_REMOTE_USER, GIT_REMOTE_PASSWORD, GIT_PULL_PERIOD};
+    public static final String[] SUPPORTED_CONFIGURATION = { DATASTORE_TYPE_PROPERTY, GIT_REMOTE_URL, GIT_REMOTE_USER, GIT_REMOTE_PASSWORD, GIT_PULL_PERIOD };
 
     public static final String CONFIGS = "/" + CONFIG_ROOT_DIR;
     public static final String CONFIGS_PROFILES = CONFIGS + "/profiles";
@@ -119,50 +119,11 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     private final Object gitOperationMonitor = new Object();
     private final Set<String> versions = new CopyOnWriteArraySet<String>();
+    private final GitListener gitListener = new GitDataStoreListener();
+    private final AtomicReference<String> remoteRef = new AtomicReference<String>("origin");
 
-    private final GitListener gitListener = new GitListener() {
-        @Override
-        public void onRemoteUrlChanged(final String urlParam) {
-            String currentURL = getRemoteURL();
-            final String actualUrl = currentURL != null ? currentURL : urlParam;
-            if (isValid()) {
-                threadPool.submit(new Runnable() {
-                    @Override
-                    public void run() {
-                        assertValid();
-                        gitOperation(new GitOperation<Void>() {
-                            @Override
-                            public Void call(Git git, GitContext context) throws Exception {
-                                Repository repository = git.getRepository();
-                                StoredConfig config = repository.getConfig();
-                                String currentUrl = config.getString("remote", "origin", "url");
-                                if (actualUrl != null && !actualUrl.equals(currentUrl)) {
-                                    config.setString("remote", "origin", "url", actualUrl);
-                                    config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
-                                    config.save();
-                                    //Make sure that we don't delete branches at this pull.
-                                    doPull(git, getCredentialsProvider(), false);
-                                    doPush(git, context);
-                                }
-                                return null;
-                            }
-                        });
-                    }
-                });
-            }
-        }
-
-        @Override
-        public void onReceivePack() {
-            assertValid();
-            clearCaches();
-        }
-    };
-
-    private volatile String remote = "origin";
-
-    @GuardedBy("this") private String remoteUrl;
-    @GuardedBy("this") private long pullPeriod = 1000;
+    private String remoteUrl;
+    private long pullPeriod = 1000;
 
     @Override
     protected void activateInternal() {
@@ -188,11 +149,13 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             threadPool.scheduleWithFixedDelay(new Runnable() {
                 @Override
                 public void run() {
-                    LOG.debug("Performing timed pull");
-                    pull();
-                    //a commit that failed to push for any reason, will not get pushed until the next commit.
-                    //periodically pushing can address this issue.
-                    push();
+                    if (isValid()) {
+                        LOG.debug("Performing timed pull");
+                        pull();
+                        //a commit that failed to push for any reason, will not get pushed until the next commit.
+                        //periodically pushing can address this issue.
+                        push();
+                    }
                 }
             }, pullPeriod, pullPeriod, TimeUnit.MILLISECONDS);
         } catch (Exception ex) {
@@ -228,7 +191,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     public String getRemote() {
-        return remote;
+        return remoteRef.get();
     }
 
     /**
@@ -237,7 +200,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public void setRemote(String remote) {
         if (remote == null)
             throw new IllegalArgumentException("Remote name cannot be null");
-        this.remote = remote;
+        this.remoteRef.set(remote);
     }
 
     private synchronized String getRemoteURL() {
@@ -265,8 +228,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                             File[] versionFiles = versionFolder.listFiles();
                             if (versionFiles != null) {
                                 for (File versionFile : versionFiles) {
-                                    LOG.info("Importing version configuration " + versionFile + " to branch "
-                                            + version);
+                                    LOG.info("Importing version configuration " + versionFile + " to branch " + version);
                                     importFromFileSystem(versionFile, CONFIG_ROOT_DIR, version, true);
                                 }
                             }
@@ -289,7 +251,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         assertValid();
         gitOperation(new GitOperation<Void>() {
             public Void call(Git git, GitContext context) throws Exception {
-                createOrCheckoutVersion(git, version);;
+                createOrCheckoutVersion(git, version);
+                ;
                 // now lets recursively add files
                 File toDir = GitHelpers.getRootGitDirectory(git);
                 if (Strings.isNotBlank(destinationPath)) {
@@ -475,7 +438,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         });
     }
 
-
     @Override
     public Map<String, String> getVersionAttributes(String version) {
         assertValid();
@@ -537,8 +499,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 for (String profile : profiles) {
                     checkoutVersion(git, GitProfiles.getBranch(version, profile));
                     File profileDirectory = getProfileDirectory(git, profile);
-                    File file = Strings.isNotBlank(path)
-                            ? new File(profileDirectory, path): profileDirectory;
+                    File file = Strings.isNotBlank(path) ? new File(profileDirectory, path) : profileDirectory;
                     if (file.exists()) {
                         String[] values = file.list();
                         if (values != null) {
@@ -600,7 +561,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             for (File file : files) {
                 if (file.isFile() && file.getPath().endsWith(PROPERTIES_SUFFIX)) {
                     String relativePath = getFilePattern(profileDirectory, file);
-                    configurations.put(DataStoreHelpers.stripSuffix(relativePath, PROPERTIES_SUFFIX), doLoadConfiguration(file));
+                    configurations.put(DataStoreUtils.stripSuffix(relativePath, PROPERTIES_SUFFIX), doLoadConfiguration(file));
                 }
             }
         }
@@ -650,7 +611,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         }
     }
 
-    protected void doSetConfigurations(Git git, File profileDirectory, String profile, Map<String, Map<String, String>> configurations) throws IOException, GitAPIException {
+    protected void doSetConfigurations(Git git, File profileDirectory, String profile, Map<String, Map<String, String>> configurations) throws IOException,
+            GitAPIException {
         assertValid();
         Map<String, Map<String, String>> oldCfgs = doGetConfigurations(git, profile);
 
@@ -698,7 +660,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         if (configuration == null) {
             doRecursiveDeleteAndRemove(git, file);
         } else {
-            Files.writeToFile(file, DataStoreHelpers.toBytes(configuration));
+            Files.writeToFile(file, DataStoreUtils.toBytes(configuration));
             doAddFiles(git, file);
         }
     }
@@ -710,7 +672,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
     protected String getPidFromFileName(String relativePath) throws IOException {
         assertValid();
-        return DataStoreHelpers.stripSuffix(relativePath, PROPERTIES_SUFFIX);
+        return DataStoreUtils.stripSuffix(relativePath, PROPERTIES_SUFFIX);
     }
 
     @Override
@@ -723,7 +685,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 File file = getPidFile(profileDirectory, pid);
                 if (file.isFile() && file.exists()) {
                     byte[] data = Files.readBytes(file);
-                    return DataStoreHelpers.toMap(data);
+                    return DataStoreUtils.toMap(data);
                 } else {
                     return new HashMap<String, String>();
                 }
@@ -751,7 +713,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         assertValid();
         byte[] data;
         try {
-            data = DataStoreHelpers.toBytes(DataStoreHelpers.toProperties(configuration));
+            data = DataStoreUtils.toBytes(DataStoreUtils.toProperties(configuration));
         } catch (IOException e) {
             throw FabricException.launderThrowable(e);
         }
@@ -762,8 +724,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     public String getDefaultJvmOptions() {
         assertValid();
         try {
-            if (getCurator().getZookeeperClient().isConnected()
-                    && exists(getCurator(), JVM_OPTIONS_PATH) != null) {
+            if (getCurator().getZookeeperClient().isConnected() && exists(getCurator(), JVM_OPTIONS_PATH) != null) {
                 return getStringData(getTreeCache(), JVM_OPTIONS_PATH);
             } else {
                 return "";
@@ -859,7 +820,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         return gitOperation(null, operation, pullFirst);
     }
 
-
     public <T> T gitOperation(PersonIdent personIdent, GitOperation<T> operation, boolean pullFirst) {
         assertValid();
         return gitOperation(personIdent, operation, pullFirst, new GitContext());
@@ -878,8 +838,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
 
                 if (GitHelpers.hasGitHead(git)) {
                     // lets stash any local changes just in case..
-                    git.stashCreate().setPerson(personIdent)
-                            .setWorkingDirectoryMessage("Stash before a write").call();
+                    git.stashCreate().setPerson(personIdent).setWorkingDirectoryMessage("Stash before a write").call();
                 }
 
                 if (pullFirst) {
@@ -941,11 +900,9 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
-            String url = config.getString("remote", remote, "url");
+            String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
-                LOG.info("No remote repository defined yet for the git repository at " + GitHelpers
-                        .getRootGitDirectory(git)
-                        + " so not doing a push");
+                LOG.info("No remote repository defined yet for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a push");
                 return Collections.EMPTY_LIST;
             }
 
@@ -976,9 +933,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
      * Check if the datastore has been configured with an external git repository.
      */
     private boolean isExternalGitConfigured(Map<String, String> properties) {
-        return properties != null
-                && properties.containsKey(GIT_REMOTE_USER)
-                && properties.containsKey(GIT_REMOTE_PASSWORD);
+        return properties != null && properties.containsKey(GIT_REMOTE_USER) && properties.containsKey(GIT_REMOTE_PASSWORD);
     }
 
     private String getExternalUser(Map<String, String> properties) {
@@ -1000,12 +955,10 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         try {
             Repository repository = git.getRepository();
             StoredConfig config = repository.getConfig();
-            String url = config.getString("remote", remote, "url");
+            String url = config.getString("remote", remoteRef.get(), "url");
             if (Strings.isNullOrBlank(url)) {
                 if (LOG.isDebugEnabled()) {
-                    LOG.debug("No remote repository defined for the git repository at " + GitHelpers
-                            .getRootGitDirectory(git)
-                            + " so not doing a pull");
+                    LOG.debug("No remote repository defined for the git repository at " + GitHelpers.getRootGitDirectory(git) + " so not doing a pull");
                 }
                 return;
             }
@@ -1021,15 +974,12 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             }
             */
             if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                        "Performing a fetch in git repository " + GitHelpers.getRootGitDirectory(git)
-                                + " on remote URL: "
-                                + url);
+                LOG.debug("Performing a fetch in git repository " + GitHelpers.getRootGitDirectory(git) + " on remote URL: " + url);
             }
 
             boolean hasChanged = false;
             try {
-                git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remote).call();
+                git.fetch().setTimeout(10).setCredentialsProvider(credentialsProvider).setRemote(remoteRef.get()).call();
             } catch (Exception e) {
                 LOG.debug("Fetch failed. Ignoring");
                 return;
@@ -1040,14 +990,14 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
             Map<String, Ref> remoteBranches = new HashMap<String, Ref>();
             Set<String> gitVersions = new HashSet<String>();
             for (Ref ref : git.branchList().setListMode(ListBranchCommand.ListMode.ALL).call()) {
-                if (ref.getName().startsWith("refs/remotes/" + remote + "/")) {
-                    String name = ref.getName().substring(("refs/remotes/" + remote + "/").length());
-                        remoteBranches.put(name, ref);
-                        gitVersions.add(name);
+                if (ref.getName().startsWith("refs/remotes/" + remoteRef.get() + "/")) {
+                    String name = ref.getName().substring(("refs/remotes/" + remoteRef.get() + "/").length());
+                    remoteBranches.put(name, ref);
+                    gitVersions.add(name);
                 } else if (ref.getName().startsWith("refs/heads/")) {
                     String name = ref.getName().substring(("refs/heads/").length());
-                        localBranches.put(name, ref);
-                        gitVersions.add(name);
+                    localBranches.put(name, ref);
+                    gitVersions.add(name);
                 }
             }
 
@@ -1073,7 +1023,8 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 // Create new local branches
                 else if (!localBranches.containsKey(version)) {
                     addVersion(version);
-                    git.checkout().setCreateBranch(true).setName(version).setStartPoint(remote +"/" + version).setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).setForce(true).call();
+                    git.checkout().setCreateBranch(true).setName(version).setStartPoint(remoteRef.get() + "/" + version)
+                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK).setForce(true).call();
                     hasChanged = true;
                 } else {
                     String localCommit = localBranches.get(version).getObjectId().getName();
@@ -1099,10 +1050,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
                 fireChangeNotifications();
             }
         } catch (Throwable e) {
-            LOG.error(
-                    "Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git)
-                            + ". Reason: " + e,
-                    e);
+            LOG.error("Failed to pull from the remote git repo " + GitHelpers.getRootGitDirectory(git) + ". Reason: " + e, e);
         }
     }
 
@@ -1122,7 +1070,6 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         context.commit("Added profile " + profile);
         return profile;
     }
-
 
     /**
      * Recursively copies the given files from the given directory to the specified directory
@@ -1158,8 +1105,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     protected void recursiveAddLegacyProfileDirectoryFiles(Git git, File from, File toDir, String path) throws GitAPIException, IOException {
         assertValid();
         if (!from.isDirectory()) {
-            throw new IllegalStateException(
-                    "Should only be invoked on the profiles directory but was given file " + from);
+            throw new IllegalStateException("Should only be invoked on the profiles directory but was given file " + from);
         }
         String name = from.getName();
         String pattern = path + (path.length() > 0 ? "/" : "") + name;
@@ -1240,7 +1186,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     protected void createOrCheckoutVersion(Git git, String version) throws GitAPIException {
         assertValid();
         addVersion(version);
-        GitHelpers.createOrCheckoutBranch(git, version, remote);
+        GitHelpers.createOrCheckoutBranch(git, version, remoteRef.get());
     }
 
     protected void checkoutVersion(Git git, String version) throws GitAPIException {
@@ -1299,7 +1245,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         assertValid();
         Properties props = new Properties();
         props.load(new StringReader(Files.toString(file)));
-        return DataStoreHelpers.toMap(props);
+        return DataStoreUtils.toMap(props);
     }
 
     protected String getFilePattern(File rootDir, File file) throws IOException {
@@ -1323,7 +1269,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
      * @throws GitAPIException
      */
     private boolean hasChanged(Git git, String before, String after) throws IOException, GitAPIException {
-        if(isCommitEqual(before, after)) {
+        if (isCommitEqual(before, after)) {
             return false;
         }
         Repository db = git.getRepository();
@@ -1331,8 +1277,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         return entries.size() > 0;
     }
 
-    private AbstractTreeIterator getTreeIterator(Repository db, String name)
-            throws IOException {
+    private AbstractTreeIterator getTreeIterator(Repository db, String name) throws IOException {
         Git g;
         final ObjectId id = db.resolve(name);
         if (id == null)
@@ -1357,7 +1302,7 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
     }
 
     void addVersion(String version) {
-        if(!MASTER_BRANCH.equals(version)) {
+        if (!MASTER_BRANCH.equals(version)) {
             versions.add(version);
         }
     }
@@ -1374,7 +1319,43 @@ public class GitDataStore extends AbstractDataStore<GitDataStore> {
         this.gitService.unbind(service);
     }
 
-    public String toString() {
-        return getClass().getSimpleName() + "(" + gitService.getOptional() + ")";
+    class GitDataStoreListener implements GitListener {
+
+        @Override
+        public void onRemoteUrlChanged(final String urlParam) {
+            String currentURL = getRemoteURL();
+            final String actualUrl = currentURL != null ? currentURL : urlParam;
+            if (isValid()) {
+                threadPool.submit(new Runnable() {
+                    @Override
+                    public void run() {
+                        assertValid();
+                        gitOperation(new GitOperation<Void>() {
+                            @Override
+                            public Void call(Git git, GitContext context) throws Exception {
+                                Repository repository = git.getRepository();
+                                StoredConfig config = repository.getConfig();
+                                String currentUrl = config.getString("remote", "origin", "url");
+                                if (actualUrl != null && !actualUrl.equals(currentUrl)) {
+                                    config.setString("remote", "origin", "url", actualUrl);
+                                    config.setString("remote", "origin", "fetch", "+refs/heads/*:refs/remotes/origin/*");
+                                    config.save();
+                                    //Make sure that we don't delete branches at this pull.
+                                    doPull(git, getCredentialsProvider(), false);
+                                    doPush(git, context);
+                                }
+                                return null;
+                            }
+                        });
+                    }
+                });
+            }
+        }
+
+        @Override
+        public void onReceivePack() {
+            assertValid();
+            clearCaches();
+        }
     }
 }

@@ -26,9 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import jline.Terminal;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
@@ -38,6 +40,7 @@ import org.jledit.EditorFactory;
 import org.osgi.service.cm.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 /**
@@ -133,7 +136,6 @@ public class ProfileEdit extends FabricCommand {
     }
 
     private void editProfile(Profile profile) throws Exception {
-        String pid = AGENT_PID;
         boolean editInLine = false;
 
         if (delete || remove) {
@@ -192,7 +194,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleFeatures(String[] features, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String feature : features) {
             if (delete) {
                 System.out.println("Deleting feature:" + feature + " from profile:" + profile.getId() + " version:" + profile.getVersion());
@@ -200,7 +202,7 @@ public class ProfileEdit extends FabricCommand {
                 System.out.println("Adding feature:" + feature + " to profile:" + profile.getId() + " version:" + profile.getVersion());
             }
             updateConfig(conf, FEATURE_PREFIX + feature.replace('/', '_'), feature, set, delete);
-            profile.setConfiguration(AGENT_PID, conf);
+            profile.setConfiguration(Constants.AGENT_PID, conf);
         }
     }
 
@@ -210,7 +212,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleFeatureRepositories(String[] repositories, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String repositoryURI : repositories) {
             if (set) {
                 System.out.println("Adding feature repository:" + repositoryURI + " to profile:" + profile.getId() + " version:" + profile.getVersion());
@@ -219,7 +221,7 @@ public class ProfileEdit extends FabricCommand {
             }
             updateConfig(conf, REPOSITORY_PREFIX + repositoryURI.replace('/', '_'), repositoryURI, set, delete);
         }
-        profile.setConfiguration(AGENT_PID, conf);
+        profile.setConfiguration(Constants.AGENT_PID, conf);
     }
 
     /**
@@ -228,7 +230,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleBundles(String[] bundles, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String bundle : bundles) {
             if (set) {
                 System.out.println("Adding bundle:" + bundle + " to profile:" + profile.getId() + " version:" + profile.getVersion());
@@ -237,7 +239,7 @@ public class ProfileEdit extends FabricCommand {
             }
             updateConfig(conf, BUNDLE_PREFIX + bundle.replace('/', '_'), bundle, set, delete);
         }
-        profile.setConfiguration(AGENT_PID, conf);
+        profile.setConfiguration(Constants.AGENT_PID, conf);
     }
 
     /**
@@ -246,7 +248,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile   The target profile.
      */
     private void handleFabs(String[] fabs, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String fab : fabs) {
             if (set) {
                 System.out.println("Adding FAB:" + fab + " to profile:" + profile.getId() + " version:" + profile.getVersion());
@@ -255,7 +257,7 @@ public class ProfileEdit extends FabricCommand {
             }
             updateConfig(conf, FAB_PREFIX + fab.replace('/', '_'), fab, set, delete);
         }
-        profile.setConfiguration(AGENT_PID, conf);
+        profile.setConfiguration(Constants.AGENT_PID, conf);
     }
 
     /**
@@ -264,7 +266,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile       The target profile.
      */
     private void handleOverrides(String[] overrides, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String overrie : overrides) {
             if (set) {
                 System.out.println("Adding override:" + overrie + " to profile:" + profile.getId() + " version:" + profile.getVersion());
@@ -273,7 +275,7 @@ public class ProfileEdit extends FabricCommand {
             }
             updateConfig(conf, OVERRIDE_PREFIX + overrie.replace('/', '_'), overrie, set, delete);
         }
-        profile.setConfiguration(AGENT_PID, conf);
+        profile.setConfiguration(Constants.AGENT_PID, conf);
     }
 
     /**
@@ -347,7 +349,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile               The target profile.
      */
     private void handleSystemProperties(String[] systemProperties, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String systemProperty : systemProperties) {
             Map<String, String> configMap = extractConfigs(systemProperty);
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
@@ -365,7 +367,7 @@ public class ProfileEdit extends FabricCommand {
                 updatedDelimitedList(conf, SYSTEM_PREFIX + key, value, delimiter, set, delete, append, remove);
             }
         }
-        profile.setConfiguration(AGENT_PID, conf);
+        profile.setConfiguration(Constants.AGENT_PID, conf);
     }
 
     /**
@@ -374,7 +376,7 @@ public class ProfileEdit extends FabricCommand {
      * @param profile               The target profile.
      */
     private void handleConfigProperties(String[] configProperties, Profile profile) {
-        Map<String, String> conf = profile.getConfiguration(AGENT_PID);
+        Map<String, String> conf = profile.getConfiguration(Constants.AGENT_PID);
         for (String configProperty : configProperties) {
             Map<String, String> configMap = extractConfigs(configProperty);
             for (Map.Entry<String, String> configEntries : configMap.entrySet()) {
@@ -390,7 +392,7 @@ public class ProfileEdit extends FabricCommand {
                 updatedDelimitedList(conf, CONFIG_PREFIX + key, value, delimiter, set, delete, append, remove);
             }
         }
-        profile.setConfiguration(AGENT_PID, conf);
+        profile.setConfiguration(Constants.AGENT_PID, conf);
     }
 
 

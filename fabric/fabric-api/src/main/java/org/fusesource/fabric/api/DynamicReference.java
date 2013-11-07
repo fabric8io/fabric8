@@ -21,7 +21,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class DynamicReference<T> implements Callable<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractComponent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicReference.class);
 
     private static final long DEFAULT_TIMEOUT = 5000;
     private static final String DEFAULT_NAME = "dynamic reference";
@@ -99,8 +98,9 @@ public final class DynamicReference<T> implements Callable<T> {
      */
     public void unbind(T value) {
         synchronized (revision) {
-            currentRevision().unbind(value);
-            if (currentRevision().getIfPresent() == null) {
+            ValueRevision currev = revision.get();
+            currev.unbind(value);
+            if (currev.getIfPresent() == null) {
                 revision.set(new ValueRevision());
             }
         }
@@ -117,11 +117,13 @@ public final class DynamicReference<T> implements Callable<T> {
         final AtomicReference<T> ref = new AtomicReference<T>();
 
         void bind(T value) {
+            LOG.debug("bind: {}", value);
             ref.set(value);
             latch.countDown();
         }
 
         void unbind(T value) {
+            LOG.debug("unbind: {}", value);
             if (value != null) {
                 ref.compareAndSet(value, null);
             } else {
