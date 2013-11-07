@@ -28,6 +28,11 @@ This maps to a single profile for the N+1 group, which contains broker1 and brok
 
 The **standby.group** (which defaults to the group) is used to ensure that each container is only master of 1 logical broker; to avoid running 3 containers and 1 of them being master of both broker1 and broker2
 
+## Store and forward networks
+
+Store and forward networks are excellent way to connect geographically dispersed brokers. You can have a broker group for the US east region and another group for US west region. Then clients can connect to their local broker, but we still can pass messages between
+ regions through store and forward network. We can easily network brokers from different groups, by defining the **networks** property in the profile.
+
 ## Implementation details
 
 Each logical Master/Slave broker, Replicated broker set, or N + 1 group of brokers maps to a Profile in Fabric. Each will have a single broker inside the profile configuration - apart from (C) N+1 Broker which will have N broker configurations.
@@ -90,7 +95,24 @@ So you're console should look like this (notice the scale column shows how many 
 * if you run Fabric on a cloud with an Auto-Scaler (like OpenShift) then it will automatically spin up all the brokers for you (neat eh! :)
 
 
+### Store and forward networks
 
+To demonstrate networks, we will create a master/slave in two groups **us-east** and ** us-west** and connect them
+
+![mq network](images/mq-network.png)
+
+    mq-create --group us-east --networks us-west --networks-username admin --networks-password admin --create-container us-east us-east
+    mq-create --group us-west --networks us-east --networks-username admin --networks-password admin --create-container us-west us-west
+
+Now we can connect producer to **us-east** cluster
+
+    container-create-child --profile mq-client-us-east --profile example-mq-producer root producer
+
+and consumer to **us-west** cluster
+
+    container-create-child --profile mq-client-us-west --profile example-mq-consumer root consumer
+
+and they observe messages being passed through the route.
 
 
 ### Command Line
