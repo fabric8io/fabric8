@@ -97,7 +97,7 @@ So you're console should look like this (notice the scale column shows how many 
 
 ### Store and forward networks
 
-To demonstrate networks, we will create a master/slave in two groups **us-east** and ** us-west** and connect them
+To demonstrate networks, we will create a master/slave in two groups **us-east** and **us-west** and connect them
 
 ![mq network](images/mq-network.png)
 
