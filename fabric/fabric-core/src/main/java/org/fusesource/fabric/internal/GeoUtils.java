@@ -40,6 +40,8 @@ public class GeoUtils {
             String urlStr =  "http://freegeoip.net/json/";
             URL url = new URL(urlStr);
             URLConnection urlConnection = url.openConnection();
+            urlConnection.setConnectTimeout(50000);
+            urlConnection.setReadTimeout(5000);
             BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()));
             String inputLine;
             String temp = "";
