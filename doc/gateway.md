@@ -1,6 +1,13 @@
 ## Fuse Gateway
 
-The Fuse Gateway provides a HTTP/HTTPS/TCP gateway for discovery and load balancing of services running within a Fuse Fabric. This allows simple HTTP URLs to be used to access any web application or web service running withing a Fabric; or in the case of A-MQ; any messaging client for ActiveMQ, STOMP, MQTT, AMQP or WebSockets to connect to the relevant protocol port on localhost; and the gateway will use the Fuse Fabric registry to discover the brokers and deal with connection management and proxy requests to where the services are actually running.
+The Fuse Gateway provides a TCP and HTTP/HTTPS gateway for discovery, load balancing and failover of services running within a Fuse Fabric. This allows simple HTTP URLs to be used to access any web application or web service running withing a Fabric; or for messaging clients with A-MQ using any protocol (OpenWire, STOMP, MQTT, AMQP or WebSockets) they can discover and connect tothe right broker letting the gateway deal connection management and proxy requests to where the services are actually running.
+
+### Deployment options
+
+There are 2 main deployment strategies
+
+* run the gateway on each machine which needs to discover services; then communicate with it via localhost. You then don't need to hard code any host names in your messaging or web clients and you get nice fast networking on localhost.
+* run the gateway on one or more known hosts using DNS or VIP load balancing of host names to machines; then you can use a fixed host name for all your services
 
 ### Running the Gateway
 
