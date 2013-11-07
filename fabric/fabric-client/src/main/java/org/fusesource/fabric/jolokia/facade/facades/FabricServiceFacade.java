@@ -42,7 +42,7 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
-    public void unTrackConfiguration(Runnable runnable) {
+    public void untrackConfiguration(Runnable callback) {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
 
@@ -363,4 +363,5 @@ public class FabricServiceFacade implements FabricService {
     public ContainerProvider getProvider(String scheme) {
         throw new UnsupportedOperationException("The method is not yet implemented.");
     }
+
 }
