@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.FabricRequirements;
@@ -27,7 +28,6 @@ import java.io.IOException;
 import java.util.*;
 
 public class ProfileImpl implements Profile {
-    public static final String AGENT_PID = "org.fusesource.fabric.agent";
 
     private final String id;
     private final String version;
@@ -151,10 +151,10 @@ public class ProfileImpl implements Profile {
     public static void setContainerConfigList(Profile p, List<String> values, ConfigListType type) {
         Map<String,Map<String, String>> config = p.getConfigurations();
         String prefix = type + ".";
-        Map<String, String> map = config.get(AGENT_PID);
+        Map<String, String> map = config.get(Constants.AGENT_PID);
         if (map == null) {
             map = new HashMap<String, String>();
-            config.put(AGENT_PID, map);
+            config.put(Constants.AGENT_PID, map);
         } else {
             List<String> keys = new ArrayList<String>(map.keySet());
             for (String key : keys) {
@@ -271,7 +271,7 @@ public class ProfileImpl implements Profile {
 
     @Override
     public Map<String, String> getContainerConfiguration() {
-        Map<String, String> map = getConfigurations().get(AGENT_PID);
+        Map<String, String> map = getConfigurations().get(Constants.AGENT_PID);
         if (map == null) {
             map = new HashMap<String, String>();
         }

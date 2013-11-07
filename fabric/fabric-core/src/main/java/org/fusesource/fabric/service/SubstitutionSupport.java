@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.fusesource.fabric.internal.DataStoreHelpers.substituteBundleProperty;
+import static org.fusesource.fabric.utils.DataStoreUtils.substituteBundleProperty;
 
 public abstract class SubstitutionSupport {
 
