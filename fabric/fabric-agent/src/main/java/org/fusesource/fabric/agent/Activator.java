@@ -16,17 +16,15 @@
  */
 package org.fusesource.fabric.agent;
 
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.FabricService;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.framework.Constants;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.cm.ManagedService;
-import org.osgi.service.packageadmin.PackageAdmin;
-import org.osgi.service.startlevel.StartLevel;
 import org.osgi.util.tracker.ServiceTracker;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +33,10 @@ import java.util.Hashtable;
 
 public class Activator implements BundleActivator {
 
-    public static final String AGENT_PID = "org.fusesource.fabric.agent";
     private static final String OBR_RESOLVE_OPTIONAL_IMPORTS = "obr.resolve.optional.imports";
     private static final String RESOLVE_OPTIONAL_IMPORTS = "resolve.optional.imports";
     private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(Activator.class);
-    
+
     private DeploymentAgent agent;
     private ServiceTracker<FabricService, FabricService> fabricService;
     private ServiceRegistration registration;
@@ -52,7 +49,7 @@ public class Activator implements BundleActivator {
         agent.setFabricService(getFabricService(context));
         agent.start();
         Hashtable<String, String> props = new Hashtable<String, String>();
-        props.put(Constants.SERVICE_PID, AGENT_PID);
+        props.put(org.osgi.framework.Constants.SERVICE_PID, Constants.AGENT_PID);
         registration = context.registerService(ManagedService.class.getName(), agent, props);
     }
 
@@ -74,19 +71,19 @@ public class Activator implements BundleActivator {
         }
         return false;
     }
-    
+
     private Dictionary<String, Object> getConfig(BundleContext bundleContext) {
         try {
             ServiceReference configAdminServiceReference = bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
             if (configAdminServiceReference != null) {
                 ConfigurationAdmin configAdmin = (ConfigurationAdmin) bundleContext.getService(configAdminServiceReference);
                 if (configAdmin != null) {
-                    Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + AGENT_PID + ")");
+                    Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + Constants.AGENT_PID + ")");
                     return (configuration != null && configuration.length > 0) ? configuration[0].getProperties() : null;
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Unable to retrieve agent configuration", e);            
+            LOGGER.warn("Unable to retrieve agent configuration", e);
         }
         return null;
     }

@@ -62,7 +62,7 @@ public final class FabricFeaturesServiceImpl extends AbstractComponent implement
     @Deactivate
     void deactivate() {
         deactivateComponent();
-        fabricService.get().unTrackConfiguration(this);
+        fabricService.get().untrackConfiguration(this);
     }
 
     @Override

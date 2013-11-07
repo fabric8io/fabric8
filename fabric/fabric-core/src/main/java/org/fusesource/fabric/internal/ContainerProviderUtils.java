@@ -17,6 +17,7 @@
 
 package org.fusesource.fabric.internal;
 
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.CreateRemoteContainerOptions;
@@ -24,7 +25,6 @@ import org.fusesource.fabric.utils.Base64Encoder;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.ObjectUtils;
 import org.fusesource.fabric.utils.Ports;
-import org.fusesource.fabric.utils.SystemProperties;
 import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.io.BufferedReader;
@@ -38,10 +38,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PID;
-import static org.fusesource.fabric.api.DataStore.DATASTORE_TYPE_PROPERTY;
-import static org.fusesource.fabric.api.DataStore.DEFAULT_DATASTORE_TYPE;
 
 public final class ContainerProviderUtils {
     public static final String FAILURE_PREFIX = "Command Failed:";
@@ -150,7 +146,7 @@ public final class ContainerProviderUtils {
         for (Map.Entry<String, String> entry : options.getDataStoreProperties().entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            replacePropertyValue(sb, "etc/" + DATASTORE_TYPE_PID + ".cfg", key, value);
+            replacePropertyValue(sb, "etc/" + Constants.DATASTORE_TYPE_PID + ".cfg", key, value);
         }
         //Apply port range
 		sb.append("SSH_PORT=").append("`find_free_port ").append(Ports.mapPortToRange(DEFAULT_SSH_PORT, options.getMinimumPort(), options.getMaximumPort())).append(" ").append(options.getMaximumPort()).append("`\n");

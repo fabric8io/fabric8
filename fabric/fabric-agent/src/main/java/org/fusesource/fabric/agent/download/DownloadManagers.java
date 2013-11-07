@@ -22,6 +22,7 @@ import org.fusesource.fabric.agent.mvn.MavenConfigurationImpl;
 import org.fusesource.fabric.agent.mvn.MavenSettingsImpl;
 import org.fusesource.fabric.agent.mvn.PropertiesPropertyResolver;
 import org.fusesource.fabric.agent.utils.AgentUtils;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
 
@@ -63,7 +64,7 @@ public class DownloadManagers {
     public static DownloadManager createDownloadManager(FabricService fabricService, Profile profile,
                                                         ExecutorService downloadExecutor) throws
             MalformedURLException {
-        Map<String, String> configuration = profile.getConfiguration("org.fusesource.fabric.agent");
+        Map<String, String> configuration = profile.getConfiguration(Constants.AGENT_PID);
         if (configuration == null) {
             configuration = new HashMap<String, String>();
         }
