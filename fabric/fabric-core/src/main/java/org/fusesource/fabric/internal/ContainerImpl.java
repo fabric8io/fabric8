@@ -246,7 +246,7 @@ public class ContainerImpl implements Container {
 
 
     public Profile getOverlayProfile() {
-        return new ProfileOverlayImpl(new ContainerProfile(), true, service.getDataStore());
+        return new ProfileOverlayImpl(new ContainerProfile(), true, service.getDataStore(), service.getEnvironment());
     }
 
     private class ContainerProfile extends ProfileImpl {

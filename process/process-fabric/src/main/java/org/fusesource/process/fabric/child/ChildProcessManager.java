@@ -114,7 +114,8 @@ public class ChildProcessManager {
 
     protected Profile getProcessProfile(ProcessRequirements requirements, boolean includeController) {
         Container container = fabricService.getCurrentContainer();
-        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService, includeController), true, fabricService.getDataStore());
+        Profile processProfile = new ProfileOverlayImpl(new ProcessProfile(container, requirements, fabricService, includeController), true,
+                                fabricService.getDataStore(), fabricService.getEnvironment());
         return processProfile;
     }
 

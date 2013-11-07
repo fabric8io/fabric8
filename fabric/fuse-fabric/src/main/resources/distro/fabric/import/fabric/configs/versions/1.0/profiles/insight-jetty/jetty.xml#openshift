@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE Configure PUBLIC "-//Mort Bay Consulting//
+DTD Configure//EN" "http://jetty.mortbay.org/configure.dtd">
+
+<Configure class="org.eclipse.jetty.server.Server">
+
+    <!-- Add this bean first so that it is not managed and won't appear in JMX
+         because it is not unregistered -->
+    <Call name="addBean">
+        <Arg>
+            <New class="org.eclipse.jetty.plus.jaas.JAASLoginService">
+                <Set name="name">karaf</Set>
+                <Set name="loginModuleName">karaf</Set>
+                <Set name="roleClassNames">
+                    <Array type="java.lang.String">
+                        <Item>org.apache.karaf.jaas.boot.principal.RolePrincipal</Item>
+                    </Array>
+                </Set>
+            </New>
+        </Arg>
+    </Call>
+
+    <Call id="MBeanServer" class="java.lang.management.ManagementFactory" name="getPlatformMBeanServer" />
+
+    <Call id="Container" name="getContainer">
+        <Call name="addEventListener">
+            <Arg>
+                <New class="org.fusesource.insight.jetty.MBeanContainerWrapper">
+                    <Arg><Ref id="MBeanServer"/></Arg>
+                    <Call name="start" />
+                </New>
+            </Arg>
+        </Call>
+    </Call>
+
+    <!-- =========================================================== -->
+    <!-- Set connectors                                              -->
+    <!-- =========================================================== -->
+    <!-- One of each type!                                           -->
+    <!-- =========================================================== -->
+
+    <!-- Use this connector for many frequently idle connections
+         and for threadless continuations.
+    -->
+    <Call name="addConnector">
+        <Arg>
+            <New class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+                <Set name="host">
+                    <SystemProperty name="org.ops4j.pax.web.listening.addresses"/>
+                </Set>
+                <Set name="port">
+                    <SystemProperty name="org.osgi.service.http.port"/>
+                </Set>
+                <Set name="maxIdleTime">300000</Set>
+                <Set name="Acceptors">2</Set>
+                <Set name="statsOn">true</Set>
+                <Set name="confidentialPort">8443</Set>
+                <Set name="lowResourcesConnections">20000</Set>
+                <Set name="lowResourcesMaxIdleTime">5000</Set>
+            </New>
+        </Arg>
+    </Call>
+
+    <Call name="getHandler">
+        <Set name="handlers">
+            <Array type="org.eclipse.jetty.server.Handler">
+                <Item>
+                    <New class="org.eclipse.jetty.server.handler.StatisticsHandler">
+                        <Set name="handler">
+                            <New class="org.eclipse.jetty.server.handler.HandlerCollection">
+                                <Set name="handlers">
+                                    <Array type="org.eclipse.jetty.server.Handler">
+                                        <Item>
+                                            <New class="org.eclipse.jetty.server.handler.ContextHandlerCollection" />
+                                        </Item>
+                                        <Item>
+                                            <New class="org.eclipse.jetty.server.handler.DefaultHandler" />
+                                        </Item>
+                                        <Item>
+                                            <New class="org.eclipse.jetty.server.handler.RequestLogHandler">
+                                                <Set name="requestLog">
+                                                    <New class="org.fusesource.insight.jetty.InsightRequestLog" />
+                                                </Set>
+                                            </New>
+                                        </Item>
+                                    </Array>
+                                </Set>
+                            </New>
+                        </Set>
+                    </New>
+                </Item>
+            </Array>
+        </Set>
+    </Call>
+
+</Configure>

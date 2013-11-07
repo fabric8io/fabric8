@@ -160,6 +160,12 @@ public final class FabricServiceImpl extends AbstractComponent implements Fabric
     }
 
     @Override
+    public String getEnvironment() {
+        assertValid();
+        return System.getProperty(SystemProperties.FABRIC_ENVIRONMENT);
+    }
+
+    @Override
     public String getCurrentContainerName() {
         assertValid();
         // TODO is there any other way to find this?

@@ -272,6 +272,11 @@ public class FabricServiceFacade implements FabricService {
     }
 
     @Override
+    public String getEnvironment() {
+        return Helpers.read(getJolokiaClient(), "Environment");
+    }
+
+    @Override
     public FabricRequirements getRequirements() {
         JSONObject obj = Helpers.exec(getJolokiaClient(), "requirements()");
         FabricRequirements requirements = null;

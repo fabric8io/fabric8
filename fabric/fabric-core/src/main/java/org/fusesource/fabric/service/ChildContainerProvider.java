@@ -136,7 +136,8 @@ public final class ChildContainerProvider extends AbstractComponent implements C
             jvmOptsBuilder.append(" -D" + DataStore.DATASTORE_TYPE_PID +"." + key + "=" + value);
         }
 
-        Profile defaultProfile = new ProfileOverlayImpl(parent.getVersion().getProfile("default"), true, fabricService.get().getDataStore());
+        Profile defaultProfile = new ProfileOverlayImpl(parent.getVersion().getProfile("default"), true,
+                                        fabricService.get().getDataStore(), fabricService.get().getEnvironment());
         String featuresUrls = collectionAsString(defaultProfile.getRepositories());
         Set<String> features = new LinkedHashSet<String>();
 

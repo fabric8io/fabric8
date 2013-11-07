@@ -1,4 +1,4 @@
-#
+    #
 # Copyright (C) Red Hat, Inc.
 # http://redhat.com
 #
@@ -14,7 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-attribute.parents=insight-core
 
+# Lets not use the a-mq base as this includes the A-MQ web console too
+#attribute.parents=mq-amq
 
+attribute.parents=mq-base
+
+repository.activemq=mvn:org.apache.activemq/activemq-karaf/${version:activemq}/xml/features
 

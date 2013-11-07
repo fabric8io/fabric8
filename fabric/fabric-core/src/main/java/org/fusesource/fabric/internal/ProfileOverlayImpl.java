@@ -38,19 +38,21 @@ public class ProfileOverlayImpl implements Profile {
     private final Profile self;
     private final boolean substitute;
     private final DataStore dataStore;
+    private final String environment;
 
-    public ProfileOverlayImpl(Profile self) {
-        this(self, false, null);
+    public ProfileOverlayImpl(Profile self, String environment) {
+        this(self, false, null, environment);
     }
 
-    public ProfileOverlayImpl(Profile self, boolean substitute) {
-        this(self, substitute, null);
+    public ProfileOverlayImpl(Profile self, boolean substitute, String environment) {
+        this(self, substitute, null, environment);
     }
 
-    public ProfileOverlayImpl(Profile self, boolean substitute, DataStore dataStore) {
+    public ProfileOverlayImpl(Profile self, boolean substitute, DataStore dataStore, String environment) {
         this.self = self;
         this.substitute = substitute;
         this.dataStore = dataStore;
+        this.environment = environment;
     }
 
     @Override
@@ -173,7 +175,7 @@ public class ProfileOverlayImpl implements Profile {
      */
     @Override
     public boolean agentConfigurationEquals(Profile other) {
-        ProfileOverlayImpl otherOverlay = new ProfileOverlayImpl(other);
+        ProfileOverlayImpl otherOverlay = new ProfileOverlayImpl(other, environment);
         if (!getConfigurations().containsKey(AGENT_PID) && !otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
             return true;
         } else if (getConfigurations().containsKey(AGENT_PID) != otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
@@ -206,7 +208,7 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public Profile getOverlay(boolean substitute) {
-        return new ProfileOverlayImpl(this.self, substitute);
+        return new ProfileOverlayImpl(this.self, substitute, environment);
     }
 
     @Override
@@ -248,16 +250,24 @@ public class ProfileOverlayImpl implements Profile {
         }
 
         Map<String, byte[]> configs = profile.getFileConfigurations();
-        for (Map.Entry<String, byte[]> entry : configs.entrySet()) {
+        for (String key : configs.keySet()) {
+            // Ignore environment specific configs
+            if (key.contains("#")) {
+                continue;
+            }
+            byte[] value = configs.get(key);
+            if (environment != null && configs.containsKey(key + "#" + environment)) {
+                value = configs.get(key + "#" + environment);
+            }
             // we can use fine grained inheritance based updating if it's
             // a properties file.
-            String fileName = entry.getKey();
+            String fileName = key;
             if (fileName.endsWith(".properties")) {
                 SupplementControl ctrl = aggregate.get(fileName);
                 if (ctrl != null) {
                     // we can update the file..
 
-                    Properties childMap = DataStoreUtils.toProperties(entry.getValue());
+                    Properties childMap = DataStoreUtils.toProperties(value);
                     if (childMap.remove(DELETED) != null) {
                         ctrl.props.clear();
                     }
@@ -274,13 +284,13 @@ public class ProfileOverlayImpl implements Profile {
                 } else {
                     // new file..
                     ctrl = new SupplementControl();
-                    ctrl.props = DataStoreUtils.toProperties(entry.getValue());
+                    ctrl.props = DataStoreUtils.toProperties(value);
                     aggregate.put(fileName, ctrl);
                 }
             } else {
                 // not a properties file? we can only overwrite.
                 SupplementControl ctrl = new SupplementControl();
-                ctrl.data = entry.getValue();
+                ctrl.data = value;
                 aggregate.put(fileName, ctrl);
             }
         }

@@ -237,11 +237,11 @@ public class ProfileImpl implements Profile {
     }
 
     public Profile getOverlay() {
-        return new ProfileOverlayImpl(this);
+        return new ProfileOverlayImpl(this, getService().getEnvironment());
     }
 
     public Profile getOverlay(boolean substitute) {
-        return new ProfileOverlayImpl(this, substitute, getService().getDataStore());
+        return new ProfileOverlayImpl(this, substitute, getService().getDataStore(), getService().getEnvironment());
     }
 
     @Override
@@ -351,7 +351,7 @@ public class ProfileImpl implements Profile {
      * @return
      */
     public boolean agentConfigurationEquals(Profile other) {
-        ProfileOverlayImpl selfOverlay = new ProfileOverlayImpl(this);
+        ProfileOverlayImpl selfOverlay = new ProfileOverlayImpl(this, getService().getEnvironment());
         return selfOverlay.agentConfigurationEquals(other);
     }
 
