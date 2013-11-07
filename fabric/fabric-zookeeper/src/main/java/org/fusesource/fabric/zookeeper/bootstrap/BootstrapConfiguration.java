@@ -1,4 +1,4 @@
-package org.fusesource.fabric.bootstrap;
+package org.fusesource.fabric.zookeeper.bootstrap;
 /**
  * Copyright (C) FuseSource, Inc.
  * http://fusesource.com
@@ -32,13 +32,12 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
-import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.internal.DataStoreBootstrapTemplate;
 import org.fusesource.fabric.utils.HostUtils;
 import org.fusesource.fabric.utils.Ports;
 import org.fusesource.fabric.zookeeper.ZkDefs;
@@ -48,11 +47,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.config.builder", immediate = true)
+@Component(name = BootstrapConfiguration.COMPONENT_NAME, immediate = true)
 @Service(BootstrapConfiguration.class)
 public class BootstrapConfiguration extends AbstractComponent {
 
-    final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    static final Logger LOGGER = LoggerFactory.getLogger(BootstrapConfiguration.class);
+
+    public static final String COMPONENT_NAME = "org.fusesource.fabric.zookeeper.configuration";
 
     @Reference(referenceInterface = ConfigurationAdmin.class)
     private final ValidatingReference<ConfigurationAdmin> configAdmin = new ValidatingReference<ConfigurationAdmin>();
@@ -109,7 +110,7 @@ public class BootstrapConfiguration extends AbstractComponent {
     }
 
     public void createOrUpdateDataStoreConfig(CreateEnsembleOptions options) throws IOException {
-        Configuration config = configAdmin.get().getConfiguration(DataStore.DATASTORE_TYPE_PID, null);
+        Configuration config = configAdmin.get().getConfiguration(Constants.DATASTORE_TYPE_PID, null);
         Dictionary<String, Object> properties = config.getProperties();
         if (properties == null || properties.isEmpty()) {
             boolean updateConfig = false;
@@ -144,7 +145,7 @@ public class BootstrapConfiguration extends AbstractComponent {
         properties.put("clientPort", Integer.toString(serverPort));
         properties.put("clientPortAddress", serverHost);
         properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper.server-0000");
-        Configuration config = configAdmin.get().createFactoryConfiguration("org.fusesource.fabric.zookeeper.server", null);
+        Configuration config = configAdmin.get().createFactoryConfiguration(Constants.ZOOKEEPER_SERVER_PID, null);
         config.update(properties);
     }
 
@@ -158,9 +159,9 @@ public class BootstrapConfiguration extends AbstractComponent {
         }
         properties.put("zookeeper.url", connectionUrl);
         properties.put("zookeeper.timeout", System.getProperties().containsKey("zookeeper.timeout") ? System.getProperties().getProperty("zookeeper.timeout") : "30000");
-        properties.put("fabric.zookeeper.pid", "org.fusesource.fabric.zookeeper");
+        properties.put("fabric.zookeeper.pid", Constants.ZOOKEEPER_CLIENT_PID);
         properties.put("zookeeper.password", options.getZookeeperPassword());
-        Configuration config = configAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper", null);
+        Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
         config.update(properties);
     }
 
