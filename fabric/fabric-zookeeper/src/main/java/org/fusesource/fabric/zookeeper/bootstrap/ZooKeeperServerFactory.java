@@ -38,6 +38,7 @@ import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -47,7 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.server.factory", configurationPid="org.fusesource.fabric.zookeeper.server", immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.server.factory", configurationPid = Constants.ZOOKEEPER_SERVER_PID, immediate = true)
 @Service(ZooKeeperServerFactory.class)
 public class ZooKeeperServerFactory extends AbstractComponent {
 

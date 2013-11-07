@@ -21,7 +21,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +32,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class DynamicReference<T> implements Callable<T> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractComponent.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DynamicReference.class);
 
     private static final long DEFAULT_TIMEOUT = 5000;
     private static final String DEFAULT_NAME = "dynamic reference";

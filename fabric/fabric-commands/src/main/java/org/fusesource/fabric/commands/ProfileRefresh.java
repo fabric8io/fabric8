@@ -19,6 +19,7 @@ package org.fusesource.fabric.commands;
 
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
@@ -26,6 +27,7 @@ import org.fusesource.fabric.zookeeper.ZkDefs;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 @Command(name = "profile-refresh", scope = "fabric", description = "Performs a change to the profile, that triggers the deployment agent. It's intended to be used for scanning for snapshot changes", detailedDescription = "classpath:profileRefresh.txt")
@@ -47,7 +49,7 @@ public class ProfileRefresh extends FabricCommand {
 			throw new IllegalArgumentException("No profile found with name:" + profileName + " and version:" + version.getId());
 		}
 		Map<String, Map<String, String>> configuration = profile.getConfigurations();
-		Map<String, String> agentConfiguration = configuration.get("org.fusesource.fabric.agent");
+		Map<String, String> agentConfiguration = configuration.get(Constants.AGENT_PID);
 		if (agentConfiguration == null) {
 			agentConfiguration = new HashMap<String, String>();
 		}

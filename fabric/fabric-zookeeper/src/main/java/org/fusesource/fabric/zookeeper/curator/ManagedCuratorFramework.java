@@ -54,6 +54,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -68,7 +69,7 @@ import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.curator", configurationPid = Constants.ZOOKEEPER_CLIENT_PID, description = "Fabric ZooKeeper Client Factory", immediate = true)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
