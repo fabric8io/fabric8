@@ -88,12 +88,12 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
 
     @Deactivate
     void deactivate() {
-        unregisterMBeanServer();
         deactivateComponent();
+        unregisterMBeanServer();
     }
 
     @Override
-    public synchronized void handleNotification(Notification notif, Object o) {
+    public void handleNotification(Notification notif, Object o) {
         if (isValid()) {
             LOGGER.trace("handleNotification[{}]", notif);
             if (notif instanceof MBeanServerNotification) {
@@ -181,7 +181,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     }
 
 
-    private synchronized void registerMBeanServer() {
+    private void registerMBeanServer() {
         try {
             mbeanServer.get().addNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this, null, KARAF_NAME);
             registerDomains();
@@ -191,7 +191,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         }
     }
 
-    private synchronized void unregisterMBeanServer() {
+    private void unregisterMBeanServer() {
         try {
             mbeanServer.get().removeNotificationListener(new ObjectName("JMImplementation:type=MBeanServerDelegate"), this);
             unregisterFabricMBeans();
@@ -210,7 +210,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         }
     }
 
-    private synchronized void registerFabricMBeans() {
+    private void registerFabricMBeans() {
         this.healthCheck = new HealthCheck(fabricService.get());
         this.managerMBean = new FabricManager((FabricServiceImpl) fabricService.get());
         this.zooKeeperMBean = new ZooKeeperFacade((FabricServiceImpl) fabricService.get());
@@ -221,7 +221,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
         zooKeeperMBean.registerMBeanServer(mbeanServer.get());
     }
 
-    private synchronized void unregisterFabricMBeans() {
+    private void unregisterFabricMBeans() {
         zooKeeperMBean.unregisterMBeanServer(mbeanServer.get());
         fileSystemMBean.unregisterMBeanServer(mbeanServer.get());
         managerMBean.unregisterMBeanServer(mbeanServer.get());

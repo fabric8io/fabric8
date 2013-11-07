@@ -346,7 +346,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         }
     }
 
-    private synchronized void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
+    private void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.add(connectionStateListener);
         if (curatorFramework != null) {
             curatorFramework.getConnectionStateListenable().addListener(connectionStateListener);
@@ -357,7 +357,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         }
     }
 
-    private synchronized void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
+    private void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
         if (curatorFramework != null) {
             curatorFramework.getConnectionStateListenable().removeListener(connectionStateListener);
