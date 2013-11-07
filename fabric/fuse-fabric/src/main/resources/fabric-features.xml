@@ -590,4 +590,24 @@
         <feature version="${project.version}">gateway-core</feature>
         <bundle>mvn:org.fusesource.fabric/gateway-fabric/${project.version}</bundle>
     </feature>
+
+    <feature name="swagger" version="${project.version}" resolver="(obr)">
+        <feature version="[2.4,3.0)">cxf-specs</feature>
+        <bundle dependency='true'>mvn:org.scala-lang/scala-library/${scala-library-version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jackson-module-scala/${jackson-module-scala-version}</bundle>
+
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-core/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-base/${jackson-2-version}</bundle>
+        <bundle>mvn:com.fasterxml.jackson.jaxrs/jackson-jaxrs-json-provider/${jackson-2-version}</bundle>
+
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-annotations/${swagger-version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-core/${swagger-version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.swagger-jaxrs/${swagger-version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.reflections/${reflections-version}</bundle>
+        <bundle>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.json4s/${json4s-version}</bundle>
+
+    </feature>
+
 </features>

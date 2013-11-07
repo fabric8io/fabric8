@@ -24,11 +24,17 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.wordnik.swagger.annotations.Api;
+import com.wordnik.swagger.annotations.ApiOperation;
+import com.wordnik.swagger.annotations.ApiParam;
+import com.wordnik.swagger.annotations.ApiResponses;
+import com.wordnik.swagger.annotations.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This Java class with be hosted in the URI path defined by the @Path annotation. @Path annotations on the methods
@@ -39,6 +45,8 @@ import org.slf4j.LoggerFactory;
  * one of the methods would result in 'http://localhost:8181/cxf/crm/customerservice/customers'.
  */
 @Path("/customerservice/")
+@Api(value = "/customerservice", description = "Operations about customerservice")
+
 public class CustomerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomerService.class);
@@ -63,7 +71,12 @@ public class CustomerService {
     @GET
     @Path("/customers/{id}/")
     @Produces("application/xml")
-    public Customer getCustomer(@PathParam("id") String id) {
+    @ApiOperation(value = "Find Customer by ID", notes = "More notes about this method", response = Customer.class)
+    @ApiResponses(value = {
+      @ApiResponse(code = 500, message = "Invalid ID supplied"),
+      @ApiResponse(code = 204, message = "Customer not found") 
+    })
+    public Customer getCustomer(@ApiParam(value = "ID of Customer to fetch", required = true) @PathParam("id") String id) {
         LOG.info("Invoking getCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
@@ -83,7 +96,13 @@ public class CustomerService {
      */
     @PUT
     @Path("/customers/")
-    public Response updateCustomer(Customer customer) {
+    @ApiOperation(value = "Update an existing Customer")
+    @ApiResponses(value = {
+                           @ApiResponse(code = 500, message = "Invalid ID supplied"),
+                           @ApiResponse(code = 204, message = "Customer not found") 
+                         })
+
+    public Response updateCustomer(@ApiParam(value = "Customer object that needs to be updated", required = true) Customer customer) {
         LOG.info("Invoking updateCustomer, Customer name is: {}", customer.getName());
         Customer c = customers.get(customer.getId());
         Response r;
@@ -112,7 +131,10 @@ public class CustomerService {
      */
     @POST
     @Path("/customers/")
-    public Response addCustomer(Customer customer) {
+    @ApiOperation(value = "Add a new Customer")
+    @ApiResponses(value = { @ApiResponse(code = 500, message = "Invalid ID supplied"), })
+    public Response addCustomer(@ApiParam(value = "Customer object that needs to be updated", required = true)
+                                Customer customer) {
         LOG.info("Invoking addCustomer, Customer name is: {}", customer.getName());
         customer.setId(++currentId);
 
@@ -130,7 +152,12 @@ public class CustomerService {
      */
     @DELETE
     @Path("/customers/{id}/")
-    public Response deleteCustomer(@PathParam("id") String id) {
+    @ApiOperation(value = "Delete Customer")
+    @ApiResponses(value = {
+                           @ApiResponse(code = 500, message = "Invalid ID supplied"),
+                           @ApiResponse(code = 204, message = "Customer not found") 
+                         })
+    public Response deleteCustomer(@ApiParam(value = "ID of Customer to delete", required = true) @PathParam("id") String id) {
         LOG.info("Invoking deleteCustomer, Customer id is: {}", id);
         long idNumber = Long.parseLong(id);
         Customer c = customers.get(idNumber);
