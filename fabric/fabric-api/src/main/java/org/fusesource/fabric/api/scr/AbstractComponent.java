@@ -38,11 +38,11 @@ public abstract class AbstractComponent implements Validatable {
 
     public void activateComponent() {
         active.setValid();
-        LOG.info("activateComponent: " + this);
+        LOG.debug("activateComponent: " + this);
     }
 
     public void deactivateComponent() {
-        LOG.info("deactivateComponent: " + this);
+        LOG.debug("deactivateComponent: " + this);
         active.setInvalid();
     }
 

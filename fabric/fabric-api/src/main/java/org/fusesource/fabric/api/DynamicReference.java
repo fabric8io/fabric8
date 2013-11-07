@@ -99,9 +99,8 @@ public final class DynamicReference<T> implements Callable<T> {
      */
     public void unbind(T value) {
         synchronized (revision) {
-            ValueRevision currev = revision.get();
-            currev.unbind(value);
-            if (currev.getIfPresent() == null) {
+            currentRevision().unbind(value);
+            if (currentRevision().getIfPresent() == null) {
                 revision.set(new ValueRevision());
             }
         }
@@ -118,13 +117,11 @@ public final class DynamicReference<T> implements Callable<T> {
         final AtomicReference<T> ref = new AtomicReference<T>();
 
         void bind(T value) {
-            LOG.debug("bind: {}", value);
             ref.set(value);
             latch.countDown();
         }
 
         void unbind(T value) {
-            LOG.debug("unbind: {}", value);
             if (value != null) {
                 ref.compareAndSet(value, null);
             } else {

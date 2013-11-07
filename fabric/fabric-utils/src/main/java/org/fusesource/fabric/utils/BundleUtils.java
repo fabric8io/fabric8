@@ -44,7 +44,7 @@ public class BundleUtils {
 
     public Bundle findAndStopBundle(String bsn) throws BundleException {
         Bundle bundle = findBundle(bsn);
-        if (bundle != null) {
+        if (bundle != null && bundle.getState() == Bundle.ACTIVE) {
             bundle.stop();
         }
         return bundle;

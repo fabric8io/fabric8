@@ -21,7 +21,6 @@ import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Profiles;
-import org.fusesource.fabric.utils.DataStoreUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -267,7 +266,7 @@ public class ProfileOverlayImpl implements Profile {
                 if (ctrl != null) {
                     // we can update the file..
 
-                    Properties childMap = DataStoreUtils.toProperties(value);
+                    Properties childMap = DataStoreHelpers.toProperties(value);
                     if (childMap.remove(DELETED) != null) {
                         ctrl.props.clear();
                     }
@@ -284,7 +283,7 @@ public class ProfileOverlayImpl implements Profile {
                 } else {
                     // new file..
                     ctrl = new SupplementControl();
-                    ctrl.props = DataStoreUtils.toProperties(value);
+                    ctrl.props = DataStoreHelpers.toProperties(value);
                     aggregate.put(fileName, ctrl);
                 }
             } else {
@@ -314,7 +313,7 @@ public class ProfileOverlayImpl implements Profile {
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                 SupplementControl ctrl = entry.getValue();
                 if (ctrl.props != null) {
-                    ctrl.data = DataStoreUtils.toBytes(ctrl.props);
+                    ctrl.data = DataStoreHelpers.toBytes(ctrl.props);
                 }
                 rc.put(entry.getKey(), ctrl.data);
             }
@@ -336,7 +335,7 @@ public class ProfileOverlayImpl implements Profile {
             for (Map.Entry<String, SupplementControl> entry : aggregate.entrySet()) {
                 SupplementControl ctrl = entry.getValue();
                 if (ctrl.props != null) {
-                    rc.put(DataStoreUtils.stripSuffix(entry.getKey(), ".properties"), DataStoreUtils.toMap(ctrl.props));
+                    rc.put(DataStoreHelpers.stripSuffix(entry.getKey(), ".properties"), DataStoreHelpers.toMap(ctrl.props));
                 }
             }
             if (substitute && dataStore != null) {

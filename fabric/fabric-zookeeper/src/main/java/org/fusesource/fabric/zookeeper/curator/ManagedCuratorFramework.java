@@ -20,25 +20,8 @@
 
 package org.fusesource.fabric.zookeeper.curator;
 
-import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
-import static org.apache.felix.scr.annotations.ReferencePolicy.DYNAMIC;
-import static org.fusesource.fabric.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
-import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
-import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_RETRY_INTERVAL;
-import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
-import static org.fusesource.fabric.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
-import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_INTERVAL_MS;
-import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_MAX_RETRIES;
-import static org.fusesource.fabric.zookeeper.curator.Constants.SESSION_TIMEOUT;
-import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWORD;
-import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
+import com.google.common.base.Strings;
+import com.google.common.io.Closeables;
 import org.apache.curator.RetryPolicy;
 import org.apache.curator.ensemble.EnsembleProvider;
 import org.apache.curator.framework.CuratorFramework;
@@ -54,58 +37,81 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.fusesource.fabric.api.jcip.GuardedBy;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
-import org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperServerFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-import com.google.common.io.Closeables;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+
+import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
+import static org.apache.felix.scr.annotations.ReferenceCardinality.OPTIONAL_MULTIPLE;
+import static org.apache.felix.scr.annotations.ReferencePolicy.DYNAMIC;
+import static org.fusesource.fabric.zookeeper.curator.Constants.CONNECTION_TIMEOUT;
+import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_CONNECTION_TIMEOUT_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_RETRY_INTERVAL;
+import static org.fusesource.fabric.zookeeper.curator.Constants.DEFAULT_SESSION_TIMEOUT_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.MAX_RETRIES_LIMIT;
+import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_INTERVAL_MS;
+import static org.fusesource.fabric.zookeeper.curator.Constants.RETRY_POLICY_MAX_RETRIES;
+import static org.fusesource.fabric.zookeeper.curator.Constants.SESSION_TIMEOUT;
+import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_PASSWORD;
+import static org.fusesource.fabric.zookeeper.curator.Constants.ZOOKEEPER_URL;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", policy = OPTIONAL, immediate = true)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
-    @Reference(referenceInterface = ACLProvider.class)
-    private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
-    @Reference(referenceInterface = ZooKeeperServerFactory.class)
-    private final ValidatingReference<ZooKeeperServerFactory> zookeeperServerFactory = new ValidatingReference<ZooKeeperServerFactory>();
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     private final Set<ConnectionStateListener> connectionStateListeners = new HashSet<ConnectionStateListener>();
+    @Reference(referenceInterface = ACLProvider.class)
+    private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
 
-    private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
-    private BundleContext bundleContext;
-    private CuratorFramework curatorFramework;
-    private ServiceRegistration<CuratorFramework> registration;
-    private Map<String, ?> oldProperties;
+    /**
+     * This reference is only used to ensure that the CuratorFramework will stop before the ZooKeeper server.
+     */
+    @Reference(referenceInterface = ManagedServiceFactory.class, target = "(service.pid=org.fusesource.fabric.zookeeper.server)")
+    private ManagedServiceFactory managedServiceFactory;
+
+    @GuardedBy("this") private final DynamicEnsembleProvider ensembleProvider = new DynamicEnsembleProvider();
+    @GuardedBy("this") private BundleContext bundleContext;
+    @GuardedBy("this") private CuratorFramework curatorFramework;
+    @GuardedBy("this") private ServiceRegistration registration;
+    @GuardedBy("this") private Map<String, ?> oldProperties;
 
     @Activate
-    synchronized void activate(BundleContext bundleContext, Map<String, ?> configuration) throws ConfigurationException {
+    synchronized void activate(BundleContext bundleContext, Map<String, ?> properties) throws ConfigurationException {
         this.bundleContext = bundleContext;
-        if ((configuration == null || !configuration.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
+        if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
             return;
         }
-        updateService(buildCuratorFramework(configuration));
-        this.oldProperties = configuration;
+        updateService(buildCuratorFramework(properties));
+        this.oldProperties = properties;
         activateComponent();
     }
 
     @Modified
-    synchronized void updated(Map<String, ?> configuration) throws ConfigurationException {
-        if ((configuration == null || !configuration.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
+    synchronized void updated(Map<String, ?> properties) throws ConfigurationException {
+        if ((properties == null || !properties.containsKey(ZOOKEEPER_URL)) && Strings.isNullOrEmpty(System.getProperty(ZOOKEEPER_URL))) {
             return;
-        } else if (isRestartRequired(oldProperties, configuration)) {
-            updateService(buildCuratorFramework(configuration));
+        } else if (isRestartRequired(oldProperties, properties)) {
+            updateService(buildCuratorFramework(properties));
         } else {
-            updateEnsemble(configuration);
-            if (!propertyEquals(oldProperties, configuration, ZOOKEEPER_URL)) {
+            updateEnsemble(properties);
+            if (!propertyEquals(oldProperties, properties, ZOOKEEPER_URL)) {
                 try {
                     reset((CuratorFrameworkImpl) curatorFramework);
                 } catch (Exception e) {
@@ -113,14 +119,18 @@ public final class ManagedCuratorFramework extends AbstractComponent {
                 }
             }
         }
-        this.oldProperties = configuration;
+        this.oldProperties = properties;
     }
 
     @Deactivate
     synchronized void deactivate() throws IOException {
         deactivateComponent();
         if (registration != null) {
-            registration.unregister();
+            try {
+                registration.unregister();
+            } catch (IllegalStateException e) {
+                // Ignore
+            }
         }
         Closeables.close(curatorFramework, true);
     }
@@ -147,7 +157,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
                 if (newState == ConnectionState.CONNECTED) {
                     synchronized (ManagedCuratorFramework.this) {
                         if (registration == null) {
-                            registration = bundleContext.registerService(CuratorFramework.class, curatorFramework, null);
+                            registration = bundleContext.registerService(CuratorFramework.class.getName(), curatorFramework, new Hashtable<String, Object>());
                             client.getConnectionStateListenable().removeListener(this);
                         }
                     }
@@ -313,7 +323,30 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         }
     }
 
-    void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
+    /**
+     * Reads a byte array from the specified configuration.
+     *
+     * @param props
+     * @param key
+     * @param defaultValue
+     * @return
+     */
+    private static byte[] readBytes(Map<String, ?> props, String key, byte[] defaultValue) {
+        try {
+            Object obj = props.get(key);
+            if (obj instanceof byte[]) {
+                return (byte[]) obj;
+            } else if (obj instanceof String) {
+                return ((String) obj).getBytes();
+            } else {
+                return defaultValue;
+            }
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    private synchronized void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.add(connectionStateListener);
         if (curatorFramework != null) {
             curatorFramework.getConnectionStateListenable().addListener(connectionStateListener);
@@ -324,7 +357,7 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         }
     }
 
-    void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
+    private synchronized void unbindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.remove(connectionStateListener);
         if (curatorFramework != null) {
             curatorFramework.getConnectionStateListenable().removeListener(connectionStateListener);
@@ -337,13 +370,5 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     void unbindAclProvider(ACLProvider aclProvider) {
         this.aclProvider.unbind(aclProvider);
-    }
-
-    void bindZookeeperServerFactory(ZooKeeperServerFactory service) {
-        this.zookeeperServerFactory.bind(service);
-    }
-
-    void unbindZookeeperServerFactory(ZooKeeperServerFactory service) {
-        this.zookeeperServerFactory.unbind(service);
     }
 }
