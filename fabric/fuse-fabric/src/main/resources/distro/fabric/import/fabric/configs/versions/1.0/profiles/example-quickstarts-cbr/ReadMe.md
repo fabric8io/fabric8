@@ -10,8 +10,8 @@ Runs the Camel Content Based Router quickstart example
       <a class="btn" href="#/fabric/containers/createContainer?profileIds={{profile}}"><i class="icon-plus"></i> Create a container for this profile</a>
     </li>
     <li>
-      Once you have created a container you can see its information, view routes or send messages below:
-    	<ul>
+      Containers for this profile:
+      <ul>
     	  <li ng-repeat="container in containers">
           <span fabric-container-link="{{container}}"/>
         
