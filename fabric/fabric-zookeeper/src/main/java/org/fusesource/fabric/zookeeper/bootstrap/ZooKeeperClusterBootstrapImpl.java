@@ -47,17 +47,9 @@ import org.osgi.service.component.ComponentContext;
  * ZooKeeperClusterBootstrap
  * |_ ConfigurationAdmin
  * |_ DataStoreRegistrationHandler (@see DataStoreManager)
+ * |_ BootstrapConfiguration (optional,unary) (@see BootstrapConfiguration)
  * |_ FabricService (optional,unary) (@see FabricServiceImpl)
- *    |_ ConfigurationAdmin
- *    |_ CuratorFramework (@see ManagedCuratorFramework)
- *    |_ DataStore (@see CachingGitDataStore)
- *    |  |_ CuratorFramework --^
- *    |  |_ GitService (@see FabricGitServiceImpl)
- *    |  |_ PlaceholderResolver (optional,multiple)
- *    |_ ContainerProvider (optional,multiple) (@see ChildContainerProvider)
- *    |  |_ FabricService --^
- *    |_ PortService (@see ZookeeperPortService)
- *       |_ CuratorFramework --^
+ *
  */
 @ThreadSafe
 @Component(name = "org.fusesource.fabric.zookeeper.cluster.bootstrap", description = "Fabric ZooKeeper Cluster Bootstrap", immediate = true)
@@ -72,6 +64,7 @@ public final class ZooKeeperClusterBootstrapImpl extends AbstractComponent imple
     @Reference(referenceInterface = DataStoreRegistrationHandler.class)
     private final ValidatingReference<DataStoreRegistrationHandler> registrationHandler = new ValidatingReference<DataStoreRegistrationHandler>();
 
+    // The public API methods that the {@link ZooKeeperClusterBootstrap} service provides may wait for these services
     @Reference(referenceInterface = BootstrapConfiguration.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)
     private final DynamicReference<BootstrapConfiguration> bootstrapConfiguration = new DynamicReference<BootstrapConfiguration>();
     @Reference(referenceInterface = FabricService.class, cardinality = ReferenceCardinality.OPTIONAL_UNARY, policy = ReferencePolicy.DYNAMIC)

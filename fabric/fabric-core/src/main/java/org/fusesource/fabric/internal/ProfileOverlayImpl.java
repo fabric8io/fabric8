@@ -17,6 +17,7 @@
 package org.fusesource.fabric.internal;
 
 import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.FabricException;
 import org.fusesource.fabric.api.Profile;
@@ -29,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import static org.fusesource.fabric.internal.ProfileImpl.AGENT_PID;
 import static org.fusesource.fabric.internal.ProfileImpl.ConfigListType;
 import static org.fusesource.fabric.internal.ProfileImpl.getContainerConfigList;
 
@@ -108,7 +108,7 @@ public class ProfileOverlayImpl implements Profile {
 
     @Override
     public Map<String, String> getContainerConfiguration() {
-        Map<String, String> map = getConfigurations().get(AGENT_PID);
+        Map<String, String> map = getConfigurations().get(Constants.AGENT_PID);
         if (map == null) {
             map = new HashMap<String, String>();
         }
@@ -176,11 +176,11 @@ public class ProfileOverlayImpl implements Profile {
     @Override
     public boolean agentConfigurationEquals(Profile other) {
         ProfileOverlayImpl otherOverlay = new ProfileOverlayImpl(other, environment);
-        if (!getConfigurations().containsKey(AGENT_PID) && !otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
+        if (!getConfigurations().containsKey(Constants.AGENT_PID) && !otherOverlay.getConfigurations().containsKey(Constants.AGENT_PID)) {
             return true;
-        } else if (getConfigurations().containsKey(AGENT_PID) != otherOverlay.getConfigurations().containsKey(AGENT_PID)) {
+        } else if (getConfigurations().containsKey(Constants.AGENT_PID) != otherOverlay.getConfigurations().containsKey(Constants.AGENT_PID)) {
             return false;
-        } else if (getConfigurations().containsKey(AGENT_PID) && !getConfigurations().get(AGENT_PID).equals(otherOverlay.getConfigurations().get(AGENT_PID))) {
+        } else if (getConfigurations().containsKey(Constants.AGENT_PID) && !getConfigurations().get(Constants.AGENT_PID).equals(otherOverlay.getConfigurations().get(Constants.AGENT_PID))) {
             return false;
         } else {
             return true;

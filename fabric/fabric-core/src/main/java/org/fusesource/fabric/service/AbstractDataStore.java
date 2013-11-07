@@ -50,6 +50,7 @@ import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.zookeeper.KeeperException;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.CreateContainerMetadata;
 import org.fusesource.fabric.api.CreateContainerOptions;
 import org.fusesource.fabric.api.DataStore;
@@ -675,7 +676,7 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     public Map<String, String> getProfileAttributes(String version, String profile) {
         assertValid();
         Map<String, String> attributes = new HashMap<String, String>();
-        Map<String, String> config = getConfiguration(version, profile, AGENT_PID);
+        Map<String, String> config = getConfiguration(version, profile, Constants.AGENT_PID);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             String key = entry.getKey();
             if (key.startsWith(ATTRIBUTE_PREFIX)) {
@@ -690,13 +691,13 @@ public abstract class AbstractDataStore<T extends DataStore> extends AbstractCom
     @Override
     public void setProfileAttribute(final String version, final String profile, final String key, final String value) {
         assertValid();
-        Map<String, String> config = getConfiguration(version, profile, AGENT_PID);
+        Map<String, String> config = getConfiguration(version, profile, Constants.AGENT_PID);
         if (value != null) {
             config.put(ATTRIBUTE_PREFIX + key, value);
         } else {
             config.remove(key);
         }
-        setConfiguration(version, profile, AGENT_PID, config);
+        setConfiguration(version, profile, Constants.AGENT_PID, config);
     }
 
     @Override

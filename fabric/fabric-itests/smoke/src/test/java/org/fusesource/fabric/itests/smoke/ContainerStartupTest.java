@@ -16,6 +16,7 @@
  */
 package org.fusesource.fabric.itests.smoke;
 
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.itests.paxexam.support.FabricTestSupport;
@@ -54,7 +55,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         //Test that a provided by commmand line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
         ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         assertEquals("Expected provided zookeeper password", "systempassword", dictionary.get("zookeeper.password"));
 
@@ -74,7 +75,7 @@ public class ContainerStartupTest extends FabricTestSupport {
         //Test that a provided by command line password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
         ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         assertEquals("Expected provided zookeeper password", "testpassword", dictionary.get("zookeeper.password"));
     }

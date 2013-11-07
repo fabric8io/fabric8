@@ -36,6 +36,7 @@ import org.apache.felix.scr.annotations.ReferencePolicy;
 import org.apache.felix.scr.annotations.References;
 import org.apache.felix.scr.annotations.Service;
 import org.eclipse.jgit.api.Git;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.FabricException;
@@ -54,7 +55,7 @@ import com.google.common.cache.LoadingCache;
  * and speed things up a little
  */
 @ThreadSafe
-@Component(name = DataStore.DATASTORE_TYPE_PID, policy = ConfigurationPolicy.REQUIRE, immediate = true)
+@Component(name = Constants.DATASTORE_TYPE_PID, policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @References({
         @Reference(referenceInterface = PlaceholderResolver.class, bind = "bindPlaceholderResolver", unbind = "unbindPlaceholderResolver", cardinality = ReferenceCardinality.OPTIONAL_MULTIPLE, policy = ReferencePolicy.DYNAMIC),
         @Reference(referenceInterface = DataStoreRegistrationHandler.class, bind = "bindRegistrationHandler", unbind = "unbindRegistrationHandler"),

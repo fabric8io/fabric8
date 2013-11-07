@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
@@ -38,6 +39,7 @@ import org.apache.zookeeper.server.quorum.QuorumPeer;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig;
 import org.apache.zookeeper.server.quorum.QuorumPeerConfig.ConfigException;
 import org.apache.zookeeper.server.quorum.QuorumStats;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -47,7 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.server.factory", configurationPid="org.fusesource.fabric.zookeeper.server", immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.server.factory", configurationPid = Constants.ZOOKEEPER_SERVER_PID, policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service(ZooKeeperServerFactory.class)
 public class ZooKeeperServerFactory extends AbstractComponent {
 
@@ -61,7 +63,10 @@ public class ZooKeeperServerFactory extends AbstractComponent {
 
     @Activate
     void activate(BundleContext context, Map<String, ?> configuration) throws Exception {
-        destroyable = activateInternal(context, configuration);
+        // A valid configuration must contain a dataDir entry
+        if (configuration.containsKey("dataDir")) {
+            destroyable = activateInternal(context, configuration);
+        }
         activateComponent();
     }
 

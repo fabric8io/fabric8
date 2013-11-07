@@ -22,6 +22,7 @@ import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.ACLProvider;
 import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
+import org.apache.felix.scr.annotations.ConfigurationPolicy;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Service;
@@ -40,10 +41,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.apache.felix.scr.annotations.ConfigurationPolicy.OPTIONAL;
-
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper.acl", description = "Fabric ZooKeeper ACL Manager", policy = OPTIONAL, immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.acl", description = "Fabric ZooKeeper ACL Manager", policy = ConfigurationPolicy.OPTIONAL, immediate = true)
 @Service({ACLManager.class, ACLProvider.class})
 public class CuratorACLManager extends AbstractComponent implements ACLManager, ACLProvider {
 

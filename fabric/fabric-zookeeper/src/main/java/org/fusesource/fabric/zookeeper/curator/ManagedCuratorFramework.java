@@ -54,6 +54,7 @@ import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Modified;
 import org.apache.felix.scr.annotations.Reference;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
@@ -67,15 +68,13 @@ import com.google.common.base.Strings;
 import com.google.common.io.Closeables;
 
 @ThreadSafe
-@Component(name = "org.fusesource.fabric.zookeeper", description = "Fabric ZooKeeper Client Factory", immediate = true)
+@Component(name = "org.fusesource.fabric.zookeeper.curator", configurationPid = Constants.ZOOKEEPER_CLIENT_PID, description = "Fabric ZooKeeper Client Factory", immediate = true)
 public final class ManagedCuratorFramework extends AbstractComponent {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ManagedCuratorFramework.class);
 
     @Reference(referenceInterface = ACLProvider.class)
     private final ValidatingReference<ACLProvider> aclProvider = new ValidatingReference<ACLProvider>();
-    @Reference(referenceInterface = ZooKeeperServerFactory.class)
-    private final ValidatingReference<ZooKeeperServerFactory> zookeeperServerFactory = new ValidatingReference<ZooKeeperServerFactory>();
     @Reference(referenceInterface = ConnectionStateListener.class, bind = "bindConnectionStateListener", unbind = "unbindConnectionStateListener", cardinality = OPTIONAL_MULTIPLE, policy = DYNAMIC)
     private final Set<ConnectionStateListener> connectionStateListeners = new HashSet<ConnectionStateListener>();
 
@@ -312,30 +311,6 @@ public final class ManagedCuratorFramework extends AbstractComponent {
         }
     }
 
-<<<<<<< HEAD
-    /**
-     * Reads a byte array from the specified configuration.
-     *
-     * @param props
-     * @param key
-     * @param defaultValue
-     * @return
-     */
-    private static byte[] readBytes(Map<String, ?> props, String key, byte[] defaultValue) {
-        try {
-            Object obj = props.get(key);
-            if (obj instanceof byte[]) {
-                return (byte[]) obj;
-            } else if (obj instanceof String) {
-                return ((String) obj).getBytes();
-            } else {
-                return defaultValue;
-            }
-        } catch (Exception e) {
-            return defaultValue;
-        }
-    }
-
     void bindConnectionStateListener(ConnectionStateListener connectionStateListener) {
         connectionStateListeners.add(connectionStateListener);
         if (curatorFramework != null) {
@@ -360,13 +335,5 @@ public final class ManagedCuratorFramework extends AbstractComponent {
 
     void unbindAclProvider(ACLProvider aclProvider) {
         this.aclProvider.unbind(aclProvider);
-    }
-
-    void bindZookeeperServerFactory(ZooKeeperServerFactory service) {
-        this.zookeeperServerFactory.bind(service);
-    }
-
-    void unbindZookeeperServerFactory(ZooKeeperServerFactory service) {
-        this.zookeeperServerFactory.unbind(service);
     }
 }

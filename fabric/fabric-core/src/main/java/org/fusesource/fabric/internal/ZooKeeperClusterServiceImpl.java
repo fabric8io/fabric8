@@ -49,6 +49,7 @@ import org.fusesource.fabric.api.CreateEnsembleOptions.Builder;
 import org.fusesource.fabric.api.jcip.ThreadSafe;
 import org.fusesource.fabric.api.scr.AbstractComponent;
 import org.fusesource.fabric.api.scr.ValidatingReference;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.DataStore;
 import org.fusesource.fabric.api.DataStoreRegistrationHandler;
 import org.fusesource.fabric.api.DataStoreTemplate;
@@ -102,7 +103,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
     public List<String> getEnsembleContainers() {
         assertValid();
         try {
-            Configuration[] configs = configAdmin.get().listConfigurations("(service.pid=org.fusesource.fabric.zookeeper)");
+            Configuration[] configs = configAdmin.get().listConfigurations("(service.pid=" + Constants.ZOOKEEPER_CLIENT_PID + ")");
             if (configs == null || configs.length == 0) {
                 return Collections.emptyList();
             }
@@ -135,7 +136,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             if (containers == null || containers.size() == 2) {
                 throw new IllegalArgumentException("One or at least 3 containers must be used to create a zookeeper ensemble");
             }
-            Configuration config = configAdmin.get().getConfiguration("org.fusesource.fabric.zookeeper", null);
+            Configuration config = configAdmin.get().getConfiguration(Constants.ZOOKEEPER_CLIENT_PID, null);
             String zooKeeperUrl = config != null && config.getProperties() != null ? (String) config.getProperties().get("zookeeper.url") : null;
             if (zooKeeperUrl == null) {
                 if (containers.size() != 1 || !containers.get(0).equals(System.getProperty(SystemProperties.KARAF_NAME))) {
@@ -189,7 +190,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     }
                 }
 
-                Map<String, String> zkConfig = dataStore.get().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper");
+                Map<String, String> zkConfig = dataStore.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
                 if (zkConfig == null) {
                     throw new FabricException("Failed to find old zookeeper configuration in default profile");
                 }
@@ -286,7 +287,7 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
             }
 
             if (oldClusterId != null) {
-                Properties properties = DataStoreUtils.toProperties(dataStore.get().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper"));
+                Properties properties = DataStoreUtils.toProperties(dataStore.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID));
                 properties.put("zookeeper.url", getSubstitutedData(curator.get(), realConnectionUrl));
                 properties.put("zookeeper.password", options.getZookeeperPassword());
                 CuratorFramework dst = CuratorFrameworkFactory.builder().connectString(realConnectionUrl).retryPolicy(new RetryOneTime(500))
@@ -348,10 +349,10 @@ public final class ZooKeeperClusterServiceImpl extends AbstractComponent impleme
                     dst.close();
                 }
             } else {
-                Map<String, String> zkConfig = dataStore.get().getConfiguration(version, "default", "org.fusesource.fabric.zookeeper");
+                Map<String, String> zkConfig = dataStore.get().getConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID);
                 zkConfig.put("zookeeper.password", "${zk:" + ZkPath.CONFIG_ENSEMBLE_PASSWORD.getPath() + "}");
                 zkConfig.put("zookeeper.url", "${zk:" + ZkPath.CONFIG_ENSEMBLE_URL.getPath() + "}");
-                dataStore.get().setConfiguration(version, "default", "org.fusesource.fabric.zookeeper", zkConfig);
+                dataStore.get().setConfiguration(version, "default", Constants.ZOOKEEPER_CLIENT_PID, zkConfig);
             }
         } catch (Exception e) {
             throw new FabricException("Unable to create zookeeper quorum: " + e.getMessage(), e);
