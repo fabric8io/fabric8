@@ -20,7 +20,7 @@
 
     <repository>mvn:org.apache.cxf.karaf/apache-cxf/${cxf-version}/xml/features</repository>
     <repository>mvn:org.apache.camel.karaf/apache-camel/${camel-version}/xml/features</repository>
-    <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features</repository>
+    <repository>mvn:org.apache.activemq/activemq-karaf/${activemq-version}/xml/features-core</repository>
     <repository>mvn:org.apache.jclouds.karaf/jclouds-karaf/${jclouds-karaf-version}/xml/features</repository>
     <repository>mvn:io.hawt/hawtio-karaf/${hawtio-version}/xml/features</repository>
     <repository>mvn:org.apache.karaf.assemblies.features/standard/${karaf-version}/xml/features</repository>
@@ -211,7 +211,7 @@
     </feature>
 
     <feature name="fabric-camel" version="${project.version}" resolver="(obr)">
-        <feature version="[2.7,3.0)">camel</feature>
+        <feature version="${camel-version-range}">camel</feature>
         <feature>spring-dm</feature>
         <feature>fabric-groups</feature>
         <bundle>mvn:org.fusesource.fabric/fabric-camel/${project.version}</bundle>
@@ -249,7 +249,9 @@
 
     <feature name="mq-fabric-camel" version="${fuse.version}" resolver="(obr)">
         <feature version="${fuse.version}">mq-fabric-cf</feature>
-        <feature version="${activemq-version}">activemq-camel</feature>
+        <feature version="${activemq-version}">activemq-client</feature>
+        <feature version="${camel-version-range}">camel-jms</feature>
+        <feature version="${camel-version-range}">camel</feature>
         <bundle>mvn:org.jboss.amq/mq-fabric-camel/${fuse.version}</bundle>
     </feature>
 
@@ -398,7 +400,7 @@
     </feature>
 
     <feature name="insight-camel" version="${project.version}" resolver="(obr)">
-        <feature>camel</feature>
+        <feature version="${camel-version-range}">camel</feature>
         <feature>insight-elasticsearch</feature>
         <bundle dependency="true">mvn:org.mvel/mvel2/${mvel-version}</bundle>
         <bundle>mvn:org.fusesource.insight/insight-camel/${project.version}</bundle>
@@ -457,8 +459,8 @@
     </feature>
 
     <feature name="bai" description="Fuse Business Activity Insight" version="${project.version}" resolver="(obr)">
-        <feature>camel</feature>
-        <feature>camel-blueprint</feature>
+        <feature version="${camel-version-range}">camel</feature>
+        <feature version="${camel-version-range}">camel-blueprint</feature>
         <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
         <bundle>mvn:org.fusesource.bai/bai-core/${project.version}</bundle>
         <bundle>mvn:org.fusesource.bai/bai-agent/${project.version}</bundle>
@@ -466,7 +468,7 @@
 
     <feature name="bai-mongodb" description="Fuse Business Activity Insight :: MongoDb Backend" version="${project.version}" resolver="(obr)">
         <feature>bai</feature>
-        <feature>camel-xmljson</feature>
+        <feature version="${camel-version-range}">camel-xmljson</feature>
         <bundle>mvn:org.mongodb/mongo-java-driver/${mongo-java-driver-version}</bundle>
         <bundle>mvn:org.fusesource.bai/bai-mongodb-backend/${project.version}</bundle>
 <!--
@@ -546,7 +548,7 @@
 
     <feature name="fabric-dynamic-jaxb" version="${project.version}" resolver="(obr)">
         <feature version="[2.4,3.0)">cxf-core</feature>
-        <feature version="[2.12,3.0)">camel-jaxb</feature>
+        <feature version="${camel-version-range}">camel-jaxb</feature>
         <feature version="${project.version}">fabric-core</feature>
         <bundle>mvn:org.fusesource.fabric/common-util/${project.version}</bundle>
         <bundle>mvn:org.fusesource.fabric/fabric-dynamic-jaxb/${project.version}</bundle>
