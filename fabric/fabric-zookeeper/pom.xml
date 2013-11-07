@@ -72,6 +72,10 @@
         </fuse.osgi.private.pkg>
         <fuse.osgi.service.component>
             <!-- Use explicit file locations because there is no support for wildcard resource discovery in non-osgi environments -->
+            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.BootstrapConfiguration.xml,
+            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.DataStoreTemplateRegistry.xml,
+            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperClusterBootstrapImpl.xml,
+            OSGI-INF/org.fusesource.fabric.zookeeper.bootstrap.ZooKeeperServerFactory.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.curator.CuratorACLManager.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.curator.ManagedCuratorFramework.xml,
             OSGI-INF/org.fusesource.fabric.zookeeper.internal.ZkUrlHandler.xml

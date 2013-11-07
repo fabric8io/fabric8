@@ -39,7 +39,7 @@ public class ValidatingReference<T> {
      * Bind the given reference
      */
     public void bind(T ref) {
-        LOG.debug("bind: " + ref);
+        LOG.debug("bind: {}", ref);
         reference.set(ref);
     }
 
@@ -47,7 +47,7 @@ public class ValidatingReference<T> {
      * Unbind the given reference
      */
     public void unbind(T ref) {
-        LOG.debug("unbind: " + ref);
+        LOG.debug("unbind: {}", ref);
         reference.compareAndSet(ref, null);
     }
 

@@ -36,6 +36,7 @@ import org.apache.curator.retry.RetryOneTime;
 import org.easymock.EasyMock;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.lib.StoredConfig;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.git.hawtio.FabricGitFacade;
 import org.fusesource.fabric.utils.Strings;
 import org.fusesource.fabric.zookeeper.spring.ZKServerFactoryBean;
@@ -147,8 +148,7 @@ public abstract class GitDataStoreTest {
         String version = "1.1";
         assertCreateVersion("1.0", version);
 
-        String agentPID = "org.fusesource.fabric.agent";
-        assertProfileConfiguration(version, importedProfile, agentPID, "attribute.parents",
+        assertProfileConfiguration(version, importedProfile, Constants.AGENT_PID, "attribute.parents",
                 "feature-camel");
         assertProfileTextFileConfigurationContains(version, "example-camel-fabric", "camel.xml",
                 "http://camel.apache.org/schema/blueprint");
@@ -175,7 +175,7 @@ public abstract class GitDataStoreTest {
                 profileAttributeKey, expectedProfileAttributeValue);
 
         String hawtioRepoKey = "repository.hawtio";
-        Map<String, String> hawtioAttrbutes = dataStore.getConfiguration(version, "hawtio", agentPID);
+        Map<String, String> hawtioAttrbutes = dataStore.getConfiguration(version, "hawtio", Constants.AGENT_PID);
         String currentHawtRepo = hawtioAttrbutes.get(hawtioRepoKey);
         System.out.println("Current repository.hawtio: " + currentHawtRepo);
 
@@ -184,10 +184,10 @@ public abstract class GitDataStoreTest {
         hawtio.bindGitDataStoreForTesting(dataStore);
         hawtio.activateForTesting();
         String hawtioPropertyFile = "/fabric/profiles/" + dataStore.convertProfileIdToDirectory("hawtio") + "/"
-                + agentPID + ".properties";
+                + Constants.AGENT_PID + ".properties";
         hawtio.write(version, hawtioPropertyFile, "My commit message", "me", "me@apache.org", "# new file\n" + hawtioRepoKey + " = " + "mvn\\:io.hawt/hawtio-karaf/myNewVersion/xml/features"
                 + "\n");
-        hawtioAttrbutes = dataStore.getConfiguration(version, "hawtio", agentPID);
+        hawtioAttrbutes = dataStore.getConfiguration(version, "hawtio", Constants.AGENT_PID);
         String actual = hawtioAttrbutes.get(hawtioRepoKey);
         assertEquals("should have found the updated hawtio repo key",
                 "mvn:io.hawt/hawtio-karaf/myNewVersion/xml/features", actual);

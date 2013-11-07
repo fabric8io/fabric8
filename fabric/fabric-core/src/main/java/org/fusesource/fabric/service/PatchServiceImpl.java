@@ -49,10 +49,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.felix.utils.version.VersionTable;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Issue;
 import org.fusesource.fabric.api.Patch;
@@ -752,7 +754,7 @@ public class PatchServiceImpl implements PatchService {
 
     protected Dictionary getConfig() {
         try {
-            Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + "org.fusesource.fabric.agent" + ")");
+            Configuration[] configuration = configAdmin.listConfigurations("(service.pid=" + Constants.AGENT_PID + ")");
             Dictionary dictionary = (configuration != null && configuration.length > 0) ? configuration[0].getProperties() : null;
             return dictionary != null ? dictionary : new Hashtable();
         } catch (Exception e) {

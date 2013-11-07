@@ -20,17 +20,18 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
 import com.google.common.base.Charsets;
+
 import org.apache.felix.gogo.commands.Argument;
 import org.apache.felix.gogo.commands.Command;
 import org.apache.felix.gogo.commands.CompleterValues;
 import org.apache.felix.gogo.commands.Option;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.Profile;
 import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.boot.commands.support.FabricCommand;
+
 import static org.fusesource.fabric.utils.FabricValidations.validateProfileName;
 
 @Command(name = "profile-display", scope = "fabric", description = "Displays information about the specified version of the specified profile (where the version defaults to the current default version)")
@@ -120,7 +121,7 @@ public class ProfileDisplay extends FabricCommand {
             }
         }
 
-        if (configuration.containsKey(AGENT_PID)) {
+        if (configuration.containsKey(Constants.AGENT_PID)) {
             output.println("\nContainer settings");
             output.println("----------------------------");
 
@@ -152,7 +153,7 @@ public class ProfileDisplay extends FabricCommand {
                 printConfigList("Config Properties : ", output, configProperties);
             }
 
-            configuration.remove(AGENT_PID);
+            configuration.remove(Constants.AGENT_PID);
         }
 
         output.println("\nConfiguration details");
