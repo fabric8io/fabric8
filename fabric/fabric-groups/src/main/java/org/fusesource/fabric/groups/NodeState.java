@@ -19,6 +19,8 @@ package org.fusesource.fabric.groups;
 import org.codehaus.jackson.annotate.JsonProperty;
 import org.fusesource.fabric.groups.internal.ZooKeeperGroup;
 
+import java.util.UUID;
+
 /**
  * @author <a href="http://hiramchirino.com">Hiram Chirino</a>
  */
@@ -28,16 +30,14 @@ public class NodeState {
     public String id;
 
     @JsonProperty
-    public String container;
-
-    @JsonProperty
-    public String session;
+    public final String container;
 
     public NodeState() {
+        this(null);
     }
 
     public NodeState(String id) {
-        this(id, System.getProperty("karaf.name"));
+        this(id, System.getProperty("karaf.name", UUID.randomUUID().toString()));
     }
 
     public NodeState(String id, String container) {
@@ -55,19 +55,6 @@ public class NodeState {
 
     public String getContainer() {
         return container;
-    }
-
-    public void setContainer(String container) {
-        this.container = container;
-    }
-
-
-    public String getSession() {
-        return session;
-    }
-
-    public void setSession(String session) {
-        this.session = session;
     }
 
     @Override

@@ -197,7 +197,6 @@ public final class AutoScaleController  extends AbstractComponent implements Gro
 
     private AutoScalerNode createState() {
         AutoScalerNode state = new AutoScalerNode();
-        state.setContainer(KARAF_NAME);
         return state;
     }
 

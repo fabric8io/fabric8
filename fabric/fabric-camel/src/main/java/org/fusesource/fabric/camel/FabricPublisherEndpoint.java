@@ -76,9 +76,7 @@ public class FabricPublisherEndpoint extends DefaultEndpoint {
 
         path = getComponent().getFabricPath(singletonId);
         group = getComponent().createGroup(path);
-        CamelNodeState state = new CamelNodeState();
-        state.id = singletonId;
-        state.container = System.getProperty("karaf.name");
+        CamelNodeState state = new CamelNodeState(singletonId);
         state.consumer = consumer;
         group.update(state);
     }

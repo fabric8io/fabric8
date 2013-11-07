@@ -294,7 +294,6 @@ public final class OpenShiftDeployAgent extends AbstractComponent implements Gro
 
     private ControllerNode createState() {
         ControllerNode state = new ControllerNode();
-        state.setContainer(KARAF_NAME);
         return state;
     }
 

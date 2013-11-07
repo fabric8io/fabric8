@@ -81,7 +81,6 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     protected final ConcurrentMap<String, ChildData<T>> currentData = Maps.newConcurrentMap();
     private final AtomicBoolean started = new AtomicBoolean();
     protected final SequenceComparator sequenceComparator = new SequenceComparator();
-    private final String session;
 
     private volatile String id;
     private T state;
@@ -144,7 +143,6 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
         this.clazz = clazz;
         this.executorService = executorService;
         ensurePath = client.newNamespaceAwareEnsurePath(path);
-        this.session = UUID.randomUUID().toString();
     }
 
     /**
@@ -211,9 +209,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
     public void update(T state) {
         T oldState = this.state;
         this.state = state;
-        if (state != null) {
-            this.state.setSession(session);
-        }
+
         if (started.get()) {
             boolean update = state == null && oldState != null
                         ||   state != null && oldState == null
@@ -246,7 +242,7 @@ public class ZooKeeperGroup<T extends NodeState> implements Group<T> {
                     Map<String, T> members = members();
                     for (Map.Entry<String, T> entry : members.entrySet()) {
                         T v = entry.getValue();
-                        if( session.equals(v.getSession()) && state.getContainer().equals(v.getContainer()) ) {
+                        if( state.getContainer().equals(v.getContainer()) ) {
                             id = entry.getKey();
                             return;
                         }

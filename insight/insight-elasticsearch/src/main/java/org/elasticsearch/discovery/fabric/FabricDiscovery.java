@@ -361,8 +361,7 @@ public class FabricDiscovery extends AbstractLifecycleComponent<Discovery>
         private final boolean master;
 
         ESNode(String id, DiscoveryNode node, boolean master) {
-            this.id = id;
-            this.container = node.getName();
+            super(id, node.getName());
             this.node = node;
             this.master = master;
         }

@@ -160,7 +160,6 @@ public final class Bridge extends AbstractComponent implements GroupListener<Git
     private GitZkBridgeNode createState() {
         GitZkBridgeNode state = new GitZkBridgeNode();
         state.setId("bridge");
-        state.setContainer(System.getProperty("karaf.name"));
         return state;
     }
 

@@ -80,14 +80,18 @@ public class FabricDiscoveryAgent implements DiscoveryAgent {
     }
 
     public static class ActiveMQNode extends NodeState {
+
+        public ActiveMQNode(String id, String container) {
+            super(id, container);
+        }
+
         @JsonProperty
         String[] services;
     }
     
     ActiveMQNode createState() {
-        ActiveMQNode state = new ActiveMQNode();
+        ActiveMQNode state = new ActiveMQNode(id, agent);
         state.id = id;
-        state.container = agent;
         state.services = services.toArray(new String[services.size()]);
         return state;
     }
