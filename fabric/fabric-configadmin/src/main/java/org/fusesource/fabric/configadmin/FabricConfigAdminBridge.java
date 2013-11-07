@@ -20,6 +20,7 @@ import org.apache.felix.scr.annotations.Activate;
 import org.apache.felix.scr.annotations.Component;
 import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.ContainerRegistration;
 import org.fusesource.fabric.api.FabricService;
 import org.fusesource.fabric.api.Profile;
@@ -50,7 +51,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class FabricConfigAdminBridge extends AbstractComponent implements Runnable {
 
     public static final String FABRIC_ZOOKEEPER_PID = "fabric.zookeeper.pid";
-    public static final String AGENT_PID = "org.fusesource.fabric.agent";
     public static final String LAST_MODIFIED = "lastModified";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FabricConfigAdminBridge.class);
@@ -115,7 +115,7 @@ public final class FabricConfigAdminBridge extends AbstractComponent implements 
                     configs.remove(config);
                     Dictionary props = config.getProperties();
                     Hashtable old = props != null ? new Hashtable() : null;
-                    if (pid.equals(AGENT_PID)) {
+                    if (pid.equals(Constants.AGENT_PID)) {
                         c.put(LAST_MODIFIED, String.valueOf(profile.getLastModified()));
                     }
                     if (old != null) {

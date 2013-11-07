@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Dictionary;
 
 import org.apache.curator.framework.CuratorFramework;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.CreateEnsembleOptions;
 import org.fusesource.fabric.api.FabricService;
@@ -66,7 +67,7 @@ public class AutoClusterStartupTest extends FabricTestSupport {
         //Test that a generated password exists
         //We don't inject the configuration admin as it causes issues when the tracker gets closed.
         ConfigurationAdmin configurationAdmin = getOsgiService(ConfigurationAdmin.class);
-        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration("org.fusesource.fabric.zookeeper");
+        org.osgi.service.cm.Configuration configuration = configurationAdmin.getConfiguration(Constants.ZOOKEEPER_CLIENT_PID);
         Dictionary<String, Object> dictionary = configuration.getProperties();
         assertNotNull("Expected a generated zookeeper password", dictionary.get("zookeeper.password"));
         assertTrue(String.valueOf(dictionary.get("zookeeper.url")).endsWith("2182"));

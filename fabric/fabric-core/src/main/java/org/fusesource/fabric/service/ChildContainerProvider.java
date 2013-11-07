@@ -30,6 +30,7 @@ import org.apache.felix.scr.annotations.Deactivate;
 import org.apache.felix.scr.annotations.Reference;
 import org.apache.felix.scr.annotations.Service;
 import org.apache.karaf.admin.management.AdminServiceMBean;
+import org.fusesource.fabric.api.Constants;
 import org.fusesource.fabric.api.Container;
 import org.fusesource.fabric.api.ContainerProvider;
 import org.fusesource.fabric.api.CreateChildContainerMetadata;
@@ -133,7 +134,7 @@ public final class ChildContainerProvider extends AbstractComponent implements C
         for (Map.Entry<String, String> dataStoreEntries : options.getDataStoreProperties().entrySet()) {
             String key = dataStoreEntries.getKey();
             String value = dataStoreEntries.getValue();
-            jvmOptsBuilder.append(" -D" + DataStore.DATASTORE_TYPE_PID +"." + key + "=" + value);
+            jvmOptsBuilder.append(" -D" + Constants.DATASTORE_TYPE_PID +"." + key + "=" + value);
         }
 
         Profile defaultProfile = new ProfileOverlayImpl(parent.getVersion().getProfile("default"), true,
