@@ -56,7 +56,6 @@ import static org.apache.karaf.tooling.exam.options.KarafDistributionOption.edit
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
-@Ignore("[FABRIC-645] Fix fabric smoke FabricMavenProxyTest")
 public class FabricMavenProxyTest extends FabricTestSupport {
 
     @After
