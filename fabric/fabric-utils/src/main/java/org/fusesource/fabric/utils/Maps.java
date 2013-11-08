@@ -16,6 +16,8 @@
  */
 package org.fusesource.fabric.utils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -153,5 +155,25 @@ public class Maps {
         } else {
             map.remove(key);
         }
+    }
+
+    /**
+     * Returns a list of values for the given key. If its not a list then just return a single value as a List
+     */
+    public static List listValue(Map<String, Object> map, String key) {
+        Object value = null;
+        if (map != null) {
+            value = map.get(key);
+        }
+        if (value instanceof List) {
+            return (List) value;
+        } else if (value instanceof Object[]) {
+            return java.util.Arrays.asList((Object[]) value);
+        } else if (value != null) {
+            List list = new ArrayList();
+            list.add(value);
+            return list;
+        }
+        return null;
     }
 }
