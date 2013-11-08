@@ -68,6 +68,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.add;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.deleteSafe;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.setData;
 
@@ -189,8 +190,9 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
             if (isCxfServiceEndpointQuery.apply(oName)) {
                 boolean validAddress = false;
                 Object state = mBeanServer.getAttribute(oName, "State");
+                Object addressValue = false;
                 if (state instanceof String && state.toString().toUpperCase().startsWith("START")) {
-                    Object addressValue = mBeanServer.getAttribute(oName, "Address");
+                    addressValue = mBeanServer.getAttribute(oName, "Address");
                     if (addressValue instanceof String) {
                         validAddress = true;
                         String address = addressValue.toString();
@@ -200,9 +202,9 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
                     }
                 }
                 if (!validAddress) {
-                    unregisterApiEndpoint(container, oName);
+                    //unregisterApiEndpoint(container, oName);
                     // TODO we may need to remove the registry entry?
-                    LOGGER.warn("API endpoint " + oName + " is not alive, we maybe need to remove the");
+                    LOGGER.warn("API endpoint " + oName + " has status " + state + " and does not have a valid address " + addressValue + " so we should unregister it");
                 }
             }
         } catch (Exception e) {
@@ -242,6 +244,8 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
                 String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
                 LOGGER.info("Registered at " + path + " JSON: " + json);
                 setData(curator.get(), path, json, CreateMode.EPHEMERAL);
+            } else {
+                LOGGER.info("Ignoring endpoint with no swagger API docs at " + path + " at " + physicalUrl);
             }
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint at {}.", path, e);
