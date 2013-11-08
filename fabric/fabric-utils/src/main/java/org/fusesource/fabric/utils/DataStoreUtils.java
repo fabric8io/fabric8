@@ -14,10 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.fusesource.fabric.internal;
+package org.fusesource.fabric.utils;
 
-import org.fusesource.fabric.utils.ChecksumUtils;
-import org.fusesource.fabric.utils.Closeables;
 import org.osgi.framework.BundleContext;
 
 import java.io.*;
@@ -26,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-public class DataStoreHelpers {
+public class DataStoreUtils {
 
 
     public static byte[] toBytes(Properties source) throws IOException {
