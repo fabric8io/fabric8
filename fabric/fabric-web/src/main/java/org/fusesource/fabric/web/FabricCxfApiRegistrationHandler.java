@@ -244,11 +244,8 @@ public final class FabricCxfApiRegistrationHandler extends AbstractComponent imp
                 String json = "{\"id\":\"" + id + "\", \"services\":[\"" + url + "\"],\"container\":\"" + id + "\"}";
                 LOGGER.info("Registered at " + path + " JSON: " + json);
                 setData(curator.get(), path, json, CreateMode.EPHEMERAL);
-<<<<<<< HEAD
             } else {
                 LOGGER.info("Ignoring endpoint with no swagger API docs at " + path + " at " + physicalUrl);
-=======
->>>>>>> 335e30f77c9812b8d2641d7e1463729a6d7234f6
             }
         } catch (Exception e) {
             LOGGER.error("Failed to register API endpoint at {}.", path, e);
