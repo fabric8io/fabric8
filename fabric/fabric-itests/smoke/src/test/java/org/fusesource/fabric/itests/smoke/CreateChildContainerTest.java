@@ -37,6 +37,7 @@ import org.ops4j.pax.exam.spi.reactors.AllConfinedStagedReactorFactory;
 
 @RunWith(JUnit4TestRunner.class)
 @ExamReactorStrategy(AllConfinedStagedReactorFactory.class)
+@Ignore("[FABRIC-641] Fix fabric smoke CreateChildContainerTest")
 public class CreateChildContainerTest extends FabricTestSupport {
 
     @After
