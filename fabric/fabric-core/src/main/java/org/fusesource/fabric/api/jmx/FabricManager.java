@@ -17,19 +17,36 @@
 package org.fusesource.fabric.api.jmx;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.curator.framework.CuratorFramework;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import org.fusesource.fabric.api.*;
+import org.fusesource.fabric.api.Container;
+import org.fusesource.fabric.api.ContainerProvider;
+import org.fusesource.fabric.api.CreateContainerBasicOptions;
+import org.fusesource.fabric.api.CreateContainerMetadata;
+import org.fusesource.fabric.api.CreateContainerOptions;
+import org.fusesource.fabric.api.FabricException;
+import org.fusesource.fabric.api.FabricRequirements;
+import org.fusesource.fabric.api.Ids;
+import org.fusesource.fabric.api.Profile;
+import org.fusesource.fabric.api.Profiles;
+import org.fusesource.fabric.api.Version;
 import org.fusesource.fabric.service.FabricServiceImpl;
+import org.fusesource.insight.log.support.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -37,6 +54,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getChildrenSafe;
+import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.getSubstitutedData;
 
 /**
  */
@@ -1122,5 +1142,80 @@ public class FabricManager implements FabricManagerMBean {
     @Override
     public void setConfigurationValue(String versionId, String profileId, String pid, String key, String value) {
         getFabricService().setConfigurationValue(versionId, profileId, pid, key, value);
+    }
+
+
+    @Override
+    public String clusterJson(String clusterPathSegment) throws Exception {
+        String prefix = "/fabric/registry/clusters";
+        String path;
+        if (Strings.isEmpty(clusterPathSegment)) {
+            path = prefix;
+        } else {
+            if (clusterPathSegment.startsWith("/")) {
+                path = clusterPathSegment;
+            }else {
+                path = prefix + "/" + clusterPathSegment;
+            }
+        }
+        Map<String,Object> answer = new HashMap<String, Object>();
+        CuratorFramework curator = getFabricService().getCurator();
+        ObjectMapper mapper = new ObjectMapper();
+        addChildrenToMap(answer, path, curator, mapper);
+        return mapper.writeValueAsString(answer);
+    }
+
+    protected void addChildrenToMap(Map<String, Object> answer, String path, CuratorFramework curator, ObjectMapper mapper) throws Exception {
+        List<String> children = getChildrenSafe(curator, path);
+        for (String child : children) {
+            String childPath = path + "/" + child;
+            byte[] data = curator.getData().forPath(childPath);
+            if (data != null && data.length > 0) {
+                String text = new String(data).trim();
+                if (!text.isEmpty()) {
+                    Map map = mapper.readValue(data, HashMap.class);
+                    if (map != null) {
+                        List services = listValue(map, "services");
+                        if (services != null) {
+                            if (!services.isEmpty()) {
+                                List<String> substitutedValues = new ArrayList<String>();
+                                for (Object service : services) {
+                                    String serviceText = getSubstitutedData(curator, service.toString());
+                                    if (org.fusesource.fabric.utils.Strings.isNotBlank(serviceText)) {
+                                        substitutedValues.add(serviceText);
+                                    }
+                                }
+                                map.put("services", substitutedValues);
+                            }
+                        }
+                        answer.put(child, map);
+                    }
+                }
+            } else {
+                // recurse into children
+                Map<String, Object> map = new HashMap<String, Object>();
+                addChildrenToMap(map, childPath, curator, mapper);
+                if (map.size() > 0) {
+                    answer.put(child, map);
+                }
+            }
+        }
+    }
+
+    public static List listValue(Map<String, Object> map, String key) {
+        Object value = null;
+        if (map != null) {
+            value = map.get(key);
+        }
+        if (value instanceof List) {
+            return (List) value;
+        } else if (value instanceof Object[]) {
+            return java.util.Arrays.asList((Object[]) value);
+        } else if (value != null) {
+            List list = new ArrayList();
+            list.add(value);
+            return list;
+        }
+        return null;
     }
 }
