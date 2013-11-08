@@ -125,6 +125,7 @@ public class ResolverTest extends FabricTestSupport {
     }
 
     @Test
+    @Ignore("[FABRIC-648] Fix fabric smoke ResolverTest")
     public void testResolverInheritanceOnChild() throws Exception {
         System.err.println(executeCommand("fabric:create -n -g localip -r manualip --manual-ip localhost -b localhost"));
         CuratorFramework curator = getCurator();
