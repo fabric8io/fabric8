@@ -248,4 +248,14 @@ public interface FabricManagerMBean {
     String getConfigurationValue(String versionId, String profileId, String pid, String key);
 
     void setConfigurationValue(String versionId, String profileId, String pid, String key, String value);
+
+    /**
+     * Returns the JSON for the cluster status for the given path.
+     *
+     * @param clusterPathSegment if null or an empty string is used then the path "/fabric/registry/clusters" is used;
+     *                           if the value starts with "/" then its treated as an absolute path otherwise
+     *                           it is appended to "/fabric/registry/clusters/" to access a relative path.
+     *                           e.g. you can supply "apis" to find all the APIs, or "webapps" for all the webapps.
+     */
+    String clusterJson(String clusterPathSegment) throws Exception;
 }
