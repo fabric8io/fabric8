@@ -446,9 +446,9 @@
             </releases>
         </repository>
         <repository>
-            <id>fusesource.ea</id>
-            <name>FuseSource Community Early Access Release Repository</name>
-            <url>http://repo.fusesource.com/nexus/content/groups/ea</url>
+            <id>jboss.ea</id>
+            <name>JBoss Community Early Access Release Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/ea</url>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
