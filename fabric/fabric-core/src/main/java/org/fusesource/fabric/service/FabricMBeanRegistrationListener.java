@@ -50,6 +50,9 @@ import javax.management.ObjectName;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import static org.fusesource.fabric.zookeeper.ZkPath.CONTAINER_DOMAIN;
 import static org.fusesource.fabric.zookeeper.utils.ZooKeeperUtils.create;
@@ -79,6 +82,7 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     @GuardedBy("this") private FabricManager managerMBean;
     @GuardedBy("this") private ZooKeeperFacade zooKeeperMBean;
     @GuardedBy("this") private FileSystem fileSystemMBean;
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Activate
     void activate(ComponentContext context) {
@@ -87,13 +91,23 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
     }
 
     @Deactivate
-    void deactivate() {
+    void deactivate() throws InterruptedException {
         deactivateComponent();
         unregisterMBeanServer();
+        executor.shutdownNow();
+        executor.awaitTermination(5, TimeUnit.MINUTES);
     }
 
     @Override
-    public void handleNotification(Notification notif, Object o) {
+    public void handleNotification(final Notification notif, final Object o) {
+        executor.submit(new Runnable() {
+            public void run() {
+                doHandleNotification(notif, o);
+            }
+        });
+    }
+
+    private void doHandleNotification(Notification notif, Object o) {
         if (isValid()) {
             LOGGER.trace("handleNotification[{}]", notif);
             if (notif instanceof MBeanServerNotification) {
@@ -126,33 +140,38 @@ public final class FabricMBeanRegistrationListener extends AbstractComponent imp
             switch (newState) {
             case CONNECTED:
             case RECONNECTED:
-                try {
-                    updateProcessId();
-                } catch (Exception ex) {
-                    LOGGER.error("Error while updating the process id.");
-                }
+                executor.submit(new Runnable() {
+                    public void run() {
+                        updateProcessId();
+                    }
+                });
                 break;
-        }
+            }
         }
     }
 
-    private void updateProcessId() throws Exception {
-        String processName = (String) mbeanServer.get().getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
-        Long processId = Long.parseLong(processName.split("@")[0]);
+    private void updateProcessId() {
+        try {
+            // TODO: this is Sun JVM specific ...
+            String processName = (String) mbeanServer.get().getAttribute(new ObjectName("java.lang:type=Runtime"), "Name");
+            Long processId = Long.parseLong(processName.split("@")[0]);
 
-        String path = ZkPath.CONTAINER_PROCESS_ID.getPath(KARAF_NAME);
-        Stat stat = exists(curator.get(), path);
-        if (stat != null) {
-            if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
-                delete(curator.get(), path);
+            String path = ZkPath.CONTAINER_PROCESS_ID.getPath(KARAF_NAME);
+            Stat stat = exists(curator.get(), path);
+            if (stat != null) {
+                if (stat.getEphemeralOwner() != curator.get().getZookeeperClient().getZooKeeper().getSessionId()) {
+                    delete(curator.get(), path);
+                    if( processId!=null ) {
+                        create(curator.get(), path, processId.toString(), CreateMode.EPHEMERAL);
+                    }
+                }
+            } else {
                 if( processId!=null ) {
                     create(curator.get(), path, processId.toString(), CreateMode.EPHEMERAL);
                 }
             }
-        } else {
-            if( processId!=null ) {
-                create(curator.get(), path, processId.toString(), CreateMode.EPHEMERAL);
-            }
+        } catch (Exception ex) {
+            LOGGER.error("Error while updating the process id.", ex);
         }
     }
 
