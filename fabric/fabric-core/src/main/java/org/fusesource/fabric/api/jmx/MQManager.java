@@ -167,16 +167,17 @@ public class MQManager implements MQManagerMXBean {
             String statusPath = String.format("%s/%s", status.getContainer(), status.getBrokerName());
             list.put(statusPath, status);
         }
+        CuratorFramework curator = getCurator();
         // now lets check the cluster status for each group
         Set<Map.Entry<String, Map<String, MQBrokerStatusDTO>>> entries = groupMap.entrySet();
         for (Map.Entry<String, Map<String, MQBrokerStatusDTO>> entry : entries) {
             String group = entry.getKey();
             Map<String, MQBrokerStatusDTO> containerMap = entry.getValue();
             String groupPath = ZkPath.MQ_CLUSTER.getPath(group);
-            List<String> children = getChildrenSafe(getCurator(), groupPath);
+            List<String> children = getChildrenSafe(curator, groupPath);
             for (String child : children) {
                 String childPath = groupPath + "/" + child;
-                byte[] data = getCurator().getData().forPath(childPath);
+                byte[] data = curator.getData().forPath(childPath);
                 if (data != null && data.length > 0) {
                     String text = new String(data).trim();
                     if (!text.isEmpty()) {
@@ -194,7 +195,7 @@ public class MQManager implements MQManagerMXBean {
                                     if (!services.isEmpty()) {
                                         List<String> serviceTexts = new ArrayList<String>();
                                         for (Object service : services) {
-                                            String serviceText = getSubstitutedData(getCurator(), service.toString());
+                                            String serviceText = getSubstitutedData(curator, service.toString());
                                             if (Strings.isNotBlank(serviceText)) {
                                                 serviceTexts.add(serviceText);
                                             }
